@@ -19,6 +19,7 @@
   --panel-2: #e7a95e;
   --button: #e7a45e;
   --button-dark: #a95c2f;
+  --system-bottom: #c78345;
 }
 
 html[data-theme="night"] { --bg-1:#16213b; --bg-2:#22345d; --bg-3:#0d1428; --ink:#fff3d6; --frame-accent:rgba(83,121,199,.32); --frame-line:rgba(118,162,255,.6); --glow:rgba(151,181,255,.9); --panel:rgba(28,42,73,.97); --panel-2:#536fa8; --button:#526b9d; --button-dark:#263a66; }
@@ -32,7 +33,10 @@ html[data-theme="sunset"] { --bg-1:#ffd09b; --bg-2:#e88562; --bg-3:#91466a; --in
 html[data-theme="space"] { --bg-1:#17123c; --bg-2:#2a1e67; --bg-3:#09091d; --ink:#f8f3ff; --frame-accent:rgba(126,92,255,.32); --frame-line:rgba(177,148,255,.72); --glow:rgba(205,172,255,.98); --panel:rgba(30,23,72,.97); --panel-2:#6953bb; --button:#6d58bd; --button-dark:#372879; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { width:100%; height:100%; margin:0; overflow:hidden; overscroll-behavior:none; background:var(--bg-1); }
+html, body { width:100%; height:100%; margin:0; overflow:hidden; overscroll-behavior:none; }
+html { background:var(--bg-1); }
+html.ios-standalone { background:var(--system-bottom); }
+body { background:var(--bg-1); }
 body { min-height:var(--app-h); position:fixed; inset:0; font-family: Arial, "Noto Sans Armenian", system-ui, sans-serif; color:var(--ink); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
 button, input, label { font:inherit; }
 button { border:0; padding:0; margin:0; background:none; color:inherit; }

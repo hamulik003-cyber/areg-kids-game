@@ -47,14 +47,14 @@
     const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
     const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // In iOS standalone mode the visual viewport can begin at y=0 while the
-    // Dynamic Island / status bar is still drawn over the app. Use the physical
-    // screen height and reserve a conservative hardware-safe band when env()
-    // reports 0. This keeps the approved 709x1536 composition proportional;
-    // only the surrounding theme background fills any extra space.
+    // IMPORTANT FOR iOS INSTALLED PWA:
+    // The bottom strip visible in screenshots can be outside the drawable web
+    // viewport. Trying to size the stage to window.screen.height pushes the
+    // bottom of the composition underneath that system-owned strip and clips it.
+    // Fit the approved 709x1536 composition to the REAL drawable viewport, and
+    // let the root canvas color visually continue through the iOS-only strip.
     const w = vv?.width || window.innerWidth;
-    const viewportH = vv?.height || window.innerHeight;
-    const physicalH = standalone && isiOS ? Math.max(viewportH, window.screen?.height || 0) : viewportH;
+    const drawableH = vv?.height || window.innerHeight;
 
     const cs = getComputedStyle(safeProbe);
     let safeTop = parseFloat(cs.paddingTop) || 0;
@@ -63,24 +63,23 @@
     let safeLeft = parseFloat(cs.paddingLeft) || 0;
 
     if (standalone && isiOS) {
-      const sh = window.screen?.height || physicalH;
-      const fallbackTop = sh >= 852 ? 59 : sh >= 812 ? 47 : 20;
-      const fallbackBottom = sh >= 812 ? 34 : 0;
+      const sh = window.screen?.height || drawableH;
+      const fallbackTop = sh >= 852 ? 52 : sh >= 812 ? 44 : 20;
       safeTop = Math.max(safeTop, fallbackTop);
-      safeBottom = Math.max(safeBottom, fallbackBottom);
+      // Do NOT subtract a fallback bottom inset here. On these installed PWAs
+      // that area is already excluded from visualViewport.height. Subtracting it
+      // again creates the exact blank band the user is seeing.
+      safeBottom = 0;
+      root.classList.add('ios-standalone');
+    } else {
+      root.classList.remove('ios-standalone');
     }
 
     const availW = Math.max(1, w - safeLeft - safeRight);
-
-    // Installed iOS PWA: keep the interactive top controls below the Dynamic
-    // Island/status bar, but let the non-interactive bottom landscape extend
-    // through the home-indicator safe band. This uses more of the physical
-    // screen without changing any element's relative coordinates or ratios.
-    const stageBottomInset = standalone && isiOS ? 0 : safeBottom;
-    const availH = Math.max(1, physicalH - safeTop - stageBottomInset);
+    const availH = Math.max(1, drawableH - safeTop - safeBottom);
     const scale = Math.min(availW / DESIGN_W, availH / DESIGN_H);
 
-    root.style.setProperty('--app-h', `${physicalH}px`);
+    root.style.setProperty('--app-h', `${drawableH}px`);
     root.style.setProperty('--stage-scale', String(scale));
     root.style.setProperty('--stage-x', `${safeLeft + availW / 2}px`);
     root.style.setProperty('--stage-y', `${safeTop + availH / 2}px`);
@@ -135,7 +134,7 @@
     btn.className = 'theme-option';
     btn.dataset.theme = id;
     btn.setAttribute('aria-label', `Theme ${label}`);
-    btn.innerHTML = `<img src="${id}.svg" alt="${label} theme preview" draggable="false"><span>${label}</span>`;
+    btn.innerHTML = `<img src="assets/themes/${id}.svg" alt="${label} theme preview" draggable="false"><span>${label}</span>`;
     btn.addEventListener('click', () => {
       playTap();
       settings.theme = id;
