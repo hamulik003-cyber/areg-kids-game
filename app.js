@@ -109,7 +109,7 @@
     btn.className = 'theme-option';
     btn.dataset.theme = id;
     btn.setAttribute('aria-label', `Theme ${label}`);
-    btn.innerHTML = `<img src="assets/themes/${id}.svg" alt="${label} theme preview" draggable="false"><span>${label}</span>`;
+    btn.innerHTML = `<img src="${id}.svg" alt="${label} theme preview" draggable="false"><span>${label}</span>`;
     btn.addEventListener('click', () => {
       playTap();
       settings.theme = id;
