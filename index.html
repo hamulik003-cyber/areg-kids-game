@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="hy" data-theme="day">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <meta name="theme-color" content="#f4d6a8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Արեգ 3D աշխարհ</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="appBackground" aria-hidden="true"></div>
+  <div id="ambientLayer" aria-hidden="true">
+    <span class="particle p1">✦</span><span class="particle p2">•</span><span class="particle p3">✧</span>
+    <span class="particle p4">❧</span><span class="particle p5">✦</span><span class="particle p6">•</span>
+  </div>
+
+  <main id="homeScreen" class="screen screen--active" aria-label="Գլխավոր ընտրացանկ">
+    <div id="designStage" class="design-stage" role="application" aria-label="Արեգ 3D աշխարհ">
+      <button id="avatarButton" class="asset-button avatar-button" aria-label="Փոխել կերպարի նկարը">
+        <img class="asset-img" src="assets/ui/avatar-frame.png" alt="" draggable="false" />
+        <img id="savedAvatar" class="saved-avatar" alt="Ընտրված նկար" draggable="false" hidden />
+      </button>
+
+      <img class="logo asset-img" src="assets/ui/logo.png" alt="Արեգ 3D աշխարհ" draggable="false" />
+
+      <button id="starCounter" class="asset-button star-counter" aria-label="120 աստղ">
+        <img class="asset-img" src="assets/ui/star-counter.png" alt="120 աստղ" draggable="false" />
+      </button>
+
+      <button id="settingsButton" class="asset-button settings-button" aria-label="Կարգավորումներ">
+        <img class="asset-img" src="assets/ui/settings.png" alt="" draggable="false" />
+      </button>
+
+      <button class="section-card nature-card" data-section="nature" aria-label="Բնություն">
+        <img class="asset-img" src="assets/ui/nature.png" alt="Բնություն" draggable="false" />
+      </button>
+      <button class="section-card space-card" data-section="space" aria-label="Տիեզերք">
+        <img class="asset-img" src="assets/ui/space.png" alt="Տիեզերք" draggable="false" />
+      </button>
+      <button class="section-card mind-card" data-section="mind" aria-label="Մտքի խաղեր">
+        <img class="asset-img" src="assets/ui/mind.png" alt="Մտքի խաղեր" draggable="false" />
+      </button>
+      <button class="section-card create-card" data-section="create" aria-label="Ստեղծագործություն">
+        <img class="asset-img" src="assets/ui/create.png" alt="Ստեղծագործություն" draggable="false" />
+      </button>
+      <button class="section-card magic-card" data-section="magic" aria-label="Կախարդական աստղի սենյակ">
+        <span class="magic-glow" aria-hidden="true"></span>
+        <img class="asset-img" src="assets/ui/magic.png" alt="Կախարդական աստղի սենյակ" draggable="false" />
+      </button>
+
+      <img class="bottom-landscape asset-img" src="assets/ui/bottom-landscape.png" alt="" draggable="false" />
+    </div>
+  </main>
+
+  <section id="sectionScreen" class="screen section-screen" aria-live="polite" hidden>
+    <button id="sectionBack" class="wood-button back-button" aria-label="Հետ">‹ <span>Հետ</span></button>
+    <div class="coming-soon">Շուտով</div>
+  </section>
+
+  <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="modal-backdrop" data-close="settings"></div>
+    <div class="settings-panel">
+      <div class="panel-header">
+        <h2 id="settingsTitle">Կարգավորումներ</h2>
+        <button class="round-close" data-close="settings" aria-label="Փակել">×</button>
+      </div>
+
+      <div class="settings-list">
+        <label class="setting-row"><span>Ընդհանուր ձայն</span><input id="masterSound" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Երաժշտություն</span><input id="musicSound" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Ձայնային հուշումներ</span><input id="voiceHints" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Խաղի էֆեկտներ</span><input id="gameEffects" type="checkbox" /><span class="switch"></span></label>
+      </div>
+
+      <h3 class="theme-heading">Թեմա</h3>
+      <div id="themeGrid" class="theme-grid" aria-label="Ընտրել թեմա"></div>
+    </div>
+  </div>
+
+  <div id="avatarModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="avatarTitle" hidden>
+    <div class="modal-backdrop" data-close="avatar"></div>
+    <div class="avatar-panel">
+      <div class="panel-header">
+        <h2 id="avatarTitle">Կերպարի նկար</h2>
+        <button class="round-close" data-close="avatar" aria-label="Փակել">×</button>
+      </div>
+
+      <div id="cropPreview" class="crop-preview" aria-label="Կլոր նախադիտում">
+        <img id="cropImage" alt="Ընտրված լուսանկար" draggable="false" hidden />
+        <div id="cropPlaceholder" class="crop-placeholder">Ընտրիր լուսանկար</div>
+      </div>
+
+      <div class="avatar-actions">
+        <label class="wood-button file-button">Ընտրել նկար<input id="photoInput" type="file" accept="image/*" /></label>
+      </div>
+
+      <div class="zoom-tools">
+        <button id="zoomOut" class="round-tool" aria-label="Փոքրացնել">−</button>
+        <input id="zoomSlider" type="range" min="0.4" max="4" step="0.01" value="1" aria-label="Մասշտաբ" />
+        <button id="zoomIn" class="round-tool" aria-label="Մեծացնել">+</button>
+      </div>
+      <p class="crop-help">Քաշիր՝ տեղաշարժելու համար, երկու մատով՝ մեծացնելու կամ փոքրացնելու։</p>
+      <button id="saveAvatar" class="wood-button save-avatar" disabled>Պահպանել</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <audio id="menuMusic" src="assets/audio/menu-music.wav" loop preload="auto"></audio>
+  <audio id="tapSound" src="assets/audio/tap.wav" preload="auto"></audio>
+  <script src="app.js" defer></script>
+</body>
+</html>

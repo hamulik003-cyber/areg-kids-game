@@ -1,0 +1,15 @@
+{
+  "name": "Արեգ 3D աշխարհ",
+  "short_name": "Արեգ",
+  "lang": "hy",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4d6a8",
+  "theme_color": "#f4d6a8",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
