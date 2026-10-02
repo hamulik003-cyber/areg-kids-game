@@ -71,7 +71,13 @@
     }
 
     const availW = Math.max(1, w - safeLeft - safeRight);
-    const availH = Math.max(1, physicalH - safeTop - safeBottom);
+
+    // Installed iOS PWA: keep the interactive top controls below the Dynamic
+    // Island/status bar, but let the non-interactive bottom landscape extend
+    // through the home-indicator safe band. This uses more of the physical
+    // screen without changing any element's relative coordinates or ratios.
+    const stageBottomInset = standalone && isiOS ? 0 : safeBottom;
+    const availH = Math.max(1, physicalH - safeTop - stageBottomInset);
     const scale = Math.min(availW / DESIGN_W, availH / DESIGN_H);
 
     root.style.setProperty('--app-h', `${physicalH}px`);
