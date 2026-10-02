@@ -134,7 +134,7 @@
     btn.className = 'theme-option';
     btn.dataset.theme = id;
     btn.setAttribute('aria-label', `Theme ${label}`);
-    btn.innerHTML = `<img src="assets/themes/${id}.svg" alt="${label} theme preview" draggable="false"><span>${label}</span>`;
+    btn.innerHTML = `<img src="${id}.svg" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
     btn.addEventListener('click', () => {
       playTap();
       settings.theme = id;
@@ -146,9 +146,19 @@
   function applyTheme() {
     root.dataset.theme = settings.theme;
     $$('.theme-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.theme === settings.theme)));
+
+    // iOS standalone reserves a system-owned strip below visualViewport on
+    // some iPhones. We cannot place game elements in that strip, but iOS uses
+    // the page theme color there. Match it to the BOTTOM of the selected theme
+    // gradient so the strip visually continues the game instead of looking like
+    // a separate pale band.
     const meta = $('meta[name="theme-color"]');
-    const bg = getComputedStyle(root).getPropertyValue('--bg-1').trim();
-    if (meta && bg) meta.setAttribute('content', bg);
+    const css = getComputedStyle(root);
+    const bgTop = css.getPropertyValue('--bg-1').trim();
+    const bgBottom = css.getPropertyValue('--bg-3').trim();
+    const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
+    const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (meta) meta.setAttribute('content', standalone && isiOS && bgBottom ? bgBottom : bgTop);
   }
   applyTheme();
 
