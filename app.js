@@ -44,17 +44,37 @@
 
   function syncViewport() {
     const vv = window.visualViewport;
+    const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
+    const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    // In iOS standalone mode the visual viewport can begin at y=0 while the
+    // Dynamic Island / status bar is still drawn over the app. Use the physical
+    // screen height and reserve a conservative hardware-safe band when env()
+    // reports 0. This keeps the approved 709x1536 composition proportional;
+    // only the surrounding theme background fills any extra space.
     const w = vv?.width || window.innerWidth;
-    const h = vv?.height || window.innerHeight;
+    const viewportH = vv?.height || window.innerHeight;
+    const physicalH = standalone && isiOS ? Math.max(viewportH, window.screen?.height || 0) : viewportH;
+
     const cs = getComputedStyle(safeProbe);
-    const safeTop = parseFloat(cs.paddingTop) || 0;
-    const safeRight = parseFloat(cs.paddingRight) || 0;
-    const safeBottom = parseFloat(cs.paddingBottom) || 0;
-    const safeLeft = parseFloat(cs.paddingLeft) || 0;
+    let safeTop = parseFloat(cs.paddingTop) || 0;
+    let safeRight = parseFloat(cs.paddingRight) || 0;
+    let safeBottom = parseFloat(cs.paddingBottom) || 0;
+    let safeLeft = parseFloat(cs.paddingLeft) || 0;
+
+    if (standalone && isiOS) {
+      const sh = window.screen?.height || physicalH;
+      const fallbackTop = sh >= 852 ? 59 : sh >= 812 ? 47 : 20;
+      const fallbackBottom = sh >= 812 ? 34 : 0;
+      safeTop = Math.max(safeTop, fallbackTop);
+      safeBottom = Math.max(safeBottom, fallbackBottom);
+    }
+
     const availW = Math.max(1, w - safeLeft - safeRight);
-    const availH = Math.max(1, h - safeTop - safeBottom);
+    const availH = Math.max(1, physicalH - safeTop - safeBottom);
     const scale = Math.min(availW / DESIGN_W, availH / DESIGN_H);
-    root.style.setProperty('--app-h', `${h}px`);
+
+    root.style.setProperty('--app-h', `${physicalH}px`);
     root.style.setProperty('--stage-scale', String(scale));
     root.style.setProperty('--stage-x', `${safeLeft + availW / 2}px`);
     root.style.setProperty('--stage-y', `${safeTop + availH / 2}px`);
