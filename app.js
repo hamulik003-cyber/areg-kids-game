@@ -12,9 +12,10 @@
   const sectionGames=$('#sectionGames'), sectionStars=$('#sectionStars');
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
-  const SETTINGS_KEY='areg-settings-v36', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v36';
-  let settings={master:true,music:true,voice:true,effects:true,...loadJson(SETTINGS_KEY,{})};
+  const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
+  let settings={master:true,music:true,voice:true,effects:true,theme:'day',...loadJson(SETTINGS_KEY,{})};
   let stars=Number(localStorage.getItem(STARS_KEY)||120);
+  const themes=[['day','Day'],['night','Night'],['winter','Winter'],['rain','Rain'],['aurora','Aurora'],['wood','Wood'],['forest','Forest'],['ocean','Ocean'],['sunset','Sunset'],['space','Space']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
   const SECTIONS={
@@ -57,10 +58,10 @@
     magic:{
       title:'Կախարդական աստղի սենյակ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
       games:[
-        {id:'treasure',label:'Աստղերի հավաքածու',thumb:'magic-game-1.jpg',kind:'catch'},
-        {id:'stargaze',label:'Աստղադիտում',thumb:'magic-game-2.jpg',kind:'connect'},
-        {id:'knowledge',label:'Գիտելիքներ',thumb:'magic-game-3.jpg',kind:'pattern'},
-        {id:'book',label:'Հեքիաթներ',thumb:'magic-game-4.jpg',kind:'book'}
+        {id:'connect',label:'Միացրու աստղերը',thumb:'magic-game-1.jpg',kind:'connect'},
+        {id:'wand',label:'Կախարդական փայտիկ',thumb:'magic-game-2.jpg',kind:'wand'},
+        {id:'potion',label:'Կախարդական ըմպելիք',thumb:'magic-game-3.jpg',kind:'potion'},
+        {id:'book',label:'Կենդանի հեքիաթագիրք',thumb:'magic-game-4.jpg',kind:'book'}
       ]
     }
   };
@@ -110,6 +111,26 @@
   function applyAudio(){if(settings.master&&settings.music)ensureAudio();else menuMusic.pause()}
   ['pointerdown','touchend'].forEach(t=>document.addEventListener(t,()=>{if(!audioUnlocked)ensureAudio()},{once:true,passive:true}));
   document.addEventListener('visibilitychange',()=>document.hidden?menuMusic.pause():applyAudio());applyAudio();
+  // Theme selector restored from the stable menu version.
+  const themeGrid=$('#themeGrid');
+  if(themeGrid){
+    themes.forEach(([id,label])=>{
+      const b=document.createElement('button');
+      b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
+      b.innerHTML=`<img src="${id}.svg?v=37" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
+      themeGrid.appendChild(b);
+    });
+  }
+  function applyTheme(){
+    root.dataset.theme=settings.theme||'day';
+    $$('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
+    const meta=$('meta[name="theme-color"]'),css=getComputedStyle(root),top=css.getPropertyValue('--bg-1').trim(),bottom=css.getPropertyValue('--bg-3').trim();
+    const standalone=window.matchMedia?.('(display-mode: standalone)')?.matches||window.navigator.standalone===true;
+    const isiOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    if(meta)meta.setAttribute('content',standalone&&isiOS&&bottom?bottom:top);
+  }
+  applyTheme();
   const toggles={master:$('#masterSound'),music:$('#musicSound'),voice:$('#voiceHints'),effects:$('#gameEffects')};
   function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
   syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));
