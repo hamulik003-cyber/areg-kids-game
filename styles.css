@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=38');
+  background-image:url('nature.png?v=39');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=38');
+  background-image:url('space.png?v=39');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=38');
+  background-image:url('space.png?v=39');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=38');
+  background-image:url('space.png?v=39');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=38');
+  background-image:url('space.png?v=39');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=38');
+  background-image:url('mind.png?v=39');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=38');
+  background-image:url('mind.png?v=39');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=38');
+  background-image:url('create.png?v=39');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=38');
+  background-image:url('create.png?v=39');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=38');
+  background-image:url('magic.png?v=39');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=38');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=39');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -1270,3 +1270,264 @@ html.ios-standalone .modal {
 .home-section-card .create-paint-spark{display:none !important}
 
 .effects-off .home-card-shine{animation:none !important;opacity:0 !important}
+
+
+/* =========================================================
+   V39 — Create title fit + Magic 50-item unlock collection
+   ========================================================= */
+
+/* Fix long Armenian "Ստեղծագործություն" labels so they never escape their wood area. */
+.create-card .home-card-label{
+  font-size:24px !important;
+  line-height:1 !important;
+  padding-left:3px !important;
+  padding-right:3px !important;
+  letter-spacing:-.045em !important;
+  white-space:nowrap !important;
+}
+.toddler-section-screen[data-section="create"] .wood-title{
+  font-size:19px !important;
+  line-height:1 !important;
+  padding-left:5px !important;
+  padding-right:5px !important;
+  letter-spacing:-.035em !important;
+  white-space:nowrap !important;
+}
+
+/* Magic room becomes a scrollable collection instead of the hero + 4 games. */
+.magic-collection-mode .section-hero-card{display:none !important}
+.magic-collection-mode .toddler-section-shell{gap:10px}
+.magic-collection-mode .wood-title{
+  font-size:17px !important;
+  line-height:1 !important;
+  padding-left:5px !important;
+  padding-right:5px !important;
+  white-space:nowrap !important;
+}
+.magic-collection-mode .section-games-grid.magic-collection-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  grid-auto-rows:185px;
+  gap:12px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:4px 3px 26px !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  scroll-behavior:smooth;
+}
+.magic-collection-grid::-webkit-scrollbar{width:0;height:0}
+
+/* Collectible image card */
+.magic-collect-card{
+  position:relative;
+  min-width:0;
+  height:185px;
+  overflow:hidden;
+  border-radius:27px;
+  border:4px solid rgba(255,217,148,.95);
+  background:
+    radial-gradient(circle at 50% 42%,rgba(255,248,196,.95) 0 17%,rgba(255,211,103,.35) 35%,transparent 58%),
+    linear-gradient(165deg,#271d67 0%,#17245f 48%,#4a286b 100%);
+  box-shadow:
+    0 6px 0 rgba(137,77,38,.78),
+    0 12px 23px rgba(17,7,4,.22),
+    inset 0 0 0 2px rgba(255,255,255,.11);
+  padding:0;
+  touch-action:manipulation;
+  isolation:isolate;
+}
+.magic-collect-card::before{
+  content:"";
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 12% 18%,#fff 0 1.5px,transparent 2px),
+    radial-gradient(circle at 79% 22%,#ffe76b 0 2px,transparent 2.7px),
+    radial-gradient(circle at 22% 72%,#fff 0 1px,transparent 1.8px),
+    radial-gradient(circle at 87% 68%,#fff 0 1.5px,transparent 2.2px),
+    radial-gradient(circle at 54% 10%,#ffe76b 0 1px,transparent 1.8px);
+  opacity:.85;
+  pointer-events:none;
+}
+.magic-picture-wrap{
+  position:absolute;
+  left:9px;right:9px;top:9px;bottom:39px;
+  border-radius:20px;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(255,233,111,.24),transparent 43%),
+    linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015));
+}
+.magic-picture{
+  position:relative;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  width:105px;
+  height:105px;
+  font-size:82px;
+  line-height:1;
+  transform-origin:50% 60%;
+  filter:drop-shadow(0 10px 8px rgba(4,5,25,.32));
+  will-change:transform,filter,opacity;
+}
+.magic-aura{
+  position:absolute;
+  z-index:1;
+  width:118px;height:118px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,226,87,.34),rgba(255,226,87,.08) 48%,transparent 70%);
+  animation:magicAura 3.2s ease-in-out infinite;
+}
+@keyframes magicAura{50%{transform:scale(1.12);opacity:.66}}
+.magic-sparkle{
+  position:absolute;z-index:2;color:#ffe66b;
+  font-size:18px;opacity:.7;
+  text-shadow:0 0 8px rgba(255,227,88,.9);
+  animation:magicSparkle 2.4s ease-in-out infinite;
+}
+.magic-sparkle--1{left:16%;top:18%;animation-delay:.1s}
+.magic-sparkle--2{right:17%;top:27%;animation-delay:.7s}
+.magic-sparkle--3{right:24%;bottom:15%;animation-delay:1.2s}
+@keyframes magicSparkle{0%,100%{transform:scale(.65) rotate(0);opacity:.35}50%{transform:scale(1.35) rotate(35deg);opacity:1}}
+
+.magic-cost{
+  position:absolute;z-index:8;
+  left:50%;bottom:4px;transform:translateX(-50%);
+  min-width:76px;height:31px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:14px;
+  background:linear-gradient(#ffd885,#f4a858);
+  border:2px solid rgba(101,52,26,.18);
+  box-shadow:0 3px 0 rgba(112,58,31,.5),inset 0 1px 0 rgba(255,255,255,.6);
+  color:#54220f;
+  font-weight:900;
+  font-size:17px;
+  white-space:nowrap;
+}
+.magic-lock{
+  position:absolute;z-index:9;
+  left:50%;top:50%;
+  transform:translate(-50%,-58%);
+  width:54px;height:54px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:28px;
+  background:rgba(22,17,55,.72);
+  border:3px solid rgba(255,220,145,.88);
+  box-shadow:0 7px 16px rgba(0,0,0,.28),inset 0 0 0 2px rgba(255,255,255,.12);
+  backdrop-filter:blur(4px);
+}
+.magic-collect-card.is-locked .magic-picture{
+  filter:grayscale(.62) brightness(.58) drop-shadow(0 8px 7px rgba(4,5,25,.28));
+  opacity:.72;
+}
+.magic-collect-card.can-unlock .magic-lock{
+  animation:unlockReady 1.4s ease-in-out infinite;
+  background:rgba(81,53,13,.78);
+}
+@keyframes unlockReady{50%{transform:translate(-50%,-58%) scale(1.12);box-shadow:0 0 0 6px rgba(255,226,95,.16),0 7px 16px rgba(0,0,0,.28)}}
+.magic-collect-card.is-unlocked{
+  border-color:#ffe99a;
+  box-shadow:
+    0 6px 0 rgba(137,77,38,.78),
+    0 0 20px rgba(255,222,87,.22),
+    0 12px 23px rgba(17,7,4,.22),
+    inset 0 0 0 2px rgba(255,255,255,.14);
+}
+.magic-collect-card.is-unlocked .magic-picture{opacity:1;filter:drop-shadow(0 10px 8px rgba(4,5,25,.32))}
+.magic-collect-card.just-unlocked::after{
+  content:"✨";
+  position:absolute;z-index:20;
+  left:50%;top:47%;transform:translate(-50%,-50%);
+  font-size:64px;
+  animation:magicUnlockBurst .85s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes magicUnlockBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-20deg)}35%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.65) rotate(18deg)}}
+.magic-collect-card.need-stars{animation:magicNeedStars .38s ease}
+@keyframes magicNeedStars{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
+.magic-collect-card:active{transform:translateY(2px) scale(.985)}
+
+/* Alive-picture motions */
+.magic-motion-drive{animation:mmDrive 1.45s ease-in-out}
+.magic-motion-driveFast{animation:mmDriveFast 1.15s ease-in-out}
+.magic-motion-driveHeavy{animation:mmDriveHeavy 1.5s ease-in-out}
+.magic-motion-siren{animation:mmSiren 1.45s ease-in-out}
+.magic-motion-train{animation:mmTrain 1.5s ease-in-out}
+.magic-motion-fly{animation:mmFly 1.6s ease-in-out}
+.magic-motion-flySpin{animation:mmFlySpin 1.7s ease-in-out}
+.magic-motion-pounce{animation:mmPounce 1.2s ease-in-out}
+.magic-motion-bounce{animation:mmBounce 1.25s ease-in-out}
+.magic-motion-hop{animation:mmHop 1.3s ease-in-out}
+.magic-motion-roar{animation:mmRoar 1.35s ease-in-out}
+.magic-motion-stomp{animation:mmStomp 1.3s ease-in-out}
+.magic-motion-sway{animation:mmSway 1.45s ease-in-out}
+.magic-motion-gallop{animation:mmGallop 1.35s ease-in-out}
+.magic-motion-swing{animation:mmSwing 1.5s ease-in-out}
+.magic-motion-flutter{animation:mmFlutter 1.6s ease-in-out}
+.magic-motion-soar{animation:mmSoar 1.65s ease-in-out}
+.magic-motion-waddle{animation:mmWaddle 1.45s ease-in-out}
+.magic-motion-glide{animation:mmGlide 1.55s ease-in-out}
+.magic-motion-buzz{animation:mmBuzz 1.4s ease-in-out}
+.magic-motion-crawl{animation:mmCrawl 1.65s ease-in-out}
+.magic-motion-crawlSlow{animation:mmCrawl 1.85s ease-in-out}
+.magic-motion-swimJump{animation:mmSwimJump 1.55s ease-in-out}
+.magic-motion-swim{animation:mmSwim 1.55s ease-in-out}
+.magic-motion-swimHeavy{animation:mmSwimHeavy 1.6s ease-in-out}
+.magic-motion-wiggle{animation:mmWiggle 1.4s ease-in-out}
+.magic-motion-crab{animation:mmCrab 1.45s ease-in-out}
+.magic-motion-launch{animation:mmLaunch 1.65s ease-in-out}
+.magic-motion-twinkle{animation:mmTwinkle 1.45s ease-in-out}
+.magic-motion-glow{animation:mmGlow 1.5s ease-in-out}
+.magic-motion-rainbow{animation:mmRainbow 1.6s ease-in-out}
+.magic-motion-prance{animation:mmPrance 1.5s ease-in-out}
+
+@keyframes mmDrive{0%{transform:translateX(-65px) rotate(-5deg)}45%{transform:translateX(16px) rotate(2deg)}70%{transform:translateX(-5px)}100%{transform:translateX(0)}}
+@keyframes mmDriveFast{0%{transform:translateX(-90px) scale(.92)}45%{transform:translateX(36px) scale(1.06)}75%{transform:translateX(-8px)}100%{transform:translateX(0)}}
+@keyframes mmDriveHeavy{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-24px) rotate(-2deg)}55%{transform:translateX(22px) rotate(2deg)}}
+@keyframes mmSiren{0%,100%{transform:translateX(0)}18%{transform:translateX(-24px) rotate(-3deg);filter:drop-shadow(-8px 0 10px #ff5858)}40%{transform:translateX(24px) rotate(3deg);filter:drop-shadow(8px 0 10px #4fc3ff)}70%{transform:translateX(-9px)}}
+@keyframes mmTrain{0%{transform:translateX(-70px)}45%{transform:translateX(25px)}65%{transform:translateX(10px) translateY(-5px)}100%{transform:translateX(0)}}
+@keyframes mmFly{0%{transform:translate(-55px,35px) rotate(-12deg) scale(.86)}45%{transform:translate(24px,-24px) rotate(8deg) scale(1.08)}100%{transform:translate(0,0)}}
+@keyframes mmFlySpin{0%{transform:translate(-44px,28px) rotate(-12deg)}50%{transform:translate(18px,-25px) rotate(10deg) scale(1.06)}75%{transform:rotate(-6deg)}100%{transform:translate(0,0)}}
+@keyframes mmPounce{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(18px,-24px) rotate(5deg) scale(1.08)}65%{transform:translate(-8px,3px) rotate(-3deg)}}
+@keyframes mmBounce{0%,100%{transform:translateY(0)}25%{transform:translateY(-24px) scale(1.04)}48%{transform:translateY(0) scale(.98)}70%{transform:translateY(-12px)}}
+@keyframes mmHop{0%,100%{transform:translate(0,0)}30%{transform:translate(-12px,-28px) rotate(-6deg)}62%{transform:translate(14px,-15px) rotate(6deg)}}
+@keyframes mmRoar{0%,100%{transform:scale(1)}25%{transform:scale(1.16) rotate(-3deg)}45%{transform:scale(1.12) rotate(3deg)}70%{transform:scale(1.08)}}
+@keyframes mmStomp{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-8px) rotate(-3deg)}40%{transform:translateY(6px) rotate(2deg)}62%{transform:translateY(-5px)}}
+@keyframes mmSway{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}55%{transform:rotate(9deg)}75%{transform:rotate(-5deg)}}
+@keyframes mmGallop{0%,100%{transform:translateX(0) rotate(0)}22%{transform:translate(18px,-14px) rotate(5deg)}45%{transform:translate(34px,0) rotate(-3deg)}70%{transform:translate(8px,-12px) rotate(4deg)}}
+@keyframes mmSwing{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-18deg) translateY(-14px)}60%{transform:rotate(16deg) translateY(-8px)}}
+@keyframes mmFlutter{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-18px,-18px) rotate(-12deg)}45%{transform:translate(20px,-28px) rotate(10deg)}72%{transform:translate(-7px,-8px) rotate(-5deg)}}
+@keyframes mmSoar{0%{transform:translate(-55px,28px) rotate(-10deg) scale(.85)}50%{transform:translate(32px,-32px) rotate(8deg) scale(1.08)}100%{transform:translate(0,0)}}
+@keyframes mmWaddle{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-12px) rotate(-9deg)}45%{transform:translateX(8px) rotate(8deg)}70%{transform:translateX(18px) rotate(-6deg)}}
+@keyframes mmGlide{0%{transform:translateX(-45px) translateY(10px)}55%{transform:translateX(26px) translateY(-8px) scale(1.05)}100%{transform:translateX(0)}}
+@keyframes mmBuzz{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-12px,-9px) rotate(-10deg)}30%{transform:translate(15px,5px) rotate(9deg)}45%{transform:translate(-8px,-17px) rotate(-7deg)}60%{transform:translate(18px,-6px) rotate(8deg)}}
+@keyframes mmCrawl{0%{transform:translateX(-42px) rotate(-5deg)}50%{transform:translateX(28px) rotate(5deg)}100%{transform:translateX(0)}}
+@keyframes mmSwimJump{0%,100%{transform:translate(0,0) rotate(0)}35%{transform:translate(20px,-30px) rotate(-14deg) scale(1.06)}65%{transform:translate(34px,4px) rotate(7deg)}}
+@keyframes mmSwim{0%{transform:translateX(-40px) rotate(-5deg)}50%{transform:translateX(28px) rotate(5deg)}100%{transform:translateX(0)}}
+@keyframes mmSwimHeavy{0%,100%{transform:translateX(0)}40%{transform:translateX(26px) scale(1.07)}70%{transform:translateX(-8px)}}
+@keyframes mmWiggle{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-9deg) scaleY(1.08)}45%{transform:rotate(9deg) scaleX(1.07)}70%{transform:rotate(-5deg)}}
+@keyframes mmCrab{0%,100%{transform:translateX(0)}25%{transform:translateX(-24px)}50%{transform:translateX(18px)}75%{transform:translateX(-8px)}}
+@keyframes mmLaunch{0%{transform:translateY(35px) scale(.9)}45%{transform:translateY(-38px) scale(1.08);filter:drop-shadow(0 18px 12px #ff9c37)}75%{transform:translateY(-15px)}100%{transform:translateY(0)}}
+@keyframes mmTwinkle{0%,100%{transform:scale(1) rotate(0);filter:drop-shadow(0 0 8px #ffd54f)}35%{transform:scale(1.35) rotate(18deg);filter:drop-shadow(0 0 25px #fff18a)}70%{transform:scale(.93) rotate(-8deg)}}
+@keyframes mmGlow{0%,100%{transform:scale(1);filter:drop-shadow(0 0 5px #ffe07a)}50%{transform:scale(1.18);filter:drop-shadow(0 0 28px #fff5b0)}}
+@keyframes mmRainbow{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.15) rotate(-5deg);filter:saturate(1.55) brightness(1.15)}65%{transform:scale(1.08) rotate(5deg);filter:saturate(1.35)}}
+@keyframes mmPrance{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-15px,-25px) rotate(-7deg)}50%{transform:translate(18px,-12px) rotate(8deg)}75%{transform:translate(8px,-24px) rotate(-3deg)}}
+
+.magic-active .magic-aura{animation:magicActiveAura .9s ease-out}
+@keyframes magicActiveAura{0%{transform:scale(.7);opacity:.3}60%{transform:scale(1.45);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+
+.effects-off .magic-aura,
+.effects-off .magic-sparkle,
+.effects-off .magic-picture{animation:none !important}
+
+/* Make sure the magic collection remains comfortable on shorter iPhones. */
+@media (max-height:760px){
+  .magic-collection-mode .section-games-grid.magic-collection-grid{grid-auto-rows:160px}
+  .magic-collect-card{height:160px}
+  .magic-picture{width:88px;height:88px;font-size:69px}
+  .magic-picture-wrap{bottom:36px}
+}
+

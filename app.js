@@ -18,6 +18,73 @@
   const themes=[['day','Day'],['night','Night'],['winter','Winter'],['rain','Rain'],['aurora','Aurora'],['wood','Wood'],['forest','Forest'],['ocean','Ocean'],['sunset','Sunset'],['space','Space']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
+  const MAGIC_UNLOCK_KEY='areg-magic-unlocked-v1';
+  let magicUnlocked=new Set(loadJson(MAGIC_UNLOCK_KEY,[]));
+
+  const MAGIC_ITEMS=[
+    // Vehicles
+    {id:'car',icon:'🚗',name:'Մեքենա',motion:'drive'},
+    {id:'racecar',icon:'🏎️',name:'Մրցարշավային մեքենա',motion:'driveFast'},
+    {id:'bus',icon:'🚌',name:'Ավտոբուս',motion:'drive'},
+    {id:'truck',icon:'🚚',name:'Բեռնատար',motion:'driveHeavy'},
+    {id:'firetruck',icon:'🚒',name:'Հրշեջ մեքենա',motion:'siren'},
+    {id:'police',icon:'🚓',name:'Ոստիկանական մեքենա',motion:'siren'},
+    {id:'tractor',icon:'🚜',name:'Տրակտոր',motion:'driveHeavy'},
+    {id:'train',icon:'🚂',name:'Գնացք',motion:'train'},
+    {id:'plane',icon:'✈️',name:'Ինքնաթիռ',motion:'fly'},
+    {id:'helicopter',icon:'🚁',name:'Ուղղաթիռ',motion:'flySpin'},
+
+    // Animals
+    {id:'cat',icon:'🐱',name:'Կատու',motion:'pounce'},
+    {id:'dog',icon:'🐶',name:'Շուն',motion:'bounce'},
+    {id:'rabbit',icon:'🐰',name:'Նապաստակ',motion:'hop'},
+    {id:'lion',icon:'🦁',name:'Առյուծ',motion:'roar'},
+    {id:'tiger',icon:'🐯',name:'Վագր',motion:'pounce'},
+    {id:'elephant',icon:'🐘',name:'Փիղ',motion:'stomp'},
+    {id:'giraffe',icon:'🦒',name:'Ընձուղտ',motion:'sway'},
+    {id:'horse',icon:'🐴',name:'Ձի',motion:'gallop'},
+    {id:'monkey',icon:'🐵',name:'Կապիկ',motion:'swing'},
+    {id:'panda',icon:'🐼',name:'Պանդա',motion:'bounce'},
+    {id:'bear',icon:'🐻',name:'Արջ',motion:'stomp'},
+    {id:'fox',icon:'🦊',name:'Աղվես',motion:'pounce'},
+
+    // Birds
+    {id:'chick',icon:'🐥',name:'Ճուտիկ',motion:'hop'},
+    {id:'bird',icon:'🐦',name:'Թռչուն',motion:'flutter'},
+    {id:'owl',icon:'🦉',name:'Բու',motion:'sway'},
+    {id:'eagle',icon:'🦅',name:'Արծիվ',motion:'soar'},
+    {id:'duck',icon:'🦆',name:'Բադ',motion:'waddle'},
+    {id:'parrot',icon:'🦜',name:'Թութակ',motion:'flutter'},
+    {id:'swan',icon:'🦢',name:'Կարապ',motion:'glide'},
+    {id:'flamingo',icon:'🦩',name:'Ֆլամինգո',motion:'sway'},
+
+    // Insects / little creatures
+    {id:'butterfly',icon:'🦋',name:'Թիթեռ',motion:'flutter'},
+    {id:'bee',icon:'🐝',name:'Մեղու',motion:'buzz'},
+    {id:'ladybug',icon:'🐞',name:'Զատիկ',motion:'buzz'},
+    {id:'ant',icon:'🐜',name:'Մրջյուն',motion:'crawl'},
+    {id:'beetle',icon:'🪲',name:'Բզեզ',motion:'crawl'},
+    {id:'cricket',icon:'🦗',name:'Ծղրիդ',motion:'hop'},
+    {id:'spider',icon:'🕷️',name:'Սարդ',motion:'crawl'},
+    {id:'snail',icon:'🐌',name:'Խխունջ',motion:'crawlSlow'},
+
+    // Sea
+    {id:'dolphin',icon:'🐬',name:'Դելֆին',motion:'swimJump'},
+    {id:'fish',icon:'🐠',name:'Ձուկ',motion:'swim'},
+    {id:'whale',icon:'🐳',name:'Կետ',motion:'swimHeavy'},
+    {id:'octopus',icon:'🐙',name:'Ութոտնուկ',motion:'wiggle'},
+    {id:'turtle',icon:'🐢',name:'Կրիա',motion:'swim'},
+    {id:'crab',icon:'🦀',name:'Խեցգետին',motion:'crab'},
+
+    // Magic
+    {id:'rocketMagic',icon:'🚀',name:'Հրթիռ',motion:'launch'},
+    {id:'starMagic',icon:'⭐',name:'Աստղ',motion:'twinkle'},
+    {id:'moonMagic',icon:'🌙',name:'Լուսին',motion:'glow'},
+    {id:'rainbowMagic',icon:'🌈',name:'Ծիածան',motion:'rainbow'},
+    {id:'unicorn',icon:'🦄',name:'Միաեղջյուր',motion:'prance'},
+    {id:'dragon',icon:'🐲',name:'Վիշապ',motion:'roar'}
+  ].map((item,index)=>({...item,cost:20+index*5}));
+
   const SECTIONS={
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
@@ -117,7 +184,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=38" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=39" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -147,13 +214,92 @@
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
-    s.games.forEach(g=>{
-      const b=document.createElement('button');b.className='toddler-game-card';b.setAttribute('aria-label',g.label);
-      b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="toddler-game-label">${g.label}</span>`;
-      b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
-    });
+    sectionGames.classList.remove('magic-collection-grid');
+    sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
+
+    if(id==='magic'){
+      renderMagicCollection();
+    }else{
+      s.games.forEach(g=>{
+        const b=document.createElement('button');b.className='toddler-game-card';b.setAttribute('aria-label',g.label);
+        b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="toddler-game-label">${g.label}</span>`;
+        b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
+      });
+    }
     homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));
   }
+
+  function saveMagicUnlocked(){
+    localStorage.setItem(MAGIC_UNLOCK_KEY,JSON.stringify([...magicUnlocked]));
+  }
+
+  function renderMagicCollection(){
+    sectionGames.classList.add('magic-collection-grid');
+    sectionGames.innerHTML='';
+    MAGIC_ITEMS.forEach((item,index)=>{
+      const unlocked=magicUnlocked.has(item.id);
+      const eligible=stars>=item.cost;
+      const b=document.createElement('button');
+      b.className='magic-collect-card'+(unlocked?' is-unlocked':' is-locked')+(eligible&&!unlocked?' can-unlock':'');
+      b.dataset.id=item.id;
+      b.dataset.motion=item.motion;
+      b.setAttribute('aria-label',`${item.name}, ${item.cost} աստղ`);
+      b.innerHTML=`
+        <span class="magic-picture-wrap">
+          <span class="magic-picture" aria-hidden="true">${item.icon}</span>
+          <span class="magic-aura" aria-hidden="true"></span>
+          <span class="magic-sparkle magic-sparkle--1" aria-hidden="true">✦</span>
+          <span class="magic-sparkle magic-sparkle--2" aria-hidden="true">✦</span>
+          <span class="magic-sparkle magic-sparkle--3" aria-hidden="true">✦</span>
+        </span>
+        <span class="magic-cost">⭐ ${item.cost}</span>
+        <span class="magic-lock" aria-hidden="true">${unlocked?'':'🔒'}</span>
+      `;
+      b.addEventListener('click',()=>handleMagicItemTap(b,item));
+      sectionGames.appendChild(b);
+    });
+  }
+
+  function handleMagicItemTap(card,item){
+    if(!magicUnlocked.has(item.id)){
+      if(stars<item.cost){
+        card.classList.remove('need-stars');
+        void card.offsetWidth;
+        card.classList.add('need-stars');
+        showToast(`⭐ ${item.cost}`);
+        return;
+      }
+      magicUnlocked.add(item.id);
+      saveMagicUnlocked();
+      card.classList.remove('is-locked','can-unlock');
+      card.classList.add('is-unlocked','just-unlocked');
+      const lock=$('.magic-lock',card);if(lock)lock.textContent='';
+      setTimeout(()=>card.classList.remove('just-unlocked'),900);
+      animateMagicItem(card,item.motion);
+      return;
+    }
+    animateMagicItem(card,item.motion);
+  }
+
+  function animateMagicItem(card,motion){
+    const pic=$('.magic-picture',card);
+    if(!pic)return;
+    const className=`magic-motion-${motion}`;
+    pic.classList.remove(
+      'magic-motion-drive','magic-motion-driveFast','magic-motion-driveHeavy','magic-motion-siren','magic-motion-train',
+      'magic-motion-fly','magic-motion-flySpin','magic-motion-pounce','magic-motion-bounce','magic-motion-hop',
+      'magic-motion-roar','magic-motion-stomp','magic-motion-sway','magic-motion-gallop','magic-motion-swing',
+      'magic-motion-flutter','magic-motion-soar','magic-motion-waddle','magic-motion-glide','magic-motion-buzz',
+      'magic-motion-crawl','magic-motion-crawlSlow','magic-motion-swimJump','magic-motion-swim','magic-motion-swimHeavy',
+      'magic-motion-wiggle','magic-motion-crab','magic-motion-launch','magic-motion-twinkle','magic-motion-glow',
+      'magic-motion-rainbow','magic-motion-prance'
+    );
+    void pic.offsetWidth;
+    pic.classList.add(className);
+    card.classList.remove('magic-active');void card.offsetWidth;card.classList.add('magic-active');
+    setTimeout(()=>{pic.classList.remove(className);card.classList.remove('magic-active')},1900);
+  }
+
   function closeSection(){sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)}
   function openGame(section,game){
     cleanupGame();currentGame=game;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
