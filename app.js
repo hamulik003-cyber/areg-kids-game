@@ -14,7 +14,6 @@
   const settingsModal = $('#settingsModal');
   const avatarModal = $('#avatarModal');
   const menuMusic = $('#menuMusic');
-  const tapSound = $('#tapSound');
   const toast = $('#toast');
 
   const SETTINGS_KEY = 'areg-settings-v1';
@@ -135,7 +134,6 @@
 
   // Audio
   menuMusic.volume = 0.24;
-  tapSound.volume = 0.34;
   let audioUnlocked = false;
   async function ensureAudio() {
     if (!settings.master || !settings.music) return;
@@ -148,10 +146,7 @@
   function applyAudioSettings() {
     if (settings.master && settings.music) ensureAudio(); else stopMusic();
   }
-  function playTap() {
-    if (!settings.master || !settings.effects) return;
-    try { tapSound.currentTime = 0; tapSound.play().catch(() => {}); } catch {}
-  }
+  function playTap() { /* intentionally silent: no click/tap sound */ }
   ['pointerdown','touchend','keydown'].forEach(type => document.addEventListener(type, () => {
     if (!audioUnlocked) ensureAudio();
   }, { once:true, passive:true }));
@@ -202,12 +197,14 @@
   function syncSettingsUI() {
     Object.entries(toggles).forEach(([k, el]) => el.checked = !!settings[k]);
   }
+  function applyEffectsSetting() { root.classList.toggle('effects-off', !settings.effects); }
   syncSettingsUI();
+  applyEffectsSetting();
   Object.entries(toggles).forEach(([key, input]) => {
     input.addEventListener('change', () => {
       settings[key] = input.checked;
       saveSettings();
-      if (key !== 'effects') playTap();
+      applyEffectsSetting();
       applyAudioSettings();
     });
   });
