@@ -274,7 +274,7 @@
   function previewSize() { return cropPreview.clientWidth - 16; }
   function baseFit() {
     const s = previewSize();
-    return Math.min(s / naturalW, s / naturalH);
+    return Math.max(s / naturalW, s / naturalH);
   }
   function renderCrop() {
     if (!naturalW || !naturalH) return;
@@ -348,7 +348,7 @@
     await new Promise((res, rej) => { im.onload=res; im.onerror=rej; im.src=sourceDataUrl; });
     ctx.fillStyle = '#f0c582'; ctx.fillRect(0,0,out,out);
     const s = previewSize();
-    const fit = Math.min(s / im.naturalWidth, s / im.naturalHeight);
+    const fit = Math.max(s / im.naturalWidth, s / im.naturalHeight);
     const w = im.naturalWidth * fit * zoom;
     const h = im.naturalHeight * fit * zoom;
     const k = out / s;

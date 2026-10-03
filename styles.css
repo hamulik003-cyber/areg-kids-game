@@ -73,7 +73,17 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 .star-counter { left:478px; top:calc(34px + var(--top-controls-safe-y)); width:139px; height:80px; }
 .settings-button { left:612px; top:calc(38px + var(--top-controls-safe-y)); width:97px; height:92px; }
 
-.saved-avatar { position:absolute; left:25px; top:39px; width:133px; height:133px; border-radius:50%; object-fit:cover; pointer-events:none; box-shadow:0 3px 8px rgba(82,42,17,.18); }
+.saved-avatar {
+  position:absolute;
+  left:17px;
+  top:29px;
+  width:146px;
+  height:146px;
+  border-radius:50%;
+  object-fit:cover;
+  pointer-events:none;
+  box-shadow:0 3px 8px rgba(82,42,17,.18);
+}
 
 .section-card { overflow:visible; border-radius:44px; filter:drop-shadow(0 8px 14px rgba(44,22,8,.12)); }
 .section-card::after { content:none; }
