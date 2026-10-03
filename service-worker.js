@@ -1,6 +1,6 @@
-const CACHE = 'areg-kids-game-v8';
+const CACHE = 'areg-kids-game-v9';
 const CORE = [
-  './', './index.html', './styles.css', './app.js', './manifest.webmanifest',
+  './', './index.html', './styles.css', './app.js', './v9-fix.js', './manifest.webmanifest',
   './avatar-frame.png', './logo.png', './star-counter.png', './settings.png',
   './nature.png', './space.png', './mind.png', './create.png', './magic.png', './bottom-landscape.png',
   './menu-music.wav', './tap.wav',
@@ -30,7 +30,6 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Network-first so newly uploaded fixes become visible quickly in the installed PWA.
   event.respondWith(
     fetch(event.request)
       .then(response => {
