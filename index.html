@@ -22,6 +22,38 @@
     aregCss.href = 'styles.css?v=' + encodeURIComponent(window.__AREG_BUILD);
     document.head.appendChild(aregCss);
   </script>
+
+  <style id="areg-single-layer-hard-fix">
+    /* V11: force true single-layer UI even if an old stylesheet is still cached */
+    .section-card::before,
+    .section-card::after,
+    .magic-card::before,
+    .magic-card::after,
+    .asset-button::before,
+    .asset-button::after {
+      content: none !important;
+      display: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    .section-card,
+    .magic-card,
+    .asset-button,
+    .section-card > img,
+    .magic-card > img,
+    .asset-button > img {
+      outline: none !important;
+      border-color: transparent !important;
+    }
+
+    .section-card,
+    .magic-card {
+      box-shadow: none !important;
+      filter: none !important;
+    }
+  </style>
+
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>

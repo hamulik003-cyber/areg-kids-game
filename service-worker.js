@@ -1,4 +1,4 @@
-const CACHE = 'areg-kids-game-v10';
+const CACHE = 'areg-kids-game-v11';
 const CORE = [
   './launcher.html',
   './', './index.html', './styles.css', './app.js', './v9-fix.js', './manifest.webmanifest',
