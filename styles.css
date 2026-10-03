@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=25');
+  background-image:url('nature.png?v=26');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=25');
+  background-image:url('space.png?v=26');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=25');
+  background-image:url('space.png?v=26');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=25');
+  background-image:url('space.png?v=26');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=25');
+  background-image:url('space.png?v=26');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=25');
+  background-image:url('mind.png?v=26');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=25');
+  background-image:url('mind.png?v=26');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=25');
+  background-image:url('create.png?v=26');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=25');
+  background-image:url('create.png?v=26');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=25');
+  background-image:url('magic.png?v=26');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -335,3 +335,51 @@ html.ios-standalone .modal {
 .effects-off .create-rainbow-glow,
 .effects-off .magic-spark,
 .effects-off .magic-book-glow { opacity:0 !important; }
+
+
+/* ================= V26 stronger premium motion ================= */
+.nature-deer-head{background-image:url('nature.png?v=26');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+@keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
+.nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
+@keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
+.nature-water-shimmer{background:linear-gradient(110deg,transparent 16%,rgba(255,255,255,.55) 49%,transparent 74%);animation:v26Water 3.8s ease-in-out infinite}
+@keyframes v26Water{0%,100%{opacity:.08;transform:skewX(-10deg) translateX(-40%)}52%{opacity:.42;transform:skewX(-10deg) translateX(40%)}}
+
+.space-earth{animation:v26Earth 6.4s ease-in-out infinite}
+.space-saturn{animation:v26Saturn 7.1s ease-in-out infinite}
+.space-astronaut{animation:v26Astronaut 5s ease-in-out infinite}
+.space-rocket{animation:v26Rocket 4.2s ease-in-out infinite}
+@keyframes v26Astronaut{0%,100%{transform:translate3d(-1px,2px,0) rotate(-1deg)}50%{transform:translate3d(2px,-6px,0) rotate(1.35deg)}}
+@keyframes v26Earth{0%,100%{transform:translate3d(-2px,1px,0) rotate(-1deg)}50%{transform:translate3d(4px,-4px,0) rotate(2deg)}}
+@keyframes v26Saturn{0%,100%{transform:translate3d(2px,-1px,0) rotate(.8deg)}50%{transform:translate3d(-4px,4px,0) rotate(-1.8deg)}}
+@keyframes v26Rocket{0%,100%{transform:translate3d(-1px,2px,0) rotate(.3deg)}50%{transform:translate3d(5px,-5px,0) rotate(-1.7deg)}}
+.space-twinkle{width:7px;height:7px;box-shadow:0 0 10px 3px rgba(120,190,255,.95);animation:v26Twinkle 2.3s ease-in-out infinite}
+@keyframes v26Twinkle{0%,100%{opacity:.08;transform:scale(.35)}50%{opacity:1;transform:scale(1.55)}}
+
+.mind-bulb-glow{position:absolute;z-index:2;pointer-events:none;left:39%;top:4%;width:33%;height:31%;border-radius:50%;background:radial-gradient(circle,rgba(255,245,140,.72) 0%,rgba(255,220,50,.30) 42%,transparent 73%);filter:blur(4px);animation:v26BulbAura 2.6s ease-in-out infinite}
+.mind-bulb{animation:v26Bulb 2.6s ease-in-out infinite}
+.mind-blocks{animation:v26Blocks 4.4s ease-in-out infinite}
+@keyframes v26BulbAura{0%,100%{opacity:.13;transform:scale(.92)}50%{opacity:.82;transform:scale(1.12)}}
+@keyframes v26Bulb{0%,100%{filter:brightness(.96) drop-shadow(0 0 1px rgba(255,223,64,.1));transform:scale(.99)}50%{filter:brightness(1.42) saturate(1.12) drop-shadow(0 0 12px rgba(255,223,64,.95));transform:scale(1.03)}}
+@keyframes v26Blocks{0%,100%{transform:translate3d(0,1px,0)}50%{transform:translate3d(0,-3px,0)}}
+
+.create-brush{animation:v26Brush 3.5s ease-in-out infinite}
+.create-dog{clip-path:ellipse(23% 21% at 81% 48%);transform-origin:81% 60%;animation:v26Dog 4.1s ease-in-out infinite}
+@keyframes v26Brush{0%,100%{transform:translate3d(-1px,1px,0) rotate(-1deg)}50%{transform:translate3d(2px,-4px,0) rotate(2deg)}}
+@keyframes v26Dog{0%,100%{transform:translate3d(0,2px,0) rotate(.5deg)}50%{transform:translate3d(0,-4px,0) rotate(-1.6deg)}}
+.create-rainbow-glow{animation:v26Rainbow 3.2s ease-in-out infinite}
+@keyframes v26Rainbow{0%,100%{opacity:.07}50%{opacity:.48}}
+
+.magic-star-float{animation:v26MagicFloat 4s ease-in-out infinite;filter:drop-shadow(0 0 7px rgba(255,218,65,.38))}
+@keyframes v26MagicFloat{0%,100%{transform:translate3d(0,2px,0) rotate(-.6deg)}50%{transform:translate3d(0,-5px,0) rotate(.7deg)}}
+.magic-book-glow{animation:v26BookGlow 2.8s ease-in-out infinite}
+@keyframes v26BookGlow{0%,100%{opacity:.2;transform:scale(.95)}50%{opacity:.75;transform:scale(1.07)}}
+
+/* Sequential glossy light sweep: one card at a time */
+.card-shine-mask{position:absolute;inset:0;z-index:6;overflow:hidden;pointer-events:none;border-radius:44px}
+.magic-card .card-shine-mask{border-radius:46px}
+.card-shine-band{position:absolute;top:-24%;left:-52%;width:31%;height:148%;background:linear-gradient(102deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.04) 25%,rgba(255,255,255,.62) 48%,rgba(255,245,189,.36) 57%,rgba(255,255,255,0) 78%);filter:blur(2.2px);opacity:0;animation:v26Sheen 10s ease-in-out infinite}
+.nature-card .card-shine-band{animation-delay:0s}.space-card .card-shine-band{animation-delay:2s}.mind-card .card-shine-band{animation-delay:4s}.create-card .card-shine-band{animation-delay:6s}.magic-card .card-shine-band{animation-delay:8s}
+@keyframes v26Sheen{0%,2%{opacity:0;transform:rotate(10deg) translateX(0)}4%{opacity:.12}10%{opacity:.82}18%{opacity:.38;transform:rotate(10deg) translateX(520%)}21%,100%{opacity:0;transform:rotate(10deg) translateX(560%)}}
+
+.effects-off .mind-bulb-glow,.effects-off .card-shine-band{animation:none!important;opacity:0!important}
