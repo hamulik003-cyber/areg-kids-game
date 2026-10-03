@@ -14,8 +14,8 @@
   --bg-2: #f7d3a4;
   --bg-3: #efbf83;
   --ink: #3d2418;
-  --frame-accent: rgba(176, 107, 44, .05);
-  --frame-line: rgba(129, 73, 30, .16);
+  --frame-accent: rgba(176, 107, 44, 0);
+  --frame-line: rgba(129, 73, 30, .06);
   --glow: rgba(255, 205, 63, .78);
   --panel: rgba(255, 236, 202, .96);
   --panel-2: #e7a95e;
@@ -75,14 +75,14 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 
 .saved-avatar { position:absolute; left:25px; top:39px; width:133px; height:133px; border-radius:50%; object-fit:cover; pointer-events:none; box-shadow:0 3px 8px rgba(82,42,17,.18); }
 
-.section-card { overflow:visible; border-radius:44px; }
-.section-card::after { content:""; position:absolute; inset:4px; border-radius:40px; pointer-events:none; box-shadow:inset 0 0 0 6px var(--frame-accent), 0 0 0 1px var(--frame-line); opacity:.78; mix-blend-mode:multiply; transition:box-shadow .3s ease; }
+.section-card { overflow:visible; border-radius:44px; filter:drop-shadow(0 8px 14px rgba(44,22,8,.12)); }
+.section-card::after { content:none; }
 .nature-card { left:10px; top:266px; width:343px; height:412px; }
 .space-card { left:355px; top:266px; width:350px; height:412px; }
 .mind-card { left:10px; top:682px; width:343px; height:387px; }
 .create-card { left:355px; top:682px; width:350px; height:387px; }
 .magic-card { left:10px; top:1068px; width:694px; height:337px; border-radius:46px; }
-.magic-card::after { border-radius:44px; box-shadow:inset 0 0 0 7px var(--frame-accent), 0 0 0 1px var(--frame-line); }
+.magic-card::after { content:none; }
 .magic-glow { position:absolute; inset:21% 22% 29%; border-radius:50%; box-shadow:0 0 46px 13px var(--glow); opacity:.22; animation:magicGlow 3.2s ease-in-out infinite; pointer-events:none; }
 @keyframes magicGlow { 0%,100%{opacity:.15} 50%{opacity:.34} }
 .bottom-landscape { position:absolute; left:0; top:1395px; width:709px; height:141px; object-fit:contain; }
