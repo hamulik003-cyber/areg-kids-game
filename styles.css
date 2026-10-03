@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=44');
+  background-image:url('nature.png?v=45');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=44');
+  background-image:url('space.png?v=45');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=44');
+  background-image:url('space.png?v=45');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=44');
+  background-image:url('space.png?v=45');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=44');
+  background-image:url('space.png?v=45');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=44');
+  background-image:url('mind.png?v=45');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=44');
+  background-image:url('mind.png?v=45');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=44');
+  background-image:url('create.png?v=45');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=44');
+  background-image:url('create.png?v=45');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=44');
+  background-image:url('magic.png?v=45');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=44');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=45');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -1705,8 +1705,8 @@ body.magic-scroll-active{
   width:418px;
   height:186px;
   pointer-events:none;
-  -webkit-mask-image:url('logo.png?v=44');
-  mask-image:url('logo.png?v=44');
+  -webkit-mask-image:url('logo.png?v=45');
+  mask-image:url('logo.png?v=45');
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
   -webkit-mask-size:contain;
@@ -1997,4 +1997,72 @@ body.magic-scroll-active{
 .effects-off .home-v44-sheen{
   animation:none !important;
   opacity:0 !important;
+}
+
+
+/* =========================================================
+   V45 — softer/slower home shine + centered Settings button
+   ========================================================= */
+
+/* Center the Settings button above the live star counter,
+   leaving a clean margin from the right screen edge. */
+.settings-button{
+  left:597px !important;
+  top:calc(38px + var(--top-controls-safe-y)) !important;
+}
+
+/* Make the 5 home-card sheen look like the inner-section sheen:
+   softer, narrower and slower, while keeping the reliable
+   background-position technique from V44. */
+.home-section-card .home-v44-sheen{
+  opacity:1 !important;
+  filter:brightness(1.01) blur(.35px) !important;
+  background-image:
+    linear-gradient(
+      108deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0) 37%,
+      rgba(255,255,255,.06) 42%,
+      rgba(255,255,255,.43) 48%,
+      rgba(255,240,167,.28) 54%,
+      rgba(255,255,255,.07) 60%,
+      rgba(255,255,255,0) 65%,
+      rgba(255,255,255,0) 100%
+    ) !important;
+  background-size:360% 100% !important;
+  animation:homeV45Sheen 10.8s ease-in-out infinite !important;
+}
+
+/* Keep the sweep sequential, but with more breathing room. */
+.nature-card .home-v44-sheen{animation-delay:0s !important}
+.space-card .home-v44-sheen{animation-delay:2.1s !important}
+.mind-card .home-v44-sheen{animation-delay:4.2s !important}
+.create-card .home-v44-sheen{animation-delay:6.3s !important}
+.magic-card .home-v44-sheen{animation-delay:8.4s !important}
+
+@keyframes homeV45Sheen{
+  0%,3%{
+    background-position:150% 0;
+  }
+  8%{
+    background-position:112% 0;
+  }
+  15%{
+    background-position:55% 0;
+  }
+  23%{
+    background-position:-8% 0;
+  }
+  29%{
+    background-position:-50% 0;
+  }
+  30%,100%{
+    background-position:-50% 0;
+  }
+}
+
+/* Remove the extra center flash from V44 so the pass is gentler,
+   matching the interior cards more closely. */
+.home-section-card .home-v44-sheen::after{
+  display:none !important;
 }
