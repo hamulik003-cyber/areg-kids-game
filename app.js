@@ -47,14 +47,8 @@
     const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
     const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // IMPORTANT FOR iOS INSTALLED PWA:
-    // The bottom strip visible in screenshots can be outside the drawable web
-    // viewport. Trying to size the stage to window.screen.height pushes the
-    // bottom of the composition underneath that system-owned strip and clips it.
-    // Fit the approved 709x1536 composition to the REAL drawable viewport, and
-    // let the root canvas color visually continue through the iOS-only strip.
-    const w = vv?.width || window.innerWidth;
-    const drawableH = vv?.height || window.innerHeight;
+    const viewportW = vv?.width || window.innerWidth;
+    const viewportH = vv?.height || window.innerHeight;
 
     const cs = getComputedStyle(safeProbe);
     let safeTop = parseFloat(cs.paddingTop) || 0;
@@ -62,29 +56,67 @@
     let safeBottom = parseFloat(cs.paddingBottom) || 0;
     let safeLeft = parseFloat(cs.paddingLeft) || 0;
 
+    let layoutW = viewportW;
+    let layoutH = viewportH;
+
     if (standalone && isiOS) {
-      const sh = window.screen?.height || drawableH;
-      const fallbackTop = sh >= 852 ? 52 : sh >= 812 ? 44 : 20;
+      // Native-game pattern: render the game world full-bleed, then keep only
+      // interactive HUD controls inside the safe area.
+      //
+      // iOS standalone PWAs can under-report visualViewport / 100dvh by the
+      // status/safe-area amount. Use full screen geometry for the 709x1536
+      // master stage instead of shrinking the entire composition.
+      const sw = window.screen?.width || viewportW;
+      const sh = window.screen?.height || viewportH;
+      const portrait = viewportW <= viewportH;
+      layoutW = portrait ? Math.min(sw, sh) : Math.max(sw, sh);
+      layoutH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
+
+      if (!Number.isFinite(layoutW) || Math.abs(layoutW - viewportW) > 120) layoutW = viewportW;
+      if (!Number.isFinite(layoutH) || layoutH < viewportH) layoutH = Math.max(viewportH, window.innerHeight || 0);
+
+      // env() can be late/zero on an installed PWA cold start.
+      const longSide = Math.max(sw, sh);
+      const fallbackTop = longSide >= 852 ? 59 : longSide >= 812 ? 47 : 20;
       safeTop = Math.max(safeTop, fallbackTop);
-      // Do NOT subtract a fallback bottom inset here. On these installed PWAs
-      // that area is already excluded from visualViewport.height. Subtracting it
-      // again creates the exact blank band the user is seeing.
-      safeBottom = 0;
+      safeLeft = Math.max(0, safeLeft);
+      safeRight = Math.max(0, safeRight);
+      safeBottom = Math.max(0, safeBottom);
       root.classList.add('ios-standalone');
     } else {
       root.classList.remove('ios-standalone');
     }
 
-    const availW = Math.max(1, w - safeLeft - safeRight);
-    const availH = Math.max(1, drawableH - safeTop - safeBottom);
-    const scale = Math.min(availW / DESIGN_W, availH / DESIGN_H);
+    const stageW = Math.max(1, layoutW);
+    const stageH = Math.max(1, layoutH);
+    const scale = Math.min(stageW / DESIGN_W, stageH / DESIGN_H);
 
-    root.style.setProperty('--app-h', `${drawableH}px`);
+    root.style.setProperty('--app-h', `${stageH}px`);
     root.style.setProperty('--stage-scale', String(scale));
-    root.style.setProperty('--stage-x', `${safeLeft + availW / 2}px`);
-    root.style.setProperty('--stage-y', `${safeTop + availH / 2}px`);
+    root.style.setProperty('--stage-x', `${stageW / 2}px`);
+    root.style.setProperty('--stage-y', `${stageH / 2}px`);
+
+    // Keep only the interactive top HUD below Dynamic Island/status content.
+    // Cards, bottom landscape and the decorative logo stay on master coordinates.
+    if (standalone && isiOS) {
+      const avatarDesiredCssTop = safeTop + 2;
+      const controlsDesiredCssTop = safeTop + 8;
+      const avatarShift = Math.max(0, avatarDesiredCssTop / scale - 58);
+      const controlsShift = Math.max(0, controlsDesiredCssTop / scale - 34);
+      root.style.setProperty('--avatar-safe-y', `${avatarShift}px`);
+      root.style.setProperty('--top-controls-safe-y', `${controlsShift}px`);
+    } else {
+      root.style.setProperty('--avatar-safe-y', '0px');
+      root.style.setProperty('--top-controls-safe-y', '0px');
+    }
   }
+
   syncViewport();
+  // WebKit can populate safe-area env() values after first paint in an
+  // installed PWA, so re-measure after startup as well.
+  [100, 500, 1200].forEach(ms => setTimeout(syncViewport, ms));
+  window.addEventListener('pageshow', syncViewport, { passive:true });
+  window.addEventListener('orientationchange', () => setTimeout(syncViewport, 120), { passive:true });
   window.addEventListener('resize', syncViewport, { passive:true });
   window.visualViewport?.addEventListener('resize', syncViewport, { passive:true });
   window.visualViewport?.addEventListener('scroll', syncViewport, { passive:true });

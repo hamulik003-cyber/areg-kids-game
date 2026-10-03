@@ -3,6 +3,8 @@
   --stage-scale: 1;
   --stage-x: 50vw;
   --stage-y: 50vh;
+  --avatar-safe-y: 0px;
+  --top-controls-safe-y: 0px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -35,7 +37,7 @@ html[data-theme="space"] { --bg-1:#17123c; --bg-2:#2a1e67; --bg-3:#09091d; --ink
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { width:100%; height:100%; margin:0; overflow:hidden; overscroll-behavior:none; }
 html { background:var(--bg-1); }
-html.ios-standalone { background:var(--bg-3); }
+html.ios-standalone { background:var(--bg-1); }
 body { background:var(--bg-1); }
 body { min-height:var(--app-h); position:fixed; inset:0; font-family: Arial, "Noto Sans Armenian", system-ui, sans-serif; color:var(--ink); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
 button, input, label { font:inherit; }
@@ -66,10 +68,10 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 .asset-button:active, .section-card:active { transform:scale(.975); }
 .asset-button:focus-visible, .section-card:focus-visible { filter:drop-shadow(0 0 12px var(--glow)); }
 
-.avatar-button { left:8px; top:58px; width:180px; height:194px; }
+.avatar-button { left:8px; top:calc(58px + var(--avatar-safe-y)); width:180px; height:194px; }
 .logo { position:absolute; left:166px; top:72px; width:418px; height:186px; object-fit:contain; }
-.star-counter { left:478px; top:34px; width:139px; height:80px; }
-.settings-button { left:612px; top:38px; width:97px; height:92px; }
+.star-counter { left:478px; top:calc(34px + var(--top-controls-safe-y)); width:139px; height:80px; }
+.settings-button { left:612px; top:calc(38px + var(--top-controls-safe-y)); width:97px; height:92px; }
 
 .saved-avatar { position:absolute; left:25px; top:39px; width:133px; height:133px; border-radius:50%; object-fit:cover; pointer-events:none; box-shadow:0 3px 8px rgba(82,42,17,.18); }
 
@@ -130,6 +132,31 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 
 .toast { position:fixed; z-index:40; left:50%; bottom:calc(var(--safe-bottom) + 22px); transform:translate(-50%,18px); min-width:120px; max-width:82vw; padding:9px 14px; border-radius:14px; background:rgba(36,24,17,.78); color:white; font-weight:700; text-align:center; opacity:0; pointer-events:none; transition:.18s ease; }
 .toast.show { opacity:1; transform:translate(-50%,0); }
+
+/* iOS installed PWA: native-game style full-bleed shell.
+   The game world fills the complete standalone screen; only interactive
+   HUD controls are inset from hardware/system overlays. */
+html.ios-standalone,
+html.ios-standalone body {
+  height:100vh !important;
+  min-height:100vh !important;
+  max-height:100vh !important;
+  overflow:hidden !important;
+}
+html.ios-standalone body {
+  position:relative !important;
+  inset:auto !important;
+}
+html.ios-standalone #appBackground,
+html.ios-standalone #ambientLayer,
+html.ios-standalone .screen,
+html.ios-standalone .modal {
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100vh !important;
+  min-height:100vh !important;
+}
 
 [hidden] { display:none !important; }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; } }
