@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=31');
+  background-image:url('nature.png?v=32');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=31');
+  background-image:url('space.png?v=32');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=31');
+  background-image:url('space.png?v=32');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=31');
+  background-image:url('space.png?v=32');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=31');
+  background-image:url('space.png?v=32');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=31');
+  background-image:url('mind.png?v=32');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=31');
+  background-image:url('mind.png?v=32');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=31');
+  background-image:url('create.png?v=32');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=31');
+  background-image:url('create.png?v=32');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=31');
+  background-image:url('magic.png?v=32');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=31');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=32');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -548,4 +548,247 @@ html.ios-standalone .modal {
 .flying-star,
 .section-ghost {
   display:none !important;
+}
+
+
+/* =========================================================
+   V32 — real section menus
+   Main menu remains V31. Section labels are live HTML text,
+   so spelling is exact and easy to edit.
+   ========================================================= */
+
+.section-screen {
+  opacity: 0 !important;
+  transform: translateY(10px) scale(.995) !important;
+  transition: opacity .22s ease, transform .22s ease !important;
+  background:#1b1738;
+}
+.section-screen.is-visible {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.section-bg {
+  position:absolute;
+  inset:-36px;
+  background-size:cover;
+  background-position:center 38%;
+  filter:blur(12px) saturate(1.14) brightness(.80);
+  transform:scale(1.11);
+}
+.section-bg::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 5%, rgba(255,255,255,.16), transparent 28%),
+    linear-gradient(180deg, rgba(10,9,31,.08), rgba(10,9,31,.38));
+}
+
+.section-shell {
+  position:absolute;
+  inset:0;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 18px)
+    18px
+    calc(env(safe-area-inset-bottom, 0px) + 20px);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow:hidden;
+}
+
+.section-topbar {
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr) 112px;
+  align-items:center;
+  gap:10px;
+  z-index:2;
+}
+
+.section-back-button,
+.section-star-counter,
+.section-header {
+  background:linear-gradient(180deg,#ffd79a 0%,#efae66 100%);
+  border:3px solid rgba(104,52,25,.20);
+  box-shadow:
+    0 5px 0 #a95f32,
+    0 9px 20px rgba(28,12,5,.20),
+    inset 0 1px 0 rgba(255,255,255,.55);
+  color:#54220f;
+}
+
+.section-back-button {
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  font-size:44px;
+  font-weight:900;
+  line-height:46px;
+  display:grid;
+  place-items:center;
+}
+
+.section-header {
+  min-height:58px;
+  border-radius:21px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:8px 16px;
+  font-size:clamp(22px, 4.8vw, 31px);
+  line-height:1.05;
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+
+.section-star-counter {
+  height:54px;
+  border-radius:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  font-size:24px;
+}
+.section-star-counter span { font-size:27px; }
+.section-star-counter strong { font-size:22px; }
+
+.section-hero {
+  position:relative;
+  z-index:1;
+  min-height:150px;
+  height:21vh;
+  max-height:240px;
+  border-radius:28px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 12px 28px rgba(0,0,0,.12);
+}
+.section-hero::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02));
+}
+.section-hero-icon {
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-48%);
+  font-size:clamp(76px, 22vw, 138px);
+  line-height:1;
+  filter:drop-shadow(0 12px 12px rgba(0,0,0,.20));
+  animation:sectionHeroFloat 4.2s ease-in-out infinite;
+}
+@keyframes sectionHeroFloat {
+  0%,100%{transform:translate(-50%,-48%) translateY(2px) rotate(-1deg)}
+  50%{transform:translate(-50%,-48%) translateY(-7px) rotate(1deg)}
+}
+
+.games-grid {
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  flex:1;
+  min-height:0;
+}
+
+.game-tile {
+  position:relative;
+  overflow:hidden;
+  min-height:0;
+  border-radius:25px;
+  background:linear-gradient(180deg,#fff0d5 0%,#f9d6a4 67%,#efae67 67%,#e99a52 100%);
+  border:3px solid rgba(133,75,38,.22);
+  box-shadow:
+    0 5px 0 rgba(139,75,34,.76),
+    0 9px 18px rgba(34,14,5,.16),
+    inset 0 1px 0 rgba(255,255,255,.65);
+  color:#4f2212;
+  transition:transform .14s ease,filter .16s ease;
+}
+.game-tile:active,
+.game-tile--pressed {
+  transform:translateY(3px) scale(.985);
+  filter:brightness(1.03);
+  box-shadow:
+    0 2px 0 rgba(139,75,34,.76),
+    0 5px 11px rgba(34,14,5,.16),
+    inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+.game-art {
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  bottom:32%;
+  display:grid;
+  place-items:center;
+  font-size:clamp(48px, 14vw, 82px);
+  filter:drop-shadow(0 7px 5px rgba(75,37,13,.14));
+  transform:translateY(1px);
+}
+
+.game-label {
+  position:absolute;
+  left:6px;
+  right:6px;
+  bottom:4px;
+  height:29%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:3px 7px;
+  font-size:clamp(15px, 3.8vw, 22px);
+  line-height:1.02;
+  font-weight:900;
+  letter-spacing:-.02em;
+  text-wrap:balance;
+}
+
+/* Small leaf accents echo the main menu frames. */
+.game-tile::before,
+.game-tile::after {
+  content:"";
+  position:absolute;
+  bottom:23%;
+  width:23px;
+  height:12px;
+  background:linear-gradient(135deg,#82b950,#3b7d38);
+  border-radius:100% 0 100% 0;
+  opacity:.94;
+  z-index:2;
+}
+.game-tile::before { left:6px; transform:rotate(-24deg); }
+.game-tile::after { right:6px; transform:scaleX(-1) rotate(-24deg); }
+
+/* Per-section atmosphere */
+.section-screen[data-tone="nature"] .section-hero { background:linear-gradient(180deg,rgba(83,163,82,.26),rgba(50,118,76,.20)); }
+.section-screen[data-tone="space"] .section-hero { background:linear-gradient(180deg,rgba(66,61,153,.34),rgba(22,25,82,.28)); }
+.section-screen[data-tone="mind"] .section-hero { background:linear-gradient(180deg,rgba(246,193,83,.23),rgba(184,125,52,.16)); }
+.section-screen[data-tone="create"] .section-hero { background:linear-gradient(180deg,rgba(255,166,106,.25),rgba(209,108,110,.15)); }
+.section-screen[data-tone="magic"] .section-hero { background:linear-gradient(180deg,rgba(102,74,168,.32),rgba(50,34,100,.28)); }
+
+/* Long magic title gets a little more breathing room. */
+.section-screen[data-section="magic"] .section-header {
+  font-size:clamp(17px,4.1vw,25px);
+}
+
+.effects-off .section-hero-icon { animation:none !important; }
+
+@media (max-height:720px) {
+  .section-shell { gap:8px; padding-top:calc(env(safe-area-inset-top, 0px) + 10px); }
+  .section-hero { min-height:104px; height:17vh; }
+  .games-grid { gap:8px; }
+  .section-topbar { grid-template-columns:50px minmax(0,1fr) 98px; }
+  .section-back-button { width:48px;height:48px;font-size:38px; }
+  .section-header { min-height:50px; }
+  .section-star-counter { height:48px; }
 }

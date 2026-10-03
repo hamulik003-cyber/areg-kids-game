@@ -1,11 +1,11 @@
-const CACHE = 'areg-kids-game-v31';
+const CACHE = 'areg-kids-game-v32';
 const CORE = [
   './launcher.html',
   './', './index.html', './styles.css', './app.js', './v9-fix.js',
-  './avatar-frame.png?v=31', './logo.png?v=31', './star-counter.png?v=31', './settings.png?v=31',
-  './nature.png?v=31', './space.png?v=31', './mind.png?v=31', './create.png?v=31', './magic.png?v=31', './bottom-landscape.png?v=31',
-  './menu-music.mp3?v=31',
-  './nature-frame-guard.png?v=31', './space-frame-guard.png?v=31', './mind-frame-guard.png?v=31', './create-frame-guard.png?v=31', './magic-frame-guard.png?v=31'
+  './avatar-frame.png?v=32', './logo.png?v=32', './star-counter.png?v=32', './settings.png?v=32',
+  './nature.png?v=32', './space.png?v=32', './mind.png?v=32', './create.png?v=32', './magic.png?v=32', './bottom-landscape.png?v=32',
+  './menu-music.mp3?v=32',
+  './nature-frame-guard.png?v=32', './space-frame-guard.png?v=32', './mind-frame-guard.png?v=32', './create-frame-guard.png?v=32', './magic-frame-guard.png?v=32'
 ];
 
 self.addEventListener('install', event => {

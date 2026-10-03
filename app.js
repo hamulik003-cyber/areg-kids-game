@@ -28,6 +28,80 @@
     ['wood','Wood'],['forest','Forest'],['ocean','Ocean'],['sunset','Sunset'],['space','Space']
   ];
 
+  const SECTION_DATA = {
+    nature: {
+      title: 'Բնություն',
+      hero: '🦌',
+      art: 'nature.png?v=32',
+      tone: 'nature',
+      games: [
+        ['🦁','Կենդանիներ'],
+        ['🐦','Թռչուններ'],
+        ['🐬','Օվկիանոս'],
+        ['🌸','Բույսեր'],
+        ['🍂','Սեզոններ'],
+        ['🌍','Մեր մոլորակը']
+      ]
+    },
+    space: {
+      title: 'Տիեզերք',
+      hero: '👨‍🚀',
+      art: 'space.png?v=32',
+      tone: 'space',
+      games: [
+        ['🪐','Մոլորակներ'],
+        ['⭐','Աստղեր'],
+        ['🚀','Հրթիռներ'],
+        ['✨','Համաստեղություններ'],
+        ['👨‍🚀','Տիեզերագնացներ'],
+        ['🕳️','Սև խոռոչներ']
+      ]
+    },
+    mind: {
+      title: 'Մտքի խաղեր',
+      hero: '🧠',
+      art: 'mind.png?v=32',
+      tone: 'mind',
+      games: [
+        ['🧠','Հիշողություն'],
+        ['🧩','Տրամաբանություն'],
+        ['🔍','Գտիր տարբերությունը'],
+        ['🔢','Թվեր'],
+        ['🔺','Ձևեր'],
+        ['🧩','Փազլներ']
+      ]
+    },
+    create: {
+      title: 'Ստեղծագործություն',
+      hero: '🎨',
+      art: 'create.png?v=32',
+      tone: 'create',
+      games: [
+        ['🎨','Նկարչություն'],
+        ['🖍️','Գունավորում'],
+        ['⭐','Կպչուն պատկերներ'],
+        ['🧱','Կառուցում'],
+        ['🦢','Օրիգամի'],
+        ['📷','Լուսանկար']
+      ]
+    },
+    magic: {
+      title: 'Կախարդական աստղի սենյակ',
+      hero: '⭐',
+      art: 'magic.png?v=32',
+      tone: 'magic',
+      games: [
+        ['📖','Հեքիաթներ'],
+        ['💡','Գիտելիքներ'],
+        ['🔭','Աստղադիտում'],
+        ['✨','Աստղերի հավաքածու'],
+        ['🏆','Նվաճումներ'],
+        ['📔','Իմ գիրքը']
+      ]
+    }
+  };
+
+
   function loadJson(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   }
@@ -214,10 +288,46 @@
   // Star counter is a real independent button; it only provides subtle feedback for now.
   $('#starCounter').addEventListener('click', () => { playTap(); showToast('⭐ 120'); });
 
-  // Section navigation
+  // Section navigation — V32 real section menus
+  const gamesGrid = $('#gamesGrid');
+  const sectionHeader = $('#sectionHeader');
+  const sectionBg = $('#sectionBg');
+  const sectionHeroIcon = $('#sectionHeroIcon');
+
   $$('.section-card').forEach(card => card.addEventListener('click', () => openSection(card)));
+
+  function renderSection(sectionId) {
+    const data = SECTION_DATA[sectionId] || SECTION_DATA.nature;
+    sectionScreen.dataset.section = sectionId;
+    sectionScreen.dataset.tone = data.tone;
+    sectionHeader.textContent = data.title;
+    sectionHeroIcon.textContent = data.hero;
+    sectionBg.style.backgroundImage = `linear-gradient(rgba(22,16,38,.16), rgba(22,16,38,.28)), url("${data.art}")`;
+
+    gamesGrid.innerHTML = '';
+    data.games.forEach(([icon, label], index) => {
+      const btn = document.createElement('button');
+      btn.className = 'game-tile';
+      btn.dataset.gameIndex = String(index);
+      btn.setAttribute('aria-label', label);
+      btn.innerHTML = `
+        <span class="game-art" aria-hidden="true">${icon}</span>
+        <span class="game-label">${label}</span>
+      `;
+      btn.addEventListener('click', () => {
+        playTap();
+        btn.classList.add('game-tile--pressed');
+        setTimeout(() => btn.classList.remove('game-tile--pressed'), 180);
+        showToast(`${label} — շուտով`);
+      });
+      gamesGrid.appendChild(btn);
+    });
+  }
+
   function openSection(card) {
     playTap();
+    const sectionId = card.dataset.section || 'nature';
+    renderSection(sectionId);
     card.classList.add('is-opening');
     setTimeout(() => {
       sectionScreen.hidden = false;
@@ -226,6 +336,7 @@
       card.classList.remove('is-opening');
     }, 120);
   }
+
   $('#sectionBack').addEventListener('click', () => {
     playTap();
     sectionScreen.classList.remove('is-visible');
