@@ -18,7 +18,8 @@
   const toast = $('#toast');
 
   const SETTINGS_KEY = 'areg-settings-v1';
-  const AVATAR_KEY = 'areg-avatar-v1';
+  const AVATAR_KEY = 'areg-avatar-v2';
+  const AVATAR_SOURCE_KEY = 'areg-avatar-source-v2';
   const defaultSettings = { master:true, music:true, voice:true, effects:true, theme:'day' };
   let settings = loadJson(SETTINGS_KEY, defaultSettings);
   settings = { ...defaultSettings, ...settings };
@@ -265,6 +266,7 @@
       naturalW = cropImage.naturalWidth;
       naturalH = cropImage.naturalHeight;
       zoom = 1; panX = 0; panY = 0; zoomSlider.value = '1';
+      cropImage.style.objectPosition = '50% 50%';
       cropImage.hidden = false; cropPlaceholder.hidden = true; saveAvatar.disabled = false;
       renderCrop();
     };
@@ -331,6 +333,7 @@
     playTap();
     const data = await renderSavedAvatar();
     localStorage.setItem(AVATAR_KEY, data);
+    localStorage.setItem(AVATAR_SOURCE_KEY, sourceDataUrl);
     savedAvatar.src = data;
     savedAvatar.hidden = false;
     avatarModal.hidden = true;

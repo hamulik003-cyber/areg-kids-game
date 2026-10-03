@@ -1,9 +1,9 @@
-const CACHE = 'areg-kids-game-v21';
+const CACHE = 'areg-kids-game-v22';
 const CORE = [
   './launcher.html',
   './', './index.html', './styles.css', './app.js', './v9-fix.js',
-  './avatar-frame.png?v=21', './logo.png?v=21', './star-counter.png?v=21', './settings.png?v=21',
-  './nature.png?v=21', './space.png?v=21', './mind.png?v=21', './create.png?v=21', './magic.png?v=21', './bottom-landscape.png?v=21'
+  './avatar-frame.png?v=22', './logo.png?v=22', './star-counter.png?v=22', './settings.png?v=22',
+  './nature.png?v=22', './space.png?v=22', './mind.png?v=22', './create.png?v=22', './magic.png?v=22', './bottom-landscape.png?v=22'
 ];
 
 self.addEventListener('install', event => {

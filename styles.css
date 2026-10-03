@@ -75,15 +75,16 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 
 .saved-avatar {
   position:absolute;
-  left:0px;
-  top:18px;
-  width:168px;
-  height:168px;
+  left:8px;
+  top:20px;
+  width:164px;
+  height:164px;
   border-radius:50%;
   object-fit:cover;
-  object-position:center center;
+  object-position:50% 50%;
+  clip-path:circle(50% at 50% 50%);
   pointer-events:none;
-  box-shadow:0 2px 6px rgba(82,42,17,.12);
+  box-shadow:none;
 }
 
 
