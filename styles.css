@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=37');
+  background-image:url('nature.png?v=38');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=37');
+  background-image:url('space.png?v=38');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=37');
+  background-image:url('space.png?v=38');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=37');
+  background-image:url('space.png?v=38');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=37');
+  background-image:url('space.png?v=38');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=37');
+  background-image:url('mind.png?v=38');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=37');
+  background-image:url('mind.png?v=38');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=37');
+  background-image:url('create.png?v=38');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=37');
+  background-image:url('create.png?v=38');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=37');
+  background-image:url('magic.png?v=38');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=37');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=38');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -1145,3 +1145,128 @@ html.ios-standalone .modal {
   .wood-stars{height:50px}
   .activity-shell{padding-top:calc(env(safe-area-inset-top,0px) + 8px)}
 }
+
+
+/* =========================================================
+   V38 — HOME MENU ONLY
+   Match the visual language of the inner section game cards.
+   Avatar, logo, star counter, settings, positions, section order,
+   inner section screens and game logic remain unchanged.
+   ========================================================= */
+.home-section-card{
+  overflow:hidden !important;
+  isolation:isolate;
+  border:4px solid rgba(255,213,144,.96) !important;
+  background:linear-gradient(180deg,#fff2db 0%,#f7d7a8 77%,#efad65 77%,#e99a52 100%) !important;
+  box-shadow:
+    0 7px 0 rgba(142,78,38,.78),
+    0 14px 24px rgba(20,8,4,.18),
+    inset 0 0 0 2px rgba(121,70,34,.14) !important;
+  filter:none !important;
+}
+.home-section-card .home-card-art{
+  position:absolute;
+  z-index:1;
+  left:4px;
+  top:4px;
+  width:calc(100% - 8px);
+  height:77%;
+  display:block;
+  object-fit:cover;
+  object-position:center center;
+  border-radius:34px 34px 22px 22px;
+  pointer-events:none;
+}
+.home-section-card .home-card-label{
+  position:absolute;
+  z-index:4;
+  left:11px;
+  right:11px;
+  bottom:3px;
+  height:22%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:3px 18px 1px;
+  text-align:center;
+  color:#51220f;
+  font-weight:900;
+  font-size:34px;
+  line-height:1.02;
+  letter-spacing:-.025em;
+  text-shadow:0 1px 0 rgba(255,255,255,.25);
+  pointer-events:none;
+}
+.home-section-card .home-card-leaf{
+  position:absolute;
+  z-index:5;
+  bottom:19%;
+  width:28px;
+  height:15px;
+  background:linear-gradient(135deg,#91ca57,#3f843b);
+  border-radius:100% 0 100% 0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24);
+  pointer-events:none;
+}
+.home-section-card .leaf-left{left:8px;transform:rotate(-28deg)}
+.home-section-card .leaf-right{right:8px;transform:scaleX(-1) rotate(-28deg)}
+.home-section-card .home-card-shine{
+  position:absolute;
+  z-index:3;
+  left:-38%;
+  top:4px;
+  width:24%;
+  height:76%;
+  transform:skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent);
+  opacity:.72;
+  pointer-events:none;
+  animation:homeCardShine 8s ease-in-out infinite;
+}
+.space-card .home-card-shine{animation-delay:1.5s}
+.mind-card .home-card-shine{animation-delay:3s}
+.create-card .home-card-shine{animation-delay:4.5s}
+.magic-card .home-card-shine{animation-delay:6s}
+@keyframes homeCardShine{
+  0%,72%{left:-38%;opacity:0}
+  76%{opacity:.7}
+  88%{left:118%;opacity:.55}
+  90%,100%{left:118%;opacity:0}
+}
+.home-section-card:active,
+.home-section-card.is-opening{
+  transform:translateY(3px) scale(.988) !important;
+  box-shadow:
+    0 4px 0 rgba(142,78,38,.78),
+    0 9px 16px rgba(20,8,4,.16),
+    inset 0 0 0 2px rgba(121,70,34,.14) !important;
+  filter:brightness(1.025) !important;
+}
+.home-section-card--wide .home-card-art{
+  height:75%;
+  border-radius:36px 36px 23px 23px;
+}
+.home-section-card--wide .home-card-label{
+  height:24%;
+  font-size:30px;
+  padding-left:46px;
+  padding-right:46px;
+}
+.home-section-card--wide .home-card-leaf{bottom:20%}
+.home-section-card--wide .home-card-shine{height:74%}
+
+/* Hide legacy card animation layers if any old markup/CSS survives a cache edge-case. */
+.home-section-card .card-layer,
+.home-section-card .card-fx,
+.home-section-card .frame-guard,
+.home-section-card .card-shine-mask,
+.home-section-card .magic-glow,
+.home-section-card .magic-spark,
+.home-section-card .magic-book-glow,
+.home-section-card .nature-water-shimmer,
+.home-section-card .create-rainbow-glow,
+.home-section-card .space-twinkle,
+.home-section-card .mind-thought-dot,
+.home-section-card .create-paint-spark{display:none !important}
+
+.effects-off .home-card-shine{animation:none !important;opacity:0 !important}
