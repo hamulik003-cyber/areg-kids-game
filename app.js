@@ -12,7 +12,7 @@
   const sectionGames=$('#sectionGames'), sectionStars=$('#sectionStars');
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
-  const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
+  const SETTINGS_KEY='areg-settings-v36', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v36';
   let settings={master:true,music:true,voice:true,effects:true,...loadJson(SETTINGS_KEY,{})};
   let stars=Number(localStorage.getItem(STARS_KEY)||120);
   let currentSection='nature', currentGame=null, gameCleanup=[];
@@ -57,10 +57,10 @@
     magic:{
       title:'Կախարդական աստղի սենյակ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
       games:[
-        {id:'connect',label:'Միացրու աստղերը',thumb:'magic-game-1.jpg',kind:'connect'},
-        {id:'wand',label:'Կախարդական փայտիկ',thumb:'magic-game-2.jpg',kind:'wand'},
-        {id:'potion',label:'Կախարդական ըմպելիք',thumb:'magic-game-3.jpg',kind:'potion'},
-        {id:'book',label:'Կենդանի հեքիաթագիրք',thumb:'magic-game-4.jpg',kind:'book'}
+        {id:'treasure',label:'Աստղերի հավաքածու',thumb:'magic-game-1.jpg',kind:'catch'},
+        {id:'stargaze',label:'Աստղադիտում',thumb:'magic-game-2.jpg',kind:'connect'},
+        {id:'knowledge',label:'Գիտելիքներ',thumb:'magic-game-3.jpg',kind:'pattern'},
+        {id:'book',label:'Հեքիաթներ',thumb:'magic-game-4.jpg',kind:'book'}
       ]
     }
   };
