@@ -77,15 +77,15 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 
 .section-card { overflow:visible; border-radius:44px; filter:drop-shadow(0 8px 14px rgba(44,22,8,.12)); }
 .section-card::after { content:none; }
-.nature-card { left:10px; top:266px; width:343px; height:412px; }
-.space-card { left:355px; top:266px; width:350px; height:412px; }
-.mind-card { left:10px; top:682px; width:343px; height:387px; }
-.create-card { left:355px; top:682px; width:350px; height:387px; }
-.magic-card { left:10px; top:1068px; width:694px; height:337px; border-radius:46px; }
+.nature-card { left:9px; top:260px; width:344px; height:400px; }
+.space-card { left:356px; top:260px; width:344px; height:400px; }
+.mind-card { left:9px; top:666px; width:344px; height:400px; }
+.create-card { left:356px; top:666px; width:344px; height:400px; }
+.magic-card { left:8px; top:1072px; width:694px; height:330px; border-radius:46px; }
 .magic-card::after { content:none; }
 .magic-glow { position:absolute; inset:21% 22% 29%; border-radius:50%; box-shadow:0 0 46px 13px var(--glow); opacity:.22; animation:magicGlow 3.2s ease-in-out infinite; pointer-events:none; }
 @keyframes magicGlow { 0%,100%{opacity:.15} 50%{opacity:.34} }
-.bottom-landscape { position:absolute; left:0; top:1395px; width:709px; height:141px; object-fit:contain; }
+.bottom-landscape { position:absolute; left:0; top:1405px; width:709px; height:131px; object-fit:contain; }
 
 .section-screen { background:linear-gradient(180deg, transparent, rgba(255,255,255,.03)); opacity:0; transform:translateX(4%); transition:opacity .22s ease, transform .22s ease; }
 .section-screen.is-visible { opacity:1; transform:none; }

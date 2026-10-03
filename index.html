@@ -14,7 +14,7 @@
   <meta name="format-detection" content="telephone=no" />
   <title>Արեգ 3D աշխարհ</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icon-192.png?v=15" />
+  <link rel="apple-touch-icon" href="icon-192.png?v=18" />
   <script>
     window.__AREG_BUILD = new URLSearchParams(location.search).get('kiosk') || String(Date.now());
     const aregCss = document.createElement('link');
@@ -54,6 +54,17 @@
     }
   </style>
 
+
+  <style id="areg-v18-final-layout">
+    /* V18 FINAL: exact equal-size 2x2 section grid */
+    .nature-card,.space-card,.mind-card,.create-card{width:344px!important;height:400px!important;}
+    .nature-card{left:9px!important;top:260px!important;}
+    .space-card{left:356px!important;top:260px!important;}
+    .mind-card{left:9px!important;top:666px!important;}
+    .create-card{left:356px!important;top:666px!important;}
+    .magic-card{left:8px!important;top:1072px!important;width:694px!important;height:330px!important;}
+    .bottom-landscape{left:0!important;top:1405px!important;width:709px!important;height:131px!important;}
+  </style>
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
@@ -65,38 +76,38 @@
   <main id="homeScreen" class="screen screen--active" aria-label="Գլխավոր ընտրացանկ">
     <div id="designStage" class="design-stage" role="application" aria-label="Արեգ 3D աշխարհ">
       <button id="avatarButton" class="asset-button avatar-button" aria-label="Փոխել կերպարի նկարը">
-        <img class="asset-img" src="avatar-frame.png?v=15" alt="" draggable="false" />
+        <img class="asset-img" src="avatar-frame.png?v=18" alt="" draggable="false" />
         <img id="savedAvatar" class="saved-avatar" alt="Ընտրված նկար" draggable="false" hidden />
       </button>
 
-      <img class="logo asset-img" src="logo.png?v=15" alt="Արեգ 3D աշխարհ" draggable="false" />
+      <img class="logo asset-img" src="logo.png?v=18" alt="Արեգ 3D աշխարհ" draggable="false" />
 
       <button id="starCounter" class="asset-button star-counter" aria-label="120 աստղ">
-        <img class="asset-img" src="star-counter.png?v=15" alt="120 աստղ" draggable="false" />
+        <img class="asset-img" src="star-counter.png?v=18" alt="120 աստղ" draggable="false" />
       </button>
 
       <button id="settingsButton" class="asset-button settings-button" aria-label="Կարգավորումներ">
-        <img class="asset-img" src="settings.png?v=15" alt="" draggable="false" />
+        <img class="asset-img" src="settings.png?v=18" alt="" draggable="false" />
       </button>
 
       <button class="section-card nature-card" data-section="nature" aria-label="Բնություն">
-        <img class="asset-img" src="nature.png?v=15" alt="Բնություն" draggable="false" />
+        <img class="asset-img" src="nature.png?v=18" alt="Բնություն" draggable="false" />
       </button>
       <button class="section-card space-card" data-section="space" aria-label="Տիեզերք">
-        <img class="asset-img" src="space.png?v=15" alt="Տիեզերք" draggable="false" />
+        <img class="asset-img" src="space.png?v=18" alt="Տիեզերք" draggable="false" />
       </button>
       <button class="section-card mind-card" data-section="mind" aria-label="Մտքի խաղեր">
-        <img class="asset-img" src="mind.png?v=15" alt="Մտքի խաղեր" draggable="false" />
+        <img class="asset-img" src="mind.png?v=18" alt="Մտքի խաղեր" draggable="false" />
       </button>
       <button class="section-card create-card" data-section="create" aria-label="Ստեղծագործություն">
-        <img class="asset-img" src="create.png?v=15" alt="Ստեղծագործություն" draggable="false" />
+        <img class="asset-img" src="create.png?v=18" alt="Ստեղծագործություն" draggable="false" />
       </button>
       <button class="section-card magic-card" data-section="magic" aria-label="Կախարդական աստղի սենյակ">
         <span class="magic-glow" aria-hidden="true"></span>
-        <img class="asset-img" src="magic.png?v=15" alt="Կախարդական աստղի սենյակ" draggable="false" />
+        <img class="asset-img" src="magic.png?v=18" alt="Կախարդական աստղի սենյակ" draggable="false" />
       </button>
 
-      <img class="bottom-landscape asset-img" src="bottom-landscape.png?v=15" alt="" draggable="false" />
+      <img class="bottom-landscape asset-img" src="bottom-landscape.png?v=18" alt="" draggable="false" />
     </div>
   </main>
 
