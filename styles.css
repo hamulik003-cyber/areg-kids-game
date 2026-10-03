@@ -792,3 +792,69 @@ html.ios-standalone .modal {
   .section-header { min-height:50px; }
   .section-star-counter { height:48px; }
 }
+
+/* ===== V33 exact section image screens ===== */
+.exact-section-screen{background:rgba(10,8,26,.96);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease}
+.exact-section-screen.is-visible{opacity:1;transform:none}
+.section-stage{position:absolute;left:50%;top:50%;width:941px;height:1672px;transform:translate(-50%,-50%) scale(var(--section-scale,1));transform-origin:center center;}
+.section-full-image{display:block;width:100%;height:100%;object-fit:contain;}
+.section-hotspots{position:absolute;inset:0;}
+.hotspot-btn{position:absolute;border:0;background:transparent;border-radius:28px;cursor:pointer;outline:none;touch-action:manipulation}
+.hotspot-btn::after{content:"";position:absolute;inset:0;border-radius:inherit;background:rgba(255,255,255,.001);transition:transform .12s ease, box-shadow .12s ease, background .12s ease}
+.hotspot-btn:active::after,.hotspot-btn.is-pressed::after{transform:scale(.97);background:rgba(255,255,255,.10);box-shadow:inset 0 0 0 2px rgba(255,255,255,.14)}
+.hotspot-btn:focus-visible::after{box-shadow:0 0 0 4px rgba(255,230,128,.85), inset 0 0 0 2px rgba(255,255,255,.16)}
+.hotspot-btn.back{border-radius:50%}
+.hotspot-btn.game{border-radius:28px}
+
+/* ===== Activity screen ===== */
+.activity-screen{background:linear-gradient(180deg,#1a1637,#2a214f 48%,#13112b);color:#402012;opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease}
+.activity-screen.is-visible{opacity:1;transform:none}
+.activity-shell{position:absolute;inset:0;padding:calc(env(safe-area-inset-top,0px) + 14px) 14px calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;flex-direction:column;gap:12px}
+.activity-topbar{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:center}
+.wood-round,.activity-stars,.activity-title-wrap{background:linear-gradient(180deg,#ffdba2,#efad66);border:3px solid rgba(115,61,28,.22);box-shadow:0 5px 0 #9c582d,0 12px 22px rgba(20,8,4,.18), inset 0 1px 0 rgba(255,255,255,.55)}
+.wood-round{width:56px;height:56px;border-radius:50%;font-size:32px;font-weight:900;color:#5a2914;display:grid;place-items:center}
+.activity-title-wrap{min-height:58px;border-radius:20px;padding:8px 14px;display:flex;flex-direction:column;justify-content:center}
+.activity-section-title{font-size:14px;font-weight:800;opacity:.72;line-height:1}
+.activity-title{font-size:25px;font-weight:900;line-height:1.05}
+.activity-stars{min-width:106px;height:54px;border-radius:19px;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:6px;color:#5a2914;font-size:22px;font-weight:900}
+.activity-content{flex:1;min-height:0;border-radius:30px;background:linear-gradient(180deg,#fff4de,#ffe4be);border:3px solid rgba(118,67,31,.16);box-shadow:0 18px 38px rgba(18,8,3,.18), inset 0 1px 0 rgba(255,255,255,.7);padding:16px;overflow:auto}
+.activity-content::-webkit-scrollbar{width:0;height:0}
+.game-panel{display:flex;flex-direction:column;gap:16px;height:100%}
+.game-help{font-weight:800;font-size:17px;color:#5d3119;text-align:center}
+.primary-action{align-self:center;min-width:180px;padding:12px 22px;border-radius:18px;background:linear-gradient(180deg,#ffdb9c,#f0a95a);border:3px solid rgba(123,65,28,.22);box-shadow:0 4px 0 #9d592f;color:#532714;font-weight:900;font-size:18px}
+.score-badge{align-self:center;padding:8px 14px;border-radius:16px;background:#fff1d5;color:#6b351a;font-weight:900;box-shadow:inset 0 0 0 2px rgba(178,111,39,.15)}
+
+.memory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.memory-card{aspect-ratio:1/1;border-radius:22px;position:relative;transform-style:preserve-3d;transition:transform .2s ease;cursor:pointer}
+.memory-card-inner{position:absolute;inset:0;border-radius:22px;transform-style:preserve-3d;transition:transform .3s ease}
+.memory-card.flipped .memory-card-inner,.memory-card.matched .memory-card-inner{transform:rotateY(180deg)}
+.memory-face{position:absolute;inset:0;display:grid;place-items:center;border-radius:22px;backface-visibility:hidden}
+.memory-front{background:linear-gradient(180deg,#efad66,#d4853e);box-shadow:0 4px 0 #975628;font-size:52px;color:#fff5e6}
+.memory-back{background:linear-gradient(180deg,#fff6e5,#ffdca8);box-shadow:0 4px 0 #c98c4d;transform:rotateY(180deg);font-size:54px}
+
+.quiz-card{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.quiz-question{font-size:28px;font-weight:900;text-align:center;color:#562816;line-height:1.15}
+.quiz-options{display:grid;gap:10px}
+.quiz-option{min-height:60px;padding:12px 14px;border-radius:18px;background:linear-gradient(180deg,#fff5e3,#ffe0ae);border:3px solid rgba(122,70,32,.18);box-shadow:0 4px 0 rgba(157,89,47,.7);font-size:21px;font-weight:900;color:#572815;text-align:center}
+.quiz-option.correct{background:linear-gradient(180deg,#cef8b7,#8fdf7a)}
+.quiz-option.wrong{background:linear-gradient(180deg,#ffd0c4,#ff9d8a)}
+
+.tap-area{position:relative;min-height:420px;border-radius:26px;background:linear-gradient(180deg,#271c5d,#121336);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+.tap-target{position:absolute;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-size:42px;background:rgba(255,255,255,.12);box-shadow:0 0 0 2px rgba(255,255,255,.18),0 0 18px rgba(255,234,119,.28);animation:floatTap 2.8s ease-in-out infinite}
+@keyframes floatTap{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.tap-progress{text-align:center;font-weight:900;font-size:21px;color:#5c2d18}
+
+.draw-wrap{display:flex;flex-direction:column;gap:14px;height:100%}
+.draw-toolbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.color-dot{width:42px;height:42px;border-radius:50%;border:3px solid rgba(92,46,19,.22);box-shadow:0 2px 0 rgba(92,46,19,.28)}
+.color-dot.active{box-shadow:0 0 0 4px rgba(255,219,128,.8), 0 2px 0 rgba(92,46,19,.28)}
+.draw-canvas-wrap{flex:1;min-height:360px;border-radius:24px;background:#fff;border:3px solid rgba(118,67,31,.16);overflow:hidden;box-shadow:inset 0 0 24px rgba(0,0,0,.06)}
+#drawCanvas{display:block;width:100%;height:100%;touch-action:none;background:#fff}
+.clear-btn{align-self:center;min-width:130px;padding:11px 18px;border-radius:16px;background:linear-gradient(180deg,#ffdba3,#f1af66);border:3px solid rgba(120,69,30,.2);box-shadow:0 4px 0 #9d592f;color:#572815;font-weight:900}
+
+@media (max-height:760px){
+  .activity-shell{gap:10px;padding-top:calc(env(safe-area-inset-top,0px) + 8px)}
+  .activity-content{padding:12px}
+  .memory-grid{gap:10px}
+  .quiz-question{font-size:24px}
+}
