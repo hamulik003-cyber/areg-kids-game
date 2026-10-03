@@ -2264,3 +2264,18 @@ body.magic-scroll-active{
   animation:none !important;
   opacity:0 !important;
 }
+
+
+/* =========================================================
+   V51 — FINAL HUD vertical position override
+   Must stay at the end of the stylesheet.
+   ========================================================= */
+.settings-button{
+  left:597px !important;
+  top:calc(72px + var(--top-controls-safe-y)) !important;
+}
+
+.star-counter.dynamic-star-counter{
+  left:590px !important;
+  top:calc(172px + var(--top-controls-safe-y)) !important;
+}
