@@ -9,7 +9,7 @@
   const homeScreen=$('#homeScreen'), sectionScreen=$('#sectionScreen'), activityScreen=$('#activityScreen');
   const settingsModal=$('#settingsModal'), avatarModal=$('#avatarModal'), menuMusic=$('#menuMusic'), toast=$('#toast');
   const sectionBackdrop=$('#sectionBackdrop'), sectionHero=$('#sectionHero'), sectionTitle=$('#sectionTitle');
-  const sectionGames=$('#sectionGames'), sectionStars=$('#sectionStars');
+  const sectionGames=$('#sectionGames'), sectionStars=$('#sectionStars'), homeStars=$('#homeStars'), starCounter=$('#starCounter');
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
   const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
@@ -142,7 +142,13 @@
   function loadJson(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}
   function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings))}
   function saveStars(){localStorage.setItem(STARS_KEY,String(stars))}
-  function updateStars(){sectionStars.textContent=String(stars);activityStars.textContent=String(stars)}
+  function updateStars(){
+    const value=String(stars);
+    if(homeStars)homeStars.textContent=value;
+    if(starCounter)starCounter.setAttribute('aria-label',`${value} աստղ`);
+    sectionStars.textContent=value;
+    activityStars.textContent=value;
+  }
 
   /* viewport */
   const safeProbe=document.createElement('div');
@@ -190,7 +196,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=40" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=41" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -229,7 +235,7 @@
     }else{
       s.games.forEach(g=>{
         const b=document.createElement('button');b.className='toddler-game-card';b.setAttribute('aria-label',g.label);
-        b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="toddler-game-label">${g.label}</span>`;
+        b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="section-card-sheen game-card-sheen" aria-hidden="true"></span><span class="toddler-game-label">${g.label}</span>`;
         b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
       });
     }
@@ -259,6 +265,7 @@
           <span class="magic-sparkle magic-sparkle--2" aria-hidden="true">✦</span>
           <span class="magic-sparkle magic-sparkle--3" aria-hidden="true">✦</span>
         </span>
+        <span class="section-card-sheen magic-card-sheen" aria-hidden="true"></span>
         <span class="magic-cost">⭐ ${item.cost}</span>
         <span class="magic-lock" aria-hidden="true">${unlocked?'':'🔒'}</span>
       `;

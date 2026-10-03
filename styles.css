@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=40');
+  background-image:url('nature.png?v=41');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=40');
+  background-image:url('space.png?v=41');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=40');
+  background-image:url('space.png?v=41');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=40');
+  background-image:url('space.png?v=41');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=40');
+  background-image:url('space.png?v=41');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=40');
+  background-image:url('mind.png?v=41');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=40');
+  background-image:url('mind.png?v=41');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=40');
+  background-image:url('create.png?v=41');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=40');
+  background-image:url('create.png?v=41');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=40');
+  background-image:url('magic.png?v=41');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=40');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=41');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -1570,4 +1570,198 @@ body.magic-scroll-active{
   display:block;
   grid-column:1 / -1;
   height:max(18px, env(safe-area-inset-bottom, 0px));
+}
+
+
+/* =========================================================
+   V41 — dynamic home stars + stronger premium shine system
+   ========================================================= */
+
+/* Home star counter is now live, so 0/earned stars always match the other screens. */
+.dynamic-star-counter{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:0 10px 2px !important;
+  overflow:visible;
+  border-radius:27px;
+  background:
+    linear-gradient(180deg,#ffd47f 0%,#f8b85e 48%,#e99342 100%);
+  border:3px solid rgba(126,70,31,.45) !important;
+  box-shadow:
+    0 5px 0 #a55a2f,
+    0 10px 17px rgba(38,15,4,.22),
+    inset 0 2px 0 rgba(255,255,255,.62),
+    inset 0 -2px 0 rgba(126,63,24,.12);
+}
+.home-star-glyph{
+  display:block;
+  font-size:34px;
+  line-height:1;
+  filter:drop-shadow(0 2px 1px rgba(123,67,24,.45));
+  transform:translateY(-1px);
+}
+.home-stars-number{
+  display:block;
+  min-width:35px;
+  color:#4d2111;
+  font-size:29px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.035em;
+  text-shadow:0 1px 0 rgba(255,255,255,.36);
+}
+
+/* Stronger, cleaner sheen on all 5 home cards. */
+.home-card-shine{
+  left:-46% !important;
+  top:4px !important;
+  width:34% !important;
+  height:76% !important;
+  transform:skewX(-17deg) !important;
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,.08) 23%,
+      rgba(255,255,255,.68) 47%,
+      rgba(255,244,184,.58) 55%,
+      rgba(255,255,255,.10) 72%,
+      rgba(255,255,255,0) 100%) !important;
+  filter:blur(1.2px);
+  mix-blend-mode:screen;
+  opacity:0;
+  animation:homeCardShineV41 7.6s ease-in-out infinite !important;
+}
+.space-card .home-card-shine{animation-delay:1.45s !important}
+.mind-card .home-card-shine{animation-delay:2.9s !important}
+.create-card .home-card-shine{animation-delay:4.35s !important}
+.magic-card .home-card-shine{animation-delay:5.8s !important}
+@keyframes homeCardShineV41{
+  0%,2%{left:-46%;opacity:0}
+  5%{opacity:.35}
+  10%{opacity:1}
+  18%{left:116%;opacity:.72}
+  21%,100%{left:116%;opacity:0}
+}
+
+/* Same light sweep on section hero and the 4 game tiles. */
+.section-card-sheen{
+  position:absolute;
+  z-index:4;
+  top:4px;
+  left:-48%;
+  width:33%;
+  height:calc(68% - 4px);
+  pointer-events:none;
+  transform:skewX(-17deg);
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,.08) 24%,
+      rgba(255,255,255,.72) 49%,
+      rgba(255,240,167,.50) 58%,
+      transparent 100%);
+  filter:blur(1.1px);
+  mix-blend-mode:screen;
+  opacity:0;
+  animation:sectionSheenV41 7.2s ease-in-out infinite;
+}
+.section-hero-sheen{
+  top:0;
+  height:100%;
+  border-radius:25px;
+  animation-delay:.15s;
+}
+.toddler-game-card:nth-child(1) .game-card-sheen{animation-delay:1.35s}
+.toddler-game-card:nth-child(2) .game-card-sheen{animation-delay:2.65s}
+.toddler-game-card:nth-child(3) .game-card-sheen{animation-delay:3.95s}
+.toddler-game-card:nth-child(4) .game-card-sheen{animation-delay:5.25s}
+@keyframes sectionSheenV41{
+  0%,2%{left:-48%;opacity:0}
+  6%{opacity:.35}
+  11%{opacity:.95}
+  19%{left:118%;opacity:.62}
+  22%,100%{left:118%;opacity:0}
+}
+
+/* Bonus Field cards also get the same polished sweep. */
+.magic-card-sheen{
+  z-index:7;
+  top:9px;
+  height:calc(100% - 48px);
+  border-radius:20px;
+  animation-duration:8.4s;
+}
+.magic-collect-card:nth-child(2n) .magic-card-sheen{animation-delay:1.5s}
+.magic-collect-card:nth-child(3n) .magic-card-sheen{animation-delay:3s}
+
+/* "ԱՐԵԳԻ 3D ԱՇԽԱՐՀԸ" — sheen is alpha-masked to the existing logo image. */
+.logo-sheen{
+  position:absolute;
+  z-index:3;
+  left:166px;
+  top:72px;
+  width:418px;
+  height:186px;
+  pointer-events:none;
+  -webkit-mask-image:url('logo.png?v=41');
+  mask-image:url('logo.png?v=41');
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-size:contain;
+  mask-size:contain;
+  -webkit-mask-position:center;
+  mask-position:center;
+  background:
+    linear-gradient(108deg,
+      transparent 0 29%,
+      rgba(255,255,255,.10) 34%,
+      rgba(255,255,255,.92) 47%,
+      rgba(255,238,153,.56) 54%,
+      transparent 67% 100%);
+  background-size:42% 100%;
+  background-repeat:no-repeat;
+  background-position:-55% 0;
+  filter:blur(.5px);
+  animation:logoSheenV41 5.8s ease-in-out infinite;
+}
+@keyframes logoSheenV41{
+  0%,12%{background-position:-55% 0;opacity:0}
+  17%{opacity:.95}
+  42%{background-position:165% 0;opacity:.8}
+  47%,100%{background-position:165% 0;opacity:0}
+}
+
+/* Tiny, gentle star glints on the logo itself. */
+.logo-spark{
+  position:absolute;
+  z-index:4;
+  pointer-events:none;
+  color:#fff2a3;
+  font-size:12px;
+  line-height:1;
+  opacity:0;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 9px rgba(255,224,89,.95);
+  animation:logoSparkV41 3.4s ease-in-out infinite;
+}
+.logo-spark-1{left:245px;top:100px;animation-delay:.2s}
+.logo-spark-2{left:407px;top:126px;font-size:10px;animation-delay:1.1s}
+.logo-spark-3{left:326px;top:190px;font-size:9px;animation-delay:2.0s}
+.logo-spark-4{left:520px;top:94px;font-size:8px;animation-delay:2.7s}
+@keyframes logoSparkV41{
+  0%,70%,100%{opacity:0;transform:scale(.45) rotate(0deg)}
+  78%{opacity:1;transform:scale(1.25) rotate(25deg)}
+  88%{opacity:.22;transform:scale(.72) rotate(48deg)}
+}
+
+/* Effects setting still controls all decorative motion. */
+.effects-off .home-card-shine,
+.effects-off .section-card-sheen,
+.effects-off .logo-sheen,
+.effects-off .logo-spark{
+  animation:none !important;
+  opacity:0 !important;
 }
