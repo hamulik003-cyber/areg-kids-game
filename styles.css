@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=29');
+  background-image:url('nature.png?v=31');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=29');
+  background-image:url('space.png?v=31');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=29');
+  background-image:url('space.png?v=31');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=29');
+  background-image:url('space.png?v=31');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=29');
+  background-image:url('space.png?v=31');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=29');
+  background-image:url('mind.png?v=31');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=29');
+  background-image:url('mind.png?v=31');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=29');
+  background-image:url('create.png?v=31');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=29');
+  background-image:url('create.png?v=31');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=29');
+  background-image:url('magic.png?v=31');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=29');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=31');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -494,171 +494,58 @@ html.ios-standalone .modal {
   opacity:0 !important;
 }
 
+
 /* =========================================================
-   V30 — pro menu polish: parallax, badges, press states,
-   cinematic transitions, avatar sparkles, star flights.
+   V31 CLEAN PRO
+   V29 visuals are preserved. No badges, no flying stars,
+   no avatar sparkles, no menu clutter, no parallax.
+   Only subtle professional interaction feedback.
    ========================================================= */
 
-.design-stage { perspective: 1200px; }
-.logo, .bottom-landscape, .asset-button, .section-card {
-  --tx: 0px;
-  --ty: 0px;
-  --rot: 0deg;
-  --scale: 1;
+/* Slight tactile response without changing the composition. */
+.section-card {
+  transition:
+    transform .16s cubic-bezier(.2,.75,.25,1),
+    filter .18s ease !important;
 }
-.logo, .bottom-landscape {
-  transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot));
-  transition: transform .25s ease;
-  will-change: transform;
+.section-card:active,
+.section-card.is-opening {
+  transform:scale(.985) !important;
+  filter:brightness(1.035) saturate(1.02) drop-shadow(0 8px 14px rgba(44,22,8,.14)) !important;
 }
-.asset-button, .section-card {
-  transform: translate3d(var(--tx), var(--ty), 0) scale(var(--scale)) rotate(var(--rot));
-  transition: transform .22s cubic-bezier(.2,.7,.2,1), filter .22s ease, box-shadow .22s ease;
-  will-change: transform, filter, box-shadow;
-}
-.asset-button:active, .section-card:active, .section-card.is-pressed, .asset-button.is-pressed { --scale: .968; }
-.section-card:hover, .section-card.is-focus {
-  filter: drop-shadow(0 12px 18px rgba(44,22,8,.16)) drop-shadow(0 0 18px rgba(255,227,112,.18));
-}
-.section-card.is-focus { --scale: 1.016; }
-.asset-button:hover { filter: drop-shadow(0 0 12px rgba(255,232,148,.18)); }
-.hud-item.pop-once { animation: hudPop .45s cubic-bezier(.18,.78,.2,1); }
-@keyframes hudPop { 0%{transform:translate3d(var(--tx),var(--ty),0) scale(var(--scale)) rotate(var(--rot))} 35%{transform:translate3d(var(--tx),var(--ty),0) scale(1.08) rotate(var(--rot))} 100%{transform:translate3d(var(--tx),var(--ty),0) scale(var(--scale)) rotate(var(--rot))} }
 
-.status-badge, .special-badge {
-  position: absolute;
-  z-index: 8;
-  top: 16px;
-  left: 16px;
-  min-width: 68px;
-  height: 28px;
-  padding: 0 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: linear-gradient(#f8dfb5,#efc88d);
-  color: #5c2f16;
-  border: 2px solid rgba(129,74,38,.18);
-  box-shadow: 0 3px 0 rgba(126,71,35,.45), 0 4px 10px rgba(44,22,8,.12);
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: .02em;
+/* Keep HUD buttons calm and premium. */
+.asset-button {
+  transition:transform .14s ease, filter .18s ease !important;
 }
-.new-badge {
-  background: linear-gradient(#dff5ff,#b7e6ff);
-  color: #235280;
+.asset-button:active {
+  transform:scale(.97) !important;
+  filter:brightness(1.03) !important;
 }
-.special-badge {
-  left: auto;
-  right: 18px;
-  top: 18px;
-  background: linear-gradient(#fff2b0,#ffd976);
-  color: #7a4a00;
-  animation: specialPulse 2.4s ease-in-out infinite;
-}
-@keyframes specialPulse { 0%,100%{box-shadow:0 3px 0 rgba(126,71,35,.45),0 4px 10px rgba(44,22,8,.12),0 0 0 rgba(255,226,120,0)} 50%{box-shadow:0 3px 0 rgba(126,71,35,.45),0 4px 12px rgba(44,22,8,.18),0 0 18px rgba(255,226,120,.55)} }
 
-.magic-card.special-card { filter: drop-shadow(0 10px 18px rgba(44,22,8,.14)) drop-shadow(0 0 18px rgba(255,225,104,.22)); }
-
-/* Avatar polish */
-.avatar-spark {
-  position:absolute;
-  z-index:3;
-  width:8px;height:8px;border-radius:50%;
-  background:#fff6c1;
-  box-shadow:0 0 10px rgba(255,235,132,.92);
-  pointer-events:none;
-  animation:avatarSpark 4.2s ease-in-out infinite;
-}
-.avatar-spark-1{left:20px;top:18px;animation-delay:0s}
-.avatar-spark-2{right:22px;top:30px;animation-delay:-2.1s}
-@keyframes avatarSpark{0%,65%,100%{opacity:0;transform:scale(.4)} 75%{opacity:.95;transform:scale(1.2)} 85%{opacity:.25;transform:scale(.7)}}
-.avatar-button { filter: drop-shadow(0 6px 10px rgba(44,22,8,.12)); }
-
-/* Sweeping sheen more visible but still premium */
-.card-shine-band { filter: blur(2px) brightness(1.08); }
-
-/* Section launch transition */
+/* Cleaner section transition: just a soft cinematic fade/slide. */
 .section-screen {
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  display:block;
-  background: radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--section-accent, #fff) 35%, transparent), transparent 36%),
-              linear-gradient(180deg, rgba(18,11,30,.08), rgba(18,11,30,.22));
-  backdrop-filter: blur(14px) saturate(1.1);
-  transition: opacity .28s ease, visibility .28s ease;
+  opacity:0 !important;
+  transform:translateY(10px) scale(.995) !important;
+  transition:opacity .22s ease, transform .22s ease !important;
+  backdrop-filter:blur(6px);
 }
-.section-screen.preparing,
 .section-screen.is-visible {
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
+  opacity:1 !important;
+  transform:none !important;
 }
-.section-backdrop {
-  position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(23,13,31,.08), rgba(23,13,31,.32));
+
+/* Slightly soften ambient particles so menu feels less busy. */
+#ambientLayer .particle {
+  opacity:.14 !important;
+  filter:drop-shadow(0 0 4px var(--glow)) !important;
 }
-.section-panel {
-  position:absolute;
-  inset:50% auto auto 50%;
-  width:min(86vw,520px);
-  transform:translate(-50%,-46%);
-  padding:26px 24px 28px;
-  border-radius:28px;
-  background:linear-gradient(180deg, rgba(255,251,240,.96), rgba(247,228,197,.96));
-  box-shadow:0 18px 50px rgba(17,8,30,.24), inset 0 0 0 2px rgba(255,255,255,.45);
-  text-align:center;
-}
-.section-icon {
-  width:84px;height:84px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;
-  font-size:40px;background:radial-gradient(circle at 35% 30%, #fff4ce, color-mix(in srgb, var(--section-accent, #fff) 50%, #e3b86b));
-  box-shadow:0 8px 18px rgba(44,22,8,.16);
-}
-#sectionTitle { margin:0 0 6px; font-size:29px; }
-.section-text { margin:0 auto 8px; max-width:28ch; line-height:1.45; font-weight:700; color:#5d3a27; }
-.section-meta { margin:0 auto 16px; font-size:14px; font-weight:800; color:#7a5638; opacity:.82; }
-.section-screen .coming-soon { position:static; margin:0 auto; }
-.back-button { z-index:2; }
+
+/* Preserve V29 card art exactly; no extra overlays. */
+.status-badge,
+.special-badge,
+.avatar-spark,
+.flying-star,
 .section-ghost {
-  position:fixed;
-  z-index:70;
-  border-radius:28px;
-  overflow:hidden;
-  box-shadow:0 16px 40px rgba(18,10,28,.28);
-  transform-origin:center center;
-  transition:left .34s cubic-bezier(.18,.75,.2,1), top .34s cubic-bezier(.18,.75,.2,1), width .34s cubic-bezier(.18,.75,.2,1), height .34s cubic-bezier(.18,.75,.2,1), opacity .22s ease;
-}
-.section-ghost img { width:100%;height:100%;object-fit:cover;display:block; }
-.section-ghost.expand {
-  left: 7vw !important;
-  top: 17vh !important;
-  width: 86vw !important;
-  height: 42vh !important;
-}
-.section-ghost.fade-out { opacity:0; }
-.section-card.launching { filter: brightness(1.04) saturate(1.02); }
-
-/* Flying star */
-.flying-star {
-  position:fixed;
-  z-index:72;
-  font-size:26px;
-  line-height:1;
-  pointer-events:none;
-  transform:translate(-50%,-50%);
-  animation:flyStar .86s cubic-bezier(.18,.78,.2,1) forwards;
-  filter:drop-shadow(0 0 10px rgba(255,224,99,.65));
-}
-@keyframes flyStar {
-  0% { transform:translate(-50%,-50%) scale(.85); opacity:0; }
-  10% { opacity:1; }
-  70% { transform:translate(calc(-50% + var(--dx) * .7), calc(-50% + var(--dy) * .7 - 18px)) scale(1.08); opacity:1; }
-  100% { transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.58); opacity:0; }
-}
-
-/* Make sheen and sparkles respect the reduced-motion flag */
-@media (prefers-reduced-motion: reduce) {
-  .section-ghost, .flying-star, .special-badge, .avatar-spark, .hud-item.pop-once { animation:none !important; transition:none !important; }
+  display:none !important;
 }

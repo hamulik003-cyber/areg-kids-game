@@ -1,5 +1,28 @@
-const CACHE='areg-pro-v30';
-const CORE=['./','./index.html','./styles.css','./app.js','./launcher.html','./avatar-frame.png','./bottom-landscape.png','./create.png','./logo.png','./magic.png','./mind.png','./nature.png','./settings.png','./space.png','./star-counter.png','./nature-frame-guard.png','./space-frame-guard.png','./magic-frame-guard.png','./menu-music.mp3','./day.svg','./night.svg','./winter.svg','./rain.svg','./aurora.svg','./wood.svg','./forest.svg','./ocean.svg','./sunset.svg','./space.svg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{ if(e.request.method!=='GET') return; const url=new URL(e.request.url); if(url.origin!==location.origin) return; e.respondWith(fetch(e.request).then(r=>{ const c=r.clone(); caches.open(CACHE).then(cache=>cache.put(e.request,c)); return r; }).catch(()=>caches.match(e.request).then(hit=>hit||caches.match('./index.html'))));});
+const CACHE = 'areg-kids-game-v31';
+const CORE = [
+  './launcher.html',
+  './', './index.html', './styles.css', './app.js', './v9-fix.js',
+  './avatar-frame.png?v=31', './logo.png?v=31', './star-counter.png?v=31', './settings.png?v=31',
+  './nature.png?v=31', './space.png?v=31', './mind.png?v=31', './create.png?v=31', './magic.png?v=31', './bottom-landscape.png?v=31',
+  './menu-music.mp3?v=31',
+  './nature-frame-guard.png?v=31', './space-frame-guard.png?v=31', './mind-frame-guard.png?v=31', './create-frame-guard.png?v=31', './magic-frame-guard.png?v=31'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  event.respondWith(fetch(event.request).then(response => {
+    const clone = response.clone();
+    caches.open(CACHE).then(cache => cache.put(event.request, clone));
+    return response;
+  }).catch(() => caches.match(event.request).then(hit => hit || caches.match('./index.html'))));
+});

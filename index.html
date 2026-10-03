@@ -13,8 +13,48 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="format-detection" content="telephone=no" />
   <title>Արեգ 3D աշխարհ</title>
-  <link rel="stylesheet" href="styles.css?v=30" />
-  <style>
+      <script>
+    window.__AREG_BUILD = new URLSearchParams(location.search).get('kiosk') || String(Date.now());
+    const aregCss = document.createElement('link');
+    aregCss.rel = 'stylesheet';
+    aregCss.href = 'styles.css?v=' + encodeURIComponent(window.__AREG_BUILD);
+    document.head.appendChild(aregCss);
+  </script>
+
+  <style id="areg-single-layer-hard-fix">
+    /* V11: force true single-layer UI even if an old stylesheet is still cached */
+    .section-card::before,
+    .section-card::after,
+    .magic-card::before,
+    .magic-card::after,
+    .asset-button::before,
+    .asset-button::after {
+      content: none !important;
+      display: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    .section-card,
+    .magic-card,
+    .asset-button,
+    .section-card > img,
+    .magic-card > img,
+    .asset-button > img {
+      outline: none !important;
+      border-color: transparent !important;
+    }
+
+    .section-card,
+    .magic-card {
+      box-shadow: none !important;
+      filter: none !important;
+    }
+  </style>
+
+
+  <style id="areg-v31-clean-pro-layout">
+    /* V18 FINAL: exact equal-size 2x2 section grid */
     .nature-card,.space-card,.mind-card,.create-card{width:344px!important;height:400px!important;}
     .nature-card{left:9px!important;top:260px!important;}
     .space-card{left:356px!important;top:260px!important;}
@@ -33,38 +73,33 @@
 
   <main id="homeScreen" class="screen screen--active" aria-label="Գլխավոր ընտրացանկ">
     <div id="designStage" class="design-stage" role="application" aria-label="Արեգ 3D աշխարհ">
-      <button id="avatarButton" class="asset-button avatar-button hud-item" aria-label="Փոխել կերպարի նկարը">
-        <img class="asset-img" src="avatar-frame.png?v=30" alt="" draggable="false" />
+      <button id="avatarButton" class="asset-button avatar-button" aria-label="Փոխել կերպարի նկարը">
+        <img class="asset-img" src="avatar-frame.png?v=31" alt="" draggable="false" />
         <img id="savedAvatar" class="saved-avatar" alt="Ընտրված նկար" draggable="false" hidden />
-        <span class="avatar-spark avatar-spark-1" aria-hidden="true"></span>
-        <span class="avatar-spark avatar-spark-2" aria-hidden="true"></span>
       </button>
 
-      <img class="logo asset-img stage-float" src="logo.png?v=30" alt="Արեգ 3D աշխարհ" draggable="false" />
+      <img class="logo asset-img" src="logo.png?v=31" alt="Արեգ 3D աշխարհ" draggable="false" />
 
-      <button id="starCounter" class="asset-button star-counter hud-item" aria-label="120 աստղ">
-        <img class="asset-img" src="star-counter.png?v=30" alt="120 աստղ" draggable="false" />
+      <button id="starCounter" class="asset-button star-counter" aria-label="120 աստղ">
+        <img class="asset-img" src="star-counter.png?v=31" alt="120 աստղ" draggable="false" />
       </button>
 
-      <button id="settingsButton" class="asset-button settings-button hud-item" aria-label="Կարգավորումներ">
-        <img class="asset-img" src="settings.png?v=30" alt="" draggable="false" />
+      <button id="settingsButton" class="asset-button settings-button" aria-label="Կարգավորումներ">
+        <img class="asset-img" src="settings.png?v=31" alt="" draggable="false" />
       </button>
 
       <button class="section-card nature-card" data-section="nature" aria-label="Բնություն">
-        <img class="asset-img" src="nature.png?v=30" alt="Բնություն" draggable="false" />
-        <span class="status-badge">4/12</span>
+        <img class="asset-img" src="nature.png?v=31" alt="Բնություն" draggable="false" />
         <span class="card-layer nature-deer-head" aria-hidden="true"></span>
         <span class="card-layer nature-bird" aria-hidden="true"></span>
         <span class="card-fx nature-glint nature-glint-a" aria-hidden="true"></span>
         <span class="card-fx nature-glint nature-glint-b" aria-hidden="true"></span>
         <span class="nature-water-shimmer" aria-hidden="true"></span>
-        <img class="frame-guard" src="nature-frame-guard.png?v=30" alt="" aria-hidden="true" draggable="false" />
+        <img class="frame-guard" src="nature-frame-guard.png?v=31" alt="" aria-hidden="true" draggable="false" />
         <span class="card-shine-mask" aria-hidden="true"><span class="card-shine-band"></span></span>
       </button>
-
       <button class="section-card space-card" data-section="space" aria-label="Տիեզերք">
-        <img class="asset-img" src="space.png?v=30" alt="Տիեզերք" draggable="false" />
-        <span class="status-badge new-badge">Նոր</span>
+        <img class="asset-img" src="space.png?v=31" alt="Տիեզերք" draggable="false" />
         <span class="card-layer space-earth" aria-hidden="true"></span>
         <span class="card-layer space-saturn" aria-hidden="true"></span>
         <span class="card-layer space-astronaut" aria-hidden="true"></span>
@@ -72,56 +107,43 @@
         <span class="space-twinkle st1" aria-hidden="true"></span>
         <span class="space-twinkle st2" aria-hidden="true"></span>
         <span class="space-twinkle st3" aria-hidden="true"></span>
-        <img class="frame-guard" src="space-frame-guard.png?v=30" alt="" aria-hidden="true" draggable="false" />
+        <img class="frame-guard" src="space-frame-guard.png?v=31" alt="" aria-hidden="true" draggable="false" />
         <span class="card-shine-mask" aria-hidden="true"><span class="card-shine-band"></span></span>
       </button>
-
       <button class="section-card mind-card" data-section="mind" aria-label="Մտքի խաղեր">
-        <img class="asset-img" src="mind.png?v=30" alt="Մտքի խաղեր" draggable="false" />
-        <span class="status-badge">2/10</span>
+        <img class="asset-img" src="mind.png?v=31" alt="Մտքի խաղեր" draggable="false" />
         <span class="card-layer mind-blocks" aria-hidden="true"></span>
         <span class="mind-thought-dot md1" aria-hidden="true"></span>
         <span class="mind-thought-dot md2" aria-hidden="true"></span>
         <span class="card-shine-mask" aria-hidden="true"><span class="card-shine-band"></span></span>
       </button>
-
       <button class="section-card create-card" data-section="create" aria-label="Ստեղծագործություն">
-        <img class="asset-img" src="create.png?v=30" alt="Ստեղծագործություն" draggable="false" />
-        <span class="status-badge">3/8</span>
+        <img class="asset-img" src="create.png?v=31" alt="Ստեղծագործություն" draggable="false" />
         <span class="card-layer create-dog" aria-hidden="true"></span>
         <span class="create-paint-spark cp1" aria-hidden="true"></span>
         <span class="create-paint-spark cp2" aria-hidden="true"></span>
         <span class="create-rainbow-glow" aria-hidden="true"></span>
         <span class="card-shine-mask" aria-hidden="true"><span class="card-shine-band"></span></span>
       </button>
-
-      <button class="section-card magic-card special-card" data-section="magic" aria-label="Կախարդական աստղի սենյակ">
+      <button class="section-card magic-card" data-section="magic" aria-label="Կախարդական աստղի սենյակ">
         <span class="magic-glow" aria-hidden="true"></span>
-        <img class="asset-img" src="magic.png?v=30" alt="Կախարդական աստղի սենյակ" draggable="false" />
-        <span class="special-badge">SPECIAL</span>
+        <img class="asset-img" src="magic.png?v=31" alt="Կախարդական աստղի սենյակ" draggable="false" />
         <span class="card-layer magic-star-float" aria-hidden="true"></span>
         <span class="magic-spark ms1" aria-hidden="true"></span>
         <span class="magic-spark ms2" aria-hidden="true"></span>
         <span class="magic-spark ms3" aria-hidden="true"></span>
         <span class="magic-book-glow" aria-hidden="true"></span>
-        <img class="frame-guard" src="magic-frame-guard.png?v=30" alt="" aria-hidden="true" draggable="false" />
+        <img class="frame-guard" src="magic-frame-guard.png?v=31" alt="" aria-hidden="true" draggable="false" />
         <span class="card-shine-mask" aria-hidden="true"><span class="card-shine-band"></span></span>
       </button>
 
-      <img class="bottom-landscape asset-img stage-float" src="bottom-landscape.png?v=30" alt="" draggable="false" />
+      <img class="bottom-landscape asset-img" src="bottom-landscape.png?v=31" alt="" draggable="false" />
     </div>
   </main>
 
   <section id="sectionScreen" class="screen section-screen" aria-live="polite" hidden>
-    <div class="section-backdrop"></div>
     <button id="sectionBack" class="wood-button back-button" aria-label="Հետ">‹ <span>Հետ</span></button>
-    <div class="section-panel">
-      <div id="sectionIcon" class="section-icon"></div>
-      <h2 id="sectionTitle">Բաժին</h2>
-      <p id="sectionText" class="section-text">Շուտով այստեղ կհայտնվեն խաղեր և արկածներ։</p>
-      <div id="sectionMeta" class="section-meta"></div>
-      <div class="coming-soon">Շուտով</div>
-    </div>
+    <div class="coming-soon">Շուտով</div>
   </section>
 
   <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
@@ -136,7 +158,7 @@
         <label class="setting-row"><span>Ընդհանուր ձայն</span><input id="masterSound" type="checkbox" /><span class="switch"></span></label>
         <label class="setting-row"><span>Երաժշտություն</span><input id="musicSound" type="checkbox" /><span class="switch"></span></label>
         <label class="setting-row"><span>Ձայնային հուշումներ</span><input id="voiceHints" type="checkbox" /><span class="switch"></span></label>
-        <label class="setting-row"><span>Անիմացիոն էֆեկտներ</span><input id="gameEffects" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Խաղի էֆեկտներ</span><input id="gameEffects" type="checkbox" /><span class="switch"></span></label>
       </div>
 
       <h3 class="theme-heading">Թեմա</h3>
@@ -163,17 +185,34 @@
 
       <div class="zoom-tools">
         <button id="zoomOut" class="round-tool" aria-label="Փոքրացնել">−</button>
-        <input id="zoomSlider" type="range" min="0.4" max="4" step="0.01" value="1" />
+        <input id="zoomSlider" type="range" min="0.4" max="4" step="0.01" value="1" aria-label="Մասշտաբ" />
         <button id="zoomIn" class="round-tool" aria-label="Մեծացնել">+</button>
       </div>
-
       <p class="crop-help">Քաշիր՝ տեղաշարժելու համար, երկու մատով՝ մեծացնելու կամ փոքրացնելու։</p>
       <button id="saveAvatar" class="wood-button save-avatar" disabled>Պահպանել</button>
     </div>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <audio id="menuMusic" src="menu-music.mp3?v=30" loop preload="auto"></audio>
-  <script src="app.js?v=30"></script>
+
+  <audio id="menuMusic" src="menu-music.mp3?v=31" loop preload="auto"></audio>
+<script>
+    (function(){
+      const v = encodeURIComponent(window.__AREG_BUILD || String(Date.now()));
+      const files = ['app.js','v9-fix.js'];
+      let chain = Promise.resolve();
+      files.forEach(function(file){
+        chain = chain.then(function(){
+          return new Promise(function(resolve, reject){
+            const s = document.createElement('script');
+            s.src = file + '?v=' + v;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.body.appendChild(s);
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
