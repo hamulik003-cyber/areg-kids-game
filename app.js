@@ -4,7 +4,6 @@
   const DESIGN_W = 709;
   const DESIGN_H = 1536;
   const root = document.documentElement;
-  const body = document.body;
   const $ = (s, ctx = document) => ctx.querySelector(s);
   const $$ = (s, ctx = document) => [...ctx.querySelectorAll(s)];
 
@@ -15,13 +14,22 @@
   const avatarModal = $('#avatarModal');
   const menuMusic = $('#menuMusic');
   const toast = $('#toast');
+  const starCounter = $('#starCounter');
 
-  const SETTINGS_KEY = 'areg-settings-v1';
-  const AVATAR_KEY = 'areg-avatar-v2';
-  const AVATAR_SOURCE_KEY = 'areg-avatar-source-v2';
+  const SETTINGS_KEY = 'areg-settings-v30';
+  const AVATAR_KEY = 'areg-avatar-v30';
+  const AVATAR_SOURCE_KEY = 'areg-avatar-source-v30';
   const defaultSettings = { master:true, music:true, voice:true, effects:true, theme:'day' };
   let settings = loadJson(SETTINGS_KEY, defaultSettings);
   settings = { ...defaultSettings, ...settings };
+
+  const sectionMeta = {
+    nature: { title:'Բնություն', icon:'🌿', text:'Կենդանիներ, բնության հեքիաթներ և խաղաղ արկածներ։', meta:'Առաջընթաց՝ 4/12 • Հեշտ մակարդակ', accent:'#90db75' },
+    space: { title:'Տիեզերք', icon:'🚀', text:'Մոլորակներ, աստղեր և փայլուն տիեզերական ճանապարհորդություն։', meta:'Նոր բաժին • 2 փոքրիկ առաքելություն', accent:'#8cc7ff' },
+    mind: { title:'Մտքի խաղեր', icon:'🧠', text:'Թվեր, ձևեր և խելացի գլուխկոտրուկներ։', meta:'Առաջընթաց՝ 2/10 • Զարգացնող', accent:'#ffd96f' },
+    create: { title:'Ստեղծագործություն', icon:'🎨', text:'Նկարչություն, գույներ և ստեղծագործական առաջադրանքներ։', meta:'Առաջընթաց՝ 3/8 • Ստեղծիր', accent:'#ffb981' },
+    magic: { title:'Կախարդական աստղի սենյակ', icon:'⭐', text:'Հատուկ կախարդական սենյակ՝ գիշերային պատմություններով ու գաղտնիքներով։', meta:'SPECIAL • Պրեմիում զգացողություն', accent:'#ffe27c' }
+  };
 
   const themes = [
     ['day','Day'],['night','Night'],['winter','Winter'],['rain','Rain'],['aurora','Aurora'],
@@ -33,7 +41,7 @@
   }
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
 
-  // Accurate fixed viewport height for iOS Safari / installed PWA.
+  // ---- viewport / safe area ------------------------------------------------
   const safeProbe = document.createElement('div');
   Object.assign(safeProbe.style, {
     position:'fixed', inset:'0', visibility:'hidden', pointerEvents:'none',
@@ -49,39 +57,23 @@
 
     const viewportW = vv?.width || window.innerWidth;
     const viewportH = vv?.height || window.innerHeight;
-
     const cs = getComputedStyle(safeProbe);
     let safeTop = parseFloat(cs.paddingTop) || 0;
-    let safeRight = parseFloat(cs.paddingRight) || 0;
     let safeBottom = parseFloat(cs.paddingBottom) || 0;
-    let safeLeft = parseFloat(cs.paddingLeft) || 0;
-
     let layoutW = viewportW;
     let layoutH = viewportH;
 
     if (standalone && isiOS) {
-      // Native-game pattern: render the game world full-bleed, then keep only
-      // interactive HUD controls inside the safe area.
-      //
-      // iOS standalone PWAs can under-report visualViewport / 100dvh by the
-      // status/safe-area amount. Use full screen geometry for the 709x1536
-      // master stage instead of shrinking the entire composition.
       const sw = window.screen?.width || viewportW;
       const sh = window.screen?.height || viewportH;
       const portrait = viewportW <= viewportH;
       layoutW = portrait ? Math.min(sw, sh) : Math.max(sw, sh);
       layoutH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
-
       if (!Number.isFinite(layoutW) || Math.abs(layoutW - viewportW) > 120) layoutW = viewportW;
       if (!Number.isFinite(layoutH) || layoutH < viewportH) layoutH = Math.max(viewportH, window.innerHeight || 0);
-
-      // env() can be late/zero on an installed PWA cold start.
       const longSide = Math.max(sw, sh);
       const fallbackTop = longSide >= 852 ? 59 : longSide >= 812 ? 47 : 20;
       safeTop = Math.max(safeTop, fallbackTop);
-      safeLeft = Math.max(0, safeLeft);
-      safeRight = Math.max(0, safeRight);
-      safeBottom = Math.max(0, safeBottom);
       root.classList.add('ios-standalone');
     } else {
       root.classList.remove('ios-standalone');
@@ -96,8 +88,6 @@
     root.style.setProperty('--stage-x', `${stageW / 2}px`);
     root.style.setProperty('--stage-y', `${stageH / 2}px`);
 
-    // Keep only the interactive top HUD below Dynamic Island/status content.
-    // Cards, bottom landscape and the decorative logo stay on master coordinates.
     if (standalone && isiOS) {
       const avatarDesiredCssTop = safeTop + 2;
       const controlsDesiredCssTop = safeTop + 8;
@@ -109,11 +99,11 @@
       root.style.setProperty('--avatar-safe-y', '0px');
       root.style.setProperty('--top-controls-safe-y', '0px');
     }
+
+    root.style.setProperty('--safe-bottom-demo', `${safeBottom}px`);
   }
 
   syncViewport();
-  // WebKit can populate safe-area env() values after first paint in an
-  // installed PWA, so re-measure after startup as well.
   [100, 500, 1200].forEach(ms => setTimeout(syncViewport, ms));
   window.addEventListener('pageshow', syncViewport, { passive:true });
   window.addEventListener('orientationchange', () => setTimeout(syncViewport, 120), { passive:true });
@@ -121,18 +111,16 @@
   window.visualViewport?.addEventListener('resize', syncViewport, { passive:true });
   window.visualViewport?.addEventListener('scroll', syncViewport, { passive:true });
 
-  // Make game UI act like an app, without breaking controls/crop interactions.
+  // ---- app-like behavior ---------------------------------------------------
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('dragstart', e => e.preventDefault());
-  document.addEventListener('selectstart', e => {
-    if (!e.target.closest('input')) e.preventDefault();
-  });
+  document.addEventListener('selectstart', e => { if (!e.target.closest('input')) e.preventDefault(); });
   document.addEventListener('gesturestart', e => e.preventDefault(), { passive:false });
   document.addEventListener('touchmove', e => {
     if (!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,input[type="range"]')) e.preventDefault();
   }, { passive:false });
 
-  // Audio
+  // ---- audio ---------------------------------------------------------------
   menuMusic.volume = 0.24;
   let audioUnlocked = false;
   async function ensureAudio() {
@@ -140,13 +128,13 @@
     try {
       await menuMusic.play();
       audioUnlocked = true;
-    } catch { /* iOS waits for first real interaction */ }
+    } catch {}
   }
   function stopMusic() { menuMusic.pause(); }
   function applyAudioSettings() {
     if (settings.master && settings.music) ensureAudio(); else stopMusic();
   }
-  function playTap() { /* intentionally silent: no click/tap sound */ }
+  function playTap() { /* intentionally silent */ }
   ['pointerdown','touchend','keydown'].forEach(type => document.addEventListener(type, () => {
     if (!audioUnlocked) ensureAudio();
   }, { once:true, passive:true }));
@@ -155,7 +143,7 @@
     if (document.hidden) menuMusic.pause(); else applyAudioSettings();
   });
 
-  // Themes
+  // ---- themes --------------------------------------------------------------
   const themeGrid = $('#themeGrid');
   themes.forEach(([id, label]) => {
     const btn = document.createElement('button');
@@ -174,12 +162,6 @@
   function applyTheme() {
     root.dataset.theme = settings.theme;
     $$('.theme-option').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.theme === settings.theme)));
-
-    // iOS standalone reserves a system-owned strip below visualViewport on
-    // some iPhones. We cannot place game elements in that strip, but iOS uses
-    // the page theme color there. Match it to the BOTTOM of the selected theme
-    // gradient so the strip visually continues the game instead of looking like
-    // a separate pale band.
     const meta = $('meta[name="theme-color"]');
     const css = getComputedStyle(root);
     const bgTop = css.getPropertyValue('--bg-1').trim();
@@ -190,13 +172,9 @@
   }
   applyTheme();
 
-  // Settings modal
-  const toggles = {
-    master: $('#masterSound'), music: $('#musicSound'), voice: $('#voiceHints'), effects: $('#gameEffects')
-  };
-  function syncSettingsUI() {
-    Object.entries(toggles).forEach(([k, el]) => el.checked = !!settings[k]);
-  }
+  // ---- settings ------------------------------------------------------------
+  const toggles = { master: $('#masterSound'), music: $('#musicSound'), voice: $('#voiceHints'), effects: $('#gameEffects') };
+  function syncSettingsUI() { Object.entries(toggles).forEach(([k, el]) => el.checked = !!settings[k]); }
   function applyEffectsSetting() { root.classList.toggle('effects-off', !settings.effects); }
   syncSettingsUI();
   applyEffectsSetting();
@@ -211,17 +189,71 @@
   $('#settingsButton').addEventListener('click', () => { playTap(); syncSettingsUI(); settingsModal.hidden = false; });
   $$('[data-close="settings"]').forEach(el => el.addEventListener('click', () => { playTap(); settingsModal.hidden = true; }));
 
-  // Star counter is a real independent button; it only provides subtle feedback for now.
-  $('#starCounter').addEventListener('click', () => { playTap(); showToast('⭐ 120'); });
-
-  // Section navigation
-  $$('.section-card').forEach(card => card.addEventListener('click', () => openSection(card.dataset.section)));
-  function openSection() {
+  // ---- star counter feedback ----------------------------------------------
+  starCounter.addEventListener('click', () => {
     playTap();
-    sectionScreen.hidden = false;
-    requestAnimationFrame(() => sectionScreen.classList.add('is-visible'));
-    homeScreen.style.visibility = 'hidden';
+    starCounter.classList.remove('pop-once');
+    void starCounter.offsetWidth;
+    starCounter.classList.add('pop-once');
+    showToast('⭐ 120 աստղ');
+  });
+
+  // ---- card feedback / section navigation ---------------------------------
+  const cards = $$('.section-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => openSection(card.dataset.section, card));
+    card.addEventListener('pointerdown', () => card.classList.add('is-pressed'));
+    card.addEventListener('pointerup', () => card.classList.remove('is-pressed'));
+    card.addEventListener('pointercancel', () => card.classList.remove('is-pressed'));
+    card.addEventListener('pointerleave', () => card.classList.remove('is-pressed'));
+  });
+
+  let sectionGhost = null;
+  function openSection(section, sourceCard) {
+    playTap();
+    flyStarFromTo(sourceCard, starCounter);
+    runCardTransition(section, sourceCard);
   }
+
+  function runCardTransition(section, sourceCard) {
+    const meta = sectionMeta[section] || { title:'Բաժին', icon:'✨', text:'Շուտով', meta:'', accent:'#ffffff' };
+    $('#sectionTitle').textContent = meta.title;
+    $('#sectionText').textContent = meta.text;
+    $('#sectionMeta').textContent = meta.meta;
+    $('#sectionIcon').textContent = meta.icon;
+    sectionScreen.style.setProperty('--section-accent', meta.accent);
+
+    if (sectionGhost) sectionGhost.remove();
+    const rect = sourceCard.getBoundingClientRect();
+    sectionGhost = document.createElement('div');
+    sectionGhost.className = 'section-ghost';
+    sectionGhost.style.left = `${rect.left}px`;
+    sectionGhost.style.top = `${rect.top}px`;
+    sectionGhost.style.width = `${rect.width}px`;
+    sectionGhost.style.height = `${rect.height}px`;
+    const img = sourceCard.querySelector('.asset-img');
+    sectionGhost.innerHTML = `<img src="${img.getAttribute('src')}" alt="" draggable="false">`;
+    document.body.appendChild(sectionGhost);
+
+    sourceCard.classList.add('launching');
+    sectionScreen.hidden = false;
+    requestAnimationFrame(() => {
+      sectionScreen.classList.add('preparing');
+      sectionGhost.classList.add('expand');
+    });
+    setTimeout(() => {
+      homeScreen.style.visibility = 'hidden';
+      sectionScreen.classList.remove('preparing');
+      sectionScreen.classList.add('is-visible');
+      sectionGhost?.classList.add('fade-out');
+    }, 260);
+    setTimeout(() => {
+      sourceCard.classList.remove('launching');
+      sectionGhost?.remove();
+      sectionGhost = null;
+    }, 560);
+  }
+
   $('#sectionBack').addEventListener('click', () => {
     playTap();
     sectionScreen.classList.remove('is-visible');
@@ -229,7 +261,7 @@
     setTimeout(() => sectionScreen.hidden = true, 220);
   });
 
-  // Avatar cropper
+  // ---- avatar cropper ------------------------------------------------------
   const avatarButton = $('#avatarButton');
   const savedAvatar = $('#savedAvatar');
   const photoInput = $('#photoInput');
@@ -248,10 +280,7 @@
   const persistedAvatar = localStorage.getItem(AVATAR_KEY);
   if (persistedAvatar) { savedAvatar.src = persistedAvatar; savedAvatar.hidden = false; }
 
-  avatarButton.addEventListener('click', () => {
-    playTap();
-    avatarModal.hidden = false;
-  });
+  avatarButton.addEventListener('click', () => { playTap(); avatarModal.hidden = false; });
   $$('[data-close="avatar"]').forEach(el => el.addEventListener('click', () => { playTap(); avatarModal.hidden = true; }));
 
   photoInput.addEventListener('change', async () => {
@@ -263,7 +292,6 @@
       naturalW = cropImage.naturalWidth;
       naturalH = cropImage.naturalHeight;
       zoom = 1; panX = 0; panY = 0; zoomSlider.value = '1';
-      cropImage.style.objectPosition = '50% 50%';
       cropImage.hidden = false; cropPlaceholder.hidden = true; saveAvatar.disabled = false;
       renderCrop();
     };
@@ -373,18 +401,97 @@
   }
   function fileToDataUrl(file) { return new Promise((res,rej) => { const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 
+  // ---- polish --------------------------------------------------------------
   function showToast(text) {
     toast.textContent = text;
     toast.classList.add('show');
     clearTimeout(showToast.t);
-    showToast.t = setTimeout(() => toast.classList.remove('show'), 1100);
+    showToast.t = setTimeout(() => toast.classList.remove('show'), 1200);
   }
 
-  // Register offline shell only on secure origins / localhost (GitHub Pages works).
+  function flyStarFromTo(fromEl, toEl) {
+    const a = fromEl.getBoundingClientRect();
+    const b = toEl.getBoundingClientRect();
+    const star = document.createElement('div');
+    star.className = 'flying-star';
+    star.textContent = '⭐';
+    star.style.left = `${a.left + a.width * 0.5}px`;
+    star.style.top = `${a.top + a.height * 0.42}px`;
+    star.style.setProperty('--dx', `${(b.left + b.width * 0.5) - (a.left + a.width * 0.5)}px`);
+    star.style.setProperty('--dy', `${(b.top + b.height * 0.5) - (a.top + a.height * 0.42)}px`);
+    document.body.appendChild(star);
+    setTimeout(() => {
+      starCounter.classList.remove('pop-once');
+      void starCounter.offsetWidth;
+      starCounter.classList.add('pop-once');
+    }, 420);
+    setTimeout(() => star.remove(), 900);
+  }
+
+  function initFocusLoop() {
+    let index = 0;
+    const ordered = ['nature','space','mind','create','magic'].map(id => $(`[data-section="${id}"]`)).filter(Boolean);
+    function tick() {
+      ordered.forEach(card => card.classList.remove('is-focus'));
+      const active = ordered[index % ordered.length];
+      active?.classList.add('is-focus');
+      index += 1;
+    }
+    tick();
+    setInterval(tick, 2200);
+  }
+
+  function initParallax() {
+    const layers = [
+      { el: $('.logo'), depth: 5, rot: 0.8 },
+      { el: $('.bottom-landscape'), depth: 3, rot: 0 },
+      { el: $('.avatar-button'), depth: 6, rot: 1.1 },
+      { el: $('.star-counter'), depth: 7, rot: 0.8 },
+      { el: $('.settings-button'), depth: 8, rot: 0.8 },
+      ...cards.map((el, i) => ({ el, depth: 4 + (i % 2), rot: i === 4 ? 0.5 : 0.9 }))
+    ];
+
+    let targetX = 0, targetY = 0;
+    let curX = 0, curY = 0;
+    function setTargets(nx, ny) { targetX = nx; targetY = ny; }
+    document.addEventListener('pointermove', e => {
+      setTargets((e.clientX / window.innerWidth - 0.5) * 2, (e.clientY / window.innerHeight - 0.5) * 2);
+    }, { passive:true });
+    document.addEventListener('pointerleave', () => setTargets(0,0), { passive:true });
+
+    let orientationReady = false;
+    function attachOrientation() {
+      if (orientationReady || !window.DeviceOrientationEvent) return;
+      orientationReady = true;
+      window.addEventListener('deviceorientation', e => {
+        const x = Math.max(-1, Math.min(1, (e.gamma || 0) / 20));
+        const y = Math.max(-1, Math.min(1, (e.beta || 0) / 30));
+        setTargets(x, y * 0.8);
+      }, { passive:true });
+    }
+    document.addEventListener('pointerdown', attachOrientation, { once:true, passive:true });
+
+    function frame() {
+      curX += (targetX - curX) * 0.08;
+      curY += (targetY - curY) * 0.08;
+      layers.forEach(({ el, depth, rot }) => {
+        if (!el) return;
+        el.style.setProperty('--tx', `${curX * depth}px`);
+        el.style.setProperty('--ty', `${curY * depth}px`);
+        el.style.setProperty('--rot', `${curX * rot}deg`);
+      });
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  initFocusLoop();
+  initParallax();
+
+  // ---- SW ------------------------------------------------------------------
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
   }
 
-  // Initial audio attempt (browser may reject until first user gesture).
   applyAudioSettings();
 })();
