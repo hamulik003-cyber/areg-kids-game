@@ -12,7 +12,7 @@
   const sectionGames=$('#sectionGames'), sectionStars=$('#sectionStars');
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
-  const SETTINGS_KEY='areg-settings-v34', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v34';
+  const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
   let settings={master:true,music:true,voice:true,effects:true,...loadJson(SETTINGS_KEY,{})};
   let stars=Number(localStorage.getItem(STARS_KEY)||120);
   let currentSection='nature', currentGame=null, gameCleanup=[];
@@ -21,28 +21,28 @@
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
       games:[
-        {id:'shadow',label:'Գտիր ստվերը',thumb:'nature-game-1.jpg',kind:'shadow'},
-        {id:'feed',label:'Կերակրիր կենդանուն',thumb:'nature-game-2.jpg',kind:'feed'},
-        {id:'hatch',label:'Արթնացրու թռչուններին',thumb:'nature-game-3.jpg',kind:'hatch'},
-        {id:'garden',label:'Ծաղկեցրու այգին',thumb:'nature-game-4.jpg',kind:'garden'}
+        {id:'lion',label:'Կենդանիներ',thumb:'nature-game-1.jpg',kind:'shadow'},
+        {id:'birds',label:'Թռչուններ',thumb:'nature-game-2.jpg',kind:'hatch'},
+        {id:'sea',label:'Ջրային կենդանիներ',thumb:'nature-game-3.jpg',kind:'feed'},
+        {id:'flowers',label:'Ծաղիկներ',thumb:'nature-game-4.jpg',kind:'garden'}
       ]
     },
     space:{
       title:'Տիեզերք', hero:'hero-space.jpg', backdrop:'hero-space.jpg',
       games:[
-        {id:'rocket',label:'Հավաքիր հրթիռը',thumb:'space-game-1.jpg',kind:'rocket'},
-        {id:'orbits',label:'Տեղադրիր մոլորակները',thumb:'space-game-2.jpg',kind:'orbits'},
-        {id:'catch',label:'Բռնիր աստղերը',thumb:'space-game-3.jpg',kind:'catch'},
-        {id:'landing',label:'Վայրէջք Լուսնի վրա',thumb:'space-game-4.jpg',kind:'landing'}
+        {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'orbits'},
+        {id:'stars',label:'Աստղեր',thumb:'space-game-2.jpg',kind:'catch'},
+        {id:'rocket',label:'Հրթիռ',thumb:'space-game-3.jpg',kind:'rocket'},
+        {id:'constellation',label:'Համաստեղություն',thumb:'space-game-4.jpg',kind:'connect'}
       ]
     },
     mind:{
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
-        {id:'sort',label:'Դասավորիր գույները',thumb:'mind-game-1.jpg',kind:'sort'},
+        {id:'puzzle',label:'Փազլ',thumb:'mind-game-1.jpg',kind:'sort'},
         {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
         {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'cups',label:'Որտե՞ղ է աստղը',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'numbers',label:'Թվեր',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
