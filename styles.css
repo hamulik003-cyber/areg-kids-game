@@ -70,8 +70,8 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 
 .avatar-button { left:8px; top:calc(58px + var(--avatar-safe-y)); width:180px; height:194px; }
 .logo { position:absolute; left:166px; top:72px; width:418px; height:186px; object-fit:contain; }
-.star-counter { left:478px; top:calc(34px + var(--top-controls-safe-y)); width:139px; height:80px; }
-.settings-button { left:612px; top:calc(38px + var(--top-controls-safe-y)); width:97px; height:92px; }
+.star-counter { left:478px; top:calc(54px + var(--top-controls-safe-y)); width:139px; height:80px; }
+.settings-button { left:612px; top:calc(58px + var(--top-controls-safe-y)); width:97px; height:92px; }
 
 .saved-avatar {
   position:absolute;
@@ -142,6 +142,13 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 .crop-help { margin:9px 0 17px; font-size:13px; line-height:1.35; opacity:.75; }
 .save-avatar { width:100%; }
 .save-avatar:disabled { opacity:.45; filter:grayscale(.3); pointer-events:none; }
+.preset-avatar-head { margin:10px 0 12px; font-size:16px; font-weight:900; color:var(--ink); }
+.preset-avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin:0 0 18px; }
+.preset-avatar-option { appearance:none; border:none; background:rgba(255,255,255,.24); border-radius:20px; padding:4px; box-shadow:0 4px 10px rgba(40,19,6,.12); cursor:pointer; transition:transform .12s ease, box-shadow .2s ease, background .2s ease; }
+.preset-avatar-option:active { transform:scale(.96); }
+.preset-avatar-option[aria-pressed="true"] { background:rgba(255,255,255,.55); box-shadow:0 0 0 3px rgba(255,255,255,.6), 0 0 0 6px rgba(214,132,58,.28), 0 8px 18px rgba(40,19,6,.14); }
+.preset-avatar-option img { display:block; width:100%; aspect-ratio:1; object-fit:cover; border-radius:16px; }
+@media (max-width: 420px){ .preset-avatar-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } }
 
 .toast { position:fixed; z-index:40; left:50%; bottom:calc(var(--safe-bottom) + 22px); transform:translate(-50%,18px); min-width:120px; max-width:82vw; padding:9px 14px; border-radius:14px; background:rgba(36,24,17,.78); color:white; font-weight:700; text-align:center; opacity:0; pointer-events:none; transition:.18s ease; }
 .toast.show { opacity:1; transform:translate(-50%,0); }
