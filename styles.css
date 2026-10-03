@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=32');
+  background-image:url('nature.png?v=34');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=32');
+  background-image:url('space.png?v=34');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=32');
+  background-image:url('space.png?v=34');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=32');
+  background-image:url('space.png?v=34');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=32');
+  background-image:url('space.png?v=34');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=32');
+  background-image:url('mind.png?v=34');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=32');
+  background-image:url('mind.png?v=34');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=32');
+  background-image:url('create.png?v=34');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=32');
+  background-image:url('create.png?v=34');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=32');
+  background-image:url('magic.png?v=34');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=32');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=34');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -857,4 +857,291 @@ html.ios-standalone .modal {
   .activity-content{padding:12px}
   .memory-grid{gap:10px}
   .quiz-question{font-size:24px}
+}
+
+
+/* =========================================================
+   V34 — toddler-first section menus + playable mini-games
+   2–4 years: no reading required to understand interactions.
+   ========================================================= */
+
+.toddler-section-screen{
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease;
+  background:#171431;
+}
+.toddler-section-screen.is-visible{opacity:1;transform:none}
+.section-backdrop-image{
+  position:absolute; inset:-28px; width:calc(100% + 56px); height:calc(100% + 56px);
+  object-fit:cover; filter:blur(15px) saturate(1.05) brightness(.72); transform:scale(1.05);
+}
+.section-dim{
+  position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(9,7,25,.12),rgba(9,7,25,.34));
+}
+.toddler-section-shell{
+  position:absolute; inset:0;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 14px calc(env(safe-area-inset-bottom,0px) + 14px);
+  display:flex; flex-direction:column; gap:12px;
+}
+.toddler-topbar{
+  display:grid; grid-template-columns:58px minmax(0,1fr) 106px; gap:10px; align-items:center;
+}
+.wood-title,.wood-stars,.wood-round{
+  background:linear-gradient(180deg,#ffdca4,#efad65);
+  border:3px solid rgba(112,60,28,.22);
+  box-shadow:0 5px 0 #9c582d,0 11px 22px rgba(20,8,4,.20),inset 0 1px 0 rgba(255,255,255,.6);
+  color:#54220f;
+}
+.wood-round{
+  width:56px;height:56px;border-radius:50%;
+  display:grid;place-items:center;font-weight:900;font-size:31px;
+}
+.wood-title{
+  min-height:58px;border-radius:20px;padding:7px 16px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-weight:900;font-size:clamp(22px,4.8vw,30px);line-height:1.02;
+}
+.wood-stars{
+  height:54px;border-radius:19px;display:flex;align-items:center;justify-content:center;
+  gap:5px;font-size:22px;font-weight:900;padding:0 10px;
+}
+.section-hero-card{
+  position:relative; flex:0 0 min(32vh,305px); min-height:210px;
+  border-radius:29px; overflow:hidden;
+  border:4px solid rgba(255,210,139,.88);
+  box-shadow:0 9px 0 rgba(131,71,33,.7),0 18px 32px rgba(15,6,3,.18);
+  background:#f5d6a0;
+}
+.section-hero-card img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.section-hero-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.24);
+  border-radius:25px;
+}
+.section-games-grid{
+  flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+}
+.toddler-game-card{
+  position:relative;overflow:hidden;min-height:0;border-radius:27px;
+  background:linear-gradient(180deg,#fff2db 0%,#f7d7a8 68%,#efad65 68%,#e99a52 100%);
+  border:4px solid rgba(255,213,144,.95);
+  box-shadow:0 6px 0 rgba(142,78,38,.78),0 12px 22px rgba(20,8,4,.17),inset 0 0 0 2px rgba(121,70,34,.14);
+  transition:transform .13s ease,filter .14s ease;
+}
+.toddler-game-card:active{
+  transform:translateY(3px) scale(.985);
+  filter:brightness(1.035);
+  box-shadow:0 3px 0 rgba(142,78,38,.78),0 7px 14px rgba(20,8,4,.16),inset 0 0 0 2px rgba(121,70,34,.14);
+}
+.toddler-game-card img{
+  position:absolute;left:4px;right:4px;top:4px;width:calc(100% - 8px);height:68%;
+  object-fit:cover;border-radius:21px 21px 16px 16px;display:block;
+}
+.toddler-game-label{
+  position:absolute;left:8px;right:8px;bottom:5px;height:28%;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:2px 7px;color:#51220f;font-weight:900;
+  font-size:clamp(14px,3.6vw,21px);line-height:1.03;letter-spacing:-.025em;
+}
+.toddler-game-card::before,.toddler-game-card::after{
+  content:"";position:absolute;z-index:3;bottom:25%;width:24px;height:13px;
+  background:linear-gradient(135deg,#8fc956,#3d8139);
+  border-radius:100% 0 100% 0;
+}
+.toddler-game-card::before{left:5px;transform:rotate(-25deg)}
+.toddler-game-card::after{right:5px;transform:scaleX(-1) rotate(-25deg)}
+.section-screen[data-section="magic"] .wood-title{font-size:clamp(16px,3.9vw,24px)}
+
+/* Activity screen */
+.activity-screen{
+  background:
+    radial-gradient(circle at 20% 5%,rgba(255,255,255,.14),transparent 30%),
+    linear-gradient(180deg,#21184e,#332467 42%,#181434);
+  color:#4a2312;opacity:0;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease;
+}
+.activity-screen.is-visible{opacity:1;transform:none}
+.activity-shell{
+  position:absolute;inset:0;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px);
+  display:flex;flex-direction:column;gap:10px;
+}
+.activity-topbar{
+  display:grid;grid-template-columns:56px minmax(0,1fr) 100px;gap:10px;align-items:center;
+}
+.activity-title-wrap,.activity-stars{
+  background:linear-gradient(180deg,#ffdca4,#efad65);
+  border:3px solid rgba(112,60,28,.22);
+  box-shadow:0 5px 0 #9c582d,0 10px 20px rgba(20,8,4,.18),inset 0 1px 0 rgba(255,255,255,.6);
+}
+.activity-title-wrap{
+  min-height:58px;border-radius:19px;padding:6px 12px;display:flex;flex-direction:column;justify-content:center;
+}
+.activity-section-title{font-weight:800;font-size:12px;opacity:.68;line-height:1}
+.activity-title{font-weight:900;font-size:clamp(17px,4.2vw,25px);line-height:1.02}
+.activity-stars{
+  height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:21px;font-weight:900;
+}
+.activity-content{
+  flex:1;min-height:0;position:relative;overflow:hidden;
+  border-radius:30px;background:linear-gradient(180deg,#fff4df,#ffe4bd);
+  border:4px solid rgba(255,213,145,.86);
+  box-shadow:0 10px 0 rgba(132,72,34,.48),0 22px 36px rgba(14,6,2,.18),inset 0 0 0 2px rgba(133,78,37,.12);
+}
+.game-surface{position:absolute;inset:0;overflow:hidden}
+.game-hint{
+  position:absolute;z-index:30;left:50%;top:18px;transform:translateX(-50%);
+  width:70px;height:70px;border-radius:50%;
+  display:grid;place-items:center;font-size:38px;background:rgba(255,249,232,.92);
+  box-shadow:0 6px 18px rgba(75,38,15,.16),inset 0 0 0 3px rgba(230,171,90,.22);
+  pointer-events:none;animation:hintBob 1.7s ease-in-out infinite;
+}
+@keyframes hintBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+.game-hint.hide{opacity:0;transition:opacity .2s ease}
+.big-celebrate{
+  position:absolute;inset:0;z-index:60;display:grid;place-items:center;
+  background:rgba(255,245,217,.82);backdrop-filter:blur(4px);
+  font-size:84px;animation:celebrateIn .32s cubic-bezier(.18,.8,.2,1);
+}
+@keyframes celebrateIn{0%{opacity:0;transform:scale(.7)}100%{opacity:1;transform:scale(1)}}
+.confetti-piece{position:absolute;z-index:61;font-size:24px;animation:confettiFall 1.1s ease-out forwards;pointer-events:none}
+@keyframes confettiFall{0%{opacity:0;transform:translateY(-30px) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translateY(240px) rotate(260deg)}}
+
+/* Generic draggable pieces */
+.drag-piece{
+  position:absolute;display:grid;place-items:center;touch-action:none;user-select:none;
+  filter:drop-shadow(0 6px 5px rgba(58,28,10,.18));cursor:grab;
+}
+.drag-piece.dragging{z-index:40;transform:scale(1.08);cursor:grabbing}
+.drop-slot{
+  position:absolute;display:grid;place-items:center;border-radius:22px;
+  background:rgba(255,255,255,.35);border:4px dashed rgba(123,76,40,.26);
+}
+.drop-slot.good{animation:slotPop .35s ease}
+@keyframes slotPop{0%{transform:scale(.92)}60%{transform:scale(1.07)}100%{transform:scale(1)}}
+
+/* Nature 1: shadow match */
+.shadow-animal{font-size:58px;width:86px;height:86px}
+.shadow-slot{font-size:64px;width:106px;height:106px}
+.shadow-slot .sil{filter:brightness(0);opacity:.25}
+
+/* Nature 2: feeding */
+.feed-animal{
+  position:absolute;left:50%;top:27%;transform:translate(-50%,-50%);
+  font-size:110px;filter:drop-shadow(0 10px 8px rgba(65,31,10,.16));
+}
+.feed-bubble{
+  position:absolute;left:66%;top:14%;width:86px;height:72px;border-radius:50%;
+  background:white;display:grid;place-items:center;font-size:38px;
+  box-shadow:0 5px 16px rgba(65,31,10,.14)
+}
+.feed-mouth{position:absolute;left:50%;top:36%;width:110px;height:80px;transform:translateX(-50%)}
+.food-piece{font-size:54px;width:82px;height:82px}
+
+/* Nature 3: hatch */
+.egg-grid{position:absolute;inset:110px 28px 28px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.egg-btn{
+  border-radius:25px;background:linear-gradient(180deg,#dff5ff,#c1e8ff);
+  box-shadow:0 6px 0 #78afcc,inset 0 0 0 3px rgba(255,255,255,.75);
+  font-size:80px;display:grid;place-items:center;position:relative;overflow:hidden;
+}
+.egg-btn.hatched{background:linear-gradient(180deg,#d8f5c2,#b9e89f)}
+.egg-btn .bird{transform:scale(.1);opacity:0;transition:.3s ease}
+.egg-btn.hatched .bird{transform:scale(1);opacity:1}
+.egg-btn.hatched .egg{display:none}
+
+/* Nature 4: garden */
+.garden-bed{position:absolute;left:6%;right:6%;bottom:8%;height:44%;border-radius:30px;background:linear-gradient(#74bf59 0 45%,#9a5b30 45%);overflow:hidden}
+.pot{position:absolute;bottom:12%;width:76px;height:78px;border-radius:16px 16px 26px 26px;background:#bd6f38;display:grid;place-items:end center;font-size:46px}
+.pot .flower{opacity:.12;transform:scale(.4) translateY(24px);transition:.4s ease}
+.pot.bloom .flower{opacity:1;transform:scale(1) translateY(-28px)}
+.watering-can{font-size:76px;width:96px;height:96px;position:absolute;left:8%;top:22%;touch-action:none}
+
+/* Space rocket build */
+.rocket-board{position:absolute;left:50%;top:38%;width:170px;height:300px;transform:translate(-50%,-50%)}
+.rocket-slot{position:absolute;left:50%;transform:translateX(-50%);width:110px;height:100px;border-radius:24px}
+.rocket-piece{font-size:72px;width:100px;height:100px}
+
+/* Orbits */
+.orbit-zone{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:330px;height:330px;border-radius:50%;border:4px solid rgba(90,102,217,.32)}
+.orbit-zone::before,.orbit-zone::after{content:"";position:absolute;border-radius:50%;border:4px solid rgba(90,102,217,.24);left:50%;top:50%;transform:translate(-50%,-50%)}
+.orbit-zone::before{width:230px;height:230px}.orbit-zone::after{width:130px;height:130px}
+.planet-piece{font-size:56px;width:76px;height:76px}
+.orbit-target{position:absolute;width:82px;height:82px;border-radius:50%;border:3px dashed rgba(255,255,255,.45);background:rgba(30,37,95,.12)}
+
+/* Star catcher */
+.space-field{position:absolute;inset:0;background:linear-gradient(#10104e,#1d1767 60%,#5040a1);overflow:hidden}
+.falling-star{position:absolute;font-size:42px;filter:drop-shadow(0 0 9px #ffd95b)}
+.star-catcher{position:absolute;bottom:28px;width:110px;height:70px;display:grid;place-items:center;font-size:64px;touch-action:none}
+.catch-counter{position:absolute;top:16px;right:18px;font-size:30px;font-weight:900;color:#fff}
+
+/* Moon landing */
+.moon-field{position:absolute;inset:0;background:linear-gradient(#0f1049,#201d6d 68%,#aaa4b3 68%);overflow:hidden}
+.lander{position:absolute;left:50%;top:70px;transform:translateX(-50%);font-size:74px}
+.landing-pad{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);width:160px;height:16px;border-radius:10px;background:#ffe27b;box-shadow:0 0 18px #ffe27b}
+.thrust-btn{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:110px;height:55px;border-radius:28px;background:linear-gradient(#ffbd73,#f4743c);box-shadow:0 5px 0 #9c4028;color:white;font-size:28px;font-weight:900;display:grid;place-items:center}
+
+/* Mind */
+.sort-bin{position:absolute;bottom:30px;width:26%;height:28%;border-radius:24px;border:4px solid rgba(255,255,255,.55);box-shadow:0 6px 0 rgba(81,40,18,.16)}
+.color-chip{width:66px;height:66px;border-radius:50%;box-shadow:0 5px 0 rgba(69,34,13,.18);touch-action:none}
+.size-piece{border-radius:50%;background:#61b4ff;box-shadow:0 6px 0 #347db2;touch-action:none}
+.size-slot{border-radius:50%;border:5px dashed rgba(57,91,123,.28);background:rgba(99,182,255,.10)}
+.pattern-row{position:absolute;left:6%;right:6%;top:22%;height:110px;border-radius:24px;background:rgba(255,255,255,.48);display:flex;align-items:center;justify-content:center;gap:10px;font-size:54px}
+.pattern-options{position:absolute;left:6%;right:6%;bottom:12%;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pattern-choice{height:110px;border-radius:24px;background:linear-gradient(#fff,#f5d8aa);box-shadow:0 5px 0 #ba7b42;font-size:54px;display:grid;place-items:center}
+.cups-area{position:absolute;inset:120px 24px 30px;display:flex;align-items:center;justify-content:space-around}
+.cup-btn{width:105px;height:130px;font-size:92px;position:relative;transition:transform .4s ease}
+.cup-star{position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);font-size:42px;opacity:0}
+.cup-btn.reveal .cup-star{opacity:1}
+
+/* Creativity */
+.paint-wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:18px;gap:10px}
+.palette-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.palette-dot{width:38px;height:38px;border-radius:50%;border:3px solid rgba(75,39,17,.22)}
+.paint-canvas-box{flex:1;min-height:0;background:#fff;border-radius:24px;overflow:hidden;box-shadow:inset 0 0 0 3px rgba(76,40,18,.1)}
+.paint-canvas{display:block;width:100%;height:100%;touch-action:none;background:#fff}
+.sticker-scene{position:absolute;left:4%;right:4%;top:8%;bottom:28%;border-radius:26px;background:linear-gradient(#9bd9ff 0 55%,#95d569 55%);overflow:hidden;box-shadow:inset 0 0 0 3px rgba(255,255,255,.3)}
+.sticker-tray{position:absolute;left:4%;right:4%;bottom:5%;height:19%;border-radius:22px;background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:space-around}
+.sticker-item{font-size:52px;width:70px;height:70px;display:grid;place-items:center;touch-action:none}
+.mix-area{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
+.mix-drops{display:flex;gap:18px}.paint-drop{width:86px;height:86px;border-radius:50% 50% 50% 10%;transform:rotate(-45deg);box-shadow:0 6px 0 rgba(75,39,17,.16)}
+.mix-bowl{width:180px;height:110px;border-radius:20px 20px 70px 70px;background:#f1b66d;border:5px solid #b96b38;position:relative;overflow:hidden}
+.mix-liquid{position:absolute;left:8px;right:8px;bottom:8px;height:45px;border-radius:0 0 55px 55px;background:#fff;transition:background .3s ease}
+.block-zone{position:absolute;left:5%;right:5%;top:8%;bottom:8%;border-radius:24px;background:linear-gradient(#bfe7ff 0 62%,#e1b56f 62%);overflow:hidden}
+.block{position:absolute;width:72px;height:72px;border-radius:12px;box-shadow:0 6px 0 rgba(78,39,17,.22);touch-action:none}
+.tower-pad{position:absolute;left:50%;bottom:36px;transform:translateX(-50%);width:150px;height:16px;border-radius:8px;background:#78502f}
+
+/* Magic */
+.star-connect{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#2b2479,#10103f);touch-action:none}
+.connect-star{position:absolute;width:50px;height:50px;display:grid;place-items:center;font-size:40px;filter:drop-shadow(0 0 8px #ffe46f)}
+.connect-star.done{transform:scale(1.18);filter:drop-shadow(0 0 16px #fff3a6)}
+.wand-field{position:absolute;inset:0;background:linear-gradient(#19134e,#37226f);overflow:hidden}
+.magic-object{position:absolute;font-size:52px;filter:grayscale(1) brightness(.55);opacity:.65;transition:.25s ease}
+.magic-object.lit{filter:none;opacity:1;transform:scale(1.18);text-shadow:0 0 15px #ffe87e}
+.magic-wand{position:absolute;font-size:72px;width:90px;height:90px;touch-action:none;filter:drop-shadow(0 0 8px #fff3b0)}
+.potion-area{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:linear-gradient(#35206b,#19123f)}
+.cauldron{font-size:125px;position:relative}.potion-bubbles{position:absolute;left:50%;top:16%;transform:translateX(-50%);font-size:28px;opacity:0}
+.cauldron.bubble .potion-bubbles{opacity:1;animation:bubbleUp .8s ease}
+@keyframes bubbleUp{0%{transform:translate(-50%,25px);opacity:0}30%{opacity:1}100%{transform:translate(-50%,-35px);opacity:0}}
+.ingredients{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.ingredient{width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:44px;box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.story-book{position:absolute;left:8%;right:8%;top:12%;bottom:12%;border-radius:28px;background:linear-gradient(#fff6da,#e7b468);box-shadow:0 10px 0 #8e532d,inset 0 0 0 4px rgba(255,255,255,.45);display:grid;place-items:center;overflow:hidden}
+.story-scene{font-size:110px;transition:.28s ease;filter:drop-shadow(0 8px 6px rgba(52,23,8,.16))}
+.story-scene.pop{transform:scale(1.22) rotate(5deg)}
+.page-dots{position:absolute;bottom:18px;left:0;right:0;display:flex;justify-content:center;gap:7px}.page-dot{width:10px;height:10px;border-radius:50%;background:rgba(82,43,18,.22)}.page-dot.on{background:#7d4525}
+
+/* completion and accessibility */
+.effects-off *{animation:none!important}
+@media (max-height:760px){
+  .toddler-section-shell{gap:8px;padding-top:calc(env(safe-area-inset-top,0px) + 8px)}
+  .section-hero-card{flex-basis:26vh;min-height:165px}
+  .section-games-grid{gap:9px}
+  .toddler-topbar{grid-template-columns:50px minmax(0,1fr) 94px}
+  .wood-round{width:50px;height:50px}
+  .wood-title{min-height:52px}
+  .wood-stars{height:50px}
+  .activity-shell{padding-top:calc(env(safe-area-inset-top,0px) + 8px)}
 }

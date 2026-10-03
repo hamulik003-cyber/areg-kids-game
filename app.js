@@ -1,549 +1,341 @@
 (() => {
   'use strict';
 
-  const DESIGN_W = 709;
-  const DESIGN_H = 1536;
-  const SECTION_W = 941;
-  const SECTION_H = 1672;
+  const DESIGN_W = 709, DESIGN_H = 1536;
   const root = document.documentElement;
-  const body = document.body;
-  const $ = (s, ctx = document) => ctx.querySelector(s);
-  const $$ = (s, ctx = document) => [...ctx.querySelectorAll(s)];
+  const $ = (s,c=document)=>c.querySelector(s);
+  const $$ = (s,c=document)=>[...c.querySelectorAll(s)];
 
-  const homeScreen = $('#homeScreen');
-  const sectionScreen = $('#sectionScreen');
-  const activityScreen = $('#activityScreen');
-  const sectionStage = $('#sectionStage');
-  const sectionHotspots = $('#sectionHotspots');
-  const sectionFullImage = $('#sectionFullImage');
-  const settingsModal = $('#settingsModal');
-  const avatarModal = $('#avatarModal');
-  const menuMusic = $('#menuMusic');
-  const toast = $('#toast');
-  const activityTitle = $('#activityTitle');
-  const activitySectionTitle = $('#activitySectionTitle');
-  const activityContent = $('#activityContent');
-  const activityStars = $('#activityStars');
+  const homeScreen=$('#homeScreen'), sectionScreen=$('#sectionScreen'), activityScreen=$('#activityScreen');
+  const settingsModal=$('#settingsModal'), avatarModal=$('#avatarModal'), menuMusic=$('#menuMusic'), toast=$('#toast');
+  const sectionBackdrop=$('#sectionBackdrop'), sectionHero=$('#sectionHero'), sectionTitle=$('#sectionTitle');
+  const sectionGames=$('#sectionGames'), sectionStars=$('#sectionStars');
+  const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
-  const SETTINGS_KEY = 'areg-settings-v33';
-  const AVATAR_KEY = 'areg-avatar-v2';
-  const AVATAR_SOURCE_KEY = 'areg-avatar-source-v2';
-  const STARS_KEY = 'areg-stars-v33';
-  const defaultSettings = { master:true, music:true, voice:true, effects:true };
-  let settings = loadJson(SETTINGS_KEY, defaultSettings);
-  settings = { ...defaultSettings, ...settings };
-  let stars = Number(localStorage.getItem(STARS_KEY) || 120);
+  const SETTINGS_KEY='areg-settings-v34', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v34';
+  let settings={master:true,music:true,voice:true,effects:true,...loadJson(SETTINGS_KEY,{})};
+  let stars=Number(localStorage.getItem(STARS_KEY)||120);
+  let currentSection='nature', currentGame=null, gameCleanup=[];
 
-  const COMMON_BACK = { x: 30, y: 35, w: 96, h: 96, type: 'back', className: 'back' };
-
-  const SECTION_DATA = {
-    nature: {
-      title: 'Բնություն',
-      image: 'section-nature.png?v=33',
-      back: COMMON_BACK,
-      games: [
-        { id:'animals', label:'Կենդանիներ', x: 45, y: 751, w: 424, h: 250, kind:'quiz', question:'Ո՞ր կենդանին է անտառում ապրում։', options:['Եղնիկ','Հրթիռ','Մոլորակ'], answer:0 },
-        { id:'birds', label:'Թռչուններ', x: 486, y: 751, w: 410, h: 250, kind:'memory', pairs:['🐦','🦉','🦜'] },
-        { id:'ocean', label:'Օվկիանոս', x: 45, y: 1034, w: 424, h: 250, kind:'quiz', question:'Ո՞վ է ջրում լողում։', options:['Դելֆին','Աստղ','Առյուծ'], answer:0 },
-        { id:'flowers', label:'Ծաղիկներ', x: 486, y: 1034, w: 410, h: 250, kind:'tap', target:'🌼', total:6, bg:'nature' },
-        { id:'trees', label:'Ծառեր', x: 45, y: 1317, w: 424, h: 250, kind:'memory', pairs:['🌳','🌲','🍃'] },
-        { id:'planet', label:'Երկիր մոլորակ', x: 486, y: 1317, w: 410, h: 250, kind:'quiz', question:'Մեր մոլորակը ո՞րն է։', options:['Երկիր','Սատուրն','Լուսին'], answer:0 }
+  const SECTIONS={
+    nature:{
+      title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
+      games:[
+        {id:'shadow',label:'Գտիր ստվերը',thumb:'nature-game-1.jpg',kind:'shadow'},
+        {id:'feed',label:'Կերակրիր կենդանուն',thumb:'nature-game-2.jpg',kind:'feed'},
+        {id:'hatch',label:'Արթնացրու թռչուններին',thumb:'nature-game-3.jpg',kind:'hatch'},
+        {id:'garden',label:'Ծաղկեցրու այգին',thumb:'nature-game-4.jpg',kind:'garden'}
       ]
     },
-    space: {
-      title: 'Տիեզերք',
-      image: 'section-space.png?v=33',
-      back: COMMON_BACK,
-      games: [
-        { id:'planets', label:'Մոլորակներ', x: 35, y: 744, w: 417, h: 246, kind:'memory', pairs:['🪐','🌍','🌕'] },
-        { id:'stars', label:'Աստղեր', x: 488, y: 744, w: 417, h: 246, kind:'tap', target:'⭐', total:7, bg:'space' },
-        { id:'rocket', label:'Տիեզերական խաղեր', x: 35, y: 1024, w: 417, h: 246, kind:'quiz', question:'Ինչո՞վ են թռչում տիեզերք։', options:['Հրթիռով','Ավտոբուսով','Հեծանիվով'], answer:0 },
-        { id:'const', label:'Աստղագուշակություն', x: 488, y: 1024, w: 417, h: 246, kind:'quiz', question:'Քանի՞ աստղ է երևում այս խաղում գտնելու։', options:['3','5','7'], answer:2 },
-        { id:'astronauts', label:'Տիեզերագնացներ', x: 35, y: 1308, w: 417, h: 246, kind:'memory', pairs:['👨‍🚀','🚀','🌌'] },
-        { id:'blackhole', label:'Իրականություն', x: 488, y: 1308, w: 417, h: 246, kind:'quiz', question:'Սև խոռոչը ինչ գույնի է։', options:['Սև','Կանաչ','Դեղին'], answer:0 }
+    space:{
+      title:'Տիեզերք', hero:'hero-space.jpg', backdrop:'hero-space.jpg',
+      games:[
+        {id:'rocket',label:'Հավաքիր հրթիռը',thumb:'space-game-1.jpg',kind:'rocket'},
+        {id:'orbits',label:'Տեղադրիր մոլորակները',thumb:'space-game-2.jpg',kind:'orbits'},
+        {id:'catch',label:'Բռնիր աստղերը',thumb:'space-game-3.jpg',kind:'catch'},
+        {id:'landing',label:'Վայրէջք Լուսնի վրա',thumb:'space-game-4.jpg',kind:'landing'}
       ]
     },
-    mind: {
-      title: 'Մտքի խաղեր',
-      image: 'section-mind.png?v=33',
-      back: COMMON_BACK,
-      games: [
-        { id:'memory', label:'Հիշողություն', x: 47, y: 707, w: 390, h: 247, kind:'memory', pairs:['🧩','🧠','🔑'] },
-        { id:'logic', label:'Լոգիկա', x: 502, y: 707, w: 390, h: 247, kind:'quiz', question:'Ո՞րը է տարբերվում։', options:['Կլոր','Քառակուսի','Աղվես'], answer:2 },
-        { id:'diff', label:'Տարբերությունները', x: 47, y: 988, w: 390, h: 247, kind:'quiz', question:'Աչքերով գտիր ճիշտ պատասխանը։', options:['Մեծ','Փոքր','Միջին'], answer:1 },
-        { id:'numbers', label:'Թվեր', x: 502, y: 988, w: 390, h: 247, kind:'quiz', question:'1-ից հետո ո՞ր թիվն է։', options:['2','5','9'], answer:0 },
-        { id:'shapes', label:'Ձևեր', x: 47, y: 1271, w: 390, h: 247, kind:'quiz', question:'Ո՞րն է եռանկյունը։', options:['🔺','⚪','🟥'], answer:0 },
-        { id:'puzzle', label:'Փազլեր', x: 502, y: 1271, w: 390, h: 247, kind:'memory', pairs:['🟦','🟥','🟨'] }
+    mind:{
+      title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
+      games:[
+        {id:'sort',label:'Դասավորիր գույները',thumb:'mind-game-1.jpg',kind:'sort'},
+        {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'cups',label:'Որտե՞ղ է աստղը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
-    create: {
-      title: 'Ստեղծագործություն',
-      image: 'section-create.png?v=33',
-      back: COMMON_BACK,
-      games: [
-        { id:'paint', label:'Նկարչություն', x: 31, y: 816, w: 268, h: 250, kind:'draw' },
-        { id:'coloring', label:'Գունավորում', x: 337, y: 816, w: 268, h: 250, kind:'draw' },
-        { id:'stickers', label:'Սթիքերներ', x: 640, y: 816, w: 268, h: 250, kind:'tap', target:'⭐', total:5, bg:'create' },
-        { id:'build', label:'Կոնստրուկտոր', x: 31, y: 1099, w: 268, h: 250, kind:'memory', pairs:['🧱','🟦','🟨'] },
-        { id:'origami', label:'Օրիգամի', x: 337, y: 1099, w: 268, h: 250, kind:'quiz', question:'Թղթից ի՞նչ կարելի է ծալել։', options:['Օրիգամի','Մոլորակ','Ջուր'], answer:0 },
-        { id:'camera', label:'Դիզայն', x: 640, y: 1099, w: 268, h: 250, kind:'quiz', question:'Նկարը ինչո՞վ են նկարում։', options:['Տեսախցիկով','Գդալով','Կոշիկով'], answer:0 }
+    create:{
+      title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
+      games:[
+        {id:'paint',label:'Մատիկով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
+        {id:'stickers',label:'Սթիքերների աշխարհ',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
+        {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
-    magic: {
-      title: 'Կախարդական աստղի սենյակ',
-      image: 'section-magic.png?v=33',
-      back: COMMON_BACK,
-      games: [
-        { id:'stories', label:'Հեքիաթներ', x: 28, y: 939, w: 275, h: 250, kind:'quiz', question:'Հեքիաթները որտե՞ղ են ապրում։', options:['Գրքում','Հրթիռում','Ավտոյում'], answer:0 },
-        { id:'knowledge', label:'Գիտելիքներ', x: 333, y: 939, w: 275, h: 250, kind:'quiz', question:'Լամպը ի՞նչ է տալիս։', options:['Լույս','Անտառ','Ալիք'], answer:0 },
-        { id:'stargaze', label:'Աստղադիտում', x: 638, y: 939, w: 275, h: 250, kind:'tap', target:'⭐', total:6, bg:'magic' },
-        { id:'collect', label:'Աստղերի խաղեր', x: 28, y: 1217, w: 275, h: 250, kind:'tap', target:'✨', total:8, bg:'magic' },
-        { id:'wins', label:'Կանոններ', x: 333, y: 1217, w: 275, h: 250, kind:'memory', pairs:['🏆','⭐','🎁'] },
-        { id:'book', label:'Իմ գիրքը', x: 638, y: 1217, w: 275, h: 250, kind:'draw' }
+    magic:{
+      title:'Կախարդական աստղի սենյակ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
+      games:[
+        {id:'connect',label:'Միացրու աստղերը',thumb:'magic-game-1.jpg',kind:'connect'},
+        {id:'wand',label:'Կախարդական փայտիկ',thumb:'magic-game-2.jpg',kind:'wand'},
+        {id:'potion',label:'Կախարդական ըմպելիք',thumb:'magic-game-3.jpg',kind:'potion'},
+        {id:'book',label:'Կենդանի հեքիաթագիրք',thumb:'magic-game-4.jpg',kind:'book'}
       ]
     }
   };
 
-  let currentSectionId = 'nature';
-  let currentGame = null;
-  let audioUnlocked = false;
+  function loadJson(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}
+  function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings))}
+  function saveStars(){localStorage.setItem(STARS_KEY,String(stars))}
+  function updateStars(){sectionStars.textContent=String(stars);activityStars.textContent=String(stars)}
 
-  function loadJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
-  function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
-  function saveStars() { localStorage.setItem(STARS_KEY, String(stars)); }
-
-  const safeProbe = document.createElement('div');
-  Object.assign(safeProbe.style, {
-    position:'fixed', inset:'0', visibility:'hidden', pointerEvents:'none',
-    paddingTop:'env(safe-area-inset-top, 0px)', paddingRight:'env(safe-area-inset-right, 0px)',
-    paddingBottom:'env(safe-area-inset-bottom, 0px)', paddingLeft:'env(safe-area-inset-left, 0px)'
-  });
+  /* viewport */
+  const safeProbe=document.createElement('div');
+  Object.assign(safeProbe.style,{position:'fixed',inset:'0',visibility:'hidden',pointerEvents:'none',paddingTop:'env(safe-area-inset-top,0px)'});
   document.body.appendChild(safeProbe);
+  function syncViewport(){
+    const vv=visualViewport, vw=vv?.width||innerWidth, vh=vv?.height||innerHeight;
+    const standalone=matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true;
+    const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    let lw=vw,lh=vh,safeTop=parseFloat(getComputedStyle(safeProbe).paddingTop)||0;
+    if(standalone&&ios){
+      const sw=screen?.width||vw,sh=screen?.height||vh,portrait=vw<=vh;
+      lw=portrait?Math.min(sw,sh):Math.max(sw,sh); lh=portrait?Math.max(sw,sh):Math.min(sw,sh);
+      if(!Number.isFinite(lw)||Math.abs(lw-vw)>120)lw=vw;
+      if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
+      safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
+    }else root.classList.remove('ios-standalone');
+    const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
+    root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
+    root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
+    if(standalone&&ios){
+      root.style.setProperty('--avatar-safe-y',`${Math.max(0,(safeTop+2)/scale-58)}px`);
+      root.style.setProperty('--top-controls-safe-y',`${Math.max(0,(safeTop+8)/scale-34)}px`);
+    }else{root.style.setProperty('--avatar-safe-y','0px');root.style.setProperty('--top-controls-safe-y','0px')}
+  }
+  syncViewport();[100,500,1200].forEach(ms=>setTimeout(syncViewport,ms));
+  addEventListener('resize',syncViewport,{passive:true});visualViewport?.addEventListener('resize',syncViewport,{passive:true});
 
-  function syncViewport() {
-    const vv = window.visualViewport;
-    const viewportW = vv?.width || window.innerWidth;
-    const viewportH = vv?.height || window.innerHeight;
-    const sw = window.screen?.width || viewportW;
-    const sh = window.screen?.height || viewportH;
-    const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
-    const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    let layoutW = viewportW;
-    let layoutH = viewportH;
+  document.addEventListener('contextmenu',e=>e.preventDefault());
+  document.addEventListener('dragstart',e=>e.preventDefault());
+  document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+  document.addEventListener('touchmove',e=>{
+    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,input[type="range"],canvas'))e.preventDefault();
+  },{passive:false});
 
-    const cs = getComputedStyle(safeProbe);
-    let safeTop = parseFloat(cs.paddingTop) || 0;
+  /* audio/settings */
+  menuMusic.volume=.24;let audioUnlocked=false;
+  async function ensureAudio(){if(!settings.master||!settings.music)return;try{await menuMusic.play();audioUnlocked=true}catch{}}
+  function applyAudio(){if(settings.master&&settings.music)ensureAudio();else menuMusic.pause()}
+  ['pointerdown','touchend'].forEach(t=>document.addEventListener(t,()=>{if(!audioUnlocked)ensureAudio()},{once:true,passive:true}));
+  document.addEventListener('visibilitychange',()=>document.hidden?menuMusic.pause():applyAudio());applyAudio();
+  const toggles={master:$('#masterSound'),music:$('#musicSound'),voice:$('#voiceHints'),effects:$('#gameEffects')};
+  function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
+  syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));
+  $('#settingsButton').addEventListener('click',()=>{syncSettings();settingsModal.hidden=false});
+  $$('[data-close="settings"]').forEach(e=>e.addEventListener('click',()=>settingsModal.hidden=true));
+  $('#starCounter').addEventListener('click',()=>showToast(`⭐ ${stars}`));
 
-    if (standalone && isiOS) {
-      const portrait = viewportW <= viewportH;
-      layoutW = portrait ? Math.min(sw, sh) : Math.max(sw, sh);
-      layoutH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
-      if (!Number.isFinite(layoutW) || Math.abs(layoutW - viewportW) > 120) layoutW = viewportW;
-      if (!Number.isFinite(layoutH) || layoutH < viewportH) layoutH = Math.max(viewportH, window.innerHeight || 0);
-      const longSide = Math.max(sw, sh);
-      const fallbackTop = longSide >= 852 ? 59 : longSide >= 812 ? 47 : 20;
-      safeTop = Math.max(safeTop, fallbackTop);
-      root.classList.add('ios-standalone');
-    } else {
-      root.classList.remove('ios-standalone');
-    }
+  /* section navigation */
+  $$('.section-card').forEach(card=>card.addEventListener('click',()=>openSection(card.dataset.section)));
+  $('#sectionBack').addEventListener('click',closeSection);
+  $('#activityBack').addEventListener('click',backToSection);
 
-    const stageScale = Math.min(layoutW / DESIGN_W, layoutH / DESIGN_H);
-    const sectionScale = Math.min(layoutW / SECTION_W, layoutH / SECTION_H);
-    root.style.setProperty('--app-h', `${layoutH}px`);
-    root.style.setProperty('--stage-scale', String(stageScale));
-    root.style.setProperty('--section-scale', String(sectionScale));
-    root.style.setProperty('--stage-x', `${layoutW / 2}px`);
-    root.style.setProperty('--stage-y', `${layoutH / 2}px`);
-
-    if (standalone && isiOS) {
-      const avatarShift = Math.max(0, (safeTop + 2) / stageScale - 58);
-      const controlsShift = Math.max(0, (safeTop + 8) / stageScale - 34);
-      root.style.setProperty('--avatar-safe-y', `${avatarShift}px`);
-      root.style.setProperty('--top-controls-safe-y', `${controlsShift}px`);
-    } else {
-      root.style.setProperty('--avatar-safe-y', '0px');
-      root.style.setProperty('--top-controls-safe-y', '0px');
-    }
+  function openSection(id){
+    currentSection=id;const s=SECTIONS[id];if(!s)return;
+    sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
+    updateStars();sectionGames.innerHTML='';
+    s.games.forEach(g=>{
+      const b=document.createElement('button');b.className='toddler-game-card';b.setAttribute('aria-label',g.label);
+      b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="toddler-game-label">${g.label}</span>`;
+      b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
+    });
+    homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));
+  }
+  function closeSection(){sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)}
+  function openGame(section,game){
+    cleanupGame();currentGame=game;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
+    sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
+  }
+  function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
+  function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.innerHTML=''}
+  function renderGame(g){
+    const map={shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    (map[g.kind]||gameShadow)();
   }
 
-  syncViewport();
-  [100,500,1200].forEach(ms => setTimeout(syncViewport, ms));
-  window.addEventListener('pageshow', syncViewport, { passive:true });
-  window.addEventListener('orientationchange', () => setTimeout(syncViewport, 120), { passive:true });
-  window.addEventListener('resize', syncViewport, { passive:true });
-  window.visualViewport?.addEventListener('resize', syncViewport, { passive:true });
-
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('dragstart', e => e.preventDefault());
-  document.addEventListener('selectstart', e => { if (!e.target.closest('input, canvas')) e.preventDefault(); });
-  document.addEventListener('gesturestart', e => e.preventDefault(), { passive:false });
-  document.addEventListener('touchmove', e => {
-    if (!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,input[type="range"],canvas')) e.preventDefault();
-  }, { passive:false });
-
-  menuMusic.volume = 0.24;
-  async function ensureAudio() { if (!settings.master || !settings.music) return; try { await menuMusic.play(); audioUnlocked = true; } catch {} }
-  function stopMusic() { menuMusic.pause(); }
-  function applyAudioSettings() { if (settings.master && settings.music) ensureAudio(); else stopMusic(); }
-  function playTap() {}
-  ['pointerdown','touchend','keydown'].forEach(type => document.addEventListener(type, () => { if (!audioUnlocked) ensureAudio(); }, { once:true, passive:true }));
-  document.addEventListener('visibilitychange', () => { if (document.hidden) menuMusic.pause(); else applyAudioSettings(); });
-  applyAudioSettings();
-
-  const toggles = { master: $('#masterSound'), music: $('#musicSound'), voice: $('#voiceHints'), effects: $('#gameEffects') };
-  function syncSettingsUI() { Object.entries(toggles).forEach(([k, el]) => el.checked = !!settings[k]); }
-  syncSettingsUI();
-  Object.entries(toggles).forEach(([key, input]) => {
-    input.addEventListener('change', () => { settings[key] = input.checked; saveSettings(); applyAudioSettings(); root.classList.toggle('effects-off', !settings.effects); });
-  });
-  $('#settingsButton').addEventListener('click', () => { playTap(); syncSettingsUI(); settingsModal.hidden = false; });
-  $$('[data-close="settings"]').forEach(el => el.addEventListener('click', () => { playTap(); settingsModal.hidden = true; }));
-  $('#starCounter').addEventListener('click', () => showToast(`⭐ ${stars}`));
-
-  // Main menu section buttons
-  $$('.section-card').forEach(card => card.addEventListener('click', () => openSection(card.dataset.section)));
-
-  function openSection(sectionId) {
-    currentSectionId = sectionId;
-    const data = SECTION_DATA[sectionId];
-    if (!data) return;
-    playTap();
-    sectionFullImage.src = data.image;
-    sectionFullImage.alt = data.title;
-    renderSectionHotspots(data);
-    homeScreen.style.visibility = 'hidden';
-    sectionScreen.hidden = false;
-    requestAnimationFrame(() => sectionScreen.classList.add('is-visible'));
+  function surface(hint='👆'){activityContent.innerHTML='<div class="game-surface"></div>';const s=$('.game-surface',activityContent);if(hint){const h=document.createElement('div');h.className='game-hint';h.textContent=hint;s.appendChild(h);const hide=()=>h.classList.add('hide');s.addEventListener('pointerdown',hide,{once:true});}return s}
+  function reward(n=2){stars+=n;saveStars();updateStars();celebrate()}
+  function celebrate(){
+    const o=document.createElement('div');o.className='big-celebrate';o.innerHTML='<div>🌟</div>';activityContent.appendChild(o);
+    for(let i=0;i<18;i++){const c=document.createElement('span');c.className='confetti-piece';c.textContent=['⭐','✨','●'][i%3];c.style.left=`${5+Math.random()*90}%`;c.style.top=`${-10-Math.random()*25}px`;c.style.animationDelay=`${Math.random()*.25}s`;o.appendChild(c)}
+    setTimeout(()=>o.remove(),1000);
+  }
+  function completeOnce(el,n=2){if(el.dataset.done)return;el.dataset.done='1';reward(n)}
+  function shake(el){el.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],{duration:260})}
+  function rectOverlap(a,b){const A=a.getBoundingClientRect(),B=b.getBoundingClientRect();return A.left<B.right&&A.right>B.left&&A.top<B.bottom&&A.bottom>B.top}
+  function makeDrag(el,{onMove,onDrop,container=activityContent}={}){
+    let sx=0,sy=0,ox=0,oy=0,drag=false;
+    const down=e=>{drag=true;el.classList.add('dragging');el.setPointerCapture?.(e.pointerId);sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left)||el.offsetLeft;oy=parseFloat(el.style.top)||el.offsetTop;e.preventDefault()};
+    const move=e=>{if(!drag)return;const cr=container.getBoundingClientRect(),x=Math.max(0,Math.min(cr.width-el.offsetWidth,ox+e.clientX-sx)),y=Math.max(0,Math.min(cr.height-el.offsetHeight,oy+e.clientY-sy));el.style.left=x+'px';el.style.top=y+'px';onMove?.(el,e)};
+    const up=e=>{if(!drag)return;drag=false;el.classList.remove('dragging');onDrop?.(el,e)};
+    el.addEventListener('pointerdown',down);el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+    gameCleanup.push(()=>{el.removeEventListener('pointerdown',down);el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up)});
   }
 
-  function closeSection() {
-    sectionScreen.classList.remove('is-visible');
-    setTimeout(() => { sectionScreen.hidden = true; homeScreen.style.visibility = 'visible'; }, 180);
-  }
-
-  function renderSectionHotspots(section) {
-    sectionHotspots.innerHTML = '';
-    const back = document.createElement('button');
-    back.className = 'hotspot-btn back';
-    back.style.left = `${section.back.x}px`;
-    back.style.top = `${section.back.y}px`;
-    back.style.width = `${section.back.w}px`;
-    back.style.height = `${section.back.h}px`;
-    back.setAttribute('aria-label', 'Հետ');
-    back.addEventListener('click', closeSection);
-    sectionHotspots.appendChild(back);
-
-    section.games.forEach(game => {
-      const btn = document.createElement('button');
-      btn.className = 'hotspot-btn game';
-      btn.style.left = `${game.x}px`;
-      btn.style.top = `${game.y}px`;
-      btn.style.width = `${game.w}px`;
-      btn.style.height = `${game.h}px`;
-      btn.setAttribute('aria-label', game.label);
-      btn.addEventListener('click', () => openActivity(section, game));
-      sectionHotspots.appendChild(btn);
+  /* NATURE */
+  function gameShadow(){
+    const s=surface('☝️'),animals=[['🦁','lion'],['🐘','ele'],['🐇','bun']];let done=0;
+    animals.forEach(([ico,key],i)=>{
+      const slot=document.createElement('div');slot.className='drop-slot shadow-slot';slot.dataset.key=key;slot.style.left=`${10+i*31}%`;slot.style.top='17%';slot.innerHTML=`<span class="sil">${ico}</span>`;s.appendChild(slot);
+      const p=document.createElement('div');p.className='drag-piece shadow-animal';p.dataset.key=key;p.textContent=ico;p.style.left=`${8+i*31}%`;p.style.top='68%';s.appendChild(p);
+      makeDrag(p,{container:s,onDrop:()=>{if(rectOverlap(p,slot)){p.remove();slot.innerHTML=ico;slot.classList.add('good');if(++done===3)reward()}else shake(p)}});
     });
   }
-
-  $('#activityBack').addEventListener('click', () => {
-    playTap();
-    activityScreen.classList.remove('is-visible');
-    setTimeout(() => { activityScreen.hidden = true; sectionScreen.hidden = false; requestAnimationFrame(() => sectionScreen.classList.add('is-visible')); }, 180);
-  });
-
-  function openActivity(section, game) {
-    playTap();
-    currentGame = game;
-    sectionScreen.classList.remove('is-visible');
-    setTimeout(() => {
-      sectionScreen.hidden = true;
-      activityScreen.hidden = false;
-      requestAnimationFrame(() => activityScreen.classList.add('is-visible'));
-    }, 160);
-    activitySectionTitle.textContent = section.title;
-    activityTitle.textContent = game.label;
-    activityStars.textContent = String(stars);
-    renderGame(game);
+  function gameFeed(){
+    const s=surface('☝️'),rounds=[['🐰','🥕'],['🐵','🍌'],['🐶','🦴']];let r=0;
+    const animal=document.createElement('div');animal.className='feed-animal';
+    const bubble=document.createElement('div');bubble.className='feed-bubble';
+    const mouth=document.createElement('div');mouth.className='feed-mouth';
+    s.append(animal,bubble,mouth);
+    function next(){
+      $$('.food-piece',s).forEach(x=>x.remove());
+      if(r>=rounds.length){reward();return}
+      animal.textContent=rounds[r][0];bubble.textContent=rounds[r][1];
+      ['🥕','🍌','🦴'].forEach((food,i)=>{
+        const p=document.createElement('div');p.className='drag-piece food-piece';p.textContent=food;
+        p.style.left=`${10+i*31}%`;p.style.top='72%';s.appendChild(p);
+        const startLeft=p.style.left,startTop=p.style.top;
+        makeDrag(p,{container:s,onDrop:()=>{
+          if(food===rounds[r][1]&&rectOverlap(p,mouth)){
+            animal.animate([{transform:'translate(-50%,-50%) scale(1)'},{transform:'translate(-50%,-50%) scale(1.12)'},{transform:'translate(-50%,-50%) scale(1)'}],{duration:300});
+            r++;setTimeout(next,300);
+          }else{p.style.left=startLeft;p.style.top=startTop;shake(p)}
+        }});
+      });
+    }next();
+  }
+  function gameHatch(){
+    const s=surface('☝️'),grid=document.createElement('div');grid.className='egg-grid';s.appendChild(grid);let done=0;
+    ['🐦','🐤','🦜','🦉'].forEach(bird=>{const b=document.createElement('button');b.className='egg-btn';b.innerHTML=`<span class="egg">🥚</span><span class="bird">${bird}</span>`;b.dataset.taps='0';
+      b.addEventListener('click',()=>{let n=+b.dataset.taps+1;b.dataset.taps=n;if(n===1)b.querySelector('.egg').textContent='🐣';if(n>=2&&!b.classList.contains('hatched')){b.classList.add('hatched');if(++done===4)reward()}});grid.appendChild(b)})
+  }
+  function gameGarden(){
+    const s=surface('↔️'),bed=document.createElement('div');bed.className='garden-bed';s.appendChild(bed);let done=0;
+    [12,35,58,80].forEach((x,i)=>{const pot=document.createElement('div');pot.className='pot';pot.style.left=`${x}%`;pot.innerHTML=`<span class="flower">${['🌷','🌻','🌸','🌼'][i]}</span>`;bed.appendChild(pot)});
+    const can=document.createElement('div');can.className='drag-piece watering-can';can.textContent='🚿';can.style.left='8%';can.style.top='20%';s.appendChild(can);
+    makeDrag(can,{container:s,onMove:()=>{$$('.pot',bed).forEach(p=>{if(!p.classList.contains('bloom')&&rectOverlap(can,p)){p.classList.add('bloom');if(++done===4)reward()}})}})
   }
 
-  function addStars(n = 1) {
-    stars += n;
-    activityStars.textContent = String(stars);
-    saveStars();
-    showToast(`⭐ +${n}`);
+  /* SPACE */
+  function gameRocket(){
+    const s=surface('☝️'),board=document.createElement('div');board.className='rocket-board';s.appendChild(board);let done=0;
+    const data=[['🔺',0],['⬜',1],['🔥',2]];
+    data.forEach(([ico,k])=>{const sl=document.createElement('div');sl.className='drop-slot rocket-slot';sl.dataset.k=k;sl.style.top=`${k*96}px`;sl.textContent='·';board.appendChild(sl);
+      const p=document.createElement('div');p.className='drag-piece rocket-piece';p.textContent=ico;p.dataset.k=k;p.style.left=`${12+k*30}%`;p.style.top='73%';s.appendChild(p);
+      makeDrag(p,{container:s,onDrop:()=>{if(rectOverlap(p,sl)){p.remove();sl.textContent=ico;sl.classList.add('good');if(++done===3)reward()}else shake(p)}})
+    })
   }
-
-  function renderGame(game) {
-    activityContent.innerHTML = '';
-    if (game.kind === 'memory') return renderMemoryGame(game);
-    if (game.kind === 'quiz') return renderQuizGame(game);
-    if (game.kind === 'tap') return renderTapGame(game);
-    if (game.kind === 'draw') return renderDrawGame(game);
+  function gameOrbits(){
+    const s=surface('☝️'),zone=document.createElement('div');zone.className='orbit-zone';s.appendChild(zone);let done=0;
+    const targets=[{x:44,y:40,size:62,k:'a'},{x:17,y:56,size:78,k:'b'},{x:70,y:65,size:92,k:'c'}],planets=[['🌕','a'],['🌍','b'],['🪐','c']];
+    targets.forEach(t=>{const sl=document.createElement('div');sl.className='orbit-target';sl.dataset.k=t.k;sl.style.left=t.x+'%';sl.style.top=t.y+'%';sl.style.width=t.size+'px';sl.style.height=t.size+'px';s.appendChild(sl)});
+    planets.forEach(([ico,k],i)=>{const p=document.createElement('div');p.className='drag-piece planet-piece';p.textContent=ico;p.dataset.k=k;p.style.left=`${10+i*31}%`;p.style.top='78%';s.appendChild(p);makeDrag(p,{container:s,onDrop:()=>{const sl=$(`.orbit-target[data-k="${k}"]`,s);if(rectOverlap(p,sl)){p.remove();sl.textContent=ico;sl.style.fontSize='52px';sl.style.display='grid';sl.style.placeItems='center';if(++done===3)reward()}else shake(p)}})})
   }
-
-  function renderMemoryGame(game) {
-    const panel = document.createElement('div');
-    panel.className = 'game-panel';
-    panel.innerHTML = `<div class="game-help">Գտիր նույն զույգերը</div>`;
-    const grid = document.createElement('div');
-    grid.className = 'memory-grid';
-    const icons = [...game.pairs, ...game.pairs].sort(() => Math.random() - .5);
-    let opened = [];
-    let lock = false;
-    let matched = 0;
-
-    icons.forEach(icon => {
-      const btn = document.createElement('button');
-      btn.className = 'memory-card';
-      btn.innerHTML = `<div class="memory-card-inner"><div class="memory-face memory-front">?</div><div class="memory-face memory-back">${icon}</div></div>`;
-      btn.addEventListener('click', () => {
-        if (lock || btn.classList.contains('flipped') || btn.classList.contains('matched')) return;
-        btn.classList.add('flipped');
-        opened.push({ btn, icon });
-        if (opened.length === 2) {
-          lock = true;
-          if (opened[0].icon === opened[1].icon) {
-            opened.forEach(x => x.btn.classList.add('matched'));
-            matched += 1;
-            opened = [];
-            lock = false;
-            if (matched === game.pairs.length) {
-              finishPanel(panel, 'Ապրես, բոլոր զույգերը գտար 🎉', 2);
-            }
-          } else {
-            setTimeout(() => {
-              opened.forEach(x => x.btn.classList.remove('flipped'));
-              opened = [];
-              lock = false;
-            }, 700);
-          }
+  function gameCatch(){
+    const s=surface('↔️');s.classList.add('space-field');const c=document.createElement('div');c.className='star-catcher';c.textContent='🧺';c.style.left='45%';s.appendChild(c);const cnt=document.createElement('div');cnt.className='catch-counter';cnt.textContent='⭐ 0/6';s.appendChild(cnt);let caught=0,running=true,last=0,items=[];
+    makeDrag(c,{container:s});function spawn(){const st=document.createElement('div');st.className='falling-star';st.textContent='⭐';st.style.left=(5+Math.random()*85)+'%';st.dataset.y='-50';s.appendChild(st);items.push(st)}
+    const timer=setInterval(spawn,700);gameCleanup.push(()=>clearInterval(timer));
+    function loop(t){if(!running)return;const dt=Math.min(32,t-last||16);last=t;items=[...items].filter(st=>{let y=+st.dataset.y+dt*.16;st.dataset.y=y;st.style.top=y+'px';if(rectOverlap(st,c)){st.remove();caught++;cnt.textContent=`⭐ ${caught}/6`;if(caught>=6){running=false;clearInterval(timer);reward()}return false}if(y>s.clientHeight){st.remove();return false}return true});if(running)requestAnimationFrame(loop)}requestAnimationFrame(loop);gameCleanup.push(()=>running=false)
+  }
+  function gameLanding(){
+    const s=surface('🔥');s.classList.add('moon-field');const lander=document.createElement('div');lander.className='lander';lander.textContent='🚀';const pad=document.createElement('div');pad.className='landing-pad';const thr=document.createElement('button');thr.className='thrust-btn';thr.textContent='🔥';s.append(lander,pad,thr);
+    let y=65,v=0,thrust=false,running=true,crashed=false,last=performance.now();const pd=()=>thrust=true,pu=()=>thrust=false;thr.addEventListener('pointerdown',pd);addEventListener('pointerup',pu);gameCleanup.push(()=>{running=false;thr.removeEventListener('pointerdown',pd);removeEventListener('pointerup',pu)});
+    function reset(){y=65;v=0;crashed=false;lander.textContent='🚀';lander.style.left='50%';lander.style.top='65px'}
+    function loop(t){
+      if(!running)return;
+      const dt=Math.min(.035,(t-last)/1000);last=t;
+      if(!crashed){
+        v+=(thrust?-42:23)*dt;y+=v*22*dt;lander.style.top=y+'px';
+        if(y>s.clientHeight-190){
+          if(Math.abs(v)<8){running=false;lander.style.top=(s.clientHeight-190)+'px';reward(3)}
+          else{crashed=true;lander.textContent='💥';setTimeout(()=>{reset();last=performance.now()},520)}
         }
+      }
+      requestAnimationFrame(loop);
+    }requestAnimationFrame(loop)
+  }
+
+  /* MIND */
+  function gameSort(){
+    const s=surface('☝️'),colors=[['#ef5350','r'],['#42a5f5','b'],['#66bb6a','g']],bins=[];let done=0;
+    colors.forEach(([col,k],i)=>{const b=document.createElement('div');b.className='sort-bin';b.dataset.k=k;b.style.left=`${5+i*31}%`;b.style.background=col+'99';s.appendChild(b);bins.push(b)});
+    const chips=[...colors,...colors];chips.forEach(([col,k],i)=>{const p=document.createElement('div');p.className='drag-piece color-chip';p.dataset.k=k;p.style.background=col;p.style.left=`${8+(i%3)*31}%`;p.style.top=`${18+Math.floor(i/3)*18}%`;s.appendChild(p);makeDrag(p,{container:s,onDrop:()=>{const b=bins.find(x=>x.dataset.k===k);if(rectOverlap(p,b)){p.remove();if(++done===6)reward()}else shake(p)}})})
+  }
+  function gameSizes(){
+    const s=surface('☝️'),sizes=[56,82,108];let done=0;
+    sizes.forEach((sz,i)=>{const sl=document.createElement('div');sl.className='drop-slot size-slot';sl.dataset.i=i;sl.style.width=sl.style.height=sz+'px';sl.style.left=`${12+i*31}%`;sl.style.top='20%';s.appendChild(sl);
+      const p=document.createElement('div');p.className='drag-piece size-piece';p.dataset.i=i;p.style.width=p.style.height=sz+'px';p.style.left=`${10+i*31}%`;p.style.top='67%';s.appendChild(p);makeDrag(p,{container:s,onDrop:()=>{if(rectOverlap(p,sl)){p.remove();sl.style.background='#61b4ff';sl.style.borderStyle='solid';if(++done===3)reward()}else shake(p)}})})
+  }
+  function gamePattern(){
+    const s=surface('☝️');let round=0;const rounds=[[['🔵','🟡','🔵','🟡'],'🔵',['🔵','🟢','🔺']],[['⭐','🌙','⭐','🌙'],'⭐',['🌙','⭐','☀️']],[['🍎','🍌','🍎','🍌'],'🍎',['🍎','🍓','🍌']]];
+    function draw(){s.innerHTML='';const h=document.createElement('div');h.className='game-hint';h.textContent='☝️';s.appendChild(h);const [seq,ans,opts]=rounds[round];const row=document.createElement('div');row.className='pattern-row';row.textContent=seq.join(' ')+'  ❓';const choices=document.createElement('div');choices.className='pattern-options';opts.forEach(o=>{const b=document.createElement('button');b.className='pattern-choice';b.textContent=o;b.addEventListener('click',()=>{if(o===ans){b.style.background='#c7f2ac';round++;if(round>=rounds.length)reward();else setTimeout(draw,350)}else shake(b)});choices.appendChild(b)});s.append(row,choices)}draw()
+  }
+  function gameCups(){
+    const s=surface('☝️');let round=0,target=0;const area=document.createElement('div');area.className='cups-area';s.appendChild(area);
+    function next(){area.innerHTML='';target=Math.floor(Math.random()*3);for(let i=0;i<3;i++){const b=document.createElement('button');b.className='cup-btn';b.innerHTML=`🥤<span class="cup-star">⭐</span>`;if(i===target)b.classList.add('reveal');area.appendChild(b);b.addEventListener('click',()=>choose(i,b))}setTimeout(()=>{$$('.cup-btn',area).forEach(b=>b.classList.remove('reveal'));area.animate([{transform:'translateX(0)'},{transform:'translateX(10px)'},{transform:'translateX(-10px)'},{transform:'translateX(0)'}],{duration:650})},850)}
+    function choose(i,b){if(i===target){b.classList.add('reveal');round++;if(round>=3)reward();else setTimeout(next,550)}else shake(b)}next()
+  }
+
+  /* CREATIVITY */
+  function gamePaint(){
+    const s=surface(null),wrap=document.createElement('div');wrap.className='paint-wrap';const pal=document.createElement('div');pal.className='palette-row';const box=document.createElement('div');box.className='paint-canvas-box';box.innerHTML='<canvas class="paint-canvas"></canvas>';const done=document.createElement('button');done.className='primary-action';done.textContent='⭐';done.style.cssText='align-self:center;min-width:90px;font-size:28px';wrap.append(pal,box,done);s.appendChild(wrap);
+    const colors=['#ef5350','#ff9800','#ffeb3b','#66bb6a','#42a5f5','#ab47bc','#3e2723'];let col=colors[0];colors.forEach((c,i)=>{const b=document.createElement('button');b.className='palette-dot';b.style.background=c;if(i===0)b.style.boxShadow='0 0 0 4px #ffd77f';b.addEventListener('click',()=>{col=c;$$('.palette-dot',pal).forEach(x=>x.style.boxShadow='');b.style.boxShadow='0 0 0 4px #ffd77f'});pal.appendChild(b)});
+    const canvas=$('canvas',box),ctx=canvas.getContext('2d');function size(){const r=box.getBoundingClientRect();canvas.width=Math.max(250,r.width);canvas.height=Math.max(300,r.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=10}requestAnimationFrame(size);let drawing=false;
+    const pt=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};canvas.onpointerdown=e=>{drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};canvas.onpointermove=e=>{if(!drawing)return;const p=pt(e);ctx.strokeStyle=col;ctx.lineTo(p.x,p.y);ctx.stroke()};const paintUp=()=>drawing=false;addEventListener('pointerup',paintUp);gameCleanup.push(()=>removeEventListener('pointerup',paintUp));done.addEventListener('click',()=>reward())
+  }
+  function gameStickers(){
+    const s=surface('☝️'),scene=document.createElement('div');scene.className='sticker-scene';
+    const tray=document.createElement('div');tray.className='sticker-tray';s.append(scene,tray);let placed=0;
+    ['🌈','☀️','🌳','🐶','⭐','🌸'].forEach(ico=>{
+      const p=document.createElement('button');p.className='sticker-item';p.textContent=ico;tray.appendChild(p);
+      p.addEventListener('click',()=>{
+        const clone=document.createElement('div');clone.className='sticker-item';clone.textContent=ico;
+        clone.style.cssText=`position:absolute;left:${5+Math.random()*78}%;top:${8+Math.random()*68}%;font-size:${42+Math.random()*22}px;transform:rotate(${Math.random()*18-9}deg);`;
+        scene.appendChild(clone);clone.animate([{transform:'scale(.2)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:280});
+        if(++placed===5)reward();
       });
-      grid.appendChild(btn);
     });
-    panel.appendChild(grid);
-    activityContent.appendChild(panel);
+  }
+  function gameMix(){
+    const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
+    colors.forEach(([c,k])=>{const b=document.createElement('button');b.className='paint-drop';b.style.background=c;b.addEventListener('click',()=>{if(selected.includes(k))return;selected.push(k);b.style.boxShadow='0 0 0 5px #fff,0 6px 0 rgba(75,39,17,.16)';if(selected.length===2){const key=[...selected].sort().join('');$('.mix-liquid',bowl).style.background=mix[key]||'#795548';found.add(key);setTimeout(()=>{$$('.paint-drop',drops).forEach(x=>x.style.boxShadow='');selected=[];if(found.size>=3)reward()},700)}});drops.appendChild(b)})
+  }
+  function gameBlocks(){
+    const s=surface('☝️'),zone=document.createElement('div');zone.className='block-zone';const pad=document.createElement('div');pad.className='tower-pad';zone.appendChild(pad);s.appendChild(zone);let stack=0;
+    ['#ef5350','#42a5f5','#ffca28','#66bb6a'].forEach((c,i)=>{const b=document.createElement('div');b.className='drag-piece block';b.style.background=c;b.style.left=`${8+i*21}%`;b.style.top='12%';zone.appendChild(b);makeDrag(b,{container:zone,onDrop:()=>{const zr=zone.getBoundingClientRect(),br=b.getBoundingClientRect(),cx=br.left+br.width/2-zr.left;if(Math.abs(cx-zr.width/2)<110){b.style.left=(zr.width/2-36)+'px';b.style.top=(zr.height-60-72*(stack+1))+'px';b.style.pointerEvents='none';stack++;if(stack===4)reward()}else shake(b)}})})
   }
 
-  function renderQuizGame(game) {
-    const panel = document.createElement('div');
-    panel.className = 'game-panel';
-    const card = document.createElement('div');
-    card.className = 'quiz-card';
-    card.innerHTML = `<div class="quiz-question">${game.question}</div>`;
-    const options = document.createElement('div');
-    options.className = 'quiz-options';
-    let answered = false;
-    game.options.forEach((opt, index) => {
-      const btn = document.createElement('button');
-      btn.className = 'quiz-option';
-      btn.textContent = opt;
-      btn.addEventListener('click', () => {
-        if (answered) return;
-        answered = true;
-        if (index === game.answer) {
-          btn.classList.add('correct');
-          finishPanel(panel, 'Ճիշտ պատասխան ✅', 1);
-        } else {
-          btn.classList.add('wrong');
-          options.children[game.answer].classList.add('correct');
-          finishPanel(panel, 'Փորձիր նորից հաջորդ խաղում 🌟', 0);
-        }
-      });
-      options.appendChild(btn);
-    });
-    card.appendChild(options);
-    panel.appendChild(card);
-    activityContent.appendChild(panel);
+  /* MAGIC */
+  function gameConnect(){
+    const s=surface('☝️'),field=document.createElement('div');field.className='star-connect';s.appendChild(field);const pts=[[18,68],[34,30],[50,58],[68,25],[82,66]];let next=0,drawing=false;const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 100 100');svg.style.cssText='position:absolute;inset:0;width:100%;height:100%';const poly=document.createElementNS(svg.namespaceURI,'polyline');poly.setAttribute('fill','none');poly.setAttribute('stroke','#ffe56f');poly.setAttribute('stroke-width','1.5');poly.setAttribute('stroke-linecap','round');svg.appendChild(poly);field.appendChild(svg);
+    const stars=pts.map((p,i)=>{const e=document.createElement('div');e.className='connect-star';e.textContent='⭐';e.style.left=`calc(${p[0]}% - 25px)`;e.style.top=`calc(${p[1]}% - 25px)`;e.dataset.i=i;field.appendChild(e);return e});
+    function hit(e){const r=field.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100,p=pts[next];if(p&&Math.hypot(x-p[0],y-p[1])<9){stars[next].classList.add('done');next++;poly.setAttribute('points',pts.slice(0,next).map(p=>p.join(',')).join(' '));if(next===pts.length){drawing=false;reward(3)}}}
+    field.addEventListener('pointerdown',e=>{drawing=true;next=0;stars.forEach(x=>x.classList.remove('done'));poly.setAttribute('points','');hit(e)});field.addEventListener('pointermove',e=>{if(drawing)hit(e)});const connectUp=()=>drawing=false;addEventListener('pointerup',connectUp);gameCleanup.push(()=>removeEventListener('pointerup',connectUp))
+  }
+  function gameWand(){
+    const s=surface('↔️'),field=document.createElement('div');field.className='wand-field';s.appendChild(field);let lit=0;
+    ['⭐','🌙','🔮','🦋','💎'].forEach((ico,i)=>{const o=document.createElement('div');o.className='magic-object';o.textContent=ico;o.style.left=`${12+(i%3)*33}%`;o.style.top=`${18+Math.floor(i/3)*42}%`;field.appendChild(o)});
+    const w=document.createElement('div');w.className='drag-piece magic-wand';w.textContent='🪄';w.style.left='8%';w.style.top='70%';field.appendChild(w);makeDrag(w,{container:field,onMove:()=>{$$('.magic-object',field).forEach(o=>{if(!o.classList.contains('lit')&&rectOverlap(w,o)){o.classList.add('lit');if(++lit===5)reward()}})}})
+  }
+  function gamePotion(){
+    const s=surface('☝️'),area=document.createElement('div');area.className='potion-area';const ca=document.createElement('div');ca.className='cauldron';ca.innerHTML='🫕<span class="potion-bubbles">✨🫧✨</span>';const ing=document.createElement('div');ing.className='ingredients';area.append(ca,ing);s.appendChild(area);let used=0;
+    ['🍓','🍋','🍇','🌿','🫐','🌸'].forEach(ico=>{const b=document.createElement('button');b.className='ingredient';b.textContent=ico;b.addEventListener('click',()=>{if(b.disabled)return;b.disabled=true;b.style.opacity=.25;ca.classList.remove('bubble');void ca.offsetWidth;ca.classList.add('bubble');used++;if(used===4)reward(3)});ing.appendChild(b)})
+  }
+  function gameBook(){
+    const s=surface('☝️'),book=document.createElement('div');book.className='story-book';const scene=document.createElement('button');scene.className='story-scene';const dots=document.createElement('div');dots.className='page-dots';book.append(scene,dots);s.appendChild(book);const pages=['🏰','🐉','🧚‍♀️','🌟'];let i=0;
+    pages.forEach((_,n)=>{const d=document.createElement('span');d.className='page-dot'+(n===0?' on':'');dots.appendChild(d)});
+    function draw(){scene.textContent=pages[i];$$('.page-dot',dots).forEach((d,n)=>d.classList.toggle('on',n===i))}draw();scene.addEventListener('click',()=>{scene.classList.add('pop');setTimeout(()=>scene.classList.remove('pop'),240);i++;if(i>=pages.length){reward(3);i=0}setTimeout(draw,260)})
   }
 
-  function renderTapGame(game) {
-    const panel = document.createElement('div');
-    panel.className = 'game-panel';
-    panel.innerHTML = `<div class="game-help">Հավաքիր ${game.total} հատ ${game.target}</div><div class="tap-progress">0 / ${game.total}</div>`;
-    const area = document.createElement('div');
-    area.className = 'tap-area';
-    const progress = panel.querySelector('.tap-progress');
-    let collected = 0;
+  /* avatar */
+  const avatarButton=$('#avatarButton'),savedAvatar=$('#savedAvatar'),photoInput=$('#photoInput'),cropPreview=$('#cropPreview'),cropImage=$('#cropImage'),cropPlaceholder=$('#cropPlaceholder'),zoomSlider=$('#zoomSlider'),saveAvatar=$('#saveAvatar');
+  let sourceDataUrl=null,naturalW=0,naturalH=0,zoom=1,panX=0,panY=0,pointerMap=new Map(),dragStart=null,pinchStart=null;
+  const persisted=localStorage.getItem(AVATAR_KEY);if(persisted){savedAvatar.src=persisted;savedAvatar.hidden=false}
+  avatarButton.addEventListener('click',()=>avatarModal.hidden=false);$$('[data-close="avatar"]').forEach(e=>e.addEventListener('click',()=>avatarModal.hidden=true));
+  photoInput.addEventListener('change',async()=>{const f=photoInput.files?.[0];if(!f)return;sourceDataUrl=await downscaleImage(f,1800);cropImage.onload=()=>{naturalW=cropImage.naturalWidth;naturalH=cropImage.naturalHeight;zoom=1;panX=panY=0;zoomSlider.value='1';cropImage.hidden=false;cropPlaceholder.hidden=true;saveAvatar.disabled=false;renderCrop()};cropImage.src=sourceDataUrl});
+  function previewSize(){return cropPreview.clientWidth-16}function baseFit(){const s=previewSize();return Math.max(s/naturalW,s/naturalH)}
+  function renderCrop(){if(!naturalW)return;const s=previewSize(),fit=baseFit(),w=naturalW*fit*zoom,h=naturalH*fit*zoom;cropImage.style.width=w+'px';cropImage.style.height=h+'px';cropImage.style.left=((s-w)/2+8+panX)+'px';cropImage.style.top=((s-h)/2+8+panY)+'px'}
+  zoomSlider.addEventListener('input',()=>{zoom=+zoomSlider.value;renderCrop()});$('#zoomOut').addEventListener('click',()=>{zoom=Math.max(.4,zoom-.15);zoomSlider.value=zoom;renderCrop()});$('#zoomIn').addEventListener('click',()=>{zoom=Math.min(4,zoom+.15);zoomSlider.value=zoom;renderCrop()});
+  cropPreview.addEventListener('pointerdown',e=>{if(!sourceDataUrl)return;cropPreview.setPointerCapture?.(e.pointerId);pointerMap.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointerMap.size===1)dragStart={x:e.clientX,y:e.clientY,panX,panY};if(pointerMap.size===2){const p=[...pointerMap.values()];pinchStart={distance:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),zoom}}});
+  cropPreview.addEventListener('pointermove',e=>{if(!pointerMap.has(e.pointerId))return;pointerMap.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointerMap.size===1&&dragStart){panX=dragStart.panX+e.clientX-dragStart.x;panY=dragStart.panY+e.clientY-dragStart.y;renderCrop()}else if(pointerMap.size===2&&pinchStart){const p=[...pointerMap.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);zoom=Math.max(.4,Math.min(4,pinchStart.zoom*d/Math.max(1,pinchStart.distance)));zoomSlider.value=zoom;renderCrop()}});
+  ['pointerup','pointercancel'].forEach(t=>cropPreview.addEventListener(t,e=>{pointerMap.delete(e.pointerId);if(pointerMap.size<2)pinchStart=null;if(!pointerMap.size)dragStart=null}));
+  saveAvatar.addEventListener('click',async()=>{if(!sourceDataUrl)return;const data=await renderSavedAvatar();localStorage.setItem(AVATAR_KEY,data);localStorage.setItem(AVATAR_SOURCE_KEY,sourceDataUrl);savedAvatar.src=data;savedAvatar.hidden=false;avatarModal.hidden=true;showToast('✓')});
+  async function renderSavedAvatar(){const out=512,c=document.createElement('canvas');c.width=c.height=out;const ctx=c.getContext('2d'),im=new Image();await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=sourceDataUrl});const s=previewSize(),fit=Math.max(s/im.naturalWidth,s/im.naturalHeight),w=im.naturalWidth*fit*zoom,h=im.naturalHeight*fit*zoom,k=out/s;ctx.save();ctx.beginPath();ctx.arc(out/2,out/2,out/2,0,Math.PI*2);ctx.clip();ctx.drawImage(im,((s-w)/2+panX)*k,((s-h)/2+panY)*k,w*k,h*k);ctx.restore();return c.toDataURL('image/jpeg',.9)}
+  async function downscaleImage(file,max){const raw=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)}),im=new Image();await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=raw});const sc=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));if(sc===1)return raw;const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.9)}
 
-    function spawn() {
-      if (collected >= game.total) return;
-      const item = document.createElement('button');
-      item.className = 'tap-target';
-      item.textContent = game.target;
-      const maxX = area.clientWidth - 72;
-      const maxY = area.clientHeight - 72;
-      item.style.left = `${Math.max(0, Math.random() * maxX)}px`;
-      item.style.top = `${Math.max(0, Math.random() * maxY)}px`;
-      item.style.animationDelay = `${Math.random()*1.5}s`;
-      item.addEventListener('click', () => {
-        item.remove();
-        collected += 1;
-        progress.textContent = `${collected} / ${game.total}`;
-        if (collected >= game.total) finishPanel(panel, 'Գերազանց, ամեն ինչ հավաքեցիր ⭐', 2);
-        else spawn();
-      }, { once:true });
-      area.appendChild(item);
-    }
-
-    panel.appendChild(area);
-    activityContent.appendChild(panel);
-    requestAnimationFrame(() => { for (let i=0; i<Math.min(4, game.total); i++) spawn(); });
-  }
-
-  function renderDrawGame(game) {
-    const panel = document.createElement('div');
-    panel.className = 'draw-wrap';
-    const help = document.createElement('div');
-    help.className = 'game-help';
-    help.textContent = 'Նկարի կամ ներկիր ազատ ձևով';
-    const toolbar = document.createElement('div');
-    toolbar.className = 'draw-toolbar';
-    const colors = ['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#000000','#ffffff'];
-    const wrap = document.createElement('div');
-    wrap.className = 'draw-canvas-wrap';
-    wrap.innerHTML = '<canvas id="drawCanvas"></canvas>';
-    const canvas = wrap.querySelector('canvas');
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'clear-btn';
-    clearBtn.textContent = 'Մաքրել';
-    const finishBtn = document.createElement('button');
-    finishBtn.className = 'primary-action';
-    finishBtn.textContent = 'Պատրաստ է';
-    panel.append(help, toolbar, wrap, clearBtn, finishBtn);
-    activityContent.appendChild(panel);
-
-    let currentColor = colors[0];
-    colors.forEach((color, idx) => {
-      const b = document.createElement('button');
-      b.className = 'color-dot' + (idx === 0 ? ' active' : '');
-      b.style.background = color;
-      b.addEventListener('click', () => {
-        currentColor = color;
-        toolbar.querySelectorAll('.color-dot').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-      });
-      toolbar.appendChild(b);
-    });
-
-    const ctx = canvas.getContext('2d');
-    function sizeCanvas() {
-      const rect = wrap.getBoundingClientRect();
-      canvas.width = Math.max(300, Math.floor(rect.width));
-      canvas.height = Math.max(360, Math.floor(rect.height));
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = 8;
-    }
-    sizeCanvas();
-    window.addEventListener('resize', sizeCanvas, { passive:true, once:true });
-
-    let drawing = false;
-    function point(e) {
-      const r = canvas.getBoundingClientRect();
-      const t = e.touches ? e.touches[0] : e;
-      return { x:(t.clientX-r.left) * (canvas.width/r.width), y:(t.clientY-r.top) * (canvas.height/r.height) };
-    }
-    function start(e) { drawing = true; const p = point(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
-    function move(e) { if (!drawing) return; e.preventDefault(); const p = point(e); ctx.strokeStyle = currentColor; ctx.lineTo(p.x, p.y); ctx.stroke(); }
-    function end() { drawing = false; }
-    canvas.addEventListener('pointerdown', start);
-    canvas.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', end);
-    canvas.addEventListener('touchstart', start, { passive:true });
-    canvas.addEventListener('touchmove', move, { passive:false });
-    canvas.addEventListener('touchend', end, { passive:true });
-
-    clearBtn.addEventListener('click', () => { ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height); });
-    finishBtn.addEventListener('click', () => finishPanel(panel, 'Շատ սիրուն աշխատանք ստացվեց 🎨', 2));
-  }
-
-  function finishPanel(panel, text, reward) {
-    if (panel.querySelector('.score-badge')) return;
-    const badge = document.createElement('div');
-    badge.className = 'score-badge';
-    badge.textContent = text;
-    const replay = document.createElement('button');
-    replay.className = 'primary-action';
-    replay.textContent = 'Կրկին խաղալ';
-    replay.addEventListener('click', () => renderGame(currentGame));
-    panel.appendChild(badge);
-    if (reward) addStars(reward);
-    panel.appendChild(replay);
-  }
-
-  // Avatar cropper
-  const avatarButton = $('#avatarButton');
-  const savedAvatar = $('#savedAvatar');
-  const photoInput = $('#photoInput');
-  const cropPreview = $('#cropPreview');
-  const cropImage = $('#cropImage');
-  const cropPlaceholder = $('#cropPlaceholder');
-  const zoomSlider = $('#zoomSlider');
-  const saveAvatar = $('#saveAvatar');
-  let sourceDataUrl = null;
-  let naturalW = 0, naturalH = 0;
-  let zoom = 1, panX = 0, panY = 0;
-  let pointerMap = new Map();
-  let dragStart = null;
-  let pinchStart = null;
-  const persistedAvatar = localStorage.getItem(AVATAR_KEY);
-  if (persistedAvatar) { savedAvatar.src = persistedAvatar; savedAvatar.hidden = false; }
-
-  avatarButton.addEventListener('click', () => { playTap(); avatarModal.hidden = false; });
-  $$('[data-close="avatar"]').forEach(el => el.addEventListener('click', () => { playTap(); avatarModal.hidden = true; }));
-  photoInput.addEventListener('change', async () => {
-    const file = photoInput.files?.[0]; if (!file) return; sourceDataUrl = await downscaleImage(file, 1800);
-    cropImage.onload = () => { naturalW = cropImage.naturalWidth; naturalH = cropImage.naturalHeight; zoom = 1; panX = 0; panY = 0; zoomSlider.value = '1'; cropImage.hidden = false; cropPlaceholder.hidden = true; saveAvatar.disabled = false; renderCrop(); };
-    cropImage.src = sourceDataUrl;
-  });
-  function previewSize() { return cropPreview.clientWidth - 16; }
-  function baseFit() { const s = previewSize(); return Math.max(s / naturalW, s / naturalH); }
-  function renderCrop() {
-    if (!naturalW || !naturalH) return;
-    const s = previewSize(); const fit = baseFit(); const w = naturalW * fit * zoom; const h = naturalH * fit * zoom;
-    cropImage.style.width = `${w}px`; cropImage.style.height = `${h}px`; cropImage.style.left = `${(s-w)/2 + 8 + panX}px`; cropImage.style.top = `${(s-h)/2 + 8 + panY}px`;
-  }
-  zoomSlider.addEventListener('input', () => { zoom = Number(zoomSlider.value); renderCrop(); });
-  $('#zoomOut').addEventListener('click', () => { zoom = Math.max(.4, zoom - .15); zoomSlider.value = zoom; renderCrop(); });
-  $('#zoomIn').addEventListener('click', () => { zoom = Math.min(4, zoom + .15); zoomSlider.value = zoom; renderCrop(); });
-  cropPreview.addEventListener('pointerdown', e => {
-    if (!sourceDataUrl) return; cropPreview.setPointerCapture?.(e.pointerId); pointerMap.set(e.pointerId, { x:e.clientX, y:e.clientY });
-    if (pointerMap.size === 1) dragStart = { x:e.clientX, y:e.clientY, panX, panY };
-    if (pointerMap.size === 2) { const pts = [...pointerMap.values()]; pinchStart = { distance:dist(pts[0], pts[1]), zoom }; }
-  });
-  cropPreview.addEventListener('pointermove', e => {
-    if (!pointerMap.has(e.pointerId)) return; pointerMap.set(e.pointerId, { x:e.clientX, y:e.clientY });
-    if (pointerMap.size === 1 && dragStart) { panX = dragStart.panX + (e.clientX - dragStart.x); panY = dragStart.panY + (e.clientY - dragStart.y); renderCrop(); }
-    else if (pointerMap.size === 2 && pinchStart) { const pts = [...pointerMap.values()]; const ratio = dist(pts[0], pts[1]) / Math.max(1, pinchStart.distance); zoom = Math.max(.4, Math.min(4, pinchStart.zoom * ratio)); zoomSlider.value = zoom; renderCrop(); }
-  });
-  ['pointerup','pointercancel','pointerout'].forEach(type => cropPreview.addEventListener(type, e => {
-    pointerMap.delete(e.pointerId); if (pointerMap.size < 2) pinchStart = null; if (pointerMap.size === 0) dragStart = null; if (pointerMap.size === 1) { const [p] = pointerMap.values(); dragStart = { x:p.x, y:p.y, panX, panY }; }
-  }));
-  saveAvatar.addEventListener('click', async () => {
-    if (!sourceDataUrl) return; const data = await renderSavedAvatar(); localStorage.setItem(AVATAR_KEY, data); localStorage.setItem(AVATAR_SOURCE_KEY, sourceDataUrl); savedAvatar.src = data; savedAvatar.hidden = false; avatarModal.hidden = true; showToast('Պահպանված է');
-  });
-  function dist(a,b) { return Math.hypot(a.x-b.x, a.y-b.y); }
-  async function renderSavedAvatar() {
-    const out = 512; const c = document.createElement('canvas'); c.width = c.height = out; const ctx = c.getContext('2d'); const im = new Image();
-    await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = sourceDataUrl; });
-    const s = previewSize(); const fit = Math.max(s / im.naturalWidth, s / im.naturalHeight); const w = im.naturalWidth * fit * zoom; const h = im.naturalHeight * fit * zoom; const k = out / s;
-    ctx.save(); ctx.beginPath(); ctx.arc(out/2, out/2, out/2, 0, Math.PI*2); ctx.clip(); ctx.drawImage(im, ((s-w)/2 + panX)*k, ((s-h)/2 + panY)*k, w*k, h*k); ctx.restore();
-    return c.toDataURL('image/jpeg', .9);
-  }
-  async function downscaleImage(file, maxSide) { const raw = await fileToDataUrl(file); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = raw; }); const scale = Math.min(1, maxSide / Math.max(im.naturalWidth, im.naturalHeight)); if (scale === 1) return raw; const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * scale); c.height = Math.round(im.naturalHeight * scale); c.getContext('2d').drawImage(im,0,0,c.width,c.height); return c.toDataURL('image/jpeg', .9); }
-  function fileToDataUrl(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); }); }
-
-  function showToast(text) {
-    toast.textContent = text;
-    toast.classList.add('show');
-    clearTimeout(showToast.t);
-    showToast.t = setTimeout(() => toast.classList.remove('show'), 1200);
-  }
-
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+  function showToast(t){toast.textContent=t;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),900)}
+  updateStars();
+  if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 })();
