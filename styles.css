@@ -204,7 +204,7 @@ html.ios-standalone .modal {
 
 /* Nature — bird gently glides, waterfall catches light, tiny pollen glints. */
 .nature-bird {
-  background-image:url('nature.png?v=42');
+  background-image:url('nature.png?v=43');
   clip-path:polygon(70% 7%, 100% 7%, 100% 35%, 72% 34%);
   transform-origin:84% 20%;
   animation:natureBirdFloat 4.8s ease-in-out infinite;
@@ -229,25 +229,25 @@ html.ios-standalone .modal {
 
 /* Space — astronaut + planets float independently; rocket drifts; stars twinkle. */
 .space-earth {
-  background-image:url('space.png?v=42');
+  background-image:url('space.png?v=43');
   clip-path:circle(14% at 18% 21%);
   transform-origin:18% 21%;
   animation:spacePlanetA 7.4s ease-in-out infinite;
 }
 .space-saturn {
-  background-image:url('space.png?v=42');
+  background-image:url('space.png?v=43');
   clip-path:ellipse(26% 17% at 77% 17%);
   transform-origin:77% 17%;
   animation:spacePlanetB 8.2s ease-in-out infinite;
 }
 .space-astronaut {
-  background-image:url('space.png?v=42');
+  background-image:url('space.png?v=43');
   clip-path:polygon(18% 20%,74% 18%,76% 72%,24% 78%,12% 52%);
   transform-origin:47% 48%;
   animation:spaceAstronaut 5.8s ease-in-out infinite;
 }
 .space-rocket {
-  background-image:url('space.png?v=42');
+  background-image:url('space.png?v=43');
   clip-path:polygon(71% 31%,100% 29%,100% 61%,74% 60%);
   transform-origin:86% 46%;
   animation:spaceRocket 4.6s ease-in-out infinite;
@@ -262,13 +262,13 @@ html.ios-standalone .modal {
 
 /* Mind games — idea bulb pulses, blocks bob very gently. */
 .mind-bulb {
-  background-image:url('mind.png?v=42');
+  background-image:url('mind.png?v=43');
   clip-path:circle(15% at 55% 19%);
   transform-origin:55% 19%;
   animation:mindBulb 2.9s ease-in-out infinite;
 }
 .mind-blocks {
-  background-image:url('mind.png?v=42');
+  background-image:url('mind.png?v=43');
   clip-path:polygon(54% 19%,100% 17%,100% 75%,57% 78%);
   transform-origin:78% 54%;
   animation:mindBlocks 4.9s ease-in-out infinite;
@@ -281,13 +281,13 @@ html.ios-standalone .modal {
 
 /* Creativity — brush moves, puppy has a tiny happy bob, colors sparkle. */
 .create-brush {
-  background-image:url('create.png?v=42');
+  background-image:url('create.png?v=43');
   clip-path:polygon(18% 12%,42% 11%,46% 58%,20% 59%);
   transform-origin:31% 45%;
   animation:createBrush 3.8s ease-in-out infinite;
 }
 .create-dog {
-  background-image:url('create.png?v=42');
+  background-image:url('create.png?v=43');
   clip-path:ellipse(25% 25% at 78% 50%);
   transform-origin:78% 55%;
   animation:createDog 5.2s ease-in-out infinite;
@@ -302,7 +302,7 @@ html.ios-standalone .modal {
 
 /* Magic room — the main star gently floats; book + hanging stars breathe with light. */
 .magic-star-float {
-  background-image:url('magic.png?v=42');
+  background-image:url('magic.png?v=43');
   clip-path:polygon(35% 7%,64% 7%,66% 60%,35% 60%);
   transform-origin:50% 34%;
   animation:magicStarFloat 4.4s ease-in-out infinite;
@@ -338,7 +338,7 @@ html.ios-standalone .modal {
 
 
 /* ================= V26 stronger premium motion ================= */
-.nature-deer-head{background-image:url('nature.png?v=42');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
+.nature-deer-head{background-image:url('nature.png?v=43');clip-path:polygon(8% 14%,58% 14%,59% 58%,18% 58%);transform-origin:34% 58%;animation:v26Deer 4.8s ease-in-out infinite}
 @keyframes v26Deer{0%,100%{transform:translate3d(-1px,0,0) rotate(-1.8deg)}25%{transform:translate3d(1px,-1px,0) rotate(.4deg)}50%{transform:translate3d(3px,0,0) rotate(2.1deg)}75%{transform:translate3d(1px,1px,0) rotate(.2deg)}}
 .nature-bird{animation:v26Bird 4.1s ease-in-out infinite}
 @keyframes v26Bird{0%,100%{transform:translate3d(0,1px,0) rotate(-.7deg)}50%{transform:translate3d(-4px,-5px,0) rotate(1.2deg)}}
@@ -1705,8 +1705,8 @@ body.magic-scroll-active{
   width:418px;
   height:186px;
   pointer-events:none;
-  -webkit-mask-image:url('logo.png?v=42');
-  mask-image:url('logo.png?v=42');
+  -webkit-mask-image:url('logo.png?v=43');
+  mask-image:url('logo.png?v=43');
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
   -webkit-mask-size:contain;
@@ -1862,6 +1862,51 @@ body.magic-scroll-active{
 }
 
 /* Respect the game's Effects switch. */
+.effects-off .home-v42-sheen{
+  animation:none !important;
+  opacity:0 !important;
+}
+
+
+/* =========================================================
+   V43 — FIX main-menu sheen movement
+   V42's left:-44% !important blocked keyframe left animation.
+   V43 keeps left fixed and moves the sheen with transform,
+   which works reliably in iOS/WebKit/dotKiosk.
+   ========================================================= */
+.home-section-card .home-v42-sheen{
+  left:-42% !important;
+  transform:skewX(-17deg) translate3d(0,0,0) !important;
+  animation:homeV43Sheen 7.5s ease-in-out infinite !important;
+}
+
+.nature-card .home-v42-sheen{animation-delay:0s !important}
+.space-card .home-v42-sheen{animation-delay:1.5s !important}
+.mind-card .home-v42-sheen{animation-delay:3s !important}
+.create-card .home-v42-sheen{animation-delay:4.5s !important}
+.magic-card .home-v42-sheen{animation-delay:6s !important}
+
+@keyframes homeV43Sheen{
+  0%,2%{
+    opacity:0;
+    transform:skewX(-17deg) translate3d(0,0,0);
+  }
+  5%{
+    opacity:.45;
+  }
+  10%{
+    opacity:1;
+  }
+  18%{
+    opacity:.82;
+    transform:skewX(-17deg) translate3d(475%,0,0);
+  }
+  21%,100%{
+    opacity:0;
+    transform:skewX(-17deg) translate3d(475%,0,0);
+  }
+}
+
 .effects-off .home-v42-sheen{
   animation:none !important;
   opacity:0 !important;
