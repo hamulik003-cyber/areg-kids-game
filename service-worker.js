@@ -1,9 +1,9 @@
-const CACHE = 'areg-kids-game-v12';
+const CACHE = 'areg-kids-game-v15';
 const CORE = [
   './launcher.html',
   './', './index.html', './styles.css', './app.js', './v9-fix.js', './manifest.webmanifest',
-  './avatar-frame.png?v=12', './logo.png?v=12', './star-counter.png?v=12', './settings.png?v=12',
-  './nature.png?v=12', './space.png?v=12', './mind.png?v=12', './create.png?v=12', './magic.png?v=12', './bottom-landscape.png?v=12',
+  './avatar-frame.png?v=15', './logo.png?v=15', './star-counter.png?v=15', './settings.png?v=15',
+  './nature.png?v=15', './space.png?v=15', './mind.png?v=15', './create.png?v=15', './magic.png?v=15', './bottom-landscape.png?v=15',
   './menu-music.wav', './tap.wav',
   './icon-192.png', './icon-512.png',
   './day.svg', './night.svg', './winter.svg', './rain.svg', './aurora.svg',
