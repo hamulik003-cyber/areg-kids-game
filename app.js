@@ -14,7 +14,13 @@
 
   const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
   let settings={master:true,music:true,voice:true,effects:true,theme:'day',...loadJson(SETTINGS_KEY,{})};
-  let stars=Number(localStorage.getItem(STARS_KEY)||120);
+  const STAR_RESET_V40='areg-stars-reset-v40';
+  if(!localStorage.getItem(STAR_RESET_V40)){
+    localStorage.setItem(STARS_KEY,'0');
+    localStorage.setItem(STAR_RESET_V40,'1');
+    localStorage.removeItem('areg-magic-unlocked-v1');
+  }
+  let stars=Number(localStorage.getItem(STARS_KEY)||0);
   const themes=[['day','Day'],['night','Night'],['winter','Winter'],['rain','Rain'],['aurora','Aurora'],['wood','Wood'],['forest','Forest'],['ocean','Ocean'],['sunset','Sunset'],['space','Space']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
@@ -123,7 +129,7 @@
       ]
     },
     magic:{
-      title:'Կախարդական աստղի սենյակ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
+      title:'Բոնուս դաշտ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
       games:[
         {id:'connect',label:'Միացրու աստղերը',thumb:'magic-game-1.jpg',kind:'connect'},
         {id:'wand',label:'Կախարդական փայտիկ',thumb:'magic-game-2.jpg',kind:'wand'},
@@ -169,7 +175,7 @@
   document.addEventListener('dragstart',e=>e.preventDefault());
   document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
   document.addEventListener('touchmove',e=>{
-    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,input[type="range"],canvas'))e.preventDefault();
+    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,input[type="range"],canvas'))e.preventDefault();
   },{passive:false});
 
   /* audio/settings */
@@ -184,7 +190,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=39" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=40" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -216,6 +222,7 @@
     updateStars();sectionGames.innerHTML='';
     sectionGames.classList.remove('magic-collection-grid');
     sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
+    document.body.classList.toggle('magic-scroll-active',id==='magic');
 
     if(id==='magic'){
       renderMagicCollection();
@@ -300,7 +307,11 @@
     setTimeout(()=>{pic.classList.remove(className);card.classList.remove('magic-active')},1900);
   }
 
-  function closeSection(){sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)}
+  function closeSection(){
+    document.body.classList.remove('magic-scroll-active');
+    sectionScreen.classList.remove('is-visible');
+    setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
+  }
   function openGame(section,game){
     cleanupGame();currentGame=game;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
     sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
