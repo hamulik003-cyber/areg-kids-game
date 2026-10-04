@@ -2623,3 +2623,46 @@ body.magic-scroll-active{
     min-height:32px;
   }
 }
+
+
+/* =========================================================
+   V64 — Sea gallery visual parity with Animals gallery
+   Sea cards now inherit the exact same beige/orange card system.
+   Only long Armenian labels get a small typography adjustment.
+   ========================================================= */
+.animal-card[data-sea-creature="sea-turtle"] .animal-name,
+.animal-card[data-sea-creature="clownfish"] .animal-name,
+.animal-card[data-sea-creature="shrimp"] .animal-name,
+.animal-card[data-sea-creature="anglerfish"] .animal-name{
+  font-size:12.2px;
+  line-height:1.04;
+  letter-spacing:-.035em;
+}
+
+.animal-card[data-sea-creature="sea-otter"] .animal-name{
+  font-size:11.1px;
+  line-height:1.03;
+  letter-spacing:-.04em;
+}
+
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
+  font-size:10.2px;
+  line-height:1.02;
+  letter-spacing:-.045em;
+}
+
+.animal-card[data-sea-creature="sea-otter"]::before,
+.animal-card[data-sea-creature="sea-otter"]::after,
+.animal-card[data-sea-creature="leafy-seadragon"]::before,
+.animal-card[data-sea-creature="leafy-seadragon"]::after{
+  display:none;
+}
+
+@media (max-width:380px){
+  .animal-card[data-sea-creature="sea-turtle"] .animal-name,
+  .animal-card[data-sea-creature="clownfish"] .animal-name,
+  .animal-card[data-sea-creature="shrimp"] .animal-name,
+  .animal-card[data-sea-creature="anglerfish"] .animal-name{font-size:11.2px}
+  .animal-card[data-sea-creature="sea-otter"] .animal-name{font-size:10.4px}
+  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:9.5px}
+}

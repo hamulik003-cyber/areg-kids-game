@@ -977,7 +977,7 @@
     activityContent.classList.add('animal-gallery-mode');
 
     const wrap=document.createElement('div');
-    wrap.className='animal-gallery animal-gallery--sea';
+    wrap.className='animal-gallery';
     wrap.setAttribute('aria-label','Ջրային կենդանիների պատկերասրահ');
 
     SEA_CREATURES.forEach(creature=>{
@@ -991,7 +991,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=63" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=64" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
