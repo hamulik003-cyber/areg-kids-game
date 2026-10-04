@@ -241,14 +241,58 @@
   };
 
 
+  const INSECT_PALETTES = {
+    pollinator:{accent:'#f5b23e',soft:'rgba(245,178,62,.30)',badge:'linear-gradient(180deg,#f8b94a,#df8e1a)'},
+    beetle:{accent:'#7acb5e',soft:'rgba(122,203,94,.30)',badge:'linear-gradient(180deg,#7ecb60,#4f9637)'},
+    crawler:{accent:'#f06b78',soft:'rgba(240,107,120,.28)',badge:'linear-gradient(180deg,#f48692,#d34e5d)'},
+    winged:{accent:'#62b9ff',soft:'rgba(98,185,255,.30)',badge:'linear-gradient(180deg,#74c4ff,#2f92e0)'},
+    jumper:{accent:'#8f77ff',soft:'rgba(143,119,255,.28)',badge:'linear-gradient(180deg,#a28dff,#6d58dc)'},
+    predator:{accent:'#ff9c5f',soft:'rgba(255,156,95,.30)',badge:'linear-gradient(180deg,#ffab71,#e46e2c)'},
+    night:{accent:'#7da7ff',soft:'rgba(125,167,255,.28)',badge:'linear-gradient(180deg,#89b0ff,#5479d8)'},
+    water:{accent:'#4fcfd2',soft:'rgba(79,207,210,.28)',badge:'linear-gradient(180deg,#67d9dc,#2aa8ad)'}
+  };
+
+  const INSECTS = [
+    {id:'butterfly',name:'Թիթեռ',type:'փոշոտող',group:'winged',image:'insect-butterfly.png'},
+    {id:'bee',name:'Մեղու',type:'փոշոտող',group:'pollinator',image:'insect-bee.png'},
+    {id:'ant',name:'Մրջյուն',type:'սողացող',group:'crawler',image:'insect-ant.png'},
+    {id:'ladybug',name:'Զատիկ',type:'բզեզ',group:'beetle',image:'insect-ladybug.png'},
+    {id:'cricket',name:'Ծղրիդ',type:'ցատկող',group:'jumper',image:'insect-cricket.png'},
+    {id:'dragonfly',name:'Ճպուռ',type:'թռչող',group:'winged',image:'insect-dragonfly.png'},
+    {id:'praying-mantis',name:'Աղոթող մանտիս',type:'գիշատիչ',group:'predator',image:'insect-praying-mantis.png'},
+    {id:'rhinoceros-beetle',name:'Ռնգեղջյուր բզեզ',type:'բզեզ',group:'beetle',image:'insect-rhinoceros-beetle.png'},
+    {id:'grasshopper',name:'Մորեխ',type:'ցատկող',group:'jumper',image:'insect-grasshopper.png'},
+    {id:'damselfly',name:'Նրբաճպուռ',type:'թռչող',group:'winged',image:'insect-damselfly.png'},
+    {id:'wasp',name:'Կրետ',type:'թռչող',group:'winged',image:'insect-wasp.png'},
+    {id:'green-beetle',name:'Կանաչ բզեզ',type:'բզեզ',group:'beetle',image:'insect-green-beetle.png'},
+    {id:'bumblebee',name:'Իշամեղու',type:'փոշոտող',group:'pollinator',image:'insect-bumblebee.png'},
+    {id:'may-beetle',name:'Մայիսյան բզեզ',type:'բզեզ',group:'beetle',image:'insect-may-beetle.png'},
+    {id:'stag-beetle',name:'Եղջերաբզեզ',type:'բզեզ',group:'beetle',image:'insect-stag-beetle.png'},
+    {id:'water-strider',name:'Ջրաչափ',type:'սահող',group:'water',image:'insect-water-strider.png'},
+    {id:'colorado-beetle',name:'Կոլորադյան բզեզ',type:'բզեզ',group:'beetle',image:'insect-colorado-beetle.png'},
+    {id:'firefly',name:'Լուսատտիկ',type:'գիշերային',group:'night',image:'insect-firefly.png'},
+    {id:'earwig',name:'Ականջամտուկ',type:'սողացող',group:'crawler',image:'insect-earwig.png'},
+    {id:'dung-beetle',name:'Թրիքաբզեզ',type:'բզեզ',group:'beetle',image:'insect-dung-beetle.png'},
+    {id:'fly',name:'Ճանճ',type:'թռչող',group:'winged',image:'insect-fly.png'},
+    {id:'bark-beetle',name:'Կեղևակեր բզեզ',type:'բզեզ',group:'beetle',image:'insect-bark-beetle.png'},
+    {id:'louse',name:'Ոջիլ',type:'սողացող',group:'crawler',image:'insect-louse.png'},
+    {id:'flower-butterfly',name:'Զարդաթիթեռ',type:'փոշոտող',group:'pollinator',image:'insect-flower-butterfly.png'},
+    {id:'cabbage-butterfly',name:'Կաղամբի ճերմակաթիթեռ',type:'փոշոտող',group:'pollinator',image:'insect-cabbage-butterfly.png'},
+    {id:'moth',name:'Ցեց',type:'գիշերային',group:'night',image:'insect-moth.png'},
+    {id:'aphid',name:'Լվիճ',type:'սողացող',group:'crawler',image:'insect-aphid.png'},
+    {id:'mosquito',name:'Մոծակ',type:'թռչող',group:'winged',image:'insect-mosquito.png'},
+    {id:'horsefly',name:'Ձիաճանճ',type:'թռչող',group:'winged',image:'insect-horsefly.png'},
+    {id:'termite',name:'Տերմիտ',type:'սողացող',group:'crawler',image:'insect-termite.png'},
+  ];
+
   const SECTIONS={
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
       games:[
         {id:'animals',label:'Կենդանիներ',thumb:'nature-game-1.jpg',kind:'animalGallery'},
-        {id:'birds',label:'Թռչուններ',thumb:'nature-game-2.jpg',kind:'hatch'},
-        {id:'sea',label:'Ջրային կենդանիներ',thumb:'nature-game-3.jpg',kind:'feed'},
-        {id:'flowers',label:'Ծաղիկներ',thumb:'nature-game-4.jpg',kind:'garden'}
+        {id:'birds',label:'Թռչուններ',thumb:'nature-game-2.jpg',kind:'birdGallery'},
+        {id:'sea',label:'Ջրային կենդանիներ',thumb:'nature-game-3.jpg',kind:'seaGallery'},
+        {id:'insects',label:'Միջատներ',thumb:'nature-game-4.jpg',kind:'insects'}
       ]
     },
     space:{
@@ -505,7 +549,7 @@
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function renderGame(g){
-    const map={animalGallery:gameAnimalGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -1079,6 +1123,154 @@
     });
   }
 
+
+  let insectPlaybackToken=0;
+  let activeInsectCard=null;
+
+  function stopInsectPlayback({restoreMusic=true}={}){
+    insectPlaybackToken++;
+    try{speechSynthesis?.cancel()}catch{}
+    if(activeInsectCard){
+      activeInsectCard.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+      activeInsectCard=null;
+    }
+    if(restoreMusic&&settings.master&&settings.music)applyAudio();
+  }
+
+  function speakInsect(insect,token){
+    if(!settings.master||!settings.voice||!('speechSynthesis' in window))return Promise.resolve(false);
+    return new Promise(resolve=>{
+      try{
+        speechSynthesis.cancel();
+        if(token!==insectPlaybackToken){resolve(false);return;}
+        const utter=new SpeechSynthesisUtterance(`${insect.name}՝ ${insect.type} միջատ է։`);
+        utter.lang='hy-AM';
+        utter.rate=.9;
+        utter.pitch=1.04;
+        utter.volume=.98;
+        let settled=false;
+        const finish=(ok)=>{
+          if(settled)return;
+          settled=true;
+          clearTimeout(timer);
+          utter.onend=utter.onerror=null;
+          resolve(ok);
+        };
+        utter.onend=()=>finish(true);
+        utter.onerror=()=>finish(false);
+        const timer=setTimeout(()=>finish(false),5600);
+        speechSynthesis.speak(utter);
+      }catch{resolve(false)}
+    });
+  }
+
+  async function playInsectSequence(insect,card){
+    stopInsectPlayback({restoreMusic:false});
+    const token=++insectPlaybackToken;
+    activeInsectCard=card;
+    card.classList.remove('animal-card--pressing');
+    card.classList.add('animal-card--focus','animal-card--speaking');
+
+    const musicWasPlaying=!menuMusic.paused;
+    if(musicWasPlaying)menuMusic.pause();
+
+    if(settings.master&&settings.voice){
+      await speakInsect(insect,token);
+    }else{
+      await new Promise(r=>setTimeout(r,1050));
+    }
+
+    if(token!==insectPlaybackToken)return;
+    await new Promise(r=>setTimeout(r,180));
+    if(token!==insectPlaybackToken)return;
+    card.classList.remove('animal-card--speaking','animal-card--focus');
+    activeInsectCard=null;
+    if(musicWasPlaying&&settings.master&&settings.music)ensureAudio();
+  }
+
+  function gameInsectGallery(){
+    activityContent.innerHTML='';
+    activityContent.classList.add('animal-gallery-mode');
+
+    const wrap=document.createElement('div');
+    wrap.className='animal-gallery animal-gallery--insect';
+    wrap.setAttribute('aria-label','Միջատների պատկերասրահ');
+
+    INSECTS.forEach(insect=>{
+      const palette=INSECT_PALETTES[insect.group]||INSECT_PALETTES.winged;
+      const card=document.createElement('button');
+      card.type='button';
+      card.className='animal-card animal-card--insect';
+      card.dataset.insectId=insect.id;
+      card.style.setProperty('--animal-accent',palette.accent);
+      card.style.setProperty('--animal-accent-soft',palette.soft);
+      card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
+      card.innerHTML=`
+        <span class="animal-image-wrap">
+          <img src="${insect.image}?v=70" alt="${insect.name}" draggable="false">
+          <span class="animal-card-sheen" aria-hidden="true"></span>
+        </span>
+        <span class="animal-meta animal-meta--insect">
+          <strong class="animal-name">${insect.name}</strong>
+          <small class="animal-type animal-type--insect" style="background:${palette.badge}">${insect.type}</small>
+        </span>`;
+
+      let downX=0,downY=0,downPointer=null,moved=false;
+      card.addEventListener('pointerdown',e=>{
+        if(e.pointerType==='mouse'&&e.button!==0)return;
+        downPointer=e.pointerId;
+        downX=e.clientX;downY=e.clientY;moved=false;
+        card.classList.add('animal-card--pressing');
+      });
+      card.addEventListener('pointermove',e=>{
+        if(e.pointerId!==downPointer)return;
+        if(Math.hypot(e.clientX-downX,e.clientY-downY)>12){
+          moved=true;
+          card.classList.remove('animal-card--pressing');
+        }
+      });
+      card.addEventListener('pointerup',e=>{
+        if(e.pointerId!==downPointer)return;
+        card.classList.remove('animal-card--pressing');
+        const shouldPlay=!moved;
+        downPointer=null;
+        if(shouldPlay)playInsectSequence(insect,card);
+      });
+      card.addEventListener('pointercancel',()=>{
+        downPointer=null;moved=true;card.classList.remove('animal-card--pressing');
+      });
+      card.addEventListener('pointerleave',()=>{
+        if(downPointer!==null)card.classList.remove('animal-card--pressing');
+      });
+      card.addEventListener('click',e=>{
+        if(e.detail===0)playInsectSequence(insect,card);
+      });
+
+      wrap.appendChild(card);
+    });
+
+    activityContent.appendChild(wrap);
+
+    const syncInsectFocusScale=()=>{
+      const gap=parseFloat(getComputedStyle(wrap).columnGap)||10;
+      $$('.animal-card',wrap).forEach(card=>{
+        const width=card.offsetWidth||1;
+        const sideGrow=gap*.86;
+        const scale=Math.min(1.105,1+(sideGrow*2/width));
+        card.style.setProperty('--animal-focus-scale',scale.toFixed(4));
+        card.style.setProperty('--animal-press-scale',Math.min(1.035,1+(sideGrow*.62/width)).toFixed(4));
+      });
+    };
+    requestAnimationFrame(syncInsectFocusScale);
+    addEventListener('resize',syncInsectFocusScale,{passive:true});
+
+    gameCleanup.push(()=>{
+      removeEventListener('resize',syncInsectFocusScale);
+      stopInsectPlayback({restoreMusic:true});
+      try{speechSynthesis?.cancel()}catch{}
+      activityContent.classList.remove('animal-gallery-mode');
+    });
+  }
 
   function gameShadow(){
     const s=surface('☝️'),animals=[['🦁','lion'],['🐘','ele'],['🐇','bun']];let done=0;

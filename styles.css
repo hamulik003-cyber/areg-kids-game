@@ -3036,3 +3036,53 @@ html[data-font="classic"]{
 }
 
 .font-help{margin:8px 2px 0;font-size:12.5px;line-height:1.35;font-weight:700;opacity:.78}
+
+
+/* =========================================================
+   V70 — Insects gallery
+   ========================================================= */
+.animal-gallery--insect{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.40),transparent 34%),
+    linear-gradient(180deg,#fff7d7 0%,#fcecb6 44%,#fff3d9 100%);
+}
+
+.animal-gallery--insect .animal-card{
+  background:linear-gradient(180deg,#fff7e9 0%,#fde7bf 70%,#f4c86e 70%,#eeaf58 100%);
+  border-color:rgba(255,220,155,.98);
+  box-shadow:
+    0 5px 0 rgba(166,107,34,.68),
+    0 10px 18px rgba(86,55,11,.12),
+    inset 0 0 0 2px rgba(121,70,34,.10);
+}
+
+.animal-gallery--insect .animal-image-wrap{background:#fff4cf}
+.animal-gallery--insect .animal-meta{height:34%;gap:3px;padding:2px 4px 7px}
+.animal-gallery--insect .animal-name{font-size:12.5px;min-height:38px;line-height:1.04;-webkit-line-clamp:3}
+.animal-gallery--insect .animal-type{max-width:100%;min-width:0;padding:0 6px;height:17px;font-size:8.5px}
+.animal-gallery--insect .animal-card::before,
+.animal-gallery--insect .animal-card::after{background:linear-gradient(135deg,#95cb53,#4c8d35)}
+
+.animal-card[data-insect-id="praying-mantis"] .animal-name,
+.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+.animal-card[data-insect-id="may-beetle"] .animal-name,
+.animal-card[data-insect-id="colorado-beetle"] .animal-name,
+.animal-card[data-insect-id="bark-beetle"] .animal-name,
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:11px}
+
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-meta{gap:2px;padding-left:2px;padding-right:2px}
+.animal-card[data-insect-id="cabbage-butterfly"]::before,
+.animal-card[data-insect-id="cabbage-butterfly"]::after,
+.animal-card[data-insect-id="praying-mantis"]::before,
+.animal-card[data-insect-id="praying-mantis"]::after{display:none}
+
+@media (max-width:380px){
+  .animal-gallery--insect .animal-name{font-size:11.7px;min-height:36px}
+  .animal-gallery--insect .animal-type{font-size:8px}
+  .animal-card[data-insect-id="praying-mantis"] .animal-name,
+  .animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+  .animal-card[data-insect-id="may-beetle"] .animal-name,
+  .animal-card[data-insect-id="colorado-beetle"] .animal-name,
+  .animal-card[data-insect-id="bark-beetle"] .animal-name,
+  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:10.2px}
+}

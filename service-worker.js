@@ -1,4 +1,4 @@
-const CACHE='areg-v69-final-pro-1';
+const CACHE='areg-v70-insects-1';
 const ASSETS=["./", "./index.html", "./styles.css", "./app.js", "./launcher.html", "./service-worker.js", "./avatar-frame.png", "./bottom-landscape.png", "./logo.png", "./settings.png", "./star-counter.png", "./menu-music.mp3", "./nature.png", "./space.png", "./mind.png", "./create.png", "./magic.png", "./nature-frame-guard.png", "./space-frame-guard.png", "./mind-frame-guard.png", "./create-frame-guard.png", "./magic-frame-guard.png", "./hero-nature.jpg", "./nature-game-1.jpg", "./nature-game-2.jpg", "./nature-game-3.jpg", "./nature-game-4.jpg", "./hero-space.jpg", "./space-game-1.jpg", "./space-game-2.jpg", "./space-game-3.jpg", "./space-game-4.jpg", "./hero-mind.jpg", "./mind-game-1.jpg", "./mind-game-2.jpg", "./mind-game-3.jpg", "./mind-game-4.jpg", "./hero-create.jpg", "./create-game-1.jpg", "./create-game-2.jpg", "./create-game-3.jpg", "./create-game-4.jpg", "./hero-magic.jpg", "./magic-game-1.jpg", "./magic-game-2.jpg", "./magic-game-3.jpg", "./magic-game-4.jpg", "./preset-gummy-bear.svg", "./preset-bunny.svg", "./preset-kitten.svg", "./preset-puppy.svg", "./preset-panda.svg", "./preset-fox.svg", "./preset-lion.svg", "./preset-monkey.svg", "./preset-koala.svg", "./preset-robot.svg",
   "./animal-dog.jpg",
   "./animal-wolf.jpg",
@@ -92,7 +92,38 @@ const ASSETS=["./", "./index.html", "./styles.css", "./app.js", "./launcher.html
   "./sea-shrimp.jpg",
   "./sea-sterlet.jpg",
   "./sea-trout.jpg",
-  "./sea-goldfish.jpg"];
+  "./sea-goldfish.jpg",
+  "./insect-butterfly.png",
+  "./insect-bee.png",
+  "./insect-ant.png",
+  "./insect-ladybug.png",
+  "./insect-cricket.png",
+  "./insect-dragonfly.png",
+  "./insect-praying-mantis.png",
+  "./insect-rhinoceros-beetle.png",
+  "./insect-grasshopper.png",
+  "./insect-damselfly.png",
+  "./insect-wasp.png",
+  "./insect-green-beetle.png",
+  "./insect-bumblebee.png",
+  "./insect-may-beetle.png",
+  "./insect-stag-beetle.png",
+  "./insect-water-strider.png",
+  "./insect-colorado-beetle.png",
+  "./insect-firefly.png",
+  "./insect-earwig.png",
+  "./insect-dung-beetle.png",
+  "./insect-fly.png",
+  "./insect-bark-beetle.png",
+  "./insect-louse.png",
+  "./insect-flower-butterfly.png",
+  "./insect-cabbage-butterfly.png",
+  "./insect-moth.png",
+  "./insect-aphid.png",
+  "./insect-mosquito.png",
+  "./insect-horsefly.png",
+  "./insect-termite.png"
+];
 
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
