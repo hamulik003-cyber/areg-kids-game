@@ -2325,20 +2325,31 @@ body.magic-scroll-active{
   color:#4f2212;
   touch-action:manipulation;
   isolation:isolate;
-  transition:transform .28s cubic-bezier(.22,.61,.36,1), filter .28s cubic-bezier(.22,.61,.36,1), box-shadow .28s cubic-bezier(.22,.61,.36,1);
+  contain:layout paint;
+  transform-origin:center center;
+  will-change:transform,filter,box-shadow;
+  transition:transform .34s cubic-bezier(.22,.61,.36,1),filter .34s cubic-bezier(.22,.61,.36,1),box-shadow .34s cubic-bezier(.22,.61,.36,1);
 }
 
 .animal-card:active{
-  transform:scale(1.018);
-  filter:brightness(1.03);
+  transform:none;
 }
 
-.animal-card--pressed{
-  transform:scale(1.03);
-  filter:brightness(1.035);
+.animal-card--pressing{
+  transform:translateY(-2px);
+  filter:brightness(1.025);
   box-shadow:
-    0 8px 0 rgba(142,78,38,.72),
-    0 16px 24px rgba(20,8,4,.18),
+    0 7px 0 rgba(142,78,38,.74),
+    0 14px 22px rgba(20,8,4,.17),
+    inset 0 0 0 2px rgba(121,70,34,.11);
+}
+
+.animal-card--focus{
+  transform:translateY(-3px);
+  filter:brightness(1.045);
+  box-shadow:
+    0 9px 0 rgba(142,78,38,.70),
+    0 18px 28px rgba(20,8,4,.20),
     inset 0 0 0 2px rgba(121,70,34,.11);
 }
 
@@ -2359,6 +2370,19 @@ body.magic-scroll-active{
   display:block;
   object-fit:cover;
   object-position:center center;
+  transform:scale(1);
+  transform-origin:center 58%;
+  will-change:transform,filter;
+  transition:transform .46s cubic-bezier(.22,.61,.36,1),filter .38s ease;
+}
+
+.animal-card--pressing .animal-image-wrap img{
+  transform:scale(1.045);
+}
+
+.animal-card--focus .animal-image-wrap img{
+  transform:scale(1.105) translateY(-1.4%);
+  filter:saturate(1.05) contrast(1.025);
 }
 
 .animal-card-sheen{
@@ -2385,6 +2409,7 @@ body.magic-scroll-active{
 
 .animal-meta{
   position:absolute;
+  z-index:8;
   left:5px;
   right:5px;
   bottom:3px;
@@ -2393,9 +2418,9 @@ body.magic-scroll-active{
   flex-direction:column;
   align-items:center;
   justify-content:flex-end;
-  gap:5px;
+  gap:4px;
   text-align:center;
-  padding:2px 4px 5px;
+  padding:2px 4px 6px;
 }
 
 .animal-name{
@@ -2404,14 +2429,15 @@ body.magic-scroll-active{
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:normal;
-  font-size:12.5px;
-  line-height:1.12;
-  min-height:29px;
+  font-size:14px;
+  line-height:1.08;
+  min-height:30px;
   display:-webkit-box;
   -webkit-box-orient:vertical;
   -webkit-line-clamp:2;
-  font-weight:900;
+  font-weight:950;
   letter-spacing:-.025em;
+  text-shadow:0 .35px 0 currentColor,0 1px 0 rgba(255,255,255,.18);
 }
 
 .animal-type{
@@ -2441,10 +2467,10 @@ body.magic-scroll-active{
 .animal-card::after{
   content:"";
   position:absolute;
-  z-index:5;
-  bottom:23%;
-  width:18px;
-  height:10px;
+  z-index:4;
+  bottom:32%;
+  width:16px;
+  height:9px;
   background:linear-gradient(135deg,#8fc956,#3d8139);
   border-radius:100% 0 100% 0;
 }
@@ -2455,8 +2481,18 @@ body.magic-scroll-active{
 @media (max-width:380px){
   .animal-gallery{gap:8px;padding-left:8px;padding-right:8px}
   .animal-card{height:172px;border-radius:20px}
-  .animal-name{font-size:12px;min-height:24px}
+  .animal-name{font-size:13px;min-height:27px}
   .animal-type{font-size:9px;min-width:44px}
+}
+
+
+.animal-card--speaking .animal-type{
+  transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 3px 7px rgba(78,43,20,.18);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .animal-card,.animal-image-wrap img{transition-duration:.12s!important}
 }
 
 

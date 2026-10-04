@@ -124,6 +124,39 @@
     {id:'black-panther',name:'Սև հովազ',type:'վայրի',image:'animal-black-panther.jpg'}
   ];
 
+  const ANIMAL_AUDIO = {
+    "dog":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/7523579c-081c-439b-94e2-f21e366167fa/AREG_dog_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDdkMDI5NzMxZTE1MjhhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMTIzNX0.SxYICOJETFJKx1bw8-BOQuh1dxBM8JwGAmhd8HpkmU0",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/7da6c050-cb8b-484f-8f2b-7f8d9c561e11/AREG_animal_dog_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjRiMWFjZGYwOWE2MmVkNSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzMTMyN30.VK3qgp2VAoaynHFIWP09tcxriCUCHtQVy_DRM9694Ro"},
+    "wolf":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/4263cfdf-f6ae-4c71-8324-3037c34a4bfd/AREG_wolf_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmYzZmQ2MGQ2ZDQ4Y2Q4YiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMjQ0NX0.j4HIqh380XGVgJWhAjaaGXsGU09lM3l3Xq0R2OVEctY",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/d2d7358d-4df1-4b84-9c44-93f79f62f23f/AREG_animal_wolf_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzU5OTg2ZjBmZGE3YmUxMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0OTkwNH0.yr4Dw01xx1Qd5uRKWNCDUeI7434uRDOqxLi9vKou_mE"},
+    "lynx":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/403db06a-3828-4bd6-9028-ab3c294b9aec/AREG_lynx_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNTkyODk0MTBkMWY2NGMxZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzMzE2OH0._0V1HV0etcsAYgySoRfRkdv-SXDKlAKMxyKplnGmZZw",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/26f78256-3c24-424b-9f49-e2e824c0e4f5/AREG_animal_lynx_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiM2VjY2MyYTdiMDAzYTQ1MyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzM2N30.vbzgHStPxGSFMH-8lbMAKaU3F4_C8Ul7zl8Qyj8bcOA"},
+    "cow":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/335cae80-a8ef-4044-a5fd-7cd352e2e537/AREG_cow_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDUzZWViYWI0ZTA5NTFjNSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2MTg2N30.cBzAh4y7mZKctYaImoHVjjMSpamOZe-XsSjRo8vHT78",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/99c19d9b-d9b6-4158-aa4b-17c885551355/AREG_animal_cow_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzNlZmI5YWZjNmVjOWZhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0OTQ1NX0.w9MMqZs_4UF6_4CjNWolzv01zJ-dVIZc841b6m8-9RA"},
+    "horse":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/282132f5-b71b-4f9c-947d-38a2debb867c/AREG_horse_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOTY3MjkzOWI4YWVkNWEwZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NjQ5MX0.rygBeY22gTVZqhOJiaK1O9xgzSrhtJUpi3_wYtCuZ_s",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/cb93da8b-c556-4785-9dfc-d0aac9b1cd42/AREG_animal_horse_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmJhYjE3MzM3OTUyNWJhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1NzAxMX0.4qBRxVC1YXjP8zzsvptgErnbpGv-_GETKBpD-SwJ0U8"},
+    "goat":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/07b56df6-896c-4699-a2f6-e189623e2eac/AREG_goat_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjUzODA0MjA1MDVkNmQ3NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyNDk5Mn0.1wPbICg6SwzOsfLQwpyUApcr3DYJMBT4WxBDhgOisO8",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/75a5b693-459f-41a7-81e6-f528b30a66c8/AREG_animal_goat_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjEzYTQyODNiZGI3NzE4MiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2MDU0N30.6b71i1t70WYvbhycplIT8Ips5lmyBlvzwHF64ZwSWYM"},
+    "camel":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/1ca589ec-83d9-49c4-b5ce-287e07c7f337/AREG_camel_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTQ5ZTE0YjdhMWNiYTA0OCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzUxMX0.r3Dtq4mB9X0tn2cq76IId2sf65eAUpsuLn6AsbOZlEw",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/f20eb156-96bd-4b0f-bbab-bb11adf9e0e3/AREG_animal_camel_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDJlMjMzMGUxZjY3MzI1OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzOTQzOH0.YlyyGT8jTBBrSbp1jkXjlHJI9Jl37ogoBgICWZB6B5I"},
+    "sheep":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/636838a3-f5ad-44dc-8f6e-5df7f858ee6e/AREG_sheep_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTYxNGFkMmZlODFlMWNhNyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIxNTQwN30.5S02EZL2VK9J_JIFKnnmzYvWOEDmXLzQwjZDf-vH21Y",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/5548673e-79e9-4484-aa82-8f2d426f540d/AREG_animal_sheep_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzgyYTZmZTI4OTY4YTlmMyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3Mzk1NH0.cyW7Zh7keEIi2PPmFEMvK4VXZHby9Y78hiA7u-oqB8g"},
+    "cat":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/38f0194b-b2dc-47ea-b900-ec54697a8408/AREG_cat_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODU0NTAwN2I2ZDJlYzM3MyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NzQzNX0.Ko1IJZdJZ93ahXcj9RVarLQg6Ie_2dzZSRl2bHanMUA",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/b39c50dd-941a-4664-83e6-033df8494d55/AREG_animal_cat_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNWUzZGZlYWJiZWIxNjZiZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NTk5NX0.6Ouq8cOFDibU5YIIPtD1M8aF0ekuEQ06KiCyX9I2mtc"},
+    "tiger":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/62f1a0e3-5451-4fa2-9792-3b85b9ae4bf5/AREG_tiger_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYWY3ZjYxMzg4MGMyODBhZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2NjM2MH0.tR7KlVHAJ_BCxq5jIZmmizkTngYzXXfBU24X--Z9ugk",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/f08f3336-777f-4b67-92e6-fd3ee316d705/AREG_animal_tiger_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZDZhY2U1MWM3YmEyNmM0NyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyOTQ2OH0.23XT92b30RdrCFZjjFWFPOQvqTx77scJVNrij2izVMU"},
+    "donkey":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/ebf9feb5-4a80-426c-858c-1ccd4b00e628/AREG_donkey_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZGQyMmNjMzdhZWE5OGNkZiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NDAzOX0.sKVVezc-TDRPltYK0unNLVApoLBgWrGftCEdFV7iGjc",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/c1b6e7a3-7c46-4daf-8569-e387e6961058/AREG_animal_donkey_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzVhMTFmNDYyZWQ3MDgwOCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NTk3NH0.5tu8G0Qr2Qq7PnrtcdmdWH-N5Jr49vGjLnUMuUahE74"},
+    "bull":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/900c5fc8-6aff-461b-ad1b-ddc321bb73fe/AREG_bull_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjEwMTIzOWE2NDdlODQ2NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI4MTMwNn0.dCR6mDb29UAY5Odv3e_38UI-yI5DF3yAcvK4icE-0gw",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/b653b373-0658-4907-b4f2-1cda29723095/AREG_animal_bull_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWM5N2FiNjAwZTQ5NDc3ZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2NTUwNH0.ta7zayY_9Ri7U6-1tZOISmRlyxDEjYQOvlRTUzlXuZs"},
+    "deer":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/6a3892a5-99a0-4440-a138-26b5ac5c603f/AREG_deer_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjNjOTE1NDAzYjVmN2QwMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTE5Njg2NH0.tXZQPby-RapwoefRwWlbuqAZZO5sXrN5cDQADju_xmU",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/a06941a6-0020-466b-9420-7ec7c0d25f2a/AREG_animal_deer_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDg0NGYzN2M5NDdhNjM2ZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMjkwOH0.vS_sKTyX7Dft_NT7c1tgaMfLq7nqmsU32H9doO7P_Ww"},
+    "bison":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/0a041f09-471c-441f-a09e-87f9cf14361d/AREG_bison_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDM5NDc3Nzg3OWVmMTNhMCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMDk4NH0.23OpXc_kugdd9cdbcmK6H9KcVHM1jT3v9cP6UCLNmMA",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/0b451488-ef17-4c40-907e-84c2b5a33321/AREG_animal_bison_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTExYWJjMmZlMjg1ZGYwOCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MDExMX0.LgkkCjnu1Ibg0s7HcmqPvmrhq8AKUP98nllxsurGbYg"},
+    "hippo":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/f2de29bf-0a46-4a2a-93b9-19578ca15589/AREG_hippo_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzMyZGM1MjBjZTdhYTJiYiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTUwNH0._b0LTdeHjjBN6ioB9xlGZximQCtwV_8WhDCxN6XLtnw",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/774e2336-6896-4434-8cf0-cdb751bd8bce/AREG_animal_hippo_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOGVjZDdjYTdmMjlhMTJmNCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwNDI2M30.t79an5Rc-6Bbt9VIOGSFXU5NL8AliQulA8FsHmn7z6w"},
+    "zebra":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/8b997739-bd2d-4c4a-a738-e939b9d21f77/AREG_zebra_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTc2YTdkYmFjOGU4NTgzMyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTI3NH0.oBXvdJlrN7WtLL2xUI5U-d6qs_S2cXgoTazwhSnGo6I",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/bb3f4b84-0a88-45a7-b3fc-44ea2aa9ba3e/AREG_animal_zebra_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjNhNzU0Y2NjMTk2M2EwYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyOTAwNH0.DUxw4yYwGVE2-oR_2Qx9B_Fwxs3808mlFk_wN-weRc0"},
+    "giraffe":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/1b772415-cab9-4cb5-9abd-064320f46f60/AREG_giraffe_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjNlOTE4MWE2YjdlNjI1ZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1ODUyMn0.IiJXw6H3LIIC40dyq0HLXzb1_sBDcAjIeyYvY-oMCAw",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/eda8d0b5-dab6-48f7-9d13-4fa5c26ae767/AREG_animal_giraffe_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWFmNDEyOTA4MzliNjY4MiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MjAwMH0.9XFMhii0cMm9fERp_Z1mQK0vl9M5n-NubH9wSeSvAk4"},
+    "elephant":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/ef164dcc-1757-41bf-9509-a3fee371e711/AREG_elephant_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzJhMjI5MTczZGJlNTAyNCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0ODE1MX0.GWVEYrLr_Lf_2cgMh_FudNbq3SRIOojAKTuJQP--xHQ",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/1250fc9d-cfc4-44c8-b1b5-bdeef4d2df1a/AREG_animal_elephant_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNTY1NmUwOWExNWEyNDM3ZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTE5NjU3MH0.vj-gP5WZ86b_gtht6hPnNXIPthqS9s1m03TJL9GevmA"},
+    "rabbit":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/61ab27c5-0b5f-438f-953e-702ce7aab3fc/AREG_rabbit_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZGE3YTA4MTc4OTgxZmVmOCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTc1MX0.UfIFnxgto1j9dA_7Zv0ah1bZhG3i5dEm6x8nrOrJnj8",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/a9552ae6-1e41-498d-a2e7-cfd9324d3eb0/AREG_animal_rabbit_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDNhYWIzYTMwYzU1OTVlOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwOTM3OX0.y0ykSTXXrR3Qm6mmMjtqDqxwiqWu4QtzuGH4bV4KrZs"},
+    "monkey":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/47e2e3db-c90a-494a-9eb2-a124ff73e621/AREG_monkey_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMmFjY2U2YmJmNWMwZWUwOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NTg4M30.Gd5pMeZKsr6Y-Vg7Gm0yHjblgZzslJSAttGrtiUcqcc",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/078efba2-0cb5-4b93-ac24-f9d7e4ca3dc2/AREG_animal_monkey_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzVlMDhjYTRkNWRiMDJmOCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzODgyMH0.51kyn_UOoQLfFUdA1MDC1FSh74-ZC7ksb8Lrc_9sIZg"},
+    "lion":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/1154d83b-1810-4f34-8627-6691fe8a7439/AREG_lion_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDU2ZWY4ODU5ZjkzZjgxMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1MTQ2MX0.NUmUlwg2saxpGHH2vXiP-X6Rqg-rjYNLX4NXuUC0apg",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/7e2e3cd7-d608-45ef-99ce-c5c71d976cac/AREG_animal_lion_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmI2ODM4YWQxMWU0OTYyZiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3ODc2NX0.rIQV4VB7ZLnzrxIlLLqCnyDBXhLKYKdS21NJaxgHlNs"},
+    "bear":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/e166cd05-762e-4946-8c9b-3730f235beb9/AREG_bear_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTcyNTFmMDY1NzhmNDFhMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NDI0Nn0.g85Ou4eZjJ7U70wsoBW5eW7udRkwvlBLIQePra3022I",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/21b84ee7-7e5c-4915-8941-ac96c0e54dc0/AREG_animal_bear_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTZiYWZjM2ZiZWU1ZWE4ZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzMDUyN30.vUSNkwDoC9_w6XEcPngH4z-DnWnfoHWoeTgqaKmir2g"},
+    "panda":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/9cecc975-0f6d-4727-a0c1-41c6674c16b8/AREG_panda_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZGNlYmQ0MzQxNmVlMDU5NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIxNDAwNH0.w32i3uVIypAeMhbyj2qn55E9S1SB_W1fBA1e39BPfbE",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/951d3ad7-5d47-4173-b525-37f647b29d60/AREG_animal_panda_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiY2JiM2RlZGE3YzdiMjNhNyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1NTY0Mn0.FOsXrKzOtDAQZg26ijosRBru82VN12sv7gh-_HAVg_c"},
+    "fox":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/62546c4a-f66f-4340-85ba-fd8cc6f86335/AREG_fox_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWMxMTgxMWM0OThiZDc1ZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTE5OTI2MH0.a-gvDfIbyIfD9EQ9ewRCtgn4j9vKBRWaBGF_djBYbGU",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/d0e92b7c-f61f-4043-8b1a-fef72e3062bc/AREG_animal_fox_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjQxOTI0MmI5NmI4NDc2NyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1OTU2M30.H0ApUR2MYKLfZsY1qdaGGBSWqknU-3hrS3tNpBKBBZE"},
+    "pig":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/dbea82e5-a7d0-4d92-af26-f343bdce40bf/AREG_pig_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmEwMTBjNzYzNjMyZjc4OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MzEyNn0.iX3GmEQH-_eNufZBDNkXiz2Z4z4LcTcwYAPM8SdhSGM",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/f7e2a2ba-2025-4833-b9de-4c9ae6510cde/AREG_animal_pig_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzQ1NjM4YjgzODFmN2FkMSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NjQ3Mn0.m9EX-JgQuykEA-aTcbrQNSnPB69kUlTK8ZYlDUvszZA"},
+    "rhino":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/77b94079-6328-4ae4-b42a-72930f340694/AREG_rhino_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDljNDMxODQ0ODlhZmJkNSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NTcwMH0.sSHR4mkR-Ty_xYyDunYX3nm2JHZDqLSDs8CcYqarVMY",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/230896ef-3dea-42f9-a382-d7bf2f68414e/AREG_animal_rhino_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDM2NTFmOGRkOWIzN2I1MCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2NjA2MX0.qeQ2XMUw2YmlIZ6oaxmbQumnXrTjoJgF_K3VaHCye6s"},
+    "polar-bear":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/f7c3cb02-ea66-407f-84ff-ae15ade7220e/AREG_polar_bear_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjIxYTY1YjhjNzBmMTlkOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMTk0NH0.Wmsan9gSTuCnHfJXeojq6BOsKKgg6iaXv48Xy5Xf-RI",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/0ddf5a15-0591-438f-bea0-25982184ee80/AREG_animal_polar_bear_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTA0M2QwZmFhYzU0MWQ2OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3MzQ2Nn0.CoHBQnqskO8mJ5O1XEa3IRMpKU1lPb3u9GcbmvpK-dY"},
+    "leopard":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/3a06123d-813e-4d12-b4c3-09b4b8e9b802/AREG_leopard_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzQzZGNkMDQyYzhmYjI2OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzMTIzNn0.T99ne1hHxtu-wRZwhrkKuoJWKhRvw7dlSLWoinrKeN8",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/5b104034-e398-4c71-9154-74ec151bd96f/AREG_animal_leopard_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYmU0M2Q3NDg3Yjc1OWFmNiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyNzQ2NH0.c6gZ2y_Iew6SwJZijcLLu-9VWxLp7rOzApAf3-R_Jks"},
+    "hyena":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/61ab5292-b5f4-4338-bb2a-d9f542066092/AREG_hyena_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjkyNzJmMGE5YjhhOWVlMCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMTEzMH0.mZk59EYTbuMKCvUWnClGBrx3PYtSMA1gIKdJYUreLR0",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/1b5e7e22-7d9c-4124-8dea-68c919e282b5/AREG_animal_hyena_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYmVmZmQ3NjZiNjAyMWZhYiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3OTQ2Mn0.pnYw3nZyqXKDJ1NbczaEzVuEI5r2MbOswUKHgW6YtI8"},
+    "black-panther":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/76515791-02e3-40c4-bc2b-7b3c6aa7a63e/AREG_black_panther_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODAxZGMyNjVmYzVjMTA0NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIxOTU1N30.Jbgy0aZSLjE7v1FB1OtPYctJu4Igq86XcCPB0Cg7r5o",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/fcda82d2-43c5-4aa4-9cd6-28ddc11c0ec2/AREG_animal_black_panther_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTc2NTc4N2U0NjI4ZjIzNyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMDQ3OH0.9Ok7RRJdyCSX6Ys2eFbRMC_kGQUIwZQ9L69phFnAePo"}
+  };
+
   const SECTIONS={
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
@@ -236,7 +269,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=53" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=54" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -390,7 +423,122 @@
   }
 
   /* NATURE */
+  let animalAudioWarmStarted=false;
+  function warmAnimalAudioCache(){
+    if(animalAudioWarmStarted||!navigator.onLine)return;
+    animalAudioWarmStarted=true;
+    const urls=[];
+    Object.values(ANIMAL_AUDIO).forEach(a=>{if(a.voice)urls.push(a.voice);if(a.sound)urls.push(a.sound)});
+    let cursor=0;
+    const worker=async()=>{
+      while(cursor<urls.length){
+        const url=urls[cursor++];
+        try{await fetch(url,{mode:'no-cors',cache:'force-cache'})}catch{}
+      }
+    };
+    Promise.all([worker(),worker(),worker(),worker()]).catch(()=>{});
+  }
+
+  let animalPlaybackToken=0;
+  let animalVoicePlayer=null;
+  let animalSoundPlayer=null;
+  let activeAnimalCard=null;
+
+  function stopAnimalPlayback({restoreMusic=true}={}){
+    animalPlaybackToken++;
+    [animalVoicePlayer,animalSoundPlayer].forEach(a=>{
+      if(!a)return;
+      try{a.pause();a.currentTime=0}catch{}
+    });
+    animalVoicePlayer=null;
+    animalSoundPlayer=null;
+    if(activeAnimalCard){
+      activeAnimalCard.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+      activeAnimalCard=null;
+    }
+    if(restoreMusic&&settings.master&&settings.music)applyAudio();
+  }
+
+  function playAnimalClip(src,kind,token){
+    return new Promise(resolve=>{
+      if(!src||token!==animalPlaybackToken){resolve(false);return}
+      const audio=new Audio();
+      audio.preload='auto';
+      audio.playsInline=true;
+      audio.src=src;
+      audio.volume=kind==='voice'?.98:.92;
+      if(kind==='voice')animalVoicePlayer=audio;else animalSoundPlayer=audio;
+      let settled=false;
+      const finish=(ok)=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(timer);
+        audio.onended=audio.onerror=audio.onabort=null;
+        resolve(ok);
+      };
+      audio.onended=()=>finish(true);
+      audio.onerror=()=>finish(false);
+      audio.onabort=()=>finish(false);
+      const timer=setTimeout(()=>finish(false),kind==='voice'?7000:5200);
+      const p=audio.play();
+      if(p&&p.catch)p.catch(()=>finish(false));
+    });
+  }
+
+  function speakAnimalFallback(animal){
+    if(!settings.master||!settings.voice||!('speechSynthesis' in window))return Promise.resolve(false);
+    return new Promise(resolve=>{
+      try{
+        speechSynthesis.cancel();
+        const utter=new SpeechSynthesisUtterance(`${animal.name}՝ ${animal.type==='ընտանի'?'ընտանի':'վայրի'} կենդանի է։`);
+        utter.lang='hy-AM';
+        utter.rate=.9;
+        utter.pitch=1.02;
+        utter.volume=.96;
+        utter.onend=()=>resolve(true);
+        utter.onerror=()=>resolve(false);
+        speechSynthesis.speak(utter);
+        setTimeout(()=>resolve(false),6500);
+      }catch{resolve(false)}
+    });
+  }
+
+  async function playAnimalSequence(animal,card){
+    stopAnimalPlayback({restoreMusic:false});
+    const token=++animalPlaybackToken;
+    const audio=ANIMAL_AUDIO[animal.id]||{};
+    activeAnimalCard=card;
+    card.classList.remove('animal-card--pressing');
+    card.classList.add('animal-card--focus','animal-card--speaking');
+
+    const musicWasPlaying=!menuMusic.paused;
+    if(musicWasPlaying)menuMusic.pause();
+
+    if(!settings.master){
+      await new Promise(r=>setTimeout(r,1050));
+    }else{
+      if(settings.voice){
+        const ok=await playAnimalClip(audio.voice,'voice',token);
+        if(token!==animalPlaybackToken)return;
+        if(!ok)await speakAnimalFallback(animal);
+      }
+      if(token!==animalPlaybackToken)return;
+      if(settings.voice&&settings.effects)await new Promise(r=>setTimeout(r,120));
+      if(settings.effects)await playAnimalClip(audio.sound,'sound',token);
+    }
+
+    if(token!==animalPlaybackToken)return;
+    await new Promise(r=>setTimeout(r,180));
+    if(token!==animalPlaybackToken)return;
+    card.classList.remove('animal-card--speaking','animal-card--focus');
+    activeAnimalCard=null;
+    animalVoicePlayer=null;
+    animalSoundPlayer=null;
+    if(musicWasPlaying&&settings.master&&settings.music)ensureAudio();
+  }
+
   function gameAnimalGallery(){
+    warmAnimalAudioCache();
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
@@ -406,7 +554,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=53" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=54" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -414,19 +562,46 @@
           <small class="animal-type animal-type--${animal.type==='ընտանի'?'domestic':'wild'}">${animal.type}</small>
         </span>`;
 
-      const pressIn=()=>card.classList.add('animal-card--pressed');
-      const pressOut=()=>card.classList.remove('animal-card--pressed');
-      card.addEventListener('pointerdown',pressIn);
-      card.addEventListener('pointerup',pressOut);
-      card.addEventListener('pointercancel',pressOut);
-      card.addEventListener('pointerleave',pressOut);
-      card.addEventListener('blur',pressOut);
+      let downX=0,downY=0,downPointer=null,moved=false;
+      card.addEventListener('pointerdown',e=>{
+        if(e.pointerType==='mouse'&&e.button!==0)return;
+        downPointer=e.pointerId;
+        downX=e.clientX;downY=e.clientY;moved=false;
+        card.classList.add('animal-card--pressing');
+      });
+      card.addEventListener('pointermove',e=>{
+        if(e.pointerId!==downPointer)return;
+        if(Math.hypot(e.clientX-downX,e.clientY-downY)>12){
+          moved=true;
+          card.classList.remove('animal-card--pressing');
+        }
+      });
+      card.addEventListener('pointerup',e=>{
+        if(e.pointerId!==downPointer)return;
+        card.classList.remove('animal-card--pressing');
+        const shouldPlay=!moved;
+        downPointer=null;
+        if(shouldPlay)playAnimalSequence(animal,card);
+      });
+      card.addEventListener('pointercancel',()=>{
+        downPointer=null;moved=true;card.classList.remove('animal-card--pressing');
+      });
+      card.addEventListener('pointerleave',()=>{
+        if(downPointer!==null)card.classList.remove('animal-card--pressing');
+      });
+      card.addEventListener('click',e=>{
+        if(e.detail===0)playAnimalSequence(animal,card);
+      });
 
       wrap.appendChild(card);
     });
 
     activityContent.appendChild(wrap);
-    gameCleanup.push(()=>activityContent.classList.remove('animal-gallery-mode'));
+    gameCleanup.push(()=>{
+      stopAnimalPlayback({restoreMusic:true});
+      try{speechSynthesis?.cancel()}catch{}
+      activityContent.classList.remove('animal-gallery-mode');
+    });
   }
 
   function gameShadow(){
@@ -621,7 +796,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=53" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=54" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
