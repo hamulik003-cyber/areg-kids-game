@@ -2666,3 +2666,92 @@ body.magic-scroll-active{
   .animal-card[data-sea-creature="sea-otter"] .animal-name{font-size:10.4px}
   .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:9.5px}
 }
+
+
+/* =========================================================
+   V65 — Armenian language + unified typography pass
+   Keep the educational UI readable, warm and visually consistent.
+   ========================================================= */
+:root{
+  --areg-font:-apple-system,BlinkMacSystemFont,"Noto Sans Armenian","Segoe UI",Arial,sans-serif;
+  --areg-ui-weight:800;
+  --areg-support-weight:700;
+}
+
+html,body,button,input,label,select,textarea{
+  font-family:var(--areg-font) !important;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+body{
+  font-weight:var(--areg-support-weight);
+}
+
+.home-card-label,
+.wood-title,
+.wood-stars,
+.activity-section-title,
+.activity-title,
+.activity-stars,
+.toddler-game-label,
+.panel-header h2,
+.theme-heading,
+.theme-option span,
+.wood-button,
+.setting-row,
+.preset-avatar-head,
+.primary-action,
+.game-help,
+.magic-cost,
+.home-stars-number,
+.animal-name,
+.animal-type{
+  font-family:var(--areg-font) !important;
+  font-weight:var(--areg-ui-weight) !important;
+}
+
+.home-card-label,
+.wood-title,
+.activity-title,
+.toddler-game-label,
+.animal-name{
+  letter-spacing:0 !important;
+}
+
+.activity-section-title,
+.setting-row,
+.crop-help{
+  font-weight:var(--areg-support-weight) !important;
+}
+
+.crop-help{
+  font-family:var(--areg-font) !important;
+  line-height:1.45;
+}
+
+.animal-name{
+  line-height:1.12 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.18) !important;
+}
+
+.animal-type{
+  letter-spacing:0 !important;
+}
+
+/* Long educational names: preserve full Armenian wording without crowding. */
+.animal-card[data-sea-creature="sterlet"] .animal-name{
+  font-size:11.8px;
+  line-height:1.04 !important;
+}
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
+  font-size:10.1px;
+}
+.animal-card[data-sea-creature="sea-otter"] .animal-name{
+  font-size:11px;
+}
+@media (max-width:380px){
+  .animal-card[data-sea-creature="sterlet"] .animal-name{font-size:10.8px}
+  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:9.4px}
+  .animal-card[data-sea-creature="sea-otter"] .animal-name{font-size:10.2px}
+}

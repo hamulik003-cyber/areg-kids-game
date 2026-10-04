@@ -21,7 +21,7 @@
     localStorage.removeItem('areg-magic-unlocked-v1');
   }
   let stars=Number(localStorage.getItem(STARS_KEY)||0);
-  const themes=[['day','Day'],['night','Night'],['winter','Winter'],['rain','Rain'],['aurora','Aurora'],['wood','Wood'],['forest','Forest'],['ocean','Ocean'],['sunset','Sunset'],['space','Space']];
+  const themes=[['day','Օր'],['night','Գիշեր'],['winter','Ձմեռ'],['rain','Անձրև'],['aurora','Բևեռափայլ'],['wood','Փայտ'],['forest','Անտառ'],['ocean','Օվկիանոս'],['sunset','Մայրամուտ'],['space','Տիեզերք']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
   const MAGIC_UNLOCK_KEY='areg-magic-unlocked-v1';
@@ -199,7 +199,7 @@
     {id:'sea-turtle',name:'Ծովային կրիա',type:'սողուն',group:'reptile',image:'sea-turtle.jpg'},
     {id:'clownfish',name:'Ծաղրածու ձուկ',type:'ձուկ',group:'fish',image:'sea-clownfish.jpg'},
     {id:'crab',name:'Խեցգետին',type:'խեցգետնակերպ',group:'crustacean',image:'sea-crab.jpg'},
-    {id:'jellyfish',name:'Մեդուզա',type:'ջրային',group:'aquatic',image:'sea-jellyfish.jpg'},
+    {id:'jellyfish',name:'Մեդուզա',type:'աղեխորշավոր',group:'aquatic',image:'sea-jellyfish.jpg'},
     {id:'starfish',name:'Ծովաստղ',type:'փշամորթ',group:'echinoderm',image:'sea-starfish.jpg'},
     {id:'whale',name:'Կետ',type:'կաթնասուն',group:'mammal',image:'sea-whale.jpg'},
     {id:'shark',name:'Շնաձուկ',type:'ձուկ',group:'fish',image:'sea-shark.jpg'},
@@ -223,7 +223,7 @@
     {id:'cuttlefish',name:'Սեպիա',type:'փափկամարմին',group:'mollusk',image:'sea-cuttlefish.jpg'},
     {id:'leafy-seadragon',name:'Սաղարթավոր ծովավիշապ',type:'ձուկ',group:'fish',image:'sea-leafy-seadragon.jpg'},
     {id:'shrimp',name:'Ծովախեցգետին',type:'խեցգետնակերպ',group:'crustacean',image:'sea-shrimp.jpg'},
-    {id:'sterlet',name:'Ստերլետ',type:'ձուկ',group:'fish',image:'sea-sterlet.jpg'},
+    {id:'sterlet',name:'Ստերլետ թառափ',type:'ձուկ',group:'fish',image:'sea-sterlet.jpg'},
     {id:'trout',name:'Իշխան',type:'ձուկ',group:'fish',image:'sea-trout.jpg'},
     {id:'goldfish',name:'Ոսկե ձկնիկ',type:'ձուկ',group:'fish',image:'sea-goldfish.jpg'}
   ];
@@ -262,7 +262,7 @@
     mind:{
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
-        {id:'puzzle',label:'Փազլ',thumb:'mind-game-1.jpg',kind:'sort'},
+        {id:'puzzle',label:'Գլուխկոտրուկ',thumb:'mind-game-1.jpg',kind:'sort'},
         {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
         {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
         {id:'numbers',label:'Թվեր',thumb:'mind-game-4.jpg',kind:'cups'}
@@ -271,19 +271,19 @@
     create:{
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
-        {id:'paint',label:'Մատիկով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
-        {id:'stickers',label:'Սթիքերների աշխարհ',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'paint',label:'Նկարչություն մատով',thumb:'create-game-1.jpg',kind:'paint'},
+        {id:'stickers',label:'Կպչուն պատկերներ',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
     magic:{
-      title:'Բոնուս դաշտ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
+      title:'Կախարդական աստղի սենյակ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
       games:[
         {id:'connect',label:'Միացրու աստղերը',thumb:'magic-game-1.jpg',kind:'connect'},
         {id:'wand',label:'Կախարդական փայտիկ',thumb:'magic-game-2.jpg',kind:'wand'},
         {id:'potion',label:'Կախարդական ըմպելիք',thumb:'magic-game-3.jpg',kind:'potion'},
-        {id:'book',label:'Կենդանի հեքիաթագիրք',thumb:'magic-game-4.jpg',kind:'book'}
+        {id:'book',label:'Կենդանի հեքիաթների գիրք',thumb:'magic-game-4.jpg',kind:'book'}
       ]
     }
   };
@@ -351,7 +351,7 @@
   if(themeGrid){
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
-      b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
+      b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
       b.innerHTML=`<img src="${id}.svg?v=60" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
@@ -991,7 +991,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=64" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=65" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
@@ -1191,7 +1191,7 @@
 
   /* avatar */
   const PRESET_AVATARS=[
-    {src:'preset-gummy-bear.svg',label:'Գամիբեար արջուկ'},
+    {src:'preset-gummy-bear.svg',label:'Ժելե արջուկ'},
     {src:'preset-bunny.svg',label:'Նապաստակ'},
     {src:'preset-kitten.svg',label:'Կատու'},
     {src:'preset-puppy.svg',label:'Շնիկ'},
