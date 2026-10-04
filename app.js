@@ -269,7 +269,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=54" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=55" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -551,10 +551,14 @@
       card.type='button';
       card.className='animal-card';
       card.dataset.animal=animal.id;
+      card.dataset.animalType=animal.type;
+      const domestic=animal.type==='ընտանի';
+      card.style.setProperty('--animal-accent',domestic?'#59c95f':'#ef5a5a');
+      card.style.setProperty('--animal-accent-soft',domestic?'rgba(89,201,95,.34)':'rgba(239,90,90,.34)');
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=54" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=55" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -597,7 +601,23 @@
     });
 
     activityContent.appendChild(wrap);
+
+    const syncAnimalFocusScale=()=>{
+      const gap=parseFloat(getComputedStyle(wrap).columnGap)||10;
+      $$('.animal-card',wrap).forEach(card=>{
+        const width=card.offsetWidth||1;
+        const sideGrow=gap*.86;
+        const scale=Math.min(1.105,1+(sideGrow*2/width));
+        card.style.setProperty('--animal-focus-scale',scale.toFixed(4));
+        card.style.setProperty('--animal-press-scale',Math.min(1.035,1+(sideGrow*.62/width)).toFixed(4));
+      });
+    };
+    requestAnimationFrame(syncAnimalFocusScale);
+    addEventListener('resize',syncAnimalFocusScale,{passive:true});
+
     gameCleanup.push(()=>{
+      removeEventListener('resize',syncAnimalFocusScale);
+
       stopAnimalPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -796,7 +816,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=54" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=55" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;

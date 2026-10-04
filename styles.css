@@ -2311,6 +2311,7 @@ body.magic-scroll-active{
 
 .animal-card{
   position:relative;
+  z-index:1;
   min-width:0;
   height:184px;
   padding:0;
@@ -2325,10 +2326,13 @@ body.magic-scroll-active{
   color:#4f2212;
   touch-action:manipulation;
   isolation:isolate;
-  contain:layout paint;
   transform-origin:center center;
-  will-change:transform,filter,box-shadow;
-  transition:transform .34s cubic-bezier(.22,.61,.36,1),filter .34s cubic-bezier(.22,.61,.36,1),box-shadow .34s cubic-bezier(.22,.61,.36,1);
+  will-change:transform,filter,box-shadow,border-color;
+  transition:
+    transform .46s cubic-bezier(.22,.61,.36,1),
+    filter .42s ease,
+    border-color .48s cubic-bezier(.22,.61,.36,1),
+    box-shadow .48s cubic-bezier(.22,.61,.36,1);
 }
 
 .animal-card:active{
@@ -2336,7 +2340,8 @@ body.magic-scroll-active{
 }
 
 .animal-card--pressing{
-  transform:translateY(-2px);
+  z-index:4;
+  transform:translateY(-2px) scale(var(--animal-press-scale,1.025));
   filter:brightness(1.025);
   box-shadow:
     0 7px 0 rgba(142,78,38,.74),
@@ -2345,12 +2350,15 @@ body.magic-scroll-active{
 }
 
 .animal-card--focus{
-  transform:translateY(-3px);
-  filter:brightness(1.045);
+  z-index:7;
+  transform:translateY(-4px) scale(var(--animal-focus-scale,1.085));
+  filter:brightness(1.035) saturate(1.02);
+  border-color:var(--animal-accent,rgba(255,214,147,.98));
   box-shadow:
-    0 9px 0 rgba(142,78,38,.70),
-    0 18px 28px rgba(20,8,4,.20),
-    inset 0 0 0 2px rgba(121,70,34,.11);
+    0 9px 0 rgba(142,78,38,.68),
+    0 18px 28px rgba(20,8,4,.18),
+    0 0 0 3px var(--animal-accent-soft,rgba(255,214,147,.28)),
+    inset 0 0 0 2px rgba(255,255,255,.18);
 }
 
 .animal-image-wrap{
@@ -2377,12 +2385,12 @@ body.magic-scroll-active{
 }
 
 .animal-card--pressing .animal-image-wrap img{
-  transform:scale(1.045);
+  transform:scale(1);
 }
 
 .animal-card--focus .animal-image-wrap img{
-  transform:scale(1.105) translateY(-1.4%);
-  filter:saturate(1.05) contrast(1.025);
+  transform:scale(1);
+  filter:saturate(1.035) contrast(1.018);
 }
 
 .animal-card-sheen{
@@ -2492,7 +2500,7 @@ body.magic-scroll-active{
 }
 
 @media (prefers-reduced-motion:reduce){
-  .animal-card,.animal-image-wrap img{transition-duration:.12s!important}
+  .animal-card,.animal-image-wrap img{transition-duration:.16s!important}
 }
 
 
