@@ -1,4 +1,4 @@
-const CACHE='areg-v58-final-animals-volume-balanced-1';
+const CACHE='areg-v59-birds-gallery-audio-1';
 const ASSETS=["./", "./index.html", "./styles.css", "./app.js", "./launcher.html", "./service-worker.js", "./avatar-frame.png", "./bottom-landscape.png", "./logo.png", "./settings.png", "./star-counter.png", "./menu-music.mp3", "./nature.png", "./space.png", "./mind.png", "./create.png", "./magic.png", "./nature-frame-guard.png", "./space-frame-guard.png", "./mind-frame-guard.png", "./create-frame-guard.png", "./magic-frame-guard.png", "./hero-nature.jpg", "./nature-game-1.jpg", "./nature-game-2.jpg", "./nature-game-3.jpg", "./nature-game-4.jpg", "./hero-space.jpg", "./space-game-1.jpg", "./space-game-2.jpg", "./space-game-3.jpg", "./space-game-4.jpg", "./hero-mind.jpg", "./mind-game-1.jpg", "./mind-game-2.jpg", "./mind-game-3.jpg", "./mind-game-4.jpg", "./hero-create.jpg", "./create-game-1.jpg", "./create-game-2.jpg", "./create-game-3.jpg", "./create-game-4.jpg", "./hero-magic.jpg", "./magic-game-1.jpg", "./magic-game-2.jpg", "./magic-game-3.jpg", "./magic-game-4.jpg", "./preset-gummy-bear.svg", "./preset-bunny.svg", "./preset-kitten.svg", "./preset-puppy.svg", "./preset-panda.svg", "./preset-fox.svg", "./preset-lion.svg", "./preset-monkey.svg", "./preset-koala.svg", "./preset-robot.svg",
   "./animal-dog.jpg",
   "./animal-wolf.jpg",
@@ -29,7 +29,37 @@ const ASSETS=["./", "./index.html", "./styles.css", "./app.js", "./launcher.html
   "./animal-polar-bear.jpg",
   "./animal-leopard.jpg",
   "./animal-hyena.jpg",
-  "./animal-black-panther.jpg"];
+  "./animal-black-panther.jpg",
+  "./bird-magpie.jpg",
+  "./bird-crow.jpg",
+  "./bird-vulture.jpg",
+  "./bird-falcon.jpg",
+  "./bird-bald-eagle.jpg",
+  "./bird-lovebird.jpg",
+  "./bird-parrot.jpg",
+  "./bird-cockatiel.jpg",
+  "./bird-finch.jpg",
+  "./bird-canary.jpg",
+  "./bird-ostrich.jpg",
+  "./bird-hummingbird.jpg",
+  "./bird-woodpecker.jpg",
+  "./bird-cormorant.jpg",
+  "./bird-gull.jpg",
+  "./bird-swan.jpg",
+  "./bird-stork.jpg",
+  "./bird-owl.jpg",
+  "./bird-sparrow.jpg",
+  "./bird-swallow.jpg",
+  "./bird-guinea-fowl.jpg",
+  "./bird-peacock.jpg",
+  "./bird-quail.jpg",
+  "./bird-pigeon.jpg",
+  "./bird-turkey.jpg",
+  "./bird-goose.jpg",
+  "./bird-duck.jpg",
+  "./bird-chick.jpg",
+  "./bird-rooster.jpg",
+  "./bird-hen.jpg"];
 
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

@@ -1,0 +1,15 @@
+AREG V59 — BIRDS
+
+Base: V58 FINAL ANIMALS (unchanged backup)
+
+Added:
+- 30 user-provided bird images, in the exact received order.
+- Armenian bird names and domestic/wild classification.
+- Same polished whole-card zoom interaction as Animals.
+- Domestic border -> green, wild border -> red.
+- Female Armenian narration: “Name. Domestic/Wild bird is.”
+- Bird vocalization after narration.
+- Voice volume 100%, bird SFX 50%, matching V58 balance.
+- Existing Animals section untouched.
+
+Note: generated audio URLs are remote signed sources, like the current Animals build, and can be replaced with local MP3 files later.
