@@ -107,10 +107,10 @@
     {id:'deer',name:'Եղնիկ',type:'վայրի',image:'animal-deer.jpg'},
     {id:'bison',name:'Բիզոն',type:'վայրի',image:'animal-bison.jpg'},
     {id:'hippo',name:'Գետաձի',type:'վայրի',image:'animal-hippo.jpg'},
-    {id:'zebra',name:'Զեբրա',type:'վայրի',image:'animal-zebra.jpg'},
+    {id:'zebra',name:'Զեբր',type:'վայրի',image:'animal-zebra.jpg'},
     {id:'giraffe',name:'Ընձուղտ',type:'վայրի',image:'animal-giraffe.jpg'},
     {id:'elephant',name:'Փիղ',type:'վայրի',image:'animal-elephant.jpg'},
-    {id:'rabbit',name:'Նապաստակ',type:'վայրի',image:'animal-rabbit.jpg'},
+    {id:'rabbit',name:'Նապաստակ',type:'ընտանի',image:'animal-rabbit.jpg'},
     {id:'monkey',name:'Կապիկ',type:'վայրի',image:'animal-monkey.jpg'},
     {id:'lion',name:'Առյուծ',type:'վայրի',image:'animal-lion.jpg'},
     {id:'bear',name:'Արջ',type:'վայրի',image:'animal-bear.jpg'},
@@ -187,8 +187,15 @@
   const safeProbe=document.createElement('div');
   Object.assign(safeProbe.style,{position:'fixed',inset:'0',visibility:'hidden',pointerEvents:'none',paddingTop:'env(safe-area-inset-top,0px)'});
   document.body.appendChild(safeProbe);
+  let stableViewportWidth=0, stableViewportHeight=0;
   function syncViewport(){
-    const vv=visualViewport, vw=vv?.width||innerWidth, vh=vv?.height||innerHeight;
+    const vv=visualViewport;
+    const rawW=vv?.width||innerWidth;
+    const rawH=Math.max(vv?.height||0,innerHeight||0);
+    const orientationChanged=stableViewportWidth&&Math.abs(rawW-stableViewportWidth)>80;
+    if(!stableViewportHeight||orientationChanged){stableViewportWidth=rawW;stableViewportHeight=rawH}
+    else{stableViewportWidth=rawW;stableViewportHeight=Math.max(stableViewportHeight,rawH)}
+    const vw=rawW, vh=stableViewportHeight;
     const standalone=matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true;
     const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
     let lw=vw,lh=vh,safeTop=parseFloat(getComputedStyle(safeProbe).paddingTop)||0;
@@ -229,7 +236,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=52" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=53" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -399,7 +406,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=52" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=53" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -407,12 +414,13 @@
           <small class="animal-type animal-type--${animal.type==='ընտանի'?'domestic':'wild'}">${animal.type}</small>
         </span>`;
 
-      card.addEventListener('click',()=>{
-        card.classList.remove('animal-card--tap');
-        void card.offsetWidth;
-        card.classList.add('animal-card--tap');
-        setTimeout(()=>card.classList.remove('animal-card--tap'),420);
-      });
+      const pressIn=()=>card.classList.add('animal-card--pressed');
+      const pressOut=()=>card.classList.remove('animal-card--pressed');
+      card.addEventListener('pointerdown',pressIn);
+      card.addEventListener('pointerup',pressOut);
+      card.addEventListener('pointercancel',pressOut);
+      card.addEventListener('pointerleave',pressOut);
+      card.addEventListener('blur',pressOut);
 
       wrap.appendChild(card);
     });
@@ -613,7 +621,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=52" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=53" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
