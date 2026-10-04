@@ -2578,3 +2578,48 @@ body.magic-scroll-active{
 .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card:active{
   transform:scale(.985) !important;
 }
+
+
+/* V62 — long bird labels: keep text clear of decorative leaves/type badge */
+.animal-card[data-bird="bald-eagle"]::before,
+.animal-card[data-bird="bald-eagle"]::after,
+.animal-card[data-bird="guinea-fowl"]::before,
+.animal-card[data-bird="guinea-fowl"]::after{display:none}
+.animal-card[data-bird="bald-eagle"] .animal-name,
+.animal-card[data-bird="guinea-fowl"] .animal-name{
+  font-size:11.6px;
+  line-height:1.02;
+  min-height:31px;
+  padding:0 1px;
+  letter-spacing:-.035em;
+}
+.animal-card[data-bird="bald-eagle"] .animal-meta,
+.animal-card[data-bird="guinea-fowl"] .animal-meta{gap:2px;padding-left:2px;padding-right:2px}
+
+
+/* V61 — long bird labels stay clear of the type badge */
+.animal-card--bird[data-bird="bald-eagle"] .animal-meta,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-meta{
+  height:35%;
+  gap:2px;
+  padding-bottom:5px;
+}
+.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-image-wrap{
+  height:65%;
+}
+.animal-card--bird[data-bird="bald-eagle"] .animal-name,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-name{
+  font-size:12px;
+  line-height:1.02;
+  min-height:34px;
+  -webkit-line-clamp:2;
+  overflow:visible;
+}
+@media (max-width:380px){
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name,
+  .animal-card--bird[data-bird="guinea-fowl"] .animal-name{
+    font-size:11px;
+    min-height:32px;
+  }
+}
