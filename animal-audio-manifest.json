@@ -2,8 +2,8 @@
   "dog": {
     "name": "Շուն",
     "type": "ընտանի",
-    "voiceText": "Շուն՝ ընտանի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/7523579c-081c-439b-94e2-f21e366167fa/AREG_dog_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDdkMDI5NzMxZTE1MjhhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMTIzNX0.SxYICOJETFJKx1bw8-BOQuh1dxBM8JwGAmhd8HpkmU0",
+    "voiceText": "Շո՛ւն։ Ընտանի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/ce7f29c3-b647-4db4-b97f-10e9ecac76ae/AREG_V56_FINAL_dog_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNTNiMWFkNjU2ZmFkZDNkOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyNTE4OX0.2AOC3vXiQK0z2nnCwgs6iQbeE2GRtQhsYe0yFkvB77s",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/7da6c050-cb8b-484f-8f2b-7f8d9c561e11/AREG_animal_dog_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjRiMWFjZGYwOWE2MmVkNSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzMTMyN30.VK3qgp2VAoaynHFIWP09tcxriCUCHtQVy_DRM9694Ro",
     "futureLocalVoice": "audio/animals/dog-voice.mp3",
     "futureLocalSound": "audio/animals/dog-sound.mp3"
@@ -11,17 +11,17 @@
   "wolf": {
     "name": "Գայլ",
     "type": "վայրի",
-    "voiceText": "Գայլ՝ վայրի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/4263cfdf-f6ae-4c71-8324-3037c34a4bfd/AREG_wolf_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmYzZmQ2MGQ2ZDQ4Y2Q4YiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMjQ0NX0.j4HIqh380XGVgJWhAjaaGXsGU09lM3l3Xq0R2OVEctY",
-    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/d2d7358d-4df1-4b84-9c44-93f79f62f23f/AREG_animal_wolf_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzU5OTg2ZjBmZGE3YmUxMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0OTkwNH0.yr4Dw01xx1Qd5uRKWNCDUeI7434uRDOqxLi9vKou_mE",
+    "voiceText": "Գա՛յլ։ Վայրի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/2e22f1b3-ecd4-4772-94be-e2192a920d6d/AREG_V56_FINAL_wolf_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzY4M2FhNDBjYjU2ZjYyZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2MTg4OH0.c5S_SKshdRSRTVjkJlKd3eLZkOO4pzs-bF9VMJAMQUQ",
+    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/eb752af2-4cb7-4655-8779-2367208ae43e/AREG_V56_wolf_corrected_animal_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTM2MDdjNDAxMTIxMzczOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIxNDI3Mn0.2OBVjqgz3vpCRjosYYRf3BdAFqkW1ldqF8xu_AuzQAE",
     "futureLocalVoice": "audio/animals/wolf-voice.mp3",
     "futureLocalSound": "audio/animals/wolf-sound.mp3"
   },
   "lynx": {
     "name": "Լուսան",
     "type": "վայրի",
-    "voiceText": "Լուսան՝ վայրի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/403db06a-3828-4bd6-9028-ab3c294b9aec/AREG_lynx_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNTkyODk0MTBkMWY2NGMxZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzMzE2OH0._0V1HV0etcsAYgySoRfRkdv-SXDKlAKMxyKplnGmZZw",
+    "voiceText": "Լուսա՛ն։ Վայրի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/4c008df8-2499-4973-b369-5783442ef319/AREG_V56_FINAL_lynx_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDlhMzJiYTVjOGFhOTczOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTUwOX0.2LiBsCcBJdfuLfL8xfB9M-zbi4kKcMTRz2Pctwri6TI",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/26f78256-3c24-424b-9f49-e2e824c0e4f5/AREG_animal_lynx_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiM2VjY2MyYTdiMDAzYTQ1MyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzM2N30.vbzgHStPxGSFMH-8lbMAKaU3F4_C8Ul7zl8Qyj8bcOA",
     "futureLocalVoice": "audio/animals/lynx-voice.mp3",
     "futureLocalSound": "audio/animals/lynx-sound.mp3"
@@ -65,8 +65,8 @@
   "sheep": {
     "name": "Ոչխար",
     "type": "ընտանի",
-    "voiceText": "Ոչխար՝ ընտանի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/636838a3-f5ad-44dc-8f6e-5df7f858ee6e/AREG_sheep_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTYxNGFkMmZlODFlMWNhNyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIxNTQwN30.5S02EZL2VK9J_JIFKnnmzYvWOEDmXLzQwjZDf-vH21Y",
+    "voiceText": "Ոչխա՛ր։ Ընտանի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/5d577ef3-30c9-4aee-9d2a-9e411ecf26da/AREG_V56_FINAL_sheep_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzQwZDRmMTNmMzgyMmI4YyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzM0N30.a1EH-7fHaiJEG4ovRH4Z7A2KN-7VrnouFas3XzZAfoo",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/5548673e-79e9-4484-aa82-8f2d426f540d/AREG_animal_sheep_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzgyYTZmZTI4OTY4YTlmMyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3Mzk1NH0.cyW7Zh7keEIi2PPmFEMvK4VXZHby9Y78hiA7u-oqB8g",
     "futureLocalVoice": "audio/animals/sheep-voice.mp3",
     "futureLocalSound": "audio/animals/sheep-sound.mp3"
@@ -94,15 +94,15 @@
     "type": "ընտանի",
     "voiceText": "Ավանակ՝ ընտանի կենդանի է։",
     "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/ebf9feb5-4a80-426c-858c-1ccd4b00e628/AREG_donkey_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZGQyMmNjMzdhZWE5OGNkZiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NDAzOX0.sKVVezc-TDRPltYK0unNLVApoLBgWrGftCEdFV7iGjc",
-    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/c1b6e7a3-7c46-4daf-8569-e387e6961058/AREG_animal_donkey_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzVhMTFmNDYyZWQ3MDgwOCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NTk3NH0.5tu8G0Qr2Qq7PnrtcdmdWH-N5Jr49vGjLnUMuUahE74",
+    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/53c1081e-06bc-473a-a5fb-092dc7427fc2/AREG_V56_donkey_corrected_animal_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOGRkYWFhOTM0NWRlZGUyYSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NDc3MX0.lTA9nIDmXdlWmr-wf_h-roEi2i2Jgt_l053Dr3dvCRE",
     "futureLocalVoice": "audio/animals/donkey-voice.mp3",
     "futureLocalSound": "audio/animals/donkey-sound.mp3"
   },
   "bull": {
     "name": "Ցուլ",
     "type": "ընտանի",
-    "voiceText": "Ցուլ՝ ընտանի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/900c5fc8-6aff-461b-ad1b-ddc321bb73fe/AREG_bull_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjEwMTIzOWE2NDdlODQ2NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI4MTMwNn0.dCR6mDb29UAY5Odv3e_38UI-yI5DF3yAcvK4icE-0gw",
+    "voiceText": "Ցո՛ւլ։ Ընտանի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/7f65ac34-cfc9-4a94-9356-98d2e221d170/AREG_V56_FINAL_bull_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiN2MwOGI5ZDhlMmNjMWE4NyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NzQ0OH0.PVGn9oww8KXjID8fEzmFgtQXFkcOMIH3M5AVOceUexM",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/b653b373-0658-4907-b4f2-1cda29723095/AREG_animal_bull_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWM5N2FiNjAwZTQ5NDc3ZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2NTUwNH0.ta7zayY_9Ri7U6-1tZOISmRlyxDEjYQOvlRTUzlXuZs",
     "futureLocalVoice": "audio/animals/bull-voice.mp3",
     "futureLocalSound": "audio/animals/bull-sound.mp3"
@@ -110,17 +110,17 @@
   "deer": {
     "name": "Եղնիկ",
     "type": "վայրի",
-    "voiceText": "Եղնիկ՝ վայրի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/6a3892a5-99a0-4440-a138-26b5ac5c603f/AREG_deer_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjNjOTE1NDAzYjVmN2QwMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTE5Njg2NH0.tXZQPby-RapwoefRwWlbuqAZZO5sXrN5cDQADju_xmU",
-    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/a06941a6-0020-466b-9420-7ec7c0d25f2a/AREG_animal_deer_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDg0NGYzN2M5NDdhNjM2ZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMjkwOH0.vS_sKTyX7Dft_NT7c1tgaMfLq7nqmsU32H9doO7P_Ww",
+    "voiceText": "Եղնի՛կ։ Վայրի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/f6663526-d9ca-4ac6-9e7a-d5e83a1fa988/AREG_V56_FINAL_deer_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMmJhMjYxMzM4OGQ4YWUzOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzOTYwM30.SVnX1o2dvHx5gtTC8n2rhB9VZ9npNsQ0xzRHFzdRqx4",
+    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/145c2ed6-638f-4a5c-ae0f-a28ea27fe97d/AREG_V56_deer_corrected_animal_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNWQ0ZjE2Nzk1YzQ1ZTMxMCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyNzM4NX0.prgmZopWRXdboEdz4ky0hMVb_OVB2FytDFu8V1q2X7U",
     "futureLocalVoice": "audio/animals/deer-voice.mp3",
     "futureLocalSound": "audio/animals/deer-sound.mp3"
   },
   "bison": {
     "name": "Բիզոն",
     "type": "վայրի",
-    "voiceText": "Բիզոն՝ վայրի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/0a041f09-471c-441f-a09e-87f9cf14361d/AREG_bison_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDM5NDc3Nzg3OWVmMTNhMCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMDk4NH0.23OpXc_kugdd9cdbcmK6H9KcVHM1jT3v9cP6UCLNmMA",
+    "voiceText": "Բիզո՛ն։ Վայրի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/825b3af3-d4fe-43e0-9dc4-4824990ae30e/AREG_V56_FINAL_bison_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTAzYTE5OGQ5NDk2M2Y3YSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTQ4NX0.4hD2fTMqfd6CL_5ukvDnuZCX4Ju1tC_EPp_i-ekI1V8",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/0b451488-ef17-4c40-907e-84c2b5a33321/AREG_animal_bison_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTExYWJjMmZlMjg1ZGYwOCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MDExMX0.LgkkCjnu1Ibg0s7HcmqPvmrhq8AKUP98nllxsurGbYg",
     "futureLocalVoice": "audio/animals/bison-voice.mp3",
     "futureLocalSound": "audio/animals/bison-sound.mp3"
@@ -137,8 +137,8 @@
   "zebra": {
     "name": "Զեբր",
     "type": "վայրի",
-    "voiceText": "Զեբր՝ վայրի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/8b997739-bd2d-4c4a-a738-e939b9d21f77/AREG_zebra_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTc2YTdkYmFjOGU4NTgzMyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTI3NH0.oBXvdJlrN7WtLL2xUI5U-d6qs_S2cXgoTazwhSnGo6I",
+    "voiceText": "Զե՛բր։ Վայրի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/460dbde7-7391-4dfd-b069-e9ae1159abd3/AREG_V56_FINAL_zebra_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDU2NDFjMGM5OGIyMmFhZiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3OTg4NH0.nE_KZYSi4dFvc4_WbVL7G5ht0auyFlKXdE0pkvRALLo",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/bb3f4b84-0a88-45a7-b3fc-44ea2aa9ba3e/AREG_animal_zebra_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjNhNzU0Y2NjMTk2M2EwYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyOTAwNH0.DUxw4yYwGVE2-oR_2Qx9B_Fwxs3808mlFk_wN-weRc0",
     "futureLocalVoice": "audio/animals/zebra-voice.mp3",
     "futureLocalSound": "audio/animals/zebra-sound.mp3"
@@ -211,16 +211,16 @@
     "type": "վայրի",
     "voiceText": "Աղվես՝ վայրի կենդանի է։",
     "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/62546c4a-f66f-4340-85ba-fd8cc6f86335/AREG_fox_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWMxMTgxMWM0OThiZDc1ZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTE5OTI2MH0.a-gvDfIbyIfD9EQ9ewRCtgn4j9vKBRWaBGF_djBYbGU",
-    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/d0e92b7c-f61f-4043-8b1a-fef72e3062bc/AREG_animal_fox_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjQxOTI0MmI5NmI4NDc2NyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1OTU2M30.H0ApUR2MYKLfZsY1qdaGGBSWqknU-3hrS3tNpBKBBZE",
+    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/c28c5ce5-16bc-4ae5-ac99-e7c3670f7569/AREG_V56_fox_corrected_animal_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzBkNjU1MTQyZWI3MDU5YyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyOTA3Nn0.omxHjBQYvSctgP-TVtI4a-6eb3_DS9DwgQkDC87iDX0",
     "futureLocalVoice": "audio/animals/fox-voice.mp3",
     "futureLocalSound": "audio/animals/fox-sound.mp3"
   },
   "pig": {
     "name": "Խոզ",
     "type": "ընտանի",
-    "voiceText": "Խոզ՝ ընտանի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/dbea82e5-a7d0-4d92-af26-f343bdce40bf/AREG_pig_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmEwMTBjNzYzNjMyZjc4OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MzEyNn0.iX3GmEQH-_eNufZBDNkXiz2Z4z4LcTcwYAPM8SdhSGM",
-    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/f7e2a2ba-2025-4833-b9de-4c9ae6510cde/AREG_animal_pig_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzQ1NjM4YjgzODFmN2FkMSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NjQ3Mn0.m9EX-JgQuykEA-aTcbrQNSnPB69kUlTK8ZYlDUvszZA",
+    "voiceText": "Խո՛զ։ Ընտանի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/16a02257-06cc-4bb4-9883-0b2ca292d467/AREG_V56_FINAL_pig_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNTEyYjM5ZDg3NDIyNWU1NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI4MTc1Mn0.j_y36vsy6nDFuI1v73uX58KQFXJuyQOVa89_CG0q1m4",
+    "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/ade96e6a-4c8a-4734-9e9d-607d888f9775/AREG_V56_pig_corrected_animal_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzc2YjUwMzFmYWVlODczZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NDE2MX0.VSU0H7Se30aOnkjvD8Rji3DYnUEoHoeNrg8JQOc8KcM",
     "futureLocalVoice": "audio/animals/pig-voice.mp3",
     "futureLocalSound": "audio/animals/pig-sound.mp3"
   },
@@ -254,8 +254,8 @@
   "hyena": {
     "name": "Բորենի",
     "type": "վայրի",
-    "voiceText": "Բորենի՝ վայրի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/61ab5292-b5f4-4338-bb2a-d9f542066092/AREG_hyena_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjkyNzJmMGE5YjhhOWVlMCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyMTEzMH0.mZk59EYTbuMKCvUWnClGBrx3PYtSMA1gIKdJYUreLR0",
+    "voiceText": "Բորե՛նի։ Վայրի կենդանի է։",
+    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/19b5e9e2-e59b-4be8-bd4e-ea2863162bb8/AREG_V56_FINAL_hyena_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmI3NTk0NzA1ZTgyNjRjZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzgyNH0.nIwhIXSdVsrtDXb_M8IXFiQg_TTNvUcyqtJ4sPAV61w",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/1b5e7e22-7d9c-4124-8dea-68c919e282b5/AREG_animal_hyena_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYmVmZmQ3NjZiNjAyMWZhYiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3OTQ2Mn0.pnYw3nZyqXKDJ1NbczaEzVuEI5r2MbOswUKHgW6YtI8",
     "futureLocalVoice": "audio/animals/hyena-voice.mp3",
     "futureLocalSound": "audio/animals/hyena-sound.mp3"
