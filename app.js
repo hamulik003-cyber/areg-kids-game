@@ -269,7 +269,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=57" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=58" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -466,7 +466,7 @@
       audio.preload='auto';
       audio.playsInline=true;
       audio.src=src;
-      audio.volume=kind==='voice'?.98:.92;
+      audio.volume=kind==='voice'?1:.50; // V58: balance quieter narration against hotter animal SFX (~-6 dB)
       if(kind==='voice')animalVoicePlayer=audio;else animalSoundPlayer=audio;
       let settled=false;
       const finish=(ok)=>{
@@ -558,7 +558,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=57" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=58" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -816,7 +816,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=57" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=58" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
