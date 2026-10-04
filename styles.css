@@ -2799,3 +2799,110 @@ body{
   .animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:10.2px !important;}
   .animal-card[data-sea-creature="lionfish"] .animal-name{font-size:10.6px !important;}
 }
+
+
+/* =========================================================
+   V67 — targeted text-fit fixes
+   1) Keep "Պարգևների դաշտ" inside the section title pill
+   2) Restore the home-menu magic card label and make it fit
+   3) Prevent clipping for: Սպիտակագլուխ արծիվ, Նապաստակ, Սպիտակ արջ
+   ========================================================= */
+
+/* Top section title for the magic/rewards screen */
+.toddler-section-screen[data-section="magic"] .wood-title,
+.magic-collection-mode .wood-title{
+  font-size:18px !important;
+  line-height:1.03 !important;
+  letter-spacing:-.015em !important;
+  padding-left:8px !important;
+  padding-right:8px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+}
+
+/* Main menu: the wide magic card gets the old name back and a smaller label */
+.home-section-card--wide.magic-card .home-card-label,
+.home-section-card.magic-card .home-card-label{
+  font-size:22px !important;
+  line-height:1.02 !important;
+  letter-spacing:-.03em !important;
+  padding-left:18px !important;
+  padding-right:18px !important;
+}
+
+/* Bald eagle: slightly smaller and tighter, with a bit more text room */
+.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap{
+  height:61% !important;
+}
+.animal-card--bird[data-bird="bald-eagle"] .animal-meta{
+  height:39% !important;
+  padding:4px 3px 7px !important;
+}
+.animal-card--bird[data-bird="bald-eagle"] .animal-name{
+  font-size:10.1px !important;
+  line-height:1.05 !important;
+  min-height:29px !important;
+  letter-spacing:-.03em !important;
+  padding:0 2px !important;
+}
+
+/* Rabbit: keep the final letter visible */
+.animal-card[data-animal="rabbit"] .animal-name,
+.animal-card[data-id="rabbit"] .animal-name,
+.animal-card[data-animal-id="rabbit"] .animal-name{
+  font-size:12.3px !important;
+  line-height:1.04 !important;
+  min-height:28px !important;
+  letter-spacing:-.018em !important;
+  padding:0 2px !important;
+}
+
+/* Polar bear: clear the decorative leaves / image edge */
+.animal-card[data-animal="polar-bear"] .animal-image-wrap,
+.animal-card[data-id="polar-bear"] .animal-image-wrap,
+.animal-card[data-animal-id="polar-bear"] .animal-image-wrap{
+  height:64% !important;
+}
+.animal-card[data-animal="polar-bear"] .animal-meta,
+.animal-card[data-id="polar-bear"] .animal-meta,
+.animal-card[data-animal-id="polar-bear"] .animal-meta{
+  height:35% !important;
+  gap:2px !important;
+  padding:4px 3px 7px !important;
+}
+.animal-card[data-animal="polar-bear"] .animal-name,
+.animal-card[data-id="polar-bear"] .animal-name,
+.animal-card[data-animal-id="polar-bear"] .animal-name{
+  font-size:11.4px !important;
+  line-height:1.05 !important;
+  min-height:28px !important;
+  letter-spacing:-.02em !important;
+  padding:0 2px !important;
+}
+
+@media (max-width:380px){
+  .toddler-section-screen[data-section="magic"] .wood-title,
+  .magic-collection-mode .wood-title{
+    font-size:16px !important;
+  }
+  .home-section-card--wide.magic-card .home-card-label,
+  .home-section-card.magic-card .home-card-label{
+    font-size:18px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name{
+    font-size:9.7px !important;
+  }
+  .animal-card[data-animal="rabbit"] .animal-name,
+  .animal-card[data-id="rabbit"] .animal-name,
+  .animal-card[data-animal-id="rabbit"] .animal-name{
+    font-size:11.6px !important;
+  }
+  .animal-card[data-animal="polar-bear"] .animal-name,
+  .animal-card[data-id="polar-bear"] .animal-name,
+  .animal-card[data-animal-id="polar-bear"] .animal-name{
+    font-size:10.8px !important;
+  }
+}
