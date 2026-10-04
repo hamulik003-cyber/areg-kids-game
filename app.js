@@ -91,11 +91,44 @@
     {id:'dragon',icon:'🐲',name:'Վիշապ',motion:'roar'}
   ].map((item,index)=>({...item,cost:20+index*5}));
 
+  const ANIMALS = [
+    {id:'dog',name:'Շուն',type:'ընտանի',image:'animal-dog.jpg'},
+    {id:'wolf',name:'Գայլ',type:'վայրի',image:'animal-wolf.jpg'},
+    {id:'lynx',name:'Լուսան',type:'վայրի',image:'animal-lynx.jpg'},
+    {id:'cow',name:'Կով',type:'ընտանի',image:'animal-cow.jpg'},
+    {id:'horse',name:'Ձի',type:'ընտանի',image:'animal-horse.jpg'},
+    {id:'goat',name:'Այծ',type:'ընտանի',image:'animal-goat.jpg'},
+    {id:'camel',name:'Ուղտ',type:'ընտանի',image:'animal-camel.jpg'},
+    {id:'sheep',name:'Ոչխար',type:'ընտանի',image:'animal-sheep.jpg'},
+    {id:'cat',name:'Կատու',type:'ընտանի',image:'animal-cat.jpg'},
+    {id:'tiger',name:'Վագր',type:'վայրի',image:'animal-tiger.jpg'},
+    {id:'donkey',name:'Ավանակ',type:'ընտանի',image:'animal-donkey.jpg'},
+    {id:'bull',name:'Ցուլ',type:'ընտանի',image:'animal-bull.jpg'},
+    {id:'deer',name:'Եղնիկ',type:'վայրի',image:'animal-deer.jpg'},
+    {id:'bison',name:'Բիզոն',type:'վայրի',image:'animal-bison.jpg'},
+    {id:'hippo',name:'Գետաձի',type:'վայրի',image:'animal-hippo.jpg'},
+    {id:'zebra',name:'Զեբրա',type:'վայրի',image:'animal-zebra.jpg'},
+    {id:'giraffe',name:'Ընձուղտ',type:'վայրի',image:'animal-giraffe.jpg'},
+    {id:'elephant',name:'Փիղ',type:'վայրի',image:'animal-elephant.jpg'},
+    {id:'rabbit',name:'Նապաստակ',type:'վայրի',image:'animal-rabbit.jpg'},
+    {id:'monkey',name:'Կապիկ',type:'վայրի',image:'animal-monkey.jpg'},
+    {id:'lion',name:'Առյուծ',type:'վայրի',image:'animal-lion.jpg'},
+    {id:'bear',name:'Արջ',type:'վայրի',image:'animal-bear.jpg'},
+    {id:'panda',name:'Պանդա',type:'վայրի',image:'animal-panda.jpg'},
+    {id:'fox',name:'Աղվես',type:'վայրի',image:'animal-fox.jpg'},
+    {id:'pig',name:'Խոզ',type:'ընտանի',image:'animal-pig.jpg'},
+    {id:'rhino',name:'Ռնգեղջյուր',type:'վայրի',image:'animal-rhino.jpg'},
+    {id:'polar-bear',name:'Սպիտակ արջ',type:'վայրի',image:'animal-polar-bear.jpg'},
+    {id:'leopard',name:'Ընձառյուծ',type:'վայրի',image:'animal-leopard.jpg'},
+    {id:'hyena',name:'Բորենի',type:'վայրի',image:'animal-hyena.jpg'},
+    {id:'black-panther',name:'Սև հովազ',type:'վայրի',image:'animal-black-panther.jpg'}
+  ];
+
   const SECTIONS={
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
       games:[
-        {id:'lion',label:'Կենդանիներ',thumb:'nature-game-1.jpg',kind:'shadow'},
+        {id:'animals',label:'Կենդանիներ',thumb:'nature-game-1.jpg',kind:'animalGallery'},
         {id:'birds',label:'Թռչուններ',thumb:'nature-game-2.jpg',kind:'hatch'},
         {id:'sea',label:'Ջրային կենդանիներ',thumb:'nature-game-3.jpg',kind:'feed'},
         {id:'flowers',label:'Ծաղիկներ',thumb:'nature-game-4.jpg',kind:'garden'}
@@ -196,7 +229,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Theme ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=51" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=52" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -324,9 +357,9 @@
     sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
   }
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
-  function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.innerHTML=''}
+  function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function renderGame(g){
-    const map={shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -350,6 +383,44 @@
   }
 
   /* NATURE */
+  function gameAnimalGallery(){
+    activityContent.innerHTML='';
+    activityContent.classList.add('animal-gallery-mode');
+
+    const wrap=document.createElement('div');
+    wrap.className='animal-gallery';
+    wrap.setAttribute('aria-label','Կենդանիների պատկերասրահ');
+
+    ANIMALS.forEach(animal=>{
+      const card=document.createElement('button');
+      card.type='button';
+      card.className='animal-card';
+      card.dataset.animal=animal.id;
+      card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
+      card.innerHTML=`
+        <span class="animal-image-wrap">
+          <img src="${animal.image}?v=52" alt="${animal.name}" draggable="false">
+          <span class="animal-card-sheen" aria-hidden="true"></span>
+        </span>
+        <span class="animal-meta">
+          <strong class="animal-name">${animal.name}</strong>
+          <small class="animal-type animal-type--${animal.type==='ընտանի'?'domestic':'wild'}">${animal.type}</small>
+        </span>`;
+
+      card.addEventListener('click',()=>{
+        card.classList.remove('animal-card--tap');
+        void card.offsetWidth;
+        card.classList.add('animal-card--tap');
+        setTimeout(()=>card.classList.remove('animal-card--tap'),420);
+      });
+
+      wrap.appendChild(card);
+    });
+
+    activityContent.appendChild(wrap);
+    gameCleanup.push(()=>activityContent.classList.remove('animal-gallery-mode'));
+  }
+
   function gameShadow(){
     const s=surface('☝️'),animals=[['🦁','lion'],['🐘','ele'],['🐇','bun']];let done=0;
     animals.forEach(([ico,key],i)=>{
@@ -542,7 +613,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=51" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=52" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
