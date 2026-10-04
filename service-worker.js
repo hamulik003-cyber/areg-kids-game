@@ -1,4 +1,4 @@
-const CACHE='areg-v60-birds-gallery-audio-1';
+const CACHE='areg-v61-sea-gallery-1';
 const ASSETS=["./", "./index.html", "./styles.css", "./app.js", "./launcher.html", "./service-worker.js", "./avatar-frame.png", "./bottom-landscape.png", "./logo.png", "./settings.png", "./star-counter.png", "./menu-music.mp3", "./nature.png", "./space.png", "./mind.png", "./create.png", "./magic.png", "./nature-frame-guard.png", "./space-frame-guard.png", "./mind-frame-guard.png", "./create-frame-guard.png", "./magic-frame-guard.png", "./hero-nature.jpg", "./nature-game-1.jpg", "./nature-game-2.jpg", "./nature-game-3.jpg", "./nature-game-4.jpg", "./hero-space.jpg", "./space-game-1.jpg", "./space-game-2.jpg", "./space-game-3.jpg", "./space-game-4.jpg", "./hero-mind.jpg", "./mind-game-1.jpg", "./mind-game-2.jpg", "./mind-game-3.jpg", "./mind-game-4.jpg", "./hero-create.jpg", "./create-game-1.jpg", "./create-game-2.jpg", "./create-game-3.jpg", "./create-game-4.jpg", "./hero-magic.jpg", "./magic-game-1.jpg", "./magic-game-2.jpg", "./magic-game-3.jpg", "./magic-game-4.jpg", "./preset-gummy-bear.svg", "./preset-bunny.svg", "./preset-kitten.svg", "./preset-puppy.svg", "./preset-panda.svg", "./preset-fox.svg", "./preset-lion.svg", "./preset-monkey.svg", "./preset-koala.svg", "./preset-robot.svg",
   "./animal-dog.jpg",
   "./animal-wolf.jpg",
@@ -59,7 +59,40 @@ const ASSETS=["./", "./index.html", "./styles.css", "./app.js", "./launcher.html
   "./bird-duck.jpg",
   "./bird-chick.jpg",
   "./bird-rooster.jpg",
-  "./bird-hen.jpg"];
+  "./bird-hen.jpg",
+  "./sea-dolphin.jpg",
+  "./sea-seahorse.jpg",
+  "./sea-octopus.jpg",
+  "./sea-turtle.jpg",
+  "./sea-clownfish.jpg",
+  "./sea-crab.jpg",
+  "./sea-jellyfish.jpg",
+  "./sea-starfish.jpg",
+  "./sea-whale.jpg",
+  "./sea-shark.jpg",
+  "./sea-pufferfish.jpg",
+  "./sea-manta.jpg",
+  "./sea-lionfish.jpg",
+  "./sea-moray-eel.jpg",
+  "./sea-lobster.jpg",
+  "./sea-squid.jpg",
+  "./sea-manatee.jpg",
+  "./sea-swordfish.jpg",
+  "./sea-seal.jpg",
+  "./sea-penguin.jpg",
+  "./sea-narwhal.jpg",
+  "./sea-orca.jpg",
+  "./sea-beluga.jpg",
+  "./sea-walrus.jpg",
+  "./sea-sea-otter.jpg",
+  "./sea-anglerfish.jpg",
+  "./sea-nautilus.jpg",
+  "./sea-cuttlefish.jpg",
+  "./sea-leafy-seadragon.jpg",
+  "./sea-shrimp.jpg",
+  "./sea-sterlet.jpg",
+  "./sea-trout.jpg",
+  "./sea-goldfish.jpg"];
 
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
