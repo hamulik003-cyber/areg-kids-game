@@ -278,7 +278,7 @@
       ]
     },
     magic:{
-      title:'Կախարդական աստղի սենյակ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
+      title:'Պարգևների դաշտ', hero:'hero-magic.jpg', backdrop:'hero-magic.jpg',
       games:[
         {id:'connect',label:'Միացրու աստղերը',thumb:'magic-game-1.jpg',kind:'connect'},
         {id:'wand',label:'Կախարդական փայտիկ',thumb:'magic-game-2.jpg',kind:'wand'},
@@ -991,7 +991,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=65" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=66" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">

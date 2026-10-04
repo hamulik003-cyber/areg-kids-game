@@ -2755,3 +2755,47 @@ body{
   .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:9.4px}
   .animal-card[data-sea-creature="sea-otter"] .animal-name{font-size:10.2px}
 }
+
+
+/* =========================================================
+   V66 — long card-label fit + short Rewards Field title
+   Prevent long Armenian animal names from touching/entering frames.
+   ========================================================= */
+
+.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap{
+  height:62% !important;
+}
+.animal-card--bird[data-bird="bald-eagle"] .animal-meta{
+  height:38% !important;
+  gap:2px !important;
+  padding:5px 3px 6px !important;
+}
+.animal-card--bird[data-bird="bald-eagle"] .animal-name{
+  font-size:10.8px !important;
+  line-height:1.08 !important;
+  min-height:27px !important;
+  padding:0 3px !important;
+  overflow:hidden !important;
+  -webkit-line-clamp:2 !important;
+}
+
+.animal-card[data-sea-creature="lionfish"] .animal-name{
+  font-size:11.2px !important;
+  line-height:1.08 !important;
+  min-height:28px !important;
+  padding:0 4px !important;
+}
+
+.magic-collection-mode .wood-title,
+.toddler-section-screen[data-section="magic"] .wood-title{
+  font-size:23px !important;
+  line-height:1.05 !important;
+  padding-left:10px !important;
+  padding-right:10px !important;
+  white-space:nowrap !important;
+}
+
+@media (max-width:380px){
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:10.2px !important;}
+  .animal-card[data-sea-creature="lionfish"] .animal-name{font-size:10.6px !important;}
+}
