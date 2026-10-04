@@ -2906,3 +2906,133 @@ body{
     font-size:10.8px !important;
   }
 }
+
+
+/* =========================================================
+   V69 — FINAL PRO typography + Armenian-safe font selector
+   No external font downloads: every preset has Armenian-capable fallbacks,
+   so the PWA remains reliable offline and on iOS/Android/desktop.
+   ========================================================= */
+
+html[data-font="system"]{
+  --areg-font:-apple-system,BlinkMacSystemFont,"Noto Sans Armenian","Segoe UI",Arial,sans-serif;
+}
+html[data-font="clean"]{
+  --areg-font:"Noto Sans Armenian","DejaVu Sans",Arial,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+html[data-font="book"]{
+  --areg-font:"Noto Serif Armenian",Sylfaen,"DejaVu Serif","Times New Roman",serif;
+}
+html[data-font="classic"]{
+  --areg-font:Sylfaen,"Noto Serif Armenian","Times New Roman","DejaVu Serif",serif;
+}
+
+.font-heading{margin-top:19px!important}
+.font-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.font-option{
+  min-height:72px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:4px;
+  padding:10px 12px;
+  border-radius:17px;
+  border:3px solid transparent;
+  background:rgba(255,255,255,.20);
+  box-shadow:0 4px 11px rgba(35,18,8,.10),inset 0 1px 0 rgba(255,255,255,.24);
+  color:var(--ink);
+  text-align:left;
+  cursor:pointer;
+}
+.font-option-title{font-size:14px;font-weight:800;line-height:1.1}
+.font-option-sample{font-size:19px;font-weight:800;line-height:1.05;opacity:.88}
+.font-option[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans Armenian","Segoe UI",Arial,sans-serif!important}
+.font-option[data-font="clean"]{font-family:"Noto Sans Armenian","DejaVu Sans",Arial,-apple-system,BlinkMacSystemFont,sans-serif!important}
+.font-option[data-font="book"]{font-family:"Noto Serif Armenian",Sylfaen,"DejaVu Serif","Times New Roman",serif!important}
+.font-option[data-font="classic"]{font-family:Sylfaen,"Noto Serif Armenian","Times New Roman","DejaVu Serif",serif!important}
+.font-option[aria-pressed="true"]{
+  border-color:var(--glow);
+  box-shadow:0 0 0 2px rgba(255,255,255,.50),0 0 18px var(--glow),inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+/* Main menu magic/rewards entry: same visual weight as the other main sections. */
+.home-section-card.magic-card .home-card-label,
+.home-section-card--wide.magic-card .home-card-label{
+  height:24% !important;
+  font-size:31px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:-.035em !important;
+  padding:2px 18px 1px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+}
+
+/* Rewards screen title: strong, centered, but never outside its wood pill. */
+.toddler-section-screen[data-section="magic"] .wood-title,
+.magic-collection-mode .wood-title{
+  font-size:20px !important;
+  font-weight:900 !important;
+  line-height:1.02 !important;
+  letter-spacing:-.02em !important;
+  padding-left:8px !important;
+  padding-right:8px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+}
+
+/* Audited longer educational sea names. */
+.animal-card[data-sea-creature="manatee"] .animal-name,
+.animal-card[data-sea-creature="orca"] .animal-name{
+  font-size:11.2px !important;
+  line-height:1.05 !important;
+  min-height:28px !important;
+  padding:0 2px !important;
+}
+.animal-card[data-sea-creature="cuttlefish"] .animal-name,
+.animal-card[data-sea-creature="sterlet"] .animal-name{
+  font-size:12.2px !important;
+  line-height:1.05 !important;
+}
+
+/* Keep the already-fixed long labels safely inside their cards. */
+.animal-card--bird[data-bird="bald-eagle"] .animal-name{
+  font-size:9.8px !important;
+  line-height:1.04 !important;
+  padding:0 2px !important;
+  overflow:hidden !important;
+}
+.animal-card[data-animal="rabbit"] .animal-name{
+  font-size:12px !important;
+  line-height:1.04 !important;
+  padding:0 2px !important;
+}
+.animal-card[data-animal="polar-bear"] .animal-name{
+  font-size:11.2px !important;
+  line-height:1.04 !important;
+  padding:0 2px !important;
+}
+.animal-card[data-sea-creature="lionfish"] .animal-name{
+  font-size:10.9px !important;
+  line-height:1.05 !important;
+  padding:0 3px !important;
+}
+
+@media (max-width:380px){
+  .home-section-card.magic-card .home-card-label,
+  .home-section-card--wide.magic-card .home-card-label{font-size:28px!important;padding-left:12px!important;padding-right:12px!important}
+  .toddler-section-screen[data-section="magic"] .wood-title,
+  .magic-collection-mode .wood-title{font-size:18px!important}
+  .font-option{min-height:68px;padding:9px 10px}
+  .font-option-title{font-size:13px}
+  .font-option-sample{font-size:17px}
+}
+
+.font-help{margin:8px 2px 0;font-size:12.5px;line-height:1.35;font-weight:700;opacity:.78}

@@ -13,7 +13,7 @@
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
   const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
-  let settings={master:true,music:true,voice:true,effects:true,theme:'day',...loadJson(SETTINGS_KEY,{})};
+  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'system',...loadJson(SETTINGS_KEY,{})};
   const STAR_RESET_V40='areg-stars-reset-v40';
   if(!localStorage.getItem(STAR_RESET_V40)){
     localStorage.setItem(STARS_KEY,'0');
@@ -22,6 +22,7 @@
   }
   let stars=Number(localStorage.getItem(STARS_KEY)||0);
   const themes=[['day','Օր'],['night','Գիշեր'],['winter','Ձմեռ'],['rain','Անձրև'],['aurora','Բևեռափայլ'],['wood','Փայտ'],['forest','Անտառ'],['ocean','Օվկիանոս'],['sunset','Մայրամուտ'],['space','Տիեզերք']];
+  const fontPresets=[['system','Համակարգային','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
   const MAGIC_UNLOCK_KEY='areg-magic-unlocked-v1';
@@ -209,21 +210,21 @@
     {id:'moray-eel',name:'Մուրենա',type:'ձուկ',group:'fish',image:'sea-moray-eel.jpg'},
     {id:'lobster',name:'Օմար',type:'խեցգետնակերպ',group:'crustacean',image:'sea-lobster.jpg'},
     {id:'squid',name:'Կաղամար',type:'փափկամարմին',group:'mollusk',image:'sea-squid.jpg'},
-    {id:'manatee',name:'Մանաթ',type:'կաթնասուն',group:'mammal',image:'sea-manatee.jpg'},
+    {id:'manatee',name:'Լամանտին',type:'կաթնասուն',group:'mammal',image:'sea-manatee.jpg'},
     {id:'swordfish',name:'Սրաձուկ',type:'ձուկ',group:'fish',image:'sea-swordfish.jpg'},
     {id:'seal',name:'Փոկ',type:'կաթնասուն',group:'mammal',image:'sea-seal.jpg'},
     {id:'penguin',name:'Պինգվին',type:'թռչուն',group:'bird',image:'sea-penguin.jpg'},
     {id:'narwhal',name:'Նարվալ',type:'կաթնասուն',group:'mammal',image:'sea-narwhal.jpg'},
-    {id:'orca',name:'Օրկա',type:'կաթնասուն',group:'mammal',image:'sea-orca.jpg'},
+    {id:'orca',name:'Խոյադելֆին',type:'կաթնասուն',group:'mammal',image:'sea-orca.jpg'},
     {id:'beluga',name:'Բելուգա',type:'կաթնասուն',group:'mammal',image:'sea-beluga.jpg'},
     {id:'walrus',name:'Ծովացուլ',type:'կաթնասուն',group:'mammal',image:'sea-walrus.jpg'},
     {id:'sea-otter',name:'Ծովային ջրասամույր',type:'կաթնասուն',group:'mammal',image:'sea-sea-otter.jpg'},
     {id:'anglerfish',name:'Ձկնորսաձուկ',type:'ձուկ',group:'fish',image:'sea-anglerfish.jpg'},
     {id:'nautilus',name:'Նաուտիլուս',type:'փափկամարմին',group:'mollusk',image:'sea-nautilus.jpg'},
-    {id:'cuttlefish',name:'Սեպիա',type:'փափկամարմին',group:'mollusk',image:'sea-cuttlefish.jpg'},
+    {id:'cuttlefish',name:'Սիպել',type:'փափկամարմին',group:'mollusk',image:'sea-cuttlefish.jpg'},
     {id:'leafy-seadragon',name:'Սաղարթավոր ծովավիշապ',type:'ձուկ',group:'fish',image:'sea-leafy-seadragon.jpg'},
     {id:'shrimp',name:'Ծովախեցգետին',type:'խեցգետնակերպ',group:'crustacean',image:'sea-shrimp.jpg'},
-    {id:'sterlet',name:'Ստերլետ թառափ',type:'ձուկ',group:'fish',image:'sea-sterlet.jpg'},
+    {id:'sterlet',name:'Ստերլետ',type:'ձուկ',group:'fish',image:'sea-sterlet.jpg'},
     {id:'trout',name:'Իշխան',type:'ձուկ',group:'fish',image:'sea-trout.jpg'},
     {id:'goldfish',name:'Ոսկե ձկնիկ',type:'ձուկ',group:'fish',image:'sea-goldfish.jpg'}
   ];
@@ -271,7 +272,7 @@
     create:{
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
-        {id:'paint',label:'Նկարչություն մատով',thumb:'create-game-1.jpg',kind:'paint'},
+        {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Կպչուն պատկերներ',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
@@ -357,6 +358,28 @@
       themeGrid.appendChild(b);
     });
   }
+  const fontGrid=$('#fontGrid');
+  if(fontGrid){
+    fontPresets.forEach(([id,label,sample])=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='font-option';
+      b.dataset.font=id;
+      b.setAttribute('aria-label',`Տառաձև՝ ${label}`);
+      b.innerHTML=`<span class="font-option-title">${label}</span><span class="font-option-sample">${sample}</span>`;
+      b.addEventListener('click',()=>{settings.font=id;saveSettings();applyFont()});
+      fontGrid.appendChild(b);
+    });
+  }
+  function applyFont(){
+    const allowed=new Set(fontPresets.map(([id])=>id));
+    const id=allowed.has(settings.font)?settings.font:'system';
+    settings.font=id;
+    root.dataset.font=id;
+    $$('.font-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===id)));
+  }
+  applyFont();
+
   function applyTheme(){
     root.dataset.theme=settings.theme||'day';
     $$('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
@@ -369,7 +392,7 @@
   const toggles={master:$('#masterSound'),music:$('#musicSound'),voice:$('#voiceHints'),effects:$('#gameEffects')};
   function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
   syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));
-  $('#settingsButton').addEventListener('click',()=>{syncSettings();settingsModal.hidden=false});
+  $('#settingsButton').addEventListener('click',()=>{syncSettings();applyFont();settingsModal.hidden=false});
   $$('[data-close="settings"]').forEach(e=>e.addEventListener('click',()=>settingsModal.hidden=true));
   $('#starCounter').addEventListener('click',()=>showToast(`⭐ ${stars}`));
 
@@ -991,7 +1014,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=68" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=69" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">

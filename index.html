@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="hy" data-theme="day">
+<html lang="hy" data-theme="day" data-font="system">
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Արեգ 3D աշխարհ</title>
-  <link rel="stylesheet" href="styles.css?v=68" />
+  <link rel="stylesheet" href="styles.css?v=69" />
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
@@ -127,6 +127,9 @@
         <label class="setting-row"><span>Ձայնային հուշումներ</span><input id="voiceHints" type="checkbox" /><span class="switch"></span></label>
         <label class="setting-row"><span>Էֆեկտներ</span><input id="gameEffects" type="checkbox" /><span class="switch"></span></label>
       </div>
+      <h3 class="theme-heading font-heading">Տառաձև</h3>
+      <div id="fontGrid" class="font-grid" aria-label="Ընտրել տառաձև"></div>
+      <p class="font-help">Բոլոր տարբերակները նախատեսված են հայերեն տեքստերի համար և աշխատում են նաև առանց ինտերնետի։</p>
       <h3 class="theme-heading">Թեմա</h3>
       <div id="themeGrid" class="theme-grid" aria-label="Ընտրել թեմա"></div>
     </div>
@@ -154,13 +157,13 @@
         <input id="zoomSlider" type="range" min="0.4" max="4" step="0.01" value="1" aria-label="Մասշտաբ" />
         <button id="zoomIn" class="round-tool" aria-label="Մեծացնել">+</button>
       </div>
-      <p class="crop-help">Կարող ես ընտրել լուսանկար պատկերասրահից կամ ընտրել պատրաստի մուլտային կերպարներից։</p>
+      <p class="crop-help">Կարող ես լուսանկար ընտրել պատկերասրահից կամ ընտրել պատրաստի մուլտային կերպար։</p>
       <button id="saveAvatar" class="wood-button save-avatar" disabled>Պահպանել</button>
     </div>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="auto"></audio>
-  <script src="app.js?v=68"></script>
+  <script src="app.js?v=69"></script>
 </body>
 </html>
