@@ -3130,8 +3130,8 @@ html[data-font="classic"]{
   transition:background .35s ease !important;
 }
 .section-backdrop-image{
-  opacity:.56 !important;
-  filter:blur(15px) saturate(.92) brightness(.84) !important;
+  opacity:0 !important;
+  visibility:hidden !important;
 }
 .section-dim{
   background:
