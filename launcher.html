@@ -1,4 +1,4 @@
-<!-- V101 restored original card animation -->
+<!-- V102 slightly larger original card animation -->
 <!doctype html>
 <html lang="hy">
 <head>
@@ -17,7 +17,7 @@
   const stamp = Date.now();
   try { if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r => r.unregister())); } } catch (_) {}
   try { if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); } } catch (_) {}
-  location.replace('./?kiosk=v101-' + stamp + '&hardrefresh=1');
+  location.replace('./?kiosk=v102-' + stamp + '&hardrefresh=1');
 })();
 </script>
 </body>
