@@ -23,7 +23,7 @@
   }
   let stars=Number(localStorage.getItem(STARS_KEY)||0);
   const themes=[['day','Օր'],['night','Գիշեր'],['winter','Ձմեռ'],['rain','Անձրև'],['aurora','Բևեռափայլ'],['wood','Փայտ'],['forest','Անտառ'],['ocean','Օվկիանոս'],['sunset','Մայրամուտ'],['space','Տիեզերք']];
-  const fontPresets=[['rounded','Կլոր'],['clean','Մաքուր'],['book','Գրքային'],['classic','Դասական']];
+  const fontPresets=[['rounded','Կլոր'],['bold','Հաստ'],['light','Նուրբ'],['book','Գրքային']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
   const MAGIC_UNLOCK_KEY='areg-magic-unlocked-v1';
@@ -417,17 +417,22 @@
     });
   }
   function applyFont(){
+    const aliases={system:'rounded',clean:'light',classic:'book'};
+    if(aliases[settings.font])settings.font=aliases[settings.font];
     const allowed=new Set(fontPresets.map(([id])=>id));
     const id=allowed.has(settings.font)?settings.font:'rounded';
     settings.font=id;
     root.dataset.font=id;
-    $$('.font-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===id)));
+    $('.font-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===id)));
   }
   applyFont();
 
   function applyTheme(){
-    root.dataset.theme=settings.theme||'day';
-    $$('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
+    const allowed=new Set(themes.map(([id])=>id));
+    const id=allowed.has(settings.theme)?settings.theme:'day';
+    settings.theme=id;
+    root.dataset.theme=id;
+    $('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===id)));
     const meta=$('meta[name="theme-color"]'),css=getComputedStyle(root),top=css.getPropertyValue('--bg-1').trim(),bottom=css.getPropertyValue('--bg-3').trim();
     const standalone=window.matchMedia?.('(display-mode: standalone)')?.matches||window.navigator.standalone===true;
     const isiOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -447,6 +452,7 @@
   $('#activityBack').addEventListener('click',backToSection);
 
   function openSection(id){
+    applyTheme();applyFont();
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
@@ -544,10 +550,11 @@
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
   function openGame(section,game){
+    applyTheme();applyFont();
     cleanupGame();currentGame=game;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
     sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
   }
-  function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
+  function backToSection(){applyTheme();applyFont();cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function renderGame(g){
     const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
