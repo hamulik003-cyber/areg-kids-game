@@ -159,3 +159,11 @@ These task IDs identify the exact test generations discussed/approved in the cha
 - Serene — Բազե good: bac5b718-52a0-43a9-9c48-961b696da2fb
 - Serene — Ջայլամ A explicitly approved: 8c1a2be6-4d0f-484d-9abc-d226228b8db8
 - Older Maggie — Անգղ correction explicitly approved before Serene whole-game plan: 1adf0625-e693-431f-a82e-a9939a1b7046
+
+
+## V127 — standalone SVG theme backgrounds
+- Broken combined `theme-user-sprite.jpg` was removed.
+- The 10 custom photo-style theme choices now use 10 independent local SVG files.
+- Theme blur remains live and global across home, section, and activity backgrounds.
+- No game cards, section icons, gallery cards, fonts, or game mechanics were changed.
+- Launcher/build/cache baseline: V127.
