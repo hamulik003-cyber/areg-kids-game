@@ -811,28 +811,16 @@
     if(accent)shell.style.setProperty('--animal-accent',accent);
     if(accentSoft)shell.style.setProperty('--animal-accent-soft',accentSoft);
 
-    const makePiece=(kind,clip)=>{
-      const piece=document.createElement('div');
-      piece.className='gallery-card-flight-piece gallery-card-flight-piece--'+kind;
-      if(clip)piece.style.clipPath=clip;
+    const clone=card.cloneNode(true);
+    clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+    clone.tabIndex=-1;
+    clone.style.setProperty('width','100%','important');
+    clone.style.setProperty('height','100%','important');
+    clone.style.setProperty('min-height','0','important');
+    clone.style.setProperty('max-height','none','important');
+    clone.style.setProperty('pointer-events','none','important');
 
-      const clone=card.cloneNode(true);
-      clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
-      clone.tabIndex=-1;
-      clone.style.setProperty('width','100%','important');
-      clone.style.setProperty('height','100%','important');
-      clone.style.setProperty('min-height','0','important');
-      clone.style.setProperty('max-height','none','important');
-      clone.style.setProperty('pointer-events','none','important');
-      piece.appendChild(clone);
-      shell.appendChild(piece);
-      return {piece,clone};
-    };
-
-    const full=makePiece('full',null);
-    const top=makePiece('top','inset(0 0 37% 0)');
-    const bottom=makePiece('bottom','inset(58% 0 0 0)');
-
+    shell.appendChild(clone);
     host.appendChild(shell);
     document.body.appendChild(host);
 
@@ -841,98 +829,74 @@
 
     const vw=Math.max(document.documentElement.clientWidth||0,window.innerWidth||0);
     const vh=Math.max(document.documentElement.clientHeight||0,window.innerHeight||0);
-    const scale=Math.min(1.50,(vw-24)/rect.width,(vh-90)/rect.height);
+    const scale=Math.min(1.58,(vw-18)/rect.width,(vh-92)/rect.height);
     const targetLeft=(vw-rect.width)/2;
-    const targetTop=Math.max(70,(vh-rect.height)/2-8);
+    const targetTop=Math.max(64,(vh-rect.height)/2-8);
     const tx=targetLeft-rect.left;
     const ty=targetTop-rect.top;
-    const delta=scale-1;
+    const d=scale-1;
 
-    const endTransform='translate3d('+tx+'px,'+ty+'px,0) scale('+scale+')';
-    full.piece.style.transform=endTransform;
-    full.piece.style.opacity='0';
-
-    const state={
-      host,
-      shell,
-      original:card,
-      clone:full.clone,
-      cancelled:false,
-      animations:[],
-      endTransform
-    };
+    const finalTransform='translate3d('+tx+'px,'+ty+'px,0) scale('+scale+','+scale+')';
+    const state={host,shell,original:card,clone,cancelled:false,animations:[],animation:null,finalTransform};
     activeGalleryPresentation=state;
 
     host.classList.add('gallery-card-flight-host--visible');
 
-    if(top.piece.animate&&bottom.piece.animate){
-      const topEnter=top.piece.animate([
+    if(shell.animate){
+      const enter=shell.animate([
         {
-          transform:'translate3d(0,0,0) scale(1)',
-          offset:0
+          transform:'translate3d(0,0,0) scale(1,1)',
+          offset:0,
+          easing:'cubic-bezier(.32,0,.68,1)'
         },
         {
-          transform:'translate3d('+(tx*.36)+'px,'+(ty*.36)+'px,0) scale('+(1+delta*.30)+') scaleY(.985)',
-          offset:.24
+          transform:'translate3d('+(tx*.06)+'px,'+(ty*.06)+'px,0) scale(.985,.972)',
+          offset:.10,
+          easing:'cubic-bezier(.20,.70,.18,1)'
         },
         {
-          transform:'translate3d('+(tx*.84)+'px,'+(ty*.84)+'px,0) scale('+(1+delta*.86)+') scaleY(1.012)',
-          offset:.66
+          transform:'translate3d('+(tx*.30)+'px,'+(ty*.34)+'px,0) scale('+(1+d*.22)+','+(1+d*.31)+')',
+          offset:.32,
+          easing:'cubic-bezier(.18,.78,.18,1)'
         },
         {
-          transform:endTransform,
+          transform:'translate3d('+(tx*.69)+'px,'+(ty*.73)+'px,0) scale('+(1+d*.68)+','+(1+d*.79)+')',
+          offset:.62,
+          easing:'cubic-bezier(.16,.78,.18,1)'
+        },
+        {
+          transform:'translate3d('+(tx*.96)+'px,'+(ty*.97)+'px,0) scale('+(scale*1.014)+','+(scale*1.022)+')',
+          offset:.86,
+          easing:'cubic-bezier(.20,.70,.20,1)'
+        },
+        {
+          transform:finalTransform,
           offset:1
         }
       ],{
-        duration:760,
-        easing:'cubic-bezier(.18,.72,.20,1)',
+        duration:720,
         fill:'forwards'
       });
 
-      const bottomEnter=bottom.piece.animate([
-        {
-          transform:'translate3d(0,0,0) scale(1)',
-          offset:0
-        },
-        {
-          transform:'translate3d('+(tx*.10)+'px,'+(ty*.10)+'px,0) scale('+(1+delta*.06)+') scaleY(.992)',
-          offset:.24
-        },
-        {
-          transform:'translate3d('+(tx*.58)+'px,'+(ty*.58)+'px,0) scale('+(1+delta*.50)+') scaleY(1.016)',
-          offset:.66
-        },
-        {
-          transform:endTransform,
-          offset:1
-        }
-      ],{
-        duration:820,
-        easing:'cubic-bezier(.20,.70,.18,1)',
-        fill:'forwards'
-      });
-
-      state.animations=[topEnter,bottomEnter];
-      try{await Promise.all([topEnter.finished,bottomEnter.finished])}catch{}
+      state.animation=enter;
+      state.animations=[enter];
+      try{await enter.finished}catch{}
       if(state.cancelled)return;
+      shell.style.transform=finalTransform;
+      state.animation=null;
       state.animations=[];
     }else{
-      top.piece.style.transform=endTransform;
-      bottom.piece.style.transform=endTransform;
-      await new Promise(r=>setTimeout(r,820));
+      shell.style.transform=finalTransform;
+      await new Promise(r=>setTimeout(r,720));
       if(state.cancelled)return;
     }
 
-    top.piece.style.opacity='0';
-    bottom.piece.style.opacity='0';
-    full.piece.style.opacity='1';
     shell.classList.add('gallery-card-flight-shell--arrived');
-
     await new Promise(r=>setTimeout(r,90));
     if(state.cancelled)return;
 
     try{
-      await runSequence(full.clone);
+      await runSequence(clone);
     }finally{
       if(state.cancelled)return;
 
@@ -940,67 +904,51 @@
       await new Promise(r=>setTimeout(r,90));
       if(state.cancelled)return;
 
-      full.piece.style.opacity='0';
-      top.piece.style.opacity='1';
-      bottom.piece.style.opacity='1';
-      top.piece.style.transform=endTransform;
-      bottom.piece.style.transform=endTransform;
-
-      if(top.piece.animate&&bottom.piece.animate){
-        const topExit=top.piece.animate([
+      if(shell.animate){
+        const exit=shell.animate([
           {
-            transform:endTransform,
-            offset:0
+            transform:finalTransform,
+            offset:0,
+            easing:'cubic-bezier(.30,0,.70,1)'
           },
           {
-            transform:'translate3d('+(tx*.70)+'px,'+(ty*.70)+'px,0) scale('+(1+delta*.70)+') scaleY(1.012)',
-            offset:.34
+            transform:'translate3d('+(tx*.92)+'px,'+(ty*.92)+'px,0) scale('+(scale*.986)+','+(scale*.978)+')',
+            offset:.16,
+            easing:'cubic-bezier(.22,.02,.20,1)'
           },
           {
-            transform:'translate3d('+(tx*.22)+'px,'+(ty*.22)+'px,0) scale('+(1+delta*.16)+') scaleY(.986)',
-            offset:.76
+            transform:'translate3d('+(tx*.62)+'px,'+(ty*.58)+'px,0) scale('+(1+d*.60)+','+(1+d*.49)+')',
+            offset:.46,
+            easing:'cubic-bezier(.24,.02,.18,1)'
           },
           {
-            transform:'translate3d(0,0,0) scale(1)',
+            transform:'translate3d('+(tx*.23)+'px,'+(ty*.18)+'px,0) scale('+(1+d*.18)+','+(1+d*.10)+')',
+            offset:.75,
+            easing:'cubic-bezier(.28,.02,.18,1)'
+          },
+          {
+            transform:'translate3d('+(tx*.03)+'px,'+(ty*.02)+'px,0) scale(.982,.972)',
+            offset:.93,
+            easing:'cubic-bezier(.28,.02,.18,1)'
+          },
+          {
+            transform:'translate3d(0,0,0) scale(1,1)',
             offset:1
           }
         ],{
-          duration:780,
-          easing:'cubic-bezier(.22,.02,.18,1)',
+          duration:700,
           fill:'forwards'
         });
 
-        const bottomExit=bottom.piece.animate([
-          {
-            transform:endTransform,
-            offset:0
-          },
-          {
-            transform:'translate3d('+(tx*.86)+'px,'+(ty*.86)+'px,0) scale('+(1+delta*.84)+') scaleY(1.015)',
-            offset:.34
-          },
-          {
-            transform:'translate3d('+(tx*.42)+'px,'+(ty*.42)+'px,0) scale('+(1+delta*.34)+') scaleY(.994)',
-            offset:.76
-          },
-          {
-            transform:'translate3d(0,0,0) scale(1)',
-            offset:1
-          }
-        ],{
-          duration:840,
-          easing:'cubic-bezier(.24,.02,.18,1)',
-          fill:'forwards'
-        });
-
-        state.animations=[topExit,bottomExit];
-        try{await Promise.all([topExit.finished,bottomExit.finished])}catch{}
+        state.animation=exit;
+        state.animations=[exit];
+        try{await exit.finished}catch{}
         if(state.cancelled)return;
+        state.animation=null;
         state.animations=[];
       }else{
-        top.piece.style.transform='translate3d(0,0,0) scale(1)';
-        bottom.piece.style.transform='translate3d(0,0,0) scale(1)';
-        await new Promise(r=>setTimeout(r,840));
+        shell.style.transform='translate3d(0,0,0) scale(1,1)';
+        await new Promise(r=>setTimeout(r,700));
       }
 
       if(activeGalleryPresentation===state){
