@@ -3172,48 +3172,46 @@ html[data-font="classic"]{
   accent-color:var(--button-dark);
 }
 
-html[data-theme="photo-desert"]{
-  --bg-1:#f2c47d;--bg-2:#d88650;--bg-3:#8f4d37;--ink:#482815;
-  --theme-photo:url("theme-desert.svg");
-}
-html[data-theme="photo-space"]{
-  --bg-1:#394485;--bg-2:#21285c;--bg-3:#0a0e29;--ink:#f6f3ff;
-  --theme-photo:url("theme-space.svg");
-}
-html[data-theme="photo-forest"]{
-  --bg-1:#a9d5b5;--bg-2:#5b9270;--bg-3:#173b30;--ink:#17311f;
-  --theme-photo:url("theme-forest.svg");
-}
-html[data-theme="photo-ocean"]{
-  --bg-1:#8bdde9;--bg-2:#2b9eba;--bg-3:#073d55;--ink:#103a47;
-  --theme-photo:url("theme-ocean.svg");
-}
-html[data-theme="photo-magic"]{
-  --bg-1:#6c58ae;--bg-2:#34286f;--bg-3:#151437;--ink:#fff4d8;
-  --theme-photo:url("theme-magic.svg");
-}
-
 /* One global background layer = same selected photo across home, sections and activities. */
-html[data-theme^="photo-"] #appBackground{
+html[data-theme^="photo-user-"]{
+  --bg-1:#b9dbe3;--bg-2:#6c98a7;--bg-3:#284b5c;--ink:#193642;
+}
+html[data-theme^="photo-user-"] #appBackground{
   inset:-34px !important;
   background:
-    linear-gradient(180deg,rgba(10,10,24,.05),rgba(10,10,24,.22)),
-    var(--theme-photo) center/cover no-repeat !important;
-  filter:blur(var(--theme-blur)) saturate(.96) brightness(.90);
+    linear-gradient(180deg,rgba(10,10,24,.04),rgba(10,10,24,.18)),
+    var(--theme-photo) center var(--theme-photo-position,0%)/100% 1000% no-repeat !important;
+  filter:blur(var(--theme-blur)) saturate(.98) brightness(.93);
   transform:scale(1.045);
-  transition:filter .16s ease,background .28s ease !important;
+  transition:filter .12s ease,background-position .18s ease !important;
 }
-html[data-theme^="photo-"] #appBackground::after{
+html[data-theme^="photo-user-"] #appBackground::after{
   opacity:.08;
 }
-html[data-theme^="photo-"] .toddler-section-screen,
-html[data-theme^="photo-"] .activity-screen{
+html[data-theme^="photo-user-"] .toddler-section-screen,
+html[data-theme^="photo-user-"] .activity-screen{
   background:transparent !important;
 }
-html[data-theme^="photo-"] .section-backdrop-image{
+html[data-theme^="photo-user-"] .section-backdrop-image{
   opacity:0 !important;
   visibility:hidden !important;
 }
-html[data-theme^="photo-"] .section-dim{
+html[data-theme^="photo-user-"] .section-dim{
   background:linear-gradient(180deg,rgba(8,8,24,.05),rgba(8,8,24,.20)) !important;
+}
+
+
+/* V124 — user's ten image themes; live blur preview in Settings. */
+.theme-sprite-preview{
+  display:block;
+  width:100%;
+  height:96px;
+  background-image:url("theme-user-sprite.jpg?v=124");
+  background-size:100% 1000%;
+  background-repeat:no-repeat;
+}
+#settingsModal .modal-backdrop{
+  background:rgba(18,12,8,.10) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 }

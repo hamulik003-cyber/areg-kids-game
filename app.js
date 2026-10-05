@@ -26,13 +26,22 @@
     ['day','Օր','day.svg'],['night','Գիշեր','night.svg'],['winter','Ձմեռ','winter.svg'],['rain','Անձրև','rain.svg'],
     ['aurora','Բևեռափայլ','aurora.svg'],['wood','Փայտ','wood.svg'],['forest','Անտառ','forest.svg'],['ocean','Օվկիանոս','ocean.svg'],
     ['sunset','Մայրամուտ','sunset.svg'],['space','Տիեզերք','space.svg'],
-    ['photo-desert','Անապատ','theme-desert.svg'],
-    ['photo-space','Տիեզերք՝ նկար','theme-space.svg'],
-    ['photo-forest','Անտառ՝ նկար','theme-forest.svg'],
-    ['photo-ocean','Օվկիանոս՝ նկար','theme-ocean.svg'],
-    ['photo-magic','Կախարդական լույսեր','theme-magic.svg']
+    ['photo-user-01','Ծովային','theme-user-sprite.jpg','0%'],
+    ['photo-user-02','Փափուկ','theme-user-sprite.jpg','11.1111%'],
+    ['photo-user-03','Խոտ','theme-user-sprite.jpg','22.2222%'],
+    ['photo-user-04','Աշուն','theme-user-sprite.jpg','33.3333%'],
+    ['photo-user-05','Անտառային լիճ','theme-user-sprite.jpg','44.4444%'],
+    ['photo-user-06','Լճափ','theme-user-sprite.jpg','55.5556%'],
+    ['photo-user-07','Լեռնային լիճ','theme-user-sprite.jpg','66.6667%'],
+    ['photo-user-08','Տիեզերք՝ նկար','theme-user-sprite.jpg','77.7778%'],
+    ['photo-user-09','Ձյունոտ լեռներ','theme-user-sprite.jpg','88.8889%'],
+    ['photo-user-10','Կախարդական ծառեր','theme-user-sprite.jpg','100%']
   ];
-  const legacyThemeMap={'photo-nature':'photo-forest','photo-mind':'photo-desert','photo-create':'photo-ocean'};
+  const legacyThemeMap={
+    'photo-nature':'photo-user-05','photo-mind':'photo-user-02','photo-create':'photo-user-04',
+    'photo-desert':'photo-user-04','photo-space':'photo-user-08','photo-forest':'photo-user-05',
+    'photo-ocean':'photo-user-01','photo-magic':'photo-user-10'
+  };
   if(legacyThemeMap[settings.theme])settings.theme=legacyThemeMap[settings.theme];
   const fontPresets=[['rounded','Կլոր','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
@@ -406,10 +415,14 @@
   // Theme selector restored from the stable menu version.
   const themeGrid=$('#themeGrid');
   if(themeGrid){
-    themes.forEach(([id,label,preview])=>{
+    themes.forEach(([id,label,preview,spritePos])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=123" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      if(preview==='theme-user-sprite.jpg'){
+        b.innerHTML=`<span class="theme-sprite-preview" style="background-position:center ${spritePos||'0%'}"></span><span>${label}</span>`;
+      }else{
+        b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=124" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      }
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -443,11 +456,19 @@
     settings.themeBlur=blur;
     root.dataset.theme=settings.theme||'day';
     root.style.setProperty('--theme-blur',blur+'px');
+    const activeTheme=themes.find(([id])=>id===settings.theme);
+    if(activeTheme?.[2]==='theme-user-sprite.jpg'){
+      root.style.setProperty('--theme-photo','url("theme-user-sprite.jpg?v=124")');
+      root.style.setProperty('--theme-photo-position',activeTheme[3]||'0%');
+    }else{
+      root.style.removeProperty('--theme-photo');
+      root.style.removeProperty('--theme-photo-position');
+    }
     const blurInput=$('#themeBlur');
     const blurValue=$('#themeBlurValue');
     if(blurInput&&Number(blurInput.value)!==blur)blurInput.value=String(blur);
     if(blurValue)blurValue.textContent=String(blur);
-    $('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
+    $$('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
     const meta=$('meta[name="theme-color"]'),css=getComputedStyle(root),top=css.getPropertyValue('--bg-1').trim(),bottom=css.getPropertyValue('--bg-3').trim();
     const standalone=window.matchMedia?.('(display-mode: standalone)')?.matches||window.navigator.standalone===true;
     const isiOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
