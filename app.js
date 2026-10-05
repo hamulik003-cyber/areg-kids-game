@@ -398,7 +398,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=84" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=92" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -755,7 +755,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=84" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=92" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -800,21 +800,7 @@
 
     activityContent.appendChild(wrap);
 
-    const syncAnimalFocusScale=()=>{
-      const gap=parseFloat(getComputedStyle(wrap).columnGap)||10;
-      $$('.animal-card',wrap).forEach(card=>{
-        const width=card.offsetWidth||1;
-        const sideGrow=gap*.86;
-        const scale=Math.min(1.105,1+(sideGrow*2/width));
-        card.style.setProperty('--animal-focus-scale',scale.toFixed(4));
-        card.style.setProperty('--animal-press-scale',Math.min(1.035,1+(sideGrow*.62/width)).toFixed(4));
-      });
-    };
-    requestAnimationFrame(syncAnimalFocusScale);
-    addEventListener('resize',syncAnimalFocusScale,{passive:true});
-
     gameCleanup.push(()=>{
-      removeEventListener('resize',syncAnimalFocusScale);
 
       stopAnimalPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
@@ -959,7 +945,7 @@
       card.setAttribute('aria-label',`${bird.name}, ${bird.type} թռչուն`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${bird.image}?v=84" alt="${bird.name}" draggable="false">
+          <img src="${bird.image}?v=92" alt="${bird.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1004,21 +990,7 @@
 
     activityContent.appendChild(wrap);
 
-    const syncBirdFocusScale=()=>{
-      const gap=parseFloat(getComputedStyle(wrap).columnGap)||10;
-      $$('.animal-card',wrap).forEach(card=>{
-        const width=card.offsetWidth||1;
-        const sideGrow=gap*.86;
-        const scale=Math.min(1.105,1+(sideGrow*2/width));
-        card.style.setProperty('--animal-focus-scale',scale.toFixed(4));
-        card.style.setProperty('--animal-press-scale',Math.min(1.035,1+(sideGrow*.62/width)).toFixed(4));
-      });
-    };
-    requestAnimationFrame(syncBirdFocusScale);
-    addEventListener('resize',syncBirdFocusScale,{passive:true});
-
     gameCleanup.push(()=>{
-      removeEventListener('resize',syncBirdFocusScale);
       stopBirdPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -1109,7 +1081,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=84" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=92" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
@@ -1154,21 +1126,7 @@
 
     activityContent.appendChild(wrap);
 
-    const syncSeaFocusScale=()=>{
-      const gap=parseFloat(getComputedStyle(wrap).columnGap)||10;
-      $$('.animal-card',wrap).forEach(card=>{
-        const width=card.offsetWidth||1;
-        const sideGrow=gap*.86;
-        const scale=Math.min(1.105,1+(sideGrow*2/width));
-        card.style.setProperty('--animal-focus-scale',scale.toFixed(4));
-        card.style.setProperty('--animal-press-scale',Math.min(1.035,1+(sideGrow*.62/width)).toFixed(4));
-      });
-    };
-    requestAnimationFrame(syncSeaFocusScale);
-    addEventListener('resize',syncSeaFocusScale,{passive:true});
-
     gameCleanup.push(()=>{
-      removeEventListener('resize',syncSeaFocusScale);
       stopSeaPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -1260,7 +1218,7 @@
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=84" alt="${insect.name}" draggable="false">
+          <img src="${insect.image}?v=92" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
@@ -1305,21 +1263,7 @@
 
     activityContent.appendChild(wrap);
 
-    const syncInsectFocusScale=()=>{
-      const gap=parseFloat(getComputedStyle(wrap).columnGap)||10;
-      $$('.animal-card',wrap).forEach(card=>{
-        const width=card.offsetWidth||1;
-        const sideGrow=gap*.86;
-        const scale=Math.min(1.105,1+(sideGrow*2/width));
-        card.style.setProperty('--animal-focus-scale',scale.toFixed(4));
-        card.style.setProperty('--animal-press-scale',Math.min(1.035,1+(sideGrow*.62/width)).toFixed(4));
-      });
-    };
-    requestAnimationFrame(syncInsectFocusScale);
-    addEventListener('resize',syncInsectFocusScale,{passive:true});
-
     gameCleanup.push(()=>{
-      removeEventListener('resize',syncInsectFocusScale);
       stopInsectPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -1496,7 +1440,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=84" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=92" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
