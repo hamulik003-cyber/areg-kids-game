@@ -458,7 +458,7 @@
     root.style.setProperty('--theme-blur',blur+'px');
     const activeTheme=themes.find(([id])=>id===settings.theme);
     if(activeTheme?.[2]==='theme-user-sprite.jpg'){
-      root.style.setProperty('--theme-photo','url("theme-user-sprite.jpg?v=124")');
+      root.style.setProperty('--theme-photo','url("theme-user-sprite.jpg?v=125")');
       root.style.setProperty('--theme-photo-position',activeTheme[3]||'0%');
     }else{
       root.style.removeProperty('--theme-photo');
