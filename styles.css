@@ -4015,10 +4015,11 @@ textarea,
 }
 
 /* =========================================================
-   V84 — INLINE-CENTER SAFETY + RESTORED CARD-SIZE FOCUS
-   JS now hard-centers labels inline; CSS remains as fallback.
+   V91 — CLEAN SOFT PRO FOCUS GLOW
+   One subtle glow only. No hard outline, rays or pseudo-elements.
    ========================================================= */
 
+/* Keep V84 text centering exactly as approved. */
 .animal-gallery .animal-card .animal-name,
 .animal-gallery .animal-card--bird .animal-name,
 .animal-gallery .animal-card--sea .animal-name,
@@ -4058,34 +4059,79 @@ textarea,
   transform:translateX(-50%) !important;
 }
 
-/* Keep only the original card-sized focus effect. */
-.animal-gallery .animal-card--pressing{
-  z-index:20 !important;
-  transform:translateY(-2px) scale(1.012) !important;
-  filter:none !important;
-}
-
-.animal-gallery .animal-card--focus{
-  overflow:hidden !important;
-  z-index:22 !important;
-  transform:translateY(-3px) scale(1.022) !important;
-  filter:none !important;
-  border-color:var(--animal-accent,rgba(255,214,147,.98)) !important;
-  box-shadow:
-    0 8px 0 #a9652f,
-    0 17px 27px rgba(63,31,11,.18),
-    0 0 0 3px var(--animal-accent-soft,rgba(255,214,147,.22)),
-    inset 0 3px 0 rgba(255,248,226,.94),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
-}
-
+/* Remove every old focus-light surface. */
+.animal-gallery .animal-card::before,
+.animal-gallery .animal-card::after,
 .animal-gallery .animal-card--focus::before,
-.animal-gallery .animal-card--focus::after{
+.animal-gallery .animal-card--focus::after,
+.animal-gallery .animal-card--pressing::before,
+.animal-gallery .animal-card--pressing::after{
   content:none !important;
   display:none !important;
   animation:none !important;
   background:none !important;
   border:0 !important;
   box-shadow:none !important;
+}
+
+/* Smooth professional motion/light ramp. */
+.animal-gallery .animal-card,
+.animal-gallery .animal-card--bird,
+.animal-gallery .animal-card--sea,
+.animal-gallery .animal-card--insect{
+  outline:none !important;
+  transition:
+    transform .38s cubic-bezier(.22,.61,.36,1),
+    box-shadow .46s cubic-bezier(.22,.61,.36,1),
+    filter .38s ease !important;
+}
+
+/* Touch-down: almost no light; just a soft preview. */
+.animal-gallery .animal-card--pressing{
+  overflow:visible !important;
+  z-index:24 !important;
+  transform:translateY(-2px) scale(1.010) !important;
+  outline:none !important;
+  border:0 !important;
+  filter:none !important;
+  box-shadow:
+    0 7px 0 #a9652f,
+    0 13px 20px rgba(72,38,16,.16),
+    0 0 5px 1px var(--animal-accent-soft,rgba(255,214,147,.16)),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+
+/* Active/voice state:
+   soft light begins exactly at the card edge and fades outward evenly. */
+.animal-gallery .animal-card--focus,
+.animal-gallery--insect .animal-card--focus{
+  overflow:visible !important;
+  z-index:30 !important;
+  transform:translateY(-3px) scale(1.020) !important;
+  outline:none !important;
+  border:0 !important;
+  filter:none !important;
+  box-shadow:
+    0 7px 0 #a9652f,
+    0 13px 22px rgba(72,38,16,.16),
+    0 0 0 1px var(--animal-accent-soft,rgba(255,214,147,.20)),
+    0 0 7px 2px var(--animal-accent-soft,rgba(255,214,147,.20)),
+    0 0 14px 4px var(--animal-accent-soft,rgba(255,214,147,.12)),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+
+/* Keep the image itself calm; only the whole card lifts/glows. */
+.animal-gallery .animal-card--pressing .animal-image-wrap img,
+.animal-gallery .animal-card--focus .animal-image-wrap img{
+  transform:none !important;
+  filter:none !important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .animal-gallery .animal-card{
+    transition-duration:.16s !important;
+  }
 }
 
