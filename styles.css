@@ -3115,3 +3115,71 @@ html[data-font="classic"]{
 
 
 /* V111 — enlarge inner section game labels to match home-menu text weight. */
+
+
+/* =========================================================
+   V121 — GLOBAL SECTION BACKGROUNDS ONLY
+   V120 card/icon geometry and styling remain untouched.
+   ========================================================= */
+.toddler-section-screen,
+.activity-screen{
+  background:
+    radial-gradient(circle at 18% 8%,rgba(255,255,255,.16),transparent 28%),
+    radial-gradient(circle at 84% 24%,rgba(255,255,255,.09),transparent 27%),
+    linear-gradient(180deg,var(--bg-1) 0%,var(--bg-2) 55%,var(--bg-3) 100%) !important;
+  transition:background .35s ease !important;
+}
+.section-backdrop-image{
+  opacity:.56 !important;
+  filter:blur(15px) saturate(.92) brightness(.84) !important;
+}
+.section-dim{
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb,var(--bg-1) 48%,transparent) 0%,
+      color-mix(in srgb,var(--bg-2) 54%,rgba(9,7,25,.08)) 50%,
+      color-mix(in srgb,var(--bg-3) 62%,rgba(9,7,25,.18)) 100%
+    ) !important;
+  transition:background .35s ease !important;
+}
+
+/* Five image themes. These change backgrounds only. */
+html[data-theme="photo-nature"]{
+  --bg-1:#cbe6a8;--bg-2:#6fa96b;--bg-3:#315f45;--ink:#17331f;
+  --theme-photo:url("hero-nature.jpg");
+}
+html[data-theme="photo-space"]{
+  --bg-1:#26366f;--bg-2:#202454;--bg-3:#0d1230;--ink:#f7f3ff;
+  --theme-photo:url("hero-space.jpg");
+}
+html[data-theme="photo-mind"]{
+  --bg-1:#9fd7f2;--bg-2:#5d9ac4;--bg-3:#315d86;--ink:#17334b;
+  --theme-photo:url("hero-mind.jpg");
+}
+html[data-theme="photo-create"]{
+  --bg-1:#ffd59d;--bg-2:#e99386;--bg-3:#9c5571;--ink:#4b2431;
+  --theme-photo:url("hero-create.jpg");
+}
+html[data-theme="photo-magic"]{
+  --bg-1:#25205f;--bg-2:#46357e;--bg-3:#15133e;--ink:#fff3cf;
+  --theme-photo:url("hero-magic.jpg");
+}
+
+html[data-theme^="photo-"] #appBackground{
+  background:
+    linear-gradient(180deg,rgba(8,8,24,.06),rgba(8,8,24,.26)),
+    var(--theme-photo) center/cover no-repeat !important;
+}
+html[data-theme^="photo-"] .toddler-section-screen,
+html[data-theme^="photo-"] .activity-screen{
+  background:
+    linear-gradient(180deg,rgba(8,8,24,.08),rgba(8,8,24,.30)),
+    var(--theme-photo) center/cover no-repeat !important;
+}
+html[data-theme^="photo-"] .section-backdrop-image{
+  opacity:0 !important;
+}
+html[data-theme^="photo-"] .section-dim{
+  background:linear-gradient(180deg,rgba(8,8,24,.08),rgba(8,8,24,.26)) !important;
+}

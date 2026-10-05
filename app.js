@@ -22,7 +22,16 @@
     localStorage.removeItem('areg-magic-unlocked-v1');
   }
   let stars=Number(localStorage.getItem(STARS_KEY)||0);
-  const themes=[['day','Օր'],['night','Գիշեր'],['winter','Ձմեռ'],['rain','Անձրև'],['aurora','Բևեռափայլ'],['wood','Փայտ'],['forest','Անտառ'],['ocean','Օվկիանոս'],['sunset','Մայրամուտ'],['space','Տիեզերք']];
+  const themes=[
+    ['day','Օր','day.svg'],['night','Գիշեր','night.svg'],['winter','Ձմեռ','winter.svg'],['rain','Անձրև','rain.svg'],
+    ['aurora','Բևեռափայլ','aurora.svg'],['wood','Փայտ','wood.svg'],['forest','Անտառ','forest.svg'],['ocean','Օվկիանոս','ocean.svg'],
+    ['sunset','Մայրամուտ','sunset.svg'],['space','Տիեզերք','space.svg'],
+    ['photo-nature','Նկար՝ Բնություն','hero-nature.jpg'],
+    ['photo-space','Նկար՝ Տիեզերք','hero-space.jpg'],
+    ['photo-mind','Նկար՝ Մտքի խաղեր','hero-mind.jpg'],
+    ['photo-create','Նկար՝ Ստեղծագործություն','hero-create.jpg'],
+    ['photo-magic','Նկար՝ Կախարդական','hero-magic.jpg']
+  ];
   const fontPresets=[['rounded','Կլոր','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
@@ -395,10 +404,10 @@
   // Theme selector restored from the stable menu version.
   const themeGrid=$('#themeGrid');
   if(themeGrid){
-    themes.forEach(([id,label])=>{
+    themes.forEach(([id,label,preview])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=93" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=121" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
