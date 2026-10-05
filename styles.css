@@ -4015,21 +4015,10 @@ textarea,
 }
 
 /* =========================================================
-   V83 — HARD-CENTERED CARD LABELS + RESTORED CARD-SIZE FOCUS
+   V84 — INLINE-CENTER SAFETY + RESTORED CARD-SIZE FOCUS
+   JS now hard-centers labels inline; CSS remains as fallback.
    ========================================================= */
 
-/* Keep lower panel as the positioning parent. */
-.animal-gallery .animal-card .animal-meta,
-.animal-gallery .animal-card--bird .animal-meta,
-.animal-gallery .animal-card--sea .animal-meta,
-.animal-gallery .animal-card--insect .animal-meta,
-.animal-gallery--sea .animal-meta,
-.animal-gallery--insect .animal-meta{
-  position:absolute !important;
-}
-
-/* HARD CENTER: name is geometrically centered in the lower panel,
-   independent of old flex/grid rules and legacy padding. */
 .animal-gallery .animal-card .animal-name,
 .animal-gallery .animal-card--bird .animal-name,
 .animal-gallery .animal-card--sea .animal-name,
@@ -4038,33 +4027,22 @@ textarea,
 .animal-gallery--insect .animal-name{
   position:absolute !important;
   top:6px !important;
-  left:50% !important;
-  right:auto !important;
+  left:0 !important;
+  right:0 !important;
   bottom:38px !important;
-
-  width:calc(100% - 12px) !important;
-  max-width:calc(100% - 12px) !important;
-  min-width:0 !important;
-  height:auto !important;
-  min-height:0 !important;
-
+  width:auto !important;
+  max-width:none !important;
   margin:0 !important;
-  padding:0 !important;
+  padding:0 8px !important;
   box-sizing:border-box !important;
-
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-
-  transform:translateX(-50%) !important;
   text-align:center !important;
   text-indent:0 !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
+  transform:none !important;
 }
 
-/* HARD CENTER: type badge is independently centered at the bottom. */
 .animal-gallery .animal-card .animal-type,
 .animal-gallery .animal-card--bird .animal-type,
 .animal-gallery .animal-card--sea .animal-type,
@@ -4080,13 +4058,7 @@ textarea,
   transform:translateX(-50%) !important;
 }
 
-/* Restored pre-V81 card-size focus only. */
-.animal-gallery .animal-card{
-  transition:
-    transform .28s cubic-bezier(.2,.8,.2,1),
-    box-shadow .28s ease !important;
-}
-
+/* Keep only the original card-sized focus effect. */
 .animal-gallery .animal-card--pressing{
   z-index:20 !important;
   transform:translateY(-2px) scale(1.012) !important;
@@ -4115,28 +4087,5 @@ textarea,
   background:none !important;
   border:0 !important;
   box-shadow:none !important;
-}
-
-@media (max-width:380px){
-  .animal-gallery .animal-card .animal-name,
-  .animal-gallery .animal-card--bird .animal-name,
-  .animal-gallery .animal-card--sea .animal-name,
-  .animal-gallery .animal-card--insect .animal-name,
-  .animal-gallery--sea .animal-name,
-  .animal-gallery--insect .animal-name{
-    top:5px !important;
-    bottom:36px !important;
-    width:calc(100% - 10px) !important;
-    max-width:calc(100% - 10px) !important;
-  }
-
-  .animal-gallery .animal-card .animal-type,
-  .animal-gallery .animal-card--bird .animal-type,
-  .animal-gallery .animal-card--sea .animal-type,
-  .animal-gallery .animal-card--insect .animal-type,
-  .animal-gallery--sea .animal-type,
-  .animal-gallery--insect .animal-type{
-    bottom:7px !important;
-  }
 }
 
