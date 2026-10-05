@@ -3277,3 +3277,220 @@ html[data-font="classic"]{
     font-size:11.8px !important;
   }
 }
+
+
+/* =========================================================
+   V77 — unified approved learning-card style across Nature
+   Based on the approved horse sample: thick 3D frame,
+   separate beige 3D label panel, rounded Armenian font,
+   no wrong decorative paws/leaves, 2-column child-friendly layout.
+   ========================================================= */
+
+html[data-font="rounded"]{
+  --areg-font:ui-rounded,"Arial Rounded MT Bold","SF Pro Rounded","Noto Sans Armenian",Arial,sans-serif;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+.wood-title,
+.home-card-label,
+.section-title,
+.activity-title,
+.activity-section-title,
+.animal-name,
+.animal-type,
+.theme-option,
+.font-option,
+.settings-panel,
+.modal,
+.toast{
+  font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
+}
+
+.animal-gallery{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  padding:14px 10px 34px !important;
+}
+
+.animal-card,
+.animal-gallery--sea .animal-card,
+.animal-gallery--insect .animal-card,
+.animal-card--bird{
+  --v77-image-h:62%;
+  position:relative;
+  height:308px !important;
+  border:none !important;
+  border-radius:30px !important;
+  background:linear-gradient(180deg,#f8d8ab 0%,#efbf7d 100%) !important;
+  box-shadow:
+    0 7px 0 rgba(164,98,42,.95),
+    0 15px 22px rgba(55,26,7,.18),
+    inset 0 2px 0 rgba(255,250,235,.9),
+    inset 0 -2px 0 rgba(170,111,52,.28) !important;
+  overflow:hidden !important;
+}
+
+.animal-card::before,
+.animal-card::after{
+  display:none !important;
+}
+
+.animal-image-wrap,
+.animal-gallery--sea .animal-image-wrap{
+  position:absolute !important;
+  left:12px !important;
+  right:12px !important;
+  top:12px !important;
+  height:var(--v77-image-h) !important;
+  border-radius:24px !important;
+  background:#ffffff !important;
+  border:6px solid #ffffff !important;
+  box-shadow:
+    0 0 0 3px #ecd5a4,
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 3px 0 rgba(194,150,85,.45) !important;
+}
+
+.animal-image-wrap img{
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  filter:none !important;
+  border-radius:17px !important;
+  background:transparent !important;
+}
+
+.animal-card--pressing .animal-image-wrap img,
+.animal-card--focus .animal-image-wrap img{
+  transform:none !important;
+  filter:none !important;
+}
+
+.animal-card-sheen{
+  opacity:.45 !important;
+}
+
+.animal-meta,
+.animal-gallery--sea .animal-meta,
+.animal-gallery--insect .animal-meta,
+.animal-card--bird .animal-meta{
+  position:absolute !important;
+  left:11px !important;
+  right:11px !important;
+  bottom:11px !important;
+  top:auto !important;
+  height:calc(100% - var(--v77-image-h) - 26px) !important;
+  min-height:86px !important;
+  padding:10px 10px 12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  border-radius:0 0 22px 22px !important;
+  background:linear-gradient(180deg,#efd1a1 0%,#e7bb79 100%) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,248,229,.92),
+    inset 0 -2px 0 rgba(182,122,65,.33),
+    0 -1px 0 rgba(217,183,124,.65) !important;
+}
+
+.animal-name,
+.animal-gallery--sea .animal-name,
+.animal-gallery--insect .animal-name,
+.animal-card--bird .animal-name{
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 4px !important;
+  color:#54240e !important;
+  text-align:center !important;
+  font-size:20px !important;
+  line-height:1.03 !important;
+  font-weight:900 !important;
+  letter-spacing:-0.02em !important;
+  min-height:42px !important;
+  -webkit-line-clamp:2 !important;
+  text-shadow:0 1px 0 rgba(255,246,224,.45) !important;
+}
+
+.animal-type,
+.animal-gallery--sea .animal-type,
+.animal-gallery--insect .animal-type,
+.animal-card--bird .animal-type{
+  min-width:86px !important;
+  max-width:100% !important;
+  height:28px !important;
+  padding:0 14px !important;
+  margin-top:auto !important;
+  border-radius:999px !important;
+  font-size:15px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.35),
+    0 3px 8px rgba(92,53,24,.18) !important;
+}
+
+.animal-card--focus{
+  transform:translateY(-4px) scale(1.045) !important;
+  box-shadow:
+    0 9px 0 rgba(164,98,42,.92),
+    0 18px 28px rgba(55,26,7,.18),
+    0 0 0 4px var(--animal-accent-soft,rgba(255,214,147,.30)),
+    inset 0 2px 0 rgba(255,250,235,.95),
+    inset 0 -2px 0 rgba(170,111,52,.28) !important;
+}
+
+.animal-card--pressing{
+  transform:translateY(-2px) scale(1.02) !important;
+}
+
+/* Slightly longer names: keep readable without touching the frame. */
+.animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:16px !important;line-height:1.02 !important;}
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:15px !important;line-height:1.01 !important;}
+.animal-card[data-sea-creature="sea-otter"] .animal-name,
+.animal-card[data-sea-creature="lionfish"] .animal-name,
+.animal-card[data-sea-creature="sea-turtle"] .animal-name,
+.animal-card[data-sea-creature="clownfish"] .animal-name,
+.animal-card[data-sea-creature="anglerfish"] .animal-name,
+.animal-card[data-sea-creature="shrimp"] .animal-name,
+.animal-card[data-sea-creature="sterlet"] .animal-name,
+.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+.animal-card[data-insect-id="praying-mantis"] .animal-name,
+.animal-card[data-insect-id="colorado-beetle"] .animal-name,
+.animal-card[data-insect-id="may-beetle"] .animal-name,
+.animal-card[data-insect-id="bark-beetle"] .animal-name,
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
+  font-size:16px !important;
+}
+
+/* Keep the child-friendly 2-column look on smaller iPhones too. */
+@media (max-width:380px){
+  .animal-gallery{gap:12px !important;padding:12px 9px 30px !important;}
+  .animal-card{height:292px !important;}
+  .animal-name,
+  .animal-gallery--sea .animal-name,
+  .animal-gallery--insect .animal-name,
+  .animal-card--bird .animal-name{font-size:18px !important;min-height:40px !important;}
+  .animal-type,
+  .animal-gallery--sea .animal-type,
+  .animal-gallery--insect .animal-type,
+  .animal-card--bird .animal-type{font-size:13px !important;height:26px !important;min-width:78px !important;}
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name,
+  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name,
+  .animal-card[data-sea-creature="sea-otter"] .animal-name,
+  .animal-card[data-sea-creature="lionfish"] .animal-name,
+  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:14.6px !important;}
+}
+
+.font-option[data-font="rounded"]{
+  font-family:ui-rounded,"Arial Rounded MT Bold","SF Pro Rounded","Noto Sans Armenian",Arial,sans-serif !important;
+}

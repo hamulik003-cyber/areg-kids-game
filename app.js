@@ -13,7 +13,8 @@
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
   const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
-  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'system',...loadJson(SETTINGS_KEY,{})};
+  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'rounded',...loadJson(SETTINGS_KEY,{})};
+  if(!settings.font||settings.font==='system')settings.font='rounded';
   const STAR_RESET_V40='areg-stars-reset-v40';
   if(!localStorage.getItem(STAR_RESET_V40)){
     localStorage.setItem(STARS_KEY,'0');
@@ -22,7 +23,7 @@
   }
   let stars=Number(localStorage.getItem(STARS_KEY)||0);
   const themes=[['day','Օր'],['night','Գիշեր'],['winter','Ձմեռ'],['rain','Անձրև'],['aurora','Բևեռափայլ'],['wood','Փայտ'],['forest','Անտառ'],['ocean','Օվկիանոս'],['sunset','Մայրամուտ'],['space','Տիեզերք']];
-  const fontPresets=[['system','Համակարգային','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
+  const fontPresets=[['rounded','Կլոր','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
   const MAGIC_UNLOCK_KEY='areg-magic-unlocked-v1';
@@ -417,7 +418,7 @@
   }
   function applyFont(){
     const allowed=new Set(fontPresets.map(([id])=>id));
-    const id=allowed.has(settings.font)?settings.font:'system';
+    const id=allowed.has(settings.font)?settings.font:'rounded';
     settings.font=id;
     root.dataset.font=id;
     $$('.font-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===id)));
@@ -1207,7 +1208,7 @@
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=76" alt="${insect.name}" draggable="false">
+          <img src="${insect.image}?v=77" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
