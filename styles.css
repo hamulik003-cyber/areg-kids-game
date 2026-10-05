@@ -2427,7 +2427,7 @@ html[data-font="classic"]{
 
 
 /* =========================================================
-   V92 — ONE CLEAN GALLERY SYSTEM
+   V93 — UNIFIED TEXT LAYOUT FOR ALL 4 GALLERIES
    No legacy gallery CSS remains below this point.
    V84 visual geometry + one soft professional backlight.
    ========================================================= */
@@ -2573,11 +2573,11 @@ html[data-font="classic"]{
   max-height:none !important;
   box-sizing:border-box !important;
   display:grid !important;
-  grid-template-rows:minmax(0,1fr) 28px !important;
+  grid-template-rows:39px 28px !important;
   align-items:center !important;
   justify-items:center !important;
-  gap:4px !important;
-  padding:7px 8px 8px !important;
+  gap:2px !important;
+  padding:4px 7px 6px !important;
   overflow:hidden !important;
   border:1px solid rgba(203,145,78,.42) !important;
   border-radius:18px !important;
@@ -2592,21 +2592,19 @@ html[data-font="classic"]{
 .animal-gallery .animal-meta::before{content:none!important;display:none!important}
 
 .animal-gallery .animal-name{
-  position:absolute !important;
-  top:6px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:38px !important;
-  width:auto !important;
-  max-width:none !important;
+  position:static !important;
+  width:100% !important;
+  max-width:100% !important;
   min-width:0 !important;
+  height:39px !important;
+  max-height:39px !important;
   margin:0 !important;
-  padding:0 8px !important;
+  padding:0 4px !important;
   box-sizing:border-box !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  overflow:visible !important;
+  overflow:hidden !important;
   white-space:normal !important;
   text-overflow:clip !important;
   -webkit-line-clamp:unset !important;
@@ -2617,19 +2615,17 @@ html[data-font="classic"]{
   transform:none !important;
   font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
   font-size:var(--animal-name-size,16.5px) !important;
-  line-height:1.03 !important;
+  line-height:1.01 !important;
   font-weight:950 !important;
   letter-spacing:-.025em !important;
   text-shadow:0 1px 0 rgba(255,250,236,.66) !important;
 }
 
 .animal-gallery .animal-type{
-  position:absolute !important;
-  left:50% !important;
-  right:auto !important;
-  bottom:8px !important;
-  top:auto !important;
-  transform:translateX(-50%) !important;
+  position:static !important;
+  align-self:center !important;
+  justify-self:center !important;
+  transform:none !important;
   width:auto !important;
   min-width:90px !important;
   max-width:100% !important;
@@ -2648,7 +2644,7 @@ html[data-font="classic"]{
   border-radius:999px !important;
   color:#fff !important;
   font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
-  font-size:12.4px !important;
+  font-size:var(--animal-type-size,12.4px) !important;
   line-height:1 !important;
   font-weight:900 !important;
   letter-spacing:-.01em !important;
@@ -2663,7 +2659,6 @@ html[data-font="classic"]{
 .animal-gallery .animal-card--sea .animal-type,
 .animal-gallery--sea .animal-type,
 .animal-gallery--insect .animal-type{
-  font-size:11.7px !important;
   min-width:88px !important;
   padding-left:10px !important;
   padding-right:10px !important;
@@ -2695,7 +2690,7 @@ html[data-font="classic"]{
 }
 
 .animal-card--speaking .animal-type{
-  transform:translateX(-50%) translateY(-1px) !important;
+  transform:translateY(-1px) !important;
 }
 
 @media (max-width:380px){
@@ -2731,8 +2726,13 @@ html[data-font="classic"]{
     left:11px !important;
     right:11px !important;
     bottom:11px !important;
-    grid-template-rows:minmax(0,1fr) 27px !important;
-    padding:6px 7px 7px !important;
+    grid-template-rows:41px 27px !important;
+    gap:2px !important;
+    padding:4px 7px 6px !important;
+  }
+  .animal-gallery .animal-name{
+    height:41px !important;
+    max-height:41px !important;
   }
   .animal-gallery .animal-type{
     height:27px !important;
@@ -2742,9 +2742,6 @@ html[data-font="classic"]{
     padding:0 10px !important;
     font-size:11.6px !important;
   }
-  .animal-gallery .animal-card--sea .animal-type,
-  .animal-gallery--sea .animal-type,
-  .animal-gallery--insect .animal-type{font-size:10.8px !important}
 }
 
 @media (prefers-reduced-motion:reduce){
