@@ -1,4 +1,4 @@
-<!-- V122 clean section theme backgrounds; keep five photo themes -->
+<!-- V123 five portrait image themes + global blur control -->
 <!doctype html>
 <html lang="hy" data-theme="day" data-font="system">
 <head>
@@ -6,8 +6,8 @@
   <script>
   (()=>{try{
     const u=new URL(location.href);
-    if(u.searchParams.get('__areg_build')!=='122'){
-      u.searchParams.set('__areg_build','122');
+    if(u.searchParams.get('__areg_build')!=='123'){
+      u.searchParams.set('__areg_build','123');
       u.searchParams.set('__ts',Date.now().toString());
       location.replace(u.toString());
     }
@@ -23,7 +23,7 @@
   <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Արեգ 3D աշխարհ</title>
-  <link rel="stylesheet" href="styles.css?v=122" />
+  <link rel="stylesheet" href="styles.css?v=123" />
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
@@ -143,6 +143,10 @@
       <p class="font-help">Բոլոր տարբերակները նախատեսված են հայերեն տեքստերի համար և աշխատում են նաև առանց ինտերնետի։</p>
       <h3 class="theme-heading">Թեմա</h3>
       <div id="themeGrid" class="theme-grid" aria-label="Ընտրել թեմա"></div>
+      <div class="theme-blur-control">
+        <div class="theme-blur-head"><span>Ֆոնի blur</span><strong><span id="themeBlurValue">10</span> px</strong></div>
+        <input id="themeBlur" type="range" min="0" max="24" step="1" value="10" aria-label="Ֆոնի blur-ի ուժը" />
+      </div>
     </div>
   </div>
 

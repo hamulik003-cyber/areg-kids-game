@@ -13,7 +13,7 @@
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
   const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
-  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'rounded',...loadJson(SETTINGS_KEY,{})};
+  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'rounded',themeBlur:10,...loadJson(SETTINGS_KEY,{})};
   if(!settings.font||settings.font==='system')settings.font='rounded';
   const STAR_RESET_V40='areg-stars-reset-v40';
   if(!localStorage.getItem(STAR_RESET_V40)){
@@ -26,12 +26,14 @@
     ['day','Օր','day.svg'],['night','Գիշեր','night.svg'],['winter','Ձմեռ','winter.svg'],['rain','Անձրև','rain.svg'],
     ['aurora','Բևեռափայլ','aurora.svg'],['wood','Փայտ','wood.svg'],['forest','Անտառ','forest.svg'],['ocean','Օվկիանոս','ocean.svg'],
     ['sunset','Մայրամուտ','sunset.svg'],['space','Տիեզերք','space.svg'],
-    ['photo-nature','Նկար՝ Բնություն','hero-nature.jpg'],
-    ['photo-space','Նկար՝ Տիեզերք','hero-space.jpg'],
-    ['photo-mind','Նկար՝ Մտքի խաղեր','hero-mind.jpg'],
-    ['photo-create','Նկար՝ Ստեղծագործություն','hero-create.jpg'],
-    ['photo-magic','Նկար՝ Կախարդական','hero-magic.jpg']
+    ['photo-desert','Անապատ','theme-desert.svg'],
+    ['photo-space','Տիեզերք՝ նկար','theme-space.svg'],
+    ['photo-forest','Անտառ՝ նկար','theme-forest.svg'],
+    ['photo-ocean','Օվկիանոս՝ նկար','theme-ocean.svg'],
+    ['photo-magic','Կախարդական լույսեր','theme-magic.svg']
   ];
+  const legacyThemeMap={'photo-nature':'photo-forest','photo-mind':'photo-desert','photo-create':'photo-ocean'};
+  if(legacyThemeMap[settings.theme])settings.theme=legacyThemeMap[settings.theme];
   const fontPresets=[['rounded','Կլոր','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
@@ -407,7 +409,7 @@
     themes.forEach(([id,label,preview])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=121" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=123" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -435,14 +437,31 @@
   applyFont();
 
   function applyTheme(){
+    const allowed=new Set(themes.map(([id])=>id));
+    if(!allowed.has(settings.theme))settings.theme='day';
+    const blur=Math.max(0,Math.min(24,Number(settings.themeBlur??10)));
+    settings.themeBlur=blur;
     root.dataset.theme=settings.theme||'day';
-    $$('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
+    root.style.setProperty('--theme-blur',blur+'px');
+    const blurInput=$('#themeBlur');
+    const blurValue=$('#themeBlurValue');
+    if(blurInput&&Number(blurInput.value)!==blur)blurInput.value=String(blur);
+    if(blurValue)blurValue.textContent=String(blur);
+    $('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===root.dataset.theme)));
     const meta=$('meta[name="theme-color"]'),css=getComputedStyle(root),top=css.getPropertyValue('--bg-1').trim(),bottom=css.getPropertyValue('--bg-3').trim();
     const standalone=window.matchMedia?.('(display-mode: standalone)')?.matches||window.navigator.standalone===true;
     const isiOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
     if(meta)meta.setAttribute('content',standalone&&isiOS&&bottom?bottom:top);
   }
   applyTheme();
+  const themeBlur=$('#themeBlur');
+  if(themeBlur){
+    themeBlur.addEventListener('input',()=>{
+      settings.themeBlur=Number(themeBlur.value);
+      saveSettings();
+      applyTheme();
+    });
+  }
   const toggles={master:$('#masterSound'),music:$('#musicSound'),voice:$('#voiceHints'),effects:$('#gameEffects')};
   function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
   syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));

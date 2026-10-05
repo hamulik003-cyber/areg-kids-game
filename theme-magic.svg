@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <radialGradient id="bg" cx=".5" cy=".25" r=".9"><stop stop-color="#7259b7"/><stop offset=".45" stop-color="#34286f"/><stop offset="1" stop-color="#151437"/></radialGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="14"/></filter>
+</defs>
+<rect width="390" height="844" fill="url(#bg)"/>
+<path d="M-30 250 C80 130 150 355 245 210 C310 110 400 210 430 120" fill="none" stroke="#73f2cf" stroke-width="30" opacity=".18" filter="url(#glow)"/>
+<path d="M-40 410 C75 300 145 500 240 350 C310 245 380 350 430 270" fill="none" stroke="#ff8cdb" stroke-width="26" opacity=".16" filter="url(#glow)"/>
+<g fill="#fff4b8">
+ <circle cx="58" cy="120" r="3"/><circle cx="150" cy="180" r="2"/><circle cx="305" cy="100" r="3"/><circle cx="340" cy="250" r="2"/>
+ <circle cx="80" cy="390" r="2"/><circle cx="210" cy="510" r="3"/><circle cx="322" cy="600" r="2"/><circle cx="125" cy="710" r="3"/>
+</g>
+<g fill="#e3c4ff" opacity=".72" filter="url(#glow)">
+ <circle cx="70" cy="560" r="24"/><circle cx="270" cy="420" r="28"/><circle cx="310" cy="720" r="34"/><circle cx="155" cy="305" r="20"/>
+</g>
+<path d="M0 770 C80 720 150 760 220 730 C286 702 340 740 390 700 V844 H0Z" fill="#101230" opacity=".72"/>
+</svg>

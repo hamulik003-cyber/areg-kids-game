@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8ce3ed"/><stop offset=".36" stop-color="#2a9fbe"/><stop offset=".72" stop-color="#0d5978"/><stop offset="1" stop-color="#063448"/></linearGradient>
+ <filter id="soft"><feGaussianBlur stdDeviation="10"/></filter>
+</defs>
+<rect width="390" height="844" fill="url(#bg)"/>
+<g fill="#dffcff" opacity=".2"><path d="M10 0 L115 500 H75Z"/><path d="M120 0 L225 520 H180Z"/><path d="M280 0 L365 490 H325Z"/></g>
+<g fill="none" stroke="#dffcff" opacity=".42">
+ <circle cx="70" cy="235" r="8"/><circle cx="95" cy="305" r="5"/><circle cx="300" cy="255" r="10"/><circle cx="330" cy="360" r="6"/>
+ <circle cx="250" cy="500" r="7"/><circle cx="125" cy="565" r="9"/>
+</g>
+<ellipse cx="160" cy="620" rx="220" ry="76" fill="#76d8d0" opacity=".15" filter="url(#soft)"/>
+<path d="M0 755 C72 710 130 748 185 720 C250 685 318 735 390 690 V844 H0Z" fill="#063d4f"/>
+<g fill="#1c725e" opacity=".85">
+ <path d="M42 844 C45 760 18 720 45 650 C63 705 70 760 65 844Z"/>
+ <path d="M330 844 C326 760 356 710 330 640 C308 700 305 760 308 844Z"/>
+ <path d="M290 844 C286 790 305 760 292 715 C274 752 268 793 270 844Z"/>
+</g>
+</svg>

@@ -3144,42 +3144,76 @@ html[data-font="classic"]{
   transition:background .35s ease !important;
 }
 
-/* Five image themes. These change backgrounds only. */
-html[data-theme="photo-nature"]{
-  --bg-1:#cbe6a8;--bg-2:#6fa96b;--bg-3:#315f45;--ink:#17331f;
-  --theme-photo:url("hero-nature.jpg");
+
+
+/* =========================================================
+   V123 — FIVE PORTRAIT IMAGE THEMES + GLOBAL BACKGROUND BLUR
+   Cards/icons remain exactly on the V120 baseline.
+   ========================================================= */
+:root{--theme-blur:10px}
+
+.theme-blur-control{
+  margin:14px 2px 4px;
+  padding:13px 14px 14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(84,45,23,.13);
 }
-html[data-theme="photo-space"]{
-  --bg-1:#26366f;--bg-2:#202454;--bg-3:#0d1230;--ink:#f7f3ff;
-  --theme-photo:url("hero-space.jpg");
+.theme-blur-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+  font-weight:800;
 }
-html[data-theme="photo-mind"]{
-  --bg-1:#9fd7f2;--bg-2:#5d9ac4;--bg-3:#315d86;--ink:#17334b;
-  --theme-photo:url("hero-mind.jpg");
-}
-html[data-theme="photo-create"]{
-  --bg-1:#ffd59d;--bg-2:#e99386;--bg-3:#9c5571;--ink:#4b2431;
-  --theme-photo:url("hero-create.jpg");
-}
-html[data-theme="photo-magic"]{
-  --bg-1:#25205f;--bg-2:#46357e;--bg-3:#15133e;--ink:#fff3cf;
-  --theme-photo:url("hero-magic.jpg");
+.theme-blur-control input[type="range"]{
+  width:100%;
+  accent-color:var(--button-dark);
 }
 
+html[data-theme="photo-desert"]{
+  --bg-1:#f2c47d;--bg-2:#d88650;--bg-3:#8f4d37;--ink:#482815;
+  --theme-photo:url("theme-desert.svg");
+}
+html[data-theme="photo-space"]{
+  --bg-1:#394485;--bg-2:#21285c;--bg-3:#0a0e29;--ink:#f6f3ff;
+  --theme-photo:url("theme-space.svg");
+}
+html[data-theme="photo-forest"]{
+  --bg-1:#a9d5b5;--bg-2:#5b9270;--bg-3:#173b30;--ink:#17311f;
+  --theme-photo:url("theme-forest.svg");
+}
+html[data-theme="photo-ocean"]{
+  --bg-1:#8bdde9;--bg-2:#2b9eba;--bg-3:#073d55;--ink:#103a47;
+  --theme-photo:url("theme-ocean.svg");
+}
+html[data-theme="photo-magic"]{
+  --bg-1:#6c58ae;--bg-2:#34286f;--bg-3:#151437;--ink:#fff4d8;
+  --theme-photo:url("theme-magic.svg");
+}
+
+/* One global background layer = same selected photo across home, sections and activities. */
 html[data-theme^="photo-"] #appBackground{
+  inset:-34px !important;
   background:
-    linear-gradient(180deg,rgba(8,8,24,.06),rgba(8,8,24,.26)),
+    linear-gradient(180deg,rgba(10,10,24,.05),rgba(10,10,24,.22)),
     var(--theme-photo) center/cover no-repeat !important;
+  filter:blur(var(--theme-blur)) saturate(.96) brightness(.90);
+  transform:scale(1.045);
+  transition:filter .16s ease,background .28s ease !important;
+}
+html[data-theme^="photo-"] #appBackground::after{
+  opacity:.08;
 }
 html[data-theme^="photo-"] .toddler-section-screen,
 html[data-theme^="photo-"] .activity-screen{
-  background:
-    linear-gradient(180deg,rgba(8,8,24,.08),rgba(8,8,24,.30)),
-    var(--theme-photo) center/cover no-repeat !important;
+  background:transparent !important;
 }
 html[data-theme^="photo-"] .section-backdrop-image{
   opacity:0 !important;
+  visibility:hidden !important;
 }
 html[data-theme^="photo-"] .section-dim{
-  background:linear-gradient(180deg,rgba(8,8,24,.08),rgba(8,8,24,.26)) !important;
+  background:linear-gradient(180deg,rgba(8,8,24,.05),rgba(8,8,24,.20)) !important;
 }
