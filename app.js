@@ -26,16 +26,16 @@
     ['day','Օր','day.svg'],['night','Գիշեր','night.svg'],['winter','Ձմեռ','winter.svg'],['rain','Անձրև','rain.svg'],
     ['aurora','Բևեռափայլ','aurora.svg'],['wood','Փայտ','wood.svg'],['forest','Անտառ','forest.svg'],['ocean','Օվկիանոս','ocean.svg'],
     ['sunset','Մայրամուտ','sunset.svg'],['space','Տիեզերք','space.svg'],
-    ['photo-user-01','Ծովային','theme-art-ocean.svg'],
-    ['photo-user-02','Փափուկ','theme-art-soft.svg'],
-    ['photo-user-03','Խոտ','theme-art-grass.svg'],
-    ['photo-user-04','Աշուն','theme-art-autumn.svg'],
-    ['photo-user-05','Անտառային լիճ','theme-art-forest-lake.svg'],
-    ['photo-user-06','Լճափ','theme-art-lakeside.svg'],
-    ['photo-user-07','Լեռնային լիճ','theme-art-mountain-lake.svg'],
-    ['photo-user-08','Տիեզերք՝ նկար','theme-art-space.svg'],
-    ['photo-user-09','Ձյունոտ լեռներ','theme-art-snow-mountains.svg'],
-    ['photo-user-10','Կախարդական ծառեր','theme-art-magic-trees.svg']
+    ['photo-user-01','Ծովային','theme-user-sprite.jpg','0%'],
+    ['photo-user-02','Փափուկ','theme-user-sprite.jpg','11.1111%'],
+    ['photo-user-03','Խոտ','theme-user-sprite.jpg','22.2222%'],
+    ['photo-user-04','Աշուն','theme-user-sprite.jpg','33.3333%'],
+    ['photo-user-05','Անտառային լիճ','theme-user-sprite.jpg','44.4444%'],
+    ['photo-user-06','Լճափ','theme-user-sprite.jpg','55.5556%'],
+    ['photo-user-07','Լեռնային լիճ','theme-user-sprite.jpg','66.6667%'],
+    ['photo-user-08','Տիեզերք՝ նկար','theme-user-sprite.jpg','77.7778%'],
+    ['photo-user-09','Ձյունոտ լեռներ','theme-user-sprite.jpg','88.8889%'],
+    ['photo-user-10','Կախարդական ծառեր','theme-user-sprite.jpg','100%']
   ];
   const legacyThemeMap={
     'photo-nature':'photo-user-05','photo-mind':'photo-user-02','photo-create':'photo-user-04',
@@ -415,10 +415,14 @@
   // Theme selector restored from the stable menu version.
   const themeGrid=$('#themeGrid');
   if(themeGrid){
-    themes.forEach(([id,label,preview])=>{
+    themes.forEach(([id,label,preview,spritePos])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=125" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      if(preview==='theme-user-sprite.jpg'){
+        b.innerHTML=`<span class="theme-sprite-preview" style="background-position:center ${spritePos||'0%'}"></span><span>${label}</span>`;
+      }else{
+        b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=124" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      }
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -453,9 +457,9 @@
     root.dataset.theme=settings.theme||'day';
     root.style.setProperty('--theme-blur',blur+'px');
     const activeTheme=themes.find(([id])=>id===settings.theme);
-    if(activeTheme?.[2]&&String(activeTheme[0]).startsWith('photo-user-')){
-      root.style.setProperty('--theme-photo',`url("${activeTheme[2]}?v=125")`);
-      root.style.setProperty('--theme-photo-position','center');
+    if(activeTheme?.[2]==='theme-user-sprite.jpg'){
+      root.style.setProperty('--theme-photo','url("theme-user-sprite.jpg?v=124")');
+      root.style.setProperty('--theme-photo-position',activeTheme[3]||'0%');
     }else{
       root.style.removeProperty('--theme-photo');
       root.style.removeProperty('--theme-photo-position');
