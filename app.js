@@ -825,7 +825,7 @@
 
     const vw=Math.max(document.documentElement.clientWidth||0,window.innerWidth||0);
     const vh=Math.max(document.documentElement.clientHeight||0,window.innerHeight||0);
-    const scale=Math.min(1.34,(vw-34)/rect.width,(vh-128)/rect.height);
+    const scale=Math.min(1.50,(vw-24)/rect.width,(vh-90)/rect.height);
     const targetLeft=(vw-rect.width)/2;
     const targetTop=Math.max(70,(vh-rect.height)/2-8);
     const tx=targetLeft-rect.left;
@@ -838,14 +838,26 @@
     host.classList.add('gallery-card-flight-host--visible');
 
     if(shell.animate){
-      const midTransform='translate3d('+(tx*.55)+'px,'+(ty*.55)+'px,0) scale('+(1+(scale-1)*.48)+') rotateY(-7deg) rotateZ(1.4deg)';
       const enter=shell.animate([
-        {transform:'translate3d(0,0,0) scale(1) rotateY(0deg) rotateZ(0deg)',offset:0},
-        {transform:midTransform,offset:.52},
-        {transform:endTransform,offset:1}
+        {
+          transform:'translate3d(0,0,0) scale(1) rotateY(0deg) rotateX(0deg) rotateZ(0deg)',
+          offset:0
+        },
+        {
+          transform:'translate3d('+(tx*.28)+'px,'+(ty*.28)+'px,0) scale('+(1+(scale-1)*.18)+') rotateY(-24deg) rotateX(5deg) rotateZ(-1.8deg)',
+          offset:.30
+        },
+        {
+          transform:'translate3d('+(tx*.72)+'px,'+(ty*.72)+'px,0) scale('+(1+(scale-1)*.78)+') rotateY(13deg) rotateX(-3deg) rotateZ(1.4deg)',
+          offset:.70
+        },
+        {
+          transform:endTransform,
+          offset:1
+        }
       ],{
-        duration:560,
-        easing:'cubic-bezier(.20,.78,.20,1)',
+        duration:720,
+        easing:'cubic-bezier(.18,.72,.20,1)',
         fill:'forwards'
       });
       state.animation=enter;
@@ -856,7 +868,7 @@
       state.animation=null;
     }else{
       shell.style.transform=endTransform;
-      await new Promise(r=>setTimeout(r,560));
+      await new Promise(r=>setTimeout(r,720));
       if(state.cancelled)return;
     }
 
@@ -873,21 +885,33 @@
       if(state.cancelled)return;
 
       if(shell.animate){
-        const midBack='translate3d('+(tx*.42)+'px,'+(ty*.42)+'px,0) scale('+(1+(scale-1)*.36)+') rotateY(6deg) rotateZ(-1.1deg)';
         const exit=shell.animate([
-          {transform:endTransform,offset:0},
-          {transform:midBack,offset:.52},
-          {transform:'translate3d(0,0,0) scale(1) rotateY(0deg) rotateZ(0deg)',offset:1}
+          {
+            transform:endTransform,
+            offset:0
+          },
+          {
+            transform:'translate3d('+(tx*.72)+'px,'+(ty*.72)+'px,0) scale('+(1+(scale-1)*.76)+') rotateY(14deg) rotateX(-3deg) rotateZ(1.3deg)',
+            offset:.30
+          },
+          {
+            transform:'translate3d('+(tx*.28)+'px,'+(ty*.28)+'px,0) scale('+(1+(scale-1)*.18)+') rotateY(-22deg) rotateX(5deg) rotateZ(-1.7deg)',
+            offset:.70
+          },
+          {
+            transform:'translate3d(0,0,0) scale(1) rotateY(0deg) rotateX(0deg) rotateZ(0deg)',
+            offset:1
+          }
         ],{
-          duration:500,
-          easing:'cubic-bezier(.30,0,.18,1)',
+          duration:680,
+          easing:'cubic-bezier(.22,.02,.20,1)',
           fill:'forwards'
         });
         state.animation=exit;
         try{await exit.finished}catch{}
       }else{
         shell.style.transform='translate3d(0,0,0) scale(1)';
-        await new Promise(r=>setTimeout(r,500));
+        await new Promise(r=>setTimeout(r,680));
       }
 
       if(activeGalleryPresentation===state){
