@@ -210,3 +210,18 @@ Theme/font changes made from the main-menu Settings panel are intended to remain
 
 ### Continuity rule
 For future chats, treat V113 as the current working baseline unless GitHub main has a newer commit. Always inspect main before making further changes.
+
+
+## V114 hotfix — 2026-10-05
+V113 introduced a dotKiosk/runtime navigation regression: two selector calls inside applyFont/applyTheme were accidentally written as single-element `$` queries and then used with `.forEach`, causing JavaScript execution to stop before section click handlers were registered.
+
+V114 fixes both selectors back to `$$('.font-option')` and `$$('.theme-option')`, preserving the V113 global theme/font behavior while restoring taps/navigation.
+
+Build markers:
+- index __areg_build=114
+- styles.css?v=114
+- app.js?v=114
+- launcher kiosk=v114
+- service worker cache areg-v114-dotkiosk-nav-fix
+
+Treat V114 as the current baseline unless main is newer.
