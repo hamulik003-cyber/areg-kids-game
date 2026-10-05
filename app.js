@@ -23,7 +23,7 @@
   }
   let stars=Number(localStorage.getItem(STARS_KEY)||0);
   const themes=[['day','Օր'],['night','Գիշեր'],['winter','Ձմեռ'],['rain','Անձրև'],['aurora','Բևեռափայլ'],['wood','Փայտ'],['forest','Անտառ'],['ocean','Օվկիանոս'],['sunset','Մայրամուտ'],['space','Տիեզերք']];
-  const fontPresets=[['rounded','Կլոր'],['clean','Մաքուր'],['book','Գրքային'],['classic','Դասական']];
+  const fontPresets=[['rounded','Կլոր','Աա Բբ Գգ'],['clean','Մաքուր','Աա Բբ Գգ'],['book','Գրքային','Աա Բբ Գգ'],['classic','Դասական','Աա Բբ Գգ']];
   let currentSection='nature', currentGame=null, gameCleanup=[];
 
   const MAGIC_UNLOCK_KEY='areg-magic-unlocked-v1';
@@ -405,13 +405,13 @@
   }
   const fontGrid=$('#fontGrid');
   if(fontGrid){
-    fontPresets.forEach(([id,label])=>{
+    fontPresets.forEach(([id,label,sample])=>{
       const b=document.createElement('button');
       b.type='button';
       b.className='font-option';
       b.dataset.font=id;
       b.setAttribute('aria-label',`Տառաձև՝ ${label}`);
-      b.innerHTML=`<span class="font-option-sample">${label}</span>`;
+      b.innerHTML=`<span class="font-option-title">${label}</span><span class="font-option-sample">${sample}</span>`;
       b.addEventListener('click',()=>{settings.font=id;saveSettings();applyFont()});
       fontGrid.appendChild(b);
     });
