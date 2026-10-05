@@ -2751,7 +2751,7 @@ html[data-font="classic"]{
 
 
 /* =========================================================
-   V97 — CINEMATIC CARD PRESENTATION
+   V98 — LARGER CINEMATIC 3D CARD PRESENTATION
    Tap -> lift/3D travel to center -> voice/sound -> smooth return.
    Current gallery card design remains untouched.
    ========================================================= */
@@ -2773,7 +2773,7 @@ html[data-font="classic"]{
   background:rgba(55,32,14,0) !important;
   backdrop-filter:blur(0) !important;
   -webkit-backdrop-filter:blur(0) !important;
-  perspective:1100px !important;
+  perspective:850px !important;
   transition:
     background .34s ease,
     backdrop-filter .34s ease,
@@ -2813,6 +2813,21 @@ html[data-font="classic"]{
   pointer-events:none !important;
   transform:none !important;
   transform-origin:center center !important;
+  transform-style:preserve-3d !important;
+  backface-visibility:hidden !important;
+  -webkit-backface-visibility:hidden !important;
+}
+
+.gallery-card-flight-shell > .animal-card .animal-image-wrap{
+  transform:translateZ(9px) !important;
+  backface-visibility:hidden !important;
+  -webkit-backface-visibility:hidden !important;
+}
+
+.gallery-card-flight-shell > .animal-card .animal-meta{
+  transform:translateZ(14px) !important;
+  backface-visibility:hidden !important;
+  -webkit-backface-visibility:hidden !important;
 }
 
 .gallery-card-flight-shell > .animal-card.animal-card--focus{
