@@ -3021,13 +3021,13 @@ html[data-font="classic"]{
   overflow:hidden !important;
   border:1px solid rgba(203,145,78,.42) !important;
   border-radius:18px !important;
-  background:
-    linear-gradient(180deg,var(--section-card-accent-soft) 0%,rgba(255,255,255,0) 40%),
-    linear-gradient(180deg,#ffe7bf 0%,#f1c985 100%) !important;
+  background:linear-gradient(180deg,#ffe9c5 0%,#f5d292 55%,#efc37a 100%) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
   box-shadow:
-    inset 0 2px 0 rgba(255,251,239,.96),
-    inset 0 -2px 0 rgba(165,102,47,.18),
-    0 2px 0 rgba(157,95,41,.13) !important;
+    inset 0 2px 0 rgba(255,251,239,.98),
+    inset 0 -2px 0 rgba(165,102,47,.20),
+    0 2px 0 rgba(157,95,41,.14) !important;
   color:#55250f !important;
   text-align:center !important;
   font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
@@ -3069,4 +3069,23 @@ html[data-font="classic"]{
     right:9px !important;
     bottom:9px !important;
   }
+}
+
+
+/* =========================================================
+   V108 — SOLID INNER SECTION LABELS
+   Remove the glassy look from section game labels and match
+   the solid cream/wood label treatment used on the home menu.
+   ========================================================= */
+.section-games-grid .toddler-game-label{
+  opacity:1 !important;
+  background:linear-gradient(180deg,#ffe9c5 0%,#f5d292 55%,#efc37a 100%) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  border-color:rgba(203,145,78,.48) !important;
+}
+.section-games-grid .toddler-game-label::before,
+.section-games-grid .toddler-game-label::after{
+  content:none !important;
+  display:none !important;
 }
