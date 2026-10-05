@@ -398,7 +398,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=80" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=84" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -697,6 +697,42 @@
     return '16.5px';
   }
 
+  function hardCenterGalleryCard(card){
+    const meta=card.querySelector('.animal-meta');
+    const name=card.querySelector('.animal-name');
+    const type=card.querySelector('.animal-type');
+    if(meta){
+      meta.style.setProperty('position','absolute','important');
+    }
+    if(name){
+      name.style.setProperty('position','absolute','important');
+      name.style.setProperty('top','6px','important');
+      name.style.setProperty('left','0','important');
+      name.style.setProperty('right','0','important');
+      name.style.setProperty('bottom','38px','important');
+      name.style.setProperty('width','auto','important');
+      name.style.setProperty('max-width','none','important');
+      name.style.setProperty('margin','0','important');
+      name.style.setProperty('padding','0 8px','important');
+      name.style.setProperty('box-sizing','border-box','important');
+      name.style.setProperty('display','flex','important');
+      name.style.setProperty('align-items','center','important');
+      name.style.setProperty('justify-content','center','important');
+      name.style.setProperty('text-align','center','important');
+      name.style.setProperty('text-indent','0','important');
+      name.style.setProperty('transform','none','important');
+    }
+    if(type){
+      type.style.setProperty('position','absolute','important');
+      type.style.setProperty('left','50%','important');
+      type.style.setProperty('right','auto','important');
+      type.style.setProperty('bottom','8px','important');
+      type.style.setProperty('top','auto','important');
+      type.style.setProperty('margin','0','important');
+      type.style.setProperty('transform','translateX(-50%)','important');
+    }
+  }
+
   function gameAnimalGallery(){
     warmAnimalAudioCache();
     activityContent.innerHTML='';
@@ -719,13 +755,14 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=80" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=84" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
           <strong class="animal-name">${animal.name}</strong>
           <small class="animal-type animal-type--${animal.type==='ընտանի'?'domestic':'wild'}">${animal.type}</small>
         </span>`;
+      hardCenterGalleryCard(card);
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
@@ -922,13 +959,14 @@
       card.setAttribute('aria-label',`${bird.name}, ${bird.type} թռչուն`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${bird.image}?v=80" alt="${bird.name}" draggable="false">
+          <img src="${bird.image}?v=84" alt="${bird.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
           <strong class="animal-name">${bird.name}</strong>
           <small class="animal-type animal-type--${bird.type==='ընտանի'?'domestic':'wild'}">${bird.type}</small>
         </span>`;
+      hardCenterGalleryCard(card);
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
@@ -1071,13 +1109,14 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=80" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=84" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
           <strong class="animal-name">${creature.name}</strong>
           <small class="animal-type animal-type--sea" style="background:${palette.badge}">${creature.type}</small>
         </span>`;
+      hardCenterGalleryCard(card);
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
@@ -1221,13 +1260,14 @@
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=80" alt="${insect.name}" draggable="false">
+          <img src="${insect.image}?v=84" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
           <strong class="animal-name">${insect.name}</strong>
           <small class="animal-type animal-type--insect" style="background:${palette.badge}">${insect.type}</small>
         </span>`;
+      hardCenterGalleryCard(card);
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
@@ -1456,7 +1496,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=80" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=84" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
