@@ -3494,3 +3494,197 @@ textarea,
 .font-option[data-font="rounded"]{
   font-family:ui-rounded,"Arial Rounded MT Bold","SF Pro Rounded","Noto Sans Armenian",Arial,sans-serif !important;
 }
+
+
+/* =========================================================
+   V78 — text-fit + accent refinement
+   - remove ellipsis on all card names
+   - enlarge/clarify sea & insect labels
+   - subtle type-colored 3D accent on the lower text panel
+   - keep approved unified card look
+   ========================================================= */
+
+.animal-card,
+.animal-gallery--sea .animal-card,
+.animal-gallery--insect .animal-card,
+.animal-card--bird{
+  --v78-image-h:62%;
+}
+
+.animal-image-wrap,
+.animal-gallery--sea .animal-image-wrap{
+  height:var(--v78-image-h) !important;
+}
+
+.animal-meta,
+.animal-gallery--sea .animal-meta,
+.animal-gallery--insect .animal-meta,
+.animal-card--bird .animal-meta{
+  height:calc(100% - var(--v78-image-h) - 26px) !important;
+  min-height:90px !important;
+  gap:7px !important;
+  padding:12px 10px 12px !important;
+  border-top:1px solid rgba(255,245,225,.75) !important;
+  background:
+    linear-gradient(180deg,var(--animal-accent-soft,rgba(255,214,147,.18)) 0px, rgba(255,255,255,0) 28px),
+    linear-gradient(180deg,#f6debb 0%, #e9c07e 100%) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,248,229,.94),
+    inset 0 -2px 0 rgba(182,122,65,.32),
+    inset 0 10px 18px rgba(255,255,255,.16),
+    0 -1px 0 rgba(217,183,124,.65) !important;
+}
+
+.animal-meta::before{
+  content:'';
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:0;
+  height:5px;
+  border-radius:0 0 12px 12px;
+  background:var(--animal-accent,#d8a05c);
+  box-shadow:0 1px 0 rgba(255,255,255,.35);
+  opacity:.9;
+}
+
+.animal-name,
+.animal-gallery--sea .animal-name,
+.animal-gallery--insect .animal-name,
+.animal-card--bird .animal-name{
+  overflow:visible !important;
+  text-overflow:clip !important;
+  white-space:normal !important;
+  display:block !important;
+  -webkit-box-orient:initial !important;
+  -webkit-line-clamp:unset !important;
+  line-clamp:unset !important;
+  font-size:18.5px !important;
+  line-height:1.06 !important;
+  min-height:44px !important;
+  padding:0 6px !important;
+}
+
+.animal-card--sea .animal-name,
+.animal-gallery--sea .animal-name,
+.animal-gallery--insect .animal-name{
+  font-size:17px !important;
+  min-height:48px !important;
+}
+
+.animal-type,
+.animal-gallery--sea .animal-type,
+.animal-gallery--insect .animal-type,
+.animal-card--bird .animal-type{
+  min-width:90px !important;
+  height:29px !important;
+  padding:0 13px !important;
+  font-size:14px !important;
+  margin-top:auto !important;
+}
+
+.animal-card--sea .animal-type,
+.animal-gallery--insect .animal-type{
+  min-width:88px !important;
+  height:26px !important;
+  padding:0 12px !important;
+  font-size:12.8px !important;
+}
+
+/* Long names — keep complete words visible, never with ellipsis. */
+.animal-card--bird[data-bird="bald-eagle"] .animal-name{
+  font-size:15.2px !important;
+  line-height:1.05 !important;
+  min-height:50px !important;
+}
+
+.animal-card[data-animal="polar-bear"] .animal-name{
+  font-size:16px !important;
+  min-height:48px !important;
+}
+
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
+  font-size:15px !important;
+  line-height:1.04 !important;
+  min-height:52px !important;
+}
+
+.animal-card[data-sea-creature="shrimp"] .animal-name,
+.animal-card[data-sea-creature="sea-otter"] .animal-name,
+.animal-card[data-sea-creature="lionfish"] .animal-name,
+.animal-card[data-sea-creature="sea-turtle"] .animal-name,
+.animal-card[data-sea-creature="clownfish"] .animal-name,
+.animal-card[data-sea-creature="anglerfish"] .animal-name,
+.animal-card[data-sea-creature="sterlet"] .animal-name,
+.animal-card[data-sea-creature="cuttlefish"] .animal-name,
+.animal-card[data-sea-creature="manatee"] .animal-name,
+.animal-card[data-sea-creature="orca"] .animal-name{
+  font-size:15.8px !important;
+  line-height:1.05 !important;
+}
+
+.animal-card[data-insect-id="praying-mantis"] .animal-name,
+.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+.animal-card[data-insect-id="may-beetle"] .animal-name,
+.animal-card[data-insect-id="colorado-beetle"] .animal-name,
+.animal-card[data-insect-id="bark-beetle"] .animal-name,
+.animal-card[data-insect-id="flower-butterfly"] .animal-name{
+  font-size:15.5px !important;
+  line-height:1.05 !important;
+}
+
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
+  font-size:14.2px !important;
+  line-height:1.04 !important;
+  min-height:54px !important;
+}
+
+@media (max-width:380px){
+  .animal-card{height:298px !important;}
+  .animal-name,
+  .animal-gallery--sea .animal-name,
+  .animal-gallery--insect .animal-name,
+  .animal-card--bird .animal-name{
+    font-size:17px !important;
+    min-height:42px !important;
+  }
+  .animal-card--sea .animal-name,
+  .animal-gallery--sea .animal-name,
+  .animal-gallery--insect .animal-name{
+    font-size:15.8px !important;
+    min-height:46px !important;
+  }
+  .animal-type,
+  .animal-gallery--sea .animal-type,
+  .animal-gallery--insect .animal-type,
+  .animal-card--bird .animal-type{
+    font-size:12.8px !important;
+    min-width:84px !important;
+    height:27px !important;
+  }
+  .animal-card--sea .animal-type,
+  .animal-gallery--insect .animal-type{
+    font-size:12.2px !important;
+    min-width:82px !important;
+    height:25px !important;
+  }
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:14.4px !important;min-height:48px !important;}
+  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:14.2px !important;min-height:50px !important;}
+  .animal-card[data-sea-creature="shrimp"] .animal-name,
+  .animal-card[data-sea-creature="sea-otter"] .animal-name,
+  .animal-card[data-sea-creature="lionfish"] .animal-name,
+  .animal-card[data-sea-creature="sea-turtle"] .animal-name,
+  .animal-card[data-sea-creature="clownfish"] .animal-name,
+  .animal-card[data-sea-creature="anglerfish"] .animal-name,
+  .animal-card[data-sea-creature="sterlet"] .animal-name,
+  .animal-card[data-sea-creature="cuttlefish"] .animal-name,
+  .animal-card[data-sea-creature="manatee"] .animal-name,
+  .animal-card[data-sea-creature="orca"] .animal-name{font-size:14.8px !important;}
+  .animal-card[data-insect-id="praying-mantis"] .animal-name,
+  .animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+  .animal-card[data-insect-id="may-beetle"] .animal-name,
+  .animal-card[data-insect-id="colorado-beetle"] .animal-name,
+  .animal-card[data-insect-id="bark-beetle"] .animal-name,
+  .animal-card[data-insect-id="flower-butterfly"] .animal-name{font-size:14.8px !important;}
+  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:13.5px !important;min-height:52px !important;}
+}
