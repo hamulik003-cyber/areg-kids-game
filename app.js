@@ -131,9 +131,9 @@
     "wolf":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/2e22f1b3-ecd4-4772-94be-e2192a920d6d/AREG_V56_FINAL_wolf_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNzY4M2FhNDBjYjU2ZjYyZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2MTg4OH0.c5S_SKshdRSRTVjkJlKd3eLZkOO4pzs-bF9VMJAMQUQ",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/eb752af2-4cb7-4655-8779-2367208ae43e/AREG_V56_wolf_corrected_animal_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTM2MDdjNDAxMTIxMzczOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIxNDI3Mn0.2OBVjqgz3vpCRjosYYRf3BdAFqkW1ldqF8xu_AuzQAE"},
     "lynx":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/4c008df8-2499-4973-b369-5783442ef319/AREG_V56_FINAL_lynx_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDlhMzJiYTVjOGFhOTczOSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0MTUwOX0.2LiBsCcBJdfuLfL8xfB9M-zbi4kKcMTRz2Pctwri6TI",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/26f78256-3c24-424b-9f49-e2e824c0e4f5/AREG_animal_lynx_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiM2VjY2MyYTdiMDAzYTQ1MyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzM2N30.vbzgHStPxGSFMH-8lbMAKaU3F4_C8Ul7zl8Qyj8bcOA"},
     "cow":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/335cae80-a8ef-4044-a5fd-7cd352e2e537/AREG_cow_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDUzZWViYWI0ZTA5NTFjNSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2MTg2N30.cBzAh4y7mZKctYaImoHVjjMSpamOZe-XsSjRo8vHT78",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/99c19d9b-d9b6-4158-aa4b-17c885551355/AREG_animal_cow_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzNlZmI5YWZjNmVjOWZhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0OTQ1NX0.w9MMqZs_4UF6_4CjNWolzv01zJ-dVIZc841b6m8-9RA"},
-    "horse":{voice:"audio/animals/horse-voice.mp3?v=96",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/cb93da8b-c556-4785-9dfc-d0aac9b1cd42/AREG_animal_horse_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmJhYjE3MzM3OTUyNWJhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1NzAxMX0.4qBRxVC1YXjP8zzsvptgErnbpGv-_GETKBpD-SwJ0U8"},
+    "horse":{voice:"audio/animals/horse-voice.mp3?v=97",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/cb93da8b-c556-4785-9dfc-d0aac9b1cd42/AREG_animal_horse_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmJhYjE3MzM3OTUyNWJhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1NzAxMX0.4qBRxVC1YXjP8zzsvptgErnbpGv-_GETKBpD-SwJ0U8"},
     "goat":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/07b56df6-896c-4699-a2f6-e189623e2eac/AREG_goat_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjUzODA0MjA1MDVkNmQ3NSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyNDk5Mn0.1wPbICg6SwzOsfLQwpyUApcr3DYJMBT4WxBDhgOisO8",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/75a5b693-459f-41a7-81e6-f528b30a66c8/AREG_animal_goat_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjEzYTQyODNiZGI3NzE4MiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2MDU0N30.6b71i1t70WYvbhycplIT8Ips5lmyBlvzwHF64ZwSWYM"},
-    "camel":{voice:"audio/animals/camel-voice.mp3?v=96",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/f20eb156-96bd-4b0f-bbab-bb11adf9e0e3/AREG_animal_camel_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDJlMjMzMGUxZjY3MzI1OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzOTQzOH0.YlyyGT8jTBBrSbp1jkXjlHJI9Jl37ogoBgICWZB6B5I"},
+    "camel":{voice:"audio/animals/camel-voice.mp3?v=97",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/f20eb156-96bd-4b0f-bbab-bb11adf9e0e3/AREG_animal_camel_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDJlMjMzMGUxZjY3MzI1OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzOTQzOH0.YlyyGT8jTBBrSbp1jkXjlHJI9Jl37ogoBgICWZB6B5I"},
     "sheep":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/5d577ef3-30c9-4aee-9d2a-9e411ecf26da/AREG_V56_FINAL_sheep_Armenian_stressed_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzQwZDRmMTNmMzgyMmI4YyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzM0N30.a1EH-7fHaiJEG4ovRH4Z7A2KN-7VrnouFas3XzZAfoo",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/5548673e-79e9-4484-aa82-8f2d426f540d/AREG_animal_sheep_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzgyYTZmZTI4OTY4YTlmMyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3Mzk1NH0.cyW7Zh7keEIi2PPmFEMvK4VXZHby9Y78hiA7u-oqB8g"},
     "cat":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/38f0194b-b2dc-47ea-b900-ec54697a8408/AREG_cat_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODU0NTAwN2I2ZDJlYzM3MyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI3NzQzNX0.Ko1IJZdJZ93ahXcj9RVarLQg6Ie_2dzZSRl2bHanMUA",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/b39c50dd-941a-4664-83e6-033df8494d55/AREG_animal_cat_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNWUzZGZlYWJiZWIxNjZiZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NTk5NX0.6Ouq8cOFDibU5YIIPtD1M8aF0ekuEQ06KiCyX9I2mtc"},
     "tiger":{voice:"https://dnznrvs05pmza.cloudfront.net/text_to_speech/62f1a0e3-5451-4fa2-9792-3b85b9ae4bf5/AREG_tiger_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYWY3ZjYxMzg4MGMyODBhZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI2NjM2MH0.tR7KlVHAJ_BCxq5jIZmmizkTngYzXXfBU24X--Z9ugk",sound:"https://dnznrvs05pmza.cloudfront.net/audio_sfx/f08f3336-777f-4b67-92e6-fd3ee316d705/AREG_animal_tiger_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZDZhY2U1MWM3YmEyNmM0NyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIyOTQ2OH0.23XT92b30RdrCFZjjFWFPOQvqTx77scJVNrij2izVMU"},
@@ -767,6 +767,139 @@
     }
   }
 
+  let activeGalleryPresentation=null;
+
+  function cancelGalleryCardPresentation(){
+    const state=activeGalleryPresentation;
+    if(!state)return;
+    state.cancelled=true;
+    try{state.animation?.cancel()}catch{}
+    try{state.host?.remove()}catch{}
+    try{
+      state.original?.style.removeProperty('opacity');
+      state.original?.style.removeProperty('pointer-events');
+    }catch{}
+    activeGalleryPresentation=null;
+  }
+
+  async function presentGalleryCard(card,runSequence){
+    if(!card||typeof runSequence!=='function')return;
+    cancelGalleryCardPresentation();
+
+    const rect=card.getBoundingClientRect();
+    if(!rect.width||!rect.height){
+      await runSequence(card);
+      return;
+    }
+
+    const host=document.createElement('div');
+    host.className='animal-gallery gallery-card-flight-host';
+    host.setAttribute('aria-hidden','true');
+
+    const shell=document.createElement('div');
+    shell.className='gallery-card-flight-shell';
+    shell.style.setProperty('left',rect.left+'px');
+    shell.style.setProperty('top',rect.top+'px');
+    shell.style.setProperty('width',rect.width+'px');
+    shell.style.setProperty('height',rect.height+'px');
+
+    const accent=getComputedStyle(card).getPropertyValue('--animal-accent').trim();
+    const accentSoft=getComputedStyle(card).getPropertyValue('--animal-accent-soft').trim();
+    if(accent)shell.style.setProperty('--animal-accent',accent);
+    if(accentSoft)shell.style.setProperty('--animal-accent-soft',accentSoft);
+
+    const clone=card.cloneNode(true);
+    clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+    clone.tabIndex=-1;
+    clone.style.setProperty('width','100%','important');
+    clone.style.setProperty('height','100%','important');
+    clone.style.setProperty('min-height','0','important');
+    clone.style.setProperty('max-height','none','important');
+    clone.style.setProperty('pointer-events','none','important');
+    shell.appendChild(clone);
+    host.appendChild(shell);
+    document.body.appendChild(host);
+
+    card.style.setProperty('opacity','0','important');
+    card.style.setProperty('pointer-events','none','important');
+
+    const vw=Math.max(document.documentElement.clientWidth||0,window.innerWidth||0);
+    const vh=Math.max(document.documentElement.clientHeight||0,window.innerHeight||0);
+    const scale=Math.min(1.34,(vw-34)/rect.width,(vh-128)/rect.height);
+    const targetLeft=(vw-rect.width)/2;
+    const targetTop=Math.max(70,(vh-rect.height)/2-8);
+    const tx=targetLeft-rect.left;
+    const ty=targetTop-rect.top;
+
+    const endTransform='translate3d('+tx+'px,'+ty+'px,0) scale('+scale+') rotateY(0deg) rotateZ(0deg)';
+    const state={host,shell,original:card,clone,cancelled:false,animation:null,endTransform};
+    activeGalleryPresentation=state;
+
+    host.classList.add('gallery-card-flight-host--visible');
+
+    if(shell.animate){
+      const midTransform='translate3d('+(tx*.55)+'px,'+(ty*.55)+'px,0) scale('+(1+(scale-1)*.48)+') rotateY(-7deg) rotateZ(1.4deg)';
+      const enter=shell.animate([
+        {transform:'translate3d(0,0,0) scale(1) rotateY(0deg) rotateZ(0deg)',offset:0},
+        {transform:midTransform,offset:.52},
+        {transform:endTransform,offset:1}
+      ],{
+        duration:560,
+        easing:'cubic-bezier(.20,.78,.20,1)',
+        fill:'forwards'
+      });
+      state.animation=enter;
+      try{await enter.finished}catch{}
+      if(state.cancelled)return;
+      shell.style.transform=endTransform;
+      try{enter.cancel()}catch{}
+      state.animation=null;
+    }else{
+      shell.style.transform=endTransform;
+      await new Promise(r=>setTimeout(r,560));
+      if(state.cancelled)return;
+    }
+
+    shell.classList.add('gallery-card-flight-shell--arrived');
+    await new Promise(r=>setTimeout(r,90));
+    if(state.cancelled)return;
+
+    try{
+      await runSequence(clone);
+    }finally{
+      if(state.cancelled)return;
+      shell.classList.remove('gallery-card-flight-shell--arrived');
+      await new Promise(r=>setTimeout(r,110));
+      if(state.cancelled)return;
+
+      if(shell.animate){
+        const midBack='translate3d('+(tx*.42)+'px,'+(ty*.42)+'px,0) scale('+(1+(scale-1)*.36)+') rotateY(6deg) rotateZ(-1.1deg)';
+        const exit=shell.animate([
+          {transform:endTransform,offset:0},
+          {transform:midBack,offset:.52},
+          {transform:'translate3d(0,0,0) scale(1) rotateY(0deg) rotateZ(0deg)',offset:1}
+        ],{
+          duration:500,
+          easing:'cubic-bezier(.30,0,.18,1)',
+          fill:'forwards'
+        });
+        state.animation=exit;
+        try{await exit.finished}catch{}
+      }else{
+        shell.style.transform='translate3d(0,0,0) scale(1)';
+        await new Promise(r=>setTimeout(r,500));
+      }
+
+      if(activeGalleryPresentation===state){
+        host.classList.remove('gallery-card-flight-host--visible');
+        try{host.remove()}catch{}
+        card.style.removeProperty('opacity');
+        card.style.removeProperty('pointer-events');
+        activeGalleryPresentation=null;
+      }
+    }
+  }
+
   function gameAnimalGallery(){
     warmAnimalAudioCache();
     activityContent.innerHTML='';
@@ -817,7 +950,7 @@
         card.classList.remove('animal-card--pressing');
         const shouldPlay=!moved;
         downPointer=null;
-        if(shouldPlay)playAnimalSequence(animal,card);
+        if(shouldPlay)presentGalleryCard(card,clone=>playAnimalSequence(animal,clone));
       });
       card.addEventListener('pointercancel',()=>{
         downPointer=null;moved=true;card.classList.remove('animal-card--pressing');
@@ -826,7 +959,7 @@
         if(downPointer!==null)card.classList.remove('animal-card--pressing');
       });
       card.addEventListener('click',e=>{
-        if(e.detail===0)playAnimalSequence(animal,card);
+        if(e.detail===0)presentGalleryCard(card,clone=>playAnimalSequence(animal,clone));
       });
 
       wrap.appendChild(card);
@@ -835,7 +968,7 @@
     activityContent.appendChild(wrap);
 
     gameCleanup.push(()=>{
-
+      cancelGalleryCardPresentation();
       stopAnimalPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -1031,7 +1164,7 @@
         card.classList.remove('animal-card--pressing');
         const shouldPlay=!moved;
         downPointer=null;
-        if(shouldPlay)playBirdSequence(bird,card);
+        if(shouldPlay)presentGalleryCard(card,clone=>playBirdSequence(bird,clone));
       });
       card.addEventListener('pointercancel',()=>{
         downPointer=null;moved=true;card.classList.remove('animal-card--pressing');
@@ -1040,7 +1173,7 @@
         if(downPointer!==null)card.classList.remove('animal-card--pressing');
       });
       card.addEventListener('click',e=>{
-        if(e.detail===0)playBirdSequence(bird,card);
+        if(e.detail===0)presentGalleryCard(card,clone=>playBirdSequence(bird,clone));
       });
 
       wrap.appendChild(card);
@@ -1049,6 +1182,7 @@
     activityContent.appendChild(wrap);
 
     gameCleanup.push(()=>{
+      cancelGalleryCardPresentation();
       stopBirdPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -1167,7 +1301,7 @@
         card.classList.remove('animal-card--pressing');
         const shouldPlay=!moved;
         downPointer=null;
-        if(shouldPlay)playSeaSequence(creature,card);
+        if(shouldPlay)presentGalleryCard(card,clone=>playSeaSequence(creature,clone));
       });
       card.addEventListener('pointercancel',()=>{
         downPointer=null;moved=true;card.classList.remove('animal-card--pressing');
@@ -1176,7 +1310,7 @@
         if(downPointer!==null)card.classList.remove('animal-card--pressing');
       });
       card.addEventListener('click',e=>{
-        if(e.detail===0)playSeaSequence(creature,card);
+        if(e.detail===0)presentGalleryCard(card,clone=>playSeaSequence(creature,clone));
       });
 
       wrap.appendChild(card);
@@ -1185,6 +1319,7 @@
     activityContent.appendChild(wrap);
 
     gameCleanup.push(()=>{
+      cancelGalleryCardPresentation();
       stopSeaPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
@@ -1304,7 +1439,7 @@
         card.classList.remove('animal-card--pressing');
         const shouldPlay=!moved;
         downPointer=null;
-        if(shouldPlay)playInsectSequence(insect,card);
+        if(shouldPlay)presentGalleryCard(card,clone=>playInsectSequence(insect,clone));
       });
       card.addEventListener('pointercancel',()=>{
         downPointer=null;moved=true;card.classList.remove('animal-card--pressing');
@@ -1313,7 +1448,7 @@
         if(downPointer!==null)card.classList.remove('animal-card--pressing');
       });
       card.addEventListener('click',e=>{
-        if(e.detail===0)playInsectSequence(insect,card);
+        if(e.detail===0)presentGalleryCard(card,clone=>playInsectSequence(insect,clone));
       });
 
       wrap.appendChild(card);
@@ -1322,6 +1457,7 @@
     activityContent.appendChild(wrap);
 
     gameCleanup.push(()=>{
+      cancelGalleryCardPresentation();
       stopInsectPlayback({restoreMusic:true});
       try{speechSynthesis?.cancel()}catch{}
       activityContent.classList.remove('animal-gallery-mode');
