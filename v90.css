@@ -1,0 +1,47 @@
+/* V90 — soft glow from the exact card edges */
+.animal-gallery .animal-card::before,
+.animal-gallery .animal-card::after,
+.animal-gallery .animal-card--focus::before,
+.animal-gallery .animal-card--focus::after,
+.animal-gallery .animal-card--pressing::before,
+.animal-gallery .animal-card--pressing::after{
+  content:none !important;
+  display:none !important;
+}
+
+.animal-gallery .animal-card .animal-focus-rim{
+  display:none !important;
+}
+
+.animal-gallery .animal-card--pressing{
+  overflow:visible !important;
+  z-index:35 !important;
+  transform:translateY(-2px) scale(1.012) !important;
+  outline:none !important;
+  border-color:transparent !important;
+  filter:none !important;
+  box-shadow:
+    0 7px 0 #a9652f,
+    0 0 0 2px color-mix(in srgb,var(--animal-accent,#ffd66f) 72%,white),
+    0 0 8px 2px var(--animal-accent-soft,rgba(255,214,147,.20)),
+    0 10px 18px rgba(63,31,11,.14),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+
+.animal-gallery .animal-card--focus{
+  overflow:visible !important;
+  z-index:50 !important;
+  transform:translateY(-3px) scale(1.022) !important;
+  outline:none !important;
+  border-color:transparent !important;
+  filter:none !important;
+  box-shadow:
+    0 7px 0 #a9652f,
+    0 0 0 2px color-mix(in srgb,var(--animal-accent,#ffd66f) 76%,white),
+    0 0 8px 3px var(--animal-accent-soft,rgba(255,214,147,.24)),
+    0 0 16px 6px var(--animal-accent-soft,rgba(255,214,147,.16)),
+    0 12px 22px rgba(63,31,11,.16),
+    inset 0 2px 0 rgba(255,250,238,.96),
+    inset 0 -2px 0 rgba(151,83,31,.18) !important;
+}
