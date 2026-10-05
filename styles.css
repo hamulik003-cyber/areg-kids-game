@@ -3341,22 +3341,6 @@ html[data-theme] .score-badge{
     inset 0 1px 0 rgba(255,255,255,.48) !important;
 }
 
-html[data-theme] .toddler-game-card{
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb,var(--panel) 90%,white) 0%,
-      color-mix(in srgb,var(--panel) 82%,var(--bg-1)) 68%,
-      color-mix(in srgb,var(--panel-2) 82%,var(--bg-2)) 68%,
-      color-mix(in srgb,var(--button) 84%,var(--bg-3)) 100%
-    ) !important;
-  border-color:color-mix(in srgb,var(--panel-2) 54%,white) !important;
-  box-shadow:
-    0 6px 0 color-mix(in srgb,var(--button-dark) 70%,transparent),
-    0 12px 22px rgba(20,8,4,.15),
-    inset 0 0 0 2px color-mix(in srgb,var(--panel-2) 24%,transparent) !important;
-}
-html[data-theme] .toddler-game-label,
 html[data-theme] .activity-section-title,
 html[data-theme] .activity-title,
 html[data-theme] .game-help,
@@ -3427,96 +3411,4 @@ html[data-theme] .animal-gallery--insect{
 }
 
 
-/* =========================================================
-   V115 — keep section icon cards original; theme only behind them
-   ========================================================= */
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card{
-  background:linear-gradient(180deg,#fff2db 0%,#f7d7a8 68%,#efad65 68%,#e99a52 100%) !important;
-  border-color:rgba(255,213,144,.95) !important;
-  box-shadow:
-    0 6px 0 rgba(142,78,38,.78),
-    0 12px 22px rgba(20,8,4,.17),
-    inset 0 0 0 2px rgba(121,70,34,.14) !important;
-}
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card:active{
-  box-shadow:
-    0 3px 0 rgba(142,78,38,.78),
-    0 7px 14px rgba(20,8,4,.16),
-    inset 0 0 0 2px rgba(121,70,34,.14) !important;
-}
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-label{
-  color:#51220f !important;
-}
 
-
-/* =========================================================
-   V116 — inner 4-game tiles match HOME card tone/proportions
-   Theme still affects only the section background, not tiles.
-   ========================================================= */
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card{
-  background:linear-gradient(180deg,#ffdda0 0%,#f2bd69 54%,#eaae55 100%) !important;
-  border:0 !important;
-  border-radius:28px !important;
-  box-shadow:
-    0 7px 0 #a9652f,
-    0 13px 20px rgba(72,38,16,.16),
-    inset 0 3px 0 rgba(255,248,226,.94),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
-}
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card img{
-  left:10px !important;
-  right:10px !important;
-  top:10px !important;
-  width:calc(100% - 20px) !important;
-  height:calc(100% - 104px) !important;
-  object-fit:cover !important;
-  object-position:center center !important;
-  border:4px solid #fffdfa !important;
-  border-radius:21px !important;
-  background:#eef7ff !important;
-  box-shadow:
-    0 0 0 3px rgba(246,220,174,.96),
-    0 4px 0 rgba(159,98,44,.18),
-    inset 0 1px 0 rgba(255,255,255,.95) !important;
-}
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-label{
-  left:10px !important;
-  right:10px !important;
-  bottom:10px !important;
-  height:72px !important;
-  min-height:72px !important;
-  padding:5px 10px !important;
-  border:1px solid rgba(203,145,78,.42) !important;
-  border-radius:20px !important;
-  background:
-    linear-gradient(180deg,var(--section-card-accent-soft) 0%,rgba(255,255,255,0) 42%),
-    linear-gradient(180deg,#ffe7bf 0%,#f1c985 100%) !important;
-  box-shadow:
-    inset 0 2px 0 rgba(255,251,239,.96),
-    inset 0 -2px 0 rgba(165,102,47,.18),
-    0 2px 0 rgba(157,95,41,.13) !important;
-  color:#55250f !important;
-}
-html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card:active{
-  box-shadow:
-    0 4px 0 #a9652f,
-    0 8px 15px rgba(72,38,16,.15),
-    inset 0 3px 0 rgba(255,248,226,.94),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
-}
-@media (max-height:760px){
-  html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card img{
-    left:9px !important;
-    right:9px !important;
-    top:9px !important;
-    width:calc(100% - 18px) !important;
-    height:calc(100% - 98px) !important;
-  }
-  html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-label{
-    left:9px !important;
-    right:9px !important;
-    bottom:9px !important;
-    height:68px !important;
-    min-height:68px !important;
-  }
-}
