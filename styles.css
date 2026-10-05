@@ -3287,3 +3287,142 @@ html[data-font="classic"]{
   .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:12.5px !important}
   .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:12.7px !important}
 }
+
+
+/* =========================================================
+   V75 — keep 2-column V71 cards, but show full images
+   and keep all names fully on the beige lower panel.
+   ========================================================= */
+
+.animal-card{
+  --v75-image-h:69%;
+}
+.animal-card--sea,
+.animal-gallery--insect .animal-card,
+.animal-card[data-animal="polar-bear"]{
+  --v75-image-h:67%;
+}
+.animal-card--bird[data-bird="bald-eagle"],
+.animal-card--bird[data-bird="guinea-fowl"]{
+  --v75-image-h:65%;
+}
+
+/* Preserve the V71 2-column card sizes, but stop cropping/zooming images. */
+.animal-image-wrap{
+  top:5px !important;
+  height:var(--v75-image-h) !important;
+  bottom:auto !important;
+}
+.animal-image-wrap img{
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  padding:2px !important;
+}
+.animal-card--pressing .animal-image-wrap img,
+.animal-card--focus .animal-image-wrap img{
+  transform:none !important;
+}
+
+/* Start the beige text panel only below the image area. */
+.animal-meta,
+.animal-gallery--insect .animal-meta,
+.animal-card--sea .animal-meta,
+.animal-card--bird[data-bird="bald-eagle"] .animal-meta,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-meta,
+.animal-card[data-animal="polar-bear"] .animal-meta{
+  top:calc(var(--v75-image-h) + 7px) !important;
+  bottom:4px !important;
+  height:auto !important;
+  left:6px !important;
+  right:6px !important;
+  justify-content:flex-start !important;
+  gap:2px !important;
+  padding:4px 5px 6px !important;
+}
+
+/* Names must stay fully on the beige panel. */
+.animal-name{
+  margin:0 !important;
+  min-height:0 !important;
+  line-height:1.03 !important;
+  padding:0 8px !important;
+  font-size:16px !important;
+  -webkit-line-clamp:2 !important;
+}
+.animal-gallery--insect .animal-name,
+.animal-card--sea .animal-name{
+  font-size:14.2px !important;
+  line-height:1.02 !important;
+  -webkit-line-clamp:3 !important;
+}
+.animal-type{
+  margin-top:auto !important;
+  height:19px !important;
+  font-size:10px !important;
+}
+.animal-gallery--insect .animal-type,
+.animal-card--sea .animal-type{
+  height:18px !important;
+  font-size:9.5px !important;
+}
+
+/* Divider ornaments aligned to the picture/panel border. */
+.animal-card::before,
+.animal-card::after{
+  top:calc(var(--v75-image-h) + 2px) !important;
+  bottom:auto !important;
+}
+
+/* Long-name tuning */
+.animal-card--bird[data-bird="bald-eagle"] .animal-name,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-name{
+  font-size:14px !important;
+  line-height:1.02 !important;
+}
+.animal-card[data-animal="rabbit"] .animal-name{
+  font-size:15.2px !important;
+}
+.animal-card[data-animal="polar-bear"] .animal-name{
+  font-size:14.6px !important;
+}
+.animal-card[data-sea-creature="lionfish"] .animal-name,
+.animal-card[data-sea-creature="sea-turtle"] .animal-name,
+.animal-card[data-sea-creature="clownfish"] .animal-name,
+.animal-card[data-sea-creature="shrimp"] .animal-name,
+.animal-card[data-sea-creature="anglerfish"] .animal-name,
+.animal-card[data-sea-creature="sterlet"] .animal-name,
+.animal-card[data-sea-creature="cuttlefish"] .animal-name{
+  font-size:13.4px !important;
+}
+.animal-card[data-sea-creature="sea-otter"] .animal-name,
+.animal-card[data-sea-creature="manatee"] .animal-name,
+.animal-card[data-sea-creature="orca"] .animal-name{
+  font-size:12.8px !important;
+}
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
+  font-size:11.6px !important;
+  line-height:1.01 !important;
+}
+.animal-card[data-insect-id="praying-mantis"] .animal-name,
+.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+.animal-card[data-insect-id="may-beetle"] .animal-name,
+.animal-card[data-insect-id="colorado-beetle"] .animal-name,
+.animal-card[data-insect-id="bark-beetle"] .animal-name{
+  font-size:13.5px !important;
+}
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
+  font-size:11.7px !important;
+  line-height:1.01 !important;
+}
+
+@media (max-width:380px){
+  .animal-name{font-size:14.8px !important; padding-left:6px !important; padding-right:6px !important;}
+  .animal-gallery--insect .animal-name,
+  .animal-card--sea .animal-name{font-size:13.1px !important;}
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name,
+  .animal-card--bird[data-bird="guinea-fowl"] .animal-name{font-size:12.8px !important;}
+  .animal-card[data-animal="polar-bear"] .animal-name{font-size:13.6px !important;}
+  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:10.8px !important;}
+  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:10.8px !important;}
+}
