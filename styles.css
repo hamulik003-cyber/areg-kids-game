@@ -2280,278 +2280,6 @@ body.magic-scroll-active{
   top:calc(172px + var(--top-controls-safe-y)) !important;
 }
 
-
-/* =========================================================
-   V52 — Animals gallery (30 cards / 3 columns / vertical scroll)
-   ========================================================= */
-.activity-content.animal-gallery-mode{
-  overflow:hidden !important;
-  padding:0 !important;
-  background:
-    radial-gradient(circle at 50% 0%,rgba(255,255,255,.48),transparent 35%),
-    linear-gradient(180deg,#fff3d7 0%,#f7dfb6 100%) !important;
-}
-
-.animal-gallery{
-  position:absolute;
-  inset:0;
-  overflow-y:auto;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
-  scroll-behavior:smooth;
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  align-content:start;
-  gap:10px;
-  padding:12px 10px 28px;
-}
-
-.animal-gallery::-webkit-scrollbar{width:0;height:0}
-
-.animal-card{
-  position:relative;
-  z-index:1;
-  min-width:0;
-  height:184px;
-  padding:0;
-  overflow:hidden;
-  border-radius:22px;
-  border:3px solid rgba(255,214,147,.98);
-  background:linear-gradient(180deg,#fff3dc 0%,#f8d8aa 72%,#efad65 72%,#e99a52 100%);
-  box-shadow:
-    0 5px 0 rgba(142,78,38,.78),
-    0 10px 18px rgba(20,8,4,.15),
-    inset 0 0 0 2px rgba(121,70,34,.11);
-  color:#4f2212;
-  touch-action:manipulation;
-  isolation:isolate;
-  transform-origin:center center;
-  will-change:transform,filter,box-shadow,border-color;
-  transition:
-    transform .46s cubic-bezier(.22,.61,.36,1),
-    filter .42s ease,
-    border-color .48s cubic-bezier(.22,.61,.36,1),
-    box-shadow .48s cubic-bezier(.22,.61,.36,1);
-}
-
-.animal-card:active{
-  transform:none;
-}
-
-.animal-card--pressing{
-  z-index:4;
-  transform:translateY(-2px) scale(var(--animal-press-scale,1.025));
-  filter:brightness(1.025);
-  box-shadow:
-    0 7px 0 rgba(142,78,38,.74),
-    0 14px 22px rgba(20,8,4,.17),
-    inset 0 0 0 2px rgba(121,70,34,.11);
-}
-
-.animal-card--focus{
-  z-index:7;
-  transform:translateY(-4px) scale(var(--animal-focus-scale,1.085));
-  filter:brightness(1.035) saturate(1.02);
-  border-color:var(--animal-accent,rgba(255,214,147,.98));
-  box-shadow:
-    0 9px 0 rgba(142,78,38,.68),
-    0 18px 28px rgba(20,8,4,.18),
-    0 0 0 3px var(--animal-accent-soft,rgba(255,214,147,.28)),
-    inset 0 0 0 2px rgba(255,255,255,.18);
-}
-
-.animal-image-wrap{
-  position:absolute;
-  left:4px;
-  right:4px;
-  top:4px;
-  height:67%;
-  overflow:hidden;
-  border-radius:17px 17px 13px 13px;
-  background:#d9effb;
-}
-
-.animal-image-wrap img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-  object-position:center center;
-  transform:scale(1);
-  transform-origin:center 58%;
-  will-change:transform,filter;
-  transition:transform .46s cubic-bezier(.22,.61,.36,1),filter .38s ease;
-}
-
-.animal-card--pressing .animal-image-wrap img{
-  transform:scale(1);
-}
-
-.animal-card--focus .animal-image-wrap img{
-  transform:scale(1);
-  filter:saturate(1.035) contrast(1.018);
-}
-
-.animal-card-sheen{
-  position:absolute;
-  inset:-20% -80%;
-  background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.42) 49%,rgba(255,246,187,.28) 52%,transparent 58%);
-  transform:translateX(-55%);
-  pointer-events:none;
-  opacity:.7;
-  animation:animalCardSheen 7.2s linear infinite;
-}
-
-.animal-card:nth-child(3n+2) .animal-card-sheen{animation-delay:1.2s}
-.animal-card:nth-child(3n) .animal-card-sheen{animation-delay:2.4s}
-
-@keyframes animalCardSheen{
-  0%,60%{transform:translateX(-55%);opacity:0}
-  65%{opacity:.22}
-  76%{transform:translateX(55%);opacity:.56}
-  82%,100%{transform:translateX(55%);opacity:0}
-}
-
-.effects-off .animal-card-sheen{animation:none!important;opacity:0!important}
-
-.animal-meta{
-  position:absolute;
-  z-index:8;
-  left:5px;
-  right:5px;
-  bottom:3px;
-  height:32%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-end;
-  gap:4px;
-  text-align:center;
-  padding:2px 4px 6px;
-}
-
-.animal-name{
-  display:block;
-  max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:normal;
-  font-size:14px;
-  line-height:1.08;
-  min-height:30px;
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:2;
-  font-weight:950;
-  letter-spacing:-.025em;
-  text-shadow:0 .35px 0 currentColor,0 1px 0 rgba(255,255,255,.18);
-}
-
-.animal-type{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:48px;
-  height:18px;
-  padding:0 7px;
-  border-radius:999px;
-  color:#fffdf5;
-  font-size:9.5px;
-  line-height:1;
-  font-weight:900;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 5px rgba(78,43,20,.12);
-}
-
-.animal-type--domestic{
-  background:linear-gradient(180deg,#80bf51,#4c8b39);
-}
-
-.animal-type--wild{
-  background:linear-gradient(180deg,#f06f6f,#c63f3f);
-}
-
-.animal-card::before,
-.animal-card::after{
-  content:"";
-  position:absolute;
-  z-index:4;
-  bottom:32%;
-  width:16px;
-  height:9px;
-  background:linear-gradient(135deg,#8fc956,#3d8139);
-  border-radius:100% 0 100% 0;
-}
-.animal-card::before{left:4px;transform:rotate(-25deg)}
-.animal-card::after{right:4px;transform:scaleX(-1) rotate(-25deg)}
-
-
-.animal-gallery--sea{
-  background:
-    radial-gradient(circle at 50% 0%,rgba(255,255,255,.34),transparent 32%),
-    linear-gradient(180deg,#dff6ff 0%,#c8ebfb 44%,#ecf8ff 100%);
-}
-
-.animal-gallery--sea .animal-card{
-  background:linear-gradient(180deg,#f6fdff 0%,#dff2fb 70%,#9bd8f5 70%,#66bfe7 100%);
-  border-color:rgba(180,234,255,.96);
-  box-shadow:
-    0 5px 0 rgba(41,119,159,.55),
-    0 10px 18px rgba(8,56,79,.12),
-    inset 0 0 0 2px rgba(67,121,153,.10);
-}
-
-.animal-gallery--sea .animal-image-wrap{
-  background:#c9effd;
-}
-
-.animal-gallery--sea .animal-meta{
-  height:34%;
-  gap:3px;
-  padding:2px 4px 7px;
-}
-
-.animal-gallery--sea .animal-name{
-  font-size:12.6px;
-  min-height:38px;
-  line-height:1.04;
-  -webkit-line-clamp:3;
-}
-
-.animal-gallery--sea .animal-type{
-  max-width:100%;
-  min-width:0;
-  padding:0 6px;
-  height:17px;
-  font-size:8.6px;
-}
-
-.animal-gallery--sea .animal-card::before,
-.animal-gallery--sea .animal-card::after{
-  background:linear-gradient(135deg,#5fd8f5,#2c9fcc);
-}
-
-
-@media (max-width:380px){
-  .animal-gallery{gap:8px;padding-left:8px;padding-right:8px}
-  .animal-card{height:172px;border-radius:20px}
-  .animal-name{font-size:13px;min-height:27px}
-  .animal-type{font-size:9px;min-width:44px}
-  .animal-gallery--sea .animal-name{font-size:11.7px;min-height:36px}
-  .animal-gallery--sea .animal-type{font-size:8.1px}
-}
-
-
-.animal-card--speaking .animal-type{
-  transform:translateY(-1px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 3px 7px rgba(78,43,20,.18);
-}
-
-@media (prefers-reduced-motion:reduce){
-  .animal-card,.animal-image-wrap img{transition-duration:.16s!important}
-}
-
-
 /* =========================================================
    V53 — stable inner section layout
    Keep the four section icons locked in a 2x2 grid while the
@@ -2579,98 +2307,9 @@ body.magic-scroll-active{
   transform:scale(.985) !important;
 }
 
-
-/* V62 — long bird labels: keep text clear of decorative leaves/type badge */
-.animal-card[data-bird="bald-eagle"]::before,
-.animal-card[data-bird="bald-eagle"]::after,
-.animal-card[data-bird="guinea-fowl"]::before,
-.animal-card[data-bird="guinea-fowl"]::after{display:none}
-.animal-card[data-bird="bald-eagle"] .animal-name,
-.animal-card[data-bird="guinea-fowl"] .animal-name{
-  font-size:11.6px;
-  line-height:1.02;
-  min-height:31px;
-  padding:0 1px;
-  letter-spacing:-.035em;
-}
-.animal-card[data-bird="bald-eagle"] .animal-meta,
-.animal-card[data-bird="guinea-fowl"] .animal-meta{gap:2px;padding-left:2px;padding-right:2px}
-
-
-/* V61 — long bird labels stay clear of the type badge */
-.animal-card--bird[data-bird="bald-eagle"] .animal-meta,
-.animal-card--bird[data-bird="guinea-fowl"] .animal-meta{
-  height:35%;
-  gap:2px;
-  padding-bottom:5px;
-}
-.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap,
-.animal-card--bird[data-bird="guinea-fowl"] .animal-image-wrap{
-  height:65%;
-}
-.animal-card--bird[data-bird="bald-eagle"] .animal-name,
-.animal-card--bird[data-bird="guinea-fowl"] .animal-name{
-  font-size:12px;
-  line-height:1.02;
-  min-height:34px;
-  -webkit-line-clamp:2;
-  overflow:visible;
-}
-@media (max-width:380px){
-  .animal-card--bird[data-bird="bald-eagle"] .animal-name,
-  .animal-card--bird[data-bird="guinea-fowl"] .animal-name{
-    font-size:11px;
-    min-height:32px;
-  }
-}
-
-
 /* =========================================================
-   V64 — Sea gallery visual parity with Animals gallery
-   Sea cards now inherit the exact same beige/orange card system.
-   Only long Armenian labels get a small typography adjustment.
-   ========================================================= */
-.animal-card[data-sea-creature="sea-turtle"] .animal-name,
-.animal-card[data-sea-creature="clownfish"] .animal-name,
-.animal-card[data-sea-creature="shrimp"] .animal-name,
-.animal-card[data-sea-creature="anglerfish"] .animal-name{
-  font-size:12.2px;
-  line-height:1.04;
-  letter-spacing:-.035em;
-}
-
-.animal-card[data-sea-creature="sea-otter"] .animal-name{
-  font-size:11.1px;
-  line-height:1.03;
-  letter-spacing:-.04em;
-}
-
-.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
-  font-size:10.2px;
-  line-height:1.02;
-  letter-spacing:-.045em;
-}
-
-.animal-card[data-sea-creature="sea-otter"]::before,
-.animal-card[data-sea-creature="sea-otter"]::after,
-.animal-card[data-sea-creature="leafy-seadragon"]::before,
-.animal-card[data-sea-creature="leafy-seadragon"]::after{
-  display:none;
-}
-
-@media (max-width:380px){
-  .animal-card[data-sea-creature="sea-turtle"] .animal-name,
-  .animal-card[data-sea-creature="clownfish"] .animal-name,
-  .animal-card[data-sea-creature="shrimp"] .animal-name,
-  .animal-card[data-sea-creature="anglerfish"] .animal-name{font-size:11.2px}
-  .animal-card[data-sea-creature="sea-otter"] .animal-name{font-size:10.4px}
-  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:9.5px}
-}
-
-
-/* =========================================================
-   V65 — Armenian language + unified typography pass
-   Keep the educational UI readable, warm and visually consistent.
+   CLEAN CURRENT UI TYPOGRAPHY / SETTINGS
+   Preserved from the approved V84 appearance.
    ========================================================= */
 :root{
   --areg-font:-apple-system,BlinkMacSystemFont,"Noto Sans Armenian","Segoe UI",Arial,sans-serif;
@@ -2683,10 +2322,7 @@ html,body,button,input,label,select,textarea{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
 }
-
-body{
-  font-weight:var(--areg-support-weight);
-}
+body{font-weight:var(--areg-support-weight)}
 
 .home-card-label,
 .wood-title,
@@ -2704,216 +2340,22 @@ body{
 .primary-action,
 .game-help,
 .magic-cost,
-.home-stars-number,
-.animal-name,
-.animal-type{
+.home-stars-number{
   font-family:var(--areg-font) !important;
   font-weight:var(--areg-ui-weight) !important;
 }
-
 .home-card-label,
 .wood-title,
 .activity-title,
-.toddler-game-label,
-.animal-name{
-  letter-spacing:0 !important;
-}
-
+.toddler-game-label{letter-spacing:0 !important}
 .activity-section-title,
 .setting-row,
-.crop-help{
-  font-weight:var(--areg-support-weight) !important;
-}
+.crop-help{font-weight:var(--areg-support-weight) !important}
+.crop-help{font-family:var(--areg-font) !important;line-height:1.45}
 
-.crop-help{
-  font-family:var(--areg-font) !important;
-  line-height:1.45;
+html[data-font="rounded"]{
+  --areg-font:ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",-apple-system,BlinkMacSystemFont,Arial,sans-serif;
 }
-
-.animal-name{
-  line-height:1.12 !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.18) !important;
-}
-
-.animal-type{
-  letter-spacing:0 !important;
-}
-
-/* Long educational names: preserve full Armenian wording without crowding. */
-.animal-card[data-sea-creature="sterlet"] .animal-name{
-  font-size:11.8px;
-  line-height:1.04 !important;
-}
-.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
-  font-size:10.1px;
-}
-.animal-card[data-sea-creature="sea-otter"] .animal-name{
-  font-size:11px;
-}
-@media (max-width:380px){
-  .animal-card[data-sea-creature="sterlet"] .animal-name{font-size:10.8px}
-  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:9.4px}
-  .animal-card[data-sea-creature="sea-otter"] .animal-name{font-size:10.2px}
-}
-
-
-/* =========================================================
-   V66 — long card-label fit + short Rewards Field title
-   Prevent long Armenian animal names from touching/entering frames.
-   ========================================================= */
-
-.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap{
-  height:62% !important;
-}
-.animal-card--bird[data-bird="bald-eagle"] .animal-meta{
-  height:38% !important;
-  gap:2px !important;
-  padding:5px 3px 6px !important;
-}
-.animal-card--bird[data-bird="bald-eagle"] .animal-name{
-  font-size:10.8px !important;
-  line-height:1.08 !important;
-  min-height:27px !important;
-  padding:0 3px !important;
-  overflow:hidden !important;
-  -webkit-line-clamp:2 !important;
-}
-
-.animal-card[data-sea-creature="lionfish"] .animal-name{
-  font-size:11.2px !important;
-  line-height:1.08 !important;
-  min-height:28px !important;
-  padding:0 4px !important;
-}
-
-.magic-collection-mode .wood-title,
-.toddler-section-screen[data-section="magic"] .wood-title{
-  font-size:23px !important;
-  line-height:1.05 !important;
-  padding-left:10px !important;
-  padding-right:10px !important;
-  white-space:nowrap !important;
-}
-
-@media (max-width:380px){
-  .animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:10.2px !important;}
-  .animal-card[data-sea-creature="lionfish"] .animal-name{font-size:10.6px !important;}
-}
-
-
-/* =========================================================
-   V67 — targeted text-fit fixes
-   1) Keep "Պարգևների դաշտ" inside the section title pill
-   2) Restore the home-menu magic card label and make it fit
-   3) Prevent clipping for: Սպիտակագլուխ արծիվ, Նապաստակ, Սպիտակ արջ
-   ========================================================= */
-
-/* Top section title for the magic/rewards screen */
-.toddler-section-screen[data-section="magic"] .wood-title,
-.magic-collection-mode .wood-title{
-  font-size:18px !important;
-  line-height:1.03 !important;
-  letter-spacing:-.015em !important;
-  padding-left:8px !important;
-  padding-right:8px !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:clip !important;
-}
-
-/* Main menu: the wide magic card gets the old name back and a smaller label */
-.home-section-card--wide.magic-card .home-card-label,
-.home-section-card.magic-card .home-card-label{
-  font-size:22px !important;
-  line-height:1.02 !important;
-  letter-spacing:-.03em !important;
-  padding-left:18px !important;
-  padding-right:18px !important;
-}
-
-/* Bald eagle: slightly smaller and tighter, with a bit more text room */
-.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap{
-  height:61% !important;
-}
-.animal-card--bird[data-bird="bald-eagle"] .animal-meta{
-  height:39% !important;
-  padding:4px 3px 7px !important;
-}
-.animal-card--bird[data-bird="bald-eagle"] .animal-name{
-  font-size:10.1px !important;
-  line-height:1.05 !important;
-  min-height:29px !important;
-  letter-spacing:-.03em !important;
-  padding:0 2px !important;
-}
-
-/* Rabbit: keep the final letter visible */
-.animal-card[data-animal="rabbit"] .animal-name,
-.animal-card[data-id="rabbit"] .animal-name,
-.animal-card[data-animal-id="rabbit"] .animal-name{
-  font-size:12.3px !important;
-  line-height:1.04 !important;
-  min-height:28px !important;
-  letter-spacing:-.018em !important;
-  padding:0 2px !important;
-}
-
-/* Polar bear: clear the decorative leaves / image edge */
-.animal-card[data-animal="polar-bear"] .animal-image-wrap,
-.animal-card[data-id="polar-bear"] .animal-image-wrap,
-.animal-card[data-animal-id="polar-bear"] .animal-image-wrap{
-  height:64% !important;
-}
-.animal-card[data-animal="polar-bear"] .animal-meta,
-.animal-card[data-id="polar-bear"] .animal-meta,
-.animal-card[data-animal-id="polar-bear"] .animal-meta{
-  height:35% !important;
-  gap:2px !important;
-  padding:4px 3px 7px !important;
-}
-.animal-card[data-animal="polar-bear"] .animal-name,
-.animal-card[data-id="polar-bear"] .animal-name,
-.animal-card[data-animal-id="polar-bear"] .animal-name{
-  font-size:11.4px !important;
-  line-height:1.05 !important;
-  min-height:28px !important;
-  letter-spacing:-.02em !important;
-  padding:0 2px !important;
-}
-
-@media (max-width:380px){
-  .toddler-section-screen[data-section="magic"] .wood-title,
-  .magic-collection-mode .wood-title{
-    font-size:16px !important;
-  }
-  .home-section-card--wide.magic-card .home-card-label,
-  .home-section-card.magic-card .home-card-label{
-    font-size:18px !important;
-    padding-left:10px !important;
-    padding-right:10px !important;
-  }
-  .animal-card--bird[data-bird="bald-eagle"] .animal-name{
-    font-size:9.7px !important;
-  }
-  .animal-card[data-animal="rabbit"] .animal-name,
-  .animal-card[data-id="rabbit"] .animal-name,
-  .animal-card[data-animal-id="rabbit"] .animal-name{
-    font-size:11.6px !important;
-  }
-  .animal-card[data-animal="polar-bear"] .animal-name,
-  .animal-card[data-id="polar-bear"] .animal-name,
-  .animal-card[data-animal-id="polar-bear"] .animal-name{
-    font-size:10.8px !important;
-  }
-}
-
-
-/* =========================================================
-   V69 — FINAL PRO typography + Armenian-safe font selector
-   No external font downloads: every preset has Armenian-capable fallbacks,
-   so the PWA remains reliable offline and on iOS/Android/desktop.
-   ========================================================= */
-
 html[data-font="system"]{
   --areg-font:-apple-system,BlinkMacSystemFont,"Noto Sans Armenian","Segoe UI",Arial,sans-serif;
 }
@@ -2928,29 +2370,16 @@ html[data-font="classic"]{
 }
 
 .font-heading{margin-top:19px!important}
-.font-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
+.font-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .font-option{
-  min-height:72px;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  gap:4px;
-  padding:10px 12px;
-  border-radius:17px;
-  border:3px solid transparent;
-  background:rgba(255,255,255,.20);
+  min-height:72px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;
+  padding:10px 12px;border-radius:17px;border:3px solid transparent;background:rgba(255,255,255,.20);
   box-shadow:0 4px 11px rgba(35,18,8,.10),inset 0 1px 0 rgba(255,255,255,.24);
-  color:var(--ink);
-  text-align:left;
-  cursor:pointer;
+  color:var(--ink);text-align:left;cursor:pointer;
 }
 .font-option-title{font-size:14px;font-weight:800;line-height:1.1}
 .font-option-sample{font-size:19px;font-weight:800;line-height:1.05;opacity:.88}
+.font-option[data-font="rounded"]{font-family:ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",-apple-system,BlinkMacSystemFont,Arial,sans-serif!important}
 .font-option[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans Armenian","Segoe UI",Arial,sans-serif!important}
 .font-option[data-font="clean"]{font-family:"Noto Sans Armenian","DejaVu Sans",Arial,-apple-system,BlinkMacSystemFont,sans-serif!important}
 .font-option[data-font="book"]{font-family:"Noto Serif Armenian",Sylfaen,"DejaVu Serif","Times New Roman",serif!important}
@@ -2959,8 +2388,9 @@ html[data-font="classic"]{
   border-color:var(--glow);
   box-shadow:0 0 0 2px rgba(255,255,255,.50),0 0 18px var(--glow),inset 0 1px 0 rgba(255,255,255,.28);
 }
+.font-help{margin:8px 2px 0;font-size:12.5px;line-height:1.35;font-weight:700;opacity:.78}
 
-/* Main menu magic/rewards entry: same visual weight as the other main sections. */
+/* Current approved magic/rewards labels. */
 .home-section-card.magic-card .home-card-label,
 .home-section-card--wide.magic-card .home-card-label{
   height:24% !important;
@@ -2973,8 +2403,6 @@ html[data-font="classic"]{
   overflow:hidden !important;
   text-overflow:clip !important;
 }
-
-/* Rewards screen title: strong, centered, but never outside its wood pill. */
 .toddler-section-screen[data-section="magic"] .wood-title,
 .magic-collection-mode .wood-title{
   font-size:20px !important;
@@ -2987,44 +2415,6 @@ html[data-font="classic"]{
   overflow:hidden !important;
   text-overflow:clip !important;
 }
-
-/* Audited longer educational sea names. */
-.animal-card[data-sea-creature="manatee"] .animal-name,
-.animal-card[data-sea-creature="orca"] .animal-name{
-  font-size:11.2px !important;
-  line-height:1.05 !important;
-  min-height:28px !important;
-  padding:0 2px !important;
-}
-.animal-card[data-sea-creature="cuttlefish"] .animal-name,
-.animal-card[data-sea-creature="sterlet"] .animal-name{
-  font-size:12.2px !important;
-  line-height:1.05 !important;
-}
-
-/* Keep the already-fixed long labels safely inside their cards. */
-.animal-card--bird[data-bird="bald-eagle"] .animal-name{
-  font-size:9.8px !important;
-  line-height:1.04 !important;
-  padding:0 2px !important;
-  overflow:hidden !important;
-}
-.animal-card[data-animal="rabbit"] .animal-name{
-  font-size:12px !important;
-  line-height:1.04 !important;
-  padding:0 2px !important;
-}
-.animal-card[data-animal="polar-bear"] .animal-name{
-  font-size:11.2px !important;
-  line-height:1.04 !important;
-  padding:0 2px !important;
-}
-.animal-card[data-sea-creature="lionfish"] .animal-name{
-  font-size:10.9px !important;
-  line-height:1.05 !important;
-  padding:0 3px !important;
-}
-
 @media (max-width:380px){
   .home-section-card.magic-card .home-card-label,
   .home-section-card--wide.magic-card .home-card-label{font-size:28px!important;padding-left:12px!important;padding-right:12px!important}
@@ -3035,664 +2425,11 @@ html[data-font="classic"]{
   .font-option-sample{font-size:17px}
 }
 
-.font-help{margin:8px 2px 0;font-size:12.5px;line-height:1.35;font-weight:700;opacity:.78}
-
 
 /* =========================================================
-   V70 — Insects gallery
-   ========================================================= */
-.animal-gallery--insect{
-  background:
-    radial-gradient(circle at 50% 0%,rgba(255,255,255,.40),transparent 34%),
-    linear-gradient(180deg,#fff7d7 0%,#fcecb6 44%,#fff3d9 100%);
-}
-
-.animal-gallery--insect .animal-card{
-  background:linear-gradient(180deg,#fff7e9 0%,#fde7bf 70%,#f4c86e 70%,#eeaf58 100%);
-  border-color:rgba(255,220,155,.98);
-  box-shadow:
-    0 5px 0 rgba(166,107,34,.68),
-    0 10px 18px rgba(86,55,11,.12),
-    inset 0 0 0 2px rgba(121,70,34,.10);
-}
-
-.animal-gallery--insect .animal-image-wrap{background:#fff4cf}
-.animal-gallery--insect .animal-meta{height:34%;gap:3px;padding:2px 4px 7px}
-.animal-gallery--insect .animal-name{font-size:12.5px;min-height:38px;line-height:1.04;-webkit-line-clamp:3}
-.animal-gallery--insect .animal-type{max-width:100%;min-width:0;padding:0 6px;height:17px;font-size:8.5px}
-.animal-gallery--insect .animal-card::before,
-.animal-gallery--insect .animal-card::after{background:linear-gradient(135deg,#95cb53,#4c8d35)}
-
-.animal-card[data-insect-id="praying-mantis"] .animal-name,
-.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
-.animal-card[data-insect-id="may-beetle"] .animal-name,
-.animal-card[data-insect-id="colorado-beetle"] .animal-name,
-.animal-card[data-insect-id="bark-beetle"] .animal-name,
-.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:11px}
-
-.animal-card[data-insect-id="cabbage-butterfly"] .animal-meta{gap:2px;padding-left:2px;padding-right:2px}
-.animal-card[data-insect-id="cabbage-butterfly"]::before,
-.animal-card[data-insect-id="cabbage-butterfly"]::after,
-.animal-card[data-insect-id="praying-mantis"]::before,
-.animal-card[data-insect-id="praying-mantis"]::after{display:none}
-
-@media (max-width:380px){
-  .animal-gallery--insect .animal-name{font-size:11.7px;min-height:36px}
-  .animal-gallery--insect .animal-type{font-size:8px}
-  .animal-card[data-insect-id="praying-mantis"] .animal-name,
-  .animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
-  .animal-card[data-insect-id="may-beetle"] .animal-name,
-  .animal-card[data-insect-id="colorado-beetle"] .animal-name,
-  .animal-card[data-insect-id="bark-beetle"] .animal-name,
-  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:10.2px}
-}
-
-
-/* =========================================================
-   V76 — V70 base + 2-column galleries
-   Image-first layout: adapt the card window to the portrait images,
-   do NOT zoom/crop/stretch the images. Also restore insect color focus.
-   ========================================================= */
-
-.activity-content.animal-gallery-mode{
-  overflow:hidden !important;
-}
-
-.animal-gallery{
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:12px !important;
-  padding:12px 10px 34px !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  align-content:start !important;
-  touch-action:pan-y !important;
-}
-
-/* Make the cards taller so the portrait source art fits naturally. */
-.animal-card{
-  --v76-image-h:74%;
-  height:284px !important;
-  border-radius:27px !important;
-}
-
-/* Long-text galleries/cards get a bit more lower-panel space. */
-.animal-card--sea,
-.animal-gallery--insect .animal-card,
-.animal-card[data-animal="polar-bear"],
-.animal-card--bird[data-bird="bald-eagle"],
-.animal-card--bird[data-bird="guinea-fowl"]{
-  --v76-image-h:71.5%;
-}
-
-.animal-image-wrap{
-  left:5px !important;
-  right:5px !important;
-  top:5px !important;
-  height:var(--v76-image-h) !important;
-  border-radius:21px 21px 16px 16px !important;
-}
-
-/* Key rule: never zoom/crop/stretch. The card adapts to the picture. */
-.animal-image-wrap img{
-  object-fit:contain !important;
-  object-position:center center !important;
-  transform:none !important;
-  padding:0 !important;
-}
-.animal-card--pressing .animal-image-wrap img,
-.animal-card--focus .animal-image-wrap img{
-  transform:none !important;
-}
-
-/* Keep names clearly in the beige lower panel. */
-.animal-meta{
-  top:calc(var(--v76-image-h) + 8px) !important;
-  bottom:4px !important;
-  left:6px !important;
-  right:6px !important;
-  height:auto !important;
-  justify-content:flex-start !important;
-  gap:5px !important;
-  padding:3px 5px 8px !important;
-}
-
-.animal-name{
-  font-size:17px !important;
-  line-height:1.06 !important;
-  min-height:36px !important;
-  margin:0 !important;
-  padding:0 5px !important;
-  -webkit-line-clamp:2 !important;
-}
-
-.animal-type{
-  min-width:62px !important;
-  height:22px !important;
-  padding:0 9px !important;
-  font-size:12px !important;
-  margin-top:auto !important;
-}
-
-/* Water and insect labels may use three lines, but keep a generous image area. */
-.animal-gallery--insect .animal-name,
-.animal-card--sea .animal-name{
-  font-size:15px !important;
-  line-height:1.05 !important;
-  min-height:44px !important;
-  -webkit-line-clamp:3 !important;
-}
-.animal-gallery--insect .animal-type,
-.animal-card--sea .animal-type{
-  height:20px !important;
-  font-size:10.5px !important;
-}
-
-/* Divider leaves aligned to the image/panel border. */
-.animal-card::before,
-.animal-card::after{
-  top:calc(var(--v76-image-h) + 2px) !important;
-  bottom:auto !important;
-}
-
-/* Insects: restore color-matched active frame/glow like other galleries. */
-.animal-gallery--insect .animal-card--focus{
-  border-color:var(--animal-accent, #f5b23e) !important;
-  box-shadow:
-    0 9px 0 rgba(142,78,38,.68),
-    0 18px 28px rgba(20,8,4,.18),
-    0 0 0 4px var(--animal-accent-soft,rgba(245,178,62,.30)),
-    inset 0 0 0 2px rgba(255,255,255,.22) !important;
-}
-
-/* Long Armenian names tuning. */
-.animal-card--bird[data-bird="bald-eagle"] .animal-name,
-.animal-card--bird[data-bird="guinea-fowl"] .animal-name{
-  font-size:15.5px !important;
-  line-height:1.05 !important;
-  min-height:42px !important;
-  -webkit-line-clamp:2 !important;
-}
-
-.animal-card[data-animal="rabbit"] .animal-name{
-  font-size:16.5px !important;
-}
-.animal-card[data-animal="polar-bear"] .animal-name{
-  font-size:15.5px !important;
-  min-height:40px !important;
-}
-
-.animal-card[data-sea-creature="lionfish"] .animal-name,
-.animal-card[data-sea-creature="sea-turtle"] .animal-name,
-.animal-card[data-sea-creature="clownfish"] .animal-name,
-.animal-card[data-sea-creature="shrimp"] .animal-name,
-.animal-card[data-sea-creature="anglerfish"] .animal-name,
-.animal-card[data-sea-creature="sterlet"] .animal-name,
-.animal-card[data-sea-creature="cuttlefish"] .animal-name{
-  font-size:14.3px !important;
-}
-.animal-card[data-sea-creature="sea-otter"] .animal-name,
-.animal-card[data-sea-creature="manatee"] .animal-name,
-.animal-card[data-sea-creature="orca"] .animal-name{
-  font-size:13.7px !important;
-}
-.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
-  font-size:12.5px !important;
-  line-height:1.03 !important;
-}
-
-.animal-card[data-insect-id="praying-mantis"] .animal-name,
-.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
-.animal-card[data-insect-id="may-beetle"] .animal-name,
-.animal-card[data-insect-id="colorado-beetle"] .animal-name,
-.animal-card[data-insect-id="bark-beetle"] .animal-name{
-  font-size:14px !important;
-}
-.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
-  font-size:12.6px !important;
-  line-height:1.02 !important;
-}
-
-@media (max-width:380px){
-  .animal-gallery{
-    gap:10px !important;
-    padding:12px 9px 32px !important;
-  }
-  .animal-card{
-    height:270px !important;
-  }
-  .animal-name{
-    font-size:16px !important;
-    min-height:34px !important;
-  }
-  .animal-gallery--insect .animal-name,
-  .animal-card--sea .animal-name{
-    font-size:14px !important;
-  }
-  .animal-card--bird[data-bird="bald-eagle"] .animal-name,
-  .animal-card--bird[data-bird="guinea-fowl"] .animal-name{
-    font-size:14.6px !important;
-  }
-  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name,
-  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
-    font-size:11.8px !important;
-  }
-}
-
-
-/* =========================================================
-   V77 — unified approved learning-card style across Nature
-   Based on the approved horse sample: thick 3D frame,
-   separate beige 3D label panel, rounded Armenian font,
-   no wrong decorative paws/leaves, 2-column child-friendly layout.
-   ========================================================= */
-
-html[data-font="rounded"]{
-  --areg-font:ui-rounded,"Arial Rounded MT Bold","SF Pro Rounded","Noto Sans Armenian",Arial,sans-serif;
-}
-
-body,
-button,
-input,
-select,
-textarea,
-.wood-title,
-.home-card-label,
-.section-title,
-.activity-title,
-.activity-section-title,
-.animal-name,
-.animal-type,
-.theme-option,
-.font-option,
-.settings-panel,
-.modal,
-.toast{
-  font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
-}
-
-.animal-gallery{
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
-  padding:14px 10px 34px !important;
-}
-
-.animal-card,
-.animal-gallery--sea .animal-card,
-.animal-gallery--insect .animal-card,
-.animal-card--bird{
-  --v77-image-h:62%;
-  position:relative;
-  height:308px !important;
-  border:none !important;
-  border-radius:30px !important;
-  background:linear-gradient(180deg,#f8d8ab 0%,#efbf7d 100%) !important;
-  box-shadow:
-    0 7px 0 rgba(164,98,42,.95),
-    0 15px 22px rgba(55,26,7,.18),
-    inset 0 2px 0 rgba(255,250,235,.9),
-    inset 0 -2px 0 rgba(170,111,52,.28) !important;
-  overflow:hidden !important;
-}
-
-.animal-card::before,
-.animal-card::after{
-  display:none !important;
-}
-
-.animal-image-wrap,
-.animal-gallery--sea .animal-image-wrap{
-  position:absolute !important;
-  left:12px !important;
-  right:12px !important;
-  top:12px !important;
-  height:var(--v77-image-h) !important;
-  border-radius:24px !important;
-  background:#ffffff !important;
-  border:6px solid #ffffff !important;
-  box-shadow:
-    0 0 0 3px #ecd5a4,
-    inset 0 1px 0 rgba(255,255,255,.95),
-    0 3px 0 rgba(194,150,85,.45) !important;
-}
-
-.animal-image-wrap img{
-  width:100% !important;
-  height:100% !important;
-  display:block !important;
-  object-fit:contain !important;
-  object-position:center center !important;
-  transform:none !important;
-  filter:none !important;
-  border-radius:17px !important;
-  background:transparent !important;
-}
-
-.animal-card--pressing .animal-image-wrap img,
-.animal-card--focus .animal-image-wrap img{
-  transform:none !important;
-  filter:none !important;
-}
-
-.animal-card-sheen{
-  opacity:.45 !important;
-}
-
-.animal-meta,
-.animal-gallery--sea .animal-meta,
-.animal-gallery--insect .animal-meta,
-.animal-card--bird .animal-meta{
-  position:absolute !important;
-  left:11px !important;
-  right:11px !important;
-  bottom:11px !important;
-  top:auto !important;
-  height:calc(100% - var(--v77-image-h) - 26px) !important;
-  min-height:86px !important;
-  padding:10px 10px 12px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:8px !important;
-  border-radius:0 0 22px 22px !important;
-  background:linear-gradient(180deg,#efd1a1 0%,#e7bb79 100%) !important;
-  box-shadow:
-    inset 0 2px 0 rgba(255,248,229,.92),
-    inset 0 -2px 0 rgba(182,122,65,.33),
-    0 -1px 0 rgba(217,183,124,.65) !important;
-}
-
-.animal-name,
-.animal-gallery--sea .animal-name,
-.animal-gallery--insect .animal-name,
-.animal-card--bird .animal-name{
-  display:block !important;
-  width:100% !important;
-  margin:0 !important;
-  padding:0 4px !important;
-  color:#54240e !important;
-  text-align:center !important;
-  font-size:20px !important;
-  line-height:1.03 !important;
-  font-weight:900 !important;
-  letter-spacing:-0.02em !important;
-  min-height:42px !important;
-  -webkit-line-clamp:2 !important;
-  text-shadow:0 1px 0 rgba(255,246,224,.45) !important;
-}
-
-.animal-type,
-.animal-gallery--sea .animal-type,
-.animal-gallery--insect .animal-type,
-.animal-card--bird .animal-type{
-  min-width:86px !important;
-  max-width:100% !important;
-  height:28px !important;
-  padding:0 14px !important;
-  margin-top:auto !important;
-  border-radius:999px !important;
-  font-size:15px !important;
-  line-height:1 !important;
-  font-weight:900 !important;
-  box-shadow:
-    inset 0 2px 0 rgba(255,255,255,.35),
-    0 3px 8px rgba(92,53,24,.18) !important;
-}
-
-.animal-card--focus{
-  transform:translateY(-4px) scale(1.045) !important;
-  box-shadow:
-    0 9px 0 rgba(164,98,42,.92),
-    0 18px 28px rgba(55,26,7,.18),
-    0 0 0 4px var(--animal-accent-soft,rgba(255,214,147,.30)),
-    inset 0 2px 0 rgba(255,250,235,.95),
-    inset 0 -2px 0 rgba(170,111,52,.28) !important;
-}
-
-.animal-card--pressing{
-  transform:translateY(-2px) scale(1.02) !important;
-}
-
-/* Slightly longer names: keep readable without touching the frame. */
-.animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:16px !important;line-height:1.02 !important;}
-.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:15px !important;line-height:1.01 !important;}
-.animal-card[data-sea-creature="sea-otter"] .animal-name,
-.animal-card[data-sea-creature="lionfish"] .animal-name,
-.animal-card[data-sea-creature="sea-turtle"] .animal-name,
-.animal-card[data-sea-creature="clownfish"] .animal-name,
-.animal-card[data-sea-creature="anglerfish"] .animal-name,
-.animal-card[data-sea-creature="shrimp"] .animal-name,
-.animal-card[data-sea-creature="sterlet"] .animal-name,
-.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
-.animal-card[data-insect-id="praying-mantis"] .animal-name,
-.animal-card[data-insect-id="colorado-beetle"] .animal-name,
-.animal-card[data-insect-id="may-beetle"] .animal-name,
-.animal-card[data-insect-id="bark-beetle"] .animal-name,
-.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
-  font-size:16px !important;
-}
-
-/* Keep the child-friendly 2-column look on smaller iPhones too. */
-@media (max-width:380px){
-  .animal-gallery{gap:12px !important;padding:12px 9px 30px !important;}
-  .animal-card{height:292px !important;}
-  .animal-name,
-  .animal-gallery--sea .animal-name,
-  .animal-gallery--insect .animal-name,
-  .animal-card--bird .animal-name{font-size:18px !important;min-height:40px !important;}
-  .animal-type,
-  .animal-gallery--sea .animal-type,
-  .animal-gallery--insect .animal-type,
-  .animal-card--bird .animal-type{font-size:13px !important;height:26px !important;min-width:78px !important;}
-  .animal-card--bird[data-bird="bald-eagle"] .animal-name,
-  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name,
-  .animal-card[data-sea-creature="sea-otter"] .animal-name,
-  .animal-card[data-sea-creature="lionfish"] .animal-name,
-  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:14.6px !important;}
-}
-
-.font-option[data-font="rounded"]{
-  font-family:ui-rounded,"Arial Rounded MT Bold","SF Pro Rounded","Noto Sans Armenian",Arial,sans-serif !important;
-}
-
-
-/* =========================================================
-   V78 — text-fit + accent refinement
-   - remove ellipsis on all card names
-   - enlarge/clarify sea & insect labels
-   - subtle type-colored 3D accent on the lower text panel
-   - keep approved unified card look
-   ========================================================= */
-
-.animal-card,
-.animal-gallery--sea .animal-card,
-.animal-gallery--insect .animal-card,
-.animal-card--bird{
-  --v78-image-h:62%;
-}
-
-.animal-image-wrap,
-.animal-gallery--sea .animal-image-wrap{
-  height:var(--v78-image-h) !important;
-}
-
-.animal-meta,
-.animal-gallery--sea .animal-meta,
-.animal-gallery--insect .animal-meta,
-.animal-card--bird .animal-meta{
-  height:calc(100% - var(--v78-image-h) - 26px) !important;
-  min-height:90px !important;
-  gap:7px !important;
-  padding:12px 10px 12px !important;
-  border-top:1px solid rgba(255,245,225,.75) !important;
-  background:
-    linear-gradient(180deg,var(--animal-accent-soft,rgba(255,214,147,.18)) 0px, rgba(255,255,255,0) 28px),
-    linear-gradient(180deg,#f6debb 0%, #e9c07e 100%) !important;
-  box-shadow:
-    inset 0 2px 0 rgba(255,248,229,.94),
-    inset 0 -2px 0 rgba(182,122,65,.32),
-    inset 0 10px 18px rgba(255,255,255,.16),
-    0 -1px 0 rgba(217,183,124,.65) !important;
-}
-
-.animal-meta::before{
-  content:'';
-  position:absolute;
-  left:14px;
-  right:14px;
-  top:0;
-  height:5px;
-  border-radius:0 0 12px 12px;
-  background:var(--animal-accent,#d8a05c);
-  box-shadow:0 1px 0 rgba(255,255,255,.35);
-  opacity:.9;
-}
-
-.animal-name,
-.animal-gallery--sea .animal-name,
-.animal-gallery--insect .animal-name,
-.animal-card--bird .animal-name{
-  overflow:visible !important;
-  text-overflow:clip !important;
-  white-space:normal !important;
-  display:block !important;
-  -webkit-box-orient:initial !important;
-  -webkit-line-clamp:unset !important;
-  line-clamp:unset !important;
-  font-size:18.5px !important;
-  line-height:1.06 !important;
-  min-height:44px !important;
-  padding:0 6px !important;
-}
-
-.animal-card--sea .animal-name,
-.animal-gallery--sea .animal-name,
-.animal-gallery--insect .animal-name{
-  font-size:17px !important;
-  min-height:48px !important;
-}
-
-.animal-type,
-.animal-gallery--sea .animal-type,
-.animal-gallery--insect .animal-type,
-.animal-card--bird .animal-type{
-  min-width:90px !important;
-  height:29px !important;
-  padding:0 13px !important;
-  font-size:14px !important;
-  margin-top:auto !important;
-}
-
-.animal-card--sea .animal-type,
-.animal-gallery--insect .animal-type{
-  min-width:88px !important;
-  height:26px !important;
-  padding:0 12px !important;
-  font-size:12.8px !important;
-}
-
-/* Long names — keep complete words visible, never with ellipsis. */
-.animal-card--bird[data-bird="bald-eagle"] .animal-name{
-  font-size:15.2px !important;
-  line-height:1.05 !important;
-  min-height:50px !important;
-}
-
-.animal-card[data-animal="polar-bear"] .animal-name{
-  font-size:16px !important;
-  min-height:48px !important;
-}
-
-.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
-  font-size:15px !important;
-  line-height:1.04 !important;
-  min-height:52px !important;
-}
-
-.animal-card[data-sea-creature="shrimp"] .animal-name,
-.animal-card[data-sea-creature="sea-otter"] .animal-name,
-.animal-card[data-sea-creature="lionfish"] .animal-name,
-.animal-card[data-sea-creature="sea-turtle"] .animal-name,
-.animal-card[data-sea-creature="clownfish"] .animal-name,
-.animal-card[data-sea-creature="anglerfish"] .animal-name,
-.animal-card[data-sea-creature="sterlet"] .animal-name,
-.animal-card[data-sea-creature="cuttlefish"] .animal-name,
-.animal-card[data-sea-creature="manatee"] .animal-name,
-.animal-card[data-sea-creature="orca"] .animal-name{
-  font-size:15.8px !important;
-  line-height:1.05 !important;
-}
-
-.animal-card[data-insect-id="praying-mantis"] .animal-name,
-.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
-.animal-card[data-insect-id="may-beetle"] .animal-name,
-.animal-card[data-insect-id="colorado-beetle"] .animal-name,
-.animal-card[data-insect-id="bark-beetle"] .animal-name,
-.animal-card[data-insect-id="flower-butterfly"] .animal-name{
-  font-size:15.5px !important;
-  line-height:1.05 !important;
-}
-
-.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
-  font-size:14.2px !important;
-  line-height:1.04 !important;
-  min-height:54px !important;
-}
-
-@media (max-width:380px){
-  .animal-card{height:298px !important;}
-  .animal-name,
-  .animal-gallery--sea .animal-name,
-  .animal-gallery--insect .animal-name,
-  .animal-card--bird .animal-name{
-    font-size:17px !important;
-    min-height:42px !important;
-  }
-  .animal-card--sea .animal-name,
-  .animal-gallery--sea .animal-name,
-  .animal-gallery--insect .animal-name{
-    font-size:15.8px !important;
-    min-height:46px !important;
-  }
-  .animal-type,
-  .animal-gallery--sea .animal-type,
-  .animal-gallery--insect .animal-type,
-  .animal-card--bird .animal-type{
-    font-size:12.8px !important;
-    min-width:84px !important;
-    height:27px !important;
-  }
-  .animal-card--sea .animal-type,
-  .animal-gallery--insect .animal-type{
-    font-size:12.2px !important;
-    min-width:82px !important;
-    height:25px !important;
-  }
-  .animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:14.4px !important;min-height:48px !important;}
-  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:14.2px !important;min-height:50px !important;}
-  .animal-card[data-sea-creature="shrimp"] .animal-name,
-  .animal-card[data-sea-creature="sea-otter"] .animal-name,
-  .animal-card[data-sea-creature="lionfish"] .animal-name,
-  .animal-card[data-sea-creature="sea-turtle"] .animal-name,
-  .animal-card[data-sea-creature="clownfish"] .animal-name,
-  .animal-card[data-sea-creature="anglerfish"] .animal-name,
-  .animal-card[data-sea-creature="sterlet"] .animal-name,
-  .animal-card[data-sea-creature="cuttlefish"] .animal-name,
-  .animal-card[data-sea-creature="manatee"] .animal-name,
-  .animal-card[data-sea-creature="orca"] .animal-name{font-size:14.8px !important;}
-  .animal-card[data-insect-id="praying-mantis"] .animal-name,
-  .animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
-  .animal-card[data-insect-id="may-beetle"] .animal-name,
-  .animal-card[data-insect-id="colorado-beetle"] .animal-name,
-  .animal-card[data-insect-id="bark-beetle"] .animal-name,
-  .animal-card[data-insect-id="flower-butterfly"] .animal-name{font-size:14.8px !important;}
-  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:13.5px !important;min-height:52px !important;}
-}
-
-
-/* =========================================================
-   V80 — CLEAN GALLERY SYSTEM
-   One geometry for Animals, Birds, Sea and Insects.
+   V92 — ONE CLEAN GALLERY SYSTEM
+   No legacy gallery CSS remains below this point.
+   V84 visual geometry + one soft professional backlight.
    ========================================================= */
 
 .activity-content.animal-gallery-mode{
@@ -3718,7 +2455,7 @@ textarea,
   touch-action:pan-y !important;
   scrollbar-width:none !important;
 }
-.animal-gallery::-webkit-scrollbar{width:0 !important;height:0 !important}
+.animal-gallery::-webkit-scrollbar{width:0!important;height:0!important}
 
 .animal-gallery--sea{
   background:
@@ -3731,23 +2468,22 @@ textarea,
     linear-gradient(180deg,#fff7db 0%,#f9ecc4 46%,#fff4dc 100%) !important;
 }
 
-/* Exact same outer card geometry everywhere. */
 .animal-gallery .animal-card,
 .animal-gallery .animal-card--bird,
 .animal-gallery .animal-card--sea,
-.animal-gallery .animal-card--insect,
-.animal-gallery--sea .animal-card,
-.animal-gallery--insect .animal-card{
+.animal-gallery .animal-card--insect{
   position:relative !important;
   width:100% !important;
   height:306px !important;
   min-height:306px !important;
   max-height:306px !important;
+  min-width:0 !important;
   padding:0 !important;
   margin:0 !important;
   overflow:hidden !important;
   box-sizing:border-box !important;
   border:0 !important;
+  outline:0 !important;
   border-radius:28px !important;
   background:linear-gradient(180deg,#ffdda0 0%,#f2bd69 54%,#eaae55 100%) !important;
   color:#55230e !important;
@@ -3757,15 +2493,29 @@ textarea,
     inset 0 3px 0 rgba(255,248,226,.94),
     inset 0 -2px 0 rgba(151,83,31,.20) !important;
   isolation:isolate !important;
+  transform:translateY(0) scale(1) !important;
   transform-origin:center center !important;
-}
-.animal-gallery .animal-card::before,
-.animal-gallery .animal-card::after{
-  display:none !important;
-  content:none !important;
+  filter:none !important;
+  will-change:transform,filter !important;
+  transition:
+    transform .36s cubic-bezier(.22,.61,.36,1),
+    filter .42s cubic-bezier(.22,.61,.36,1),
+    box-shadow .36s ease !important;
 }
 
-/* These selectors intentionally beat all old per-animal image-height overrides. */
+.animal-gallery .animal-card::before,
+.animal-gallery .animal-card::after,
+.animal-gallery .animal-card--pressing::before,
+.animal-gallery .animal-card--pressing::after,
+.animal-gallery .animal-card--focus::before,
+.animal-gallery .animal-card--focus::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* No old sweeping card light. The only light is the soft press/focus backlight below. */
+.animal-gallery .animal-card-sheen{display:none !important}
+
 .animal-gallery .animal-card .animal-image-wrap,
 .animal-gallery .animal-card[data-animal] .animal-image-wrap,
 .animal-gallery .animal-card[data-id] .animal-image-wrap,
@@ -3794,15 +2544,7 @@ textarea,
     inset 0 1px 0 rgba(255,255,255,.95) !important;
 }
 
-.animal-gallery .animal-card .animal-image-wrap img,
-.animal-gallery .animal-card[data-animal] .animal-image-wrap img,
-.animal-gallery .animal-card[data-id] .animal-image-wrap img,
-.animal-gallery .animal-card[data-animal-id] .animal-image-wrap img,
-.animal-gallery .animal-card--bird[data-bird] .animal-image-wrap img,
-.animal-gallery .animal-card--sea[data-sea-creature] .animal-image-wrap img,
-.animal-gallery .animal-card--insect[data-insect-id] .animal-image-wrap img,
-.animal-gallery .animal-card--pressing .animal-image-wrap img,
-.animal-gallery .animal-card--focus .animal-image-wrap img{
+.animal-gallery .animal-image-wrap img{
   width:100% !important;
   height:100% !important;
   display:block !important;
@@ -3815,21 +2557,10 @@ textarea,
   border-radius:16px !important;
 }
 
-.animal-gallery .animal-card-sheen{
-  opacity:.20 !important;
-  pointer-events:none !important;
-}
-
-/* One lower-panel geometry everywhere; pills cannot drop outside the card. */
 .animal-gallery .animal-card .animal-meta,
-.animal-gallery .animal-card[data-animal] .animal-meta,
-.animal-gallery .animal-card[data-id] .animal-meta,
-.animal-gallery .animal-card[data-animal-id] .animal-meta,
-.animal-gallery .animal-card--bird[data-bird] .animal-meta,
-.animal-gallery .animal-card--sea[data-sea-creature] .animal-meta,
-.animal-gallery .animal-card--insect[data-insect-id] .animal-meta,
-.animal-gallery--sea .animal-meta,
-.animal-gallery--insect .animal-meta{
+.animal-gallery .animal-card--bird .animal-meta,
+.animal-gallery .animal-card--sea .animal-meta,
+.animal-gallery .animal-card--insect .animal-meta{
   position:absolute !important;
   z-index:8 !important;
   top:214px !important;
@@ -3858,23 +2589,20 @@ textarea,
     inset 0 -2px 0 rgba(165,102,47,.18),
     0 2px 0 rgba(157,95,41,.13) !important;
 }
-.animal-gallery .animal-meta::before{
-  display:none !important;
-  content:none !important;
-}
+.animal-gallery .animal-meta::before{content:none!important;display:none!important}
 
-.animal-gallery .animal-name,
-.animal-gallery--sea .animal-name,
-.animal-gallery--insect .animal-name,
-.animal-gallery .animal-card--bird .animal-name{
-  width:100% !important;
-  max-width:100% !important;
+.animal-gallery .animal-name{
+  position:absolute !important;
+  top:6px !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:38px !important;
+  width:auto !important;
+  max-width:none !important;
   min-width:0 !important;
-  height:auto !important;
-  min-height:0 !important;
-  max-height:none !important;
   margin:0 !important;
-  padding:0 2px !important;
+  padding:0 8px !important;
+  box-sizing:border-box !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
@@ -3885,6 +2613,8 @@ textarea,
   -webkit-box-orient:initial !important;
   color:#55250f !important;
   text-align:center !important;
+  text-indent:0 !important;
+  transform:none !important;
   font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
   font-size:var(--animal-name-size,16.5px) !important;
   line-height:1.03 !important;
@@ -3893,12 +2623,13 @@ textarea,
   text-shadow:0 1px 0 rgba(255,250,236,.66) !important;
 }
 
-.animal-gallery .animal-type,
-.animal-gallery--sea .animal-type,
-.animal-gallery--insect .animal-type,
-.animal-gallery .animal-card--bird .animal-type{
-  align-self:end !important;
-  justify-self:center !important;
+.animal-gallery .animal-type{
+  position:absolute !important;
+  left:50% !important;
+  right:auto !important;
+  bottom:8px !important;
+  top:auto !important;
+  transform:translateX(-50%) !important;
   width:auto !important;
   min-width:90px !important;
   max-width:100% !important;
@@ -3927,12 +2658,8 @@ textarea,
     inset 0 -2px 0 rgba(67,35,13,.13),
     0 3px 7px rgba(80,40,15,.15) !important;
 }
-.animal-gallery .animal-type--domestic{
-  background:linear-gradient(180deg,#65d45f 0%,#31aa42 100%) !important;
-}
-.animal-gallery .animal-type--wild{
-  background:linear-gradient(180deg,#f56e74 0%,#d9434b 100%) !important;
-}
+.animal-gallery .animal-type--domestic{background:linear-gradient(180deg,#65d45f 0%,#31aa42 100%) !important}
+.animal-gallery .animal-type--wild{background:linear-gradient(180deg,#f56e74 0%,#d9434b 100%) !important}
 .animal-gallery .animal-card--sea .animal-type,
 .animal-gallery--sea .animal-type,
 .animal-gallery--insect .animal-type{
@@ -3942,26 +2669,37 @@ textarea,
   padding-right:10px !important;
 }
 
+/* Very light touch-down. */
 .animal-gallery .animal-card--pressing{
-  z-index:20 !important;
-  transform:translateY(-2px) scale(1.012) !important;
+  z-index:24 !important;
+  transform:translateY(-2px) scale(1.010) !important;
+  filter:drop-shadow(0 0 2px var(--animal-accent-soft,rgba(255,214,147,.14))) !important;
 }
+
+/* The one and only focus effect:
+   card gently lifts, then a soft backlight blooms from its entire silhouette.
+   No outline, no hard rim, no gaps. */
 .animal-gallery .animal-card--focus{
-  z-index:22 !important;
-  transform:translateY(-3px) scale(1.022) !important;
-  box-shadow:
-    0 8px 0 #a9652f,
-    0 17px 27px rgba(63,31,11,.18),
-    0 0 0 3px var(--animal-accent-soft,rgba(255,214,147,.22)),
-    inset 0 3px 0 rgba(255,248,226,.94),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+  z-index:30 !important;
+  transform:translateY(-3px) scale(1.020) !important;
+  filter:
+    drop-shadow(0 0 4px var(--animal-accent-soft,rgba(255,214,147,.18)))
+    drop-shadow(0 0 9px var(--animal-accent-soft,rgba(255,214,147,.14))) !important;
+}
+
+/* Keep image itself completely still during the card animation. */
+.animal-gallery .animal-card--pressing .animal-image-wrap img,
+.animal-gallery .animal-card--focus .animal-image-wrap img{
+  transform:none !important;
+  filter:none !important;
+}
+
+.animal-card--speaking .animal-type{
+  transform:translateX(-50%) translateY(-1px) !important;
 }
 
 @media (max-width:380px){
-  .animal-gallery{
-    gap:12px !important;
-    padding:12px 9px 34px !important;
-  }
+  .animal-gallery{gap:12px !important;padding:12px 9px 34px !important}
   .animal-gallery .animal-card,
   .animal-gallery .animal-card--bird,
   .animal-gallery .animal-card--sea,
@@ -3986,12 +2724,9 @@ textarea,
     max-height:176px !important;
   }
   .animal-gallery .animal-card .animal-meta,
-  .animal-gallery .animal-card[data-animal] .animal-meta,
-  .animal-gallery .animal-card[data-id] .animal-meta,
-  .animal-gallery .animal-card[data-animal-id] .animal-meta,
-  .animal-gallery .animal-card--bird[data-bird] .animal-meta,
-  .animal-gallery .animal-card--sea[data-sea-creature] .animal-meta,
-  .animal-gallery .animal-card--insect[data-insect-id] .animal-meta{
+  .animal-gallery .animal-card--bird .animal-meta,
+  .animal-gallery .animal-card--sea .animal-meta,
+  .animal-gallery .animal-card--insect .animal-meta{
     top:199px !important;
     left:11px !important;
     right:11px !important;
@@ -4009,129 +2744,10 @@ textarea,
   }
   .animal-gallery .animal-card--sea .animal-type,
   .animal-gallery--sea .animal-type,
-  .animal-gallery--insect .animal-type{
-    font-size:10.8px !important;
-  }
-}
-
-/* =========================================================
-   V91 — CLEAN SOFT PRO FOCUS GLOW
-   One subtle glow only. No hard outline, rays or pseudo-elements.
-   ========================================================= */
-
-/* Keep V84 text centering exactly as approved. */
-.animal-gallery .animal-card .animal-name,
-.animal-gallery .animal-card--bird .animal-name,
-.animal-gallery .animal-card--sea .animal-name,
-.animal-gallery .animal-card--insect .animal-name,
-.animal-gallery--sea .animal-name,
-.animal-gallery--insect .animal-name{
-  position:absolute !important;
-  top:6px !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:38px !important;
-  width:auto !important;
-  max-width:none !important;
-  margin:0 !important;
-  padding:0 8px !important;
-  box-sizing:border-box !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-align:center !important;
-  text-indent:0 !important;
-  transform:none !important;
-}
-
-.animal-gallery .animal-card .animal-type,
-.animal-gallery .animal-card--bird .animal-type,
-.animal-gallery .animal-card--sea .animal-type,
-.animal-gallery .animal-card--insect .animal-type,
-.animal-gallery--sea .animal-type,
-.animal-gallery--insect .animal-type{
-  position:absolute !important;
-  left:50% !important;
-  right:auto !important;
-  bottom:8px !important;
-  top:auto !important;
-  margin:0 !important;
-  transform:translateX(-50%) !important;
-}
-
-/* Remove every old focus-light surface. */
-.animal-gallery .animal-card::before,
-.animal-gallery .animal-card::after,
-.animal-gallery .animal-card--focus::before,
-.animal-gallery .animal-card--focus::after,
-.animal-gallery .animal-card--pressing::before,
-.animal-gallery .animal-card--pressing::after{
-  content:none !important;
-  display:none !important;
-  animation:none !important;
-  background:none !important;
-  border:0 !important;
-  box-shadow:none !important;
-}
-
-/* Smooth professional motion/light ramp. */
-.animal-gallery .animal-card,
-.animal-gallery .animal-card--bird,
-.animal-gallery .animal-card--sea,
-.animal-gallery .animal-card--insect{
-  outline:none !important;
-  transition:
-    transform .38s cubic-bezier(.22,.61,.36,1),
-    box-shadow .46s cubic-bezier(.22,.61,.36,1),
-    filter .38s ease !important;
-}
-
-/* Touch-down: almost no light; just a soft preview. */
-.animal-gallery .animal-card--pressing{
-  overflow:visible !important;
-  z-index:24 !important;
-  transform:translateY(-2px) scale(1.010) !important;
-  outline:none !important;
-  border:0 !important;
-  filter:none !important;
-  box-shadow:
-    0 7px 0 #a9652f,
-    0 13px 20px rgba(72,38,16,.16),
-    0 0 5px 1px var(--animal-accent-soft,rgba(255,214,147,.16)),
-    inset 0 3px 0 rgba(255,248,226,.94),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
-}
-
-/* Active/voice state:
-   soft light begins exactly at the card edge and fades outward evenly. */
-.animal-gallery .animal-card--focus,
-.animal-gallery--insect .animal-card--focus{
-  overflow:visible !important;
-  z-index:30 !important;
-  transform:translateY(-3px) scale(1.020) !important;
-  outline:none !important;
-  border:0 !important;
-  filter:none !important;
-  box-shadow:
-    0 7px 0 #a9652f,
-    0 13px 22px rgba(72,38,16,.16),
-    0 0 0 1px var(--animal-accent-soft,rgba(255,214,147,.20)),
-    0 0 7px 2px var(--animal-accent-soft,rgba(255,214,147,.20)),
-    0 0 14px 4px var(--animal-accent-soft,rgba(255,214,147,.12)),
-    inset 0 3px 0 rgba(255,248,226,.94),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
-}
-
-/* Keep the image itself calm; only the whole card lifts/glows. */
-.animal-gallery .animal-card--pressing .animal-image-wrap img,
-.animal-gallery .animal-card--focus .animal-image-wrap img{
-  transform:none !important;
-  filter:none !important;
+  .animal-gallery--insect .animal-type{font-size:10.8px !important}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .animal-gallery .animal-card{
-    transition-duration:.16s !important;
-  }
+  .animal-gallery .animal-card{transition-duration:.16s !important}
 }
 
