@@ -398,7 +398,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=79" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=80" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -688,6 +688,15 @@
     if(musicWasPlaying&&settings.master&&settings.music)ensureAudio();
   }
 
+  function galleryNameSize(name){
+    const n=Array.from(String(name||'').replace(/\s+/g,'')).length;
+    if(n>=22)return '11.5px';
+    if(n>=18)return '12.5px';
+    if(n>=15)return '13.6px';
+    if(n>=12)return '14.8px';
+    return '16.5px';
+  }
+
   function gameAnimalGallery(){
     warmAnimalAudioCache();
     activityContent.innerHTML='';
@@ -706,10 +715,11 @@
       const domestic=animal.type==='ընտանի';
       card.style.setProperty('--animal-accent',domestic?'#59c95f':'#ef5a5a');
       card.style.setProperty('--animal-accent-soft',domestic?'rgba(89,201,95,.34)':'rgba(239,90,90,.34)');
+      card.style.setProperty('--animal-name-size',galleryNameSize(animal.name));
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=79" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=80" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -908,10 +918,11 @@
       const domestic=bird.type==='ընտանի';
       card.style.setProperty('--animal-accent',domestic?'#59c95f':'#ef5a5a');
       card.style.setProperty('--animal-accent-soft',domestic?'rgba(89,201,95,.34)':'rgba(239,90,90,.34)');
+      card.style.setProperty('--animal-name-size',galleryNameSize(bird.name));
       card.setAttribute('aria-label',`${bird.name}, ${bird.type} թռչուն`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${bird.image}?v=79" alt="${bird.name}" draggable="false">
+          <img src="${bird.image}?v=80" alt="${bird.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1045,7 +1056,7 @@
     activityContent.classList.add('animal-gallery-mode');
 
     const wrap=document.createElement('div');
-    wrap.className='animal-gallery';
+    wrap.className='animal-gallery animal-gallery--sea';
     wrap.setAttribute('aria-label','Ջրային կենդանիների պատկերասրահ');
 
     SEA_CREATURES.forEach(creature=>{
@@ -1056,10 +1067,11 @@
       card.dataset.seaCreature=creature.id;
       card.style.setProperty('--animal-accent',palette.accent);
       card.style.setProperty('--animal-accent-soft',palette.soft);
+      card.style.setProperty('--animal-name-size',galleryNameSize(creature.name));
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=79" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=80" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
@@ -1205,10 +1217,11 @@
       card.dataset.insectId=insect.id;
       card.style.setProperty('--animal-accent',palette.accent);
       card.style.setProperty('--animal-accent-soft',palette.soft);
+      card.style.setProperty('--animal-name-size',galleryNameSize(insect.name));
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=79" alt="${insect.name}" draggable="false">
+          <img src="${insect.image}?v=80" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
@@ -1443,7 +1456,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=79" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=80" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
