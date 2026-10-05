@@ -415,14 +415,10 @@
   // Theme selector restored from the stable menu version.
   const themeGrid=$('#themeGrid');
   if(themeGrid){
-    themes.forEach(([id,label,preview,spritePos])=>{
+    themes.forEach(([id,label,preview])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      if(preview==='theme-user-sprite.jpg'){
-        b.innerHTML=`<span class="theme-sprite-preview" style="background-position:center ${spritePos||'0%'}"></span><span>${label}</span>`;
-      }else{
-        b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=124" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
-      }
+      b.innerHTML=`<img src="${preview||(`${id}.svg`)}?v=125" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
