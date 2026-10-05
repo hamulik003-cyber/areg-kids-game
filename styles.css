@@ -3099,3 +3099,16 @@ html[data-font="classic"]{
 .section-games-grid .toddler-game-card img{
   height:calc(70% - 24px) !important;
 }
+
+
+/* =========================================================
+   V110 — SHORTER CREATE LABEL + SMALLER INNER GAME TITLES
+   Main menu uses the shorter child-friendly "Ստեղծիր".
+   Inner section labels are slightly smaller for cleaner balance.
+   ========================================================= */
+.section-games-grid .toddler-game-label{
+  font-size:clamp(12.5px,3.05vw,18px) !important;
+  line-height:1.04 !important;
+  padding-left:9px !important;
+  padding-right:9px !important;
+}
