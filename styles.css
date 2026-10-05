@@ -2751,9 +2751,9 @@ html[data-font="classic"]{
 
 
 /* =========================================================
-   V98 — LARGER CINEMATIC 3D CARD PRESENTATION
-   Tap -> lift/3D travel to center -> voice/sound -> smooth return.
-   Current gallery card design remains untouched.
+   V99 — IOS-LIKE TOP-LEAD CARD MORPH
+   The top of the card lifts first; the lower body softly follows.
+   Opening and closing use the same gentle follow-through physics.
    ========================================================= */
 
 .gallery-card-flight-host.animal-gallery{
@@ -2773,17 +2773,16 @@ html[data-font="classic"]{
   background:rgba(55,32,14,0) !important;
   backdrop-filter:blur(0) !important;
   -webkit-backdrop-filter:blur(0) !important;
-  perspective:850px !important;
   transition:
-    background .34s ease,
-    backdrop-filter .34s ease,
-    -webkit-backdrop-filter .34s ease !important;
+    background .42s ease,
+    backdrop-filter .42s ease,
+    -webkit-backdrop-filter .42s ease !important;
 }
 
 .gallery-card-flight-host.animal-gallery.gallery-card-flight-host--visible{
-  background:rgba(55,32,14,.055) !important;
-  backdrop-filter:blur(1.2px) !important;
-  -webkit-backdrop-filter:blur(1.2px) !important;
+  background:rgba(55,32,14,.05) !important;
+  backdrop-filter:blur(1.1px) !important;
+  -webkit-backdrop-filter:blur(1.1px) !important;
 }
 
 .gallery-card-flight-shell{
@@ -2791,47 +2790,66 @@ html[data-font="classic"]{
   z-index:1 !important;
   margin:0 !important;
   padding:0 !important;
-  transform-origin:center center !important;
-  transform-style:preserve-3d !important;
   pointer-events:none !important;
-  will-change:transform,filter !important;
-  filter:
-    drop-shadow(0 13px 18px rgba(62,34,15,.18))
-    drop-shadow(0 0 4px var(--animal-accent-soft,rgba(255,214,147,.10))) !important;
-  transition:filter .34s ease !important;
+  overflow:visible !important;
+  filter:none !important;
 }
 
-.gallery-card-flight-shell--arrived{
-  filter:
-    drop-shadow(0 20px 28px rgba(62,34,15,.22))
-    drop-shadow(0 0 9px var(--animal-accent-soft,rgba(255,214,147,.18)))
-    drop-shadow(0 0 18px var(--animal-accent-soft,rgba(255,214,147,.10))) !important;
+.gallery-card-flight-piece{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  pointer-events:none !important;
+  transform-origin:50% 50% !important;
+  will-change:transform,opacity,filter !important;
+  backface-visibility:hidden !important;
+  -webkit-backface-visibility:hidden !important;
 }
 
-.gallery-card-flight-shell > .animal-card{
+.gallery-card-flight-piece--top{
+  z-index:3 !important;
+  transform-origin:50% 22% !important;
+  filter:
+    drop-shadow(0 8px 13px rgba(62,34,15,.11))
+    drop-shadow(0 0 3px var(--animal-accent-soft,rgba(255,214,147,.08))) !important;
+}
+
+.gallery-card-flight-piece--bottom{
+  z-index:2 !important;
+  transform-origin:50% 78% !important;
+  filter:drop-shadow(0 10px 15px rgba(62,34,15,.10)) !important;
+}
+
+.gallery-card-flight-piece--full{
+  z-index:4 !important;
+  filter:
+    drop-shadow(0 18px 26px rgba(62,34,15,.20))
+    drop-shadow(0 0 8px var(--animal-accent-soft,rgba(255,214,147,.15)))
+    drop-shadow(0 0 16px var(--animal-accent-soft,rgba(255,214,147,.08))) !important;
+  transition:opacity .08s linear,filter .36s ease !important;
+}
+
+.gallery-card-flight-piece > .animal-card{
   margin:0 !important;
   pointer-events:none !important;
   transform:none !important;
   transform-origin:center center !important;
-  transform-style:preserve-3d !important;
   backface-visibility:hidden !important;
   -webkit-backface-visibility:hidden !important;
 }
 
-.gallery-card-flight-shell > .animal-card .animal-image-wrap{
-  transform:translateZ(9px) !important;
-  backface-visibility:hidden !important;
-  -webkit-backface-visibility:hidden !important;
+.gallery-card-flight-shell--arrived .gallery-card-flight-piece--full{
+  filter:
+    drop-shadow(0 21px 30px rgba(62,34,15,.21))
+    drop-shadow(0 0 9px var(--animal-accent-soft,rgba(255,214,147,.17)))
+    drop-shadow(0 0 18px var(--animal-accent-soft,rgba(255,214,147,.09))) !important;
 }
 
-.gallery-card-flight-shell > .animal-card .animal-meta{
-  transform:translateZ(14px) !important;
-  backface-visibility:hidden !important;
-  -webkit-backface-visibility:hidden !important;
-}
-
-.gallery-card-flight-shell > .animal-card.animal-card--focus{
-  transform:translateY(-1px) scale(1.012) !important;
+.gallery-card-flight-piece--full > .animal-card.animal-card--focus{
+  transform:translateY(-1px) scale(1.010) !important;
 }
 
 @media (prefers-reduced-motion:reduce){
