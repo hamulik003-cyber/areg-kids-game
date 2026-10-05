@@ -1,4 +1,4 @@
-<!-- V111 larger inner section labels -->
+<!-- V112 global themes + Armenian font selector -->
 <!doctype html>
 <html lang="hy" data-theme="day" data-font="system">
 <head>
@@ -6,8 +6,8 @@
   <script>
   (()=>{try{
     const u=new URL(location.href);
-    if(u.searchParams.get('__areg_build')!=='111'){
-      u.searchParams.set('__areg_build','111');
+    if(u.searchParams.get('__areg_build')!=='112'){
+      u.searchParams.set('__areg_build','112');
       u.searchParams.set('__ts',Date.now().toString());
       location.replace(u.toString());
     }
@@ -23,7 +23,7 @@
   <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Արեգ 3D աշխարհ</title>
-  <link rel="stylesheet" href="styles.css?v=111" />
+  <link rel="stylesheet" href="styles.css?v=112" />
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
@@ -140,7 +140,6 @@
       </div>
       <h3 class="theme-heading font-heading">Տառաձև</h3>
       <div id="fontGrid" class="font-grid" aria-label="Ընտրել տառաձև"></div>
-      <p class="font-help">Բոլոր տարբերակները նախատեսված են հայերեն տեքստերի համար և աշխատում են նաև առանց ինտերնետի։</p>
       <h3 class="theme-heading">Թեմա</h3>
       <div id="themeGrid" class="theme-grid" aria-label="Ընտրել թեմա"></div>
     </div>
@@ -175,6 +174,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="auto"></audio>
-  <script src="app.js?v=106"></script>
+  <script src="app.js?v=112"></script>
 </body>
 </html>
