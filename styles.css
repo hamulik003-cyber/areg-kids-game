@@ -2991,7 +2991,7 @@ html[data-font="classic"]{
   right:10px !important;
   top:10px !important;
   width:calc(100% - 20px) !important;
-  height:calc(70% - 10px) !important;
+  height:calc(70% - 24px) !important;
   object-fit:cover !important;
   object-position:center center !important;
   border:4px solid #fffdfa !important;
@@ -3088,4 +3088,14 @@ html[data-font="classic"]{
 .section-games-grid .toddler-game-label::after{
   content:none !important;
   display:none !important;
+}
+
+
+/* =========================================================
+   V109 — MATCH HOME CARD IMAGE/LABEL GAP
+   Keep an 8px clean breathing gap between the inner section
+   image frame and its cream text panel, matching the home menu.
+   ========================================================= */
+.section-games-grid .toddler-game-card img{
+  height:calc(70% - 24px) !important;
 }
