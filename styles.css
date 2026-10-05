@@ -2748,3 +2748,80 @@ html[data-font="classic"]{
   .animal-gallery .animal-card{transition-duration:.16s !important}
 }
 
+
+
+/* =========================================================
+   V97 — CINEMATIC CARD PRESENTATION
+   Tap -> lift/3D travel to center -> voice/sound -> smooth return.
+   Current gallery card design remains untouched.
+   ========================================================= */
+
+.gallery-card-flight-host.animal-gallery{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:99990 !important;
+  display:block !important;
+  grid-template-columns:none !important;
+  align-content:normal !important;
+  gap:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  touch-action:none !important;
+  overscroll-behavior:none !important;
+  pointer-events:auto !important;
+  background:rgba(55,32,14,0) !important;
+  backdrop-filter:blur(0) !important;
+  -webkit-backdrop-filter:blur(0) !important;
+  perspective:1100px !important;
+  transition:
+    background .34s ease,
+    backdrop-filter .34s ease,
+    -webkit-backdrop-filter .34s ease !important;
+}
+
+.gallery-card-flight-host.animal-gallery.gallery-card-flight-host--visible{
+  background:rgba(55,32,14,.055) !important;
+  backdrop-filter:blur(1.2px) !important;
+  -webkit-backdrop-filter:blur(1.2px) !important;
+}
+
+.gallery-card-flight-shell{
+  position:fixed !important;
+  z-index:1 !important;
+  margin:0 !important;
+  padding:0 !important;
+  transform-origin:center center !important;
+  transform-style:preserve-3d !important;
+  pointer-events:none !important;
+  will-change:transform,filter !important;
+  filter:
+    drop-shadow(0 13px 18px rgba(62,34,15,.18))
+    drop-shadow(0 0 4px var(--animal-accent-soft,rgba(255,214,147,.10))) !important;
+  transition:filter .34s ease !important;
+}
+
+.gallery-card-flight-shell--arrived{
+  filter:
+    drop-shadow(0 20px 28px rgba(62,34,15,.22))
+    drop-shadow(0 0 9px var(--animal-accent-soft,rgba(255,214,147,.18)))
+    drop-shadow(0 0 18px var(--animal-accent-soft,rgba(255,214,147,.10))) !important;
+}
+
+.gallery-card-flight-shell > .animal-card{
+  margin:0 !important;
+  pointer-events:none !important;
+  transform:none !important;
+  transform-origin:center center !important;
+}
+
+.gallery-card-flight-shell > .animal-card.animal-card--focus{
+  transform:translateY(-1px) scale(1.012) !important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .gallery-card-flight-host.animal-gallery{
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+}
