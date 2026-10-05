@@ -2751,9 +2751,9 @@ html[data-font="classic"]{
 
 
 /* =========================================================
-   V100 — REFERENCE-MATCHED IOS WINDOW MORPH
-   One whole card morphs from its grid position to center.
-   Slight non-uniform stretch + soft spring + reversible close.
+   V101 — RESTORED ORIGINAL CINEMATIC CARD PRESENTATION
+   Tap -> lift/3D travel to center -> voice/sound -> smooth return.
+   Current gallery card design remains untouched.
    ========================================================= */
 
 .gallery-card-flight-host.animal-gallery{
@@ -2770,19 +2770,20 @@ html[data-font="classic"]{
   touch-action:none !important;
   overscroll-behavior:none !important;
   pointer-events:auto !important;
-  background:rgba(24,18,13,0) !important;
-  backdrop-filter:blur(0) saturate(1) !important;
-  -webkit-backdrop-filter:blur(0) saturate(1) !important;
+  background:rgba(55,32,14,0) !important;
+  backdrop-filter:blur(0) !important;
+  -webkit-backdrop-filter:blur(0) !important;
+  perspective:1100px !important;
   transition:
-    background .46s cubic-bezier(.2,.7,.2,1),
-    backdrop-filter .46s cubic-bezier(.2,.7,.2,1),
-    -webkit-backdrop-filter .46s cubic-bezier(.2,.7,.2,1) !important;
+    background .34s ease,
+    backdrop-filter .34s ease,
+    -webkit-backdrop-filter .34s ease !important;
 }
 
 .gallery-card-flight-host.animal-gallery.gallery-card-flight-host--visible{
-  background:rgba(24,18,13,.10) !important;
-  backdrop-filter:blur(5px) saturate(.92) !important;
-  -webkit-backdrop-filter:blur(5px) saturate(.92) !important;
+  background:rgba(55,32,14,.055) !important;
+  backdrop-filter:blur(1.2px) !important;
+  -webkit-backdrop-filter:blur(1.2px) !important;
 }
 
 .gallery-card-flight-shell{
@@ -2790,20 +2791,21 @@ html[data-font="classic"]{
   z-index:1 !important;
   margin:0 !important;
   padding:0 !important;
+  transform-origin:center center !important;
+  transform-style:preserve-3d !important;
   pointer-events:none !important;
-  transform-origin:50% 50% !important;
   will-change:transform,filter !important;
   filter:
-    drop-shadow(0 12px 18px rgba(56,34,18,.15))
-    drop-shadow(0 0 3px var(--animal-accent-soft,rgba(255,214,147,.08))) !important;
+    drop-shadow(0 13px 18px rgba(62,34,15,.18))
+    drop-shadow(0 0 4px var(--animal-accent-soft,rgba(255,214,147,.10))) !important;
   transition:filter .34s ease !important;
 }
 
 .gallery-card-flight-shell--arrived{
   filter:
-    drop-shadow(0 23px 34px rgba(56,34,18,.24))
-    drop-shadow(0 0 8px var(--animal-accent-soft,rgba(255,214,147,.14)))
-    drop-shadow(0 0 17px var(--animal-accent-soft,rgba(255,214,147,.07))) !important;
+    drop-shadow(0 20px 28px rgba(62,34,15,.22))
+    drop-shadow(0 0 9px var(--animal-accent-soft,rgba(255,214,147,.18)))
+    drop-shadow(0 0 18px var(--animal-accent-soft,rgba(255,214,147,.10))) !important;
 }
 
 .gallery-card-flight-shell > .animal-card{
@@ -2811,12 +2813,10 @@ html[data-font="classic"]{
   pointer-events:none !important;
   transform:none !important;
   transform-origin:center center !important;
-  backface-visibility:hidden !important;
-  -webkit-backface-visibility:hidden !important;
 }
 
 .gallery-card-flight-shell > .animal-card.animal-card--focus{
-  transform:translateY(-1px) scale(1.008) !important;
+  transform:translateY(-1px) scale(1.012) !important;
 }
 
 @media (prefers-reduced-motion:reduce){
