@@ -1,1 +1,0 @@
-Extract this ZIP and upload these 4 files to the repository root, replacing index.html, launcher.html, service-worker.js, and adding v90.css.
