@@ -3414,11 +3414,15 @@ html[data-theme] .animal-gallery--insect{
 
 
 
+
 /* =========================================================
-   V118 — remove inner thumbnail rim only
-   Keep V112 card geometry/style; theme continues on backgrounds.
+   V119 — remove only the long bottom band on regular sections
+   Keep V112 icon/card visuals, including the cream image rim.
    ========================================================= */
-.toddler-section-screen:not(.magic-collection-mode) .toddler-game-card img{
-  border:0 !important;
-  box-shadow:none !important;
+.toddler-section-screen:not(.magic-collection-mode) .toddler-section-shell{
+  padding-bottom:0 !important;
+}
+.toddler-section-screen:not(.magic-collection-mode) .section-games-grid{
+  margin-bottom:0 !important;
+  padding-bottom:0 !important;
 }
