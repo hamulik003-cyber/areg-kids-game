@@ -3290,94 +3290,127 @@ html[data-font="classic"]{
 
 
 /* =========================================================
-   V72 — clearer text area for all animal-world galleries
-   - names live only on the beige panel
-   - green leaf decorations sit on the divider line
+   V73 — V71 visual baseline + name/leaf positioning only
+   IMPORTANT: image/card dimensions are unchanged from V71.
    ========================================================= */
 
-.animal-card{
-  --card-meta-h: 32%;
-}
-.animal-gallery--insect .animal-card,
-.animal-card--sea,
-.animal-card--bird[data-bird="bald-eagle"],
-.animal-card--bird[data-bird="guinea-fowl"],
-.animal-card[data-animal="polar-bear"]{
-  --card-meta-h: 35%;
+/* Keep the V71 image sizes exactly as they were.
+   Start the text panel only AFTER the image, so names never sit on the picture. */
+.animal-meta{
+  top:calc(69% + 6px) !important;
+  bottom:4px !important;
+  height:auto !important;
+  justify-content:flex-start !important;
+  gap:2px !important;
+  padding:3px 5px 4px !important;
 }
 
-.animal-image-wrap{
-  top:5px !important;
-  bottom:calc(var(--card-meta-h) + 6px) !important;
+.animal-gallery--insect .animal-meta,
+.animal-card--sea .animal-meta{
+  top:calc(67% + 6px) !important;
+  bottom:4px !important;
+  height:auto !important;
+  justify-content:flex-start !important;
+  gap:2px !important;
+  padding:3px 4px 4px !important;
+}
+
+/* Long-name cards keep their V71 image size; only the text box begins below it. */
+.animal-card--bird[data-bird="bald-eagle"] .animal-meta{
+  top:calc(65% + 6px) !important;
+  bottom:4px !important;
+  height:auto !important;
+}
+.animal-card[data-animal="polar-bear"] .animal-meta{
+  top:calc(67% + 6px) !important;
+  bottom:4px !important;
   height:auto !important;
 }
 
-.animal-meta{
-  top:auto !important;
-  bottom:4px !important;
-  height:var(--card-meta-h) !important;
-  display:flex !important;
-  flex-direction:column !important;
-  justify-content:center !important;
-  align-items:center !important;
-  gap:6px !important;
-  padding:6px 5px 10px !important;
-}
-
+/* Slightly tighten only the vertical text stack so both name and badge fit
+   inside the existing V71 lower panel. */
 .animal-name{
-  position:relative !important;
-  z-index:2 !important;
-  display:-webkit-box !important;
-  -webkit-box-orient:vertical !important;
-  overflow:hidden !important;
-  text-align:center !important;
+  min-height:0 !important;
   margin:0 !important;
+  line-height:1.03 !important;
 }
-
 .animal-type{
-  position:relative !important;
-  z-index:2 !important;
+  flex:0 0 auto !important;
+  height:20px !important;
+  margin-top:auto !important;
 }
 
-/* Put the decorative green leaves exactly on the image/beige divider. */
+/* Put the green decorative leaves on the exact image/panel divider.
+   Regular galleries use the V71 69% image height. */
 .animal-card::before,
 .animal-card::after{
-  bottom:calc(var(--card-meta-h) - 3px) !important;
+  bottom:calc(31% - 6px) !important;
 }
 
-/* Fine tuning for the larger 2-column cards */
-.animal-gallery--insect .animal-meta,
-.animal-card--sea .animal-meta{
-  gap:5px !important;
-  padding-top:6px !important;
+/* Sea + insects use the V71 67% image height. */
+.animal-gallery--insect .animal-card::before,
+.animal-gallery--insect .animal-card::after,
+.animal-card--sea::before,
+.animal-card--sea::after{
+  bottom:calc(33% - 6px) !important;
 }
 
-.animal-gallery--insect .animal-name,
-.animal-card--sea .animal-name{
-  min-height:42px !important;
+/* V71 special image heights */
+.animal-card--bird[data-bird="bald-eagle"]::before,
+.animal-card--bird[data-bird="bald-eagle"]::after{
+  bottom:calc(35% - 6px) !important;
+}
+.animal-card[data-animal="polar-bear"]::before,
+.animal-card[data-animal="polar-bear"]::after{
+  bottom:calc(33% - 6px) !important;
 }
 
-.animal-card--bird[data-bird="bald-eagle"] .animal-meta,
-.animal-card--bird[data-bird="guinea-fowl"] .animal-meta,
-.animal-card[data-animal="polar-bear"] .animal-meta{
-  gap:4px !important;
-  padding-top:6px !important;
+/* These leaves were hidden by older fit fixes; restore them on the divider. */
+.animal-card--bird[data-bird="bald-eagle"]::before,
+.animal-card--bird[data-bird="bald-eagle"]::after,
+.animal-card--bird[data-bird="guinea-fowl"]::before,
+.animal-card--bird[data-bird="guinea-fowl"]::after,
+.animal-card[data-sea-creature="sea-otter"]::before,
+.animal-card[data-sea-creature="sea-otter"]::after,
+.animal-card[data-sea-creature="leafy-seadragon"]::before,
+.animal-card[data-sea-creature="leafy-seadragon"]::after,
+.animal-card[data-insect-id="cabbage-butterfly"]::before,
+.animal-card[data-insect-id="cabbage-butterfly"]::after,
+.animal-card[data-insect-id="praying-mantis"]::before,
+.animal-card[data-insect-id="praying-mantis"]::after{
+  display:block !important;
+}
+
+/* Preserve readability for the longest names without changing the picture area. */
+.animal-card--bird[data-bird="bald-eagle"] .animal-name,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-name{
+  font-size:15px !important;
+}
+.animal-card[data-animal="polar-bear"] .animal-name{
+  font-size:16px !important;
+}
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{
+  font-size:13px !important;
+}
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{
+  font-size:13.4px !important;
 }
 
 @media (max-width:380px){
-  .animal-card{ --card-meta-h: 33%; }
-  .animal-gallery--insect .animal-card,
-  .animal-card--sea,
-  .animal-card--bird[data-bird="bald-eagle"],
-  .animal-card--bird[data-bird="guinea-fowl"],
-  .animal-card[data-animal="polar-bear"]{ --card-meta-h: 36%; }
-
   .animal-meta{
-    gap:5px !important;
-    padding:6px 4px 9px !important;
+    top:calc(69% + 6px) !important;
+    padding:3px 4px 4px !important;
   }
-  .animal-card::before,
-  .animal-card::after{
-    bottom:calc(var(--card-meta-h) - 4px) !important;
+  .animal-gallery--insect .animal-meta,
+  .animal-card--sea .animal-meta{
+    top:calc(67% + 6px) !important;
   }
+  .animal-card--bird[data-bird="bald-eagle"] .animal-meta{
+    top:calc(65% + 6px) !important;
+  }
+  .animal-card[data-animal="polar-bear"] .animal-meta{
+    top:calc(67% + 6px) !important;
+  }
+  .animal-name{line-height:1.02 !important}
+  .animal-type{height:19px !important}
 }
