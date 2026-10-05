@@ -3107,8 +3107,11 @@ html[data-font="classic"]{
    Inner section labels are slightly smaller for cleaner balance.
    ========================================================= */
 .section-games-grid .toddler-game-label{
-  font-size:clamp(12.5px,3.05vw,18px) !important;
+  font-size:clamp(16px,3.85vw,22px) !important;
   line-height:1.04 !important;
   padding-left:9px !important;
   padding-right:9px !important;
 }
+
+
+/* V111 — enlarge inner section game labels to match home-menu text weight. */
