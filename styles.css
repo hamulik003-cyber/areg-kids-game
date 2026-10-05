@@ -3425,3 +3425,25 @@ html[data-theme] .animal-gallery--insect{
       color-mix(in srgb,var(--bg-3) 72%,white) 100%
     ) !important;
 }
+
+
+/* =========================================================
+   V115 — keep section icon cards original; theme only behind them
+   ========================================================= */
+html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card{
+  background:linear-gradient(180deg,#fff2db 0%,#f7d7a8 68%,#efad65 68%,#e99a52 100%) !important;
+  border-color:rgba(255,213,144,.95) !important;
+  box-shadow:
+    0 6px 0 rgba(142,78,38,.78),
+    0 12px 22px rgba(20,8,4,.17),
+    inset 0 0 0 2px rgba(121,70,34,.14) !important;
+}
+html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-card:active{
+  box-shadow:
+    0 3px 0 rgba(142,78,38,.78),
+    0 7px 14px rgba(20,8,4,.16),
+    inset 0 0 0 2px rgba(121,70,34,.14) !important;
+}
+html[data-theme] .toddler-section-screen:not(.magic-collection-mode) .toddler-game-label{
+  color:#51220f !important;
+}
