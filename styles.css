@@ -2832,3 +2832,241 @@ html[data-font="classic"]{
 .gallery-card-flight-shell{
   cursor:default !important;
 }
+
+
+/* =========================================================
+   V107 — UNIFIED CARD LANGUAGE
+   Home menu + section game tiles now visually match the
+   approved animal/bird/sea/insect gallery card family.
+   Geometry, positions, images and navigation stay unchanged.
+   ========================================================= */
+
+/* ---------- HOME MENU: keep original absolute geometry ---------- */
+.home-section-card{
+  --menu-accent-soft:rgba(255,255,255,.08);
+  overflow:hidden !important;
+  isolation:isolate !important;
+  border:0 !important;
+  outline:0 !important;
+  background:linear-gradient(180deg,#ffdda0 0%,#f2bd69 54%,#eaae55 100%) !important;
+  box-shadow:
+    0 8px 0 #a9652f,
+    0 15px 24px rgba(72,38,16,.17),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+  filter:none !important;
+}
+
+.nature-card{--menu-accent-soft:rgba(93,196,101,.16)}
+.space-card{--menu-accent-soft:rgba(126,111,224,.15)}
+.mind-card{--menu-accent-soft:rgba(83,164,224,.15)}
+.create-card{--menu-accent-soft:rgba(228,112,158,.14)}
+.magic-card{--menu-accent-soft:rgba(255,204,79,.18)}
+
+.home-section-card .home-card-art{
+  position:absolute !important;
+  z-index:2 !important;
+  left:12px !important;
+  right:12px !important;
+  top:12px !important;
+  width:calc(100% - 24px) !important;
+  height:calc(100% - 104px) !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border:5px solid #fffdfa !important;
+  border-radius:26px !important;
+  background:#eef7ff !important;
+  box-shadow:
+    0 0 0 3px rgba(246,220,174,.96),
+    0 4px 0 rgba(159,98,44,.18),
+    inset 0 1px 0 rgba(255,255,255,.95) !important;
+  pointer-events:none !important;
+}
+
+.home-section-card .home-card-label{
+  position:absolute !important;
+  z-index:8 !important;
+  left:12px !important;
+  right:12px !important;
+  bottom:12px !important;
+  width:auto !important;
+  height:72px !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin:0 !important;
+  padding:5px 12px !important;
+  overflow:hidden !important;
+  border:1px solid rgba(203,145,78,.42) !important;
+  border-radius:20px !important;
+  background:
+    linear-gradient(180deg,var(--menu-accent-soft) 0%,rgba(255,255,255,0) 42%),
+    linear-gradient(180deg,#ffe7bf 0%,#f1c985 100%) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,251,239,.96),
+    inset 0 -2px 0 rgba(165,102,47,.18),
+    0 2px 0 rgba(157,95,41,.13) !important;
+  color:#55250f !important;
+  text-align:center !important;
+  font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
+  font-size:32px !important;
+  line-height:1.02 !important;
+  font-weight:950 !important;
+  letter-spacing:-.025em !important;
+  text-shadow:0 1px 0 rgba(255,250,236,.68) !important;
+  pointer-events:none !important;
+}
+
+.home-section-card--wide .home-card-art{
+  left:12px !important;
+  right:12px !important;
+  top:12px !important;
+  width:calc(100% - 24px) !important;
+  height:calc(100% - 100px) !important;
+  border-radius:27px !important;
+}
+.home-section-card--wide .home-card-label{
+  left:12px !important;
+  right:12px !important;
+  bottom:12px !important;
+  height:68px !important;
+  padding:4px 38px !important;
+  border-radius:20px !important;
+  font-size:29px !important;
+}
+
+.home-section-card .home-card-leaf,
+.home-section-card .leaf-left,
+.home-section-card .leaf-right,
+.home-section-card .home-v44-sheen,
+.home-section-card .home-card-shine,
+.home-section-card .section-card-sheen{
+  display:none !important;
+}
+
+.home-section-card:active,
+.home-section-card.is-opening{
+  transform:translateY(2px) scale(.992) !important;
+  box-shadow:
+    0 5px 0 #a9652f,
+    0 10px 18px rgba(72,38,16,.15),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+  filter:brightness(1.018) !important;
+}
+
+/* ---------- INNER SECTION 4-GAME TILES: preserve grid/height ---------- */
+.section-screen[data-section="nature"]{--section-card-accent-soft:rgba(93,196,101,.15)}
+.section-screen[data-section="space"]{--section-card-accent-soft:rgba(126,111,224,.14)}
+.section-screen[data-section="mind"]{--section-card-accent-soft:rgba(83,164,224,.14)}
+.section-screen[data-section="create"]{--section-card-accent-soft:rgba(228,112,158,.13)}
+
+.toddler-game-card{
+  --section-card-accent-soft:var(--section-card-accent-soft,rgba(255,255,255,.08));
+  position:relative !important;
+  overflow:hidden !important;
+  min-height:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:28px !important;
+  background:linear-gradient(180deg,#ffdda0 0%,#f2bd69 54%,#eaae55 100%) !important;
+  box-shadow:
+    0 7px 0 #a9652f,
+    0 13px 20px rgba(72,38,16,.16),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+  isolation:isolate !important;
+  filter:none !important;
+  transition:
+    transform .28s cubic-bezier(.22,.61,.36,1),
+    filter .34s cubic-bezier(.22,.61,.36,1),
+    box-shadow .28s ease !important;
+}
+
+.toddler-game-card img{
+  position:absolute !important;
+  z-index:2 !important;
+  left:10px !important;
+  right:10px !important;
+  top:10px !important;
+  width:calc(100% - 20px) !important;
+  height:calc(70% - 10px) !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border:4px solid #fffdfa !important;
+  border-radius:21px !important;
+  background:#eef7ff !important;
+  box-shadow:
+    0 0 0 3px rgba(246,220,174,.96),
+    0 4px 0 rgba(159,98,44,.18),
+    inset 0 1px 0 rgba(255,255,255,.95) !important;
+}
+
+.toddler-game-label{
+  position:absolute !important;
+  z-index:8 !important;
+  left:10px !important;
+  right:10px !important;
+  bottom:10px !important;
+  width:auto !important;
+  height:calc(30% - 4px) !important;
+  min-height:0 !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:4px 8px !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  border:1px solid rgba(203,145,78,.42) !important;
+  border-radius:18px !important;
+  background:
+    linear-gradient(180deg,var(--section-card-accent-soft) 0%,rgba(255,255,255,0) 40%),
+    linear-gradient(180deg,#ffe7bf 0%,#f1c985 100%) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,251,239,.96),
+    inset 0 -2px 0 rgba(165,102,47,.18),
+    0 2px 0 rgba(157,95,41,.13) !important;
+  color:#55250f !important;
+  text-align:center !important;
+  font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
+  font-size:clamp(14px,3.55vw,20px) !important;
+  line-height:1.02 !important;
+  font-weight:950 !important;
+  letter-spacing:-.025em !important;
+  text-shadow:0 1px 0 rgba(255,250,236,.68) !important;
+}
+
+.toddler-game-card::before,
+.toddler-game-card::after,
+.toddler-game-card .section-card-sheen,
+.toddler-game-card .game-card-sheen{
+  content:none !important;
+  display:none !important;
+}
+
+.toddler-game-card:active{
+  transform:translateY(2px) scale(.991) !important;
+  filter:brightness(1.018) !important;
+  box-shadow:
+    0 4px 0 #a9652f,
+    0 8px 15px rgba(72,38,16,.15),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+
+/* Compact-height devices: preserve the same visual language without changing grid geometry. */
+@media (max-height:760px){
+  .toddler-game-card img{
+    left:9px !important;
+    right:9px !important;
+    top:9px !important;
+    width:calc(100% - 18px) !important;
+  }
+  .toddler-game-label{
+    left:9px !important;
+    right:9px !important;
+    bottom:9px !important;
+  }
+}
