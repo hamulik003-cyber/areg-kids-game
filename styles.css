@@ -2289,7 +2289,7 @@ body.magic-scroll-active{
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   grid-template-rows:repeat(2,minmax(0,1fr)) !important;
   grid-auto-rows:minmax(0,1fr) !important;
-  overflow:hidden !important;
+  overflow:visible !important;
   min-height:0 !important;
   touch-action:none !important;
   align-items:stretch !important;
