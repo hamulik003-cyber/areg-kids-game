@@ -3412,3 +3412,13 @@ html[data-theme] .animal-gallery--insect{
 
 
 
+
+
+/* =========================================================
+   V118 — remove inner thumbnail rim only
+   Keep V112 card geometry/style; theme continues on backgrounds.
+   ========================================================= */
+.toddler-section-screen:not(.magic-collection-mode) .toddler-game-card img{
+  border:0 !important;
+  box-shadow:none !important;
+}
