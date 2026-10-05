@@ -4015,11 +4015,11 @@ textarea,
 }
 
 /* =========================================================
-   V88 — REAL DOM FULL-CARD RIM
-   No pseudo-elements. Rim wraps the visible 3D card including bottom depth.
+   V89 — RELIABLE 4-SIDE OUTLINE GLOW
+   No pseudo-elements, no extra DOM rim. One real outline on the card.
    ========================================================= */
 
-/* Keep approved hard-centering untouched. */
+/* Keep approved centered labels untouched. */
 .animal-gallery .animal-card .animal-name,
 .animal-gallery .animal-card--bird .animal-name,
 .animal-gallery .animal-card--sea .animal-name,
@@ -4059,7 +4059,9 @@ textarea,
   transform:translateX(-50%) !important;
 }
 
-/* Kill all focus pseudo-elements; they caused the broken red fragment. */
+/* Permanently kill every legacy decorative card pseudo-element. */
+.animal-gallery .animal-card::before,
+.animal-gallery .animal-card::after,
 .animal-gallery .animal-card--focus::before,
 .animal-gallery .animal-card--focus::after,
 .animal-gallery .animal-card--pressing::before,
@@ -4068,67 +4070,41 @@ textarea,
   display:none !important;
 }
 
-/* The real rim layer. Bottom extends farther to include the brown 3D base shadow. */
+/* Kill the temporary V88 DOM rim if an old cached JS happens to create it. */
 .animal-gallery .animal-card .animal-focus-rim{
-  position:absolute !important;
-  z-index:300 !important;
-  pointer-events:none !important;
-
-  top:-6px !important;
-  right:-6px !important;
-  bottom:-13px !important;
-  left:-6px !important;
-
-  box-sizing:border-box !important;
-  border:4px solid var(--animal-accent,#ffd66f) !important;
-  border-radius:34px 34px 39px 39px !important;
-  background:transparent !important;
-
-  opacity:0 !important;
-  transform:none !important;
-
-  box-shadow:
-    0 0 7px 2px rgba(255,255,255,.42),
-    0 0 12px 4px var(--animal-accent-soft,rgba(255,214,147,.46)),
-    0 0 20px 7px var(--animal-accent-soft,rgba(255,214,147,.30)) !important;
-
-  transition:opacity .16s ease !important;
+  display:none !important;
 }
 
-/* Show it immediately on touch, stronger while the card/voice is active. */
+/* Touch preview */
 .animal-gallery .animal-card--pressing{
   overflow:visible !important;
   z-index:35 !important;
   transform:translateY(-2px) scale(1.014) !important;
+  outline:3px solid var(--animal-accent,#ffd66f) !important;
+  outline-offset:-1px !important;
   filter:none !important;
 }
-.animal-gallery .animal-card--pressing .animal-focus-rim{
-  opacity:.62 !important;
-}
 
+/* Final active state:
+   - one 5px outline = equal top/right/bottom/left
+   - symmetric glow
+   - bottom 3D depth becomes accent-tinted so it also visibly lights up */
 .animal-gallery .animal-card--focus{
   overflow:visible !important;
-  z-index:45 !important;
+  z-index:50 !important;
   transform:translateY(-3px) scale(1.026) !important;
+
+  outline:5px solid var(--animal-accent,#ffd66f) !important;
+  outline-offset:-1px !important;
+
   filter:none !important;
+
   box-shadow:
-    0 8px 0 #a9652f,
+    0 8px 0 color-mix(in srgb,var(--animal-accent,#ffd66f) 68%,#a9652f),
+    0 0 14px 5px var(--animal-accent-soft,rgba(255,214,147,.42)),
     0 17px 27px rgba(63,31,11,.18),
+    inset 0 0 0 2px rgba(255,255,255,.42),
     inset 0 3px 0 rgba(255,248,226,.96),
     inset 0 -2px 0 rgba(151,83,31,.20) !important;
-}
-.animal-gallery .animal-card--focus .animal-focus-rim{
-  opacity:1 !important;
-}
-
-@media (max-width:380px){
-  .animal-gallery .animal-card .animal-focus-rim{
-    top:-5px !important;
-    right:-5px !important;
-    bottom:-12px !important;
-    left:-5px !important;
-    border-width:4px !important;
-    border-radius:32px 32px 37px 37px !important;
-  }
 }
 
