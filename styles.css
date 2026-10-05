@@ -3688,3 +3688,244 @@ textarea,
   .animal-card[data-insect-id="flower-butterfly"] .animal-name{font-size:14.8px !important;}
   .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:13.5px !important;min-height:52px !important;}
 }
+
+
+/* =========================================================
+   V79 — FINAL MASTER CARD
+   Approved master structure across Animals, Birds, Sea and Insects.
+   ========================================================= */
+
+.activity-content.animal-gallery-mode{
+  overflow:hidden !important;
+  padding:0 !important;
+}
+.animal-gallery{
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  padding:14px 10px 34px !important;
+  align-content:start !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+.animal-card,
+.animal-card--bird,
+.animal-card--sea,
+.animal-card--insect,
+.animal-gallery--sea .animal-card,
+.animal-gallery--insect .animal-card{
+  position:relative !important;
+  width:100% !important;
+  height:306px !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  border:0 !important;
+  border-radius:30px !important;
+  background:linear-gradient(180deg,#ffd996 0%,#efb862 48%,#e9aa53 100%) !important;
+  box-shadow:
+    0 8px 0 #a9652f,
+    0 16px 24px rgba(63,31,11,.18),
+    inset 0 3px 0 rgba(255,247,220,.92),
+    inset 0 -3px 0 rgba(164,92,37,.23) !important;
+  color:#55230e !important;
+  isolation:isolate !important;
+}
+.animal-card::before,
+.animal-card::after{
+  display:none !important;
+  content:none !important;
+}
+.animal-image-wrap,
+.animal-gallery--sea .animal-image-wrap,
+.animal-gallery--insect .animal-image-wrap,
+.animal-card--bird .animal-image-wrap{
+  position:absolute !important;
+  left:12px !important;
+  right:12px !important;
+  top:12px !important;
+  width:auto !important;
+  height:196px !important;
+  overflow:hidden !important;
+  border:6px solid #fffdf8 !important;
+  border-radius:24px !important;
+  background:#e9f4ff !important;
+  box-shadow:
+    0 0 0 3px rgba(244,217,167,.96),
+    0 4px 0 rgba(171,107,50,.22),
+    inset 0 1px 0 rgba(255,255,255,.92) !important;
+}
+.animal-image-wrap img,
+.animal-card--pressing .animal-image-wrap img,
+.animal-card--focus .animal-image-wrap img{
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border-radius:17px !important;
+  transform:none !important;
+  filter:none !important;
+  padding:0 !important;
+}
+.animal-card-sheen{opacity:.32 !important;}
+
+.animal-meta,
+.animal-meta--sea,
+.animal-meta--insect,
+.animal-gallery--sea .animal-meta,
+.animal-gallery--insect .animal-meta,
+.animal-card--bird .animal-meta{
+  position:absolute !important;
+  z-index:8 !important;
+  left:12px !important;
+  right:12px !important;
+  bottom:12px !important;
+  top:auto !important;
+  width:auto !important;
+  height:82px !important;
+  min-height:82px !important;
+  padding:8px 8px 9px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:4px !important;
+  overflow:hidden !important;
+  border:1px solid rgba(205,151,83,.48) !important;
+  border-radius:20px !important;
+  background:
+    linear-gradient(180deg,var(--animal-accent-soft,rgba(255,255,255,.12)) 0%,rgba(255,255,255,0) 38%),
+    linear-gradient(180deg,#ffe6bd 0%,#efc783 100%) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,250,236,.95),
+    inset 0 -2px 0 rgba(167,106,49,.22),
+    inset 0 0 0 2px var(--animal-accent-soft,rgba(255,214,147,.18)),
+    0 2px 0 rgba(161,100,44,.16) !important;
+}
+.animal-meta::before{display:none !important;content:none !important;}
+
+.animal-name,
+.animal-gallery--sea .animal-name,
+.animal-gallery--insect .animal-name,
+.animal-card--bird .animal-name{
+  width:100% !important;
+  max-width:100% !important;
+  min-height:38px !important;
+  margin:0 !important;
+  padding:0 2px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  white-space:normal !important;
+  -webkit-line-clamp:unset !important;
+  -webkit-box-orient:initial !important;
+  color:#54240e !important;
+  text-align:center !important;
+  font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
+  font-size:17px !important;
+  line-height:1.04 !important;
+  font-weight:950 !important;
+  letter-spacing:-.025em !important;
+  text-shadow:0 1px 0 rgba(255,248,229,.62) !important;
+}
+
+.animal-type,
+.animal-gallery--sea .animal-type,
+.animal-gallery--insect .animal-type,
+.animal-card--bird .animal-type{
+  flex:0 0 auto !important;
+  min-width:96px !important;
+  max-width:138px !important;
+  height:28px !important;
+  padding:0 13px !important;
+  margin:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  white-space:nowrap !important;
+  border-radius:999px !important;
+  color:#fff !important;
+  font-family:var(--areg-font,ui-rounded,"Arial Rounded MT Bold","Noto Sans Armenian",Arial,sans-serif) !important;
+  font-size:13px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  letter-spacing:-.01em !important;
+  text-shadow:0 1px 1px rgba(48,23,7,.25) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.30),
+    inset 0 -2px 0 rgba(71,39,14,.15),
+    0 3px 7px rgba(84,43,16,.18) !important;
+}
+.animal-type--domestic{background:linear-gradient(180deg,#65d35d 0%,#31a73e 100%) !important;}
+.animal-type--wild{background:linear-gradient(180deg,#f56b70 0%,#d94149 100%) !important;}
+
+.animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:13.7px !important;line-height:1.02 !important;}
+.animal-card--bird[data-bird="guinea-fowl"] .animal-name{font-size:14.4px !important;}
+.animal-card[data-animal="polar-bear"] .animal-name{font-size:15.4px !important;}
+.animal-card[data-animal="rabbit"] .animal-name{font-size:15.4px !important;}
+.animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:12.8px !important;line-height:1.01 !important;}
+.animal-card[data-sea-creature="shrimp"] .animal-name,
+.animal-card[data-sea-creature="sea-otter"] .animal-name,
+.animal-card[data-sea-creature="sea-turtle"] .animal-name,
+.animal-card[data-sea-creature="clownfish"] .animal-name,
+.animal-card[data-sea-creature="anglerfish"] .animal-name,
+.animal-card[data-sea-creature="lionfish"] .animal-name{font-size:14.1px !important;}
+.animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:12.6px !important;line-height:1.01 !important;}
+.animal-card[data-insect-id="praying-mantis"] .animal-name,
+.animal-card[data-insect-id="rhinoceros-beetle"] .animal-name,
+.animal-card[data-insect-id="colorado-beetle"] .animal-name,
+.animal-card[data-insect-id="bark-beetle"] .animal-name,
+.animal-card[data-insect-id="flower-butterfly"] .animal-name{font-size:13.8px !important;}
+
+.animal-card--sea .animal-type,
+.animal-gallery--sea .animal-type,
+.animal-gallery--insect .animal-type{
+  font-size:12.5px !important;
+  min-width:96px !important;
+  height:28px !important;
+}
+
+.animal-card--focus,
+.animal-gallery--insect .animal-card--focus{
+  transform:translateY(-4px) scale(1.035) !important;
+  border:0 !important;
+  box-shadow:
+    0 9px 0 #a9652f,
+    0 18px 28px rgba(63,31,11,.19),
+    0 0 0 4px var(--animal-accent-soft,rgba(255,214,147,.24)),
+    inset 0 3px 0 rgba(255,247,220,.92),
+    inset 0 -3px 0 rgba(164,92,37,.23) !important;
+}
+.animal-card--pressing{transform:translateY(-2px) scale(1.015) !important;}
+
+.animal-card[data-animal="polar-bear"] .animal-image-wrap img,
+.animal-card--bird[data-bird="bald-eagle"] .animal-image-wrap img{
+  object-fit:cover !important;
+  object-position:center center !important;
+}
+
+@media (max-width:380px){
+  .animal-gallery{gap:12px !important;padding:12px 9px 30px !important;}
+  .animal-card,.animal-card--bird,.animal-card--sea,.animal-card--insect{height:292px !important;}
+  .animal-image-wrap,
+  .animal-gallery--sea .animal-image-wrap,
+  .animal-gallery--insect .animal-image-wrap,
+  .animal-card--bird .animal-image-wrap{height:185px !important;}
+  .animal-meta,
+  .animal-gallery--sea .animal-meta,
+  .animal-gallery--insect .animal-meta,
+  .animal-card--bird .animal-meta{height:80px !important;min-height:80px !important;}
+  .animal-name,
+  .animal-gallery--sea .animal-name,
+  .animal-gallery--insect .animal-name,
+  .animal-card--bird .animal-name{font-size:15.8px !important;min-height:36px !important;}
+  .animal-type,
+  .animal-gallery--sea .animal-type,
+  .animal-gallery--insect .animal-type,
+  .animal-card--bird .animal-type{min-width:88px !important;height:26px !important;font-size:12px !important;}
+  .animal-card--bird[data-bird="bald-eagle"] .animal-name{font-size:12.7px !important;}
+  .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:11.9px !important;}
+  .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:11.7px !important;}
+}

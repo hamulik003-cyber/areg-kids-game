@@ -1,3 +1,4 @@
+<!-- V79 final master card -->
 <!-- V78 text fit accent update -->
 <!doctype html>
 <html lang="hy">
@@ -17,7 +18,7 @@
   const stamp = Date.now();
   try { if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r => r.unregister())); } } catch (_) {}
   try { if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); } } catch (_) {}
-  location.replace('./?kiosk=v77-' + stamp + '&hardrefresh=1');
+  location.replace('./?kiosk=v79-' + stamp + '&hardrefresh=1');
 })();
 </script>
 </body>
