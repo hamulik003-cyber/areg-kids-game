@@ -4015,11 +4015,10 @@ textarea,
 }
 
 /* =========================================================
-   V89 — RELIABLE 4-SIDE OUTLINE GLOW
-   No pseudo-elements, no extra DOM rim. One real outline on the card.
+   V84 — INLINE-CENTER SAFETY + RESTORED CARD-SIZE FOCUS
+   JS now hard-centers labels inline; CSS remains as fallback.
    ========================================================= */
 
-/* Keep approved centered labels untouched. */
 .animal-gallery .animal-card .animal-name,
 .animal-gallery .animal-card--bird .animal-name,
 .animal-gallery .animal-card--sea .animal-name,
@@ -4059,52 +4058,34 @@ textarea,
   transform:translateX(-50%) !important;
 }
 
-/* Permanently kill every legacy decorative card pseudo-element. */
-.animal-gallery .animal-card::before,
-.animal-gallery .animal-card::after,
+/* Keep only the original card-sized focus effect. */
+.animal-gallery .animal-card--pressing{
+  z-index:20 !important;
+  transform:translateY(-2px) scale(1.012) !important;
+  filter:none !important;
+}
+
+.animal-gallery .animal-card--focus{
+  overflow:hidden !important;
+  z-index:22 !important;
+  transform:translateY(-3px) scale(1.022) !important;
+  filter:none !important;
+  border-color:var(--animal-accent,rgba(255,214,147,.98)) !important;
+  box-shadow:
+    0 8px 0 #a9652f,
+    0 17px 27px rgba(63,31,11,.18),
+    0 0 0 3px var(--animal-accent-soft,rgba(255,214,147,.22)),
+    inset 0 3px 0 rgba(255,248,226,.94),
+    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+
 .animal-gallery .animal-card--focus::before,
-.animal-gallery .animal-card--focus::after,
-.animal-gallery .animal-card--pressing::before,
-.animal-gallery .animal-card--pressing::after{
+.animal-gallery .animal-card--focus::after{
   content:none !important;
   display:none !important;
-}
-
-/* Kill the temporary V88 DOM rim if an old cached JS happens to create it. */
-.animal-gallery .animal-card .animal-focus-rim{
-  display:none !important;
-}
-
-/* Touch preview */
-.animal-gallery .animal-card--pressing{
-  overflow:visible !important;
-  z-index:35 !important;
-  transform:translateY(-2px) scale(1.014) !important;
-  outline:3px solid var(--animal-accent,#ffd66f) !important;
-  outline-offset:-1px !important;
-  filter:none !important;
-}
-
-/* Final active state:
-   - one 5px outline = equal top/right/bottom/left
-   - symmetric glow
-   - bottom 3D depth becomes accent-tinted so it also visibly lights up */
-.animal-gallery .animal-card--focus{
-  overflow:visible !important;
-  z-index:50 !important;
-  transform:translateY(-3px) scale(1.026) !important;
-
-  outline:5px solid var(--animal-accent,#ffd66f) !important;
-  outline-offset:-1px !important;
-
-  filter:none !important;
-
-  box-shadow:
-    0 8px 0 color-mix(in srgb,var(--animal-accent,#ffd66f) 68%,#a9652f),
-    0 0 14px 5px var(--animal-accent-soft,rgba(255,214,147,.42)),
-    0 17px 27px rgba(63,31,11,.18),
-    inset 0 0 0 2px rgba(255,255,255,.42),
-    inset 0 3px 0 rgba(255,248,226,.96),
-    inset 0 -2px 0 rgba(151,83,31,.20) !important;
+  animation:none !important;
+  background:none !important;
+  border:0 !important;
+  box-shadow:none !important;
 }
 
