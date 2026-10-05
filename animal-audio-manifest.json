@@ -39,7 +39,7 @@
     "name": "Ձի",
     "type": "ընտանի",
     "voiceText": "Ձի՝ ընտանի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/282132f5-b71b-4f9c-947d-38a2debb867c/AREG_horse_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOTY3MjkzOWI4YWVkNWEwZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI0NjQ5MX0.rygBeY22gTVZqhOJiaK1O9xgzSrhtJUpi3_wYtCuZ_s",
+    "voiceUrl": "audio/animals/horse-voice.mp3?v=96",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/cb93da8b-c556-4785-9dfc-d0aac9b1cd42/AREG_animal_horse_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmJhYjE3MzM3OTUyNWJhYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTI1NzAxMX0.4qBRxVC1YXjP8zzsvptgErnbpGv-_GETKBpD-SwJ0U8",
     "futureLocalVoice": "audio/animals/horse-voice.mp3",
     "futureLocalSound": "audio/animals/horse-sound.mp3"
@@ -57,7 +57,7 @@
     "name": "Ուղտ",
     "type": "ընտանի",
     "voiceText": "Ուղտ՝ ընտանի կենդանի է։",
-    "voiceUrl": "https://dnznrvs05pmza.cloudfront.net/text_to_speech/1ca589ec-83d9-49c4-b5ce-287e07c7f337/AREG_camel_Armenian_girl_voice.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTQ5ZTE0YjdhMWNiYTA0OCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIwMzUxMX0.r3Dtq4mB9X0tn2cq76IId2sf65eAUpsuLn6AsbOZlEw",
+    "voiceUrl": "audio/animals/camel-voice.mp3?v=96",
     "soundUrl": "https://dnznrvs05pmza.cloudfront.net/audio_sfx/f20eb156-96bd-4b0f-bbab-bb11adf9e0e3/AREG_animal_camel_sound.mp3?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDJlMjMzMGUxZjY3MzI1OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTIzOTQzOH0.YlyyGT8jTBBrSbp1jkXjlHJI9Jl37ogoBgICWZB6B5I",
     "futureLocalVoice": "audio/animals/camel-voice.mp3",
     "futureLocalSound": "audio/animals/camel-sound.mp3"
