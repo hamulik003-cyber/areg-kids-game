@@ -423,7 +423,7 @@
     const id=allowed.has(settings.font)?settings.font:'rounded';
     settings.font=id;
     root.dataset.font=id;
-    $('.font-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===id)));
+    $$('.font-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===id)));
   }
   applyFont();
 
@@ -432,7 +432,7 @@
     const id=allowed.has(settings.theme)?settings.theme:'day';
     settings.theme=id;
     root.dataset.theme=id;
-    $('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===id)));
+    $$('.theme-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===id)));
     const meta=$('meta[name="theme-color"]'),css=getComputedStyle(root),top=css.getPropertyValue('--bg-1').trim(),bottom=css.getPropertyValue('--bg-3').trim();
     const standalone=window.matchMedia?.('(display-mode: standalone)')?.matches||window.navigator.standalone===true;
     const isiOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
