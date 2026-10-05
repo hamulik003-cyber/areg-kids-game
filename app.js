@@ -398,7 +398,7 @@
     themes.forEach(([id,label])=>{
       const b=document.createElement('button');
       b.className='theme-option'; b.dataset.theme=id; b.setAttribute('aria-label',`Թեմա՝ ${label}`);
-      b.innerHTML=`<img src="${id}.svg?v=92" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
+      b.innerHTML=`<img src="${id}.svg?v=93" alt="" aria-hidden="true" draggable="false"><span>${label}</span>`;
       b.addEventListener('click',()=>{settings.theme=id;saveSettings();applyTheme()});
       themeGrid.appendChild(b);
     });
@@ -689,47 +689,33 @@
   }
 
   function galleryNameSize(name){
-    const n=Array.from(String(name||'').replace(/\s+/g,'')).length;
-    if(n>=22)return '11.5px';
-    if(n>=18)return '12.5px';
-    if(n>=15)return '13.6px';
-    if(n>=12)return '14.8px';
+    const compact=String(name||'').trim().replace(/\s+/g,'');
+    const n=Array.from(compact).length;
+    const words=String(name||'').trim().split(/\s+/).filter(Boolean).length;
+    if(n>=20)return '10.6px';
+    if(n>=17)return '11.4px';
+    if(n>=14)return '12.4px';
+    if(n>=11)return '13.7px';
+    if(n>=9||words>=2)return '14.8px';
     return '16.5px';
   }
 
+  function galleryTypeSize(type){
+    const n=Array.from(String(type||'').replace(/\s+/g,'')).length;
+    if(n>=13)return '10.2px';
+    if(n>=10)return '10.8px';
+    if(n>=8)return '11.4px';
+    return '12.4px';
+  }
+
   function hardCenterGalleryCard(card){
-    const meta=card.querySelector('.animal-meta');
     const name=card.querySelector('.animal-name');
     const type=card.querySelector('.animal-type');
-    if(meta){
-      meta.style.setProperty('position','absolute','important');
-    }
     if(name){
-      name.style.setProperty('position','absolute','important');
-      name.style.setProperty('top','6px','important');
-      name.style.setProperty('left','0','important');
-      name.style.setProperty('right','0','important');
-      name.style.setProperty('bottom','38px','important');
-      name.style.setProperty('width','auto','important');
-      name.style.setProperty('max-width','none','important');
-      name.style.setProperty('margin','0','important');
-      name.style.setProperty('padding','0 8px','important');
-      name.style.setProperty('box-sizing','border-box','important');
-      name.style.setProperty('display','flex','important');
-      name.style.setProperty('align-items','center','important');
-      name.style.setProperty('justify-content','center','important');
-      name.style.setProperty('text-align','center','important');
-      name.style.setProperty('text-indent','0','important');
-      name.style.setProperty('transform','none','important');
+      card.style.setProperty('--animal-name-size',galleryNameSize(name.textContent));
     }
     if(type){
-      type.style.setProperty('position','absolute','important');
-      type.style.setProperty('left','50%','important');
-      type.style.setProperty('right','auto','important');
-      type.style.setProperty('bottom','8px','important');
-      type.style.setProperty('top','auto','important');
-      type.style.setProperty('margin','0','important');
-      type.style.setProperty('transform','translateX(-50%)','important');
+      card.style.setProperty('--animal-type-size',galleryTypeSize(type.textContent));
     }
   }
 
@@ -755,7 +741,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=92" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=93" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -945,7 +931,7 @@
       card.setAttribute('aria-label',`${bird.name}, ${bird.type} թռչուն`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${bird.image}?v=92" alt="${bird.name}" draggable="false">
+          <img src="${bird.image}?v=93" alt="${bird.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1081,7 +1067,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=92" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=93" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
@@ -1218,7 +1204,7 @@
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=92" alt="${insect.name}" draggable="false">
+          <img src="${insect.image}?v=93" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
@@ -1440,7 +1426,7 @@
       btn.dataset.src=item.src;
       btn.setAttribute('aria-label',item.label);
       btn.setAttribute('aria-pressed','false');
-      btn.innerHTML=`<img src="${item.src}?v=92" alt="${item.label}" draggable="false">`;
+      btn.innerHTML=`<img src="${item.src}?v=93" alt="${item.label}" draggable="false">`;
       btn.addEventListener('click',()=>{
         setAvatar(item.src,'preset');
         avatarModal.hidden=true;
