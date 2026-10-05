@@ -306,6 +306,40 @@
     {id:'termite',name:'Տերմիտ',type:'սողացող',group:'crawler',image:'insect-termite.png'},
   ];
 
+
+  const PLANETS=[
+    {id:'sun',name:'Արև',status:'Աստղ',kind:'sun',c1:'#ffd84f',c2:'#ff7b22',accent:'#ffb52f'},
+    {id:'mercury',name:'Մերկուրի',status:'Քարային մոլորակ',kind:'rock',c1:'#b8b0a7',c2:'#625b55',accent:'#aaa39b'},
+    {id:'venus',name:'Վեներա',status:'Քարային մոլորակ',kind:'cloud',c1:'#f0c376',c2:'#9a6238',accent:'#e4a94f'},
+    {id:'earth',name:'Երկիր',status:'Բնակելի մոլորակ',kind:'earth',c1:'#4aa0e6',c2:'#23549a',accent:'#55c981'},
+    {id:'moon',name:'Լուսին',status:'Բնական արբանյակ',kind:'rock',c1:'#deded8',c2:'#77756f',accent:'#c9c9c4'},
+    {id:'mars',name:'Մարս',status:'Քարային մոլորակ',kind:'rock',c1:'#d96a48',c2:'#7b2f28',accent:'#e07050'},
+    {id:'jupiter',name:'Յուպիտեր',status:'Գազային հսկա',kind:'bands',c1:'#dbad80',c2:'#8e654b',accent:'#d8a275'},
+    {id:'saturn',name:'Սատուրն',status:'Գազային հսկա',kind:'saturn',c1:'#ead79d',c2:'#9f8557',accent:'#e4c77e'},
+    {id:'uranus',name:'Ուրան',status:'Սառցային հսկա',kind:'ring',c1:'#91e0e4',c2:'#4ca8b4',accent:'#83d8df'},
+    {id:'neptune',name:'Նեպտուն',status:'Սառցային հսկա',kind:'bands',c1:'#4b7ce3',c2:'#173e91',accent:'#5686e9'},
+    {id:'phobos',name:'Ֆոբոս',status:'Բնական արբանյակ',kind:'rock',c1:'#92847a',c2:'#534841',accent:'#9a8b82'},
+    {id:'deimos',name:'Դեյմոս',status:'Բնական արբանյակ',kind:'rock',c1:'#aa9c91',c2:'#65584f',accent:'#aea198'},
+    {id:'io',name:'Իո',status:'Բնական արբանյակ',kind:'spots',c1:'#eadf71',c2:'#8e8635',accent:'#e5d65f'},
+    {id:'europa',name:'Եվրոպա',status:'Բնական արբանյակ',kind:'cracks',c1:'#dfd1ad',c2:'#907b5c',accent:'#dfc899'},
+    {id:'ganymede',name:'Գանիմեդ',status:'Բնական արբանյակ',kind:'rock',c1:'#a7917c',c2:'#55473d',accent:'#a08a77'},
+    {id:'callisto',name:'Կալիստո',status:'Բնական արբանյակ',kind:'spots',c1:'#827368',c2:'#3d3430',accent:'#86766b'},
+    {id:'titan',name:'Տիտան',status:'Բնական արբանյակ',kind:'haze',c1:'#dfa84e',c2:'#83521f',accent:'#e0a542'},
+    {id:'enceladus',name:'Էնցելադուս',status:'Բնական արբանյակ',kind:'cracks',c1:'#f0fbff',c2:'#9cc8df',accent:'#dff6ff'},
+    {id:'titania',name:'Տիտանիա',status:'Բնական արբանյակ',kind:'rock',c1:'#b2bfbd',c2:'#617674',accent:'#aebfbd'},
+    {id:'oberon',name:'Օբերոն',status:'Բնական արբանյակ',kind:'rock',c1:'#817f79',c2:'#44413d',accent:'#85817d'},
+    {id:'triton',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
+    {id:'charon',name:'Խարոն',status:'Բնական արբանյակ',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
+    {id:'pluto',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
+    {id:'ceres',name:'Ցերերա',status:'Գաճաճ մոլորակ',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
+    {id:'haumea',name:'Հաումեա',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
+    {id:'makemake',name:'Մակեմակե',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
+    {id:'eris',name:'Էրիս',status:'Գաճաճ մոլորակ',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
+    {id:'solar-system',name:'Արեգակնային համակարգ',status:'Մոլորակային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
+    {id:'milky-way',name:'Ծիր Կաթին',status:'Գալակտիկա',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
+    {id:'black-hole',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
+  ];
+
   const SECTIONS={
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
@@ -319,7 +353,7 @@
     space:{
       title:'Տիեզերք', hero:'hero-space.jpg', backdrop:'hero-space.jpg',
       games:[
-        {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'orbits'},
+        {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'planetGallery'},
         {id:'stars',label:'Աստղեր',thumb:'space-game-2.jpg',kind:'catch'},
         {id:'rocket',label:'Հրթիռ',thumb:'space-game-3.jpg',kind:'rocket'},
         {id:'constellation',label:'Համաստեղություն',thumb:'space-game-4.jpg',kind:'connect'}
@@ -595,7 +629,7 @@
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function renderGame(g){
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -1544,6 +1578,154 @@
     [12,35,58,80].forEach((x,i)=>{const pot=document.createElement('div');pot.className='pot';pot.style.left=`${x}%`;pot.innerHTML=`<span class="flower">${['🌷','🌻','🌸','🌼'][i]}</span>`;bed.appendChild(pot)});
     const can=document.createElement('div');can.className='drag-piece watering-can';can.textContent='🚿';can.style.left='8%';can.style.top='20%';s.appendChild(can);
     makeDrag(can,{container:s,onMove:()=>{$$('.pot',bed).forEach(p=>{if(!p.classList.contains('bloom')&&rectOverlap(can,p)){p.classList.add('bloom');if(++done===4)reward()}})}})
+  }
+
+
+  /* PLANETS GALLERY — same card/presentation system as Animals */
+  let planetPlaybackToken=0;
+  let activePlanetCard=null;
+
+  function stopPlanetPlayback({restoreMusic=true}={}){
+    planetPlaybackToken++;
+    try{speechSynthesis?.cancel()}catch{}
+    if(activePlanetCard){
+      activePlanetCard.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+      activePlanetCard=null;
+    }
+    if(restoreMusic&&settings.master&&settings.music)applyAudio();
+  }
+
+  function planetArt(p){
+    const stars='<g fill="%23fff" opacity=".72"><circle cx="85" cy="115" r="4"/><circle cx="165" cy="70" r="3"/><circle cx="785" cy="140" r="5"/><circle cx="690" cy="250" r="3"/><circle cx="105" cy="760" r="3"/><circle cx="790" cy="720" r="4"/><circle cx="620" cy="85" r="2"/><circle cx="260" cy="800" r="4"/></g>';
+    const defs='<defs><radialGradient id="bg"><stop stop-color="%231d315e"/><stop offset="1" stop-color="%23050a18"/></radialGradient><radialGradient id="p" cx=".35" cy=".3"><stop stop-color="'+p.c1+'"/><stop offset="1" stop-color="'+p.c2+'"/></radialGradient></defs>';
+    let body='';
+    if(p.kind==='sun'){
+      let rays='';for(let i=0;i<18;i++){const a=i*20*Math.PI/180;rays+='<path d="M'+(Math.cos(a)*250).toFixed(1)+' '+(Math.sin(a)*250).toFixed(1)+' L'+(Math.cos(a)*330).toFixed(1)+' '+(Math.sin(a)*330).toFixed(1)+'"/>'}
+      body='<g transform="translate(450 450)"><g stroke="%23ffb52f" stroke-width="24" stroke-linecap="round" opacity=".82">'+rays+'</g><circle r="235" fill="url(%23p)"/><circle r="180" fill="%23ffd85f" opacity=".20"/></g>';
+    }else if(p.kind==='saturn'){
+      body='<g transform="translate(450 450) rotate(-14)"><ellipse rx="330" ry="95" fill="none" stroke="%23dccb9a" stroke-width="36" opacity=".9"/><ellipse rx="275" ry="75" fill="none" stroke="%238d7b52" stroke-width="12" opacity=".85"/><circle r="210" fill="url(%23p)"/><path d="M-180-60h360M-195 5h390M-170 75h340" stroke="%23b49c67" stroke-width="18" opacity=".65"/></g>';
+    }else if(p.kind==='ring'){
+      body='<g transform="translate(450 450) rotate(-12)"><ellipse rx="300" ry="74" fill="none" stroke="%23b7eef0" stroke-width="18" opacity=".76"/><circle r="205" fill="url(%23p)"/></g>';
+    }else if(p.kind==='earth'){
+      body='<g transform="translate(450 450)"><circle r="230" fill="url(%23p)"/><g fill="%2372b55c"><path d="M-150-60c55-85 130-105 185-70 26 17 25 51-9 72-47 30-59 73-43 123-55 12-107-8-133-55Z"/><path d="M75-25c62-35 120-7 136 43 14 43-15 74-56 79-17 38-56 65-93 43 22-46 9-87-14-118Z"/></g><path d="M-210 55c100 36 220 34 415-2" fill="none" stroke="%23fff" stroke-width="16" opacity=".30"/></g>';
+    }else if(p.kind==='bands'){
+      body='<g transform="translate(450 450)"><circle r="230" fill="url(%23p)"/><clipPath id="c"><circle r="230"/></clipPath><g clip-path="url(%23c)" fill="none" stroke="%23f3dfc1" opacity=".50"><path d="M-250-115h500" stroke-width="34"/><path d="M-250-35h500" stroke-width="18"/><path d="M-250 55h500" stroke-width="42"/><path d="M-250 135h500" stroke-width="22"/></g></g>';
+    }else if(p.kind==='spots'){
+      body='<g transform="translate(450 450)"><circle r="220" fill="url(%23p)"/><g fill="%2354493c" opacity=".55"><circle cx="-95" cy="-80" r="34"/><circle cx="80" cy="-105" r="25"/><circle cx="115" cy="55" r="46"/><circle cx="-70" cy="95" r="30"/><circle cx="-145" cy="20" r="18"/></g></g>';
+    }else if(p.kind==='cracks'){
+      body='<g transform="translate(450 450)"><circle r="220" fill="url(%23p)"/><g stroke="%236c7580" stroke-width="9" fill="none" opacity=".65"><path d="M-165-130 20-30 155-145"/><path d="M-195 25-35 75 105 10 190 80"/><path d="M-90 190-50 75 5-30"/></g></g>';
+    }else if(p.kind==='haze'){
+      body='<g transform="translate(450 450)"><circle r="224" fill="'+p.c1+'"/><circle r="238" fill="none" stroke="%23f4c96d" stroke-width="28" opacity=".45"/><path d="M-205-40c120 35 280 25 410-10M-190 55c130 28 260 25 380-10" stroke="'+p.c2+'" stroke-width="18" fill="none" opacity=".5"/></g>';
+    }else if(p.kind==='ice'){
+      body='<g transform="translate(450 450)"><circle r="220" fill="url(%23p)"/><path d="M-140-90 0-170 135-85 85 30 150 120 0 180-135 105-75 15Z" fill="%23fff" opacity=".16"/></g>';
+    }else if(p.kind==='pluto'){
+      body='<g transform="translate(450 450)"><circle r="220" fill="url(%23p)"/><path d="M-55-25c-60-70-120 15-55 78 40 38 55 55 55 55s15-17 55-55c65-63 5-148-55-78Z" fill="%23e7c7a7" opacity=".8"/></g>';
+    }else if(p.kind==='oval'){
+      body='<g transform="translate(450 450) rotate(-12)"><ellipse rx="265" ry="165" fill="url(%23p)"/><ellipse rx="210" ry="115" fill="%23fff" opacity=".08"/></g>';
+    }else if(p.kind==='solar'){
+      body='<g transform="translate(450 450)"><circle r="62" fill="%23ffd54f"/><g fill="none" stroke="%239eb8e9" stroke-width="3" opacity=".6"><circle r="110"/><circle r="150"/><circle r="195"/><circle r="245"/><circle r="300"/><circle r="350"/></g><circle cx="110" r="12" fill="%23aaa"/><circle cy="-150" r="15" fill="%23e8b36b"/><circle cx="-195" r="18" fill="%23438cda"/><circle cy="245" r="22" fill="%23d99c76"/><circle cx="300" r="31" fill="%23d0a779"/><circle cx="-330" cy="115" r="27" fill="%23d9c78e"/></g>';
+    }else if(p.kind==='galaxy'){
+      let dots='';for(let i=0;i<44;i++){const a=i*2.7,r=80+(i%9)*28;dots+='<circle cx="'+(Math.cos(a)*r).toFixed(1)+'" cy="'+(Math.sin(a)*r*.38).toFixed(1)+'" r="'+(2+i%3)+'"/>'}
+      body='<g transform="translate(450 450)"><ellipse rx="330" ry="120" fill="none" stroke="%23aebfff" stroke-width="48" opacity=".34" transform="rotate(-18)"/><ellipse rx="240" ry="70" fill="none" stroke="%23fff" stroke-width="34" opacity=".42" transform="rotate(-18)"/><circle r="55" fill="%23fff" opacity=".82"/><g fill="%23fff">'+dots+'</g></g>';
+    }else if(p.kind==='blackhole'){
+      body='<g transform="translate(450 450) rotate(-14)"><ellipse rx="330" ry="105" fill="none" stroke="%23ff9c2a" stroke-width="42" opacity=".9"/><ellipse rx="265" ry="72" fill="none" stroke="%23ffdf70" stroke-width="18" opacity=".85"/><circle r="150" fill="%23000"/><circle r="180" fill="none" stroke="%236d48a8" stroke-width="22" opacity=".45"/></g>';
+    }else{
+      body='<g transform="translate(450 450)"><circle r="220" fill="url(%23p)"/><g fill="%23332d2a" opacity=".30"><circle cx="-90" cy="-75" r="32"/><circle cx="75" cy="-110" r="22"/><circle cx="112" cy="45" r="44"/><circle cx="-58" cy="105" r="25"/></g></g>';
+    }
+    return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">'+defs+'<rect width="900" height="900" rx="70" fill="url(%23bg)"/>'+stars+body+'</svg>');
+  }
+
+  function speakPlanet(planet,token){
+    if(!settings.master||!settings.voice||!('speechSynthesis' in window)||token!==planetPlaybackToken)return Promise.resolve(false);
+    return new Promise(resolve=>{
+      let settled=false,timer=null;
+      const finish=ok=>{if(settled)return;settled=true;clearTimeout(timer);resolve(ok)};
+      try{
+        speechSynthesis.cancel();
+        const utter=new SpeechSynthesisUtterance(`${planet.name}՝ ${planet.status} է։`);
+        utter.lang='hy-AM';utter.rate=.88;utter.pitch=1.04;utter.volume=1;
+        const voice=pickArmenianSpeechVoice();if(voice)utter.voice=voice;
+        utter.onend=()=>finish(true);utter.onerror=()=>finish(false);
+        speechSynthesis.resume?.();speechSynthesis.speak(utter);
+        timer=setTimeout(()=>finish(false),6500);
+      }catch{finish(false)}
+    });
+  }
+
+  async function playPlanetSequence(planet,card){
+    stopPlanetPlayback({restoreMusic:false});
+    const token=++planetPlaybackToken;
+    activePlanetCard=card;
+    card.classList.remove('animal-card--pressing');
+    card.classList.add('animal-card--focus','animal-card--speaking');
+    const musicWasPlaying=!menuMusic.paused;
+    if(musicWasPlaying)menuMusic.pause();
+    if(settings.master&&settings.voice)await speakPlanet(planet,token);
+    else await new Promise(r=>setTimeout(r,1050));
+    if(token!==planetPlaybackToken)return;
+    await new Promise(r=>setTimeout(r,180));
+    if(token!==planetPlaybackToken)return;
+    card.classList.remove('animal-card--speaking','animal-card--focus');
+    activePlanetCard=null;
+    if(musicWasPlaying&&settings.master&&settings.music)ensureAudio();
+  }
+
+  function gamePlanetGallery(){
+    activityContent.innerHTML='';
+    activityContent.classList.add('animal-gallery-mode');
+    const wrap=document.createElement('div');
+    wrap.className='animal-gallery animal-gallery--planet';
+    wrap.setAttribute('aria-label','Մոլորակների և տիեզերական օբյեկտների պատկերասրահ');
+
+    PLANETS.forEach(planet=>{
+      const card=document.createElement('button');
+      card.type='button';
+      card.className='animal-card animal-card--planet';
+      card.dataset.planet=planet.id;
+      card.style.setProperty('--animal-accent',planet.accent);
+      card.style.setProperty('--animal-accent-soft',planet.accent+'55');
+      card.style.setProperty('--animal-name-size',galleryNameSize(planet.name));
+      card.style.setProperty('--animal-type-size',galleryTypeSize(planet.status));
+      card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
+      card.innerHTML=`
+        <span class="animal-image-wrap">
+          <img src="${planetArt(planet)}" alt="${planet.name}" draggable="false">
+          <span class="animal-card-sheen" aria-hidden="true"></span>
+        </span>
+        <span class="animal-meta animal-meta--planet">
+          <strong class="animal-name">${planet.name}</strong>
+          <small class="animal-type animal-type--planet" style="background:${planet.accent}33;border-color:${planet.accent}88">${planet.status}</small>
+        </span>`;
+      hardCenterGalleryCard(card);
+
+      let downX=0,downY=0,downPointer=null,moved=false;
+      card.addEventListener('pointerdown',e=>{
+        if(e.pointerType==='mouse'&&e.button!==0)return;
+        downPointer=e.pointerId;downX=e.clientX;downY=e.clientY;moved=false;
+        card.classList.add('animal-card--pressing');
+      });
+      card.addEventListener('pointermove',e=>{
+        if(e.pointerId!==downPointer)return;
+        if(Math.hypot(e.clientX-downX,e.clientY-downY)>12){moved=true;card.classList.remove('animal-card--pressing')}
+      });
+      card.addEventListener('pointerup',e=>{
+        if(e.pointerId!==downPointer)return;
+        card.classList.remove('animal-card--pressing');
+        const shouldPlay=!moved;downPointer=null;
+        if(shouldPlay)presentGalleryCard(card,clone=>playPlanetSequence(planet,clone),()=>stopPlanetPlayback({restoreMusic:true}));
+      });
+      card.addEventListener('pointercancel',()=>{downPointer=null;moved=true;card.classList.remove('animal-card--pressing')});
+      card.addEventListener('pointerleave',()=>{if(downPointer!==null)card.classList.remove('animal-card--pressing')});
+      card.addEventListener('click',e=>{if(e.detail===0)presentGalleryCard(card,clone=>playPlanetSequence(planet,clone),()=>stopPlanetPlayback({restoreMusic:true}))});
+      wrap.appendChild(card);
+    });
+
+    activityContent.appendChild(wrap);
+    gameCleanup.push(()=>{
+      cancelGalleryCardPresentation();
+      stopPlanetPlayback({restoreMusic:true});
+      activityContent.classList.remove('animal-gallery-mode');
+    });
   }
 
   /* SPACE */

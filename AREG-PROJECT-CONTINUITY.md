@@ -167,3 +167,12 @@ These task IDs identify the exact test generations discussed/approved in the cha
 - Theme blur remains live and global across home, section, and activity backgrounds.
 - No game cards, section icons, gallery cards, fonts, or game mechanics were changed.
 - Launcher/build/cache baseline: V127.
+
+
+## V128 — Planets gallery
+- V127 preserved on branch `baseline-v127-prefinal`.
+- Space → Planets now uses the same gallery cards and tap/zoom presentation system as Animals.
+- 30 cards, ordered from Sun through Black Hole.
+- Each card has a concise object status. Earth is labeled `Բնակելի մոլորակ`.
+- Planet/card artwork is embedded SVG generated locally in app.js, so these images do not depend on the network.
+- No other section/game layout was intentionally changed.
