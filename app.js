@@ -610,47 +610,95 @@
     if(restoreMusic&&settings.master&&settings.music)applyAudio();
   }
 
+  function signedAudioExpired(src){
+    try{
+      const token=new URL(src,location.href).searchParams.get('_jwt');
+      if(!token)return false;
+      let payload=token.split('.')[1]||'';
+      payload=payload.replace(/-/g,'+').replace(/_/g,'/');
+      while(payload.length%4)payload+='=';
+      const data=JSON.parse(atob(payload));
+      return Number.isFinite(data.exp)&&data.exp<=Math.floor(Date.now()/1000)+20;
+    }catch{return false}
+  }
+
+  function pickArmenianSpeechVoice(){
+    try{
+      const voices=speechSynthesis.getVoices?.()||[];
+      const hy=voices.filter(v=>/^hy(?:-|_|$)/i.test(v.lang||''));
+      if(hy.length){
+        const preferred=hy.find(v=>/female|woman|anna|anahit|mariam|nare|հայ/i.test(v.name||''));
+        return preferred||hy[0];
+      }
+      return voices.find(v=>/armenian|հայ/i.test((v.name||'')+' '+(v.lang||'')))||null;
+    }catch{return null}
+  }
+
   function playAnimalClip(src,kind,token){
     return new Promise(resolve=>{
-      if(!src||token!==animalPlaybackToken){resolve(false);return}
+      if(!src||token!==animalPlaybackToken||signedAudioExpired(src)){resolve(false);return}
       const audio=new Audio();
       audio.preload='auto';
       audio.playsInline=true;
       audio.src=src;
-      audio.volume=kind==='voice'?1:.50; // V58: balance quieter narration against hotter animal SFX (~-6 dB)
+      audio.volume=kind==='voice'?1:.50;
       if(kind==='voice')animalVoicePlayer=audio;else animalSoundPlayer=audio;
-      let settled=false;
+      let settled=false,started=false;
       const finish=(ok)=>{
         if(settled)return;
         settled=true;
-        clearTimeout(timer);
-        audio.onended=audio.onerror=audio.onabort=null;
+        clearTimeout(startTimer);clearTimeout(endTimer);
+        audio.onplaying=audio.onended=audio.onerror=audio.onabort=null;
+        if(!ok){try{audio.pause();audio.currentTime=0}catch{}}
         resolve(ok);
       };
+      audio.onplaying=()=>{started=true;clearTimeout(startTimer)};
       audio.onended=()=>finish(true);
       audio.onerror=()=>finish(false);
       audio.onabort=()=>finish(false);
-      const timer=setTimeout(()=>finish(false),kind==='voice'?7000:5200);
+      const startTimer=setTimeout(()=>{if(!started)finish(false)},1100);
+      const endTimer=setTimeout(()=>finish(false),kind==='voice'?7000:5200);
+      try{audio.load()}catch{}
       const p=audio.play();
       if(p&&p.catch)p.catch(()=>finish(false));
     });
   }
 
-  function speakAnimalFallback(animal){
-    if(!settings.master||!settings.voice||!('speechSynthesis' in window))return Promise.resolve(false);
+  function speakAnimalFallback(animal,token){
+    if(!settings.master||!settings.voice||!('speechSynthesis' in window)||token!==animalPlaybackToken)return Promise.resolve(false);
     return new Promise(resolve=>{
-      try{
-        speechSynthesis.cancel();
-        const utter=new SpeechSynthesisUtterance(`${animal.name}՝ ${animal.type==='ընտանի'?'ընտանի':'վայրի'} կենդանի է։`);
-        utter.lang='hy-AM';
-        utter.rate=.9;
-        utter.pitch=1.02;
-        utter.volume=.96;
-        utter.onend=()=>resolve(true);
-        utter.onerror=()=>resolve(false);
-        speechSynthesis.speak(utter);
-        setTimeout(()=>resolve(false),6500);
-      }catch{resolve(false)}
+      let settled=false,voicesTimer=null,finishTimer=null;
+      const finish=(ok)=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(voicesTimer);clearTimeout(finishTimer);
+        resolve(ok);
+      };
+      const speak=()=>{
+        if(settled||token!==animalPlaybackToken){finish(false);return}
+        try{
+          speechSynthesis.cancel();
+          const utter=new SpeechSynthesisUtterance(`${animal.name}՝ ${animal.type==='ընտանի'?'ընտանի':'վայրի'} կենդանի է։`);
+          utter.lang='hy-AM';
+          utter.rate=.88;
+          utter.pitch=1.04;
+          utter.volume=1;
+          const voice=pickArmenianSpeechVoice();
+          if(voice)utter.voice=voice;
+          utter.onend=()=>finish(true);
+          utter.onerror=()=>finish(false);
+          speechSynthesis.resume?.();
+          speechSynthesis.speak(utter);
+          finishTimer=setTimeout(()=>finish(false),6500);
+        }catch{finish(false)}
+      };
+      const voices=speechSynthesis.getVoices?.()||[];
+      if(voices.length)speak();
+      else{
+        const onVoices=()=>{speechSynthesis.removeEventListener?.('voiceschanged',onVoices);speak()};
+        speechSynthesis.addEventListener?.('voiceschanged',onVoices,{once:true});
+        voicesTimer=setTimeout(()=>{speechSynthesis.removeEventListener?.('voiceschanged',onVoices);speak()},450);
+      }
     });
   }
 
@@ -671,7 +719,7 @@
       if(settings.voice){
         const ok=await playAnimalClip(audio.voice,'voice',token);
         if(token!==animalPlaybackToken)return;
-        if(!ok)await speakAnimalFallback(animal);
+        if(!ok)await speakAnimalFallback(animal,token);
       }
       if(token!==animalPlaybackToken)return;
       if(settings.voice&&settings.effects)await new Promise(r=>setTimeout(r,120));
@@ -833,45 +881,69 @@
 
   function playBirdClip(src,kind,token){
     return new Promise(resolve=>{
-      if(!src||token!==birdPlaybackToken){resolve(false);return}
+      if(!src||token!==birdPlaybackToken||signedAudioExpired(src)){resolve(false);return}
       const audio=new Audio();
       audio.preload='auto';
       audio.playsInline=true;
       audio.src=src;
       audio.volume=kind==='voice'?1:.50;
       if(kind==='voice')birdVoicePlayer=audio;else birdSoundPlayer=audio;
-      let settled=false;
+      let settled=false,started=false;
       const finish=(ok)=>{
         if(settled)return;
         settled=true;
-        clearTimeout(timer);
-        audio.onended=audio.onerror=audio.onabort=null;
+        clearTimeout(startTimer);clearTimeout(endTimer);
+        audio.onplaying=audio.onended=audio.onerror=audio.onabort=null;
+        if(!ok){try{audio.pause();audio.currentTime=0}catch{}}
         resolve(ok);
       };
+      audio.onplaying=()=>{started=true;clearTimeout(startTimer)};
       audio.onended=()=>finish(true);
       audio.onerror=()=>finish(false);
       audio.onabort=()=>finish(false);
-      const timer=setTimeout(()=>finish(false),kind==='voice'?7000:4800);
+      const startTimer=setTimeout(()=>{if(!started)finish(false)},1100);
+      const endTimer=setTimeout(()=>finish(false),kind==='voice'?7000:4800);
+      try{audio.load()}catch{}
       const p=audio.play();
       if(p&&p.catch)p.catch(()=>finish(false));
     });
   }
 
-  function speakBirdFallback(bird){
-    if(!settings.master||!settings.voice||!('speechSynthesis' in window))return Promise.resolve(false);
+  function speakBirdFallback(bird,token){
+    if(!settings.master||!settings.voice||!('speechSynthesis' in window)||token!==birdPlaybackToken)return Promise.resolve(false);
     return new Promise(resolve=>{
-      try{
-        speechSynthesis.cancel();
-        const utter=new SpeechSynthesisUtterance(`${bird.name}՝ ${bird.type==='ընտանի'?'ընտանի':'վայրի'} թռչուն է։`);
-        utter.lang='hy-AM';
-        utter.rate=.88;
-        utter.pitch=1.02;
-        utter.volume=.96;
-        utter.onend=()=>resolve(true);
-        utter.onerror=()=>resolve(false);
-        speechSynthesis.speak(utter);
-        setTimeout(()=>resolve(false),6500);
-      }catch{resolve(false)}
+      let settled=false,voicesTimer=null,finishTimer=null;
+      const finish=(ok)=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(voicesTimer);clearTimeout(finishTimer);
+        resolve(ok);
+      };
+      const speak=()=>{
+        if(settled||token!==birdPlaybackToken){finish(false);return}
+        try{
+          speechSynthesis.cancel();
+          const utter=new SpeechSynthesisUtterance(`${bird.name}՝ ${bird.type==='ընտանի'?'ընտանի':'վայրի'} թռչուն է։`);
+          utter.lang='hy-AM';
+          utter.rate=.88;
+          utter.pitch=1.04;
+          utter.volume=1;
+          const voice=pickArmenianSpeechVoice();
+          if(voice)utter.voice=voice;
+          utter.onend=()=>finish(true);
+          utter.onerror=()=>finish(false);
+          speechSynthesis.resume?.();
+          speechSynthesis.speak(utter);
+          finishTimer=setTimeout(()=>finish(false),6500);
+        }catch{finish(false)}
+      };
+      const voices=speechSynthesis.getVoices?.()||[];
+      if(voices.length)speak();
+      else{
+        const onVoices=()=>{speechSynthesis.removeEventListener?.('voiceschanged',onVoices);speak()};
+        speechSynthesis.addEventListener?.('voiceschanged',onVoices,{once:true});
+        voicesTimer=setTimeout(()=>{speechSynthesis.removeEventListener?.('voiceschanged',onVoices);speak()},450);
+      }
     });
   }
 
@@ -892,7 +964,7 @@
       if(settings.voice){
         const ok=await playBirdClip(audio.voice,'voice',token);
         if(token!==birdPlaybackToken)return;
-        if(!ok)await speakBirdFallback(bird);
+        if(!ok)await speakBirdFallback(bird,token);
       }
       if(token!==birdPlaybackToken)return;
       if(settings.voice&&settings.effects)await new Promise(r=>setTimeout(r,120));
