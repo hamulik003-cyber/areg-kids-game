@@ -1,5 +1,0 @@
-AREG V58 — FINAL ANIMALS — volume balance
-
-Base: V57 FINAL ANIMALS.
-Only final change: narration volume = 1.00, animal SFX volume = 0.50 (~-6 dB amplitude) so the girl voice and animal sounds are perceived closer in loudness.
-All approved pronunciations, animal sounds, card zoom, domestic/wild border colors and timing are unchanged.
