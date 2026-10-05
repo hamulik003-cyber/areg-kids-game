@@ -3287,3 +3287,97 @@ html[data-font="classic"]{
   .animal-card[data-sea-creature="leafy-seadragon"] .animal-name{font-size:12.5px !important}
   .animal-card[data-insect-id="cabbage-butterfly"] .animal-name{font-size:12.7px !important}
 }
+
+
+/* =========================================================
+   V72 — clearer text area for all animal-world galleries
+   - names live only on the beige panel
+   - green leaf decorations sit on the divider line
+   ========================================================= */
+
+.animal-card{
+  --card-meta-h: 32%;
+}
+.animal-gallery--insect .animal-card,
+.animal-card--sea,
+.animal-card--bird[data-bird="bald-eagle"],
+.animal-card--bird[data-bird="guinea-fowl"],
+.animal-card[data-animal="polar-bear"]{
+  --card-meta-h: 35%;
+}
+
+.animal-image-wrap{
+  top:5px !important;
+  bottom:calc(var(--card-meta-h) + 6px) !important;
+  height:auto !important;
+}
+
+.animal-meta{
+  top:auto !important;
+  bottom:4px !important;
+  height:var(--card-meta-h) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:6px !important;
+  padding:6px 5px 10px !important;
+}
+
+.animal-name{
+  position:relative !important;
+  z-index:2 !important;
+  display:-webkit-box !important;
+  -webkit-box-orient:vertical !important;
+  overflow:hidden !important;
+  text-align:center !important;
+  margin:0 !important;
+}
+
+.animal-type{
+  position:relative !important;
+  z-index:2 !important;
+}
+
+/* Put the decorative green leaves exactly on the image/beige divider. */
+.animal-card::before,
+.animal-card::after{
+  bottom:calc(var(--card-meta-h) - 3px) !important;
+}
+
+/* Fine tuning for the larger 2-column cards */
+.animal-gallery--insect .animal-meta,
+.animal-card--sea .animal-meta{
+  gap:5px !important;
+  padding-top:6px !important;
+}
+
+.animal-gallery--insect .animal-name,
+.animal-card--sea .animal-name{
+  min-height:42px !important;
+}
+
+.animal-card--bird[data-bird="bald-eagle"] .animal-meta,
+.animal-card--bird[data-bird="guinea-fowl"] .animal-meta,
+.animal-card[data-animal="polar-bear"] .animal-meta{
+  gap:4px !important;
+  padding-top:6px !important;
+}
+
+@media (max-width:380px){
+  .animal-card{ --card-meta-h: 33%; }
+  .animal-gallery--insect .animal-card,
+  .animal-card--sea,
+  .animal-card--bird[data-bird="bald-eagle"],
+  .animal-card--bird[data-bird="guinea-fowl"],
+  .animal-card[data-animal="polar-bear"]{ --card-meta-h: 36%; }
+
+  .animal-meta{
+    gap:5px !important;
+    padding:6px 4px 9px !important;
+  }
+  .animal-card::before,
+  .animal-card::after{
+    bottom:calc(var(--card-meta-h) - 4px) !important;
+  }
+}
