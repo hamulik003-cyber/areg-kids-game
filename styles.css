@@ -2793,7 +2793,7 @@ html[data-font="classic"]{
   padding:0 !important;
   transform-origin:center center !important;
   transform-style:preserve-3d !important;
-  pointer-events:none !important;
+  pointer-events:auto !important;
   will-change:transform,filter !important;
   filter:
     drop-shadow(0 13px 18px rgba(62,34,15,.18))
@@ -2824,4 +2824,11 @@ html[data-font="classic"]{
     backdrop-filter:none !important;
     -webkit-backdrop-filter:none !important;
   }
+}
+
+
+/* V105 — tap outside the enlarged card to dismiss it early.
+   Visual animation is unchanged from the V104 baseline. */
+.gallery-card-flight-shell{
+  cursor:default !important;
 }
