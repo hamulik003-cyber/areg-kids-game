@@ -46,25 +46,23 @@ function reward(host,ctx){
 }
 const TEXTURE_PATHS={
   // Proven complete 2:1 equirectangular maps: same UV sphere pipeline as Earth / Mars / Jupiter.
-  sun:'assets/space3d/2k_sun.jpg?v=175',
-  mercury:'assets/space3d/2k_mercury.jpg?v=175',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=175',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=175',
-  moon:'assets/space3d/2k_moon.jpg?v=175',
-  mars:'assets/space3d/2k_mars.jpg?v=175',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=175',
-  saturn:'assets/space3d/2k_saturn.jpg?v=175',
-  uranus:'assets/space3d/2k_uranus.jpg?v=175',
-  neptune:'assets/space3d/2k_neptune.jpg?v=175',
+  sun:'assets/space3d/2k_sun.jpg?v=176',
+  mercury:'assets/space3d/2k_mercury.jpg?v=176',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=176',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=176',
+  mars:'assets/space3d/2k_mars.jpg?v=176',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=176',
+  saturn:'assets/space3d/2k_saturn.jpg?v=176',
+  uranus:'assets/space3d/2k_uranus.jpg?v=176',
+  neptune:'assets/space3d/2k_neptune.jpg?v=176',
 
-  phobos:'assets/space3d/2k_phobos.jpg?v=175',
-  io:'assets/space3d/4k_io.jpg?v=175',
-  europa:'assets/space3d/2k_europa.jpg?v=175',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=175',
-  callisto:'assets/space3d/2k_callisto.jpg?v=175',
-  titan:'assets/space3d/4k_titan.jpg?v=175',
-  enceladus:'assets/space3d/2k_enceladus.jpg?v=175',
-  ceres:'assets/space3d/2k_ceres.jpg?v=175'
+  phobos:'assets/space3d/2k_phobos.jpg?v=176',
+  io:'assets/space3d/4k_io.jpg?v=176',
+  europa:'assets/space3d/2k_europa.jpg?v=176',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=176',
+  callisto:'assets/space3d/2k_callisto.jpg?v=176',
+  titan:'assets/space3d/4k_titan.jpg?v=176',
+  ceres:'assets/space3d/2k_ceres.jpg?v=176'
 };
 
 // These bodies do not have a complete, clean global map in the repo.
@@ -72,7 +70,7 @@ const TEXTURE_PATHS={
 // V175 builds complete 2:1, horizontally seamless full-globe maps at runtime, then feeds
 // them through the exact same SphereGeometry + MeshStandardMaterial pipeline.
 const PROCEDURAL_ONLY=new Set([
-  'deimos','titania','oberon','triton','charon',
+  'enceladus','deimos','titania','oberon','triton','charon',
   'pluto','haumea','makemake','eris'
 ]);
 const REALISTIC_IDS=new Set([...Object.keys(TEXTURE_PATHS),...PROCEDURAL_ONLY]);
@@ -124,18 +122,40 @@ function getTexture(path,{srgb=true,fallback=null}={}){
   texCache.set(path,t);
   return t;
 }
+function sealLongitudeSeam(ctx,W,H,band=28){
+  // Make the ±180° columns mathematically continuous. Matching pixels are
+  // blended inward from both sides so RepeatWrapping cannot expose a vertical seam.
+  band=Math.max(2,Math.min(Math.floor(W*.08),band|0));
+  const img=ctx.getImageData(0,0,W,H),d=img.data;
+  const mix=(a,b,t)=>Math.round(a+(b-a)*t);
+  for(let y=0;y<H;y++){
+    for(let k=0;k<band;k++){
+      const xl=k,xr=W-1-k;
+      const il=(y*W+xl)*4,ir=(y*W+xr)*4;
+      const t=1-k/(band-1);
+      for(let c=0;c<3;c++){
+        const avg=(d[il+c]+d[ir+c])*.5;
+        d[il+c]=mix(d[il+c],avg,t);
+        d[ir+c]=mix(d[ir+c],avg,t);
+      }
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+
 function canvasTexture(item){
-  const cacheKey='proc175:'+item.id;
+  const cacheKey='proc176:'+item.id;
   if(texCache.has(cacheKey))return texCache.get(cacheKey);
 
   // 2:1 plate-carrée/equirectangular map, identical projection class to the
   // Earth/Mars/Jupiter assets. All drawing helpers wrap across ±180° longitude.
   const c=document.createElement('canvas');c.width=1024;c.height=512;
   const x=c.getContext('2d',{alpha:false});
-  const r=prng(seedFrom('v175:'+item.id));
+  const r=prng(seedFrom('v176:'+item.id));
   const W=c.width,H=c.height;
 
   const palette={
+    enceladus:['#eef8fb','#a8c6d2','#ffffff'],
     deimos:['#8b8279','#5f5954','#b5aba0'],
     titania:['#9ea7aa','#677176','#c9d0d1'],
     oberon:['#6d6660','#373532','#a49a90'],
@@ -208,6 +228,13 @@ function canvasTexture(item){
   }
 
   switch(item.id){
+    case 'enceladus':
+      // Bright water-ice terrain with global tiger-stripe / fracture cues.
+      for(let i=0;i<46;i++)patch(r()*W,r()*H,26+r()*88,14+r()*50,r()>.5?'#ffffff':'#a9c9d7',.025+r()*.055,r()*Math.PI);
+      for(let i=0;i<24;i++)periodicLine(r()*H,3+r()*11,1+Math.floor(r()*3),'#5599b5',.08+r()*.10,.8+r()*1.15,r()*6.28);
+      for(let i=0;i<62;i++)crater(r()*W,r()*H,2+r()*12,.025+r()*.055);
+      break;
+
     case 'deimos':
       for(let i=0;i<92;i++)crater(r()*W,r()*H,3+r()*17,.07+r()*.12);
       for(let i=0;i<18;i++)patch(r()*W,r()*H,24+r()*66,14+r()*42,'#c4b7a9',.025+r()*.055,r()*Math.PI);
@@ -272,6 +299,7 @@ function canvasTexture(item){
       break;
   }
 
+  sealLongitudeSeam(x,W,H,32);
   const t=new THREE.CanvasTexture(c);
   t.colorSpace=THREE.SRGBColorSpace;
   t.wrapS=THREE.RepeatWrapping;
@@ -413,6 +441,7 @@ function moonTexture(){
     x.fillStyle=g;x.fillRect(cx-rad*1.2,cy-rad*1.2,rad*2.4,rad*2.4);
   }
 
+  sealLongitudeSeam(x,c.width,c.height,40);
   MOON_TEX=new THREE.CanvasTexture(c);
   MOON_TEX.colorSpace=THREE.SRGBColorSpace;
   MOON_TEX.wrapS=THREE.RepeatWrapping;
@@ -605,7 +634,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=175');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=176');
     mat=new THREE.MeshBasicMaterial({
       map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
       transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
@@ -673,8 +702,11 @@ function spherePlanet(item){
   }
 
   const texturePath=TEXTURE_PATHS[item.id];
-  const tex=texturePath?getTexture(texturePath,{fallback:function(){return canvasTexture(item)}}):canvasTexture(item);
+  const tex=item.id==='moon'
+    ? moonTexture()
+    : (texturePath?getTexture(texturePath,{fallback:function(){return canvasTexture(item)}}):canvasTexture(item));
   const isSun=item.id==='sun';
+  const readableSmall=!['sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
 
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
@@ -682,7 +714,10 @@ function spherePlanet(item){
         map:tex,
         color:0xffffff,
         roughness:item.id==='earth'?.82:(['jupiter','saturn','uranus','neptune'].includes(item.id)?.90:.96),
-        metalness:0
+        metalness:0,
+        emissive:readableSmall?0xffffff:0x000000,
+        emissiveMap:readableSmall?tex:null,
+        emissiveIntensity:readableSmall?(item.id==='enceladus'?.14:.095):0
       });
 
   const mesh=new THREE.Mesh(geo,mat);
@@ -691,7 +726,7 @@ function spherePlanet(item){
   grp.userData.surface=mesh;
 
   if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=175');
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=176');
     const clouds=new THREE.Mesh(
       new THREE.SphereGeometry(1.014,72,48),
       new THREE.MeshStandardMaterial({
@@ -1071,11 +1106,11 @@ function gameSpaceSearch(ctx){
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
   const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,8.48);
-  scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
-  scene.add(new THREE.AmbientLight(0x6176a6,.48));
-  const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0xc6dcff,0x202940,1.18));
+  scene.add(new THREE.AmbientLight(0x7083aa,.62));
+  const key=new THREE.DirectionalLight(0xffffff,2.65);key.position.set(-4.5,5.5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xd2e2ff,2.15);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x8193ff,.95);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
