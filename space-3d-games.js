@@ -1,4 +1,4 @@
-// V162 unified proportional answer feedback: soft green back-glow + consistent red halo
+// V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -100,6 +100,21 @@ function haloTexture(){
   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
 const HALO=haloTexture();
+
+function softGreenHaloTexture(){
+  const c=document.createElement('canvas');c.width=c.height=256;
+  const x=c.getContext('2d'),g=x.createRadialGradient(128,128,42,128,128,126);
+  g.addColorStop(0,'rgba(255,255,255,0)');
+  g.addColorStop(.73,'rgba(255,255,255,0)');
+  g.addColorStop(.78,'rgba(255,255,255,.05)');
+  g.addColorStop(.84,'rgba(255,255,255,.54)');
+  g.addColorStop(.91,'rgba(255,255,255,.16)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g;x.fillRect(0,0,256,256);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+const GREEN_HALO=softGreenHaloTexture();
+const FEEDBACK_HALO_SCALE=2.72;
 
 
 let MOON_TEX=null;
@@ -548,45 +563,30 @@ function disposeFeedbackFx(g,key){
 }
 function makePlanetWrongFx(g){
   disposeFeedbackFx(g,'wrongFx');
-  const fx=new THREE.Group();fx.position.z=-1.16;
+  const fx=new THREE.Group();
   const mat=new THREE.SpriteMaterial({
-    map:HALO,color:0xff4054,transparent:true,opacity:0,depthWrite:false,depthTest:true,
+    map:HALO,color:0xff4054,transparent:true,opacity:0,depthWrite:false,depthTest:false,
     blending:THREE.AdditiveBlending
   });
   mat.toneMapped=false;
-
-  // One identical local scale for every planet.
-  // Because this FX is a child of the planet group, it automatically preserves
-  // the same proportional clearance on Mercury, Earth, Jupiter, etc.
-  const haloScale=3.08;
-  const glow=new THREE.Sprite(mat);glow.scale.set(haloScale,haloScale,1);fx.add(glow);
-
-  fx.userData.haloScale=haloScale;
+  const glow=new THREE.Sprite(mat);
+  glow.scale.set(FEEDBACK_HALO_SCALE,FEEDBACK_HALO_SCALE,1);
+  glow.renderOrder=80;fx.add(glow);
   fx.userData.glow=glow;fx.userData.glowMat=mat;
   g.add(fx);g.userData.wrongFx=fx;return fx;
 }
 function makePlanetWinFx(g,item){
   disposeFeedbackFx(g,'winFx');
-  const fx=new THREE.Group();fx.position.z=-1.22;
-
-  const haloScale=3.14;
-  const outerMat=new THREE.SpriteMaterial({
-    map:HALO,color:0x49f77b,transparent:true,opacity:0,depthWrite:false,depthTest:true,
+  const fx=new THREE.Group();
+  const mat=new THREE.SpriteMaterial({
+    map:GREEN_HALO,color:0x4df37b,transparent:true,opacity:0,depthWrite:false,depthTest:false,
     blending:THREE.AdditiveBlending
   });
-  outerMat.toneMapped=false;
-  const outer=new THREE.Sprite(outerMat);outer.scale.set(haloScale,haloScale,1);fx.add(outer);
-
-  const innerMat=new THREE.SpriteMaterial({
-    map:HALO,color:0xbaffcc,transparent:true,opacity:0,depthWrite:false,depthTest:true,
-    blending:THREE.AdditiveBlending
-  });
-  innerMat.toneMapped=false;
-  const inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.965,haloScale*.965,1);fx.add(inner);
-
-  fx.userData.haloScale=haloScale;
-  fx.userData.outer=outer;fx.userData.outerMat=outerMat;
-  fx.userData.inner=inner;fx.userData.innerMat=innerMat;
+  mat.toneMapped=false;
+  const glow=new THREE.Sprite(mat);
+  glow.scale.set(FEEDBACK_HALO_SCALE,FEEDBACK_HALO_SCALE,1);
+  glow.renderOrder=79;fx.add(glow);
+  fx.userData.glow=glow;fx.userData.glowMat=mat;
   g.add(fx);g.userData.winFx=fx;return fx;
 }
 function gameSpaceSearch(ctx){
@@ -736,9 +736,10 @@ function gameSpaceSearch(ctx){
           g.position.x=wrong.origin.x+Math.sin(q*Math.PI*4.5)*(1-e)*.13;
           const fx=wrong.fx;
           if(fx?.userData?.glowMat){
-            fx.userData.glowMat.opacity=Math.sin(Math.PI*q)*.54;
-            const p=1+.045*Math.sin(Math.PI*q),hs=fx.userData.haloScale||3.08;
-            fx.userData.glow.scale.set(hs*p,hs*p,1);
+            const pulse=Math.max(0,Math.sin(Math.PI*q));
+            fx.userData.glowMat.opacity=.42*pulse;
+            const s=FEEDBACK_HALO_SCALE*(1+.012*pulse);
+            fx.userData.glow.scale.set(s,s,1);
           }
         }else{
           g.position.copy(wrong.origin);disposeFeedbackFx(g,'wrongFx');wrong=null;
@@ -774,15 +775,12 @@ function gameSpaceSearch(ctx){
             r.rotation.x=THREE.MathUtils.lerp(r.userData.baseRotationX??r.rotation.x,r.userData.winRotationX??r.rotation.x,e);
           }
           const fx=g.userData.winFx;
-          if(fx){
-            const hs=fx.userData.haloScale||3.14;
-            const q=clamp((t-winStart)/1650,0,1);
-            const blink=Math.max(0,Math.sin(q*Math.PI*4)); // exactly two soft green pulses
-            const breathe=1+.018*blink;
-            if(fx.userData.outer)fx.userData.outer.scale.set(hs*breathe,hs*breathe,1);
-            if(fx.userData.inner)fx.userData.inner.scale.set(hs*.965*breathe,hs*.965*breathe,1);
-            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.045+.25*blink;
-            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.018+.075*blink;
+          if(fx?.userData?.glowMat){
+            const q=clamp((t-winStart)/900,0,1);
+            const flash=q<1?Math.sin(Math.PI*q):0;
+            fx.userData.glowMat.opacity=.27*flash;
+            const s=FEEDBACK_HALO_SCALE*(1+.010*flash);
+            fx.userData.glow.scale.set(s,s,1);
           }
         }else{
           setObjectOpacity(g,1-e*.68);
