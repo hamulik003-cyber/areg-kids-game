@@ -838,7 +838,10 @@ function setObjectOpacity(g,alpha){
     if(!o.material)return;
     const mats=Array.isArray(o.material)?o.material:[o.material];
     mats.forEach(m=>{
-      if(m.isShaderMaterial)return;
+      if(m.isShaderMaterial){
+        if(m.uniforms?.opacity)m.uniforms.opacity.value=alpha;
+        return;
+      }
       if(!m.userData.__s3dFadeInit){
         m.userData.__s3dFadeInit=true;
         m.userData.__s3dBaseOpacity=Number.isFinite(m.opacity)?m.opacity:1;
