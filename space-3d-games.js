@@ -1,4 +1,4 @@
-// V175 Earth-Mars-Jupiter globe pipeline + seam-safe full-surface moons
+// V176 Earth-Mars-Jupiter pipeline + seam-locked 2:1 full-globe maps
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
