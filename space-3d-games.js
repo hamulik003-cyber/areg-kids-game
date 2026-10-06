@@ -1,4 +1,4 @@
-// V164 all 30 space objects + five-choice layout + full Armenian target names
+// V165 Moon-level real textures + larger randomized non-overlapping five-choice layout
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -54,23 +54,43 @@ const TEXTURE_PATHS={
   jupiter:'assets/space3d/2k_jupiter.jpg',
   saturn:'assets/space3d/2k_saturn.jpg',
   uranus:'assets/space3d/2k_uranus.jpg',
-  neptune:'assets/space3d/2k_neptune.jpg'
+  neptune:'assets/space3d/2k_neptune.jpg',
+  phobos:'assets/space3d/real/phobos.jpg',
+  deimos:'assets/space3d/real/deimos.jpg',
+  io:'assets/space3d/real/io.jpg',
+  europa:'assets/space3d/real/europa.jpg',
+  ganymede:'assets/space3d/real/ganymede.jpg',
+  callisto:'assets/space3d/real/callisto.jpg',
+  titan:'assets/space3d/real/titan.jpg',
+  enceladus:'assets/space3d/real/enceladus.jpg',
+  titania:'assets/space3d/real/titania.jpg',
+  oberon:'assets/space3d/real/oberon.jpg',
+  triton:'assets/space3d/real/triton.jpg',
+  charon:'assets/space3d/real/charon.jpg',
+  pluto:'https://www.simplespacedata.org/texture/solarsystemscope/pluto/latest/2k_pluto.jpg',
+  ceres:'https://www.simplespacedata.org/texture/solarsystemscope/ceres_fictional/latest/2k_ceres_fictional.jpg',
+  haumea:'assets/space3d/real/haumea.jpg',
+  makemake:'https://www.simplespacedata.org/texture/solarsystemscope/makemake_fictional/latest/2k_makemake_fictional.jpg',
+  eris:'https://www.simplespacedata.org/texture/solarsystemscope/eris_fictional/latest/2k_eris_fictional.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
 const DISPLAY_SCALE={sun:1.18,mercury:.70,venus:.88,earth:.90,moon:.70,mars:.78,jupiter:1.12,saturn:1.02,uranus:.92,neptune:.92};
 const texLoader=new THREE.TextureLoader();
 const texCache=new Map();
-function getTexture(path,{srgb=true}={}){
+function getTexture(path,{srgb=true,fallback=null}={}){
   if(texCache.has(path))return texCache.get(path);
   const t=texLoader.load(path,undefined,undefined,()=>{
-    if(path===TEXTURE_PATHS.moon){
-      const fb=moonTexture();
-      t.image=fb.image;t.needsUpdate=true;
+    const fb=typeof fallback==='function'?fallback():null;
+    if(fb?.image){t.image=fb.image;t.needsUpdate=true}
+    else if(path===TEXTURE_PATHS.moon){
+      const moonFb=moonTexture();t.image=moonFb.image;t.needsUpdate=true;
     }
   });
   if(srgb)t.colorSpace=THREE.SRGBColorSpace;
   t.wrapS=THREE.RepeatWrapping;
+  t.minFilter=THREE.LinearMipmapLinearFilter;
+  t.magFilter=THREE.LinearFilter;
   t.anisotropy=12;
   texCache.set(path,t);
   return t;
@@ -429,6 +449,16 @@ function ringMesh(item,inner=1.22,outer=2.08){
   }
 
   let mat;
+  if(item.id==='titan'){
+    const haze=new THREE.Mesh(
+      new THREE.SphereGeometry(1.035,56,36),
+      new THREE.MeshBasicMaterial({
+        color:0xf2aa51,side:THREE.BackSide,transparent:true,opacity:.13,
+        depthWrite:false,blending:THREE.AdditiveBlending
+      })
+    );
+    haze.userData.parentPick=grp;grp.add(haze);
+  }
   if(item.id==='saturn'){
     const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png');
     mat=new THREE.MeshBasicMaterial({
@@ -482,14 +512,32 @@ function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
-  if(item.id==='phobos')geo.scale(1.18,.82,.94);
-  if(item.id==='deimos')geo.scale(1.12,.88,.96);
+  if(item.id==='phobos'||item.id==='deimos'){
+    const p=geo.attributes.position;
+    for(let i=0;i<p.count;i++){
+      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+      const n=1
+        +Math.sin(x*5.7+y*2.8-z*3.1)*.035
+        +Math.cos(y*6.3+z*4.1)*.026
+        +Math.sin(z*8.2-x*2.2)*.018;
+      p.setXYZ(i,x*n,y*n,z*n);
+    }
+    p.needsUpdate=true;geo.computeVertexNormals();
+    if(item.id==='phobos')geo.scale(1.22,.82,.93);
+    else geo.scale(1.14,.88,.96);
+  }
   const texturePath=TEXTURE_PATHS[item.id];
-  const tex=texturePath?getTexture(texturePath):canvasTexture(item);
+  const tex=texturePath?getTexture(texturePath,{fallback:()=>canvasTexture(item)}):canvasTexture(item);
   const isSun=item.id==='sun';
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.96,metalness:0});
+    : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.94,metalness:0});
+  const detailedSmallBody=!['sun','mercury','venus','earth','moon','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
+  if(!isSun&&detailedSmallBody){
+    mat.emissive=new THREE.Color(0x5e5e62);
+    mat.emissiveMap=tex;
+    mat.emissiveIntensity=item.id==='titan'?.22:.15;
+  }
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
@@ -574,30 +622,40 @@ function createHud(root,title){
 }
 function searchSlots(root,camera){
   const aspect=Math.max(.38,Math.min(1.15,root.clientWidth/Math.max(1,root.clientHeight)));
-  const jitter=(v,a)=>v+rand(-a,a);
-  if(aspect<.72){
-    // Five large tap targets: two top, one center, two bottom.
-    return [
-      new THREE.Vector3(jitter(-.88,.055),jitter(1.48,.055),rand(-.02,.10)),
-      new THREE.Vector3(jitter(.88,.055),jitter(1.48,.055),rand(-.02,.10)),
-      new THREE.Vector3(jitter(0,.045),jitter(.02,.055),rand(.04,.14)),
-      new THREE.Vector3(jitter(-.88,.055),jitter(-1.46,.055),rand(-.02,.10)),
-      new THREE.Vector3(jitter(.88,.055),jitter(-1.46,.055),rand(-.02,.10))
-    ];
+  const portrait=aspect<.72;
+  const bounds=portrait
+    ? {xmin:-1.12,xmax:1.12,ymin:-1.52,ymax:1.48,minDist:1.22}
+    : {xmin:-1.95,xmax:1.95,ymin:-1.12,ymax:1.10,minDist:1.34};
+
+  const pts=[];
+  for(let tries=0;tries<260&&pts.length<5;tries++){
+    const p=new THREE.Vector3(
+      rand(bounds.xmin,bounds.xmax),
+      rand(bounds.ymin,bounds.ymax),
+      rand(-.03,.12)
+    );
+    if(pts.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=bounds.minDist))pts.push(p);
   }
-  return [
-    new THREE.Vector3(jitter(-1.62,.08),jitter(1.02,.07),rand(-.02,.10)),
-    new THREE.Vector3(jitter(1.62,.08),jitter(1.02,.07),rand(-.02,.10)),
-    new THREE.Vector3(jitter(0,.06),jitter(.04,.06),rand(.04,.14)),
-    new THREE.Vector3(jitter(-1.62,.08),jitter(-1.06,.07),rand(-.02,.10)),
-    new THREE.Vector3(jitter(1.62,.08),jitter(-1.06,.07),rand(-.02,.10))
-  ];
+
+  // Guaranteed safe fallback, shuffled and gently jittered so it never reads as a fixed 2+1+2 grid.
+  if(pts.length<5){
+    const base=portrait
+      ? [
+          [-.88,1.30],[.80,1.08],[-.18,.38],[.92,-.50],[-.78,-1.25],[.30,-1.42],[-1.00,-.18]
+        ]
+      : [
+          [-1.55,.86],[.10,1.00],[1.55,.66],[-.82,-.40],[.70,-.54],[-1.55,-.98],[1.52,-.98]
+        ];
+    const chosen=shuffle(base).slice(0,5);
+    return chosen.map(([x,y])=>new THREE.Vector3(x+rand(-.08,.08),y+rand(-.07,.07),rand(-.03,.12)));
+  }
+  return shuffle(pts);
 }
 function fitSearchObject(g,item,portrait){
   g.updateMatrixWorld(true);
   const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
   const complex=['saturn','uranus','black-hole','milky-way','solar-system'].includes(item.id);
-  const targetRadius=portrait?(complex?.54:.47):(complex?.70:.62);
+  const targetRadius=portrait?(complex?.62:.66):(complex?.76:.78);
   const radius=Math.max(.01,sphere.radius);
   g.scale.multiplyScalar(targetRadius/radius);
 }
