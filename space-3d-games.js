@@ -1,4 +1,4 @@
-// V166 Moon-level real textures + larger mixed safe layout + recognizable deep-space objects
+// V167 finalized Moon-level real textures + large mixed five-choice layout
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -57,25 +57,25 @@ const TEXTURE_PATHS={
   neptune:'assets/space3d/2k_neptune.jpg',
 
   // Real / mapped satellite surfaces.
-  phobos:'assets/space3d/2k_phobos.jpg',
-  deimos:'assets/space3d/2k_deimos.jpg',
-  io:'assets/space3d/4k_io.jpg',
-  europa:'assets/space3d/2k_europa.jpg',
-  ganymede:'assets/space3d/2k_ganymede.jpg',
-  callisto:'assets/space3d/2k_callisto.jpg',
-  titan:'assets/space3d/4k_titan.jpg',
-  enceladus:'assets/space3d/real/enceladus.jpg',
-  titania:'assets/space3d/real/titania.jpg',
-  oberon:'assets/space3d/real/oberon.jpg',
-  triton:'assets/space3d/real/triton.jpg',
-  charon:'assets/space3d/2k_charon.jpg',
+  phobos:'assets/space3d/2k_phobos.jpg?v=167',
+  deimos:'assets/space3d/2k_deimos.jpg?v=167',
+  io:'assets/space3d/4k_io.jpg?v=167',
+  europa:'assets/space3d/2k_europa.jpg?v=167',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=167',
+  callisto:'assets/space3d/2k_callisto.jpg?v=167',
+  titan:'assets/space3d/4k_titan.jpg?v=167',
+  enceladus:'assets/space3d/real/enceladus.jpg?v=167',
+  titania:'assets/space3d/real/titania.jpg?v=167',
+  oberon:'assets/space3d/real/oberon.jpg?v=167',
+  triton:'assets/space3d/real/triton.jpg?v=167',
+  charon:'assets/space3d/2k_charon.jpg?v=167',
 
   // Dwarf planets.
-  pluto:'assets/space3d/4k_pluto.jpg',
-  ceres:'assets/space3d/2k_ceres.jpg',
-  haumea:'assets/space3d/2k_haumea.jpg',
-  makemake:'assets/space3d/real/makemake.jpg',
-  eris:'assets/space3d/real/eris.jpg'
+  pluto:'assets/space3d/4k_pluto.jpg?v=167',
+  ceres:'assets/space3d/2k_ceres.jpg?v=167',
+  haumea:'assets/space3d/2k_haumea.jpg?v=167',
+  makemake:'assets/space3d/real/makemake.jpg?v=167',
+  eris:'assets/space3d/real/eris.jpg?v=167'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
@@ -564,7 +564,7 @@ function spherePlanet(item){
   if(!isSun&&detailedSmallBody){
     mat.emissive=new THREE.Color(0x505157);
     mat.emissiveMap=tex;
-    mat.emissiveIntensity=item.id==='titan'?.18:.12;
+    mat.emissiveIntensity=item.id==='titan'?.20:.15;
     if(item.id!=='titan'){
       mat.bumpMap=tex;
       mat.bumpScale=(item.id==='phobos'||item.id==='deimos')?.055:.022;
