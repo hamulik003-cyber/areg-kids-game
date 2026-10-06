@@ -1,0 +1,234 @@
+
+/* =========================================================
+   V144 â€” Space pro mini-games
+   "ÕÕ«Õ¥Õ¦Õ¥Ö€Õ¡Õ¯Õ¡Õ¶ Õ¸Ö€Õ¸Õ¶Õ¸Ö‚Õ´" + "ÕÕ¡Õ¼Õ«Ö€ Õ°Õ¡Õ´Õ¡Õ½Õ¿Õ¥Õ²Õ¸Ö‚Õ©ÕµÕ¸Ö‚Õ¶Õ¨"
+   ========================================================= */
+
+.pro-space-game{
+  position:absolute;inset:0;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(circle at 18% 20%,rgba(83,54,190,.32),transparent 28%),
+    radial-gradient(circle at 82% 35%,rgba(0,151,255,.18),transparent 28%),
+    radial-gradient(circle at 52% 88%,rgba(167,38,199,.20),transparent 30%),
+    linear-gradient(180deg,#04091c 0%,#08122f 43%,#090b25 100%);
+  color:white;
+}
+.pro-space-game::before{
+  content:"";position:absolute;inset:-14%;z-index:-3;opacity:.88;
+  background:
+    radial-gradient(ellipse at 20% 28%,rgba(87,47,205,.32),transparent 28%),
+    radial-gradient(ellipse at 80% 20%,rgba(14,126,236,.24),transparent 29%),
+    radial-gradient(ellipse at 58% 76%,rgba(188,42,219,.22),transparent 31%);
+  filter:blur(12px);animation:proNebulaDrift 16s ease-in-out infinite alternate;
+}
+.pro-space-game::after{
+  content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.82) 0 1px,transparent 1.4px),
+    radial-gradient(circle,rgba(139,192,255,.72) 0 1.1px,transparent 1.5px);
+  background-size:37px 37px,61px 61px;
+  background-position:0 0,19px 27px;
+  opacity:.32;
+}
+.pro-space-nebula{
+  position:absolute;inset:-20%;z-index:-1;pointer-events:none;
+  background:
+    conic-gradient(from 20deg at 52% 50%,transparent,rgba(59,57,214,.12),transparent 34%,rgba(192,52,224,.1),transparent 67%);
+  filter:blur(24px);animation:proNebulaSpin 28s linear infinite;
+}
+.pro-space-dust{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.pro-space-dust i{
+  position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);border-radius:50%;
+  background:#fff;opacity:var(--a);box-shadow:0 0 7px rgba(142,202,255,.9);
+  animation:proStarPulse var(--d) ease-in-out var(--delay) infinite;
+}
+.pro-space-warp{
+  position:absolute;inset:-15%;z-index:45;pointer-events:none;opacity:0;
+  background:
+    repeating-radial-gradient(ellipse at center,rgba(188,225,255,.0) 0 9px,rgba(188,225,255,.18) 10px 11px,transparent 12px 23px);
+  transform:scale(.42);filter:blur(1px);
+}
+.pro-space-warp.run{animation:proWarp .58s ease-out both}
+.cosmic-star-award{
+  position:absolute;z-index:70;left:50%;top:48%;transform:translate(-50%,-50%);
+  display:flex;align-items:center;gap:8px;pointer-events:none;
+  color:#fff;font-weight:1000;text-shadow:0 2px 10px #5d37c9;
+  animation:cosmicAward 1.2s cubic-bezier(.2,.8,.2,1) both;
+}
+.cosmic-star-award span{font-size:88px;filter:drop-shadow(0 0 20px #ffe76f)}
+.cosmic-star-award b{font-size:36px}
+
+.space-search-hud,.constellation-hud{
+  position:absolute;z-index:20;left:14px;right:14px;top:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none;
+}
+.space-search-prompt,.constellation-prompt{
+  min-width:0;max-width:78%;padding:10px 15px 11px;border-radius:19px;
+  background:linear-gradient(180deg,rgba(26,37,91,.82),rgba(9,14,47,.72));
+  border:1px solid rgba(154,199,255,.33);
+  box-shadow:0 12px 32px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.16);
+  backdrop-filter:blur(10px);
+}
+.space-search-prompt small,.constellation-prompt small{
+  display:block;margin-bottom:4px;font-size:9px;letter-spacing:.12em;font-weight:900;color:#a9cbff;white-space:nowrap;
+}
+.space-search-prompt strong,.constellation-prompt strong{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:clamp(16px,4.2vw,23px);line-height:1.05;font-weight:1000;color:#fff;
+  text-shadow:0 2px 14px rgba(55,121,255,.44);
+}
+.space-search-progress,.constellation-progress{
+  flex:0 0 auto;width:66px;height:54px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  background:linear-gradient(180deg,rgba(38,44,101,.88),rgba(10,14,46,.82));
+  border:1px solid rgba(170,213,255,.35);box-shadow:0 10px 28px rgba(0,0,0,.24);
+  color:#fff;font-weight:1000;font-size:20px;backdrop-filter:blur(10px);
+}
+.space-search-progress span,.constellation-progress span{color:#ffe66f;filter:drop-shadow(0 0 7px #f6ca3d)}
+
+.space-search-stage{
+  position:absolute;z-index:8;inset:82px 6px 28px;
+  perspective:900px;transform-style:preserve-3d;
+  transition:opacity .34s ease,transform .34s ease;
+}
+.space-search-stage.round-out{opacity:0;transform:scale(1.08) translateZ(80px)}
+.space-object{
+  position:absolute;width:39%;height:38%;padding:0;border:0;background:transparent;color:white;
+  transform-style:preserve-3d;perspective:750px;touch-action:manipulation;
+  filter:drop-shadow(0 20px 25px rgba(0,0,0,.36));
+  transition:opacity .35s ease,filter .35s ease;
+}
+.space-object.slot-a{left:50%;top:4%;transform:translateX(-50%) rotate(var(--tilt))}
+.space-object.slot-b{left:2%;top:49%;transform:rotate(var(--tilt))}
+.space-object.slot-c{right:2%;top:49%;transform:rotate(var(--tilt))}
+.space-object-depth{
+  position:absolute;left:18%;right:18%;bottom:3%;height:13%;border-radius:50%;
+  background:rgba(39,80,192,.36);filter:blur(13px);transform:translateZ(-50px) rotateX(70deg);
+}
+.space-object-visual{
+  position:absolute;inset:0 0 25px;display:block;transform-style:preserve-3d;
+  animation:spaceObjectFloat 4.4s ease-in-out var(--float-delay) infinite;
+}
+.space-object-art{
+  position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;display:block;
+  -webkit-mask-image:radial-gradient(ellipse 63% 59% at 50% 49%,#000 40%,rgba(0,0,0,.96) 60%,transparent 98%);
+  mask-image:radial-gradient(ellipse 63% 59% at 50% 49%,#000 40%,rgba(0,0,0,.96) 60%,transparent 98%);
+  transform:translateZ(30px) rotateY(-3deg);transform-origin:center;
+  filter:saturate(1.16) contrast(1.06) brightness(1.03);
+  transition:transform .52s cubic-bezier(.2,.8,.2,1),filter .35s ease;
+}
+.space-object-light{
+  position:absolute;inset:12% 12% 18%;border-radius:50%;pointer-events:none;transform:translateZ(45px);
+  background:linear-gradient(120deg,rgba(255,255,255,.30),transparent 28%,transparent 62%,rgba(42,86,216,.20));
+  mix-blend-mode:screen;opacity:.65;
+}
+.space-object-name{
+  position:absolute;left:50%;bottom:1px;transform:translateX(-50%) translateY(7px);
+  max-width:96%;padding:7px 13px;border-radius:15px;
+  background:rgba(10,18,54,.76);border:1px solid rgba(185,218,255,.3);
+  color:#fff;font-weight:1000;font-size:clamp(14px,3.7vw,20px);line-height:1;white-space:nowrap;
+  opacity:.12;filter:blur(1.8px);transition:.32s ease;backdrop-filter:blur(8px);
+}
+.space-object:active .space-object-art{transform:translateZ(50px) scale(1.035) rotateY(3deg)}
+.space-object.is-dimmed{opacity:.24;filter:saturate(.6) brightness(.65)}
+.space-object.is-correct{z-index:25}
+.space-object.is-correct .space-object-visual{animation:spaceObjectWin 1.2s cubic-bezier(.17,.84,.25,1) both}
+.space-object.is-correct .space-object-art{
+  filter:saturate(1.35) contrast(1.08) brightness(1.18) drop-shadow(0 0 18px rgba(122,194,255,.55));
+}
+.space-object.is-correct .space-object-name{opacity:1;filter:none;transform:translateX(-50%) translateY(0)}
+.space-object.soft-miss{animation:spaceSoftMiss .34s ease}
+.space-search-message{
+  position:absolute;z-index:26;left:50%;bottom:18px;transform:translateX(-50%);
+  padding:8px 16px;border-radius:16px;background:rgba(10,17,49,.64);color:#ddecff;
+  font-size:13px;font-weight:900;letter-spacing:.03em;opacity:.9;backdrop-filter:blur(8px);
+}
+.space-search-game.view-b::before{transform:translate3d(5%,-2%,0) scale(1.05)}
+.space-search-game.view-c::before{transform:translate3d(-4%,3%,0) scale(1.08)}
+.space-search-game.view-d::before{filter:blur(18px) hue-rotate(18deg)}
+.space-search-game.view-e::before{filter:blur(14px) hue-rotate(-14deg)}
+.space-search-game.view-f::before{transform:scale(1.12);filter:blur(16px) saturate(1.18)}
+
+.constellation-stage{
+  position:absolute;z-index:8;left:8px;right:8px;top:84px;bottom:12px;overflow:hidden;
+  border-radius:26px;touch-action:none;perspective:950px;transform-style:preserve-3d;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(62,92,195,.10),transparent 48%),
+    rgba(1,5,20,.12);
+  transition:opacity .35s ease,transform .35s ease;
+}
+.constellation-stage.round-out{opacity:0;transform:scale(1.07) translateZ(70px)}
+.constellation-reveal-art{
+  position:absolute;z-index:1;left:5%;top:3%;width:90%;height:91%;object-fit:contain;
+  opacity:.16;filter:brightness(.55) saturate(.8) blur(.25px);
+  -webkit-mask-image:radial-gradient(ellipse 70% 69% at 50% 48%,#000 55%,transparent 99%);
+  mask-image:radial-gradient(ellipse 70% 69% at 50% 48%,#000 55%,transparent 99%);
+  transform:scale(.96) translateZ(-80px);transition:opacity .85s ease,filter .85s ease,transform .85s cubic-bezier(.2,.8,.2,1);
+}
+.constellation-lines{position:absolute;z-index:7;inset:0;width:100%;height:100%;overfow:visible;pointer-events:none}
+.constellation-nodes{position:absolute;z-index:10;inset:0;transform-style:preserve-3d}
+.constellation-node{
+  position:absolute;width:54px;height:54px;margin:-27px 0 0 -27px;border:0;border-radius:50%;padding:0;
+  background:transparent;touch-action:none;transform:scale(var(--depth)) translateZ(calc(var(--depth) * 24px));
+}
+.constellation-node::before{
+  content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);
+  background:#dff6ff;box-shadow:0 0 6px #fff,0 0 14px #81bfff,0 0 24px rgba(92,138,255,.62);
+  transition:.28s ease;
+}
+.constellation-node::after{
+  content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(185,222,255,.18);
+  transform:scale(.6);opacity:.15;transition:.28s ease;
+}
+.constellation-node.is-next::after{
+  opacity:.86;border-color:rgba(183,225,255,.82);
+  box-shadow:0 0 16px rgba(121,185,255,.46);
+  animation:constellationTarget 1.05s ease-in-out infinite;
+}
+.constellation-node.is-next::before{width:15px;height:15px;box-shadow:0 0 8px #fff,0 0 18px #9fd3ff,0 0 32px #5a86ff}
+.constellation-node.is-lit::before{
+  width:17px;height:17px;background:#fff7b0;
+  box-shadow:0 0 8px #fff,0 0 18px #fff38a,0 0 38px #6fb9ff;
+}
+.constellation-node.is-lit::after{opacity:.8;transform:scale(1.08);border-color:rgba(255,244,148,.68)}
+.constellation-segment{
+  stroke-dasharray:120;stroke-dashoffset:120;
+  filter:drop-shadow(0 0 4px #8bd0ff) drop-shadow(0 0 9px rgba(116,154,255,.8));
+  animation:constellationLineDraw .48s ease-out forwards;
+}
+.constellation-name{
+  position:absolute;z-index:20;left:50%;bottom:6%;transform:translateX(-50%) translateY(12px) scale(.94);
+  max-width:86%;padding:10px 18px;border-radius:18px;
+  background:rgba(9,15,49,.78);border:1px solid rgba(180,219,255,.35);
+  color:#fff;font-size:clamp(18px,4.8vw,27px);font-weight:1000;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+  opacity:0;backdrop-filter:blur(9px);box-shadow:0 12px 35px rgba(0,0,0,.27);
+  transition:.5s cubic-bezier(.2,.8,.2,1);
+}
+.constellation-stage.is-complete .constellation-reveal-art{
+  opacity:.92;filter:brightness(1.08) saturate(1.24);transform:scale(1.045) translateZ(30px);
+}
+.constellation-stage.is-complete .constellation-node{opacity:.2;transition:opacity .45s ease}
+.constellation-stage.is-complete .constellation-lines{opacity:.5;transition:opacity .45s ease}
+.constellation-stage.is-complete .constellation-name{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+.constellation-stage.is-complete::after{
+  content:"";position:absolute;z-index:18;inset:7%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(98,159,255,.18),transparent 62%);
+  animation:constellationRevealGlow 1.4s ease-out both;
+}
+
+@keyframes proNebulaDrift{
+  0%{transform:translate3d(-2%,-1%,0) scale(1)}
+  100%{transform:translate3d(3%,2%,0) scale(1.08)}
+}
+@keyframes proNebulaSpin{to{transform:rotate(360deg)}}
+@keyframes proStarPulse{0%,100%{transform:scale(.65);opacity:calc(var(--a) * .55)}50%{transform:scale(1.35);opacity:var(--a)}}
+@keyframes proWarp{
+  0%{opacity:0;transform:scale(.35)}
+  38%{opacity:.76}
+  100%{opacity:0;transform:scale(1.75)}
+}
+@keyframes cosmicAward{
+  0%•í½Á…¥ÑäèÀíÑÉ…¹Í™½É´éÑÉ…¹Í±…Ñ” ´ÔÀ”°´ÔÀ”¤Í…±” ¸ÈÔ¤É½Ñ…Ñ” ´ÄÙ‘•œ¥ô(€€ÌÀ•í½Á…¥ÑäèÄíÑÉ…¹Í™½É´éÑÉ…¹Í±…Ñ” ´ÔÀ”°´ÔÀ”¤Í…±” Ä¸Äà¤É½Ñ…Ñ” Õ‘•œ¥ô(€€ÜÔ•í½Á…¥ÑäèÅô(€€ÄÀÀ•í½Á…¥ÑäèÀíÑÉ…¹Í™½É´éÑÉ…¹Í±…Ñ” ´ÔÀ”°´ØÀ”¤Í…±” ¸ä¤)ô)­•å™É…µ•ÌÍÁ…•=‰©•Ñ±½…Ñì(€€À”°ÄÀÀ•íÑÉ…¹Í™½É´éÑÉ…¹Í±…Ñ•d À¤É½Ñ…Ñ•` Á‘•œ¤É½Ñ…Ñ•d ´É‘•œ¥ô(€€ÔÀ•íÑÉ…¹Í™½É´éÑÉ…¹Í±…Ñ•d ´ÄÁÁà¤É½Ñ…Ñ•` É‘•œ¤É½Ñ…Ñ•d Í‘•œ¥ô)ô)­•å™É…µ•ÌÍÁ…•=‰©•Ñ]¥¹ì(€€À–W·G&ç6f÷&Ó§G&ç6ÆFU’ƒ’66ÆRƒ’&÷FFU’ƒFVr—Ğ¢3RW·G&ç6f÷&Ó§G&ç6ÆFU’‚Ó‚’66ÆRƒãB’&÷FFU’‚ÓvFVr—Ğ¢c‚W·G&ç6f÷&Ó§G&ç6ÆFU’‚Óg‚’66ÆRƒã’&÷FFU’ƒvFVr—Ğ¢W·G&ç6f÷&Ó§G&ç6ÆFU’‚Ó‡‚’66ÆRƒã"’&÷FFU’ƒFVr—Ğ§Ğ¤¶W–g&ÖW276U6ögDÖ—72W·CRÃW¶f–ÇFW#¦'&–v‡FæW72ƒ—ÓSW¶f–ÇFW#¦'&–v‡FæW72ƒã#R“·G&ç6f÷&Ó§G&ç6ÆFU‚ƒG‚—×Ğ¤¶W–g&ÖW26öç7FVÆÆF–öåF&vWG³RÃW·G&ç6f÷&Ó§66ÆR‚ãc‚“¶÷6—G“¢ãWÓSW·G&ç6f÷&Ó§66ÆRƒã"“¶÷6—G“£×Ğ¤¶W–g&ÖW26öç7FVÆÆF–öäÆ–æTG&w·F÷·7G&ö¶RÖF6†öfg6WC£×Ğ¤¶W–g&ÖW26öç7FVÆÆF–öå&WfVÄvÆ÷w°¢Y^ÛÜXÚ]NŒİ˜[œÙ›Ü›NœØØ[JMJ_BˆÍI^ÛÜXÚ]NŒ_BˆL	^ÛÜXÚ]NŒİ˜[œÙ›Ü›NœØØ[JKŒJ_BŸB‚YYXH
+X^]ÚYÌ
+^ÂˆœÜXÙK\ÙX\˜ÚZY˜ÛÛœİ[][Û‹ZYÛY\ÜšYÚ\İÜ\BˆœÜXÙK\ÙX\˜Ú\›Û\˜ÛÛœİ[][Û‹\›Û\ÜY[™Î\L\LÛX^]ÚYÍÉ_BˆœÜXÙK\ÙX\˜Ú\›ÙÜ™\ÜË˜ÛÛœİ[][Û‹\›ÙÜ™\ÜŞİÚYNÚZYÚLBˆœÜXÙK\ÙX\˜Ú\İYÙ^Ú[œÙ]ÍœBˆœÜXÙK[Øš™XİİÚY‰NÚZYÚŒÎ	_BˆœÜXÙK[Øš™XİœÛİXÛYŒBˆœÜXÙK[Øš™XİœÛİXŞÜšYÚŒBˆœÜXÙK[Øš™Xİ[˜[Y^Ù›Û\Ú^™NŒLÜÜY[™Îœ\Bˆ˜ÛÛœİ[][Û‹\İYÙ^İÜÎÛYÜšYÚØ›İÛNÜBˆ˜ÛÛœİ[][Û‹[›Ù^İÚYLÚZYÚLÛX\™Ú[‹L\L\BŸBYYXH
+™Y™\œË\™YXÙY[[İ[Ûœ™YXÙJ^Âˆœ›Ë\ÜXÙKYØ[YN˜™Y›Ü™Kœ›Ë\ÜXÙK[™X[Kœ›Ë\ÜXÙKY\İKœÜXÙK[Øš™Xİ]š\İX[˜ÛÛœİ[][Û‹[›ÙKš\Ë[™^˜Y\Ø[š[X][Û››Û™HZ[\Ü[BŸB
