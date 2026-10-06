@@ -1,4 +1,4 @@
-// V179 gallery-front matched + real seamless 2:1 globe maps
+// V180 restore V151/V157 professional real-map pipeline for every planet/moon
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -45,35 +45,38 @@ function reward(host,ctx){
   const d=document.createElement('div');d.className='s3d-reward';d.textContent='⭐ +1';host.appendChild(d);setTimeout(()=>d.remove(),1100);
 }
 const TEXTURE_PATHS={
-  // Proven complete 2:1 equirectangular maps: same UV sphere pipeline as Earth / Mars / Jupiter.
-  sun:'assets/space3d/2k_sun.jpg?v=179',
-  mercury:'assets/space3d/2k_mercury.jpg?v=179',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=179',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=179',
-  mars:'assets/space3d/2k_mars.jpg?v=179',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=179',
-  saturn:'assets/space3d/2k_saturn.jpg?v=179',
-  uranus:'assets/space3d/2k_uranus.jpg?v=179',
-  neptune:'assets/space3d/2k_neptune.jpg?v=179',
+  // Original solar-system pipeline: real equirectangular maps.
+  sun:'assets/space3d/2k_sun.jpg?v=180',
+  mercury:'assets/space3d/2k_mercury.jpg?v=180',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=180',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=180',
+  moon:'https://raw.githubusercontent.com/markfxm/SolarSystem/main/public/detail/4k_moon.jpg',
+  mars:'assets/space3d/2k_mars.jpg?v=180',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=180',
+  saturn:'assets/space3d/2k_saturn.jpg?v=180',
+  uranus:'assets/space3d/2k_uranus.jpg?v=180',
+  neptune:'assets/space3d/2k_neptune.jpg?v=180',
 
-  phobos:'assets/space3d/2k_phobos.jpg?v=179',
-  io:'assets/space3d/4k_io.jpg?v=179',
-  europa:'assets/space3d/2k_europa.jpg?v=179',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=179',
-  callisto:'assets/space3d/2k_callisto.jpg?v=179',
-  titan:'assets/space3d/4k_titan.jpg?v=179',
-  ceres:'assets/space3d/2k_ceres.jpg?v=179'
+  // Added bodies: only validated 2:1 global maps.
+  phobos:'assets/space3d/2k_phobos.jpg?v=180',
+  deimos:'assets/space3d/real/deimos.jpg?v=180',
+  io:'assets/space3d/4k_io.jpg?v=180',
+  europa:'assets/space3d/2k_europa.jpg?v=180',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=180',
+  callisto:'assets/space3d/2k_callisto.jpg?v=180',
+  titan:'assets/space3d/4k_titan.jpg?v=180',
+  enceladus:'assets/space3d/real/enceladus.jpg?v=180',
+  titania:'assets/space3d/2k_titania.jpg?v=180',
+  oberon:'assets/space3d/real/oberon.jpg?v=180',
+  triton:'assets/space3d/real/triton.jpg?v=180',
+  charon:'assets/space3d/2k_charon.jpg?v=180',
+  pluto:'assets/space3d/2k_pluto.jpg?v=180',
+  ceres:'assets/space3d/2k_ceres.jpg?v=180',
+  haumea:'assets/space3d/2k_haumea.jpg?v=180',
+  makemake:'assets/space3d/real/makemake.jpg?v=180',
+  eris:'assets/space3d/real/eris.jpg?v=180'
 };
-
-// These bodies do not have a complete, clean global map in the repo.
-// Their old files are partial flyby mosaics / flat photos with black or missing regions.
-// V175 builds complete 2:1, horizontally seamless full-globe maps at runtime, then feeds
-// them through the exact same SphereGeometry + MeshStandardMaterial pipeline.
-const PROCEDURAL_ONLY=new Set([
-  'enceladus','deimos','titania','oberon','triton','charon',
-  'pluto','haumea','makemake','eris'
-]);
-const REALISTIC_IDS=new Set([...Object.keys(TEXTURE_PATHS),...PROCEDURAL_ONLY]);
+const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={
   sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,
   jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32,
@@ -144,7 +147,7 @@ function sealLongitudeSeam(ctx,W,H,band=28){
 }
 
 function canvasTexture(item){
-  const cacheKey='proc179:'+item.id;
+  const cacheKey='proc180:'+item.id;
   if(texCache.has(cacheKey))return texCache.get(cacheKey);
 
   // 2:1 plate-carrée/equirectangular map, identical projection class to the
@@ -152,7 +155,7 @@ function canvasTexture(item){
   const c=document.createElement('canvas');c.width=2048;c.height=1024;
   const x=c.getContext('2d',{alpha:false});
   x.scale(2,2);
-  const r=prng(seedFrom('v179:'+item.id));
+  const r=prng(seedFrom('v180:'+item.id));
   const W=1024,H=512;
 
   // Use the exact learning-gallery palette carried by PLANETS in app.js.
@@ -650,14 +653,14 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=179');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=180');
     mat=new THREE.MeshBasicMaterial({
-      map:ringTex,alphaMap:ringTex,color:new THREE.Color(item.accent||'#e4c77e'),side:THREE.DoubleSide,
+      map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
       transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
     });
   }else{
     mat=new THREE.MeshBasicMaterial({
-      color:new THREE.Color(item.accent||'#83d8df'),side:THREE.DoubleSide,transparent:true,opacity:.34,depthWrite:false
+      color:0xb9dce3,side:THREE.DoubleSide,transparent:true,opacity:.30,depthWrite:false
     });
   }
   const ring=new THREE.Mesh(geo,mat);ring.userData.ringSurface=true;group.add(ring);
@@ -697,132 +700,6 @@ function atmosphereMesh(radius=1.035){
   });
   return new THREE.Mesh(new THREE.SphereGeometry(radius,64,40),mat);
 }
-const MATCHED_TEX_CACHE=new Map();
-function galleryMatchedTexture(item){
-  const key='matched179:'+item.id;
-  if(MATCHED_TEX_CACHE.has(key))return MATCHED_TEX_CACHE.get(key);
-
-  const W=2048,H=1024;
-  const c=document.createElement('canvas');c.width=W;c.height=H;
-  const x=c.getContext('2d',{alpha:false});
-
-  // Start from the proven seamless full-globe map. This is what remains visible
-  // on the sides/back as the body rotates.
-  const procedural=()=>{
-    if(item.id==='moon')return moonTexture().image;
-    return canvasTexture(item).image;
-  };
-  const basePath=TEXTURE_PATHS[item.id];
-  let baseImage=procedural();
-  let galleryImage=null;
-
-  const tex=new THREE.CanvasTexture(c);
-  tex.colorSpace=THREE.SRGBColorSpace;
-  tex.wrapS=THREE.RepeatWrapping;
-  tex.wrapT=THREE.ClampToEdgeWrapping;
-  tex.minFilter=THREE.LinearMipmapLinearFilter;
-  tex.magFilter=THREE.LinearFilter;
-  tex.anisotropy=16;
-  MATCHED_TEX_CACHE.set(key,tex);
-
-  const crop={
-    sun:[.50,.49,.335], mercury:[.50,.49,.335], venus:[.50,.49,.335],
-    earth:[.50,.49,.350], moon:[.50,.49,.335], mars:[.50,.49,.335],
-    jupiter:[.50,.49,.345], saturn:[.50,.49,.230], uranus:[.50,.49,.255],
-    neptune:[.50,.49,.335], phobos:[.50,.49,.315], deimos:[.50,.49,.315],
-    io:[.50,.49,.335], europa:[.50,.49,.335], ganymede:[.50,.49,.335],
-    callisto:[.50,.49,.335], titan:[.50,.49,.335], enceladus:[.50,.49,.335],
-    titania:[.50,.49,.335], oberon:[.50,.49,.335], triton:[.50,.49,.335],
-    charon:[.50,.49,.335], pluto:[.50,.49,.335], ceres:[.50,.49,.335],
-    haumea:[.50,.49,.305], makemake:[.50,.49,.335], eris:[.50,.49,.335]
-  }[item.id]||[.50,.49,.33];
-
-  function render(){
-    try{
-      x.clearRect(0,0,W,H);
-      if(baseImage)x.drawImage(baseImage,0,0,W,H);
-      else{
-        const bg=x.createLinearGradient(0,0,0,H);
-        bg.addColorStop(0,item.accent||item.c1||'#aaa');
-        bg.addColorStop(.5,item.c1||'#888');
-        bg.addColorStop(1,item.c2||'#555');
-        x.fillStyle=bg;x.fillRect(0,0,W,H);
-      }
-      if(!galleryImage){tex.needsUpdate=true;return;}
-
-      const SW=720,SH=Math.max(2,Math.round(SW*galleryImage.naturalHeight/galleryImage.naturalWidth));
-      const sc=document.createElement('canvas');sc.width=SW;sc.height=SH;
-      const sx=sc.getContext('2d',{alpha:false});
-      sx.drawImage(galleryImage,0,0,SW,SH);
-      const src=sx.getImageData(0,0,SW,SH),sd=src.data;
-      const out=x.getImageData(0,0,W,H),od=out.data;
-
-      const cx=crop[0]*SW,cy=crop[1]*SH,rad=crop[2]*SW;
-      // Three.js SphereGeometry faces +Z at u≈0.25. Put the learning-card
-      // reference there. Only the front hemisphere is overlaid; the side/back
-      // stays the genuine 360 map, so there is no mirrored/stretching artifact.
-      for(let py=0;py<H;py++){
-        const lat=(.5-py/(H-1))*Math.PI;
-        const sy=-Math.sin(lat),cl=Math.cos(lat);
-        for(let px=0;px<W;px++){
-          let du=px/(W-1)-.25;
-          du-=Math.round(du); // shortest wrapped distance from front longitude
-          const lon=du*Math.PI*2;
-          const al=Math.abs(lon);
-          if(al>=Math.PI*.5)continue;
-
-          const nx=Math.sin(lon)*cl,ny=sy;
-          const rr=Math.hypot(nx,ny);
-          if(rr>=.93)continue;
-
-          let ix=Math.round(cx+nx*rad),iy=Math.round(cy+ny*rad);
-          ix=Math.max(0,Math.min(SW-1,ix));iy=Math.max(0,Math.min(SH-1,iy));
-          const si=(iy*SW+ix)*4,di=(py*W+px)*4;
-
-          // Exact gallery look through the central 65°, then feather smoothly
-          // into the real globe map before the limb.
-          const lonA=Math.max(0,Math.min(1,(Math.PI*.48-al)/(Math.PI*.14)));
-          const radA=Math.max(0,Math.min(1,(.93-rr)/.12));
-          let a=Math.min(lonA,radA);
-          a=a*a*(3-2*a);
-          if(a<=0)continue;
-
-          od[di]=Math.round(od[di]*(1-a)+sd[si]*a);
-          od[di+1]=Math.round(od[di+1]*(1-a)+sd[si+1]*a);
-          od[di+2]=Math.round(od[di+2]*(1-a)+sd[si+2]*a);
-          od[di+3]=255;
-        }
-      }
-      x.putImageData(out,0,0);
-
-      // Never touch the longitude seam: copy exact first column to last column.
-      const seam=x.getImageData(0,0,1,H);
-      x.putImageData(seam,W-1,0);
-      tex.needsUpdate=true;
-    }catch(err){
-      console.warn('gallery matched texture fallback',item.id,err);
-      tex.needsUpdate=true;
-    }
-  }
-
-  render();
-
-  if(basePath){
-    const b=new Image();b.decoding='async';
-    b.onload=()=>{baseImage=b;render()};
-    b.onerror=()=>render();
-    b.src=basePath;
-  }
-
-  if(item.img){
-    const gi=new Image();gi.decoding='async';
-    gi.onload=()=>{galleryImage=gi;render()};
-    gi.onerror=()=>render();
-    gi.src=item.img+(item.img.includes('?')?'&':'?')+'v=179';
-  }
-  return tex;
-}
-
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,96,64):new THREE.SphereGeometry(1,96,64);
@@ -843,20 +720,55 @@ function spherePlanet(item){
     else geo.scale(1.14,.88,.96);
   }
 
-  const tex=galleryMatchedTexture(item);
+  const texturePath=TEXTURE_PATHS[item.id];
+  const tex=texturePath
+    ? getTexture(texturePath,{fallback:item.id==='moon'?function(){return moonTexture()}:function(){return canvasTexture(item)}})
+    : canvasTexture(item);
   const isSun=item.id==='sun';
 
-  // The learning image already contains its own shading/detail. BasicMaterial
-  // preserves those colors exactly instead of repainting them with scene lights.
-  const mat=new THREE.MeshBasicMaterial({map:tex,color:0xffffff});
+  const roughness={
+    earth:.82,venus:.93,jupiter:.90,saturn:.91,uranus:.88,neptune:.88,
+    titan:.94,io:.95,europa:.96,ganymede:.97,callisto:.98,
+    enceladus:.97,triton:.96
+  }[item.id]??.97;
+
+  const mat=isSun
+    ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
+    : new THREE.MeshStandardMaterial({
+        map:tex,
+        color:0xffffff,
+        roughness,
+        metalness:0
+      });
 
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
 
-  // Earth clouds and Titan haze are baked into the learning reference on the
-  // matched front view; no duplicate overlay is added.
+  if(item.id==='earth'){
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=180');
+    const clouds=new THREE.Mesh(
+      new THREE.SphereGeometry(1.014,72,48),
+      new THREE.MeshStandardMaterial({
+        color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.36,
+        depthWrite:false,roughness:1,metalness:0
+      })
+    );
+    clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
+    const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
+  }
+
+  if(item.id==='titan'){
+    const haze=new THREE.Mesh(
+      new THREE.SphereGeometry(1.028,64,42),
+      new THREE.MeshBasicMaterial({
+        color:0xe5a34d,side:THREE.BackSide,transparent:true,opacity:.08,
+        depthWrite:false,blending:THREE.AdditiveBlending
+      })
+    );
+    haze.userData.parentPick=grp;grp.add(haze);
+  }
 
   if(item.id==='saturn'){
     const ring=ringMesh(item,1.22,2.10);ring.userData.parentPick=grp;grp.add(ring);grp.userData.ring=ring;
@@ -1215,11 +1127,11 @@ function gameSpaceSearch(ctx){
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
   const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,8.48);
-  scene.add(new THREE.HemisphereLight(0xc6dcff,0x202940,1.18));
-  scene.add(new THREE.AmbientLight(0x7083aa,.62));
-  const key=new THREE.DirectionalLight(0xffffff,2.65);key.position.set(-4.5,5.5,7);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xd2e2ff,2.15);fill.position.set(4.8,1.8,6.5);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0x8193ff,.95);rim.position.set(5,-2,2);scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
+  scene.add(new THREE.AmbientLight(0x6176a6,.48));
+  const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
