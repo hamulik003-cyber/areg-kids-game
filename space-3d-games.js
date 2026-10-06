@@ -1,4 +1,4 @@
-// V180 restore V151/V157 professional real-map pipeline for every planet/moon
+// V181 repair broken moon/dwarf maps + readable professional lighting
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -46,35 +46,35 @@ function reward(host,ctx){
 }
 const TEXTURE_PATHS={
   // Original solar-system pipeline: real equirectangular maps.
-  sun:'assets/space3d/2k_sun.jpg?v=180',
-  mercury:'assets/space3d/2k_mercury.jpg?v=180',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=180',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=180',
+  sun:'assets/space3d/2k_sun.jpg?v=181',
+  mercury:'assets/space3d/2k_mercury.jpg?v=181',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=181',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=181',
   moon:'https://raw.githubusercontent.com/markfxm/SolarSystem/main/public/detail/4k_moon.jpg',
-  mars:'assets/space3d/2k_mars.jpg?v=180',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=180',
-  saturn:'assets/space3d/2k_saturn.jpg?v=180',
-  uranus:'assets/space3d/2k_uranus.jpg?v=180',
-  neptune:'assets/space3d/2k_neptune.jpg?v=180',
+  mars:'assets/space3d/2k_mars.jpg?v=181',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=181',
+  saturn:'assets/space3d/2k_saturn.jpg?v=181',
+  uranus:'assets/space3d/2k_uranus.jpg?v=181',
+  neptune:'assets/space3d/2k_neptune.jpg?v=181',
 
   // Added bodies: only validated 2:1 global maps.
-  phobos:'assets/space3d/2k_phobos.jpg?v=180',
-  deimos:'assets/space3d/real/deimos.jpg?v=180',
-  io:'assets/space3d/4k_io.jpg?v=180',
-  europa:'assets/space3d/2k_europa.jpg?v=180',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=180',
-  callisto:'assets/space3d/2k_callisto.jpg?v=180',
-  titan:'assets/space3d/4k_titan.jpg?v=180',
-  enceladus:'assets/space3d/real/enceladus.jpg?v=180',
-  titania:'assets/space3d/2k_titania.jpg?v=180',
-  oberon:'assets/space3d/real/oberon.jpg?v=180',
-  triton:'assets/space3d/real/triton.jpg?v=180',
-  charon:'assets/space3d/2k_charon.jpg?v=180',
-  pluto:'assets/space3d/2k_pluto.jpg?v=180',
-  ceres:'assets/space3d/2k_ceres.jpg?v=180',
-  haumea:'assets/space3d/2k_haumea.jpg?v=180',
-  makemake:'assets/space3d/real/makemake.jpg?v=180',
-  eris:'assets/space3d/real/eris.jpg?v=180'
+  phobos:'assets/space3d/2k_phobos.jpg?v=181',
+  deimos:'assets/space3d/real/deimos.jpg?v=181',
+  io:'assets/space3d/4k_io.jpg?v=181',
+  europa:'assets/space3d/2k_europa.jpg?v=181',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=181',
+  callisto:'assets/space3d/2k_callisto.jpg?v=181',
+  titan:'assets/space3d/4k_titan.jpg?v=181',
+  enceladus:'assets/space3d/real/enceladus.jpg?v=181',
+  titania:'assets/space3d/real/titania.jpg?v=181',
+  oberon:'assets/space3d/real/oberon.jpg?v=181',
+  triton:'assets/space3d/real/triton.jpg?v=181',
+  charon:'assets/space3d/real/charon.jpg?v=181',
+  pluto:'assets/space3d/real/pluto.jpg?v=181',
+  ceres:'assets/space3d/2k_ceres.jpg?v=181',
+  haumea:'assets/space3d/real/haumea.jpg?v=181',
+  makemake:'assets/space3d/real/makemake.jpg?v=181',
+  eris:'assets/space3d/real/eris.jpg?v=181'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={
@@ -653,7 +653,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=180');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=181');
     mat=new THREE.MeshBasicMaterial({
       map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
       transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
@@ -732,13 +732,19 @@ function spherePlanet(item){
     enceladus:.97,triton:.96
   }[item.id]??.97;
 
+  const readableSmall=!['sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
+  const tint=readableSmall?new THREE.Color(item.c1||'#ffffff'):new THREE.Color(0x000000);
+
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
         map:tex,
         color:0xffffff,
         roughness,
-        metalness:0
+        metalness:0,
+        emissive:readableSmall?tint:0x000000,
+        emissiveMap:readableSmall?tex:null,
+        emissiveIntensity:readableSmall?.115:0
       });
 
   const mesh=new THREE.Mesh(geo,mat);
@@ -747,7 +753,7 @@ function spherePlanet(item){
   grp.userData.surface=mesh;
 
   if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=180');
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=181');
     const clouds=new THREE.Mesh(
       new THREE.SphereGeometry(1.014,72,48),
       new THREE.MeshStandardMaterial({
@@ -1127,11 +1133,11 @@ function gameSpaceSearch(ctx){
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
   const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,8.48);
-  scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
-  scene.add(new THREE.AmbientLight(0x6176a6,.48));
-  const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0xc3d9ff,0x20283b,1.06));
+  scene.add(new THREE.AmbientLight(0x7184ad,.58));
+  const key=new THREE.DirectionalLight(0xffffff,3.12);key.position.set(-4.5,5.5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xd0e0ff,2.08);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x7f90ff,.90);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
