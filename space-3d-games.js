@@ -1,4 +1,4 @@
-// V163 centered proportional feedback rings + one soft green flash
+// V164 all 30 space objects + five-choice layout + full Armenian target names
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -76,10 +76,93 @@ function getTexture(path,{srgb=true}={}){
   return t;
 }
 function canvasTexture(item){
-  const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
-  const g=x.createLinearGradient(0,0,512,256);g.addColorStop(0,item.c1||'#7397c8');g.addColorStop(1,item.c2||'#263a67');x.fillStyle=g;x.fillRect(0,0,512,256);
-  for(let i=0;i<60;i++){x.fillStyle=`rgba(20,20,24,${rand(.03,.16)})`;x.beginPath();x.arc(rand(0,512),rand(0,256),rand(3,18),0,Math.PI*2);x.fill()}
-  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.anisotropy=4;return t;
+  const cacheKey='proc:'+item.id;
+  if(texCache.has(cacheKey))return texCache.get(cacheKey);
+
+  const c=document.createElement('canvas');c.width=768;c.height=384;
+  const x=c.getContext('2d',{alpha:false});
+  const r=prng(seedFrom(item.id));
+  const W=c.width,H=c.height;
+
+  const bg=x.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,item.c1||'#8a98ad');
+  bg.addColorStop(.52,item.c1||'#77879d');
+  bg.addColorStop(1,item.c2||'#35445d');
+  x.fillStyle=bg;x.fillRect(0,0,W,H);
+
+  // Fine mineral/noise layer.
+  for(let i=0;i<1350;i++){
+    const px=r()*W,py=r()*H,s=.35+r()*1.8;
+    const light=r()>.56;
+    x.fillStyle=light?`rgba(255,255,255,${.012+r()*.035})`:`rgba(18,20,25,${.015+r()*.055})`;
+    x.fillRect(px,py,s,s);
+  }
+
+  const crater=(cx,cy,rad,alpha=.24)=>{
+    const g=x.createRadialGradient(cx-rad*.18,cy-rad*.2,rad*.05,cx,cy,rad);
+    g.addColorStop(0,`rgba(20,22,26,${alpha})`);
+    g.addColorStop(.54,`rgba(50,52,55,${alpha*.52})`);
+    g.addColorStop(.73,`rgba(244,239,224,${alpha*.42})`);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g;x.fillRect(cx-rad*1.25,cy-rad*1.25,rad*2.5,rad*2.5);
+  };
+
+  if(['rock','pluto','oval'].includes(item.kind)){
+    const count=item.id==='phobos'||item.id==='deimos'?115:78;
+    for(let i=0;i<count;i++)crater(r()*W,r()*H,2+r()*18,.11+r()*.18);
+  }
+
+  if(item.kind==='spots'){
+    for(let i=0;i<95;i++){
+      const cx=r()*W,cy=r()*H,rad=2+r()*17;
+      const io=item.id==='io';
+      x.fillStyle=io
+        ? (r()>.5?`rgba(122,73,18,${.10+r()*.30})`:`rgba(248,224,110,${.08+r()*.24})`)
+        : `rgba(25,25,28,${.08+r()*.26})`;
+      x.beginPath();x.arc(cx,cy,rad,0,Math.PI*2);x.fill();
+      if(!io&&r()>.42)crater(cx,cy,rad*.72,.13+r()*.13);
+    }
+  }
+
+  if(item.kind==='cracks'||item.kind==='ice'){
+    const crackCount=item.kind==='cracks'?32:22;
+    for(let i=0;i<crackCount;i++){
+      let px=r()*W,py=r()*H;
+      x.beginPath();x.moveTo(px,py);
+      const seg=4+Math.floor(r()*5);
+      for(let j=0;j<seg;j++){px+=18+r()*52;py+=(r()-.5)*30;x.lineTo(px,py)}
+      x.strokeStyle=item.kind==='ice'
+        ? `rgba(74,106,135,${.12+r()*.22})`
+        : `rgba(93,74,58,${.12+r()*.25})`;
+      x.lineWidth=.7+r()*1.8;x.stroke();
+    }
+    for(let i=0;i<38;i++)crater(r()*W,r()*H,2+r()*10,.06+r()*.10);
+  }
+
+  if(item.kind==='haze'){
+    for(let i=0;i<18;i++){
+      const y=(i/18)*H+r()*7;
+      const h=8+r()*18;
+      x.fillStyle=`rgba(255,207,112,${.018+r()*.065})`;
+      x.fillRect(0,y,W,h);
+    }
+    const veil=x.createLinearGradient(0,0,0,H);
+    veil.addColorStop(0,'rgba(255,221,137,.20)');
+    veil.addColorStop(.52,'rgba(231,161,66,.05)');
+    veil.addColorStop(1,'rgba(104,61,25,.12)');
+    x.fillStyle=veil;x.fillRect(0,0,W,H);
+  }
+
+  if(item.id==='pluto'){
+    x.save();x.translate(W*.56,H*.51);x.rotate(-.14);
+    x.fillStyle='rgba(232,210,184,.18)';
+    x.beginPath();x.ellipse(0,0,82,54,0,0,Math.PI*2);x.fill();x.restore();
+  }
+
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;
+  t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;
+  t.anisotropy=8;texCache.set(cacheKey,t);return t;
 }
 function glowTexture(){
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);
@@ -399,6 +482,8 @@ function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
+  if(item.id==='phobos')geo.scale(1.18,.82,.94);
+  if(item.id==='deimos')geo.scale(1.12,.88,.96);
   const texturePath=TEXTURE_PATHS[item.id];
   const tex=texturePath?getTexture(texturePath):canvasTexture(item);
   const isSun=item.id==='sun';
@@ -438,7 +523,9 @@ function blackHole(item){
   const tor1=new THREE.Mesh(new THREE.TorusGeometry(1.25,.18,24,100),new THREE.MeshBasicMaterial({color:0xff9c32,transparent:true,opacity:.92}));
   tor1.rotation.x=1.12;tor1.userData.parentPick=g;g.add(tor1);
   const tor2=new THREE.Mesh(new THREE.TorusGeometry(1.55,.06,16,100),new THREE.MeshBasicMaterial({color:0xffe18a,transparent:true,opacity:.75}));
-  tor2.rotation.x=1.12;tor2.userData.parentPick=g;g.add(tor2);return g;
+  tor2.rotation.x=1.12;tor2.userData.parentPick=g;g.add(tor2);
+  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.62,20,14),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  hit.userData.parentPick=g;g.add(hit);g.userData.accretion=[tor1,tor2];return g;
 }
 function galaxy(item){
   const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.08;
@@ -446,17 +533,21 @@ function galaxy(item){
   for(let i=0;i<N;i++){const r=Math.pow(Math.random(),.6)*1.9,a=r*4.4+Math.floor(Math.random()*3)*2.1+rand(-.25,.25);p[i*3]=Math.cos(a)*r;p[i*3+1]=rand(-.12,.12)*(2-r/2);p[i*3+2]=Math.sin(a)*r*.58}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(p,3));
   const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xc4d3ff,size:.045,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));
-  pts.userData.parentPick=g;g.add(pts);
-  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.55,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.parentPick=g;g.add(hit);return g;
+  pts.userData.parentPick=g;g.add(pts);g.userData.galaxyPoints=pts;
+  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.62,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.parentPick=g;g.add(hit);return g;
 }
 function solarSystem(item){
   const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.12;
   const sun=new THREE.Mesh(new THREE.SphereGeometry(.42,32,22),new THREE.MeshStandardMaterial({color:0xffca38,emissive:0xff8a15,emissiveIntensity:1.8}));sun.userData.parentPick=g;g.add(sun);
+  const orbiters=[];
   [0.72,1.0,1.28,1.55].forEach((r,i)=>{
     const curve=new THREE.EllipseCurve(0,0,r,r*.55,0,Math.PI*2);const pts=curve.getPoints(80).map(v=>new THREE.Vector3(v.x,0,v.y));
     const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x6e89c6,transparent:true,opacity:.32}));g.add(line);
-    const p=new THREE.Mesh(new THREE.SphereGeometry(.09+i*.02,18,12),new THREE.MeshStandardMaterial({color:[0xb4a49a,0xd2a56a,0x4a8cdc,0xd26847][i]}));p.position.set(r,0,0);p.userData.parentPick=g;g.add(p);
-  });return g;
+    const p=new THREE.Mesh(new THREE.SphereGeometry(.09+i*.02,18,12),new THREE.MeshStandardMaterial({color:[0xb4a49a,0xd2a56a,0x4a8cdc,0xd26847][i]}));
+    p.position.set(r,0,0);p.userData.parentPick=g;p.userData.orbitRadius=r;p.userData.orbitIndex=i;g.add(p);orbiters.push(p);
+  });
+  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.65,20,14),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  hit.userData.parentPick=g;g.add(hit);g.userData.orbiters=orbiters;return g;
 }
 function buildObject(item){
   if(item.id==='black-hole')return blackHole(item);
@@ -483,26 +574,32 @@ function createHud(root,title){
 }
 function searchSlots(root,camera){
   const aspect=Math.max(.38,Math.min(1.15,root.clientWidth/Math.max(1,root.clientHeight)));
-  // Portrait phones get a tight centered triangle. Nothing can live near screen edges.
+  const jitter=(v,a)=>v+rand(-a,a);
   if(aspect<.72){
+    // Five large tap targets: two top, one center, two bottom.
     return [
-      new THREE.Vector3(0,1.22,.05),
-      new THREE.Vector3(-.88,-1.18,.14),
-      new THREE.Vector3(.88,-1.18,.02)
+      new THREE.Vector3(jitter(-.88,.055),jitter(1.48,.055),rand(-.02,.10)),
+      new THREE.Vector3(jitter(.88,.055),jitter(1.48,.055),rand(-.02,.10)),
+      new THREE.Vector3(jitter(0,.045),jitter(.02,.055),rand(.04,.14)),
+      new THREE.Vector3(jitter(-.88,.055),jitter(-1.46,.055),rand(-.02,.10)),
+      new THREE.Vector3(jitter(.88,.055),jitter(-1.46,.055),rand(-.02,.10))
     ];
   }
   return [
-    new THREE.Vector3(-1.55,.15,.05),
-    new THREE.Vector3(0,.15,.14),
-    new THREE.Vector3(1.55,.15,.02)
+    new THREE.Vector3(jitter(-1.62,.08),jitter(1.02,.07),rand(-.02,.10)),
+    new THREE.Vector3(jitter(1.62,.08),jitter(1.02,.07),rand(-.02,.10)),
+    new THREE.Vector3(jitter(0,.06),jitter(.04,.06),rand(.04,.14)),
+    new THREE.Vector3(jitter(-1.62,.08),jitter(-1.06,.07),rand(-.02,.10)),
+    new THREE.Vector3(jitter(1.62,.08),jitter(-1.06,.07),rand(-.02,.10))
   ];
 }
 function fitSearchObject(g,item,portrait){
-  // Keep even Saturn's rings fully inside the iPhone safe area.
-  const factor=portrait
-    ? (item.id==='saturn'?.54:item.id==='uranus'?.64:item.id==='sun'?.67:item.id==='jupiter'?.68:.76)
-    : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
-  g.scale.multiplyScalar(factor);
+  g.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
+  const complex=['saturn','uranus','black-hole','milky-way','solar-system'].includes(item.id);
+  const targetRadius=portrait?(complex?.54:.47):(complex?.70:.62);
+  const radius=Math.max(.01,sphere.radius);
+  g.scale.multiplyScalar(targetRadius/radius);
 }
 function findObjectName(item){
   return ({
@@ -515,7 +612,27 @@ function findObjectName(item){
     jupiter:'Յուպիտերը',
     saturn:'Սատուրնը',
     uranus:'Ուրանը',
-    neptune:'Նեպտունը'
+    neptune:'Նեպտունը',
+    phobos:'Ֆոբոսը',
+    deimos:'Դեյմոսը',
+    io:'Իոն',
+    europa:'Եվրոպան',
+    ganymede:'Գանիմեդը',
+    callisto:'Կալիստոն',
+    titan:'Տիտանը',
+    enceladus:'Էնցելադուսը',
+    titania:'Տիտանիան',
+    oberon:'Օբերոնը',
+    triton:'Տրիտոնը',
+    charon:'Խարոնը',
+    pluto:'Պլուտոնը',
+    ceres:'Ցերերան',
+    haumea:'Հաումեան',
+    makemake:'Մակեմակեն',
+    eris:'Էրիսը',
+    'solar-system':'Արեգակնային համակարգը',
+    'milky-way':'Ծիր Կաթինը',
+    'black-hole':'Սև խոռոչը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
@@ -602,7 +719,7 @@ function gameSpaceSearch(ctx){
   const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
-  const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
+  const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
   const next=bag(pool);
 
   let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
@@ -610,8 +727,8 @@ function gameSpaceSearch(ctx){
 
   function decoys(t){
     let p=shuffle(pool.filter(x=>x.id!==t.id&&!recent.includes(x.id)));
-    if(p.length<2)p=shuffle(pool.filter(x=>x.id!==t.id));
-    return p.slice(0,2);
+    if(p.length<4)p=shuffle(pool.filter(x=>x.id!==t.id));
+    return p.slice(0,4);
   }
   function clear(){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
@@ -623,7 +740,7 @@ function gameSpaceSearch(ctx){
     const opts=shuffle([target,...decoys(target)]);
     const slots=shuffle(searchSlots(root,camera));
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
-    recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
+    recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,12);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
 
     const built=opts.map(it=>buildObject(it));
@@ -724,6 +841,20 @@ function gameSpaceSearch(ctx){
     groups.forEach((g,i)=>{
       if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.15:1);
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
+      if(g.userData.accretion){
+        g.userData.accretion[0].rotation.z+=dt*.42;
+        g.userData.accretion[1].rotation.z-=dt*.24;
+      }
+      if(g.userData.galaxyPoints){
+        g.userData.galaxyPoints.rotation.y+=dt*.12;
+        g.userData.galaxyPoints.rotation.z+=dt*.035;
+      }
+      if(g.userData.orbiters){
+        g.userData.orbiters.forEach((p,oi)=>{
+          const rr=p.userData.orbitRadius||1,a=t*.00018*(1+oi*.18)+oi*1.37;
+          p.position.set(Math.cos(a)*rr,0,Math.sin(a)*rr*.55);
+        });
+      }
       if(g.userData.ring?.userData?.rocks){
         const dir=g.userData.item?.id==='uranus'?-1:1;
         g.userData.ring.userData.rocks.rotation.z+=dt*.11*dir;
