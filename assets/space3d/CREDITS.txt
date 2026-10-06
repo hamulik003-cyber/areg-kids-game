@@ -1,0 +1,6 @@
+Planet and starfield textures: Solar System Scope / INOVE
+Source: https://www.solarsystemscope.com/textures/
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Textures are based on NASA elevation and imagery data and are used here as 2K equirectangular maps.
