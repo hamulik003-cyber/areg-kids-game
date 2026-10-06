@@ -338,7 +338,15 @@
     eris:'linear-gradient(180deg,#8ca9b9 0%,#607783 100%)',
     'solar-system':'linear-gradient(180deg,#f2a83a 0%,#cf691b 100%)',
     'milky-way':'linear-gradient(180deg,#8f74e7 0%,#4d56b8 100%)',
-    'black-hole':'linear-gradient(180deg,#f08b30 0%,#a43e68 100%)'
+    'black-hole':'linear-gradient(180deg,#f08b30 0%,#a43e68 100%)',
+    mimas:'linear-gradient(180deg,#c9c6bd 0%,#6e6b65 100%)',
+    tethys:'linear-gradient(180deg,#e5e9eb 0%,#858c91 100%)',
+    dione:'linear-gradient(180deg,#e5eef2 0%,#7d888f 100%)',
+    rhea:'linear-gradient(180deg,#c9cdd0 0%,#71767a 100%)',
+    ariel:'linear-gradient(180deg,#d8e7e8 0%,#778f95 100%)',
+    umbriel:'linear-gradient(180deg,#818889 0%,#3e4345 100%)',
+    miranda:'linear-gradient(180deg,#cbd2cf 0%,#66716f 100%)',
+    nereid:'linear-gradient(180deg,#959b9f 0%,#4a5054 100%)'
   };
 
   const PLANETS=[
@@ -352,23 +360,32 @@
     {id:'saturn',img:'08-saturn.jpg',name:'Սատուրն',status:'Գազային հսկա',kind:'saturn',c1:'#ead79d',c2:'#9f8557',accent:'#e4c77e'},
     {id:'uranus',img:'09-uranus.jpg',name:'Ուրան',status:'Սառցային հսկա',kind:'ring',c1:'#91e0e4',c2:'#4ca8b4',accent:'#83d8df'},
     {id:'neptune',img:'10-neptune.jpg',name:'Նեպտուն',status:'Սառցային հսկա',kind:'bands',c1:'#4b7ce3',c2:'#173e91',accent:'#5686e9'},
+    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
+
     {id:'phobos',img:'11-phobos.jpg',name:'Ֆոբոս',status:'Բնական արբանյակ',kind:'rock',c1:'#92847a',c2:'#534841',accent:'#9a8b82'},
     {id:'deimos',img:'12-deimos.jpg',name:'Դեյմոս',status:'Բնական արբանյակ',kind:'rock',c1:'#aa9c91',c2:'#65584f',accent:'#aea198'},
+
     {id:'io',img:'13-io.jpg',name:'Իո',status:'Բնական արբանյակ',kind:'spots',c1:'#eadf71',c2:'#8e8635',accent:'#e5d65f'},
     {id:'europa',img:'14-europa.jpg',name:'Եվրոպա',status:'Բնական արբանյակ',kind:'cracks',c1:'#dfd1ad',c2:'#907b5c',accent:'#dfc899'},
     {id:'ganymede',img:'15-ganymede.jpg',name:'Գանիմեդ',status:'Բնական արբանյակ',kind:'rock',c1:'#a7917c',c2:'#55473d',accent:'#a08a77'},
     {id:'callisto',img:'16-callisto.jpg',name:'Կալիստո',status:'Բնական արբանյակ',kind:'spots',c1:'#827368',c2:'#3d3430',accent:'#86766b'},
+
     {id:'titan',img:'17-titan.jpg',name:'Տիտան',status:'Բնական արբանյակ',kind:'haze',c1:'#dfa84e',c2:'#83521f',accent:'#e0a542'},
     {id:'enceladus',img:'18-enceladus.jpg',name:'Էնցելադուս',status:'Բնական արբանյակ',kind:'cracks',c1:'#f0fbff',c2:'#9cc8df',accent:'#dff6ff'},
+    {id:'mimas',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/mimas.jpg',name:'Միմաս',status:'Բնական արբանյակ',kind:'rock',c1:'#b9b7b0',c2:'#686761',accent:'#c9c6bd'},
+    {id:'tethys',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/tethys.jpg',name:'Թեթիս',status:'Բնական արբանյակ',kind:'ice',c1:'#d8dde0',c2:'#858c91',accent:'#e5e9eb'},
+    {id:'dione',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/dione.jpg',name:'Դիոնե',status:'Բնական արբանյակ',kind:'cracks',c1:'#d7dde0',c2:'#7d888f',accent:'#e5eef2'},
+    {id:'rhea',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/rhea.jpg',name:'Ռեա',status:'Բնական արբանյակ',kind:'rock',c1:'#b8bdc1',c2:'#71767a',accent:'#c9cdd0'},
+
     {id:'titania',img:'19-titania.jpg',name:'Տիտանիա',status:'Բնական արբանյակ',kind:'rock',c1:'#b2bfbd',c2:'#617674',accent:'#aebfbd'},
     {id:'oberon',img:'20-oberon.jpg',name:'Օբերոն',status:'Բնական արբանյակ',kind:'rock',c1:'#817f79',c2:'#44413d',accent:'#85817d'},
+    {id:'ariel',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/ariel.jpg',name:'Արիել',status:'Բնական արբանյակ',kind:'cracks',c1:'#c6d6d8',c2:'#778f95',accent:'#d8e7e8'},
+    {id:'umbriel',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/umbriel.jpg',name:'Ումբրիել',status:'Բնական արբանյակ',kind:'rock',c1:'#777b7c',c2:'#3e4345',accent:'#818889'},
+    {id:'miranda',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/miranda.jpg',name:'Միրանդա',status:'Բնական արբանյակ',kind:'cracks',c1:'#b9c1c0',c2:'#66716f',accent:'#cbd2cf'},
+
     {id:'triton',img:'21-triton.jpg',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
-    {id:'charon',img:'22-charon.jpg',name:'Խարոն',status:'Բնական արբանյակ',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
-    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
-    {id:'ceres',img:'24-ceres.jpg',name:'Ցերերա',status:'Գաճաճ մոլորակ',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
-    {id:'haumea',img:'25-haumea.jpg',name:'Հաումեա',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
-    {id:'makemake',img:'26-makemake.jpg',name:'Մակեմակե',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
-    {id:'eris',img:'27-eris.jpg',name:'Էրիս',status:'Գաճաճ մոլորակ',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
+    {id:'nereid',texture:'https://raw.githubusercontent.com/callumprentice/callumprentice.github.io/0aaee72c5e001cc8d9d0a7a04d0a927c09fc7f6f/apps/celestial_bodies/surface_textures/neptune/nereid.jpg',name:'Ներեիդ',status:'Բնական արբանյակ',kind:'rock',c1:'#8b9093',c2:'#4a5054',accent:'#959b9f'},
+
     {id:'solar-system',img:'28-solar-system.jpg',name:'Արեգակնային համակարգ',status:'Մոլորակային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
     {id:'milky-way',img:'29-milky-way.jpg',name:'Ծիր Կաթին',status:'Գալակտիկա',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
     {id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
@@ -1757,6 +1774,86 @@
     return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900">'+defs+'<rect width="900" height="900" rx="70" fill="url(%23bg)"/>'+stars+body+'</svg>');
   }
 
+  const planetTexturePreviewCache=new Map();
+  const planetTexturePreviewPending=new Map();
+
+  function loadCrossOriginImage(url){
+    return new Promise((resolve,reject)=>{
+      const img=new Image();
+      img.crossOrigin='anonymous';img.decoding='async';
+      img.onload=()=>resolve(img);img.onerror=reject;img.src=url;
+    });
+  }
+
+  async function makeTexturePlanetPreview(planet){
+    if(!planet.texture)return planetArt(planet);
+    if(planetTexturePreviewCache.has(planet.texture))return planetTexturePreviewCache.get(planet.texture);
+    if(planetTexturePreviewPending.has(planet.texture))return planetTexturePreviewPending.get(planet.texture);
+
+    const pending=(async()=>{
+      const img=await loadCrossOriginImage(planet.texture);
+      const src=document.createElement('canvas');
+      src.width=img.naturalWidth||img.width;src.height=img.naturalHeight||img.height;
+      const sx=src.getContext('2d',{willReadFrequently:true});sx.drawImage(img,0,0);
+      const sd=sx.getImageData(0,0,src.width,src.height).data;
+
+      const C=760,R=252,cx=C/2,cy=355;
+      const out=document.createElement('canvas');out.width=C;out.height=C;
+      const x=out.getContext('2d',{alpha:false});
+      const bg=x.createRadialGradient(C*.5,C*.42,10,C*.5,C*.5,C*.70);
+      bg.addColorStop(0,'#20205d');bg.addColorStop(.44,'#090d38');bg.addColorStop(1,'#030718');
+      x.fillStyle=bg;x.fillRect(0,0,C,C);
+
+      let seed=0;for(const ch of planet.id)seed=(seed*31+ch.charCodeAt(0))>>>0;
+      const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+      for(let i=0;i<125;i++){
+        const px=rnd()*C,py=rnd()*C,rr=rnd()<.08?1.7:.65+rnd()*.7;
+        x.fillStyle=rnd()<.16?'rgba(185,195,255,.9)':'rgba(255,255,255,.78)';
+        x.beginPath();x.arc(px,py,rr,0,Math.PI*2);x.fill();
+      }
+
+      const sphere=document.createElement('canvas');sphere.width=sphere.height=512;
+      const sc=sphere.getContext('2d');const im=sc.createImageData(512,512);const d=im.data;
+      const sr=246;
+      for(let py=0;py<512;py++){
+        const ny=(256-py)/sr;
+        for(let px=0;px<512;px++){
+          const nx=(px-256)/sr,rr=nx*nx+ny*ny;
+          if(rr>1)continue;
+          const nz=Math.sqrt(Math.max(0,1-rr));
+          const lon=Math.atan2(nx,nz),lat=Math.asin(Math.max(-1,Math.min(1,ny)));
+          let u=(.5+lon/(Math.PI*2))*src.width;
+          let v=(.5-lat/Math.PI)*src.height;
+          u=((Math.floor(u)%src.width)+src.width)%src.width;
+          v=Math.max(0,Math.min(src.height-1,Math.floor(v)));
+          const si=(v*src.width+u)*4,di=(py*512+px)*4;
+          const light=.88+.12*Math.max(0,nz*.86-nx*.20+ny*.12);
+          d[di]=Math.min(255,sd[si]*light);
+          d[di+1]=Math.min(255,sd[si+1]*light);
+          d[di+2]=Math.min(255,sd[si+2]*light);
+          d[di+3]=255;
+        }
+      }
+      sc.putImageData(im,0,0);
+      x.shadowColor=planet.accent||'#ffffff';x.shadowBlur=28;
+      x.drawImage(sphere,cx-R,cy-R,R*2,R*2);x.shadowBlur=0;
+      const url=out.toDataURL('image/jpeg',.92);
+      planetTexturePreviewCache.set(planet.texture,url);
+      planetTexturePreviewPending.delete(planet.texture);
+      return url;
+    })().catch(()=>{
+      planetTexturePreviewPending.delete(planet.texture);
+      return planetArt(planet);
+    });
+    planetTexturePreviewPending.set(planet.texture,pending);
+    return pending;
+  }
+
+  function hydratePlanetTexturePreview(img,planet){
+    if(!planet.texture)return;
+    makeTexturePlanetPreview(planet).then(src=>{if(img?.isConnected)img.src=src});
+  }
+
   function speakPlanet(planet,token){
     if(!settings.master||!settings.voice||!('speechSynthesis' in window)||token!==planetPlaybackToken)return Promise.resolve(false);
     return new Promise(resolve=>{
@@ -1809,9 +1906,10 @@
       card.style.setProperty('--animal-name-size',galleryNameSize(planet.name));
       card.style.setProperty('--animal-type-size',galleryTypeSize(planet.status));
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
+      const planetCardSrc=planet.img?`${planet.img}?v=130`:planetArt(planet);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${planet.img}?v=130" alt="${planet.name}" draggable="false">
+          <img src="${planetCardSrc}" alt="${planet.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--planet">
@@ -1819,6 +1917,7 @@
           <small class="animal-type animal-type--planet" style="background:${PLANET_BADGES[planet.id]||'linear-gradient(180deg,#6f89a4,#465c74)'}">${planet.status}</small>
         </span>`;
       hardCenterGalleryCard(card);
+      if(planet.texture)hydratePlanetTexturePreview(card.querySelector('img'),planet);
       if(planet.id==='solar-system'){
         card.style.setProperty('--animal-name-size','13.4px');
         const statusPill=card.querySelector('.animal-type--planet');
