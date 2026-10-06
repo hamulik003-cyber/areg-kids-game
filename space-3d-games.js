@@ -1,4 +1,4 @@
-// V169 larger five-choice 2+1+2 layout + fully 3D special space objects
+// V170 educational-scale 3D planets + mapped textures + physical motion + active Sun
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -57,29 +57,55 @@ const TEXTURE_PATHS={
   neptune:'assets/space3d/2k_neptune.jpg',
 
   // Real / mapped satellite surfaces.
-  phobos:'assets/space3d/2k_phobos.jpg?v=168',
-  deimos:'assets/space3d/2k_deimos.jpg?v=168',
-  io:'assets/space3d/4k_io.jpg?v=168',
-  europa:'assets/space3d/2k_europa.jpg?v=168',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=168',
-  callisto:'assets/space3d/2k_callisto.jpg?v=168',
-  titan:'assets/space3d/4k_titan.jpg?v=168',
-  enceladus:'assets/space3d/real/enceladus.jpg?v=168',
-  titania:'assets/space3d/real/titania.jpg?v=168',
-  oberon:'assets/space3d/real/oberon.jpg?v=168',
-  triton:'assets/space3d/real/triton.jpg?v=168',
-  charon:'assets/space3d/2k_charon.jpg?v=168',
+  phobos:'assets/space3d/2k_phobos.jpg?v=170',
+  deimos:'assets/space3d/2k_deimos.jpg?v=170',
+  io:'assets/space3d/4k_io.jpg?v=170',
+  europa:'assets/space3d/2k_europa.jpg?v=170',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=170',
+  callisto:'assets/space3d/2k_callisto.jpg?v=170',
+  titan:'assets/space3d/4k_titan.jpg?v=170',
+  enceladus:'assets/space3d/2k_enceladus.jpg?v=170',
+  titania:'assets/space3d/2k_titania.jpg?v=170',
+  oberon:'assets/space3d/2k_oberon.jpg?v=170',
+  triton:'assets/space3d/2k_triton.jpg?v=170',
+  charon:'assets/space3d/2k_charon.jpg?v=170',
 
   // Dwarf planets.
-  pluto:'assets/space3d/4k_pluto.jpg?v=168',
-  ceres:'assets/space3d/2k_ceres.jpg?v=168',
-  haumea:'assets/space3d/2k_haumea.jpg?v=168',
-  makemake:'assets/space3d/real/makemake.jpg?v=168',
-  eris:'assets/space3d/real/eris.jpg?v=168'
+  pluto:'assets/space3d/4k_pluto.jpg?v=170',
+  ceres:'assets/space3d/2k_ceres.jpg?v=170',
+  haumea:'assets/space3d/2k_haumea.jpg?v=170'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
-const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
+const AXIAL_TILT={
+  sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,
+  jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32,
+  pluto:119.6,haumea:126,eris:78
+};
 const DISPLAY_SCALE={sun:1.18,mercury:.70,venus:.88,earth:.90,moon:.70,mars:.78,jupiter:1.12,saturn:1.02,uranus:.92,neptune:.92};
+
+// Compressed physical hierarchy: Sun > gas giants > ice giants > terrestrial planets > moons.
+// Values are final on-screen bounding radii in portrait mode.
+const GAME_RADIUS={
+  sun:1.02,
+  jupiter:.96,saturn:.94,
+  uranus:.91,neptune:.91,
+  earth:.89,venus:.88,
+  mars:.85,mercury:.83,moon:.83,
+  phobos:.84,deimos:.84,io:.87,europa:.86,ganymede:.89,callisto:.88,
+  titan:.90,enceladus:.85,titania:.86,oberon:.86,triton:.87,charon:.85,
+  pluto:.88,ceres:.86,haumea:.88,makemake:.86,eris:.86,
+  'solar-system':.94,'milky-way':.93,'black-hole':.93
+};
+
+// Relative sidereal-rotation feel. Direction is preserved for retrograde bodies.
+// Rates are visually compressed so a toddler can perceive the motion without cartoon-speed spinning.
+const PHYSICS_SPIN={
+  sun:.052,mercury:.028,venus:-.016,earth:.165,moon:.032,mars:.160,
+  jupiter:.285,saturn:.265,uranus:-.205,neptune:.215,
+  phobos:.235,deimos:.120,io:.225,europa:.150,ganymede:.095,callisto:.055,
+  titan:.058,enceladus:.260,titania:.082,oberon:.058,triton:-.104,charon:.092,
+  pluto:-.092,ceres:.315,haumea:.420,makemake:.175,eris:.155
+};
 const texLoader=new THREE.TextureLoader();
 const texCache=new Map();
 function getTexture(path,{srgb=true,fallback=null}={}){
@@ -194,6 +220,37 @@ function glowTexture(){
   x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);
 }
 const GLOW=glowTexture();
+
+function sunCoronaTexture(){
+  const c=document.createElement('canvas');c.width=c.height=512;
+  const x=c.getContext('2d');
+  x.translate(256,256);
+  x.globalCompositeOperation='lighter';
+
+  const core=x.createRadialGradient(0,0,82,0,0,246);
+  core.addColorStop(0,'rgba(255,221,96,.10)');
+  core.addColorStop(.48,'rgba(255,165,36,.12)');
+  core.addColorStop(.78,'rgba(255,108,18,.06)');
+  core.addColorStop(1,'rgba(255,80,0,0)');
+  x.fillStyle=core;x.beginPath();x.arc(0,0,246,0,Math.PI*2);x.fill();
+
+  for(let i=0;i<168;i++){
+    const a=(i/168)*Math.PI*2;
+    const wave=.5+.5*Math.sin(i*2.41+Math.sin(i*.37)*2.1);
+    const rare=(i%13===0||i%19===0)?1:0;
+    const inner=122+10*Math.sin(i*.83);
+    const len=34+wave*52+rare*44;
+    const alpha=.055+wave*.10+rare*.075;
+    x.strokeStyle=`rgba(255,${145+Math.round(wave*80)},36,${alpha})`;
+    x.lineWidth=rare?3.2:1.4+wave*1.2;
+    x.beginPath();
+    x.moveTo(Math.cos(a)*inner,Math.sin(a)*inner);
+    x.lineTo(Math.cos(a)*(inner+len),Math.sin(a)*(inner+len));
+    x.stroke();
+  }
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+const SUN_CORONA=sunCoronaTexture();
 
 function imageTexture(path){
   const key='img:'+path;
@@ -538,8 +595,9 @@ function atmosphereMesh(radius=1.035){
 }
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
-  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
+  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,72,48):new THREE.SphereGeometry(1,80,52);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
+
   if(item.id==='phobos'||item.id==='deimos'){
     const p=geo.attributes.position;
     for(let i=0;i<p.count;i++){
@@ -554,50 +612,102 @@ function spherePlanet(item){
     if(item.id==='phobos')geo.scale(1.22,.82,.93);
     else geo.scale(1.14,.88,.96);
   }
+
   const texturePath=TEXTURE_PATHS[item.id];
   const tex=texturePath?getTexture(texturePath,{fallback:()=>canvasTexture(item)}):canvasTexture(item);
   const isSun=item.id==='sun';
+  const smallBody=!['sun','mercury','venus','earth','moon','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
+
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.94,metalness:0});
-  const detailedSmallBody=!['sun','mercury','venus','earth','moon','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
-  if(!isSun&&detailedSmallBody){
-    mat.emissive=new THREE.Color(0x505157);
-    mat.emissiveMap=tex;
-    mat.emissiveIntensity=item.id==='titan'?.20:.15;
-    if(item.id!=='titan'){
-      mat.bumpMap=tex;
-      mat.bumpScale=(item.id==='phobos'||item.id==='deimos')?.055:.022;
-    }
+    : new THREE.MeshStandardMaterial({
+        map:tex,color:0xffffff,
+        roughness:item.id==='earth'?.80:(item.id==='venus'?.91:.94),
+        metalness:0,
+        emissive:0xffffff,
+        emissiveMap:tex,
+        // Keep the night side readable like the learning cards, without flattening the sphere.
+        emissiveIntensity:smallBody?.15:(item.id==='moon'?.11:.075)
+      });
+
+  if(!isSun&&smallBody&&item.id!=='titan'){
+    mat.bumpMap=tex;
+    mat.bumpScale=(item.id==='phobos'||item.id==='deimos')?.050:.018;
   }
+
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
+
   if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg');
-    const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.014,72,48),new THREE.MeshStandardMaterial({
-      color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.36,depthWrite:false,roughness:1,metalness:0
-    }));
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=170');
+    const clouds=new THREE.Mesh(
+      new THREE.SphereGeometry(1.014,80,52),
+      new THREE.MeshStandardMaterial({
+        color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.34,
+        depthWrite:false,roughness:1,metalness:0,emissive:0x28323f,emissiveIntensity:.12
+      })
+    );
     clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
-    const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
+    const atm=atmosphereMesh(1.038);atm.rotation.z=mesh.rotation.z;grp.add(atm);
   }
+
   if(item.id==='saturn'){
     const r=ringMesh(item,1.22,2.1);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
   if(item.id==='uranus'){
     const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
+
   if(isSun){
-    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
-    glow.scale.set(3.0,3.0,1);grp.add(glow);
+    const coronaMat=new THREE.SpriteMaterial({
+      map:SUN_CORONA,color:0xffb33b,transparent:true,opacity:.66,
+      depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
+    });
+    coronaMat.toneMapped=false;
+    const corona=new THREE.Sprite(coronaMat);
+    corona.scale.set(3.72,3.72,1);corona.position.z=-.06;grp.add(corona);
+
+    const softMat=new THREE.SpriteMaterial({
+      map:GLOW,color:0xff8b1e,transparent:true,opacity:.30,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    });
+    softMat.toneMapped=false;
+    const soft=new THREE.Sprite(softMat);
+    soft.scale.set(3.15,3.15,1);soft.position.z=-.10;grp.add(soft);
+
+    const flareSpecs=[
+      [.82,.27,.12,.62,1.10],
+      [-.70,-.44,-2.20,.54,.94],
+      [.02,.91,1.55,.48,.86],
+      [-.78,.39,2.55,.42,.78]
+    ];
+    const flareGroup=new THREE.Group(),flares=[];
+    flareSpecs.forEach(([px,py,rz,opacity,scale],i)=>{
+      const fm=new THREE.MeshBasicMaterial({
+        color:i%2?0xff8a25:0xffc04f,transparent:true,opacity,
+        depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide
+      });
+      fm.toneMapped=false;
+      const arc=new THREE.Mesh(new THREE.TorusGeometry(.30,.022,10,52,Math.PI*1.24),fm);
+      arc.position.set(px,py,.10);arc.rotation.z=rz;arc.scale.setScalar(scale);
+      arc.userData.baseOpacity=opacity;arc.userData.phase=i*1.73;
+      flareGroup.add(arc);flares.push(arc);
+    });
+    grp.add(flareGroup);
+    grp.userData.sunCorona=corona;
+    grp.userData.sunSoft=soft;
+    grp.userData.sunFlares=flares;
+    grp.userData.sunActivity=flareGroup;
   }
+
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
-  grp.userData.spin=item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22);
+  grp.userData.spin=PHYSICS_SPIN[item.id] ?? .105;
   return grp;
 }
 function blackHole(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.18;
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.16;
 
   const core=new THREE.Mesh(
     new THREE.SphereGeometry(.68,56,38),
@@ -648,7 +758,7 @@ function blackHole(item){
   return g;
 }
 function galaxy(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.08;
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.055;
 
   const N=1450,p=new Float32Array(N*3);
   for(let i=0;i<N;i++){
@@ -694,7 +804,7 @@ function galaxy(item){
   return g;
 }
 function solarSystem(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.12;
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.085;
   const sun=new THREE.Mesh(new THREE.SphereGeometry(.42,32,22),new THREE.MeshStandardMaterial({color:0xffca38,emissive:0xff8a15,emissiveIntensity:1.8}));sun.userData.parentPick=g;g.add(sun);
   const orbiters=[];
   [0.72,1.0,1.28,1.55].forEach((r,i)=>{
@@ -734,24 +844,21 @@ function searchSlots(root,camera){
   const portrait=aspect<.72;
   const mirror=Math.random()>.5?-1:1;
 
-  // Five large choices: exactly 2 top + 1 center + 2 bottom.
-  // Item assignment still changes every round because the option and slot arrays are shuffled.
   const base=portrait
-    ? [[-.92,1.38],[.92,1.38],[0,.02],[-.92,-1.38],[.92,-1.38]]
-    : [[-1.42,.96],[1.42,.96],[0,0],[-1.42,-.96],[1.42,-.96]];
+    ? [[-1.02,1.62],[1.02,1.62],[0,.01],[-1.02,-1.62],[1.02,-1.62]]
+    : [[-1.54,1.04],[1.54,1.04],[0,0],[-1.54,-1.04],[1.54,-1.04]];
 
-  return base.map(([x,y],i)=>new THREE.Vector3(
-    x*mirror+rand(-.025,.025),
-    y+rand(-.025,.025),
-    rand(-.02,.07)
+  return base.map(([x,y])=>new THREE.Vector3(
+    x*mirror+rand(-.018,.018),
+    y+rand(-.018,.018),
+    rand(-.015,.055)
   ));
 }
 function fitSearchObject(g,item,portrait){
   g.updateMatrixWorld(true);
   const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
-  const complex=['saturn','uranus','black-hole','milky-way','solar-system'].includes(item.id);
-  // Larger than V168, while keeping rings/special objects from touching neighboring choices.
-  const targetRadius=portrait?(complex?.77:.82):(complex?.86:.91);
+  const desired=GAME_RADIUS[item.id]??.86;
+  const targetRadius=portrait?desired:desired*1.09;
   const radius=Math.max(.01,sphere.radius);
   g.scale.multiplyScalar(targetRadius/radius);
 }
@@ -795,7 +902,7 @@ function easeInOutCubic(q){
 function easeOutCubic(q){q=clamp(q,0,1);return 1-Math.pow(1-q,3)}
 function feedbackScaleMultiplier(g,camera,root){
   // Use the final win camera position so the object can fill the screen closely without clipping.
-  const targetZ=1.62,finalCameraZ=8.48;
+  const targetZ=1.62,finalCameraZ=8.10;
   const distance=Math.max(1,finalCameraZ-targetZ);
   const halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*distance;
   const halfW=halfH*Math.max(.38,root.clientWidth/Math.max(1,root.clientHeight));
@@ -865,12 +972,12 @@ function gameSpaceSearch(ctx){
   const root=document.createElement('div');root.className='s3d-root';ctx.activityContent.appendChild(root);
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
   const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
-  const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,9.25);
-  scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
-  scene.add(new THREE.AmbientLight(0x6176a6,.48));
-  const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
+  const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,8.86);
+  scene.add(new THREE.HemisphereLight(0xc8ddff,0x263656,1.18));
+  scene.add(new THREE.AmbientLight(0x7184ad,.66));
+  const key=new THREE.DirectionalLight(0xffffff,2.72);key.position.set(-4.5,5.5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xd5e5ff,2.22);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x8495ff,1.02);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
@@ -987,14 +1094,34 @@ function gameSpaceSearch(ctx){
     const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.0015;
     camera.position.x=Math.sin(t*.00018)*.035;
     camera.position.y=.10+Math.cos(t*.00016)*.025;
-    camera.position.z+=((winStart?8.48:9.25)-camera.position.z)*.042;
+    camera.position.z+=((winStart?8.10:8.86)-camera.position.z)*.042;
     camera.lookAt(0,-.08,0);
 
     let finishEnter=false,finishExit=false;
 
     groups.forEach((g,i)=>{
-      if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.15:1);
-      if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
+      if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin??.105)*(g.userData.win?1.42:1);
+      if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.09;
+      if(g.userData.sunCorona){
+        g.userData.sunCorona.material.rotation+=dt*.018;
+        g.userData.sunCorona.material.opacity=.58+.08*(.5+.5*Math.sin(t*.00115));
+        const cs=3.68+.10*Math.sin(t*.00135);
+        g.userData.sunCorona.scale.set(cs,cs,1);
+      }
+      if(g.userData.sunSoft){
+        g.userData.sunSoft.material.opacity=.25+.06*(.5+.5*Math.sin(t*.00165+1.1));
+      }
+      if(g.userData.sunActivity){
+        g.userData.sunActivity.rotation.z+=dt*.014;
+      }
+      if(g.userData.sunFlares){
+        g.userData.sunFlares.forEach((flare,fi)=>{
+          const pulse=.5+.5*Math.sin(t*(.00105+fi*.00013)+flare.userData.phase);
+          flare.material.opacity=flare.userData.baseOpacity*(.52+.48*pulse);
+          const fs=.88+.18*pulse;
+          flare.scale.setScalar(fs);
+        });
+      }
       if(g.userData.billboard){
         const b=g.userData.billboard;
         b.quaternion.copy(camera.quaternion);
