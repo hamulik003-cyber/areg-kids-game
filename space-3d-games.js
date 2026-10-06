@@ -681,7 +681,7 @@ function galaxy(item){
     map:GLOW,color:0x718dff,transparent:true,opacity:.16,depthWrite:false,
     blending:THREE.AdditiveBlending
   }));
-  blueAura.scale.set(3.35,2.10,1);blueAura.rotation=.18;blueAura.position.z=-.24;g.add(blueAura);
+  blueAura.scale.set(3.35,2.10,1);blueAura.material.rotation=.18;blueAura.position.z=-.24;g.add(blueAura);
 
   const hit=new THREE.Mesh(
     new THREE.SphereGeometry(1.65,24,16),
