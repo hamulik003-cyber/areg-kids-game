@@ -87,6 +87,10 @@
   }
 
 
+  function isIOSGPU(){
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent||'') ||
+      ((navigator.platform==='MacIntel'||/Mac/.test(navigator.platform||'')) && (navigator.maxTouchPoints||0)>1);
+  }
   function webglHex(h){
     const s=String(h||'#7799cc').replace('#','');
     const n=parseInt(s.length===3?s.split('').map(c=>c+c).join(''):s,16)||0x7799cc;
@@ -147,11 +151,11 @@
     };
     const sm=mesh(sphere),rm=mesh(ring);
     const loc={p:gl.getAttribLocation(pr,'aP'),n:gl.getAttribLocation(pr,'aN'),yaw:gl.getUniformLocation(pr,'uYaw'),pitch:gl.getUniformLocation(pr,'uPitch'),aspect:gl.getUniformLocation(pr,'uAspect'),scale:gl.getUniformLocation(pr,'uScale'),c1:gl.getUniformLocation(pr,'uC1'),c2:gl.getUniformLocation(pr,'uC2'),kind:gl.getUniformLocation(pr,'uKind'),ring:gl.getUniformLocation(pr,'uRing')};
-    const c1=webglHex(item.c1),c2=webglHex(item.c2),kind=webglKind(item.kind),hasRing=item.kind==='saturn'||item.kind==='ring';
+    let c1=webglHex(item.c1),c2=webglHex(item.c2),kind=webglKind(item.kind),hasRing=item.kind==='saturn'||item.kind==='ring';
     gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
     const bind=m=>{gl.bindBuffer(gl.ARRAY_BUFFER,m.pb);gl.enableVertexAttribArray(loc.p);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,m.nb);gl.enableVertexAttribArray(loc.n);gl.vertexAttribPointer(loc.n,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,m.ib)};
     function resize(){
-      const d=Math.min(devicePixelRatio||1,2),w=Math.max(2,Math.floor(canvas.clientWidth*d)),h=Math.max(2,Math.floor(canvas.clientHeight*d));
+      const d=Math.min(devicePixelRatio||1,isIOSGPU()?1.05:1.6),w=Math.max(2,Math.floor(canvas.clientWidth*d)),h=Math.max(2,Math.floor(canvas.clientHeight*d));
       if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);
     }
     function draw(t,boost=0){
@@ -160,7 +164,17 @@
       gl.uniform1f(loc.yaw,t*.00035);gl.uniform1f(loc.pitch,.14+Math.sin(t*.00043)*.08);gl.uniform1f(loc.scale,1.0+boost*.16);gl.uniform1f(loc.ring,0);bind(sm);gl.drawElements(gl.TRIANGLES,sm.count,gl.UNSIGNED_SHORT,0);
       if(hasRing){gl.uniform1f(loc.pitch,1.13);gl.uniform1f(loc.yaw,t*.00008);gl.uniform1f(loc.scale,1.48+boost*.1);gl.uniform1f(loc.ring,1);bind(rm);gl.drawElements(gl.TRIANGLES,rm.count,gl.UNSIGNED_SHORT,0)}
     }
-    return {draw,dispose(){try{gl.getExtension('WEBGL_lose_context')?.loseContext()}catch{}}};
+    return {
+      draw,
+      setItem(next){
+        item=next;
+        c1=webglHex(next.c1);c2=webglHex(next.c2);kind=webglKind(next.kind);
+        hasRing=next.kind==='saturn'||next.kind==='ring';
+      },
+      dispose(){
+        try{if(!isIOSGPU())gl.getExtension('WEBGL_lose_context')?.loseContext()}catch{}
+      }
+    };
   }
   function makeStarfieldWebGL(canvas){
     let gl;try{gl=canvas.getContext('webgl',{alpha:true,antialias:true});}catch{}
@@ -173,7 +187,7 @@
     let last=performance.now();
     function draw(t){
       const dt=Math.min(40,t-last);last=t;
-      const d=Math.min(devicePixelRatio||1,2),w=Math.max(2,Math.floor(canvas.clientWidth*d)),h=Math.max(2,Math.floor(canvas.clientHeight*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);
+      const d=Math.min(devicePixelRatio||1,isIOSGPU()?1:1.5),w=Math.max(2,Math.floor(canvas.clientWidth*d)),h=Math.max(2,Math.floor(canvas.clientHeight*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);
       for(let i=0;i<count;i++){const k=i*3;data[k+2]-=dt*.0002;if(data[k+2]<.55){data[k]=(Math.random()-.5)*12;data[k+1]=(Math.random()-.5)*8;data[k+2]=8.4}}
       gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(pr);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,3,gl.FLOAT,false,0,0);gl.uniform1f(aspect,Math.max(.7,w/h));gl.drawArrays(gl.POINTS,0,count);
     }
@@ -201,6 +215,16 @@
     const message=$('.space-search-message',scene);
     const warp=$('.pro-space-warp',scene);
     const nextTarget=createShuffleBag(ctx.PLANETS);
+    const iosLite=isIOSGPU();
+    let sharedCanvas=null;
+    let sharedRenderer=null;
+    let activeSharedButton=null;
+    if(iosLite){
+      sharedCanvas=document.createElement('canvas');
+      sharedCanvas.className='space-object-webgl';
+      sharedCanvas.setAttribute('aria-hidden','true');
+      sharedRenderer=makePlanetWebGL(sharedCanvas,ctx.PLANETS[0]);
+    }
     let score=0;
     let round=0;
     let locked=false;
@@ -232,7 +256,9 @@
       const decoys=chooseDecoys(target);
       const options=shuffleCopy([target,...decoys]);
       recentIds=[...new Set(options.map(x=>x.id).concat(recentIds))].slice(0,6);
-      planetRenderers.splice(0).forEach(x=>x.renderer?.dispose?.());
+      if(!iosLite)planetRenderers.splice(0).forEach(x=>x.renderer?.dispose?.());
+      if(activeSharedButton){activeSharedButton.classList.remove('has-webgl');activeSharedButton=null}
+      if(sharedCanvas?.parentNode)sharedCanvas.remove();
       stage.innerHTML='';
       message.textContent='';
       promptStrong.textContent=`Գտի՛ր՝ ${target.name}`;
@@ -261,6 +287,16 @@
             btn.classList.add('soft-miss');
             return;
           }
+          if(iosLite&&sharedRenderer){
+            const visual=$('.space-object-visual',btn);
+            if(visual){
+              if(sharedCanvas.parentNode)sharedCanvas.remove();
+              visual.prepend(sharedCanvas);
+              sharedRenderer.setItem(item);
+              btn.classList.add('has-webgl');
+              activeSharedButton=btn;
+            }
+          }
           locked=true;
           btn.classList.add('is-correct');
           $$('.space-object',stage).forEach(x=>{if(x!==btn)x.classList.add('is-dimmed')});
@@ -282,16 +318,22 @@
           },1350);
         });
         stage.appendChild(btn);
-        const canvas=$('.space-object-webgl',btn);
-        const renderer=makePlanetWebGL(canvas,item);
-        if(renderer){btn.classList.add('has-webgl');planetRenderers.push({renderer,btn,phase:Math.random()*6.28})}
+        if(!iosLite){
+          const canvas=$('.space-object-webgl',btn);
+          const renderer=makePlanetWebGL(canvas,item);
+          if(renderer){btn.classList.add('has-webgl');planetRenderers.push({renderer,btn,phase:Math.random()*6.28})}
+        }
       });
       speakSpaceGame(`Գտի՛ր ${target.name}`,ctx);
     }
 
     function animatePlanets(t){
       if(disposed)return;
-      planetRenderers.forEach(x=>x.renderer.draw(t+Math.sin(t*.0007+x.phase)*170,x.btn.classList.contains('is-correct')?1:0));
+      if(iosLite){
+        if(sharedRenderer&&activeSharedButton)sharedRenderer.draw(t,activeSharedButton.classList.contains('is-correct')?1:0);
+      }else{
+        planetRenderers.forEach(x=>x.renderer.draw(t+Math.sin(t*.0007+x.phase)*170,x.btn.classList.contains('is-correct')?1:0));
+      }
       planetRaf=requestAnimationFrame(animatePlanets);
     }
     renderRound();
@@ -302,6 +344,8 @@
       clearTimeout(roundTimer);
       cancelAnimationFrame(planetRaf);
       planetRenderers.splice(0).forEach(x=>x.renderer?.dispose?.());
+      sharedRenderer?.dispose?.();
+      if(sharedCanvas?.parentNode)sharedCanvas.remove();
       stopSpaceGameSpeech();
       if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
     });
@@ -376,7 +420,7 @@
     let nextTimer=null;
     let pulseTimer=null;
     let starRaf=0;
-    const depthField=makeStarfieldWebGL($('.constellation-depth-canvas',stage));
+    const depthField=isIOSGPU()?null:makeStarfieldWebGL($('.constellation-depth-canvas',stage));
     ctx.menuMusic.pause();
 
     function updateNextPulse(){

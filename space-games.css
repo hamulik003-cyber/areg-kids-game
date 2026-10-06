@@ -242,3 +242,11 @@
 .constellation-reveal-art{z-index:1}
 .constellation-lines{z-index:7}
 .constellation-nodes{z-index:10}
+
+/* V148 — iPhone/DotKiosk GPU stability */
+@supports (-webkit-touch-callout:none){
+  .space-object-webgl{filter:drop-shadow(0 8px 12px rgba(0,0,0,.28)) drop-shadow(0 0 14px rgba(91,157,255,.14))}
+  .pro-space-nebula{filter:blur(18px)}
+  .pro-space-dust i:nth-child(n+38){display:none}
+  .constellation-depth-canvas{display:none}
+}
