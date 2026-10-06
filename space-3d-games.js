@@ -1,4 +1,4 @@
-// V181 repair broken moon/dwarf maps + readable professional lighting
+// V182 reference-matched hybrid global maps + Haumea ring + deep-space polish
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -46,35 +46,41 @@ function reward(host,ctx){
 }
 const TEXTURE_PATHS={
   // Original solar-system pipeline: real equirectangular maps.
-  sun:'assets/space3d/2k_sun.jpg?v=181',
-  mercury:'assets/space3d/2k_mercury.jpg?v=181',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=181',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=181',
+  sun:'assets/space3d/2k_sun.jpg?v=182',
+  mercury:'assets/space3d/2k_mercury.jpg?v=182',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=182',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=182',
   moon:'https://raw.githubusercontent.com/markfxm/SolarSystem/main/public/detail/4k_moon.jpg',
-  mars:'assets/space3d/2k_mars.jpg?v=181',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=181',
-  saturn:'assets/space3d/2k_saturn.jpg?v=181',
-  uranus:'assets/space3d/2k_uranus.jpg?v=181',
-  neptune:'assets/space3d/2k_neptune.jpg?v=181',
+  mars:'assets/space3d/2k_mars.jpg?v=182',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=182',
+  saturn:'assets/space3d/2k_saturn.jpg?v=182',
+  uranus:'assets/space3d/2k_uranus.jpg?v=182',
+  neptune:'assets/space3d/2k_neptune.jpg?v=182',
 
   // Added bodies: only validated 2:1 global maps.
-  phobos:'assets/space3d/2k_phobos.jpg?v=181',
-  deimos:'assets/space3d/real/deimos.jpg?v=181',
-  io:'assets/space3d/4k_io.jpg?v=181',
-  europa:'assets/space3d/2k_europa.jpg?v=181',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=181',
-  callisto:'assets/space3d/2k_callisto.jpg?v=181',
-  titan:'assets/space3d/4k_titan.jpg?v=181',
-  enceladus:'assets/space3d/real/enceladus.jpg?v=181',
-  titania:'assets/space3d/real/titania.jpg?v=181',
-  oberon:'assets/space3d/real/oberon.jpg?v=181',
-  triton:'assets/space3d/real/triton.jpg?v=181',
-  charon:'assets/space3d/real/charon.jpg?v=181',
-  pluto:'assets/space3d/real/pluto.jpg?v=181',
-  ceres:'assets/space3d/2k_ceres.jpg?v=181',
-  haumea:'assets/space3d/real/haumea.jpg?v=181',
-  makemake:'assets/space3d/real/makemake.jpg?v=181',
-  eris:'assets/space3d/real/eris.jpg?v=181'
+  phobos:'assets/space3d/2k_phobos.jpg?v=182',
+  deimos:'assets/space3d/real/deimos.jpg?v=182',
+  io:'assets/space3d/4k_io.jpg?v=182',
+  europa:'assets/space3d/2k_europa.jpg?v=182',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=182',
+  callisto:'assets/space3d/2k_callisto.jpg?v=182',
+  titan:'assets/space3d/4k_titan.jpg?v=182',
+  enceladus:'assets/space3d/real/enceladus.jpg?v=182',
+  titania:'assets/space3d/real/titania.jpg?v=182',
+  oberon:'assets/space3d/real/oberon.jpg?v=182',
+  triton:'assets/space3d/real/triton.jpg?v=182',
+  charon:'assets/space3d/real/charon.jpg?v=182',
+  pluto:'assets/space3d/real/pluto.jpg?v=182',
+  ceres:'assets/space3d/2k_ceres.jpg?v=182',
+  haumea:'assets/space3d/real/haumea.jpg?v=182',
+  makemake:'assets/space3d/real/makemake.jpg?v=182',
+  eris:'assets/space3d/real/eris.jpg?v=182'
+};
+const HYBRID_MAPS={
+  titania:{detail:'assets/space3d/2k_titania.jpg?v=182',base:'assets/space3d/real/titania.jpg?v=182'},
+  triton:{detail:'assets/space3d/2k_triton.jpg?v=182',base:'assets/space3d/real/triton.jpg?v=182'},
+  charon:{detail:'assets/space3d/2k_charon.jpg?v=182',base:'assets/space3d/real/charon.jpg?v=182'},
+  pluto:{detail:'assets/space3d/2k_pluto.jpg?v=182',base:'assets/space3d/real/pluto.jpg?v=182'}
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={
@@ -123,6 +129,54 @@ function getTexture(path,{srgb=true,fallback=null}={}){
   t.magFilter=THREE.LinearFilter;
   t.anisotropy=12;
   texCache.set(path,t);
+  return t;
+}
+function getHybridTexture(item){
+  const cfg=HYBRID_MAPS[item.id];
+  if(!cfg)return null;
+  const key='hybrid182:'+item.id;
+  if(texCache.has(key))return texCache.get(key);
+
+  const c=document.createElement('canvas');c.width=2048;c.height=1024;
+  const x=c.getContext('2d',{alpha:false});
+  x.fillStyle=item.c2||'#555';x.fillRect(0,0,c.width,c.height);
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;
+  t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.anisotropy=16;
+  texCache.set(key,t);
+
+  let base=null,detail=null;
+  const render=()=>{
+    if(!base)return;
+    x.drawImage(base,0,0,c.width,c.height);
+    if(detail){
+      const tmp=document.createElement('canvas');tmp.width=c.width;tmp.height=c.height;
+      const tx=tmp.getContext('2d',{alpha:true});tx.drawImage(detail,0,0,tmp.width,tmp.height);
+      const im=tx.getImageData(0,0,tmp.width,tmp.height),d=im.data;
+      // In the high-detail source, missing coverage is pure/near black. Convert
+      // only those invalid pixels to transparency so the complete global map
+      // underneath remains visible. Real dark craters survive because threshold is low.
+      for(let i=0;i<d.length;i+=4){
+        const m=Math.max(d[i],d[i+1],d[i+2]);
+        const a=Math.max(0,Math.min(1,(m-7)/20));
+        d[i+3]=Math.round(255*a);
+      }
+      tx.putImageData(im,0,0);
+      x.drawImage(tmp,0,0);
+    }
+    // subtle palette normalization toward the learning card, without flattening texture
+    const tint=new THREE.Color(item.c1||'#ffffff');
+    const rr=Math.round(tint.r*255),gg=Math.round(tint.g*255),bb=Math.round(tint.b*255);
+    x.save();x.globalCompositeOperation='soft-light';x.globalAlpha=.12;
+    x.fillStyle='rgb('+rr+','+gg+','+bb+')';x.fillRect(0,0,c.width,c.height);x.restore();
+
+    const seam=x.getImageData(0,0,1,c.height);
+    x.putImageData(seam,c.width-1,0);
+    t.needsUpdate=true;
+  };
+  const bi=new Image();bi.decoding='async';bi.onload=()=>{base=bi;render()};bi.src=cfg.base;
+  const di=new Image();di.decoding='async';di.onload=()=>{detail=di;render()};di.src=cfg.detail;
   return t;
 }
 function sealLongitudeSeam(ctx,W,H,band=28){
@@ -653,7 +707,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=181');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=182');
     mat=new THREE.MeshBasicMaterial({
       map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
       transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
@@ -721,9 +775,10 @@ function spherePlanet(item){
   }
 
   const texturePath=TEXTURE_PATHS[item.id];
-  const tex=texturePath
+  const hybrid=getHybridTexture(item);
+  const tex=hybrid||(texturePath
     ? getTexture(texturePath,{fallback:item.id==='moon'?function(){return moonTexture()}:function(){return canvasTexture(item)}})
-    : canvasTexture(item);
+    : canvasTexture(item));
   const isSun=item.id==='sun';
 
   const roughness={
@@ -753,7 +808,7 @@ function spherePlanet(item){
   grp.userData.surface=mesh;
 
   if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=181');
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=182');
     const clouds=new THREE.Mesh(
       new THREE.SphereGeometry(1.014,72,48),
       new THREE.MeshStandardMaterial({
@@ -781,6 +836,15 @@ function spherePlanet(item){
   }
   if(item.id==='uranus'){
     const ring=ringMesh(item,1.28,1.68);ring.userData.parentPick=grp;grp.add(ring);grp.userData.ring=ring;
+  }
+  if(item.id==='haumea'){
+    const rg=new THREE.RingGeometry(1.23,1.53,160);
+    const rm=new THREE.MeshBasicMaterial({
+      color:0xd7d7d2,side:THREE.DoubleSide,transparent:true,opacity:.46,depthWrite:false
+    });
+    const hr=new THREE.Mesh(rg,rm);
+    hr.rotation.set(-1.02,.18,-.42);
+    hr.userData.parentPick=grp;grp.add(hr);grp.userData.haumeaRing=hr;
   }
 
   if(isSun){
@@ -849,19 +913,35 @@ function blackHole(item){
     })
   );
   lens.rotation.x=1.12;lens.userData.parentPick=g;g.add(lens);
+  const violet=new THREE.Mesh(
+    new THREE.TorusGeometry(1.46,.105,18,180),
+    new THREE.MeshBasicMaterial({
+      color:0x704dff,transparent:true,opacity:.38,depthWrite:false,
+      blending:THREE.AdditiveBlending
+    })
+  );
+  violet.rotation.set(1.12,.10,-.18);violet.userData.parentPick=g;g.add(violet);
+  const outer=new THREE.Mesh(
+    new THREE.RingGeometry(1.32,1.92,180),
+    new THREE.MeshBasicMaterial({
+      color:0xff5f20,side:THREE.DoubleSide,transparent:true,opacity:.24,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    })
+  );
+  outer.rotation.set(1.12,-.06,.12);outer.userData.parentPick=g;g.add(outer);
 
   const hit=new THREE.Mesh(
     new THREE.SphereGeometry(1.64,24,16),
     new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
   );
   hit.userData.parentPick=g;g.add(hit);
-  g.userData.accretion=[disk1,disk2,lens];
+  g.userData.accretion=[disk1,disk2,lens,violet,outer];
   return g;
 }
 
 function galaxy(item){
   const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.055;
-  const N=1650,p=new Float32Array(N*3);
+  const N=2300,p=new Float32Array(N*3);
   for(let i=0;i<N;i++){
     const arm=i%4;
     const r=Math.pow(Math.random(),.58)*1.92;
@@ -875,14 +955,21 @@ function galaxy(item){
   geo.setAttribute('position',new THREE.BufferAttribute(p,3));
   const pts=new THREE.Points(
     geo,new THREE.PointsMaterial({
-      color:0xdbe6ff,size:.055,transparent:true,opacity:.96,
+      color:0x7ea8ff,size:.052,transparent:true,opacity:.92,
       blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
     })
   );
   pts.userData.parentPick=g;g.add(pts);
+  const mag=new THREE.Points(
+    geo.clone(),new THREE.PointsMaterial({
+      color:0xdb5cff,size:.035,transparent:true,opacity:.42,
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+    })
+  );
+  mag.rotation.y=.19;mag.scale.set(.97,1,.97);mag.userData.parentPick=g;g.add(mag);
 
   const coreMat=new THREE.SpriteMaterial({
-    map:GLOW,color:0xfff2c6,transparent:true,opacity:.58,depthWrite:false,
+    map:GLOW,color:0xffe6a0,transparent:true,opacity:.82,depthWrite:false,
     blending:THREE.AdditiveBlending
   });
   coreMat.toneMapped=false;
@@ -910,7 +997,7 @@ function solarSystem(item){
 
   const sunTex=getTexture(TEXTURE_PATHS.sun);
   const sun=new THREE.Mesh(
-    new THREE.SphereGeometry(.30,32,22),
+    new THREE.SphereGeometry(.36,40,28),
     new THREE.MeshBasicMaterial({map:sunTex,color:0xffffff})
   );
   sun.userData.parentPick=g;g.add(sun);
@@ -920,7 +1007,7 @@ function solarSystem(item){
     blending:THREE.AdditiveBlending
   });
   sgMat.toneMapped=false;
-  const sg=new THREE.Sprite(sgMat);sg.scale.set(.92,.92,1);sg.position.z=-.05;g.add(sg);
+  const sg=new THREE.Sprite(sgMat);sg.scale.set(1.20,1.20,1);sg.position.z=-.05;g.add(sg);
 
   const mini=[
     ['mercury',.48,.032,1.00],['venus',.64,.046,.84],['earth',.82,.050,.69],['mars',1.00,.040,.55],
@@ -933,7 +1020,7 @@ function solarSystem(item){
     const pts=curve.getPoints(96).map(v=>new THREE.Vector3(v.x,0,v.y));
     const line=new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
-      new THREE.LineBasicMaterial({color:0x6e89c6,transparent:true,opacity:.24})
+      new THREE.LineBasicMaterial({color:0x6f8dff,transparent:true,opacity:.42})
     );
     g.add(line);
 
