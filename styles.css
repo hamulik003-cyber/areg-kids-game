@@ -3260,17 +3260,18 @@ html[data-theme^="photo-user-"] .section-dim{
 
 
 /* =========================================================
-   V140 — SPACE / CONSTELLATIONS OUTER CARD LABEL FIT
-   Keep the long Armenian title fully inside its wooden pill.
+   V141 — SPACE / CONSTELLATIONS MAXIMUM SAFE LABEL SIZE
+   JS measures the real pill width and keeps the title as large
+   as the current device can fit without overflow.
    ========================================================= */
 .toddler-section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
   left:5px !important;
   right:5px !important;
   padding-left:1px !important;
   padding-right:1px !important;
-  font-size:10px !important;
+  font-size:16px !important;
   line-height:1 !important;
-  letter-spacing:-.06em !important;
+  letter-spacing:-.035em !important;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:clip !important;

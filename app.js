@@ -611,6 +611,19 @@
   $('#sectionBack').addEventListener('click',closeSection);
   $('#activityBack').addEventListener('click',backToSection);
 
+  function fitSpaceConstellationsLabel(){
+    const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
+    if(!label)return;
+    label.style.setProperty('font-size','16px','important');
+    label.style.setProperty('letter-spacing','-.035em','important');
+    const min=10.5,step=.25;
+    let size=16;
+    while(size>min && label.scrollWidth>label.clientWidth){
+      size=Math.max(min,size-step);
+      label.style.setProperty('font-size',size+'px','important');
+    }
+  }
+
   function openSection(id){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
@@ -628,7 +641,7 @@
         b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
       });
     }
-    homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));
+    homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
   }
 
   function saveMagicUnlocked(){
