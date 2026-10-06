@@ -10,7 +10,7 @@
 .activity-content:has(.s3d-root){background:radial-gradient(ellipse at 50% 35%,#172957 0%,#0b1938 38%,#050d24 72%,#020617 100%);border-color:rgba(98,132,214,.5);box-shadow:0 10px 0 rgba(24,36,78,.7),0 22px 42px rgba(0,0,0,.35),inset 0 0 0 1px rgba(159,206,255,.15)}
 @media (prefers-reduced-motion:reduce){.s3d-reward{animation:none;opacity:1}}
 
-/* V156 crisp deep-space + soft win glow */
+/* V158 cinematic transitions + answer feedback */
 .s3d-root::before{
   content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
   background:
@@ -19,6 +19,6 @@
   mix-blend-mode:normal;
 }
 .s3d-root.s3d-win .s3d-prompt{
-  border-color:rgba(154,226,255,.72);
-  box-shadow:0 12px 38px rgba(37,79,190,.34),inset 0 1px 0 rgba(255,255,255,.22);
+  border-color:rgba(116,255,157,.78);
+  box-shadow:0 12px 38px rgba(28,177,91,.27),0 0 22px rgba(75,255,127,.14),inset 0 1px 0 rgba(255,255,255,.22);
 }
