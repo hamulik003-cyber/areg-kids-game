@@ -23,3 +23,11 @@ V175 full-globe policy:
 - Partial flyby mosaics and flat photos are no longer wrapped around spheres.
 - Bodies without a clean complete global map in this repo (Deimos, Titania, Oberon, Triton, Charon, Pluto, Haumea, Makemake, Eris) use internally generated full 2:1 equirectangular educational maps with horizontally wrapped features, avoiding black missing-data regions and longitude seams.
 - Black hole, Milky Way and Solar System remain native Three.js 3D objects; the Solar System's mini-planets reuse the same planet texture maps rather than a poster image.
+
+
+V184 canonical visual remaster:
+- Existing complete global maps in assets/space3d are now used directly on SphereGeometry without runtime reference-image color grading.
+- Moon, Mimas, Tethys, Dione, Rhea, Ariel, Umbriel, Miranda and Nereid use deterministic 2048x1024 equirectangular educational maps generated locally in the renderer. Their longitude edges are explicitly seam-blended before upload to Three.js.
+- The generated moon maps preserve the learning references' dominant palettes and key recognizable terrain cues (for example Mimas/Herschel, icy fractures, dense cratering, Miranda-style patchwork).
+- Nereid intentionally uses a neutral rocky/icy educational surface rather than presenting invented detail as measured global imagery.
+- Special objects (Solar System, Milky Way and Black Hole) are native Three.js constructions; V183 poster/reference sprites were removed.

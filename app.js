@@ -319,23 +319,26 @@
     saturn:'linear-gradient(180deg,#d8b968 0%,#9c7740 100%)',
     uranus:'linear-gradient(180deg,#48c7d1 0%,#218d9b 100%)',
     neptune:'linear-gradient(180deg,#4c7fe8 0%,#2748aa 100%)',
+    pluto:'linear-gradient(180deg,#c18a67 0%,#7f503b 100%)',
     phobos:'linear-gradient(180deg,#8c7566 0%,#5d4d43 100%)',
     deimos:'linear-gradient(180deg,#9a8c81 0%,#665b54 100%)',
     io:'linear-gradient(180deg,#e5b832 0%,#c47d12 100%)',
-    europa:'linear-gradient(180deg,#7fb7c9 0%,#547f94 100%)',
+    europa:'linear-gradient(180deg,#d9d0b7 0%,#8f735b 100%)',
     ganymede:'linear-gradient(180deg,#9b836e 0%,#665346 100%)',
     callisto:'linear-gradient(180deg,#79695f 0%,#4a403b 100%)',
     titan:'linear-gradient(180deg,#dfa443 0%,#a86420 100%)',
-    enceladus:'linear-gradient(180deg,#69b4d0 0%,#3b7f9c 100%)',
-    titania:'linear-gradient(180deg,#819ba4 0%,#596f77 100%)',
-    oberon:'linear-gradient(180deg,#76685e 0%,#4c433e 100%)',
-    triton:'linear-gradient(180deg,#78a9bb 0%,#596f9d 100%)',
-    charon:'linear-gradient(180deg,#7f7974 0%,#514c48 100%)',
-    pluto:'linear-gradient(180deg,#c18a67 0%,#7f503b 100%)',
-    ceres:'linear-gradient(180deg,#86898d 0%,#565b60 100%)',
-    haumea:'linear-gradient(180deg,#8fa8b7 0%,#617783 100%)',
-    makemake:'linear-gradient(180deg,#c56c4d 0%,#8b402f 100%)',
-    eris:'linear-gradient(180deg,#8ca9b9 0%,#607783 100%)',
+    enceladus:'linear-gradient(180deg,#dff6ff 0%,#79a8bf 100%)',
+    mimas:'linear-gradient(180deg,#c9c6bd 0%,#6e6b65 100%)',
+    tethys:'linear-gradient(180deg,#e5e9eb 0%,#858c91 100%)',
+    dione:'linear-gradient(180deg,#e5eef2 0%,#7d888f 100%)',
+    rhea:'linear-gradient(180deg,#c9cdd0 0%,#71767a 100%)',
+    titania:'linear-gradient(180deg,#b2bfbd 0%,#617674 100%)',
+    oberon:'linear-gradient(180deg,#817f79 0%,#44413d 100%)',
+    ariel:'linear-gradient(180deg,#d8e7e8 0%,#778f95 100%)',
+    umbriel:'linear-gradient(180deg,#818889 0%,#3e4345 100%)',
+    miranda:'linear-gradient(180deg,#cbd2cf 0%,#66716f 100%)',
+    triton:'linear-gradient(180deg,#e7cfd0 0%,#87979c 100%)',
+    nereid:'linear-gradient(180deg,#959b9f 0%,#4a5054 100%)',
     'solar-system':'linear-gradient(180deg,#f2a83a 0%,#cf691b 100%)',
     'milky-way':'linear-gradient(180deg,#8f74e7 0%,#4d56b8 100%)',
     'black-hole':'linear-gradient(180deg,#f08b30 0%,#a43e68 100%)'
@@ -352,6 +355,7 @@
     {id:'saturn',img:'08-saturn.jpg',name:'Սատուրն',status:'Գազային հսկա',kind:'saturn',c1:'#ead79d',c2:'#9f8557',accent:'#e4c77e'},
     {id:'uranus',img:'09-uranus.jpg',name:'Ուրան',status:'Սառցային հսկա',kind:'ring',c1:'#91e0e4',c2:'#4ca8b4',accent:'#83d8df'},
     {id:'neptune',img:'10-neptune.jpg',name:'Նեպտուն',status:'Սառցային հսկա',kind:'bands',c1:'#4b7ce3',c2:'#173e91',accent:'#5686e9'},
+    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
     {id:'phobos',img:'11-phobos.jpg',name:'Ֆոբոս',status:'Բնական արբանյակ',kind:'rock',c1:'#92847a',c2:'#534841',accent:'#9a8b82'},
     {id:'deimos',img:'12-deimos.jpg',name:'Դեյմոս',status:'Բնական արբանյակ',kind:'rock',c1:'#aa9c91',c2:'#65584f',accent:'#aea198'},
     {id:'io',img:'13-io.jpg',name:'Իո',status:'Բնական արբանյակ',kind:'spots',c1:'#eadf71',c2:'#8e8635',accent:'#e5d65f'},
@@ -360,15 +364,17 @@
     {id:'callisto',img:'16-callisto.jpg',name:'Կալիստո',status:'Բնական արբանյակ',kind:'spots',c1:'#827368',c2:'#3d3430',accent:'#86766b'},
     {id:'titan',img:'17-titan.jpg',name:'Տիտան',status:'Բնական արբանյակ',kind:'haze',c1:'#dfa84e',c2:'#83521f',accent:'#e0a542'},
     {id:'enceladus',img:'18-enceladus.jpg',name:'Էնցելադուս',status:'Բնական արբանյակ',kind:'cracks',c1:'#f0fbff',c2:'#9cc8df',accent:'#dff6ff'},
+    {id:'mimas',img:null,galleryArt:true,name:'Միմաս',status:'Բնական արբանյակ',kind:'rock',c1:'#b9b7b0',c2:'#686761',accent:'#c9c6bd'},
+    {id:'tethys',img:null,galleryArt:true,name:'Թեթիս',status:'Բնական արբանյակ',kind:'ice',c1:'#d8dde0',c2:'#858c91',accent:'#e5e9eb'},
+    {id:'dione',img:null,galleryArt:true,name:'Դիոնե',status:'Բնական արբանյակ',kind:'cracks',c1:'#d7dde0',c2:'#7d888f',accent:'#e5eef2'},
+    {id:'rhea',img:null,galleryArt:true,name:'Ռեա',status:'Բնական արբանյակ',kind:'rock',c1:'#b8bdc1',c2:'#71767a',accent:'#c9cdd0'},
     {id:'titania',img:'19-titania.jpg',name:'Տիտանիա',status:'Բնական արբանյակ',kind:'rock',c1:'#b2bfbd',c2:'#617674',accent:'#aebfbd'},
     {id:'oberon',img:'20-oberon.jpg',name:'Օբերոն',status:'Բնական արբանյակ',kind:'rock',c1:'#817f79',c2:'#44413d',accent:'#85817d'},
-    {id:'triton',img:'21-triton.jpg',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
-    {id:'charon',img:'22-charon.jpg',name:'Խարոն',status:'Բնական արբանյակ',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
-    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
-    {id:'ceres',img:'24-ceres.jpg',name:'Ցերերա',status:'Գաճաճ մոլորակ',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
-    {id:'haumea',img:'25-haumea.jpg',name:'Հաումեա',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
-    {id:'makemake',img:'26-makemake.jpg',name:'Մակեմակե',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
-    {id:'eris',img:'27-eris.jpg',name:'Էրիս',status:'Գաճաճ մոլորակ',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
+    {id:'ariel',img:null,galleryArt:true,name:'Արիել',status:'Բնական արբանյակ',kind:'cracks',c1:'#c6d6d8',c2:'#778f95',accent:'#d8e7e8'},
+    {id:'umbriel',img:null,galleryArt:true,name:'Ումբրիել',status:'Բնական արբանյակ',kind:'rock',c1:'#777b7c',c2:'#3e4345',accent:'#818889'},
+    {id:'miranda',img:null,galleryArt:true,name:'Միրանդա',status:'Բնական արբանյակ',kind:'cracks',c1:'#b9c1c0',c2:'#66716f',accent:'#cbd2cf'},
+    {id:'triton',img:'21-triton.jpg',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#e6d5d2',c2:'#87979c',accent:'#e9cfd0'},
+    {id:'nereid',img:null,galleryArt:true,name:'Ներեիդ',status:'Բնական արբանյակ',kind:'rock',c1:'#8b9093',c2:'#4a5054',accent:'#959b9f'},
     {id:'solar-system',img:'28-solar-system.jpg',name:'Արեգակնային համակարգ',status:'Մոլորակային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
     {id:'milky-way',img:'29-milky-way.jpg',name:'Ծիր Կաթին',status:'Գալակտիկա',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
     {id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
@@ -1809,9 +1815,10 @@
       card.style.setProperty('--animal-name-size',galleryNameSize(planet.name));
       card.style.setProperty('--animal-type-size',galleryTypeSize(planet.status));
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
+      const planetImg=planet.galleryArt?planetArt(planet):`${planet.img}?v=184`;
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${planet.img}?v=130" alt="${planet.name}" draggable="false">
+          <img src="${planetImg}" alt="${planet.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--planet">
