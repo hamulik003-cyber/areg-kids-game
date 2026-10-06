@@ -44,23 +44,37 @@ function reward(host,ctx){
   ctx.awardStar();
   const d=document.createElement('div');d.className='s3d-reward';d.textContent='⭐ +1';host.appendChild(d);setTimeout(()=>d.remove(),1100);
 }
+const MAP_BASE='https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/';
 const TEXTURE_PATHS={
-  sun:'assets/space3d/2k_sun.jpg?v=184',
-  mercury:'assets/space3d/2k_mercury.jpg?v=184',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=184',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=184',
-  mars:'assets/space3d/2k_mars.jpg?v=184',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=184',
-  saturn:'assets/space3d/2k_saturn.jpg?v=184',
-  uranus:'assets/space3d/2k_uranus.jpg?v=184',
-  neptune:'assets/space3d/2k_neptune.jpg?v=184',
-  phobos:'assets/space3d/2k_phobos.jpg?v=184',
-  io:'assets/space3d/4k_io.jpg?v=184',
-  europa:'assets/space3d/2k_europa.jpg?v=184',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=184',
-  callisto:'assets/space3d/2k_callisto.jpg?v=184',
-  titan:'assets/space3d/4k_titan.jpg?v=184',
-  enceladus:'assets/space3d/2k_enceladus.jpg?v=184',
+  sun:MAP_BASE+'sun.jpg',
+  mercury:MAP_BASE+'mercury.jpg',
+  venus:MAP_BASE+'venus.jpg',
+  earth:MAP_BASE+'earth.jpg',
+  moon:MAP_BASE+'moon.jpg',
+  mars:MAP_BASE+'mars.jpg',
+  jupiter:MAP_BASE+'jupiter.jpg',
+  saturn:MAP_BASE+'saturn.jpg',
+  uranus:MAP_BASE+'uranus.jpg',
+  neptune:MAP_BASE+'neptune.jpg',
+  pluto:MAP_BASE+'pluto.jpg',
+  phobos:MAP_BASE+'phobos.jpg',
+  deimos:MAP_BASE+'deimos.jpg',
+  io:MAP_BASE+'io.jpg',
+  europa:MAP_BASE+'europa.jpg',
+  ganymede:MAP_BASE+'ganymede.jpg',
+  callisto:MAP_BASE+'callisto.jpg',
+  titan:MAP_BASE+'titan.jpg',
+  enceladus:MAP_BASE+'enceladus.jpg',
+  mimas:MAP_BASE+'mimas.jpg',
+  tethys:MAP_BASE+'tethys.jpg',
+  dione:MAP_BASE+'dione.jpg',
+  rhea:MAP_BASE+'rhea.jpg',
+  titania:MAP_BASE+'titania.jpg',
+  oberon:MAP_BASE+'oberon.jpg',
+  ariel:MAP_BASE+'ariel.jpg',
+  umbriel:MAP_BASE+'umbriel.jpg',
+  miranda:MAP_BASE+'miranda.jpg',
+  triton:MAP_BASE+'triton.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={
@@ -93,13 +107,25 @@ const PHYSICS_SPIN={
   titania:.082,oberon:.058,ariel:.130,umbriel:.080,miranda:.160,triton:-.104,nereid:.070
 };
 const texLoader=new THREE.TextureLoader();
+texLoader.setCrossOrigin('anonymous');
 const texCache=new Map();
+const texReady=new Map();
+
 function getTexture(path,{srgb=true,fallback=null}={}){
   if(texCache.has(path))return texCache.get(path);
-  const t=texLoader.load(path,undefined,undefined,()=>{
-    const fb=typeof fallback==='function'?fallback():null;
-    if(fb?.image){t.image=fb.image;t.needsUpdate=true}
-  });
+  let resolveReady;
+  const ready=new Promise(resolve=>{resolveReady=resolve});
+  texReady.set(path,ready);
+  const t=texLoader.load(
+    path,
+    ()=>{t.needsUpdate=true;resolveReady(true)},
+    undefined,
+    ()=>{
+      const fb=typeof fallback==='function'?fallback():null;
+      if(fb?.image){t.image=fb.image;t.needsUpdate=true}
+      resolveReady(false);
+    }
+  );
   if(srgb)t.colorSpace=THREE.SRGBColorSpace;
   t.wrapS=THREE.RepeatWrapping;
   t.wrapT=THREE.ClampToEdgeWrapping;
@@ -107,9 +133,22 @@ function getTexture(path,{srgb=true,fallback=null}={}){
   t.offset.set(0,0);
   t.minFilter=THREE.LinearMipmapLinearFilter;
   t.magFilter=THREE.LinearFilter;
-  t.anisotropy=12;
+  t.anisotropy=16;
   texCache.set(path,t);
   return t;
+}
+function waitForItemTexture(item){
+  if(item.id==='solar-system'){
+    return Promise.all(['sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'].map(id=>{
+      const p=TEXTURE_PATHS[id];
+      getTexture(p);
+      return texReady.get(p)||Promise.resolve(true);
+    }));
+  }
+  const p=TEXTURE_PATHS[item.id];
+  if(!p)return Promise.resolve(true);
+  getTexture(p,{fallback:()=>canvasTexture(item)});
+  return texReady.get(p)||Promise.resolve(true);
 }
 function sealLongitudeSeam(ctx,W,H,band=28){
   // Make the ±180° columns mathematically continuous. Matching pixels are
@@ -786,7 +825,7 @@ function atmosphereMesh(radius=1.035){
 }
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
-  const geo=new THREE.SphereGeometry(1,96,64);
+  const geo=new THREE.SphereGeometry(1,128,96);
 
   if(item.id==='phobos'||item.id==='deimos'||item.id==='nereid'){
     const p=geo.attributes.position;
@@ -812,18 +851,17 @@ function spherePlanet(item){
   const isSun=item.id==='sun';
 
   const roughness={
-    earth:.82,venus:.93,jupiter:.90,saturn:.91,uranus:.88,neptune:.88,
-    titan:.94,io:.95,europa:.96,ganymede:.97,callisto:.98,enceladus:.97,
-    mimas:.98,tethys:.98,dione:.98,rhea:.98,titania:.98,oberon:.98,
-    ariel:.98,umbriel:.99,miranda:.98,triton:.96,nereid:.99,pluto:.97,moon:.98
-  }[item.id]??.97;
-
-  const moonLike=!['sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
+    earth:.76,venus:.88,jupiter:.83,saturn:.86,uranus:.82,neptune:.82,
+    titan:.90,io:.91,europa:.94,ganymede:.95,callisto:.97,enceladus:.96,
+    mimas:.97,tethys:.97,dione:.97,rhea:.97,titania:.97,oberon:.98,
+    ariel:.97,umbriel:.99,miranda:.97,triton:.94,nereid:.99,pluto:.96,moon:.97,
+    phobos:.99,deimos:.99,mercury:.98,mars:.96
+  }[item.id]??.95;
   const nightLift={
-    pluto:.22,oberon:.25,umbriel:.24,deimos:.20,triton:.18,titania:.18,
-    mimas:.18,tethys:.18,dione:.18,rhea:.18,ariel:.18,miranda:.18,nereid:.20
-  }[item.id]??(moonLike?.14:.055);
-
+    pluto:.07,oberon:.075,umbriel:.08,deimos:.07,triton:.06,titania:.06,
+    mimas:.06,tethys:.06,dione:.06,rhea:.06,ariel:.06,miranda:.06,nereid:.07,
+    phobos:.06,moon:.055
+  }[item.id]??.035;
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
@@ -1076,7 +1114,7 @@ function disposeObject(o){
 function rendererFor(host){
   const r=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   r.setPixelRatio(Math.min(devicePixelRatio||1,1.9));r.outputColorSpace=THREE.SRGBColorSpace;
-  r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=.94;r.shadowMap.enabled=false;
+  r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.02;r.shadowMap.enabled=false;
   r.domElement.className='s3d-canvas';host.appendChild(r.domElement);return r;
 }
 function resize(renderer,camera,host){
@@ -1208,11 +1246,11 @@ function gameSpaceSearch(ctx){
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
   const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,8.48);
-  scene.add(new THREE.HemisphereLight(0xc3d9ff,0x20283b,.82));
-  scene.add(new THREE.AmbientLight(0x7184ad,.34));
-  const key=new THREE.DirectionalLight(0xffffff,2.18);key.position.set(-4.5,5.5,7);scene.add(key);
-  const fill=new THREE.DirectionalLight(0xd0e0ff,1.28);fill.position.set(4.8,1.8,6.5);scene.add(fill);
-  const rim=new THREE.DirectionalLight(0x7f90ff,.62);rim.position.set(5,-2,2);scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0xc8d8ff,0x0d1324,.60));
+  scene.add(new THREE.AmbientLight(0x52688d,.20));
+  const key=new THREE.DirectionalLight(0xfff5df,2.65);key.position.set(-5.8,5.0,7.8);scene.add(key);
+  const fill=new THREE.DirectionalLight(0x8fb6ff,.62);fill.position.set(5.2,-.8,5.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x608cff,.42);rim.position.set(4.5,-3.0,1.5);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
@@ -1230,17 +1268,23 @@ function gameSpaceSearch(ctx){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  function buildRound(){
+  let roundSeq=0;
+  async function buildRound(){
+    const seq=++roundSeq;
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
     target=next();
     const opts=shuffle([target,...decoys(target)]);
     const slots=shuffle(searchSlots(root,camera));
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,12);
-    hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
 
+    hud.prompt.textContent='Բեռնում եմ՝ '+findObjectName(target);
+    await Promise.all(opts.map(waitForItemTexture));
+    if(disposed||seq!==roundSeq)return;
+
+    hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
     const built=opts.map(it=>buildObject(it));
-    if(disposed){built.forEach(disposeObject);return}
+    if(disposed||seq!==roundSeq){built.forEach(disposeObject);return}
 
     const now=performance.now();
     built.forEach((g,i)=>{
@@ -1447,7 +1491,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     renderer.dispose();renderer.forceContextLoss?.();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
