@@ -3227,3 +3227,33 @@ html[data-theme^="photo-user-"] .section-dim{
   overflow:hidden !important;
   text-overflow:clip !important;
 }
+
+
+/* V138 — keep the long Constellations labels fully inside their wooden pills. */
+.section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
+  left:5px !important;
+  right:5px !important;
+  padding-left:2px !important;
+  padding-right:2px !important;
+  font-size:13px !important;
+  line-height:1 !important;
+  letter-spacing:-.045em !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+}
+.activity-screen[data-game="constellations"] .activity-title-wrap{
+  min-width:0 !important;
+  overflow:hidden !important;
+  padding-left:8px !important;
+  padding-right:8px !important;
+}
+.activity-screen[data-game="constellations"] .activity-title{
+  min-width:0 !important;
+  max-width:100% !important;
+  font-size:18px !important;
+  line-height:1 !important;
+  letter-spacing:-.035em !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+}

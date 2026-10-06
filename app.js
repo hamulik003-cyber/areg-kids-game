@@ -401,7 +401,7 @@
     {id:'taurus',img:'13-taurus.jpg',name:'Ցուլ',status:'Կենդանակերպ',tone:'teal'},
     {id:'scorpius',img:'14-scorpius.jpg',name:'Կարիճ',status:'Կենդանակերպ',tone:'plum'},
     {id:'libra',img:'15-libra.jpg',name:'Կշեռք',status:'Կենդանակերպ',tone:'violet'},
-    {id:'hayk-belt',img:'16-hayk-belt.jpg',name:'Հայկի գոտի',status:'Հայկական ավանդույթ',tone:'armenia'},
+    {id:'hayk-belt',img:'16-hayk-belt.jpg',name:'Հայկի գոտի',status:'Աստղաշար',tone:'armenia'},
     {id:'aquarius',img:'17-aquarius.jpg',name:'Ջրհոս',status:'Կենդանակերպ',tone:'blue'},
     {id:'virgo',img:'18-virgo.jpg',name:'Կույս',status:'Կենդանակերպ',tone:'plum'},
     {id:'gemini',img:'19-gemini.jpg',name:'Երկվորյակներ',status:'Կենդանակերպ',tone:'indigo'},
@@ -623,7 +623,7 @@
       renderMagicCollection();
     }else{
       s.games.forEach(g=>{
-        const b=document.createElement('button');b.className='toddler-game-card';b.setAttribute('aria-label',g.label);
+        const b=document.createElement('button');b.className='toddler-game-card';b.dataset.game=g.id;b.setAttribute('aria-label',g.label);
         b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="section-card-sheen game-card-sheen" aria-hidden="true"></span><span class="toddler-game-label">${g.label}</span>`;
         b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
       });
@@ -709,7 +709,7 @@
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
   function openGame(section,game){
-    cleanupGame();currentGame=game;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
+    cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
     sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
   }
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
@@ -1855,16 +1855,6 @@
         </span>`;
       hardCenterGalleryCard(card);
 
-      if(item.id==='hayk-belt'){
-        const pill=card.querySelector('.animal-type--constellation');
-        if(pill){
-          pill.style.setProperty('width','100%','important');
-          pill.style.setProperty('max-width','100%','important');
-          pill.style.setProperty('padding-left','6px','important');
-          pill.style.setProperty('padding-right','6px','important');
-          pill.style.setProperty('font-size','9.2px','important');
-        }
-      }
       if(item.id==='hercules'){
         card.style.setProperty('--animal-name-size','11.2px');
       }
