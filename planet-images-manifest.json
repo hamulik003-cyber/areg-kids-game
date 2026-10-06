@@ -1,0 +1,212 @@
+[
+  {
+    "file": "01-sun.jpg",
+    "name": "Արև",
+    "status": "Աստղ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "02-mercury.jpg",
+    "name": "Մերկուրի",
+    "status": "Քարային մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "03-venus.jpg",
+    "name": "Վեներա",
+    "status": "Քարային մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "04-earth.jpg",
+    "name": "Երկիր",
+    "status": "Բնակելի մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "05-moon.jpg",
+    "name": "Լուսին",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "06-mars.jpg",
+    "name": "Մարս",
+    "status": "Քարային մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "07-jupiter.jpg",
+    "name": "Յուպիտեր",
+    "status": "Գազային հսկա",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "08-saturn.jpg",
+    "name": "Սատուրն",
+    "status": "Գազային հսկա",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "09-uranus.jpg",
+    "name": "Ուրան",
+    "status": "Սառցային հսկա",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "10-neptune.jpg",
+    "name": "Նեպտուն",
+    "status": "Սառցային հսկա",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "11-phobos.jpg",
+    "name": "Ֆոբոս",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "12-deimos.jpg",
+    "name": "Դեյմոս",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "13-io.jpg",
+    "name": "Իո",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "14-europa.jpg",
+    "name": "Եվրոպա",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "15-ganymede.jpg",
+    "name": "Գանիմեդ",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "16-callisto.jpg",
+    "name": "Կալիստո",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "17-titan.jpg",
+    "name": "Տիտան",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "18-enceladus.jpg",
+    "name": "Էնցելադուս",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "19-titania.jpg",
+    "name": "Տիտանիա",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "20-oberon.jpg",
+    "name": "Օբերոն",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "21-triton.jpg",
+    "name": "Տրիտոն",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "22-charon.jpg",
+    "name": "Խարոն",
+    "status": "Բնական արբանյակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "23-pluto.jpg",
+    "name": "Պլուտոն",
+    "status": "Գաճաճ մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "24-ceres.jpg",
+    "name": "Ցերերա",
+    "status": "Գաճաճ մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "25-haumea.jpg",
+    "name": "Հաումեա",
+    "status": "Գաճաճ մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "26-makemake.jpg",
+    "name": "Մակեմակե",
+    "status": "Գաճաճ մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "27-eris.jpg",
+    "name": "Էրիս",
+    "status": "Գաճաճ մոլորակ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "28-solar-system.jpg",
+    "name": "Արեգակնային համակարգ",
+    "status": "Մոլորակային համակարգ",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "29-milky-way.jpg",
+    "name": "Ծիր Կաթին",
+    "status": "Գալակտիկա",
+    "width": 1122,
+    "height": 1402
+  },
+  {
+    "file": "30-black-hole.jpg",
+    "name": "Սև խոռոչ",
+    "status": "Տիեզերական օբյեկտ",
+    "width": 1122,
+    "height": 1402
+  }
+]
