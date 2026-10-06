@@ -733,9 +733,22 @@
     };
   }
   function launchSpace3D(name){
-    const api=window.AregSpace3D;
-    if(api&&typeof api[name]==='function')return api[name](space3DContext());
+    const run=()=>{
+      const api=window.AregSpace3D;
+      if(api&&typeof api[name]==='function'){
+        window.removeEventListener('areg-space3d-ready',run);
+        clearTimeout(run.timer);
+        return api[name](space3DContext());
+      }
+    };
+    if(run())return;
     showToast('3D բեռնում…');
+    window.addEventListener('areg-space3d-ready',run,{once:true});
+    run.timer=setTimeout(()=>{
+      window.removeEventListener('areg-space3d-ready',run);
+      if(!window.AregSpace3D)showToast('3D-ը չբեռնվեց');
+    },8000);
+    gameCleanup.push(()=>{clearTimeout(run.timer);window.removeEventListener('areg-space3d-ready',run)});
   }
   function renderGame(g){
     const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:()=>launchSpace3D('constellationQuest'),shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
