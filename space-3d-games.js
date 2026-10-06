@@ -1,4 +1,4 @@
-// V161 persistent answer SFX + guaranteed green win rim on every planet
+// V162 unified proportional answer feedback: soft green back-glow + consistent red halo
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -548,75 +548,45 @@ function disposeFeedbackFx(g,key){
 }
 function makePlanetWrongFx(g){
   disposeFeedbackFx(g,'wrongFx');
-  const fx=new THREE.Group();fx.position.z=-.34;
+  const fx=new THREE.Group();fx.position.z=-1.16;
   const mat=new THREE.SpriteMaterial({
     map:HALO,color:0xff4054,transparent:true,opacity:0,depthWrite:false,depthTest:true,
     blending:THREE.AdditiveBlending
   });
   mat.toneMapped=false;
-  const haloScale=g.userData.item?.id==='saturn'?5.80:g.userData.item?.id==='uranus'?4.70:3.12;
+
+  // One identical local scale for every planet.
+  // Because this FX is a child of the planet group, it automatically preserves
+  // the same proportional clearance on Mercury, Earth, Jupiter, etc.
+  const haloScale=3.08;
   const glow=new THREE.Sprite(mat);glow.scale.set(haloScale,haloScale,1);fx.add(glow);
+
   fx.userData.haloScale=haloScale;
   fx.userData.glow=glow;fx.userData.glowMat=mat;
   g.add(fx);g.userData.wrongFx=fx;return fx;
 }
 function makePlanetWinFx(g,item){
   disposeFeedbackFx(g,'winFx');
-  const fx=new THREE.Group();
+  const fx=new THREE.Group();fx.position.z=-1.22;
 
-  // Geometry rim: guaranteed visible on every planet and naturally stays behind the surface.
-  const rimMat=new THREE.MeshBasicMaterial({
-    color:0x49ff7c,side:THREE.BackSide,transparent:true,opacity:.54,
-    depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
+  const haloScale=3.14;
+  const outerMat=new THREE.SpriteMaterial({
+    map:HALO,color:0x49f77b,transparent:true,opacity:0,depthWrite:false,depthTest:true,
+    blending:THREE.AdditiveBlending
   });
-  rimMat.toneMapped=false;
-  const rimGeo=new THREE.SphereGeometry(1.105,64,40);
-  const rim=new THREE.Mesh(rimGeo,rimMat);
-  rim.scale.set(1,1,1);fx.add(rim);
+  outerMat.toneMapped=false;
+  const outer=new THREE.Sprite(outerMat);outer.scale.set(haloScale,haloScale,1);fx.add(outer);
 
-  // Ringed planets additionally get a restrained halo that sits behind their rings.
-  let outer=null,inner=null,outerMat=null,innerMat=null,haloScale=0;
-  if(item.id==='saturn'||item.id==='uranus'){
-    haloScale=item.id==='saturn'?4.18:3.42;
-    const haloZ=item.id==='saturn'?-2.38:-1.92;
-    const haloGroup=new THREE.Group();haloGroup.position.z=haloZ;
+  const innerMat=new THREE.SpriteMaterial({
+    map:HALO,color:0xbaffcc,transparent:true,opacity:0,depthWrite:false,depthTest:true,
+    blending:THREE.AdditiveBlending
+  });
+  innerMat.toneMapped=false;
+  const inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.965,haloScale*.965,1);fx.add(inner);
 
-    outerMat=new THREE.SpriteMaterial({
-      map:HALO,color:0x45ff78,transparent:true,opacity:.28,depthWrite:false,depthTest:true,
-      blending:THREE.AdditiveBlending
-    });
-    outerMat.toneMapped=false;
-    outer=new THREE.Sprite(outerMat);outer.scale.set(haloScale,haloScale,1);haloGroup.add(outer);
-
-    innerMat=new THREE.SpriteMaterial({
-      map:HALO,color:0xc8ffd7,transparent:true,opacity:.075,depthWrite:false,depthTest:true,
-      blending:THREE.AdditiveBlending
-    });
-    innerMat.toneMapped=false;
-    inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.94,haloScale*.94,1);haloGroup.add(inner);
-    fx.add(haloGroup);
-  }
-
-  const sparks=new THREE.Group();
-  for(let i=0;i<7;i++){
-    const mat=new THREE.SpriteMaterial({
-      map:GLOW,color:i%3===0?0xe9ffef:0x79ff9f,transparent:true,
-      opacity:rand(.11,.19),depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
-    });
-    mat.toneMapped=false;
-    const sp=new THREE.Sprite(mat);
-    const ringRadius=item.id==='saturn'?2.17:item.id==='uranus'?1.73:1.12;
-    const a=i/7*Math.PI*2+rand(-.12,.12),r=ringRadius*rand(1.00,1.06);
-    sp.position.set(Math.cos(a)*r,Math.sin(a)*r,-.22);
-    const sz=rand(.038,.064);sp.scale.set(sz,sz,1);
-    sp.userData.phase=rand(0,Math.PI*2);sp.userData.base=sz;sparks.add(sp);
-  }
-  fx.add(sparks);
-
-  fx.userData.rim=rim;fx.userData.rimMat=rimMat;
   fx.userData.haloScale=haloScale;
   fx.userData.outer=outer;fx.userData.outerMat=outerMat;
-  fx.userData.inner=inner;fx.userData.innerMat=innerMat;fx.userData.sparks=sparks;
+  fx.userData.inner=inner;fx.userData.innerMat=innerMat;
   g.add(fx);g.userData.winFx=fx;return fx;
 }
 function gameSpaceSearch(ctx){
@@ -767,7 +737,7 @@ function gameSpaceSearch(ctx){
           const fx=wrong.fx;
           if(fx?.userData?.glowMat){
             fx.userData.glowMat.opacity=Math.sin(Math.PI*q)*.54;
-            const p=1+.08*Math.sin(Math.PI*q),hs=fx.userData.haloScale||3.12;
+            const p=1+.045*Math.sin(Math.PI*q),hs=fx.userData.haloScale||3.08;
             fx.userData.glow.scale.set(hs*p,hs*p,1);
           }
         }else{
@@ -805,21 +775,14 @@ function gameSpaceSearch(ctx){
           }
           const fx=g.userData.winFx;
           if(fx){
-            const pulse=1+Math.sin(t*.0033)*.018,hs=fx.userData.haloScale||0;
-            if(fx.userData.rim){
-              const rp=1.105*(1+Math.sin(t*.0034)*.014);
-              fx.userData.rim.scale.setScalar(rp/1.105);
-            }
-            if(fx.userData.rimMat)fx.userData.rimMat.opacity=.50+.08*Math.sin(t*.0031);
-            if(hs&&fx.userData.outer)fx.userData.outer.scale.set(hs*pulse,hs*pulse,1);
-            if(hs&&fx.userData.inner)fx.userData.inner.scale.set(hs*.94*(2-pulse),hs*.94*(2-pulse),1);
-            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.26+.035*Math.sin(t*.0030);
-            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.07+.018*Math.sin(t*.0037);
-            fx.userData.sparks?.children.forEach(sp=>{
-              const p=sp.userData.phase||0,base=sp.userData.base||.06;
-              sp.scale.setScalar(base*(.78+.22*Math.sin(t*.005+p)));
-              if(sp.material)sp.material.opacity=.14+.12*(.5+.5*Math.sin(t*.004+p));
-            });
+            const hs=fx.userData.haloScale||3.14;
+            const q=clamp((t-winStart)/1650,0,1);
+            const blink=Math.max(0,Math.sin(q*Math.PI*4)); // exactly two soft green pulses
+            const breathe=1+.018*blink;
+            if(fx.userData.outer)fx.userData.outer.scale.set(hs*breathe,hs*breathe,1);
+            if(fx.userData.inner)fx.userData.inner.scale.set(hs*.965*breathe,hs*.965*breathe,1);
+            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.045+.25*blink;
+            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.018+.075*blink;
           }
         }else{
           setObjectOpacity(g,1-e*.68);
