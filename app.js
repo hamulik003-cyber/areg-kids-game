@@ -374,6 +374,58 @@
     {id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
   ];
 
+
+  const CONSTELLATION_TONES={
+    indigo:{accent:'#6269b8',badge:'linear-gradient(180deg,#6574b8 0%,#35457e 100%)'},
+    violet:{accent:'#7a61b7',badge:'linear-gradient(180deg,#8063b4 0%,#4c367b 100%)'},
+    blue:{accent:'#4f78b5',badge:'linear-gradient(180deg,#557fb5 0%,#304f7d 100%)'},
+    teal:{accent:'#4e8991',badge:'linear-gradient(180deg,#4f8990 0%,#2c5960 100%)'},
+    plum:{accent:'#865784',badge:'linear-gradient(180deg,#875782 0%,#553552 100%)'},
+    rose:{accent:'#98566f',badge:'linear-gradient(180deg,#985a72 0%,#603448 100%)'},
+    armenia:{accent:'#8b5a8e',badge:'linear-gradient(180deg,#7a5a91 0%,#493760 100%)'}
+  };
+
+  const CONSTELLATIONS=[
+    {id:'hayk-orion',img:'01-hayk-orion.jpg',name:'Հայկ (Օրիոն)',status:'Հայկական անուն',tone:'armenia'},
+    {id:'ursa-major',img:'02-ursa-major.jpg',name:'Մեծ Արջ',status:'Համաստեղություն',tone:'indigo'},
+    {id:'ursa-minor',img:'03-ursa-minor.jpg',name:'Փոքր Արջ',status:'Համաստեղություն',tone:'blue'},
+    {id:'cassiopeia',img:'04-cassiopeia.jpg',name:'Կասիոպեա',status:'Համաստեղություն',tone:'violet'},
+    {id:'andromeda',img:'05-andromeda.jpg',name:'Անդրոմեդա',status:'Համաստեղություն',tone:'plum'},
+    {id:'pegasus',img:'06-pegasus.jpg',name:'Պեգաս',status:'Համաստեղություն',tone:'blue'},
+    {id:'cepheus',img:'07-cepheus.jpg',name:'Ցեֆեոս',status:'Համաստեղություն',tone:'indigo'},
+    {id:'draco',img:'08-draco.jpg',name:'Վիշապ',status:'Համաստեղություն',tone:'teal'},
+    {id:'cygnus',img:'09-cygnus.jpg',name:'Կարապ',status:'Համաստեղություն',tone:'blue'},
+    {id:'lyra',img:'10-lyra.jpg',name:'Քնար',status:'Համաստեղություն',tone:'violet'},
+    {id:'leo',img:'11-leo.jpg',name:'Առյուծ',status:'Կենդանակերպ',tone:'rose'},
+    {id:'cancer',img:'12-cancer.jpg',name:'Խեցգետին',status:'Կենդանակերպ',tone:'blue'},
+    {id:'taurus',img:'13-taurus.jpg',name:'Ցուլ',status:'Կենդանակերպ',tone:'teal'},
+    {id:'scorpius',img:'14-scorpius.jpg',name:'Կարիճ',status:'Կենդանակերպ',tone:'plum'},
+    {id:'libra',img:'15-libra.jpg',name:'Կշեռք',status:'Կենդանակերպ',tone:'violet'},
+    {id:'hayk-belt',img:'16-hayk-belt.jpg',name:'Հայկի գոտի',status:'Հայկական ավանդույթ',tone:'armenia'},
+    {id:'aquarius',img:'17-aquarius.jpg',name:'Ջրհոս',status:'Կենդանակերպ',tone:'blue'},
+    {id:'virgo',img:'18-virgo.jpg',name:'Կույս',status:'Կենդանակերպ',tone:'plum'},
+    {id:'gemini',img:'19-gemini.jpg',name:'Երկվորյակներ',status:'Կենդանակերպ',tone:'indigo'},
+    {id:'capricornus',img:'20-capricornus.jpg',name:'Այծեղջյուր',status:'Կենդանակերպ',tone:'teal'},
+    {id:'aries',img:'21-aries.jpg',name:'Խոյ',status:'Կենդանակերպ',tone:'rose'},
+    {id:'pisces',img:'22-pisces.jpg',name:'Ձկներ',status:'Կենդանակերպ',tone:'blue'},
+    {id:'perseus',img:'23-perseus.jpg',name:'Պերսեոս',status:'Համաստեղություն',tone:'indigo'},
+    {id:'hercules',img:'24-hercules.jpg',name:'Հերկուլես (Վահագն)',status:'Հայկական անուն',tone:'armenia'},
+    {id:'aquila',img:'25-aquila.jpg',name:'Արծիվ',status:'Համաստեղություն',tone:'blue'},
+    {id:'delphinus',img:'26-delphinus.jpg',name:'Դելֆին',status:'Համաստեղություն',tone:'teal'},
+    {id:'phoenix',img:'27-phoenix.jpg',name:'Փյունիկ',status:'Համաստեղություն',tone:'plum'},
+    {id:'hydra',img:'28-hydra.jpg',name:'Հիդրա',status:'Համաստեղություն',tone:'indigo'},
+    {id:'canis-major',img:'29-canis-major.jpg',name:'Մեծ շուն',status:'Համաստեղություն',tone:'blue'},
+    {id:'canis-minor',img:'30-canis-minor.jpg',name:'Փոքր շուն',status:'Համաստեղություն',tone:'violet'},
+    {id:'sagittarius',img:'31-sagittarius.jpg',name:'Աղեղնավոր',status:'Կենդանակերպ',tone:'rose'},
+    {id:'ophiuchus',img:'32-ophiuchus.jpg',name:'Օձակիր',status:'Համաստեղություն',tone:'teal'},
+    {id:'corona-borealis',img:'33-corona-borealis.jpg',name:'Հյուսիսային թագ',status:'Համաստեղություն',tone:'violet'},
+    {id:'cetus',img:'34-cetus.jpg',name:'Կետ',status:'Համաստեղություն',tone:'blue'},
+    {id:'monoceros',img:'35-monoceros.jpg',name:'Միաեղջյուր',status:'Համաստեղություն',tone:'plum'},
+    {id:'auriga',img:'36-auriga.jpg',name:'Կառավար',status:'Համաստեղություն',tone:'indigo'},
+    {id:'lupus',img:'37-lupus.jpg',name:'Գայլ',status:'Համաստեղություն',tone:'teal'},
+    {id:'piscis-austrinus',img:'38-piscis-austrinus.jpg',name:'Հարավային ձուկ',status:'Համաստեղություն',tone:'blue'}
+  ];
+
   const SECTIONS={
     nature:{
       title:'Բնություն', hero:'hero-nature.jpg', backdrop:'hero-nature.jpg',
@@ -388,7 +440,7 @@
       title:'Տիեզերք', hero:'hero-space.jpg', backdrop:'hero-space.jpg',
       games:[
         {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'planetGallery'},
-        {id:'stars',label:'Աստղեր',thumb:'space-game-2.jpg',kind:'catch'},
+        {id:'constellations',label:'Համաստեղություններ',thumb:'01-hayk-orion.jpg',kind:'constellationGallery'},
         {id:'rocket',label:'Հրթիռ',thumb:'space-game-3.jpg',kind:'rocket'},
         {id:'constellation',label:'Համաստեղություն',thumb:'space-game-4.jpg',kind:'connect'}
       ]
@@ -663,7 +715,7 @@
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function renderGame(g){
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -1762,6 +1814,80 @@
       card.addEventListener('pointercancel',()=>{downPointer=null;moved=true;card.classList.remove('animal-card--pressing')});
       card.addEventListener('pointerleave',()=>{if(downPointer!==null)card.classList.remove('animal-card--pressing')});
       card.addEventListener('click',e=>{if(e.detail===0)presentGalleryCard(card,clone=>playPlanetSequence(planet,clone),()=>stopPlanetPlayback({restoreMusic:true}))});
+      wrap.appendChild(card);
+    });
+
+    activityContent.appendChild(wrap);
+    gameCleanup.push(()=>{
+      cancelGalleryCardPresentation();
+      stopPlanetPlayback({restoreMusic:true});
+      activityContent.classList.remove('animal-gallery-mode');
+    });
+  }
+
+
+  function gameConstellationGallery(){
+    activityContent.innerHTML='';
+    activityContent.classList.add('animal-gallery-mode');
+    const wrap=document.createElement('div');
+    wrap.className='animal-gallery animal-gallery--constellation';
+    wrap.setAttribute('aria-label','Համաստեղությունների պատկերասրահ');
+
+    CONSTELLATIONS.forEach(item=>{
+      const tone=CONSTELLATION_TONES[item.tone]||CONSTELLATION_TONES.indigo;
+      const card=document.createElement('button');
+      card.type='button';
+      card.className='animal-card animal-card--constellation';
+      card.dataset.constellation=item.id;
+      card.style.setProperty('--animal-accent',tone.accent);
+      card.style.setProperty('--animal-accent-soft',tone.accent+'55');
+      card.style.setProperty('--animal-name-size',galleryNameSize(item.name));
+      card.style.setProperty('--animal-type-size',galleryTypeSize(item.status));
+      card.setAttribute('aria-label',`${item.name}, ${item.status}`);
+      card.innerHTML=`
+        <span class="animal-image-wrap">
+          <img src="${item.img}?v=137" alt="${item.name}" draggable="false">
+          <span class="animal-card-sheen" aria-hidden="true"></span>
+        </span>
+        <span class="animal-meta animal-meta--constellation">
+          <strong class="animal-name">${item.name}</strong>
+          <small class="animal-type animal-type--constellation" style="background:${tone.badge}">${item.status}</small>
+        </span>`;
+      hardCenterGalleryCard(card);
+
+      if(item.id==='hayk-belt'){
+        const pill=card.querySelector('.animal-type--constellation');
+        if(pill){
+          pill.style.setProperty('width','100%','important');
+          pill.style.setProperty('max-width','100%','important');
+          pill.style.setProperty('padding-left','6px','important');
+          pill.style.setProperty('padding-right','6px','important');
+          pill.style.setProperty('font-size','9.2px','important');
+        }
+      }
+      if(item.id==='hercules'){
+        card.style.setProperty('--animal-name-size','11.2px');
+      }
+
+      let downX=0,downY=0,downPointer=null,moved=false;
+      card.addEventListener('pointerdown',e=>{
+        if(e.pointerType==='mouse'&&e.button!==0)return;
+        downPointer=e.pointerId;downX=e.clientX;downY=e.clientY;moved=false;
+        card.classList.add('animal-card--pressing');
+      });
+      card.addEventListener('pointermove',e=>{
+        if(e.pointerId!==downPointer)return;
+        if(Math.hypot(e.clientX-downX,e.clientY-downY)>12){moved=true;card.classList.remove('animal-card--pressing')}
+      });
+      card.addEventListener('pointerup',e=>{
+        if(e.pointerId!==downPointer)return;
+        card.classList.remove('animal-card--pressing');
+        const shouldPlay=!moved;downPointer=null;
+        if(shouldPlay)presentGalleryCard(card,clone=>playPlanetSequence(item,clone),()=>stopPlanetPlayback({restoreMusic:true}));
+      });
+      card.addEventListener('pointercancel',()=>{downPointer=null;moved=true;card.classList.remove('animal-card--pressing')});
+      card.addEventListener('pointerleave',()=>{if(downPointer!==null)card.classList.remove('animal-card--pressing')});
+      card.addEventListener('click',e=>{if(e.detail===0)presentGalleryCard(card,clone=>playPlanetSequence(item,clone),()=>stopPlanetPlayback({restoreMusic:true}))});
       wrap.appendChild(card);
     });
 

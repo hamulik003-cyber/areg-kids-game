@@ -3207,3 +3207,17 @@ html[data-theme^="photo-user-"] .section-dim{
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
 }
+
+
+/* V137 — Constellations gallery: same card system, dark readable pills. */
+.animal-gallery--constellation .animal-image-wrap{
+  background:#090e2a !important;
+}
+.animal-gallery--constellation .animal-type--constellation{
+  min-width:104px !important;
+  max-width:100% !important;
+  padding-left:10px !important;
+  padding-right:10px !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+}
