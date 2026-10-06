@@ -1059,9 +1059,6 @@
           <small class="animal-type animal-type--${animal.type==='ընտանի'?'domestic':'wild'}">${animal.type}</small>
         </span>`;
       hardCenterGalleryCard(card);
-      if(planet.id==='solar-system'){
-        card.style.setProperty('--animal-type-size','6.2px');
-      }
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
@@ -1734,6 +1731,10 @@
           <small class="animal-type animal-type--planet" style="background:${PLANET_BADGES[planet.id]||'linear-gradient(180deg,#6f89a4,#465c74)'}">${planet.status}</small>
         </span>`;
       hardCenterGalleryCard(card);
+      if(planet.id==='solar-system'){
+        const statusPill=card.querySelector('.animal-type--planet');
+        if(statusPill)statusPill.style.setProperty('font-size','7px','important');
+      }
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
