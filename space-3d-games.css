@@ -10,21 +10,14 @@
 .activity-content:has(.s3d-root){background:radial-gradient(ellipse at 50% 35%,#172957 0%,#0b1938 38%,#050d24 72%,#020617 100%);border-color:rgba(98,132,214,.5);box-shadow:0 10px 0 rgba(24,36,78,.7),0 22px 42px rgba(0,0,0,.35),inset 0 0 0 1px rgba(159,206,255,.15)}
 @media (prefers-reduced-motion:reduce){.s3d-reward{animation:none;opacity:1}}
 
-/* V155 visible deep-space starfield + premium search presentation */
+/* V156 crisp deep-space + soft win glow */
 .s3d-root::before{
   content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
   background:
-    radial-gradient(circle at 50% 44%,transparent 28%,rgba(7,10,31,.06) 55%,rgba(1,3,15,.36) 100%),
-    linear-gradient(180deg,rgba(81,76,191,.05),transparent 28%,rgba(17,61,143,.07));
-  mix-blend-mode:screen;
+    radial-gradient(circle at 50% 46%,transparent 34%,rgba(1,4,16,.08) 72%,rgba(1,3,12,.22) 100%),
+    linear-gradient(180deg,rgba(83,97,176,.025),transparent 30%,rgba(13,38,92,.03));
+  mix-blend-mode:normal;
 }
-.s3d-root::after{
-  content:"";position:absolute;z-index:7;left:50%;top:48%;width:76%;aspect-ratio:1;
-  transform:translate(-50%,-50%) scale(.72);border-radius:50%;pointer-events:none;
-  opacity:0;background:radial-gradient(circle,rgba(115,184,255,.16) 0%,rgba(120,94,255,.08) 34%,transparent 68%);
-  transition:opacity .45s ease,transform .8s cubic-bezier(.2,.8,.2,1);
-}
-.s3d-root.s3d-win::after{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
 .s3d-root.s3d-win .s3d-prompt{
   border-color:rgba(154,226,255,.72);
   box-shadow:0 12px 38px rgba(37,79,190,.34),inset 0 1px 0 rgba(255,255,255,.22);
