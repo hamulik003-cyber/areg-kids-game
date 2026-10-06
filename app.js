@@ -308,36 +308,36 @@
 
 
   const PLANETS=[
-    {id:'sun',name:'Արև',status:'Աստղ',kind:'sun',c1:'#ffd84f',c2:'#ff7b22',accent:'#ffb52f'},
-    {id:'mercury',name:'Մերկուրի',status:'Քարային մոլորակ',kind:'rock',c1:'#b8b0a7',c2:'#625b55',accent:'#aaa39b'},
-    {id:'venus',name:'Վեներա',status:'Քարային մոլորակ',kind:'cloud',c1:'#f0c376',c2:'#9a6238',accent:'#e4a94f'},
-    {id:'earth',name:'Երկիր',status:'Բնակելի մոլորակ',kind:'earth',c1:'#4aa0e6',c2:'#23549a',accent:'#55c981'},
-    {id:'moon',name:'Լուսին',status:'Բնական արբանյակ',kind:'rock',c1:'#deded8',c2:'#77756f',accent:'#c9c9c4'},
-    {id:'mars',name:'Մարս',status:'Քարային մոլորակ',kind:'rock',c1:'#d96a48',c2:'#7b2f28',accent:'#e07050'},
-    {id:'jupiter',name:'Յուպիտեր',status:'Գազային հսկա',kind:'bands',c1:'#dbad80',c2:'#8e654b',accent:'#d8a275'},
-    {id:'saturn',name:'Սատուրն',status:'Գազային հսկա',kind:'saturn',c1:'#ead79d',c2:'#9f8557',accent:'#e4c77e'},
-    {id:'uranus',name:'Ուրան',status:'Սառցային հսկա',kind:'ring',c1:'#91e0e4',c2:'#4ca8b4',accent:'#83d8df'},
-    {id:'neptune',name:'Նեպտուն',status:'Սառցային հսկա',kind:'bands',c1:'#4b7ce3',c2:'#173e91',accent:'#5686e9'},
-    {id:'phobos',name:'Ֆոբոս',status:'Բնական արբանյակ',kind:'rock',c1:'#92847a',c2:'#534841',accent:'#9a8b82'},
-    {id:'deimos',name:'Դեյմոս',status:'Բնական արբանյակ',kind:'rock',c1:'#aa9c91',c2:'#65584f',accent:'#aea198'},
-    {id:'io',name:'Իո',status:'Բնական արբանյակ',kind:'spots',c1:'#eadf71',c2:'#8e8635',accent:'#e5d65f'},
-    {id:'europa',name:'Եվրոպա',status:'Բնական արբանյակ',kind:'cracks',c1:'#dfd1ad',c2:'#907b5c',accent:'#dfc899'},
-    {id:'ganymede',name:'Գանիմեդ',status:'Բնական արբանյակ',kind:'rock',c1:'#a7917c',c2:'#55473d',accent:'#a08a77'},
-    {id:'callisto',name:'Կալիստո',status:'Բնական արբանյակ',kind:'spots',c1:'#827368',c2:'#3d3430',accent:'#86766b'},
-    {id:'titan',name:'Տիտան',status:'Բնական արբանյակ',kind:'haze',c1:'#dfa84e',c2:'#83521f',accent:'#e0a542'},
-    {id:'enceladus',name:'Էնցելադուս',status:'Բնական արբանյակ',kind:'cracks',c1:'#f0fbff',c2:'#9cc8df',accent:'#dff6ff'},
-    {id:'titania',name:'Տիտանիա',status:'Բնական արբանյակ',kind:'rock',c1:'#b2bfbd',c2:'#617674',accent:'#aebfbd'},
-    {id:'oberon',name:'Օբերոն',status:'Բնական արբանյակ',kind:'rock',c1:'#817f79',c2:'#44413d',accent:'#85817d'},
-    {id:'triton',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
-    {id:'charon',name:'Խարոն',status:'Բնական արբանյակ',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
-    {id:'pluto',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
-    {id:'ceres',name:'Ցերերա',status:'Գաճաճ մոլորակ',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
-    {id:'haumea',name:'Հաումեա',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
-    {id:'makemake',name:'Մակեմակե',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
-    {id:'eris',name:'Էրիս',status:'Գաճաճ մոլորակ',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
-    {id:'solar-system',name:'Արեգակնային համակարգ',status:'Մոլորակային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
-    {id:'milky-way',name:'Ծիր Կաթին',status:'Գալակտիկա',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
-    {id:'black-hole',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
+    {id:'sun',img:'01-sun.jpg',name:'Արև',status:'Աստղ',kind:'sun',c1:'#ffd84f',c2:'#ff7b22',accent:'#ffb52f'},
+    {id:'mercury',img:'02-mercury.jpg',name:'Մերկուրի',status:'Քարային մոլորակ',kind:'rock',c1:'#b8b0a7',c2:'#625b55',accent:'#aaa39b'},
+    {id:'venus',img:'03-venus.jpg',name:'Վեներա',status:'Քարային մոլորակ',kind:'cloud',c1:'#f0c376',c2:'#9a6238',accent:'#e4a94f'},
+    {id:'earth',img:'04-earth.jpg',name:'Երկիր',status:'Բնակելի մոլորակ',kind:'earth',c1:'#4aa0e6',c2:'#23549a',accent:'#55c981'},
+    {id:'moon',img:'05-moon.jpg',name:'Լուսին',status:'Բնական արբանյակ',kind:'rock',c1:'#deded8',c2:'#77756f',accent:'#c9c9c4'},
+    {id:'mars',img:'06-mars.jpg',name:'Մարս',status:'Քարային մոլորակ',kind:'rock',c1:'#d96a48',c2:'#7b2f28',accent:'#e07050'},
+    {id:'jupiter',img:'07-jupiter.jpg',name:'Յուպիտեր',status:'Գազային հսկա',kind:'bands',c1:'#dbad80',c2:'#8e654b',accent:'#d8a275'},
+    {id:'saturn',img:'08-saturn.jpg',name:'Սատուրն',status:'Գազային հսկա',kind:'saturn',c1:'#ead79d',c2:'#9f8557',accent:'#e4c77e'},
+    {id:'uranus',img:'09-uranus.jpg',name:'Ուրան',status:'Սառցային հսկա',kind:'ring',c1:'#91e0e4',c2:'#4ca8b4',accent:'#83d8df'},
+    {id:'neptune',img:'10-neptune.jpg',name:'Նեպտուն',status:'Սառցային հսկա',kind:'bands',c1:'#4b7ce3',c2:'#173e91',accent:'#5686e9'},
+    {id:'phobos',img:'11-phobos.jpg',name:'Ֆոբոս',status:'Բնական արբանյակ',kind:'rock',c1:'#92847a',c2:'#534841',accent:'#9a8b82'},
+    {id:'deimos',img:'12-deimos.jpg',name:'Դեյմոս',status:'Բնական արբանյակ',kind:'rock',c1:'#aa9c91',c2:'#65584f',accent:'#aea198'},
+    {id:'io',img:'13-io.jpg',name:'Իո',status:'Բնական արբանյակ',kind:'spots',c1:'#eadf71',c2:'#8e8635',accent:'#e5d65f'},
+    {id:'europa',img:'14-europa.jpg',name:'Եվրոպա',status:'Բնական արբանյակ',kind:'cracks',c1:'#dfd1ad',c2:'#907b5c',accent:'#dfc899'},
+    {id:'ganymede',img:'15-ganymede.jpg',name:'Գանիմեդ',status:'Բնական արբանյակ',kind:'rock',c1:'#a7917c',c2:'#55473d',accent:'#a08a77'},
+    {id:'callisto',img:'16-callisto.jpg',name:'Կալիստո',status:'Բնական արբանյակ',kind:'spots',c1:'#827368',c2:'#3d3430',accent:'#86766b'},
+    {id:'titan',img:'17-titan.jpg',name:'Տիտան',status:'Բնական արբանյակ',kind:'haze',c1:'#dfa84e',c2:'#83521f',accent:'#e0a542'},
+    {id:'enceladus',img:'18-enceladus.jpg',name:'Էնցելադուս',status:'Բնական արբանյակ',kind:'cracks',c1:'#f0fbff',c2:'#9cc8df',accent:'#dff6ff'},
+    {id:'titania',img:'19-titania.jpg',name:'Տիտանիա',status:'Բնական արբանյակ',kind:'rock',c1:'#b2bfbd',c2:'#617674',accent:'#aebfbd'},
+    {id:'oberon',img:'20-oberon.jpg',name:'Օբերոն',status:'Բնական արբանյակ',kind:'rock',c1:'#817f79',c2:'#44413d',accent:'#85817d'},
+    {id:'triton',img:'21-triton.jpg',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
+    {id:'charon',img:'22-charon.jpg',name:'Խարոն',status:'Բնական արբանյակ',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
+    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
+    {id:'ceres',img:'24-ceres.jpg',name:'Ցերերա',status:'Գաճաճ մոլորակ',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
+    {id:'haumea',img:'25-haumea.jpg',name:'Հաումեա',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
+    {id:'makemake',img:'26-makemake.jpg',name:'Մակեմակե',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
+    {id:'eris',img:'27-eris.jpg',name:'Էրիս',status:'Գաճաճ մոլորակ',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
+    {id:'solar-system',img:'28-solar-system.jpg',name:'Արեգակնային համակարգ',status:'Մոլորակային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
+    {id:'milky-way',img:'29-milky-way.jpg',name:'Ծիր Կաթին',status:'Գալակտիկա',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
+    {id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
   ];
 
   const SECTIONS={
@@ -1689,7 +1689,7 @@
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${planetArt(planet)}" alt="${planet.name}" draggable="false">
+          <img src="${planet.img}?v=129" alt="${planet.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--planet">

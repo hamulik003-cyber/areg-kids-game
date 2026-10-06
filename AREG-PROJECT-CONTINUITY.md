@@ -176,3 +176,12 @@ These task IDs identify the exact test generations discussed/approved in the cha
 - Each card has a concise object status. Earth is labeled `Բնակելի մոլորակ`.
 - Planet/card artwork is embedded SVG generated locally in app.js, so these images do not depend on the network.
 - No other section/game layout was intentionally changed.
+
+
+## V129 — 30 generated planet/space JPG assets installed
+- User uploaded the 30 JPG assets to repo root in one upload commit.
+- Space → Planets now uses those uploaded JPG files instead of the temporary generated SVG/data-URI artwork.
+- Mapping is fixed: 01-sun.jpg through 30-black-hole.jpg, matching the existing 30 PLANETS records.
+- Existing Animals-style card geometry, image window, object-fit center, tap/zoom presentation, labels, statuses, and game mechanics were not changed.
+- Earth remains labeled `Բնակելի մոլորակ`.
+- Launcher/build/cache baseline: V129.
