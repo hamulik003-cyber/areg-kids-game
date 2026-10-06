@@ -1732,7 +1732,7 @@
         </span>`;
       hardCenterGalleryCard(card);
       if(planet.id==='solar-system'){
-        card.style.setProperty('--animal-name-size','12.2px');
+        card.style.setProperty('--animal-name-size','13.4px');
         const statusPill=card.querySelector('.animal-type--planet');
         if(statusPill){
           statusPill.style.setProperty('width','100%','important');
