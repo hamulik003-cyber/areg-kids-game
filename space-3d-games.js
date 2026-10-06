@@ -1,4 +1,4 @@
-// V177 learning-gallery matched 360 maps + seam-locked full-globe pipeline
+// V178 gallery-reference projected seamless 2:1 maps for every planet/moon
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -46,23 +46,23 @@ function reward(host,ctx){
 }
 const TEXTURE_PATHS={
   // Proven complete 2:1 equirectangular maps: same UV sphere pipeline as Earth / Mars / Jupiter.
-  sun:'assets/space3d/2k_sun.jpg?v=177',
-  mercury:'assets/space3d/2k_mercury.jpg?v=177',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=177',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=177',
-  mars:'assets/space3d/2k_mars.jpg?v=177',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=177',
-  saturn:'assets/space3d/2k_saturn.jpg?v=177',
-  uranus:'assets/space3d/2k_uranus.jpg?v=177',
-  neptune:'assets/space3d/2k_neptune.jpg?v=177',
+  sun:'assets/space3d/2k_sun.jpg?v=178',
+  mercury:'assets/space3d/2k_mercury.jpg?v=178',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=178',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=178',
+  mars:'assets/space3d/2k_mars.jpg?v=178',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=178',
+  saturn:'assets/space3d/2k_saturn.jpg?v=178',
+  uranus:'assets/space3d/2k_uranus.jpg?v=178',
+  neptune:'assets/space3d/2k_neptune.jpg?v=178',
 
-  phobos:'assets/space3d/2k_phobos.jpg?v=177',
-  io:'assets/space3d/4k_io.jpg?v=177',
-  europa:'assets/space3d/2k_europa.jpg?v=177',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=177',
-  callisto:'assets/space3d/2k_callisto.jpg?v=177',
-  titan:'assets/space3d/4k_titan.jpg?v=177',
-  ceres:'assets/space3d/2k_ceres.jpg?v=177'
+  phobos:'assets/space3d/2k_phobos.jpg?v=178',
+  io:'assets/space3d/4k_io.jpg?v=178',
+  europa:'assets/space3d/2k_europa.jpg?v=178',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=178',
+  callisto:'assets/space3d/2k_callisto.jpg?v=178',
+  titan:'assets/space3d/4k_titan.jpg?v=178',
+  ceres:'assets/space3d/2k_ceres.jpg?v=178'
 };
 
 // These bodies do not have a complete, clean global map in the repo.
@@ -650,22 +650,23 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=177');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=178');
     mat=new THREE.MeshBasicMaterial({
-      map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
-      transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
+      map:ringTex,alphaMap:ringTex,color:new THREE.Color(item.accent||'#e4c77e'),
+      side:THREE.DoubleSide,transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
     });
   }else{
     mat=new THREE.MeshBasicMaterial({
-      color:0xb9dce3,side:THREE.DoubleSide,transparent:true,opacity:.30,depthWrite:false
+      color:new THREE.Color(item.accent||'#83d8df'),
+      side:THREE.DoubleSide,transparent:true,opacity:.34,depthWrite:false
     });
   }
   const ring=new THREE.Mesh(geo,mat);ring.userData.ringSurface=true;group.add(ring);
 
   const count=item.id==='saturn'?42:22;
   const rockGeo=new THREE.IcosahedronGeometry(item.id==='saturn'?.027:.022,0);
-  const rockMat=new THREE.MeshStandardMaterial({
-    color:item.id==='saturn'?0xc7b79b:0xa8c2c8,roughness:1,metalness:0
+  const rockMat=new THREE.MeshBasicMaterial({
+    color:new THREE.Color(item.c2||item.c1||(item.id==='saturn'?'#c7b79b':'#a8c2c8'))
   });
   const rocks=new THREE.InstancedMesh(rockGeo,rockMat,count);
   const dummy=new THREE.Object3D();
@@ -697,6 +698,84 @@ function atmosphereMesh(radius=1.035){
   });
   return new THREE.Mesh(new THREE.SphereGeometry(radius,64,40),mat);
 }
+const galleryTexCache=new Map();
+function galleryReferenceTexture(item){
+  const key='gallery178:'+item.id;
+  if(galleryTexCache.has(key))return galleryTexCache.get(key);
+
+  const W=1024,H=512;
+  const c=document.createElement('canvas');c.width=W;c.height=H;
+  const x=c.getContext('2d',{alpha:false});
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,item.accent||item.c1||'#a6a6a6');
+  g.addColorStop(.48,item.c1||'#8d8d8d');
+  g.addColorStop(1,item.c2||'#4f4f4f');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=THREE.RepeatWrapping;
+  tex.wrapT=THREE.ClampToEdgeWrapping;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+  tex.anisotropy=16;
+  galleryTexCache.set(key,tex);
+
+  if(!item.img)return tex;
+
+  const im=new Image();
+  im.decoding='async';
+  im.onload=()=>{
+    try{
+      const SW=640,SH=Math.max(2,Math.round(SW*im.naturalHeight/im.naturalWidth));
+      const sc=document.createElement('canvas');sc.width=SW;sc.height=SH;
+      const sx=sc.getContext('2d',{alpha:false});
+      sx.drawImage(im,0,0,SW,SH);
+      const src=sx.getImageData(0,0,SW,SH),sd=src.data;
+
+      const crop={
+        sun:[.50,.49,.345], mercury:[.50,.49,.345], venus:[.50,.49,.345],
+        earth:[.50,.49,.355], moon:[.50,.49,.345], mars:[.50,.49,.345],
+        jupiter:[.50,.49,.350], saturn:[.50,.49,.265], uranus:[.50,.49,.275],
+        neptune:[.50,.49,.345], phobos:[.50,.49,.330], deimos:[.50,.49,.330],
+        io:[.50,.49,.345], europa:[.50,.49,.345], ganymede:[.50,.49,.345],
+        callisto:[.50,.49,.345], titan:[.50,.49,.345], enceladus:[.50,.49,.345],
+        titania:[.50,.49,.345], oberon:[.50,.49,.345], triton:[.50,.49,.345],
+        charon:[.50,.49,.345], pluto:[.50,.49,.345], ceres:[.50,.49,.345],
+        haumea:[.50,.49,.325], makemake:[.50,.49,.345], eris:[.50,.49,.345]
+      }[item.id]||[.50,.49,.34];
+
+      const cx=crop[0]*SW,cy=crop[1]*SH,rad=crop[2]*SW;
+      const out=x.createImageData(W,H),od=out.data;
+      const edge=.925;
+
+      for(let py=0;py<H;py++){
+        const lat=(.5-py/(H-1))*Math.PI;
+        const sy0=-Math.sin(lat),cl=Math.cos(lat);
+        for(let px=0;px<W;px++){
+          const lon=(px/(W-1)*2-1)*Math.PI;
+          let nx=Math.sin(lon)*cl,ny=sy0;
+          const rr=Math.hypot(nx,ny);
+          if(rr>edge){const q=edge/rr;nx*=q;ny*=q;}
+          let ix=Math.round(cx+nx*rad),iy=Math.round(cy+ny*rad);
+          ix=Math.max(0,Math.min(SW-1,ix));iy=Math.max(0,Math.min(SH-1,iy));
+          const si=(iy*SW+ix)*4,di=(py*W+px)*4;
+          od[di]=sd[si];od[di+1]=sd[si+1];od[di+2]=sd[si+2];od[di+3]=255;
+        }
+      }
+      x.putImageData(out,0,0);
+      const seam=x.getImageData(0,0,1,H);
+      x.putImageData(seam,W-1,0);
+      tex.needsUpdate=true;
+    }catch(err){
+      console.warn('gallery 360 map fallback',item.id,err);
+    }
+  };
+  im.onerror=()=>console.warn('gallery reference load failed',item.id,item.img);
+  im.src=item.img+(item.img.includes('?')?'&':'?')+'v=178';
+  return tex;
+}
+
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,96,64):new THREE.SphereGeometry(1,96,64);
@@ -717,53 +796,20 @@ function spherePlanet(item){
     else geo.scale(1.14,.88,.96);
   }
 
-  const texturePath=TEXTURE_PATHS[item.id];
-  const tex=item.id==='moon'
-    ? moonTexture()
-    : (texturePath?getTexture(texturePath,{fallback:function(){return canvasTexture(item)}}):canvasTexture(item));
+  const tex=galleryReferenceTexture(item);
   const isSun=item.id==='sun';
-  const readableSmall=!['sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'].includes(item.id);
 
-  const mat=isSun
-    ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({
-        map:tex,
-        color:0xffffff,
-        roughness:item.id==='earth'?.82:(['jupiter','saturn','uranus','neptune'].includes(item.id)?.90:.96),
-        metalness:0,
-        emissive:readableSmall?0xffffff:0x000000,
-        emissiveMap:readableSmall?tex:null,
-        emissiveIntensity:readableSmall?(item.id==='enceladus'?.14:.095):0
-      });
+  // Exact learning-gallery color/detail is already baked into the reference art.
+  const mat=new THREE.MeshBasicMaterial({map:tex,color:0xffffff});
 
   const mesh=new THREE.Mesh(geo,mat);
+  // The sampled gallery center must face the camera at round start.
+  mesh.rotation.y=-Math.PI*.5;
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
 
-  if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=177');
-    const clouds=new THREE.Mesh(
-      new THREE.SphereGeometry(1.014,72,48),
-      new THREE.MeshStandardMaterial({
-        color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.36,
-        depthWrite:false,roughness:1,metalness:0
-      })
-    );
-    clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
-    const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
-  }
-
-  if(item.id==='titan'){
-    const haze=new THREE.Mesh(
-      new THREE.SphereGeometry(1.028,64,42),
-      new THREE.MeshBasicMaterial({
-        color:0xe5a34d,side:THREE.BackSide,transparent:true,opacity:.08,
-        depthWrite:false,blending:THREE.AdditiveBlending
-      })
-    );
-    haze.userData.parentPick=grp;grp.add(haze);
-  }
+  // Earth clouds and Titan haze are already present in their gallery reference art.
 
   if(item.id==='saturn'){
     const ring=ringMesh(item,1.22,2.10);ring.userData.parentPick=grp;grp.add(ring);grp.userData.ring=ring;
