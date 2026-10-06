@@ -1,4 +1,4 @@
-// V178 gallery-reference projected seamless 2:1 maps for every planet/moon
+// V179 gallery-front matched + real seamless 2:1 globe maps
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -46,23 +46,23 @@ function reward(host,ctx){
 }
 const TEXTURE_PATHS={
   // Proven complete 2:1 equirectangular maps: same UV sphere pipeline as Earth / Mars / Jupiter.
-  sun:'assets/space3d/2k_sun.jpg?v=178',
-  mercury:'assets/space3d/2k_mercury.jpg?v=178',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=178',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=178',
-  mars:'assets/space3d/2k_mars.jpg?v=178',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=178',
-  saturn:'assets/space3d/2k_saturn.jpg?v=178',
-  uranus:'assets/space3d/2k_uranus.jpg?v=178',
-  neptune:'assets/space3d/2k_neptune.jpg?v=178',
+  sun:'assets/space3d/2k_sun.jpg?v=179',
+  mercury:'assets/space3d/2k_mercury.jpg?v=179',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=179',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=179',
+  mars:'assets/space3d/2k_mars.jpg?v=179',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=179',
+  saturn:'assets/space3d/2k_saturn.jpg?v=179',
+  uranus:'assets/space3d/2k_uranus.jpg?v=179',
+  neptune:'assets/space3d/2k_neptune.jpg?v=179',
 
-  phobos:'assets/space3d/2k_phobos.jpg?v=178',
-  io:'assets/space3d/4k_io.jpg?v=178',
-  europa:'assets/space3d/2k_europa.jpg?v=178',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=178',
-  callisto:'assets/space3d/2k_callisto.jpg?v=178',
-  titan:'assets/space3d/4k_titan.jpg?v=178',
-  ceres:'assets/space3d/2k_ceres.jpg?v=178'
+  phobos:'assets/space3d/2k_phobos.jpg?v=179',
+  io:'assets/space3d/4k_io.jpg?v=179',
+  europa:'assets/space3d/2k_europa.jpg?v=179',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=179',
+  callisto:'assets/space3d/2k_callisto.jpg?v=179',
+  titan:'assets/space3d/4k_titan.jpg?v=179',
+  ceres:'assets/space3d/2k_ceres.jpg?v=179'
 };
 
 // These bodies do not have a complete, clean global map in the repo.
@@ -144,7 +144,7 @@ function sealLongitudeSeam(ctx,W,H,band=28){
 }
 
 function canvasTexture(item){
-  const cacheKey='proc177:'+item.id;
+  const cacheKey='proc179:'+item.id;
   if(texCache.has(cacheKey))return texCache.get(cacheKey);
 
   // 2:1 plate-carrée/equirectangular map, identical projection class to the
@@ -152,7 +152,7 @@ function canvasTexture(item){
   const c=document.createElement('canvas');c.width=2048;c.height=1024;
   const x=c.getContext('2d',{alpha:false});
   x.scale(2,2);
-  const r=prng(seedFrom('v177:'+item.id));
+  const r=prng(seedFrom('v179:'+item.id));
   const W=1024,H=512;
 
   // Use the exact learning-gallery palette carried by PLANETS in app.js.
@@ -650,23 +650,22 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=178');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=179');
     mat=new THREE.MeshBasicMaterial({
-      map:ringTex,alphaMap:ringTex,color:new THREE.Color(item.accent||'#e4c77e'),
-      side:THREE.DoubleSide,transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
+      map:ringTex,alphaMap:ringTex,color:new THREE.Color(item.accent||'#e4c77e'),side:THREE.DoubleSide,
+      transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
     });
   }else{
     mat=new THREE.MeshBasicMaterial({
-      color:new THREE.Color(item.accent||'#83d8df'),
-      side:THREE.DoubleSide,transparent:true,opacity:.34,depthWrite:false
+      color:new THREE.Color(item.accent||'#83d8df'),side:THREE.DoubleSide,transparent:true,opacity:.34,depthWrite:false
     });
   }
   const ring=new THREE.Mesh(geo,mat);ring.userData.ringSurface=true;group.add(ring);
 
   const count=item.id==='saturn'?42:22;
   const rockGeo=new THREE.IcosahedronGeometry(item.id==='saturn'?.027:.022,0);
-  const rockMat=new THREE.MeshBasicMaterial({
-    color:new THREE.Color(item.c2||item.c1||(item.id==='saturn'?'#c7b79b':'#a8c2c8'))
+  const rockMat=new THREE.MeshStandardMaterial({
+    color:item.id==='saturn'?0xc7b79b:0xa8c2c8,roughness:1,metalness:0
   });
   const rocks=new THREE.InstancedMesh(rockGeo,rockMat,count);
   const dummy=new THREE.Object3D();
@@ -698,19 +697,24 @@ function atmosphereMesh(radius=1.035){
   });
   return new THREE.Mesh(new THREE.SphereGeometry(radius,64,40),mat);
 }
-const galleryTexCache=new Map();
-function galleryReferenceTexture(item){
-  const key='gallery178:'+item.id;
-  if(galleryTexCache.has(key))return galleryTexCache.get(key);
+const MATCHED_TEX_CACHE=new Map();
+function galleryMatchedTexture(item){
+  const key='matched179:'+item.id;
+  if(MATCHED_TEX_CACHE.has(key))return MATCHED_TEX_CACHE.get(key);
 
-  const W=1024,H=512;
+  const W=2048,H=1024;
   const c=document.createElement('canvas');c.width=W;c.height=H;
   const x=c.getContext('2d',{alpha:false});
-  const g=x.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,item.accent||item.c1||'#a6a6a6');
-  g.addColorStop(.48,item.c1||'#8d8d8d');
-  g.addColorStop(1,item.c2||'#4f4f4f');
-  x.fillStyle=g;x.fillRect(0,0,W,H);
+
+  // Start from the proven seamless full-globe map. This is what remains visible
+  // on the sides/back as the body rotates.
+  const procedural=()=>{
+    if(item.id==='moon')return moonTexture().image;
+    return canvasTexture(item).image;
+  };
+  const basePath=TEXTURE_PATHS[item.id];
+  let baseImage=procedural();
+  let galleryImage=null;
 
   const tex=new THREE.CanvasTexture(c);
   tex.colorSpace=THREE.SRGBColorSpace;
@@ -719,60 +723,103 @@ function galleryReferenceTexture(item){
   tex.minFilter=THREE.LinearMipmapLinearFilter;
   tex.magFilter=THREE.LinearFilter;
   tex.anisotropy=16;
-  galleryTexCache.set(key,tex);
+  MATCHED_TEX_CACHE.set(key,tex);
 
-  if(!item.img)return tex;
+  const crop={
+    sun:[.50,.49,.335], mercury:[.50,.49,.335], venus:[.50,.49,.335],
+    earth:[.50,.49,.350], moon:[.50,.49,.335], mars:[.50,.49,.335],
+    jupiter:[.50,.49,.345], saturn:[.50,.49,.230], uranus:[.50,.49,.255],
+    neptune:[.50,.49,.335], phobos:[.50,.49,.315], deimos:[.50,.49,.315],
+    io:[.50,.49,.335], europa:[.50,.49,.335], ganymede:[.50,.49,.335],
+    callisto:[.50,.49,.335], titan:[.50,.49,.335], enceladus:[.50,.49,.335],
+    titania:[.50,.49,.335], oberon:[.50,.49,.335], triton:[.50,.49,.335],
+    charon:[.50,.49,.335], pluto:[.50,.49,.335], ceres:[.50,.49,.335],
+    haumea:[.50,.49,.305], makemake:[.50,.49,.335], eris:[.50,.49,.335]
+  }[item.id]||[.50,.49,.33];
 
-  const im=new Image();
-  im.decoding='async';
-  im.onload=()=>{
+  function render(){
     try{
-      const SW=640,SH=Math.max(2,Math.round(SW*im.naturalHeight/im.naturalWidth));
+      x.clearRect(0,0,W,H);
+      if(baseImage)x.drawImage(baseImage,0,0,W,H);
+      else{
+        const bg=x.createLinearGradient(0,0,0,H);
+        bg.addColorStop(0,item.accent||item.c1||'#aaa');
+        bg.addColorStop(.5,item.c1||'#888');
+        bg.addColorStop(1,item.c2||'#555');
+        x.fillStyle=bg;x.fillRect(0,0,W,H);
+      }
+      if(!galleryImage){tex.needsUpdate=true;return;}
+
+      const SW=720,SH=Math.max(2,Math.round(SW*galleryImage.naturalHeight/galleryImage.naturalWidth));
       const sc=document.createElement('canvas');sc.width=SW;sc.height=SH;
       const sx=sc.getContext('2d',{alpha:false});
-      sx.drawImage(im,0,0,SW,SH);
+      sx.drawImage(galleryImage,0,0,SW,SH);
       const src=sx.getImageData(0,0,SW,SH),sd=src.data;
-
-      const crop={
-        sun:[.50,.49,.345], mercury:[.50,.49,.345], venus:[.50,.49,.345],
-        earth:[.50,.49,.355], moon:[.50,.49,.345], mars:[.50,.49,.345],
-        jupiter:[.50,.49,.350], saturn:[.50,.49,.265], uranus:[.50,.49,.275],
-        neptune:[.50,.49,.345], phobos:[.50,.49,.330], deimos:[.50,.49,.330],
-        io:[.50,.49,.345], europa:[.50,.49,.345], ganymede:[.50,.49,.345],
-        callisto:[.50,.49,.345], titan:[.50,.49,.345], enceladus:[.50,.49,.345],
-        titania:[.50,.49,.345], oberon:[.50,.49,.345], triton:[.50,.49,.345],
-        charon:[.50,.49,.345], pluto:[.50,.49,.345], ceres:[.50,.49,.345],
-        haumea:[.50,.49,.325], makemake:[.50,.49,.345], eris:[.50,.49,.345]
-      }[item.id]||[.50,.49,.34];
+      const out=x.getImageData(0,0,W,H),od=out.data;
 
       const cx=crop[0]*SW,cy=crop[1]*SH,rad=crop[2]*SW;
-      const out=x.createImageData(W,H),od=out.data;
-      const edge=.925;
-
+      // Three.js SphereGeometry faces +Z at u≈0.25. Put the learning-card
+      // reference there. Only the front hemisphere is overlaid; the side/back
+      // stays the genuine 360 map, so there is no mirrored/stretching artifact.
       for(let py=0;py<H;py++){
         const lat=(.5-py/(H-1))*Math.PI;
-        const sy0=-Math.sin(lat),cl=Math.cos(lat);
+        const sy=-Math.sin(lat),cl=Math.cos(lat);
         for(let px=0;px<W;px++){
-          const lon=(px/(W-1)*2-1)*Math.PI;
-          let nx=Math.sin(lon)*cl,ny=sy0;
+          let du=px/(W-1)-.25;
+          du-=Math.round(du); // shortest wrapped distance from front longitude
+          const lon=du*Math.PI*2;
+          const al=Math.abs(lon);
+          if(al>=Math.PI*.5)continue;
+
+          const nx=Math.sin(lon)*cl,ny=sy;
           const rr=Math.hypot(nx,ny);
-          if(rr>edge){const q=edge/rr;nx*=q;ny*=q;}
+          if(rr>=.93)continue;
+
           let ix=Math.round(cx+nx*rad),iy=Math.round(cy+ny*rad);
           ix=Math.max(0,Math.min(SW-1,ix));iy=Math.max(0,Math.min(SH-1,iy));
           const si=(iy*SW+ix)*4,di=(py*W+px)*4;
-          od[di]=sd[si];od[di+1]=sd[si+1];od[di+2]=sd[si+2];od[di+3]=255;
+
+          // Exact gallery look through the central 65°, then feather smoothly
+          // into the real globe map before the limb.
+          const lonA=Math.max(0,Math.min(1,(Math.PI*.48-al)/(Math.PI*.14)));
+          const radA=Math.max(0,Math.min(1,(.93-rr)/.12));
+          let a=Math.min(lonA,radA);
+          a=a*a*(3-2*a);
+          if(a<=0)continue;
+
+          od[di]=Math.round(od[di]*(1-a)+sd[si]*a);
+          od[di+1]=Math.round(od[di+1]*(1-a)+sd[si+1]*a);
+          od[di+2]=Math.round(od[di+2]*(1-a)+sd[si+2]*a);
+          od[di+3]=255;
         }
       }
       x.putImageData(out,0,0);
+
+      // Never touch the longitude seam: copy exact first column to last column.
       const seam=x.getImageData(0,0,1,H);
       x.putImageData(seam,W-1,0);
       tex.needsUpdate=true;
     }catch(err){
-      console.warn('gallery 360 map fallback',item.id,err);
+      console.warn('gallery matched texture fallback',item.id,err);
+      tex.needsUpdate=true;
     }
-  };
-  im.onerror=()=>console.warn('gallery reference load failed',item.id,item.img);
-  im.src=item.img+(item.img.includes('?')?'&':'?')+'v=178';
+  }
+
+  render();
+
+  if(basePath){
+    const b=new Image();b.decoding='async';
+    b.onload=()=>{baseImage=b;render()};
+    b.onerror=()=>render();
+    b.src=basePath;
+  }
+
+  if(item.img){
+    const gi=new Image();gi.decoding='async';
+    gi.onload=()=>{galleryImage=gi;render()};
+    gi.onerror=()=>render();
+    gi.src=item.img+(item.img.includes('?')?'&':'?')+'v=179';
+  }
   return tex;
 }
 
@@ -796,20 +843,20 @@ function spherePlanet(item){
     else geo.scale(1.14,.88,.96);
   }
 
-  const tex=galleryReferenceTexture(item);
+  const tex=galleryMatchedTexture(item);
   const isSun=item.id==='sun';
 
-  // Exact learning-gallery color/detail is already baked into the reference art.
+  // The learning image already contains its own shading/detail. BasicMaterial
+  // preserves those colors exactly instead of repainting them with scene lights.
   const mat=new THREE.MeshBasicMaterial({map:tex,color:0xffffff});
 
   const mesh=new THREE.Mesh(geo,mat);
-  // The sampled gallery center must face the camera at round start.
-  mesh.rotation.y=-Math.PI*.5;
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
 
-  // Earth clouds and Titan haze are already present in their gallery reference art.
+  // Earth clouds and Titan haze are baked into the learning reference on the
+  // matched front view; no duplicate overlay is added.
 
   if(item.id==='saturn'){
     const ring=ringMesh(item,1.22,2.10);ring.userData.parentPick=grp;grp.add(ring);grp.userData.ring=ring;
