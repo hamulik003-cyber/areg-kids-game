@@ -88,7 +88,25 @@ function starField(scene){
     const sz=rand(.08,.22);sp.scale.set(sz,sz,1);bright.add(sp);
   }
   scene.add(bright);
-  const grp=new THREE.Group();grp.add(sky,pts,bright);return grp;
+
+  const nebulae=new THREE.Group();
+  const nebulaSpecs=[
+    [-5.8,2.8,-14,0x6a3fd9,.22,11,6.3],
+    [5.4,-2.2,-13,0x205dff,.18,10,5.6],
+    [1.2,4.5,-16,0xb53bd5,.13,13,6.5]
+  ];
+  nebulaSpecs.forEach(([x,y,z,color,opacity,sx,sy],i)=>{
+    const mat=new THREE.SpriteMaterial({
+      map:GLOW,color,transparent:true,opacity,depthWrite:false,
+      blending:THREE.AdditiveBlending
+    });
+    mat.toneMapped=false;
+    const sp=new THREE.Sprite(mat);
+    sp.position.set(x,y,z);sp.scale.set(sx,sy,1);sp.material.rotation=i*.55;
+    nebulae.add(sp);
+  });
+  scene.add(nebulae);
+  const grp=new THREE.Group();grp.add(sky,pts,bright,nebulae);return grp;
 }
 function nebula(){return null}
 function ringMesh(item,inner=1.22,outer=2.08){
@@ -225,15 +243,58 @@ function fitSearchObject(g,item,portrait){
     : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
   g.scale.multiplyScalar(factor);
 }
+function makePlanetWinFx(g,item){
+  const fx=new THREE.Group();
+  fx.position.z=.03;
+  const accent=new THREE.Color(item.accent||'#7ec8ff');
+  const ringMats=[];
+  [[1.38,.028,.78],[1.63,.018,.52],[1.88,.012,.30]].forEach(([r,tube,opacity],i)=>{
+    const mat=new THREE.MeshBasicMaterial({
+      color:accent,transparent:true,opacity,depthWrite:false,
+      blending:THREE.AdditiveBlending
+    });
+    mat.toneMapped=false;ringMats.push(mat);
+    const tor=new THREE.Mesh(new THREE.TorusGeometry(r,tube,12,96),mat);
+    tor.rotation.z=i*.65;fx.add(tor);
+  });
+  const glowMat=new THREE.SpriteMaterial({
+    map:GLOW,color:accent,transparent:true,opacity:.34,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  glowMat.toneMapped=false;
+  const glow=new THREE.Sprite(glowMat);glow.scale.set(4.4,4.4,1);glow.position.z=-.08;fx.add(glow);
+
+  const sparks=new THREE.Group();
+  for(let i=0;i<18;i++){
+    const mat=new THREE.SpriteMaterial({
+      map:GLOW,color:i%4===0?0xffef9e:accent,transparent:true,
+      opacity:rand(.45,.9),depthWrite:false,blending:THREE.AdditiveBlending
+    });
+    mat.toneMapped=false;
+    const sp=new THREE.Sprite(mat);
+    const a=i/18*Math.PI*2+rand(-.12,.12),r=rand(1.45,2.05);
+    sp.position.set(Math.cos(a)*r,Math.sin(a)*r,rand(-.08,.12));
+    const sz=rand(.07,.14);sp.scale.set(sz,sz,1);sp.userData.phase=rand(0,Math.PI*2);
+    sparks.add(sp);
+  }
+  fx.add(sparks);
+  fx.userData.ringMats=ringMats;
+  fx.userData.glowMat=glowMat;
+  fx.userData.sparks=sparks;
+  g.add(fx);g.userData.winFx=fx;
+  return fx;
+}
 function gameSpaceSearch(ctx){
   ctx.activityContent.innerHTML='';ctx.menuMusic.pause();
   const root=document.createElement('div');root.className='s3d-root';ctx.activityContent.appendChild(root);
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
   const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x030817);
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,9.25);
-  scene.add(new THREE.HemisphereLight(0x7896c8,0x020308,.18));
-  const key=new THREE.DirectionalLight(0xffffff,4.15);key.position.set(-4.5,5.5,7);scene.add(key);
-  const rim=new THREE.DirectionalLight(0x496dff,.34);rim.position.set(5,-2,2);scene.add(rim);
+  scene.add(new THREE.HemisphereLight(0x92b8ff,0x10152d,.72));
+  scene.add(new THREE.AmbientLight(0x4b5f91,.34));
+  const key=new THREE.DirectionalLight(0xffffff,3.65);key.position.set(-4.5,5.5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0x9dc4ff,1.35);fill.position.set(4.5,1.5,6.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x6d72ff,.72);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
@@ -251,6 +312,7 @@ function gameSpaceSearch(ctx){
     if(disposed){built.forEach(disposeObject);return}
     built.forEach((g,i)=>{
       fitSearchObject(g,opts[i],portrait);
+      g.userData.baseScale=g.scale.clone();
       g.position.copy(slots[i]);
       scene.add(g);groups.push(g);
       g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)});
@@ -261,21 +323,49 @@ function gameSpaceSearch(ctx){
     if(locked)return;const r=renderer.domElement.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;ray.setFromCamera(mouse,camera);
     const hit=ray.intersectObjects(pickables,false)[0];if(!hit)return;let g=hit.object.userData.parentPick||hit.object.parent;while(g&&!g.userData?.pickable)g=g.parent;if(!g)return;
     if(g.userData.item.id!==target.id){wrong={g,start:performance.now(),x:g.position.x};return}
-    locked=true;winStart=performance.now();score++;hud.score.textContent=String(score);hud.prompt.textContent=g.userData.item.name;voice(g.userData.item.name,ctx);if(score%5===0)reward(root,ctx);
+    locked=true;winStart=performance.now();score++;
+    hud.score.textContent=String(score);hud.prompt.textContent='Ճիշտ է՝ '+g.userData.item.name;
+    voice(g.userData.item.name,ctx);if(score%5===0)reward(root,ctx);
     groups.forEach(x=>{x.userData.win=x===g});
-    timer=setTimeout(()=>{if(!disposed)round()},1750);
+    makePlanetWinFx(g,g.userData.item);
+    root.classList.remove('s3d-win');void root.offsetWidth;root.classList.add('s3d-win');
+    timer=setTimeout(()=>{if(!disposed){root.classList.remove('s3d-win');round()}},2200);
   }
   renderer.domElement.addEventListener('pointerup',pointer);
   function loop(t){
     if(disposed)return;const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.0015;
     camera.position.x=Math.sin(t*.00018)*.035;
     camera.position.y=.10+Math.cos(t*.00016)*.025;
+    camera.position.z+=( (winStart?8.82:9.25)-camera.position.z )*.055;
     camera.lookAt(0,-.08,0);
     groups.forEach((g,i)=>{
-      if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18);
+      if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.8:1);
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
       if(wrong?.g===g){const q=(t-wrong.start)/420;if(q<1)g.position.x=wrong.x+Math.sin(q*Math.PI*5)*(1-q)*.18;else{g.position.x=wrong.x;wrong=null}}
-      if(winStart){const q=clamp((t-winStart)/900,0,1);if(g.userData.win){g.position.lerp(new THREE.Vector3(0,.2,2.0),.08);g.scale.lerp(new THREE.Vector3(1.5,1.5,1.5),.08);g.rotation.y+=dt*2.2}else g.scale.lerp(new THREE.Vector3(.28,.28,.28),.08)}
+      if(winStart){
+        if(g.userData.win){
+          g.position.lerp(new THREE.Vector3(0,.10,.72),.075);
+          const base=g.userData.baseScale||new THREE.Vector3(.7,.7,.7);
+          const targetScale=base.clone().multiplyScalar(1.12);
+          g.scale.lerp(targetScale,.065);
+          const fx=g.userData.winFx;
+          if(fx){
+            fx.rotation.z+=dt*.42;
+            fx.rotation.x=Math.sin(t*.0011)*.08;
+            fx.userData.ringMats?.forEach((m,k)=>m.opacity=(.35+.28*Math.sin(t*.004+k*1.5))*(k===0?1:.72));
+            if(fx.userData.glowMat)fx.userData.glowMat.opacity=.28+.12*Math.sin(t*.003);
+            fx.userData.sparks?.children.forEach((sp,k)=>{
+              const p=sp.userData.phase||0;
+              const pulse=.78+.28*Math.sin(t*.006+p);
+              sp.scale.setScalar((k%3===0?.14:.09)*pulse);
+            });
+          }
+        }else{
+          const base=g.userData.baseScale||g.scale;
+          g.scale.lerp(base.clone().multiplyScalar(.68),.06);
+          g.position.x+=Math.sign(g.position.x||1)*dt*.10;
+        }
+      }
     });
     resize(renderer,camera,root);renderer.render(scene,camera);requestAnimationFrame(loop);
   }
