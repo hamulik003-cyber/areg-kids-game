@@ -1,4 +1,4 @@
-// V156 moon surface + soft win glow + 4K-class starfield + shooting stars
+// V157 real 4K Moon + safe close-up + green/red feedback
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -22,7 +22,7 @@ const TEXTURE_PATHS={
   mercury:'assets/space3d/2k_mercury.jpg',
   venus:'assets/space3d/2k_venus_surface.jpg',
   earth:'assets/space3d/2k_earth_daymap.jpg',
-  moon:'assets/space3d/2k_moon.jpg',
+  moon:'https://raw.githubusercontent.com/markfxm/SolarSystem/main/public/detail/4k_moon.jpg',
   mars:'assets/space3d/2k_mars.jpg',
   jupiter:'assets/space3d/2k_jupiter.jpg',
   saturn:'assets/space3d/2k_saturn.jpg',
@@ -36,10 +36,15 @@ const texLoader=new THREE.TextureLoader();
 const texCache=new Map();
 function getTexture(path,{srgb=true}={}){
   if(texCache.has(path))return texCache.get(path);
-  const t=texLoader.load(path);
+  const t=texLoader.load(path,undefined,undefined,()=>{
+    if(path===TEXTURE_PATHS.moon){
+      const fb=moonTexture();
+      t.image=fb.image;t.needsUpdate=true;
+    }
+  });
   if(srgb)t.colorSpace=THREE.SRGBColorSpace;
   t.wrapS=THREE.RepeatWrapping;
-  t.anisotropy=8;
+  t.anisotropy=12;
   texCache.set(path,t);
   return t;
 }
@@ -305,17 +310,11 @@ function spherePlanet(item){
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
   const texturePath=TEXTURE_PATHS[item.id];
-  const tex=item.id==='moon'?moonTexture():(texturePath?getTexture(texturePath):canvasTexture(item));
+  const tex=texturePath?getTexture(texturePath):canvasTexture(item);
   const isSun=item.id==='sun';
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.96,metalness:0});
-  if(item.id==='moon'){
-    mat.color.set(0xf0eee9);
-    mat.emissive=new THREE.Color(0x6b6b70);
-    mat.emissiveMap=tex;
-    mat.emissiveIntensity=.28;
-  }
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
@@ -415,29 +414,54 @@ function fitSearchObject(g,item,portrait){
     : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
   g.scale.multiplyScalar(factor);
 }
+function feedbackScaleMultiplier(g,camera,root){
+  const targetZ=.82;
+  const distance=Math.max(1,camera.position.z-targetZ);
+  const halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*distance;
+  const halfW=halfH*Math.max(.38,root.clientWidth/Math.max(1,root.clientHeight));
+  const safeRadius=Math.min(halfW*.72,halfH*.42);
+  const baseRadius=Math.max(.01,g.userData.baseRadius||1);
+  return clamp(safeRadius/baseRadius,1.08,2.16);
+}
+function disposeFeedbackFx(g,key){
+  const fx=g?.userData?.[key];if(!fx)return;
+  g.remove(fx);
+  fx.traverse(x=>{x.geometry?.dispose?.();if(x.material){const ms=Array.isArray(x.material)?x.material:[x.material];ms.forEach(m=>m.dispose?.())}});
+  g.userData[key]=null;
+}
+function makePlanetWrongFx(g){
+  disposeFeedbackFx(g,'wrongFx');
+  const fx=new THREE.Group();fx.position.z=-.20;
+  const mat=new THREE.SpriteMaterial({
+    map:GLOW,color:0xff3f4f,transparent:true,opacity:0,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  mat.toneMapped=false;
+  const glow=new THREE.Sprite(mat);glow.scale.set(3.05,3.05,1);fx.add(glow);
+  fx.userData.glow=glow;fx.userData.glowMat=mat;
+  g.add(fx);g.userData.wrongFx=fx;return fx;
+}
 function makePlanetWinFx(g,item){
-  if(g.userData.winFx){g.remove(g.userData.winFx);g.userData.winFx=null}
-  const fx=new THREE.Group();
-  fx.position.z=-.22;
-  const accent=new THREE.Color(item.accent||'#9fcfff');
+  disposeFeedbackFx(g,'winFx');
+  const fx=new THREE.Group();fx.position.z=-.22;
   const glowMat=new THREE.SpriteMaterial({
-    map:GLOW,color:accent,transparent:true,opacity:.16,depthWrite:false,
+    map:GLOW,color:0x58ff8a,transparent:true,opacity:.18,depthWrite:false,
     blending:THREE.AdditiveBlending
   });
   glowMat.toneMapped=false;
-  const glow=new THREE.Sprite(glowMat);glow.scale.set(3.55,3.55,1);glow.renderOrder=-1;fx.add(glow);
+  const glow=new THREE.Sprite(glowMat);glow.scale.set(3.15,3.15,1);fx.add(glow);
 
   const sparks=new THREE.Group();
-  for(let i=0;i<8;i++){
+  for(let i=0;i<7;i++){
     const mat=new THREE.SpriteMaterial({
-      map:GLOW,color:i%3===0?0xffefc3:accent,transparent:true,
-      opacity:rand(.14,.30),depthWrite:false,blending:THREE.AdditiveBlending
+      map:GLOW,color:i%3===0?0xd8ffe3:0x73ff9f,transparent:true,
+      opacity:rand(.12,.25),depthWrite:false,blending:THREE.AdditiveBlending
     });
     mat.toneMapped=false;
     const sp=new THREE.Sprite(mat);
-    const a=i/8*Math.PI*2+rand(-.18,.18),r=rand(1.28,1.72);
+    const a=i/7*Math.PI*2+rand(-.16,.16),r=rand(1.18,1.48);
     sp.position.set(Math.cos(a)*r,Math.sin(a)*r,-.02);
-    const sz=rand(.045,.085);sp.scale.set(sz,sz,1);
+    const sz=rand(.04,.072);sp.scale.set(sz,sz,1);
     sp.userData.phase=rand(0,Math.PI*2);sp.userData.base=sz;sparks.add(sp);
   }
   fx.add(sparks);
@@ -475,7 +499,10 @@ function gameSpaceSearch(ctx){
       fitSearchObject(g,opts[i],portrait);
       g.userData.baseScale=g.scale.clone();
       g.position.copy(slots[i]);
-      scene.add(g);groups.push(g);
+      scene.add(g);g.updateMatrixWorld(true);
+      const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
+      g.userData.baseRadius=Math.max(.01,sphere.radius);
+      groups.push(g);
       g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)});
     });
     locked=false;voice('Գտի՛ր '+target.name,ctx);
@@ -483,11 +510,16 @@ function gameSpaceSearch(ctx){
   function pointer(e){
     if(locked)return;const r=renderer.domElement.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;ray.setFromCamera(mouse,camera);
     const hit=ray.intersectObjects(pickables,false)[0];if(!hit)return;let g=hit.object.userData.parentPick||hit.object.parent;while(g&&!g.userData?.pickable)g=g.parent;if(!g)return;
-    if(g.userData.item.id!==target.id){wrong={g,start:performance.now(),x:g.position.x};return}
+    if(g.userData.item.id!==target.id){
+      if(wrong?.g)disposeFeedbackFx(wrong.g,'wrongFx');
+      wrong={g,start:performance.now(),x:g.position.x,fx:makePlanetWrongFx(g)};
+      return
+    }
     locked=true;winStart=performance.now();score++;
     hud.score.textContent=String(score);hud.prompt.textContent='Ճիշտ է՝ '+g.userData.item.name;
     voice(g.userData.item.name,ctx);if(score%5===0)reward(root,ctx);
     groups.forEach(x=>{x.userData.win=x===g});
+    g.userData.winTargetScale=g.userData.baseScale.clone().multiplyScalar(feedbackScaleMultiplier(g,camera,root));
     makePlanetWinFx(g,g.userData.item);
     root.classList.remove('s3d-win');void root.offsetWidth;root.classList.add('s3d-win');
     timer=setTimeout(()=>{if(!disposed){root.classList.remove('s3d-win');round()}},2200);
@@ -497,25 +529,38 @@ function gameSpaceSearch(ctx){
     if(disposed)return;const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.0015;
     camera.position.x=Math.sin(t*.00018)*.035;
     camera.position.y=.10+Math.cos(t*.00016)*.025;
-    camera.position.z+=( (winStart?8.82:9.25)-camera.position.z )*.055;
+    camera.position.z+=( (winStart?9.02:9.25)-camera.position.z )*.055;
     camera.lookAt(0,-.08,0);
     groups.forEach((g,i)=>{
       if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.8:1);
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
-      if(wrong?.g===g){const q=(t-wrong.start)/420;if(q<1)g.position.x=wrong.x+Math.sin(q*Math.PI*5)*(1-q)*.18;else{g.position.x=wrong.x;wrong=null}}
+      if(wrong?.g===g){
+        const q=(t-wrong.start)/560;
+        if(q<1){
+          g.position.x=wrong.x+Math.sin(q*Math.PI*5)*(1-q)*.16;
+          const fx=wrong.fx;
+          if(fx?.userData?.glowMat){
+            fx.userData.glowMat.opacity=Math.sin(Math.PI*q)*.28;
+            const p=1+.10*Math.sin(Math.PI*q);
+            fx.userData.glow.scale.set(3.05*p,3.05*p,1);
+          }
+        }else{
+          g.position.x=wrong.x;disposeFeedbackFx(g,'wrongFx');wrong=null;
+        }
+      }
       if(winStart){
         if(g.userData.win){
-          g.position.lerp(new THREE.Vector3(0,.10,.72),.075);
+          g.position.lerp(new THREE.Vector3(0,.10,.82),.075);
           const base=g.userData.baseScale||new THREE.Vector3(.7,.7,.7);
-          const targetScale=base.clone().multiplyScalar(1.09);
-          g.scale.lerp(targetScale,.065);
+          const targetScale=g.userData.winTargetScale||base.clone().multiplyScalar(1.35);
+          g.scale.lerp(targetScale,.072);
           const fx=g.userData.winFx;
           if(fx){
             const pulse=1+Math.sin(t*.0035)*.035;
             if(fx.userData.glow){
-              fx.userData.glow.scale.set(3.55*pulse,3.55*pulse,1);
+              fx.userData.glow.scale.set(3.15*pulse,3.15*pulse,1);
             }
-            if(fx.userData.glowMat)fx.userData.glowMat.opacity=.145+.035*Math.sin(t*.0032);
+            if(fx.userData.glowMat)fx.userData.glowMat.opacity=.19+.045*Math.sin(t*.0032);
             fx.userData.sparks?.children.forEach(sp=>{
               const p=sp.userData.phase||0,base=sp.userData.base||.06;
               const s=.78+.20*Math.sin(t*.005+p);
