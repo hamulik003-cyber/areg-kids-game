@@ -67,11 +67,11 @@ const TEXTURE_PATHS={
   oberon:'assets/space3d/real/oberon.jpg',
   triton:'assets/space3d/real/triton.jpg',
   charon:'assets/space3d/real/charon.jpg',
-  pluto:'https://www.simplespacedata.org/texture/solarsystemscope/pluto/latest/2k_pluto.jpg',
-  ceres:'https://www.simplespacedata.org/texture/solarsystemscope/ceres_fictional/latest/2k_ceres_fictional.jpg',
+  pluto:'assets/space3d/real/pluto.jpg',
+  ceres:'assets/space3d/real/ceres.jpg',
   haumea:'assets/space3d/real/haumea.jpg',
-  makemake:'https://www.simplespacedata.org/texture/solarsystemscope/makemake_fictional/latest/2k_makemake_fictional.jpg',
-  eris:'https://www.simplespacedata.org/texture/solarsystemscope/eris_fictional/latest/2k_eris_fictional.jpg'
+  makemake:'assets/space3d/real/makemake.jpg',
+  eris:'assets/space3d/real/eris.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
