@@ -1,4 +1,4 @@
-// V176 Earth-Mars-Jupiter pipeline + seam-locked 2:1 full-globe maps
+// V177 learning-gallery matched 360 maps + seam-locked full-globe pipeline
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -46,23 +46,23 @@ function reward(host,ctx){
 }
 const TEXTURE_PATHS={
   // Proven complete 2:1 equirectangular maps: same UV sphere pipeline as Earth / Mars / Jupiter.
-  sun:'assets/space3d/2k_sun.jpg?v=176',
-  mercury:'assets/space3d/2k_mercury.jpg?v=176',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=176',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=176',
-  mars:'assets/space3d/2k_mars.jpg?v=176',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=176',
-  saturn:'assets/space3d/2k_saturn.jpg?v=176',
-  uranus:'assets/space3d/2k_uranus.jpg?v=176',
-  neptune:'assets/space3d/2k_neptune.jpg?v=176',
+  sun:'assets/space3d/2k_sun.jpg?v=177',
+  mercury:'assets/space3d/2k_mercury.jpg?v=177',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=177',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=177',
+  mars:'assets/space3d/2k_mars.jpg?v=177',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=177',
+  saturn:'assets/space3d/2k_saturn.jpg?v=177',
+  uranus:'assets/space3d/2k_uranus.jpg?v=177',
+  neptune:'assets/space3d/2k_neptune.jpg?v=177',
 
-  phobos:'assets/space3d/2k_phobos.jpg?v=176',
-  io:'assets/space3d/4k_io.jpg?v=176',
-  europa:'assets/space3d/2k_europa.jpg?v=176',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=176',
-  callisto:'assets/space3d/2k_callisto.jpg?v=176',
-  titan:'assets/space3d/4k_titan.jpg?v=176',
-  ceres:'assets/space3d/2k_ceres.jpg?v=176'
+  phobos:'assets/space3d/2k_phobos.jpg?v=177',
+  io:'assets/space3d/4k_io.jpg?v=177',
+  europa:'assets/space3d/2k_europa.jpg?v=177',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=177',
+  callisto:'assets/space3d/2k_callisto.jpg?v=177',
+  titan:'assets/space3d/4k_titan.jpg?v=177',
+  ceres:'assets/space3d/2k_ceres.jpg?v=177'
 };
 
 // These bodies do not have a complete, clean global map in the repo.
@@ -144,28 +144,37 @@ function sealLongitudeSeam(ctx,W,H,band=28){
 }
 
 function canvasTexture(item){
-  const cacheKey='proc176:'+item.id;
+  const cacheKey='proc177:'+item.id;
   if(texCache.has(cacheKey))return texCache.get(cacheKey);
 
   // 2:1 plate-carrée/equirectangular map, identical projection class to the
   // Earth/Mars/Jupiter assets. All drawing helpers wrap across ±180° longitude.
-  const c=document.createElement('canvas');c.width=1024;c.height=512;
+  const c=document.createElement('canvas');c.width=2048;c.height=1024;
   const x=c.getContext('2d',{alpha:false});
-  const r=prng(seedFrom('v176:'+item.id));
-  const W=c.width,H=c.height;
+  x.scale(2,2);
+  const r=prng(seedFrom('v177:'+item.id));
+  const W=1024,H=512;
 
-  const palette={
-    enceladus:['#eef8fb','#a8c6d2','#ffffff'],
-    deimos:['#8b8279','#5f5954','#b5aba0'],
-    titania:['#9ea7aa','#677176','#c9d0d1'],
-    oberon:['#6d6660','#373532','#a49a90'],
-    triton:['#b9c9ce','#7e8d96','#e3c9c9'],
-    charon:['#99948f','#57514d','#c5bbb3'],
-    pluto:['#c49a7d','#6d4e3d','#ead4b8'],
-    haumea:['#d8d5cd','#8d8982','#f1eee6'],
-    makemake:['#b4694c','#67382a','#dc9873'],
-    eris:['#d9dddf','#8c9498','#f7f6f3']
-  }[item.id]||[item.c1||'#969da5',item.c2||'#505861',item.accent||'#c8cdd2'];
+  // Use the exact learning-gallery palette carried by PLANETS in app.js.
+  // This makes the object the child studies and the object in the game share
+  // the same dominant colors and visual identity.
+  const galleryPalette={
+    enceladus:['#f0fbff','#9cc8df','#dff6ff'],
+    deimos:['#aa9c91','#65584f','#aea198'],
+    titania:['#b2bfbd','#617674','#aebfbd'],
+    oberon:['#817f79','#44413d','#85817d'],
+    triton:['#c4d7da','#7d8f92','#b9d2d8'],
+    charon:['#9f9891','#514c48','#a19a94'],
+    pluto:['#cda181','#6e513e','#c99a78'],
+    haumea:['#ddd8ca','#8f887c','#d3cec1'],
+    makemake:['#bd7350','#6a3928','#c47755'],
+    eris:['#e7e7e7','#8b8b8b','#dedede']
+  };
+  const palette=galleryPalette[item.id]||[
+    item.c1||'#969da5',
+    item.c2||'#505861',
+    item.accent||'#c8cdd2'
+  ];
 
   const rgba=(hex,a)=>{
     const h=hex.replace('#',''),v=parseInt(h.length===3?h.split('').map(q=>q+q).join(''):h,16);
@@ -229,77 +238,84 @@ function canvasTexture(item){
 
   switch(item.id){
     case 'enceladus':
-      // Bright water-ice terrain with global tiger-stripe / fracture cues.
-      for(let i=0;i<46;i++)patch(r()*W,r()*H,26+r()*88,14+r()*50,r()>.5?'#ffffff':'#a9c9d7',.025+r()*.055,r()*Math.PI);
-      for(let i=0;i<24;i++)periodicLine(r()*H,3+r()*11,1+Math.floor(r()*3),'#5599b5',.08+r()*.10,.8+r()*1.15,r()*6.28);
-      for(let i=0;i<62;i++)crater(r()*W,r()*H,2+r()*12,.025+r()*.055);
+      // Gallery identity: very bright ice, pale-cyan fractures, subtle craters.
+      for(let i=0;i<54;i++)patch(r()*W,r()*H,24+r()*84,12+r()*46,r()>.5?'#ffffff':'#9cc8df',.024+r()*.052,r()*Math.PI);
+      for(let i=0;i<19;i++)periodicLine(r()*H,2.5+r()*9,1+Math.floor(r()*3),'#69b9d9',.09+r()*.10,.8+r()*1.1,r()*6.28);
+      // recognizable south-polar “tiger stripes”
+      for(let k=0;k<5;k++)periodicLine(H*.72+k*9,4.2,2,'#5da9c8',.22,1.35,k*.52);
+      for(let i=0;i<48;i++)crater(r()*W,r()*H,2+r()*10,.022+r()*.048);
       break;
 
     case 'deimos':
-      for(let i=0;i<92;i++)crater(r()*W,r()*H,3+r()*17,.07+r()*.12);
-      for(let i=0;i<18;i++)patch(r()*W,r()*H,24+r()*66,14+r()*42,'#c4b7a9',.025+r()*.055,r()*Math.PI);
+      for(let i=0;i<94;i++)crater(r()*W,r()*H,3+r()*17,.06+r()*.11);
+      for(let i=0;i<22;i++)patch(r()*W,r()*H,24+r()*66,14+r()*42,palette[2],.025+r()*.055,r()*Math.PI);
+      crater(W*.58,H*.43,33,.22);crater(W*.35,H*.63,24,.15);
       break;
 
     case 'titania':
-      for(let i=0;i<72;i++)crater(r()*W,r()*H,3+r()*16,.05+r()*.09);
-      for(let i=0;i<16;i++)periodicLine(r()*H,3+r()*10,1+Math.floor(r()*3),'#536b73',.08+r()*.09,.7+r()*1.1,r()*6.28);
+      for(let i=0;i<70;i++)crater(r()*W,r()*H,3+r()*15,.045+r()*.085);
+      for(let i=0;i<18;i++)periodicLine(r()*H,3+r()*10,1+Math.floor(r()*3),'#617674',.08+r()*.09,.7+r()*1.1,r()*6.28);
+      periodicLine(H*.56,14,2,'#566c6c',.22,1.6,.8);
       break;
 
     case 'oberon':
-      for(let i=0;i<138;i++)crater(r()*W,r()*H,3+r()*20,.07+r()*.15);
-      for(let i=0;i<22;i++)patch(r()*W,r()*H,20+r()*58,14+r()*44,'#322f2c',.04+r()*.08,r()*Math.PI);
+      for(let i=0;i<142;i++)crater(r()*W,r()*H,3+r()*20,.07+r()*.14);
+      for(let i=0;i<24;i++)patch(r()*W,r()*H,20+r()*58,14+r()*44,'#44413d',.04+r()*.08,r()*Math.PI);
+      crater(W*.66,H*.62,35,.24);crater(W*.41,H*.35,23,.17);
       break;
 
     case 'triton':
-      for(let i=0;i<38;i++)patch(r()*W,r()*H,24+r()*78,16+r()*48,r()>.48?'#e2c2c5':'#7190a0',.035+r()*.065,r()*Math.PI);
-      for(let i=0;i<11;i++)periodicLine(r()*H,2+r()*7,1+Math.floor(r()*3),'#748c98',.055+r()*.07,.7+r()*.9,r()*6.28);
-      for(let i=0;i<34;i++)crater(r()*W,r()*H,2+r()*10,.035+r()*.055);
+      for(let i=0;i<42;i++)patch(r()*W,r()*H,24+r()*78,16+r()*48,r()>.52?'#d7b9b6':'#7d8f92',.035+r()*.065,r()*Math.PI);
+      // pinkish polar band visible in the learning card
+      x.fillStyle='rgba(205,169,168,.18)';x.fillRect(0,H*.66,W,H*.18);
+      for(let i=0;i<13;i++)periodicLine(r()*H,2+r()*7,1+Math.floor(r()*3),'#6e8791',.055+r()*.07,.7+r()*.9,r()*6.28);
+      for(let i=0;i<34;i++)crater(r()*W,r()*H,2+r()*10,.03+r()*.05);
       break;
 
     case 'charon':
-      // Mordor Macula-style dark/reddish north polar region.
-      const polar=x.createLinearGradient(0,0,0,H*.29);
-      polar.addColorStop(0,'rgba(91,52,48,.58)');
-      polar.addColorStop(.72,'rgba(91,52,48,.22)');
-      polar.addColorStop(1,'rgba(91,52,48,0)');
-      x.fillStyle=polar;x.fillRect(0,0,W,H*.31);
-      for(let i=0;i<104;i++)crater(r()*W,r()*H,3+r()*19,.06+r()*.12);
-      periodicLine(H*.58,8,2,'#45413f',.16,2.0,1.6);
+      // Gallery identity: neutral gray body with the distinct dark/reddish north cap.
+      const polar=x.createLinearGradient(0,0,0,H*.30);
+      polar.addColorStop(0,'rgba(92,58,54,.62)');
+      polar.addColorStop(.72,'rgba(92,58,54,.24)');
+      polar.addColorStop(1,'rgba(92,58,54,0)');
+      x.fillStyle=polar;x.fillRect(0,0,W,H*.32);
+      for(let i=0;i<106;i++)crater(r()*W,r()*H,3+r()*19,.055+r()*.115);
+      periodicLine(H*.58,8,2,'#514c48',.16,2.0,1.6);
       break;
 
     case 'pluto':
-      for(let i=0;i<42;i++)patch(r()*W,r()*H,28+r()*86,18+r()*56,r()>.5?'#e1c6a7':'#72513f',.04+r()*.08,r()*Math.PI);
-      // Bright Tombaugh Regio / "heart" cue, kept away from the longitude seam.
+      for(let i=0;i<44;i++)patch(r()*W,r()*H,28+r()*86,18+r()*56,r()>.5?palette[2]:palette[1],.04+r()*.08,r()*Math.PI);
+      // Tombaugh Regio “heart” is the main learning-card landmark.
       x.save();x.translate(W*.58,H*.52);x.rotate(-.08);
-      x.fillStyle='rgba(235,218,198,.58)';
-      x.beginPath();
-      x.moveTo(0,32);
+      x.fillStyle='rgba(239,222,202,.66)';
+      x.beginPath();x.moveTo(0,32);
       x.bezierCurveTo(-75,-12,-88,-88,-26,-91);
       x.bezierCurveTo(13,-92,29,-62,37,-39);
       x.bezierCurveTo(54,-73,102,-74,120,-36);
-      x.bezierCurveTo(142,11,77,65,0,32);
-      x.fill();x.restore();
-      for(let i=0;i<58;i++)crater(r()*W,r()*H,2+r()*12,.035+r()*.06);
+      x.bezierCurveTo(142,11,77,65,0,32);x.fill();x.restore();
+      for(let i=0;i<58;i++)crater(r()*W,r()*H,2+r()*12,.03+r()*.055);
       break;
 
     case 'haumea':
-      for(let i=0;i<42;i++)patch(r()*W,r()*H,28+r()*80,14+r()*42,'#f4f0e7',.025+r()*.055,r()*Math.PI);
-      patch(W*.73,H*.54,58,32,'#774d43',.24,-.16);
-      for(let i=0;i<36;i++)crater(r()*W,r()*H,2+r()*10,.03+r()*.045);
+      for(let i=0;i<44;i++)patch(r()*W,r()*H,28+r()*80,14+r()*42,palette[2],.025+r()*.052,r()*Math.PI);
+      // dark red spot, fixed on the front-side reference longitude
+      patch(W*.69,H*.52,58,30,'#7a4c42',.27,-.16);
+      for(let i=0;i<34;i++)crater(r()*W,r()*H,2+r()*10,.025+r()*.04);
       break;
 
     case 'makemake':
-      for(let i=0;i<58;i++)patch(r()*W,r()*H,22+r()*74,14+r()*50,r()>.5?'#dc9870':'#65372a',.04+r()*.085,r()*Math.PI);
-      for(let i=0;i<40;i++)crater(r()*W,r()*H,2+r()*10,.03+r()*.05);
+      for(let i=0;i<60;i++)patch(r()*W,r()*H,22+r()*74,14+r()*50,r()>.5?palette[2]:palette[1],.04+r()*.085,r()*Math.PI);
+      patch(W*.56,H*.46,72,45,'#7e4432',.16,.2);
+      for(let i=0;i<38;i++)crater(r()*W,r()*H,2+r()*10,.025+r()*.045);
       break;
 
     case 'eris':
-      for(let i=0;i<44;i++)patch(r()*W,r()*H,28+r()*78,16+r()*46,r()>.5?'#f7f7f4':'#8d979d',.018+r()*.045,r()*Math.PI);
-      for(let i=0;i<34;i++)crater(r()*W,r()*H,2+r()*9,.025+r()*.045);
+      for(let i=0;i<46;i++)patch(r()*W,r()*H,28+r()*78,16+r()*46,r()>.5?palette[0]:palette[2],.018+r()*.042,r()*Math.PI);
+      for(let i=0;i<30;i++)crater(r()*W,r()*H,2+r()*9,.02+r()*.04);
       break;
   }
 
-  sealLongitudeSeam(x,W,H,32);
+  sealLongitudeSeam(x,c.width,c.height,64);
   const t=new THREE.CanvasTexture(c);
   t.colorSpace=THREE.SRGBColorSpace;
   t.wrapS=THREE.RepeatWrapping;
@@ -411,7 +427,7 @@ function moonTexture(){
   const r=(()=>{let s=0x4d4f4f4e;return()=>{s+=0x6D2B79F5;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}})();
 
   const bg=x.createLinearGradient(0,0,c.width,c.height);
-  bg.addColorStop(0,'#8f8d89');bg.addColorStop(.48,'#c9c5bd');bg.addColorStop(1,'#777672');
+  bg.addColorStop(0,'#77756f');bg.addColorStop(.48,'#deded8');bg.addColorStop(1,'#77756f');
   x.fillStyle=bg;x.fillRect(0,0,c.width,c.height);
 
   for(let i=0;i<34;i++){
@@ -634,7 +650,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=176');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=177');
     mat=new THREE.MeshBasicMaterial({
       map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
       transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
@@ -726,7 +742,7 @@ function spherePlanet(item){
   grp.userData.surface=mesh;
 
   if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=176');
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=177');
     const clouds=new THREE.Mesh(
       new THREE.SphereGeometry(1.014,72,48),
       new THREE.MeshStandardMaterial({
