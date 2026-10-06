@@ -185,3 +185,11 @@ These task IDs identify the exact test generations discussed/approved in the cha
 - Existing Animals-style card geometry, image window, object-fit center, tap/zoom presentation, labels, statuses, and game mechanics were not changed.
 - Earth remains labeled `Բնակելի մոլորակ`.
 - Launcher/build/cache baseline: V129.
+
+
+## V130 — planet status pills use planet colors
+- Only Space → Planets status pill colors changed.
+- Status text remains white, matching the Nature/Insects badge logic.
+- Each of the 30 planet/space cards now has a vivid gradient badge matched to that object's visual color.
+- Planet JPGs, card geometry, labels, image crop/centering, animations, and all other sections were left unchanged.
+- Launcher/build/cache baseline: V130.

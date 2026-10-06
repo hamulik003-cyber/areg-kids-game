@@ -307,6 +307,40 @@
   ];
 
 
+
+  const PLANET_BADGES={
+    sun:'linear-gradient(180deg,#ffbd3f 0%,#e76b16 100%)',
+    mercury:'linear-gradient(180deg,#9f9891 0%,#625b55 100%)',
+    venus:'linear-gradient(180deg,#e8ad49 0%,#b86c21 100%)',
+    earth:'linear-gradient(180deg,#3aa9df 0%,#2f8f58 100%)',
+    moon:'linear-gradient(180deg,#aeb5bb 0%,#70777d 100%)',
+    mars:'linear-gradient(180deg,#e26d4d 0%,#a83d2f 100%)',
+    jupiter:'linear-gradient(180deg,#c99262 0%,#85583c 100%)',
+    saturn:'linear-gradient(180deg,#d8b968 0%,#9c7740 100%)',
+    uranus:'linear-gradient(180deg,#48c7d1 0%,#218d9b 100%)',
+    neptune:'linear-gradient(180deg,#4c7fe8 0%,#2748aa 100%)',
+    phobos:'linear-gradient(180deg,#8c7566 0%,#5d4d43 100%)',
+    deimos:'linear-gradient(180deg,#9a8c81 0%,#665b54 100%)',
+    io:'linear-gradient(180deg,#e5b832 0%,#c47d12 100%)',
+    europa:'linear-gradient(180deg,#7fb7c9 0%,#547f94 100%)',
+    ganymede:'linear-gradient(180deg,#9b836e 0%,#665346 100%)',
+    callisto:'linear-gradient(180deg,#79695f 0%,#4a403b 100%)',
+    titan:'linear-gradient(180deg,#dfa443 0%,#a86420 100%)',
+    enceladus:'linear-gradient(180deg,#69b4d0 0%,#3b7f9c 100%)',
+    titania:'linear-gradient(180deg,#819ba4 0%,#596f77 100%)',
+    oberon:'linear-gradient(180deg,#76685e 0%,#4c433e 100%)',
+    triton:'linear-gradient(180deg,#78a9bb 0%,#596f9d 100%)',
+    charon:'linear-gradient(180deg,#7f7974 0%,#514c48 100%)',
+    pluto:'linear-gradient(180deg,#c18a67 0%,#7f503b 100%)',
+    ceres:'linear-gradient(180deg,#86898d 0%,#565b60 100%)',
+    haumea:'linear-gradient(180deg,#8fa8b7 0%,#617783 100%)',
+    makemake:'linear-gradient(180deg,#c56c4d 0%,#8b402f 100%)',
+    eris:'linear-gradient(180deg,#8ca9b9 0%,#607783 100%)',
+    'solar-system':'linear-gradient(180deg,#f2a83a 0%,#cf691b 100%)',
+    'milky-way':'linear-gradient(180deg,#8f74e7 0%,#4d56b8 100%)',
+    'black-hole':'linear-gradient(180deg,#f08b30 0%,#a43e68 100%)'
+  };
+
   const PLANETS=[
     {id:'sun',img:'01-sun.jpg',name:'Արև',status:'Աստղ',kind:'sun',c1:'#ffd84f',c2:'#ff7b22',accent:'#ffb52f'},
     {id:'mercury',img:'02-mercury.jpg',name:'Մերկուրի',status:'Քարային մոլորակ',kind:'rock',c1:'#b8b0a7',c2:'#625b55',accent:'#aaa39b'},
@@ -1689,12 +1723,12 @@
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${planet.img}?v=129" alt="${planet.name}" draggable="false">
+          <img src="${planet.img}?v=130" alt="${planet.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--planet">
           <strong class="animal-name">${planet.name}</strong>
-          <small class="animal-type animal-type--planet" style="background:${planet.accent}33;border-color:${planet.accent}88">${planet.status}</small>
+          <small class="animal-type animal-type--planet" style="background:${PLANET_BADGES[planet.id]||'linear-gradient(180deg,#6f89a4,#465c74)'}">${planet.status}</small>
         </span>`;
       hardCenterGalleryCard(card);
 
