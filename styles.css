@@ -3257,3 +3257,21 @@ html[data-theme^="photo-user-"] .section-dim{
   overflow:hidden !important;
   text-overflow:clip !important;
 }
+
+
+/* =========================================================
+   V140 — SPACE / CONSTELLATIONS OUTER CARD LABEL FIT
+   Keep the long Armenian title fully inside its wooden pill.
+   ========================================================= */
+.toddler-section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
+  left:5px !important;
+  right:5px !important;
+  padding-left:1px !important;
+  padding-right:1px !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  letter-spacing:-.06em !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:clip !important;
+}
