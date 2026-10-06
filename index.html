@@ -1,4 +1,4 @@
-<!-- V172 unified 360-degree planet textures + larger mixed space search -->
+<!-- V173 real mapped planets + true 3D special objects -->
 <!doctype html>
 <html lang="hy" data-theme="day" data-font="system">
 <head>
@@ -6,8 +6,8 @@
   <script>
   (()=>{try{
     const u=new URL(location.href);
-    if(u.searchParams.get('__areg_build')!=='172'){
-      u.searchParams.set('__areg_build','172');
+    if(u.searchParams.get('__areg_build')!=='173'){
+      u.searchParams.set('__areg_build','173');
       u.searchParams.set('__ts',Date.now().toString());
       location.replace(u.toString());
     }
@@ -24,7 +24,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Արեգ 3D աշխարհ</title>
   <link rel="stylesheet" href="styles.css?v=139" />
-  <link rel="stylesheet" href="space-3d-games.css?v=172" />
+  <link rel="stylesheet" href="space-3d-games.css?v=173" />
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
@@ -180,7 +180,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="auto"></audio>
-  <script type="module" src="space-3d-games.js?v=172"></script>
-  <script src="app.js?v=172"></script>
+  <script type="module" src="space-3d-games.js?v=173"></script>
+  <script src="app.js?v=173"></script>
 </body>
 </html>
