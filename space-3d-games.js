@@ -106,7 +106,7 @@ function starField(scene){
     nebulae.add(sp);
   });
   scene.add(nebulae);
-  const grp=new THREE.Group();grp.add(sky,pts,bright,nebulae);return grp;
+  const grp=new THREE.Group();grp.add(sky,pts,bright,nebulae);scene.add(grp);return grp;
 }
 function nebula(){return null}
 function ringMesh(item,inner=1.22,outer=2.08){
@@ -288,7 +288,7 @@ function gameSpaceSearch(ctx){
   ctx.activityContent.innerHTML='';ctx.menuMusic.pause();
   const root=document.createElement('div');root.className='s3d-root';ctx.activityContent.appendChild(root);
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
-  const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x030817);
+  const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,9.25);
   scene.add(new THREE.HemisphereLight(0x92b8ff,0x10152d,.72));
   scene.add(new THREE.AmbientLight(0x4b5f91,.34));
