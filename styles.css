@@ -3230,12 +3230,12 @@ html[data-theme^="photo-user-"] .section-dim{
 
 
 /* V138 — keep the long Constellations labels fully inside their wooden pills. */
-.section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
+.toddler-section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
   left:5px !important;
   right:5px !important;
   padding-left:2px !important;
   padding-right:2px !important;
-  font-size:13px !important;
+  font-size:12px !important;
   line-height:1 !important;
   letter-spacing:-.045em !important;
   white-space:nowrap !important;
