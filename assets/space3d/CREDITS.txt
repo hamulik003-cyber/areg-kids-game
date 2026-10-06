@@ -16,3 +16,10 @@ Additional V165/V166 natural-satellite and dwarf-planet textures:
 Project keeps local copies under assets/space3d/ for stable offline/PWA rendering.
 
 - Fiazul/space-survey Charon map (NASA/USGS-derived planetary map; see upstream credits).
+
+
+V175 full-globe policy:
+- Earth, Mars, Jupiter and every mapped globe use the same Three.js SphereGeometry + UV/equirectangular TextureLoader + MeshStandardMaterial rendering path.
+- Partial flyby mosaics and flat photos are no longer wrapped around spheres.
+- Bodies without a clean complete global map in this repo (Deimos, Titania, Oberon, Triton, Charon, Pluto, Haumea, Makemake, Eris) use internally generated full 2:1 equirectangular educational maps with horizontally wrapped features, avoiding black missing-data regions and longitude seams.
+- Black hole, Milky Way and Solar System remain native Three.js 3D objects; the Solar System's mini-planets reuse the same planet texture maps rather than a poster image.
