@@ -31,3 +31,10 @@ V184 canonical visual remaster:
 - The generated moon maps preserve the learning references' dominant palettes and key recognizable terrain cues (for example Mimas/Herschel, icy fractures, dense cratering, Miranda-style patchwork).
 - Nereid intentionally uses a neutral rocky/icy educational surface rather than presenting invented detail as measured global imagery.
 - Special objects (Solar System, Milky Way and Black Hole) are native Three.js constructions; V183 poster/reference sprites were removed.
+
+
+V185 moon identity + full-globe lighting fix:
+- Deimos, Titania, Oberon, Triton and Pluto no longer wrap incomplete/partial photographic coverage around a sphere; they use deterministic full 2:1 maps to prevent black hemispheres and missing-data wedges.
+- Mimas, Tethys, Dione, Rhea, Ariel, Umbriel and Miranda received higher-contrast, object-specific terrain patterns. Fractures are localized rather than globe-wide horizontal bands.
+- MeshStandardMaterial now uses a restrained emissive-map night-side lift per body, preserving texture identity without flattening the 3D lighting.
+- Search-scene key/fill/exposure were reduced to stop pale icy moons from blowing out to the same white ball.
