@@ -1059,6 +1059,9 @@
           <small class="animal-type animal-type--${animal.type==='ընտանի'?'domestic':'wild'}">${animal.type}</small>
         </span>`;
       hardCenterGalleryCard(card);
+      if(planet.id==='solar-system'){
+        card.style.setProperty('--animal-type-size','6.2px');
+      }
 
       let downX=0,downY=0,downPointer=null,moved=false;
       card.addEventListener('pointerdown',e=>{
@@ -1719,7 +1722,7 @@
       card.style.setProperty('--animal-accent',planet.accent);
       card.style.setProperty('--animal-accent-soft',planet.accent+'55');
       card.style.setProperty('--animal-name-size',galleryNameSize(planet.name));
-      card.style.setProperty('--animal-type-size',planet.id==='solar-system'?'6.2px':galleryTypeSize(planet.status));
+      card.style.setProperty('--animal-type-size',galleryTypeSize(planet.status));
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
