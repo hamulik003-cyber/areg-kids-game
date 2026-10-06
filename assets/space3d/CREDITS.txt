@@ -14,3 +14,5 @@ Additional V165/V166 natural-satellite and dwarf-planet textures:
 - Solar System Scope fictional dwarf-planet maps for Haumea / Makemake / Eris (CC BY 4.0 where applicable).
 
 Project keeps local copies under assets/space3d/ for stable offline/PWA rendering.
+
+- Fiazul/space-survey Charon map (NASA/USGS-derived planetary map; see upstream credits).
