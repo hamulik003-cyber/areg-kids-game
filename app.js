@@ -1733,7 +1733,13 @@
       hardCenterGalleryCard(card);
       if(planet.id==='solar-system'){
         const statusPill=card.querySelector('.animal-type--planet');
-        if(statusPill)statusPill.style.setProperty('font-size','7px','important');
+        if(statusPill){
+          statusPill.style.setProperty('width','100%','important');
+          statusPill.style.setProperty('max-width','100%','important');
+          statusPill.style.setProperty('padding-left','6px','important');
+          statusPill.style.setProperty('padding-right','6px','important');
+          statusPill.style.setProperty('font-size','8.4px','important');
+        }
       }
 
       let downX=0,downY=0,downPointer=null,moved=false;
