@@ -1,4 +1,4 @@
-// V160 frame-safe ring halos + open ring presentation + orbiting ring rocks + answer SFX
+// V161 persistent answer SFX + guaranteed green win rim on every planet
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -13,27 +13,31 @@ function voice(text,ctx){
     const v=ctx.pickArmenianSpeechVoice?.();if(v)u.voice=v;speechSynthesis.speak(u);
   }catch{}
 }
-let ANSWER_AUDIO_CTX=null;
 function answerSfx(ok,ctx){
   if(!ctx?.settings?.master||!ctx?.settings?.effects)return;
   try{
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-    const ac=ANSWER_AUDIO_CTX||(ANSWER_AUDIO_CTX=new AC());
-    if(ac.state==='suspended')ac.resume().catch(()=>{});
-    const now=ac.currentTime+.012;
-    const notes=ok
-      ? [{f:659.25,t:0,d:.17,v:.060},{f:783.99,t:.075,d:.18,v:.055},{f:987.77,t:.15,d:.24,v:.050}]
-      : [{f:329.63,t:0,d:.18,v:.050},{f:246.94,t:.105,d:.25,v:.046}];
-    notes.forEach(n=>{
-      const o=ac.createOscillator(),g=ac.createGain();
-      o.type=ok?'sine':'triangle';o.frequency.setValueAtTime(n.f,now+n.t);
-      if(!ok)o.frequency.exponentialRampToValueAtTime(n.f*.94,now+n.t+n.d);
-      g.gain.setValueAtTime(.0001,now+n.t);
-      g.gain.exponentialRampToValueAtTime(n.v,now+n.t+.018);
-      g.gain.exponentialRampToValueAtTime(.0001,now+n.t+n.d);
-      o.connect(g);g.connect(ac.destination);
-      o.start(now+n.t);o.stop(now+n.t+n.d+.03);
-    });
+    const ac=new AC();
+    const play=()=>{
+      const now=ac.currentTime+.018;
+      const notes=ok
+        ? [{f:659.25,t:0,d:.16,v:.064},{f:783.99,t:.080,d:.17,v:.060},{f:987.77,t:.165,d:.23,v:.054}]
+        : [{f:329.63,t:0,d:.17,v:.054},{f:246.94,t:.100,d:.24,v:.050}];
+      notes.forEach(n=>{
+        const o=ac.createOscillator(),g=ac.createGain();
+        o.type=ok?'sine':'triangle';
+        o.frequency.setValueAtTime(n.f,now+n.t);
+        if(!ok)o.frequency.exponentialRampToValueAtTime(n.f*.93,now+n.t+n.d);
+        g.gain.setValueAtTime(.0001,now+n.t);
+        g.gain.exponentialRampToValueAtTime(n.v,now+n.t+.016);
+        g.gain.exponentialRampToValueAtTime(.0001,now+n.t+n.d);
+        o.connect(g);g.connect(ac.destination);
+        o.start(now+n.t);o.stop(now+n.t+n.d+.025);
+      });
+      setTimeout(()=>{try{ac.close()}catch{}},720);
+    };
+    if(ac.state==='running')play();
+    else ac.resume().then(play).catch(()=>{try{ac.close()}catch{}});
   }catch{}
 }
 function reward(host,ctx){
@@ -558,39 +562,58 @@ function makePlanetWrongFx(g){
 }
 function makePlanetWinFx(g,item){
   disposeFeedbackFx(g,'winFx');
-  const haloScale=item.id==='saturn'?4.52:item.id==='uranus'?3.72:2.38;
-  const haloZ=item.id==='saturn'?-2.35:item.id==='uranus'?-1.84:-1.24;
-  const fx=new THREE.Group();fx.position.z=haloZ;
+  const fx=new THREE.Group();
 
-  const outerMat=new THREE.SpriteMaterial({
-    map:HALO,color:0x45ff78,transparent:true,opacity:.34,depthWrite:false,depthTest:true,
-    blending:THREE.AdditiveBlending
+  // Geometry rim: guaranteed visible on every planet and naturally stays behind the surface.
+  const rimMat=new THREE.MeshBasicMaterial({
+    color:0x49ff7c,side:THREE.BackSide,transparent:true,opacity:.54,
+    depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
   });
-  outerMat.toneMapped=false;
-  const outer=new THREE.Sprite(outerMat);outer.scale.set(haloScale,haloScale,1);fx.add(outer);
+  rimMat.toneMapped=false;
+  const rimGeo=new THREE.SphereGeometry(1.105,64,40);
+  const rim=new THREE.Mesh(rimGeo,rimMat);
+  rim.scale.set(1,1,1);fx.add(rim);
 
-  const innerMat=new THREE.SpriteMaterial({
-    map:HALO,color:0xc5ffd4,transparent:true,opacity:.11,depthWrite:false,depthTest:true,
-    blending:THREE.AdditiveBlending
-  });
-  innerMat.toneMapped=false;
-  const inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.94,haloScale*.94,1);fx.add(inner);
+  // Ringed planets additionally get a restrained halo that sits behind their rings.
+  let outer=null,inner=null,outerMat=null,innerMat=null,haloScale=0;
+  if(item.id==='saturn'||item.id==='uranus'){
+    haloScale=item.id==='saturn'?4.18:3.42;
+    const haloZ=item.id==='saturn'?-2.38:-1.92;
+    const haloGroup=new THREE.Group();haloGroup.position.z=haloZ;
+
+    outerMat=new THREE.SpriteMaterial({
+      map:HALO,color:0x45ff78,transparent:true,opacity:.28,depthWrite:false,depthTest:true,
+      blending:THREE.AdditiveBlending
+    });
+    outerMat.toneMapped=false;
+    outer=new THREE.Sprite(outerMat);outer.scale.set(haloScale,haloScale,1);haloGroup.add(outer);
+
+    innerMat=new THREE.SpriteMaterial({
+      map:HALO,color:0xc8ffd7,transparent:true,opacity:.075,depthWrite:false,depthTest:true,
+      blending:THREE.AdditiveBlending
+    });
+    innerMat.toneMapped=false;
+    inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.94,haloScale*.94,1);haloGroup.add(inner);
+    fx.add(haloGroup);
+  }
 
   const sparks=new THREE.Group();
   for(let i=0;i<7;i++){
     const mat=new THREE.SpriteMaterial({
       map:GLOW,color:i%3===0?0xe9ffef:0x79ff9f,transparent:true,
-      opacity:rand(.11,.20),depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
+      opacity:rand(.11,.19),depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
     });
     mat.toneMapped=false;
     const sp=new THREE.Sprite(mat);
-    const ringRadius=item.id==='saturn'?2.17:item.id==='uranus'?1.73:1.10;
+    const ringRadius=item.id==='saturn'?2.17:item.id==='uranus'?1.73:1.12;
     const a=i/7*Math.PI*2+rand(-.12,.12),r=ringRadius*rand(1.00,1.06);
-    sp.position.set(Math.cos(a)*r,Math.sin(a)*r,-.01);
+    sp.position.set(Math.cos(a)*r,Math.sin(a)*r,-.22);
     const sz=rand(.038,.064);sp.scale.set(sz,sz,1);
     sp.userData.phase=rand(0,Math.PI*2);sp.userData.base=sz;sparks.add(sp);
   }
   fx.add(sparks);
+
+  fx.userData.rim=rim;fx.userData.rimMat=rimMat;
   fx.userData.haloScale=haloScale;
   fx.userData.outer=outer;fx.userData.outerMat=outerMat;
   fx.userData.inner=inner;fx.userData.innerMat=innerMat;fx.userData.sparks=sparks;
@@ -694,7 +717,7 @@ function gameSpaceSearch(ctx){
     locked=true;winStart=performance.now();winGroup=g;score++;
     hud.score.textContent=String(score);hud.prompt.textContent='Ճիշտ է՝ '+g.userData.item.name;
     answerSfx(true,ctx);
-    setTimeout(()=>{if(!disposed)voice(g.userData.item.name,ctx)},125);
+    setTimeout(()=>{if(!disposed)voice(g.userData.item.name,ctx)},430);
     if(score%5===0)reward(root,ctx);
 
     groups.forEach((x,i)=>{
@@ -782,11 +805,16 @@ function gameSpaceSearch(ctx){
           }
           const fx=g.userData.winFx;
           if(fx){
-            const pulse=1+Math.sin(t*.0033)*.018,hs=fx.userData.haloScale||2.38;
-            fx.userData.outer?.scale.set(hs*pulse,hs*pulse,1);
-            fx.userData.inner?.scale.set(hs*.94*(2-pulse),hs*.94*(2-pulse),1);
-            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.32+.045*Math.sin(t*.0030);
-            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.10+.025*Math.sin(t*.0037);
+            const pulse=1+Math.sin(t*.0033)*.018,hs=fx.userData.haloScale||0;
+            if(fx.userData.rim){
+              const rp=1.105*(1+Math.sin(t*.0034)*.014);
+              fx.userData.rim.scale.setScalar(rp/1.105);
+            }
+            if(fx.userData.rimMat)fx.userData.rimMat.opacity=.50+.08*Math.sin(t*.0031);
+            if(hs&&fx.userData.outer)fx.userData.outer.scale.set(hs*pulse,hs*pulse,1);
+            if(hs&&fx.userData.inner)fx.userData.inner.scale.set(hs*.94*(2-pulse),hs*.94*(2-pulse),1);
+            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.26+.035*Math.sin(t*.0030);
+            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.07+.018*Math.sin(t*.0037);
             fx.userData.sparks?.children.forEach(sp=>{
               const p=sp.userData.phase||0,base=sp.userData.base||.06;
               sp.scale.setScalar(base*(.78+.22*Math.sin(t*.005+p)));
