@@ -441,8 +441,8 @@
       games:[
         {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'planetGallery'},
         {id:'constellations',label:'Համաստեղություններ',thumb:'01-hayk-orion.jpg',kind:'constellationGallery'},
-        {id:'rocket',label:'Հրթիռ',thumb:'space-game-3.jpg',kind:'rocket'},
-        {id:'constellation',label:'Համաստեղություն',thumb:'space-game-4.jpg',kind:'connect'}
+        {id:'space-search',label:'Տիեզերական որոնում',thumb:'space-game-3.jpg',kind:'spaceSearch'},
+        {id:'constellation-game',label:'Վառիր համաստեղությունը',thumb:'space-game-4.jpg',kind:'constellationQuest'}
       ]
     },
     mind:{
@@ -727,8 +727,18 @@
   }
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
+  function space3DContext(){
+    return {activityContent,PLANETS,CONSTELLATIONS,settings,menuMusic,applyAudio,pickArmenianSpeechVoice,gameCleanup,
+      awardStar(){stars+=1;saveStars();updateStars();}
+    };
+  }
+  function launchSpace3D(name){
+    const api=window.AregSpace3D;
+    if(api&&typeof api[name]==='function')return api[name](space3DContext());
+    showToast('3D բեռնում…');
+  }
   function renderGame(g){
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:()=>launchSpace3D('constellationQuest'),shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
