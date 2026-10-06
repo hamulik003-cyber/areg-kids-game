@@ -1,4 +1,4 @@
-// V159 maximum safe winner close-up + true behind-planet halo + Armenian find forms
+// V160 frame-safe ring halos + open ring presentation + orbiting ring rocks + answer SFX
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -11,6 +11,29 @@ function voice(text,ctx){
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);u.lang='hy-AM';u.rate=.86;u.pitch=1.03;u.volume=1;
     const v=ctx.pickArmenianSpeechVoice?.();if(v)u.voice=v;speechSynthesis.speak(u);
+  }catch{}
+}
+let ANSWER_AUDIO_CTX=null;
+function answerSfx(ok,ctx){
+  if(!ctx?.settings?.master||!ctx?.settings?.effects)return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    const ac=ANSWER_AUDIO_CTX||(ANSWER_AUDIO_CTX=new AC());
+    if(ac.state==='suspended')ac.resume().catch(()=>{});
+    const now=ac.currentTime+.012;
+    const notes=ok
+      ? [{f:659.25,t:0,d:.17,v:.060},{f:783.99,t:.075,d:.18,v:.055},{f:987.77,t:.15,d:.24,v:.050}]
+      : [{f:329.63,t:0,d:.18,v:.050},{f:246.94,t:.105,d:.25,v:.046}];
+    notes.forEach(n=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.type=ok?'sine':'triangle';o.frequency.setValueAtTime(n.f,now+n.t);
+      if(!ok)o.frequency.exponentialRampToValueAtTime(n.f*.94,now+n.t+n.d);
+      g.gain.setValueAtTime(.0001,now+n.t);
+      g.gain.exponentialRampToValueAtTime(n.v,now+n.t+.018);
+      g.gain.exponentialRampToValueAtTime(.0001,now+n.t+n.d);
+      o.connect(g);g.connect(ac.destination);
+      o.start(now+n.t);o.stop(now+n.t+n.d+.03);
+    });
   }catch{}
 }
 function reward(host,ctx){
@@ -295,20 +318,54 @@ function starField(scene){
 }
 function nebula(){return null}
 function ringMesh(item,inner=1.22,outer=2.08){
-  const geo=new THREE.RingGeometry(inner,outer,128);
+  const group=new THREE.Group();
+  const geo=new THREE.RingGeometry(inner,outer,160);
   const pos=geo.attributes.position,uv=geo.attributes.uv;
   for(let i=0;i<pos.count;i++){
     const r=Math.hypot(pos.getX(i),pos.getY(i));
     uv.setXY(i,clamp((r-inner)/(outer-inner),0,1),.5);
   }
+
   let mat;
   if(item.id==='saturn'){
     const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png');
-    mat=new THREE.MeshBasicMaterial({map:ringTex,alphaMap:ringTex,color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:.95,depthWrite:false});
+    mat=new THREE.MeshBasicMaterial({
+      map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
+      transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
+    });
   }else{
-    mat=new THREE.MeshBasicMaterial({color:0xb8d9df,side:THREE.DoubleSide,transparent:true,opacity:.24,depthWrite:false});
+    mat=new THREE.MeshBasicMaterial({
+      color:0xb9dce3,side:THREE.DoubleSide,transparent:true,opacity:.30,depthWrite:false
+    });
   }
-  const m=new THREE.Mesh(geo,mat);m.rotation.x=-Math.PI/2;m.userData.ring=true;return m;
+  const ring=new THREE.Mesh(geo,mat);ring.userData.ringSurface=true;group.add(ring);
+
+  // Sparse rocky particles make the ring feel physical without becoming noisy.
+  const count=item.id==='saturn'?42:22;
+  const rockGeo=new THREE.IcosahedronGeometry(item.id==='saturn'?.027:.022,0);
+  const rockMat=new THREE.MeshStandardMaterial({
+    color:item.id==='saturn'?0xc7b79b:0xa8c2c8,roughness:1,metalness:0
+  });
+  const rocks=new THREE.InstancedMesh(rockGeo,rockMat,count);
+  const dummy=new THREE.Object3D();
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2;
+    const rr=rand(inner+.05,outer-.04);
+    dummy.position.set(Math.cos(a)*rr,Math.sin(a)*rr,rand(-.025,.025));
+    const s=rand(.52,1.45);dummy.scale.setScalar(s);
+    dummy.rotation.set(rand(0,Math.PI),rand(0,Math.PI),rand(0,Math.PI));
+    dummy.updateMatrix();rocks.setMatrixAt(i,dummy.matrix);
+  }
+  rocks.instanceMatrix.needsUpdate=true;rocks.userData.ringRocks=true;group.add(rocks);
+
+  const baseX=item.id==='saturn'?-.96:-.86;
+  const winX=item.id==='saturn'?-.63:-.60;
+  const baseZ=item.id==='saturn'?.34:-.36;
+  group.rotation.set(baseX,0,baseZ);
+  group.userData.ring=true;group.userData.rocks=rocks;
+  group.userData.baseRotationX=baseX;group.userData.winRotationX=winX;
+  group.userData.baseRotationZ=baseZ;
+  return group;
 }
 function atmosphereMesh(radius=1.035){
   const mat=new THREE.ShaderMaterial({
@@ -342,10 +399,10 @@ function spherePlanet(item){
     const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
   }
   if(item.id==='saturn'){
-    const r=ringMesh(item,1.22,2.1);r.rotation.z=mesh.rotation.z;r.userData.parentPick=grp;grp.add(r);
+    const r=ringMesh(item,1.22,2.1);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
   if(item.id==='uranus'){
-    const r=ringMesh(item,1.28,1.68);r.rotation.z=mesh.rotation.z;r.userData.parentPick=grp;grp.add(r);
+    const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
   if(isSun){
     const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
@@ -501,36 +558,36 @@ function makePlanetWrongFx(g){
 }
 function makePlanetWinFx(g,item){
   disposeFeedbackFx(g,'winFx');
-  const fx=new THREE.Group();fx.position.z=-.36;
-  const haloScale=item.id==='saturn'?5.95:item.id==='uranus'?4.82:3.18;
+  const haloScale=item.id==='saturn'?4.52:item.id==='uranus'?3.72:2.38;
+  const haloZ=item.id==='saturn'?-2.35:item.id==='uranus'?-1.84:-1.24;
+  const fx=new THREE.Group();fx.position.z=haloZ;
 
   const outerMat=new THREE.SpriteMaterial({
-    map:HALO,color:0x45ff78,transparent:true,opacity:.38,depthWrite:false,depthTest:true,
+    map:HALO,color:0x45ff78,transparent:true,opacity:.34,depthWrite:false,depthTest:true,
     blending:THREE.AdditiveBlending
   });
   outerMat.toneMapped=false;
   const outer=new THREE.Sprite(outerMat);outer.scale.set(haloScale,haloScale,1);fx.add(outer);
 
   const innerMat=new THREE.SpriteMaterial({
-    map:HALO,color:0xbfffd0,transparent:true,opacity:.14,depthWrite:false,depthTest:true,
+    map:HALO,color:0xc5ffd4,transparent:true,opacity:.11,depthWrite:false,depthTest:true,
     blending:THREE.AdditiveBlending
   });
   innerMat.toneMapped=false;
-  const inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.91,haloScale*.91,1);fx.add(inner);
+  const inner=new THREE.Sprite(innerMat);inner.scale.set(haloScale*.94,haloScale*.94,1);fx.add(inner);
 
   const sparks=new THREE.Group();
-  for(let i=0;i<8;i++){
+  for(let i=0;i<7;i++){
     const mat=new THREE.SpriteMaterial({
-      map:GLOW,color:i%3===0?0xeaffef:0x75ff9f,transparent:true,
-      opacity:rand(.13,.23),depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
+      map:GLOW,color:i%3===0?0xe9ffef:0x79ff9f,transparent:true,
+      opacity:rand(.11,.20),depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending
     });
     mat.toneMapped=false;
     const sp=new THREE.Sprite(mat);
-    const a=i/8*Math.PI*2+rand(-.14,.14);
-    const ringRadius=item.id==='saturn'?2.35:item.id==='uranus'?1.92:1.28;
-    const r=ringRadius*rand(.98,1.11);
+    const ringRadius=item.id==='saturn'?2.17:item.id==='uranus'?1.73:1.10;
+    const a=i/7*Math.PI*2+rand(-.12,.12),r=ringRadius*rand(1.00,1.06);
     sp.position.set(Math.cos(a)*r,Math.sin(a)*r,-.01);
-    const sz=rand(.042,.070);sp.scale.set(sz,sz,1);
+    const sz=rand(.038,.064);sp.scale.set(sz,sz,1);
     sp.userData.phase=rand(0,Math.PI*2);sp.userData.base=sz;sparks.add(sp);
   }
   fx.add(sparks);
@@ -611,6 +668,7 @@ function gameSpaceSearch(ctx){
       g.userData.exitFromPos=g.position.clone();
       g.userData.exitFromScale=g.scale.clone();
       g.userData.exitFromOpacity=g.userData.displayOpacity??1;
+      if(g.userData.ring)g.userData.exitFromRingX=g.userData.ring.rotation.x;
       const dir=Math.sign(g.position.x||((i-1)||1));
       g.userData.exitToPos=g.position.clone().add(new THREE.Vector3(dir*.42,(i-1)*.05,-1.15));
       g.userData.exitToScale=g.scale.clone().multiplyScalar(.68);
@@ -627,6 +685,7 @@ function gameSpaceSearch(ctx){
     while(g&&!g.userData?.pickable)g=g.parent;if(!g)return;
 
     if(g.userData.item.id!==target.id){
+      answerSfx(false,ctx);
       if(wrong?.g)disposeFeedbackFx(wrong.g,'wrongFx');
       wrong={g,start:performance.now(),origin:g.position.clone(),fx:makePlanetWrongFx(g)};
       return;
@@ -634,7 +693,9 @@ function gameSpaceSearch(ctx){
 
     locked=true;winStart=performance.now();winGroup=g;score++;
     hud.score.textContent=String(score);hud.prompt.textContent='Ճիշտ է՝ '+g.userData.item.name;
-    voice(g.userData.item.name,ctx);if(score%5===0)reward(root,ctx);
+    answerSfx(true,ctx);
+    setTimeout(()=>{if(!disposed)voice(g.userData.item.name,ctx)},125);
+    if(score%5===0)reward(root,ctx);
 
     groups.forEach((x,i)=>{
       x.userData.win=x===g;
@@ -670,6 +731,10 @@ function gameSpaceSearch(ctx){
     groups.forEach((g,i)=>{
       if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.15:1);
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
+      if(g.userData.ring?.userData?.rocks){
+        const dir=g.userData.item?.id==='uranus'?-1:1;
+        g.userData.ring.userData.rocks.rotation.z+=dt*.11*dir;
+      }
 
       if(wrong?.g===g){
         const q=(t-wrong.start)/620;
@@ -700,6 +765,10 @@ function gameSpaceSearch(ctx){
         const e=easeInOutCubic(q);
         g.position.lerpVectors(g.userData.exitFromPos,g.userData.exitToPos,e);
         g.scale.lerpVectors(g.userData.exitFromScale,g.userData.exitToScale,e);
+        if(g.userData.ring){
+          const r=g.userData.ring,from=g.userData.exitFromRingX??r.rotation.x;
+          r.rotation.x=THREE.MathUtils.lerp(from,r.userData.baseRotationX??from,e);
+        }
         setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
@@ -707,13 +776,17 @@ function gameSpaceSearch(ctx){
         g.position.lerpVectors(g.userData.winFromPosition,g.userData.winToPosition,e);
         g.scale.lerpVectors(g.userData.winFromScale,g.userData.winTargetScale,e);
         if(g.userData.win){
+          if(g.userData.ring){
+            const r=g.userData.ring;
+            r.rotation.x=THREE.MathUtils.lerp(r.userData.baseRotationX??r.rotation.x,r.userData.winRotationX??r.rotation.x,e);
+          }
           const fx=g.userData.winFx;
           if(fx){
-            const pulse=1+Math.sin(t*.0033)*.025,hs=fx.userData.haloScale||3.18;
+            const pulse=1+Math.sin(t*.0033)*.018,hs=fx.userData.haloScale||2.38;
             fx.userData.outer?.scale.set(hs*pulse,hs*pulse,1);
-            fx.userData.inner?.scale.set(hs*.91*(2-pulse),hs*.91*(2-pulse),1);
-            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.36+.06*Math.sin(t*.0030);
-            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.12+.035*Math.sin(t*.0037);
+            fx.userData.inner?.scale.set(hs*.94*(2-pulse),hs*.94*(2-pulse),1);
+            if(fx.userData.outerMat)fx.userData.outerMat.opacity=.32+.045*Math.sin(t*.0030);
+            if(fx.userData.innerMat)fx.userData.innerMat.opacity=.10+.025*Math.sin(t*.0037);
             fx.userData.sparks?.children.forEach(sp=>{
               const p=sp.userData.phase||0,base=sp.userData.base||.06;
               sp.scale.setScalar(base*(.78+.22*Math.sin(t*.005+p)));
