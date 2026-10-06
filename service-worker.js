@@ -1,4 +1,4 @@
-const CACHE='areg-v150-threejs-core-loading-fix';
+const CACHE='areg-v151-photoreal-textures';
 const ASSETS=["./", "./theme-bg-ocean.svg", "./theme-bg-fluffy.svg", "./theme-bg-grass.svg", "./theme-bg-autumn.svg", "./theme-bg-winterforest.svg", "./theme-bg-pier.svg", "./theme-bg-mountainlake.svg", "./theme-bg-space.svg", "./theme-bg-snow.svg", "./theme-bg-magic.svg", "./index.html", "./styles.css", "./space-3d-games.css", "./vendor/three.core.min.js", "./vendor/three.module.min.js", "./space-3d-games.js", "./app.js", "./launcher.html", "./service-worker.js", "./avatar-frame.png", "./bottom-landscape.png", "./logo.png", "./settings.png", "./star-counter.png", "./menu-music.mp3", "./audio/animals/horse-voice.mp3", "./audio/animals/camel-voice.mp3", "./nature.png", "./space.png", "./mind.png", "./create.png", "./magic.png", "./nature-frame-guard.png", "./space-frame-guard.png", "./mind-frame-guard.png", "./create-frame-guard.png", "./magic-frame-guard.png", "./hero-nature.jpg", "./nature-game-1.jpg", "./nature-game-2.jpg", "./nature-game-3.jpg", "./nature-game-4.jpg", "./hero-space.jpg", "./space-game-1.jpg", "./space-game-2.jpg", "./space-game-3.jpg", "./space-game-4.jpg", "./hero-mind.jpg", "./mind-game-1.jpg", "./mind-game-2.jpg", "./mind-game-3.jpg", "./mind-game-4.jpg", "./hero-create.jpg", "./create-game-1.jpg", "./create-game-2.jpg", "./create-game-3.jpg", "./create-game-4.jpg", "./hero-magic.jpg", "./magic-game-1.jpg", "./magic-game-2.jpg", "./magic-game-3.jpg", "./magic-game-4.jpg", "./preset-gummy-bear.svg", "./preset-bunny.svg", "./preset-kitten.svg", "./preset-puppy.svg", "./preset-panda.svg", "./preset-fox.svg", "./preset-lion.svg", "./preset-monkey.svg", "./preset-koala.svg", "./preset-robot.svg",
   "./animal-dog.jpg",
   "./animal-wolf.jpg",
@@ -123,6 +123,20 @@ const ASSETS=["./", "./theme-bg-ocean.svg", "./theme-bg-fluffy.svg", "./theme-bg
   "./insect-mosquito.png",
   "./insect-horsefly.png",
   "./insect-termite.png"
+,
+  "./assets/space3d/2k_sun.jpg",
+  "./assets/space3d/2k_mercury.jpg",
+  "./assets/space3d/2k_venus_surface.jpg",
+  "./assets/space3d/2k_earth_daymap.jpg",
+  "./assets/space3d/2k_earth_clouds.jpg",
+  "./assets/space3d/2k_moon.jpg",
+  "./assets/space3d/2k_mars.jpg",
+  "./assets/space3d/2k_jupiter.jpg",
+  "./assets/space3d/2k_saturn.jpg",
+  "./assets/space3d/2k_saturn_ring_alpha.png",
+  "./assets/space3d/2k_uranus.jpg",
+  "./assets/space3d/2k_neptune.jpg",
+  "./assets/space3d/2k_stars_milky_way.jpg"
 ];
 
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
