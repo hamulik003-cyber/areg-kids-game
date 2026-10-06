@@ -157,8 +157,7 @@ function solarSystem(item){
     const p=new THREE.Mesh(new THREE.SphereGeometry(.09+i*.02,18,12),new THREE.MeshStandardMaterial({color:[0xb4a49a,0xd2a56a,0x4a8cdc,0xd26847][i]}));p.position.set(r,0,0);p.userData.parentPick=g;g.add(p);
   });return g;
 }
-async function buildObject(item){
-  if(REAL_TEX[item.id])return spherePlanet(item);
+function buildObject(item){
   if(item.id==='black-hole')return blackHole(item);
   if(item.id==='milky-way')return galaxy(item);
   if(item.id==='solar-system')return solarSystem(item);
@@ -190,22 +189,20 @@ function gameSpaceSearch(ctx){
   scene.add(new THREE.HemisphereLight(0x7896c8,0x020308,.18));
   const key=new THREE.DirectionalLight(0xffffff,4.15);key.position.set(-4.5,5.5,7);scene.add(key);
   const rim=new THREE.DirectionalLight(0x496dff,.34);rim.position.set(5,-2,2);scene.add(rim);
-  const stars=starField(scene,420);
-  let bgTex=null,bgMesh=null;
-  loadRealTexture('stars').then(t=>{if(disposed){t?.dispose?.();return}bgTex=t;const g=new THREE.SphereGeometry(46,48,32),m=new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide});bgMesh=new THREE.Mesh(g,m);scene.add(bgMesh)}).catch(()=>{});
+  const stars=starField(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
-  const pool=ctx.PLANETS.filter(x=>REAL_TEX[x.id]);
+  const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
   const next=bag(pool);let groups=[],target=null,score=0,locked=false,disposed=false,last=performance.now(),wrong=null,winStart=0,timer=0,recent=[];
   const slots=[new THREE.Vector3(-2.45,.72,0),new THREE.Vector3(0,-1.35,.25),new THREE.Vector3(2.45,.72,-.15)];
   function decoys(t){let p=shuffle(pool.filter(x=>x.id!==t.id&&!recent.includes(x.id)));if(p.length<2)p=shuffle(pool.filter(x=>x.id!==t.id));return p.slice(0,2)}
   function clear(){groups.forEach(g=>{scene.remove(g);disposeObject(g)});groups=[];pickables.length=0}
-  async function round(){
+  function round(){
     clear();locked=true;winStart=0;wrong=null;target=next();const opts=shuffle([target,...decoys(target)]),ss=shuffle(slots);
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+target.name;
-    const built=await Promise.all(opts.map(it=>buildObject(it));
+    const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
-    built.forEach((g,i)=>{g.position.copy(ss[i]);g.scale.setScalar(.9);g.rotation.x=rand(-.05,.05);scene.add(g);groups.push(g);g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)})});
+    built.forEach((g,i)=>{g.position.copy(ss[i]);g.position.z+=rand(-.18,.18);scene.add(g);groups.push(g);g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)})});
     locked=false;voice('Գտի՛ր '+target.name,ctx);
   }
   function pointer(e){
@@ -218,16 +215,18 @@ function gameSpaceSearch(ctx){
   }
   renderer.domElement.addEventListener('pointerup',pointer);
   function loop(t){
-    if(disposed)return;const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.008;stars.rotation.x=Math.sin(t*.00008)*.02;
+    if(disposed)return;const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.0015;
+    camera.position.x=Math.sin(t*.00018)*.15;camera.position.y=.18+Math.cos(t*.00016)*.05;camera.lookAt(0,0,0);
     groups.forEach((g,i)=>{
-      g.rotation.y+=dt*(g.userData.spin||.18);if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
+      if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18);
+      if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
       if(wrong?.g===g){const q=(t-wrong.start)/420;if(q<1)g.position.x=wrong.x+Math.sin(q*Math.PI*5)*(1-q)*.18;else{g.position.x=wrong.x;wrong=null}}
       if(winStart){const q=clamp((t-winStart)/900,0,1);if(g.userData.win){g.position.lerp(new THREE.Vector3(0,.2,2.0),.08);g.scale.lerp(new THREE.Vector3(1.5,1.5,1.5),.08);g.rotation.y+=dt*2.2}else g.scale.lerp(new THREE.Vector3(.28,.28,.28),.08)}
     });
     resize(renderer,camera,root);renderer.render(scene,camera);requestAnimationFrame(loop);
   }
   round();requestAnimationFrame(loop);
-  ctx.gameCleanup.push(()=>{disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};renderer.domElement.removeEventListener('pointerup',pointer);clear();if(bgMesh){scene.remove(bgMesh);bgMesh.geometry.dispose();bgMesh.material.dispose()}bgTex?.dispose?.();renderer.dispose();renderer.forceContextLoss?.();if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio()});
+  ctx.gameCleanup.push(()=>{disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};renderer.domElement.removeEventListener('pointerup',pointer);clear();renderer.dispose();renderer.forceContextLoss?.();if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio()});
 }
 function seedFrom(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 function prng(seed){return()=>{seed+=0x6D2B79F5;let t=seed;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
