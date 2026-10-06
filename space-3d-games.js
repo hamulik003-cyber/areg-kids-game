@@ -395,40 +395,139 @@ function atmosphereMesh(radius=1.035){
   });
   return new THREE.Mesh(new THREE.SphereGeometry(radius,64,40),mat);
 }
+const exactSearchTextureCache=new Map();
+const exactSearchTexturePending=new Map();
+const exactImageCache=new Map();
+const EXACT_SPECIAL_IDS=new Set(['solar-system','milky-way','black-hole']);
+const REFERENCE_CROP={
+  sun:{cx:.50,cy:.48,r:.345},mercury:{cx:.50,cy:.48,r:.345},
+  venus:{cx:.50,cy:.48,r:.345},earth:{cx:.50,cy:.48,r:.345},
+  moon:{cx:.50,cy:.48,r:.345},mars:{cx:.50,cy:.48,r:.345},
+  jupiter:{cx:.50,cy:.48,r:.345},saturn:{cx:.50,cy:.48,r:.285},
+  uranus:{cx:.50,cy:.48,r:.345},neptune:{cx:.50,cy:.48,r:.345},
+  pluto:{cx:.50,cy:.48,r:.345},phobos:{cx:.50,cy:.48,r:.315},
+  deimos:{cx:.50,cy:.48,r:.315},io:{cx:.50,cy:.48,r:.345},
+  europa:{cx:.50,cy:.48,r:.350},ganymede:{cx:.50,cy:.48,r:.345},
+  callisto:{cx:.50,cy:.48,r:.345},titan:{cx:.50,cy:.48,r:.345},
+  enceladus:{cx:.50,cy:.48,r:.345},titania:{cx:.50,cy:.48,r:.345},
+  oberon:{cx:.50,cy:.48,r:.345},triton:{cx:.50,cy:.48,r:.345}
+};
+
+function loadExactImage(url){
+  if(exactImageCache.has(url))return exactImageCache.get(url);
+  const p=new Promise((resolve,reject)=>{
+    const img=new Image();img.decoding='async';
+    if(url.startsWith('http'))img.crossOrigin='anonymous';
+    img.onload=()=>resolve(img);img.onerror=reject;img.src=url;
+  });
+  exactImageCache.set(url,p);return p;
+}
+
+function makeReferenceLockedMap(item,img){
+  const crop=REFERENCE_CROP[item.id]||{cx:.50,cy:.48,r:.345};
+  const src=document.createElement('canvas');
+  src.width=img.naturalWidth||img.width;src.height=img.naturalHeight||img.height;
+  const sc=src.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0);
+  const sd=sc.getImageData(0,0,src.width,src.height).data;
+
+  const W=1024,H=512,out=document.createElement('canvas');
+  out.width=W;out.height=H;
+  const oc=out.getContext('2d'),im=oc.createImageData(W,H),d=im.data;
+  const rad=crop.r*src.width,cx=crop.cx*src.width,cy=crop.cy*src.height;
+
+  for(let y=0;y<H;y++){
+    const lat=(.5-y/(H-1))*Math.PI;
+    const syNorm=Math.sin(lat),cosLat=Math.cos(lat);
+    for(let x=0;x<W;x++){
+      let lon=(x/(W-1)-.5)*Math.PI*2;
+      if(lon>Math.PI/2)lon=Math.PI-lon;
+      else if(lon<-Math.PI/2)lon=-Math.PI-lon;
+      const px=Math.sin(lon)*cosLat,py=syNorm;
+      const sxp=Math.max(0,Math.min(src.width-1,Math.round(cx+px*rad)));
+      const syp=Math.max(0,Math.min(src.height-1,Math.round(cy-py*rad)));
+      const si=(syp*src.width+sxp)*4,di=(y*W+x)*4;
+      d[di]=sd[si];d[di+1]=sd[si+1];d[di+2]=sd[si+2];d[di+3]=255;
+    }
+  }
+  oc.putImageData(im,0,0);
+  const t=new THREE.CanvasTexture(out);
+  t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;
+  t.offset.x=.25;t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.anisotropy=16;t.needsUpdate=true;
+  return t;
+}
+
+function loadGlobalExactTexture(item){
+  return new Promise((resolve,reject)=>{
+    const t=texLoader.load(item.texture,()=>{
+      t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;
+      t.offset.x=.25;t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.anisotropy=16;t.needsUpdate=true;
+      resolve(t);
+    },undefined,reject);
+  });
+}
+
+function prepareExactSearchTexture(item){
+  if(EXACT_SPECIAL_IDS.has(item.id))return Promise.resolve(null);
+  if(exactSearchTextureCache.has(item.id))return Promise.resolve(exactSearchTextureCache.get(item.id));
+  if(exactSearchTexturePending.has(item.id))return exactSearchTexturePending.get(item.id);
+  const p=(async()=>{
+    let t=null;
+    if(item.texture)t=await loadGlobalExactTexture(item);
+    else if(item.img)t=makeReferenceLockedMap(item,await loadExactImage(item.img+'?v=130'));
+    if(t)exactSearchTextureCache.set(item.id,t);
+    exactSearchTexturePending.delete(item.id);return t;
+  })().catch(err=>{exactSearchTexturePending.delete(item.id);throw err});
+  exactSearchTexturePending.set(item.id,p);return p;
+}
+
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
-  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
-  if(item.kind==='oval')geo.scale(1.28,.78,.88);
-  const texturePath=TEXTURE_PATHS[item.id];
-  const tex=texturePath?getTexture(texturePath):canvasTexture(item);
+  const geo=new THREE.SphereGeometry(1,128,96);
+
+  if(item.id==='phobos'||item.id==='deimos'||item.id==='nereid'){
+    const p=geo.attributes.position;
+    for(let i=0;i<p.count;i++){
+      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+      const strength=item.id==='nereid'?.018:.028;
+      const n=1+Math.sin(x*5.7+y*2.8-z*3.1)*strength+Math.cos(y*6.3+z*4.1)*strength*.72;
+      p.setXYZ(i,x*n,y*n,z*n);
+    }
+    p.needsUpdate=true;geo.computeVertexNormals();
+    if(item.id==='phobos')geo.scale(1.16,.88,.95);
+    else if(item.id==='deimos')geo.scale(1.10,.92,.97);
+    else geo.scale(1.06,.95,.98);
+  }
+
+  const tex=exactSearchTextureCache.get(item.id)||canvasTexture(item);
+  const referenceLocked=!!item.img;
   const isSun=item.id==='sun';
-  const mat=isSun
+  const mat=(referenceLocked||isSun)
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.96,metalness:0});
+    : new THREE.MeshStandardMaterial({
+        map:tex,color:0xffffff,roughness:.96,metalness:0,
+        emissive:0xffffff,emissiveMap:tex,emissiveIntensity:.035
+      });
+
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
-  mesh.userData.parentPick=grp;grp.add(mesh);
-  grp.userData.surface=mesh;
-  if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg');
-    const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.014,72,48),new THREE.MeshStandardMaterial({
-      color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.36,depthWrite:false,roughness:1,metalness:0
-    }));
-    clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
-    const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
-  }
+  mesh.userData.parentPick=grp;grp.add(mesh);grp.userData.surface=mesh;
+
   if(item.id==='saturn'){
-    const r=ringMesh(item,1.22,2.1);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
+    const ring=ringMesh(item,1.22,2.10);ring.userData.parentPick=grp;grp.add(ring);grp.userData.ring=ring;
   }
   if(item.id==='uranus'){
-    const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
+    const ring=ringMesh(item,1.28,1.68);ring.userData.parentPick=grp;grp.add(ring);grp.userData.ring=ring;
   }
+
   if(isSun){
-    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
+    const glow=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:GLOW,color:0xffb63e,transparent:true,opacity:.58,depthWrite:false,blending:THREE.AdditiveBlending
+    }));
     glow.scale.set(3.0,3.0,1);grp.add(glow);
   }
+
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
-  grp.userData.spin=item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22);
+  grp.userData.spin=item.id==='venus'?-.065:item.id==='uranus'?-.075:.085;
   return grp;
 }
 function blackHole(item){
@@ -483,39 +582,38 @@ function createHud(root,title){
 }
 function searchSlots(root,camera){
   const aspect=Math.max(.38,Math.min(1.15,root.clientWidth/Math.max(1,root.clientHeight)));
-  // Portrait phones get a tight centered triangle. Nothing can live near screen edges.
-  if(aspect<.72){
-    return [
-      new THREE.Vector3(0,1.22,.05),
-      new THREE.Vector3(-.88,-1.18,.14),
-      new THREE.Vector3(.88,-1.18,.02)
-    ];
-  }
-  return [
-    new THREE.Vector3(-1.55,.15,.05),
-    new THREE.Vector3(0,.15,.14),
-    new THREE.Vector3(1.55,.15,.02)
+  const portrait=aspect<.72;
+  const templates=portrait?[
+    [[-1.18,1.20],[1.16,.94],[-.12,.06],[-1.02,-1.08],[.96,-1.52]],
+    [[1.18,1.18],[-1.08,.90],[.24,-.02],[1.04,-1.08],[-.92,-1.50]],
+    [[-.10,1.22],[-1.16,.38],[1.12,.32],[-.82,-1.34],[1.02,-1.28]],
+    [[-1.10,1.10],[.84,.98],[1.12,-.40],[-.18,-.66],[-1.00,-1.48]]
+  ]:[
+    [[-1.60,.92],[.72,1.05],[1.52,-.20],[-.68,-.16],[-1.38,-1.10]],
+    [[1.54,.94],[-.68,1.06],[-1.52,-.18],[.68,-.18],[1.36,-1.10]]
   ];
+  const base=templates[Math.floor(Math.random()*templates.length)];
+  return shuffle(base.map(p=>new THREE.Vector3(p[0]+rand(-.04,.04),p[1]+rand(-.05,.05),rand(-.02,.05))));
 }
 function fitSearchObject(g,item,portrait){
-  // Keep even Saturn's rings fully inside the iPhone safe area.
-  const factor=portrait
-    ? (item.id==='saturn'?.54:item.id==='uranus'?.64:item.id==='sun'?.67:item.id==='jupiter'?.68:.76)
-    : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
-  g.scale.multiplyScalar(factor);
+  g.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
+  const desired=portrait
+    ? (item.id==='saturn'?1.03:item.id==='uranus'?1.02:item.id==='sun'?1.16:1.08)
+    : (item.id==='saturn'?1.12:1.14);
+  const radius=Math.max(.01,sphere.radius);
+  g.scale.multiplyScalar(desired/radius);
 }
 function findObjectName(item){
   return ({
-    sun:'Արեգակը',
-    mercury:'Մերկուրին',
-    venus:'Վեներան',
-    earth:'Երկիրը',
-    moon:'Լուսինը',
-    mars:'Մարսը',
-    jupiter:'Յուպիտերը',
-    saturn:'Սատուրնը',
-    uranus:'Ուրանը',
-    neptune:'Նեպտունը'
+    sun:'Արեգակը',mercury:'Մերկուրին',venus:'Վեներան',earth:'Երկիրը',moon:'Լուսինը',
+    mars:'Մարսը',jupiter:'Յուպիտերը',saturn:'Սատուրնը',uranus:'Ուրանը',neptune:'Նեպտունը',
+    pluto:'Պլուտոնը',phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',
+    ganymede:'Գանիմեդը',callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',
+    mimas:'Միմասը',tethys:'Թեթիսը',dione:'Դիոնեն',rhea:'Ռեան',titania:'Տիտանիան',
+    oberon:'Օբերոնը',ariel:'Արիելը',umbriel:'Ումբրիելը',miranda:'Միրանդան',
+    triton:'Տրիտոնը',nereid:'Ներեիդը',
+    'solar-system':'Արեգակնային համակարգը','milky-way':'Ծիր Կաթինը','black-hole':'Սև խոռոչը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
@@ -602,7 +700,7 @@ function gameSpaceSearch(ctx){
   const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
-  const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
+  const pool=ctx.PLANETS.filter(x=>x&&x.id&&x.name);
   const next=bag(pool);
 
   let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
@@ -610,20 +708,32 @@ function gameSpaceSearch(ctx){
 
   function decoys(t){
     let p=shuffle(pool.filter(x=>x.id!==t.id&&!recent.includes(x.id)));
-    if(p.length<2)p=shuffle(pool.filter(x=>x.id!==t.id));
-    return p.slice(0,2);
+    if(p.length<4)p=shuffle(pool.filter(x=>x.id!==t.id));
+    return p.slice(0,4);
   }
   function clear(){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  function buildRound(){
+  let roundSeq=0;
+  async function buildRound(){
+    const seq=++roundSeq;
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
     target=next();
     const opts=shuffle([target,...decoys(target)]);
     const slots=shuffle(searchSlots(root,camera));
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
+    hud.prompt.textContent='Բեռնում եմ՝ '+findObjectName(target);
+    try{
+      await Promise.all(opts.map(prepareExactSearchTexture));
+    }catch{
+      if(disposed||seq!==roundSeq)return;
+      hud.prompt.textContent='Օբյեկտը չբեռնվեց';
+      setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},650);
+      return;
+    }
+    if(disposed||seq!==roundSeq)return;
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
 
     const built=opts.map(it=>buildObject(it));
@@ -806,7 +916,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     renderer.dispose();renderer.forceContextLoss?.();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
