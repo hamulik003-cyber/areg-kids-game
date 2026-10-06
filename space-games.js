@@ -86,6 +86,100 @@
     setTimeout(()=>burst.remove(),1250);
   }
 
+
+  function webglHex(h){
+    const s=String(h||'#7799cc').replace('#','');
+    const n=parseInt(s.length===3?s.split('').map(c=>c+c).join(''):s,16)||0x7799cc;
+    return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];
+  }
+  function webglKind(kind){
+    return ({sun:0,rock:1,cloud:2,earth:3,bands:4,saturn:5,ring:6,spots:7,cracks:8,haze:9,ice:10,pluto:11,oval:12,solar:13,galaxy:14,blackhole:15})[kind]??1;
+  }
+  function sphereData(lat=18,lon=28){
+    const p=[],n=[],i=[];
+    for(let y=0;y<=lat;y++){
+      const v=y/lat,ph=v*Math.PI;
+      for(let x=0;x<=lon;x++){
+        const u=x/lon,th=u*Math.PI*2;
+        const sx=Math.sin(ph)*Math.cos(th),sy=Math.cos(ph),sz=Math.sin(ph)*Math.sin(th);
+        p.push(sx,sy,sz);n.push(sx,sy,sz);
+      }
+    }
+    for(let y=0;y<lat;y++)for(let x=0;x<lon;x++){
+      const a=y*(lon+1)+x,b=a+lon+1;i.push(a,b,a+1,b,b+1,a+1);
+    }
+    return {p:new Float32Array(p),n:new Float32Array(n),i:new Uint16Array(i)};
+  }
+  function ringData(seg=56){
+    const p=[],n=[],i=[],inner=.72,outer=1.45;
+    for(let k=0;k<=seg;k++){
+      const a=k/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);
+      p.push(c*inner,s*inner,0,c*outer,s*outer,0);n.push(0,0,1,0,0,1);
+    }
+    for(let k=0;k<seg;k++){const q=k*2;i.push(q,q+1,q+2,q+1,q+3,q+2)}
+    return {p:new Float32Array(p),n:new Float32Array(n),i:new Uint16Array(i)};
+  }
+  function glShader(gl,type,src){
+    const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s)||'shader');
+    return s;
+  }
+  function glProgram(gl,vs,fs){
+    const p=gl.createProgram();gl.attachShader(p,glShader(gl,gl.VERTEX_SHADER,vs));gl.attachShader(p,glShader(gl,gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
+    if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p)||'program');
+    return p;
+  }
+  function makePlanetWebGL(canvas,item){
+    let gl;
+    try{gl=canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false});}catch{}
+    if(!gl)return null;
+    const vs='attribute vec3 aP;attribute vec3 aN;uniform float uYaw;uniform float uPitch;uniform float uAspect;uniform float uScale;varying vec3 vN;varying vec3 vP;vec3 rx(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x,p.y*c-p.z*s,p.y*s+p.z*c);}vec3 ry(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x*c+p.z*s,p.y,-p.x*s+p.z*c);}void main(){vec3 q=ry(rx(aP,uPitch),uYaw);vec3 n=ry(rx(aN,uPitch),uYaw);float z=3.8-q.z;float f=2.2/z;gl_Position=vec4(q.x*f*uScale/uAspect,q.y*f*uScale,q.z*.18,1.0);vN=n;vP=aP;}';
+    const fs='precision mediump float;uniform vec3 uC1;uniform vec3 uC2;uniform float uKind;uniform float uRing;varying vec3 vN;varying vec3 vP;float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}void main(){if(uRing>.5){float r=length(vP.xy);float band=.5+.5*sin(r*58.0);vec3 rc=mix(uC2,uC1,.55+.35*band);gl_FragColor=vec4(rc,.88);return;}vec3 n=normalize(vN);float light=max(.18,dot(n,normalize(vec3(-.45,.62,.74))));vec3 c=mix(uC2,uC1,.18+.82*light);float k=uKind;if(k<.5){c=uC1*(1.08+.18*sin(vP.y*20.0+vP.x*11.0));}else if(abs(k-3.0)<.4){float land=smoothstep(.35,.72,sin(vP.x*7.0)+sin(vP.z*10.0)+sin(vP.y*13.0));c=mix(c,vec3(.12,.62,.28),land*.72);float cloud=smoothstep(.78,.98,sin(vP.x*18.0+vP.z*15.0));c=mix(c,vec3(1.0),cloud*.16);}else if(abs(k-4.0)<.4||abs(k-5.0)<.4){float b=.5+.5*sin(vP.y*31.0+sin(vP.x*5.0));c*=.78+.32*b;}else if(abs(k-6.0)<.4){c=mix(c,uC1,.48);}else if(abs(k-7.0)<.4){c*=.68+.48*h(floor(vP.xy*8.0));}else if(abs(k-8.0)<.4){float q=abs(sin(vP.x*17.0+vP.y*13.0));c=mix(c,vec3(.88,.94,1.0),smoothstep(.93,.995,q)*.42);}else if(abs(k-9.0)<.4){c=mix(c,uC1,.44);c+=vec3(.07,.04,0.0);}else if(abs(k-10.0)<.4){c=mix(c,vec3(.92,.98,1.0),.25);}else if(abs(k-11.0)<.4){float q=smoothstep(.65,.92,sin(vP.x*5.0-vP.y*7.0));c=mix(c,vec3(.94,.78,.63),q*.42);}else if(abs(k-12.0)<.4){c=mix(c,uC1,.35);}float rim=pow(1.0-max(0.0,n.z),2.1);c+=rim*.15;gl_FragColor=vec4(c,1.0);}';
+    let pr;
+    try{pr=glProgram(gl,vs,fs);}catch{return null}
+    const sphere=sphereData(),ring=ringData();
+    const mesh=m=>{
+      const pb=gl.createBuffer(),nb=gl.createBuffer(),ib=gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,m.p,gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,m.n,gl.STATIC_DRAW);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,m.i,gl.STATIC_DRAW);
+      return {pb,nb,ib,count:m.i.length};
+    };
+    const sm=mesh(sphere),rm=mesh(ring);
+    const loc={p:gl.getAttribLocation(pr,'aP'),n:gl.getAttribLocation(pr,'aN'),yaw:gl.getUniformLocation(pr,'uYaw'),pitch:gl.getUniformLocation(pr,'uPitch'),aspect:gl.getUniformLocation(pr,'uAspect'),scale:gl.getUniformLocation(pr,'uScale'),c1:gl.getUniformLocation(pr,'uC1'),c2:gl.getUniformLocation(pr,'uC2'),kind:gl.getUniformLocation(pr,'uKind'),ring:gl.getUniformLocation(pr,'uRing')};
+    const c1=webglHex(item.c1),c2=webglHex(item.c2),kind=webglKind(item.kind),hasRing=item.kind==='saturn'||item.kind==='ring';
+    gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    const bind=m=>{gl.bindBuffer(gl.ARRAY_BUFFER,m.pb);gl.enableVertexAttribArray(loc.p);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,m.nb);gl.enableVertexAttribArray(loc.n);gl.vertexAttribPointer(loc.n,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,m.ib)};
+    function resize(){
+      const d=Math.min(devicePixelRatio||1,2),w=Math.max(2,Math.floor(canvas.clientWidth*d)),h=Math.max(2,Math.floor(canvas.clientHeight*d));
+      if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);
+    }
+    function draw(t,boost=0){
+      resize();gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(pr);
+      gl.uniform1f(loc.aspect,Math.max(.72,canvas.width/canvas.height));gl.uniform3fv(loc.c1,c1);gl.uniform3fv(loc.c2,c2);gl.uniform1f(loc.kind,kind);
+      gl.uniform1f(loc.yaw,t*.00035);gl.uniform1f(loc.pitch,.14+Math.sin(t*.00043)*.08);gl.uniform1f(loc.scale,1.0+boost*.16);gl.uniform1f(loc.ring,0);bind(sm);gl.drawElements(gl.TRIANGLES,sm.count,gl.UNSIGNED_SHORT,0);
+      if(hasRing){gl.uniform1f(loc.pitch,1.13);gl.uniform1f(loc.yaw,t*.00008);gl.uniform1f(loc.scale,1.48+boost*.1);gl.uniform1f(loc.ring,1);bind(rm);gl.drawElements(gl.TRIANGLES,rm.count,gl.UNSIGNED_SHORT,0)}
+    }
+    return {draw,dispose(){try{gl.getExtension('WEBGL_lose_context')?.loseContext()}catch{}}};
+  }
+  function makeStarfieldWebGL(canvas){
+    let gl;try{gl=canvas.getContext('webgl',{alpha:true,antialias:true});}catch{}
+    if(!gl)return null;
+    const vs='attribute vec3 aP;uniform float uAspect;varying float vB;void main(){float z=max(.48,aP.z);float f=1.2/z;gl_Position=vec4(aP.x*f/uAspect,aP.y*f,0.0,1.0);gl_PointSize=clamp(1.2+7.5/z,1.5,8.5);vB=clamp(1.45/z,.18,1.0);}';
+    const fs='precision mediump float;varying float vB;void main(){vec2 q=gl_PointCoord-.5;float d=length(q);float a=smoothstep(.5,.03,d);gl_FragColor=vec4(.72,.88,1.0,a*vB);}';
+    let pr;try{pr=glProgram(gl,vs,fs);}catch{return null}
+    const p=gl.getAttribLocation(pr,'aP'),aspect=gl.getUniformLocation(pr,'uAspect'),buf=gl.createBuffer(),count=170,data=new Float32Array(count*3);
+    for(let i=0;i<count;i++){data[i*3]=(Math.random()-.5)*12;data[i*3+1]=(Math.random()-.5)*8;data[i*3+2]=.7+Math.random()*8.4}
+    let last=performance.now();
+    function draw(t){
+      const dt=Math.min(40,t-last);last=t;
+      const d=Math.min(devicePixelRatio||1,2),w=Math.max(2,Math.floor(canvas.clientWidth*d)),h=Math.max(2,Math.floor(canvas.clientHeight*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);
+      for(let i=0;i<count;i++){const k=i*3;data[k+2]-=dt*.0002;if(data[k+2]<.55){data[k]=(Math.random()-.5)*12;data[k+1]=(Math.random()-.5)*8;data[k+2]=8.4}}
+      gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.useProgram(pr);gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);gl.enableVertexAttribArray(p);gl.vertexAttribPointer(p,3,gl.FLOAT,false,0,0);gl.uniform1f(aspect,Math.max(.7,w/h));gl.drawArrays(gl.POINTS,0,count);
+    }
+    return {draw,dispose(){try{gl.getExtension('WEBGL_lose_context')?.loseContext()}catch{}}};
+  }
+
   function gameSpaceSearch(ctx){
     ctx.activityContent.innerHTML='';
     const scene=document.createElement('div');
@@ -113,6 +207,8 @@
     let disposed=false;
     let recentIds=[];
     let roundTimer=null;
+    let planetRaf=0;
+    const planetRenderers=[];
     ctx.menuMusic.pause();
 
     const slotClasses=['slot-a','slot-b','slot-c'];
@@ -136,6 +232,7 @@
       const decoys=chooseDecoys(target);
       const options=shuffleCopy([target,...decoys]);
       recentIds=[...new Set(options.map(x=>x.id).concat(recentIds))].slice(0,6);
+      planetRenderers.splice(0).forEach(x=>x.renderer?.dispose?.());
       stage.innerHTML='';
       message.textContent='';
       promptStrong.textContent=`Գտի՛ր՝ ${target.name}`;
@@ -151,7 +248,8 @@
         btn.innerHTML=`
           <span class="space-object-depth" aria-hidden="true"></span>
           <span class="space-object-visual">
-            <img class="space-object-art" src="${item.img}?v=144" alt="" draggable="false">
+            <canvas class="space-object-webgl" aria-hidden="true"></canvas>
+            <img class="space-object-art space-object-fallback" src="${item.img}?v=147" alt="" draggable="false">
             <span class="space-object-light" aria-hidden="true"></span>
           </span>
           <span class="space-object-name">${item.name}</span>`;
@@ -184,15 +282,26 @@
           },1350);
         });
         stage.appendChild(btn);
+        const canvas=$('.space-object-webgl',btn);
+        const renderer=makePlanetWebGL(canvas,item);
+        if(renderer){btn.classList.add('has-webgl');planetRenderers.push({renderer,btn,phase:Math.random()*6.28})}
       });
       speakSpaceGame(`Գտի՛ր ${target.name}`,ctx);
     }
 
+    function animatePlanets(t){
+      if(disposed)return;
+      planetRenderers.forEach(x=>x.renderer.draw(t+Math.sin(t*.0007+x.phase)*170,x.btn.classList.contains('is-correct')?1:0));
+      planetRaf=requestAnimationFrame(animatePlanets);
+    }
     renderRound();
+    planetRaf=requestAnimationFrame(animatePlanets);
 
     ctx.gameCleanup.push(()=>{
       disposed=true;
       clearTimeout(roundTimer);
+      cancelAnimationFrame(planetRaf);
+      planetRenderers.splice(0).forEach(x=>x.renderer?.dispose?.());
       stopSpaceGameSpeech();
       if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
     });
@@ -241,6 +350,7 @@
         <div class="constellation-progress"><span>✦</span><b>0</b></div>
       </div>
       <div class="constellation-stage" role="group" aria-label="Վառիր համաստեղությունը">
+        <canvas class="constellation-depth-canvas" aria-hidden="true"></canvas>
         <img class="constellation-reveal-art" alt="" draggable="false">
         <svg class="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="constellation-nodes"></div>
@@ -265,6 +375,8 @@
     let disposed=false;
     let nextTimer=null;
     let pulseTimer=null;
+    let starRaf=0;
+    const depthField=makeStarfieldWebGL($('.constellation-depth-canvas',stage));
     ctx.menuMusic.pause();
 
     function updateNextPulse(){
@@ -368,12 +480,16 @@
     stage.addEventListener('pointermove',onMove);
     stage.addEventListener('pointerup',onUp);
     stage.addEventListener('pointercancel',onUp);
+    function animateDepth(t){if(disposed)return;depthField?.draw(t);starRaf=requestAnimationFrame(animateDepth)}
     renderConstellation();
+    starRaf=requestAnimationFrame(animateDepth);
 
     ctx.gameCleanup.push(()=>{
       disposed=true;
       clearTimeout(nextTimer);
       clearTimeout(pulseTimer);
+      cancelAnimationFrame(starRaf);
+      depthField?.dispose?.();
       stopSpaceGameSpeech();
       stage.removeEventListener('pointerdown',onDown);
       stage.removeEventListener('pointermove',onMove);
