@@ -1,4 +1,4 @@
-// V174 one shared Earth-Mars-Jupiter rendering pipeline for all mapped bodies
+// V175 Earth-Mars-Jupiter globe pipeline + seam-safe full-surface moons
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -45,38 +45,37 @@ function reward(host,ctx){
   const d=document.createElement('div');d.className='s3d-reward';d.textContent='⭐ +1';host.appendChild(d);setTimeout(()=>d.remove(),1100);
 }
 const TEXTURE_PATHS={
-  sun:'assets/space3d/2k_sun.jpg?v=174',
-  mercury:'assets/space3d/2k_mercury.jpg?v=174',
-  venus:'assets/space3d/2k_venus_surface.jpg?v=174',
-  earth:'assets/space3d/2k_earth_daymap.jpg?v=174',
-  moon:'assets/space3d/2k_moon.jpg?v=174',
-  mars:'assets/space3d/2k_mars.jpg?v=174',
-  jupiter:'assets/space3d/2k_jupiter.jpg?v=174',
-  saturn:'assets/space3d/2k_saturn.jpg?v=174',
-  uranus:'assets/space3d/2k_uranus.jpg?v=174',
-  neptune:'assets/space3d/2k_neptune.jpg?v=174',
+  // Proven complete 2:1 equirectangular maps: same UV sphere pipeline as Earth / Mars / Jupiter.
+  sun:'assets/space3d/2k_sun.jpg?v=175',
+  mercury:'assets/space3d/2k_mercury.jpg?v=175',
+  venus:'assets/space3d/2k_venus_surface.jpg?v=175',
+  earth:'assets/space3d/2k_earth_daymap.jpg?v=175',
+  moon:'assets/space3d/2k_moon.jpg?v=175',
+  mars:'assets/space3d/2k_mars.jpg?v=175',
+  jupiter:'assets/space3d/2k_jupiter.jpg?v=175',
+  saturn:'assets/space3d/2k_saturn.jpg?v=175',
+  uranus:'assets/space3d/2k_uranus.jpg?v=175',
+  neptune:'assets/space3d/2k_neptune.jpg?v=175',
 
-  phobos:'assets/space3d/2k_phobos.jpg?v=174',
-  deimos:'assets/space3d/real/deimos.jpg?v=174',
-  io:'assets/space3d/4k_io.jpg?v=174',
-  europa:'assets/space3d/2k_europa.jpg?v=174',
-  ganymede:'assets/space3d/2k_ganymede.jpg?v=174',
-  callisto:'assets/space3d/2k_callisto.jpg?v=174',
-  titan:'assets/space3d/4k_titan.jpg?v=174',
-  enceladus:'assets/space3d/2k_enceladus.jpg?v=174',
-  titania:'assets/space3d/2k_titania.jpg?v=174',
-  oberon:'assets/space3d/2k_oberon.jpg?v=174',
-  triton:'assets/space3d/2k_triton.jpg?v=174',
-  charon:'assets/space3d/2k_charon.jpg?v=174',
-
-  pluto:'assets/space3d/2k_pluto.jpg?v=174',
-  ceres:'assets/space3d/2k_ceres.jpg?v=174',
-  haumea:'assets/space3d/2k_haumea.jpg?v=174',
-  makemake:'assets/space3d/real/makemake.jpg?v=174',
-  eris:'assets/space3d/real/eris.jpg?v=174'
+  phobos:'assets/space3d/2k_phobos.jpg?v=175',
+  io:'assets/space3d/4k_io.jpg?v=175',
+  europa:'assets/space3d/2k_europa.jpg?v=175',
+  ganymede:'assets/space3d/2k_ganymede.jpg?v=175',
+  callisto:'assets/space3d/2k_callisto.jpg?v=175',
+  titan:'assets/space3d/4k_titan.jpg?v=175',
+  enceladus:'assets/space3d/2k_enceladus.jpg?v=175',
+  ceres:'assets/space3d/2k_ceres.jpg?v=175'
 };
-const PROCEDURAL_ONLY=new Set();
-const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
+
+// These bodies do not have a complete, clean global map in the repo.
+// Their old files are partial flyby mosaics / flat photos with black or missing regions.
+// V175 builds complete 2:1, horizontally seamless full-globe maps at runtime, then feeds
+// them through the exact same SphereGeometry + MeshStandardMaterial pipeline.
+const PROCEDURAL_ONLY=new Set([
+  'deimos','titania','oberon','triton','charon',
+  'pluto','haumea','makemake','eris'
+]);
+const REALISTIC_IDS=new Set([...Object.keys(TEXTURE_PATHS),...PROCEDURAL_ONLY]);
 const AXIAL_TILT={
   sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,
   jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32,
@@ -126,157 +125,164 @@ function getTexture(path,{srgb=true,fallback=null}={}){
   return t;
 }
 function canvasTexture(item){
-  const cacheKey='proc173:'+item.id;
+  const cacheKey='proc175:'+item.id;
   if(texCache.has(cacheKey))return texCache.get(cacheKey);
 
-  const c=document.createElement('canvas');c.width=1536;c.height=768;
+  // 2:1 plate-carrée/equirectangular map, identical projection class to the
+  // Earth/Mars/Jupiter assets. All drawing helpers wrap across ±180° longitude.
+  const c=document.createElement('canvas');c.width=1024;c.height=512;
   const x=c.getContext('2d',{alpha:false});
-  const r=prng(seedFrom('v173:'+item.id));
+  const r=prng(seedFrom('v175:'+item.id));
   const W=c.width,H=c.height;
 
   const palette={
-    phobos:['#7e756d','#4e4944','#aaa097'],
-    deimos:['#91867d','#5a534d','#b8ada3'],
-    io:['#e6d65d','#7d6520','#fff0a1'],
-    europa:['#d8c9a5','#8b7259','#f0e3c4'],
-    ganymede:['#8f806f','#514940','#b9a895'],
-    callisto:['#625b55','#292725','#998d81'],
-    titan:['#d89d3c','#81501f','#f2bd61'],
-    enceladus:['#eaf6fb','#8eb6c8','#ffffff'],
-    titania:['#a7b5b4','#647575','#d6dfdd'],
-    oberon:['#70665f','#393532','#a39182'],
-    triton:['#b8cfd4','#778d98','#e2c7c8'],
-    charon:['#96918d','#4e4a47','#c0b7af'],
-    pluto:['#c79c7c','#684d3b','#ead5ba'],
-    ceres:['#85898d','#4c5256','#b8bdc0'],
-    haumea:['#d9d6ca','#8b877e','#f2efe5'],
-    makemake:['#b86c4d','#653728','#dc9871'],
-    eris:['#e0e3e4','#8a9399','#fbfaf7']
+    deimos:['#8b8279','#5f5954','#b5aba0'],
+    titania:['#9ea7aa','#677176','#c9d0d1'],
+    oberon:['#6d6660','#373532','#a49a90'],
+    triton:['#b9c9ce','#7e8d96','#e3c9c9'],
+    charon:['#99948f','#57514d','#c5bbb3'],
+    pluto:['#c49a7d','#6d4e3d','#ead4b8'],
+    haumea:['#d8d5cd','#8d8982','#f1eee6'],
+    makemake:['#b4694c','#67382a','#dc9873'],
+    eris:['#d9dddf','#8c9498','#f7f6f3']
   }[item.id]||[item.c1||'#969da5',item.c2||'#505861',item.accent||'#c8cdd2'];
 
-  const hexRgba=(hex,a)=>{
+  const rgba=(hex,a)=>{
     const h=hex.replace('#',''),v=parseInt(h.length===3?h.split('').map(q=>q+q).join(''):h,16);
     return 'rgba('+((v>>16)&255)+','+((v>>8)&255)+','+(v&255)+','+a+')';
   };
+
+  // Same color at x=0 and x=W: no longitude seam in the base layer.
   const base=x.createLinearGradient(0,0,0,H);
-  base.addColorStop(0,palette[2]);base.addColorStop(.22,palette[0]);
-  base.addColorStop(.62,palette[0]);base.addColorStop(1,palette[1]);
+  base.addColorStop(0,palette[2]);
+  base.addColorStop(.22,palette[0]);
+  base.addColorStop(.62,palette[0]);
+  base.addColorStop(1,palette[1]);
   x.fillStyle=base;x.fillRect(0,0,W,H);
 
-  function patch(cx,cy,rx,ry,color,a=.16,rot=0){
-    x.save();x.translate(cx,cy);x.rotate(rot);
-    const g=x.createRadialGradient(-rx*.18,-ry*.18,2,0,0,Math.max(rx,ry));
-    g.addColorStop(0,hexRgba(color,a));
-    g.addColorStop(.58,hexRgba(color,a*.52));
-    g.addColorStop(1,hexRgba(color,0));
-    x.fillStyle=g;x.beginPath();x.ellipse(0,0,rx,ry,0,0,Math.PI*2);x.fill();x.restore();
+  function wrapped(cx,extent,draw){
+    draw(cx);
+    if(cx-extent<0)draw(cx+W);
+    if(cx+extent>W)draw(cx-W);
+  }
+  function patch(cx,cy,rx,ry,color,a=.15,rot=0){
+    wrapped(cx,rx*1.2,px=>{
+      x.save();x.translate(px,cy);x.rotate(rot);
+      const g=x.createRadialGradient(-rx*.16,-ry*.16,1,0,0,Math.max(rx,ry));
+      g.addColorStop(0,rgba(color,a));
+      g.addColorStop(.58,rgba(color,a*.50));
+      g.addColorStop(1,rgba(color,0));
+      x.fillStyle=g;x.beginPath();x.ellipse(0,0,rx,ry,0,0,Math.PI*2);x.fill();x.restore();
+    });
   }
   function crater(cx,cy,rad,a=.18){
-    const g=x.createRadialGradient(cx-rad*.20,cy-rad*.22,rad*.05,cx,cy,rad);
-    g.addColorStop(0,'rgba(29,30,31,'+a+')');
-    g.addColorStop(.48,'rgba(61,62,63,'+(a*.52)+')');
-    g.addColorStop(.70,'rgba(242,236,220,'+(a*.42)+')');
-    g.addColorStop(.83,'rgba(96,94,90,'+(a*.16)+')');
-    g.addColorStop(1,'rgba(0,0,0,0)');
-    x.fillStyle=g;x.fillRect(cx-rad*1.25,cy-rad*1.25,rad*2.5,rad*2.5);
+    wrapped(cx,rad*1.35,px=>{
+      const g=x.createRadialGradient(px-rad*.18,cy-rad*.18,rad*.05,px,cy,rad);
+      g.addColorStop(0,'rgba(29,30,31,'+a+')');
+      g.addColorStop(.48,'rgba(61,62,63,'+(a*.48)+')');
+      g.addColorStop(.70,'rgba(238,235,226,'+(a*.38)+')');
+      g.addColorStop(.84,'rgba(96,94,90,'+(a*.13)+')');
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      x.fillStyle=g;x.fillRect(px-rad*1.3,cy-rad*1.3,rad*2.6,rad*2.6);
+    });
   }
-  function cracks(count,color,a=.20,width=2){
-    for(let i=0;i<count;i++){
-      let px=r()*W,py=r()*H;
-      x.beginPath();x.moveTo(px,py);
-      const seg=5+Math.floor(r()*7);
-      for(let j=0;j<seg;j++){px+=20+r()*65;py+=(r()-.5)*42;x.lineTo(px,py)}
-      x.strokeStyle=hexRgba(color,a*(.65+r()*.5));x.lineWidth=.7+r()*width;x.stroke();
+  function periodicLine(y,amp,freq,color,a=.15,width=1.2,phase=0){
+    x.beginPath();
+    for(let px=0;px<=W;px+=5){
+      const yy=y
+        +Math.sin((px/W)*Math.PI*2*freq+phase)*amp
+        +Math.sin((px/W)*Math.PI*2*(freq+1)-phase*.7)*amp*.34;
+      if(px===0)x.moveTo(px,yy);else x.lineTo(px,yy);
     }
-  }
-  function band(y,h,color,a){
-    const g=x.createLinearGradient(0,y,0,y+h);
-    g.addColorStop(0,hexRgba(color,0));g.addColorStop(.45,hexRgba(color,a));g.addColorStop(1,hexRgba(color,0));
-    x.fillStyle=g;x.fillRect(0,y,W,h);
+    x.strokeStyle=rgba(color,a);x.lineWidth=width;x.stroke();
   }
 
-  // Broad global variation makes the whole 360° sphere detailed, never a pasted front image.
-  for(let i=0;i<76;i++)patch(r()*W,r()*H,30+r()*150,18+r()*90,r()>.5?palette[1]:palette[2],.025+r()*.10,r()*Math.PI);
-  for(let i=0;i<5200;i++){
-    const px=r()*W,py=r()*H,sz=.25+r()*1.9;
-    x.fillStyle=r()>.5?'rgba(255,255,255,'+(.010+r()*.038)+')':'rgba(18,20,22,'+(.010+r()*.042)+')';
+  // Global mineral variation. Features near the longitude seam are duplicated by helpers.
+  for(let i=0;i<62;i++){
+    patch(r()*W,r()*H,18+r()*92,12+r()*54,r()>.5?palette[1]:palette[2],.025+r()*.075,r()*Math.PI);
+  }
+  for(let i=0;i<2800;i++){
+    const px=r()*W,py=r()*H,sz=.3+r()*1.25;
+    x.fillStyle=r()>.53?'rgba(255,255,255,'+(.008+r()*.028)+')':'rgba(20,21,23,'+(.009+r()*.034)+')';
     x.fillRect(px,py,sz,sz);
   }
 
   switch(item.id){
-    case 'phobos':
-      for(let i=0;i<165;i++)crater(r()*W,r()*H,4+r()*32,.09+r()*.18);
-      patch(W*.72,H*.47,112,88,'#403b37',.25,.2);
-      break;
     case 'deimos':
-      for(let i=0;i<118;i++)crater(r()*W,r()*H,4+r()*24,.08+r()*.15);
+      for(let i=0;i<92;i++)crater(r()*W,r()*H,3+r()*17,.07+r()*.12);
+      for(let i=0;i<18;i++)patch(r()*W,r()*H,24+r()*66,14+r()*42,'#c4b7a9',.025+r()*.055,r()*Math.PI);
       break;
-    case 'io':
-      for(let i=0;i<80;i++)patch(r()*W,r()*H,14+r()*62,10+r()*46,r()>.55?'#70491a':'#fff08b',.08+r()*.24,r()*Math.PI);
-      for(let i=0;i<20;i++){x.fillStyle='rgba(65,50,20,'+(.12+r()*.23)+')';x.beginPath();x.arc(r()*W,r()*H,5+r()*18,0,Math.PI*2);x.fill();}
-      break;
-    case 'europa':
-      cracks(54,'#8f5d43',.24,2.4);cracks(24,'#b88b68',.13,1.2);
-      for(let i=0;i<22;i++)patch(r()*W,r()*H,28+r()*85,10+r()*38,'#f5ead2',.06+r()*.08,r()*Math.PI);
-      break;
-    case 'ganymede':
-      for(let i=0;i<96;i++)crater(r()*W,r()*H,4+r()*27,.06+r()*.14);
-      cracks(36,'#d1c2ad',.10,1.4);cracks(24,'#4f453e',.10,1.1);
-      break;
-    case 'callisto':
-      for(let i=0;i<190;i++)crater(r()*W,r()*H,3+r()*25,.10+r()*.18);
-      for(let i=0;i<36;i++)patch(r()*W,r()*H,20+r()*70,15+r()*55,'#b4a697',.05+r()*.09,r()*Math.PI);
-      break;
-    case 'titan':
-      for(let i=0;i<18;i++)band((i/18)*H,22+r()*38,i%2?'#f0b24d':'#92591e',.035+r()*.055);
-      x.fillStyle='rgba(238,174,69,.10)';x.fillRect(0,0,W,H);
-      break;
-    case 'enceladus':
-      x.fillStyle='rgba(245,252,255,.30)';x.fillRect(0,0,W,H);
-      cracks(44,'#5fa5c3',.18,1.6);cracks(20,'#a8d7e9',.20,1.0);
-      break;
+
     case 'titania':
-      cracks(42,'#5d7479',.18,1.8);for(let i=0;i<66;i++)crater(r()*W,r()*H,3+r()*18,.05+r()*.10);
+      for(let i=0;i<72;i++)crater(r()*W,r()*H,3+r()*16,.05+r()*.09);
+      for(let i=0;i<16;i++)periodicLine(r()*H,3+r()*10,1+Math.floor(r()*3),'#536b73',.08+r()*.09,.7+r()*1.1,r()*6.28);
       break;
+
     case 'oberon':
-      for(let i=0;i<118;i++)crater(r()*W,r()*H,3+r()*25,.07+r()*.15);
-      for(let i=0;i<24;i++)patch(r()*W,r()*H,30+r()*82,22+r()*66,'#342f2c',.05+r()*.11,r()*Math.PI);
+      for(let i=0;i<138;i++)crater(r()*W,r()*H,3+r()*20,.07+r()*.15);
+      for(let i=0;i<22;i++)patch(r()*W,r()*H,20+r()*58,14+r()*44,'#322f2c',.04+r()*.08,r()*Math.PI);
       break;
+
     case 'triton':
-      for(let i=0;i<38;i++)patch(r()*W,r()*H,28+r()*94,18+r()*58,r()>.48?'#e6c5c7':'#7294a2',.04+r()*.08,r()*Math.PI);
-      cracks(24,'#728a96',.10,1.1);
+      for(let i=0;i<38;i++)patch(r()*W,r()*H,24+r()*78,16+r()*48,r()>.48?'#e2c2c5':'#7190a0',.035+r()*.065,r()*Math.PI);
+      for(let i=0;i<11;i++)periodicLine(r()*H,2+r()*7,1+Math.floor(r()*3),'#748c98',.055+r()*.07,.7+r()*.9,r()*6.28);
+      for(let i=0;i<34;i++)crater(r()*W,r()*H,2+r()*10,.035+r()*.055);
       break;
+
     case 'charon':
-      x.fillStyle='rgba(102,64,59,.25)';x.fillRect(0,0,W,H*.22);
-      for(let i=0;i<105;i++)crater(r()*W,r()*H,3+r()*24,.07+r()*.15);
+      // Mordor Macula-style dark/reddish north polar region.
+      const polar=x.createLinearGradient(0,0,0,H*.29);
+      polar.addColorStop(0,'rgba(91,52,48,.58)');
+      polar.addColorStop(.72,'rgba(91,52,48,.22)');
+      polar.addColorStop(1,'rgba(91,52,48,0)');
+      x.fillStyle=polar;x.fillRect(0,0,W,H*.31);
+      for(let i=0;i<104;i++)crater(r()*W,r()*H,3+r()*19,.06+r()*.12);
+      periodicLine(H*.58,8,2,'#45413f',.16,2.0,1.6);
       break;
+
     case 'pluto':
-      for(let i=0;i<42;i++)patch(r()*W,r()*H,34+r()*110,24+r()*76,r()>.5?'#e3c9ab':'#72513f',.04+r()*.10,r()*Math.PI);
-      x.save();x.translate(W*.58,H*.50);x.rotate(-.10);
-      x.fillStyle='rgba(236,218,198,.48)';
-      x.beginPath();x.moveTo(0,50);x.bezierCurveTo(-125,-25,-135,-145,-35,-145);x.bezierCurveTo(25,-145,45,-95,58,-60);x.bezierCurveTo(88,-115,165,-118,195,-62);x.bezierCurveTo(230,10,120,95,0,50);x.fill();x.restore();
+      for(let i=0;i<42;i++)patch(r()*W,r()*H,28+r()*86,18+r()*56,r()>.5?'#e1c6a7':'#72513f',.04+r()*.08,r()*Math.PI);
+      // Bright Tombaugh Regio / "heart" cue, kept away from the longitude seam.
+      x.save();x.translate(W*.58,H*.52);x.rotate(-.08);
+      x.fillStyle='rgba(235,218,198,.58)';
+      x.beginPath();
+      x.moveTo(0,32);
+      x.bezierCurveTo(-75,-12,-88,-88,-26,-91);
+      x.bezierCurveTo(13,-92,29,-62,37,-39);
+      x.bezierCurveTo(54,-73,102,-74,120,-36);
+      x.bezierCurveTo(142,11,77,65,0,32);
+      x.fill();x.restore();
+      for(let i=0;i<58;i++)crater(r()*W,r()*H,2+r()*12,.035+r()*.06);
       break;
-    case 'ceres':
-      for(let i=0;i<145;i++)crater(r()*W,r()*H,3+r()*23,.07+r()*.16);
-      x.fillStyle='rgba(255,255,245,.82)';x.beginPath();x.arc(W*.64,H*.48,10,0,Math.PI*2);x.fill();
-      x.fillStyle='rgba(255,255,245,.62)';x.beginPath();x.arc(W*.675,H*.495,5,0,Math.PI*2);x.fill();
-      break;
+
     case 'haumea':
-      for(let i=0;i<40;i++)patch(r()*W,r()*H,36+r()*110,18+r()*64,'#f5f0e5',.035+r()*.07,r()*Math.PI);
-      patch(W*.72,H*.53,92,54,'#7a4a40',.23,-.18);
+      for(let i=0;i<42;i++)patch(r()*W,r()*H,28+r()*80,14+r()*42,'#f4f0e7',.025+r()*.055,r()*Math.PI);
+      patch(W*.73,H*.54,58,32,'#774d43',.24,-.16);
+      for(let i=0;i<36;i++)crater(r()*W,r()*H,2+r()*10,.03+r()*.045);
       break;
+
     case 'makemake':
-      for(let i=0;i<48;i++)patch(r()*W,r()*H,30+r()*95,18+r()*64,r()>.5?'#dc9470':'#633627',.05+r()*.11,r()*Math.PI);
+      for(let i=0;i<58;i++)patch(r()*W,r()*H,22+r()*74,14+r()*50,r()>.5?'#dc9870':'#65372a',.04+r()*.085,r()*Math.PI);
+      for(let i=0;i<40;i++)crater(r()*W,r()*H,2+r()*10,.03+r()*.05);
       break;
+
     case 'eris':
-      for(let i=0;i<36;i++)patch(r()*W,r()*H,36+r()*110,22+r()*70,r()>.5?'#ffffff':'#89969d',.025+r()*.055,r()*Math.PI);
+      for(let i=0;i<44;i++)patch(r()*W,r()*H,28+r()*78,16+r()*46,r()>.5?'#f7f7f4':'#8d979d',.018+r()*.045,r()*Math.PI);
+      for(let i=0;i<34;i++)crater(r()*W,r()*H,2+r()*9,.025+r()*.045);
       break;
   }
 
   const t=new THREE.CanvasTexture(c);
-  t.colorSpace=THREE.SRGBColorSpace;t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;
-  t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;t.anisotropy=12;
-  texCache.set(cacheKey,t);return t;
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;
+  t.wrapT=THREE.ClampToEdgeWrapping;
+  t.repeat.set(1,1);
+  t.offset.set(0,0);
+  t.minFilter=THREE.LinearMipmapLinearFilter;
+  t.magFilter=THREE.LinearFilter;
+  t.anisotropy=12;
+  texCache.set(cacheKey,t);
+  return t;
 }
 function glowTexture(){
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);
@@ -599,7 +605,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
   let mat;
   if(item.id==='saturn'){
-    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=174');
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png?v=175');
     mat=new THREE.MeshBasicMaterial({
       map:ringTex,alphaMap:ringTex,color:0xfff6df,side:THREE.DoubleSide,
       transparent:true,opacity:.96,alphaTest:.025,depthWrite:true
@@ -648,7 +654,7 @@ function atmosphereMesh(radius=1.035){
 }
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
-  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,72,48):new THREE.SphereGeometry(1,72,48);
+  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,96,64):new THREE.SphereGeometry(1,96,64);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
 
   if(item.id==='phobos'||item.id==='deimos'){
@@ -673,8 +679,9 @@ function spherePlanet(item){
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
-        map:tex,color:0xffffff,
-        roughness:item.id==='earth'?.82:.96,
+        map:tex,
+        color:0xffffff,
+        roughness:item.id==='earth'?.82:(['jupiter','saturn','uranus','neptune'].includes(item.id)?.90:.96),
         metalness:0
       });
 
@@ -684,7 +691,7 @@ function spherePlanet(item){
   grp.userData.surface=mesh;
 
   if(item.id==='earth'){
-    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=174');
+    const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg?v=175');
     const clouds=new THREE.Mesh(
       new THREE.SphereGeometry(1.014,72,48),
       new THREE.MeshStandardMaterial({
