@@ -1719,7 +1719,7 @@
       card.style.setProperty('--animal-accent',planet.accent);
       card.style.setProperty('--animal-accent-soft',planet.accent+'55');
       card.style.setProperty('--animal-name-size',galleryNameSize(planet.name));
-      card.style.setProperty('--animal-type-size',planet.id==='solar-system'?'7.4px':galleryTypeSize(planet.status));
+      card.style.setProperty('--animal-type-size',planet.id==='solar-system'?'6.2px':galleryTypeSize(planet.status));
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
