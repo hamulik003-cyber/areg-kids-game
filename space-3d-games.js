@@ -1,4 +1,4 @@
-// V168 consolidated Moon-level real textures + large mixed five-choice layout
+// V169 larger five-choice 2+1+2 layout + fully 3D special space objects
 import * as THREE from './vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -596,33 +596,102 @@ function spherePlanet(item){
   grp.userData.spin=item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22);
   return grp;
 }
-function gallerySpaceObject(item,{width=2.5,height=2.7,glow=0x8d77ff}={}){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;
-  const tex=imageTexture(item.img);
-  const mat=new THREE.MeshBasicMaterial({
-    map:tex,alphaMap:SOFT_DISC,transparent:true,opacity:.98,depthWrite:false,
-    side:THREE.DoubleSide,toneMapped:false
-  });
-  const plane=new THREE.Mesh(new THREE.PlaneGeometry(width,height),mat);
-  plane.userData.parentPick=g;g.add(plane);
-  g.userData.billboard=plane;
-  g.userData.billboardPhase=rand(0,Math.PI*2);
+function blackHole(item){
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.18;
 
-  const auraMat=new THREE.SpriteMaterial({
-    map:GLOW,color:glow,transparent:true,opacity:.11,depthWrite:false,
+  const core=new THREE.Mesh(
+    new THREE.SphereGeometry(.68,56,38),
+    new THREE.MeshBasicMaterial({color:0x000000})
+  );
+  core.userData.parentPick=g;g.add(core);
+
+  const innerGlow=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:GLOW,color:0xffb13d,transparent:true,opacity:.52,depthWrite:false,
     blending:THREE.AdditiveBlending
-  });
-  auraMat.toneMapped=false;
-  const aura=new THREE.Sprite(auraMat);
-  aura.position.z=-.18;aura.scale.set(width*1.18,width*1.18,1);g.add(aura);
-  g.userData.billboardAura=aura;
+  }));
+  innerGlow.scale.set(2.25,2.25,1);innerGlow.position.z=-.05;g.add(innerGlow);
+
+  const disk1=new THREE.Mesh(
+    new THREE.RingGeometry(.82,1.72,144),
+    new THREE.MeshBasicMaterial({
+      color:0xff8a2f,side:THREE.DoubleSide,transparent:true,opacity:.72,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    })
+  );
+  disk1.rotation.x=1.12;disk1.userData.parentPick=g;g.add(disk1);
+
+  const disk2=new THREE.Mesh(
+    new THREE.TorusGeometry(1.24,.095,22,144),
+    new THREE.MeshBasicMaterial({
+      color:0xffe19a,transparent:true,opacity:.86,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    })
+  );
+  disk2.rotation.x=1.12;disk2.userData.parentPick=g;g.add(disk2);
+
+  const outer=new THREE.Mesh(
+    new THREE.TorusGeometry(1.55,.035,16,144),
+    new THREE.MeshBasicMaterial({
+      color:0xff6b35,transparent:true,opacity:.52,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    })
+  );
+  outer.rotation.x=1.12;outer.userData.parentPick=g;g.add(outer);
+
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.62,24,16),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  hit.userData.parentPick=g;g.add(hit);
+
+  g.userData.accretion=[disk1,disk2];
   return g;
 }
-function blackHole(item){
-  return gallerySpaceObject(item,{width:2.62,height:2.88,glow:0xff8a2d});
-}
 function galaxy(item){
-  return gallerySpaceObject(item,{width:2.58,height:2.82,glow:0x967cff});
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.08;
+
+  const N=1450,p=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const arm=i%4;
+    const r=Math.pow(Math.random(),.58)*1.92;
+    const a=r*4.75+arm*(Math.PI*.5)+rand(-.20,.20);
+    const thickness=(.16*(1-r/2.25)+.025);
+    p[i*3]=Math.cos(a)*r;
+    p[i*3+1]=rand(-thickness,thickness);
+    p[i*3+2]=Math.sin(a)*r*.62;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(p,3));
+  const pts=new THREE.Points(
+    geo,
+    new THREE.PointsMaterial({
+      color:0xdbe6ff,size:.055,transparent:true,opacity:.96,
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+    })
+  );
+  pts.userData.parentPick=g;g.add(pts);
+
+  const core=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:GLOW,color:0xfff2c6,transparent:true,opacity:.58,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  }));
+  core.scale.set(.92,.92,1);g.add(core);
+
+  const blueAura=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:GLOW,color:0x718dff,transparent:true,opacity:.16,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  }));
+  blueAura.scale.set(3.35,2.10,1);blueAura.rotation=.18;blueAura.position.z=-.24;g.add(blueAura);
+
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.65,24,16),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  hit.userData.parentPick=g;g.add(hit);
+
+  g.rotation.x=-.42;g.rotation.z=.16;
+  g.userData.galaxyPoints=pts;
+  return g;
 }
 function solarSystem(item){
   const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.12;
@@ -665,27 +734,24 @@ function searchSlots(root,camera){
   const portrait=aspect<.72;
   const mirror=Math.random()>.5?-1:1;
 
-  const portraitSets=[
-    [[-.78,1.42],[.78,.84],[-.56,.14],[.80,-.62],[-.54,-1.46]],
-    [[.76,1.40],[-.72,.76],[.58,.03],[-.78,-.67],[.54,-1.43]],
-    [[-.64,1.43],[.82,.69],[-.76,-.03],[.69,-.78],[-.48,-1.48]],
-    [[.64,1.39],[-.82,.65],[.70,-.05],[-.60,-.82],[.50,-1.48]]
-  ];
-  const landscapeSets=[
-    [[-1.72,.78],[-.72,-.35],[.02,.82],[.86,-.42],[1.72,.62]],
-    [[-1.72,-.56],[-.82,.70],[.08,-.10],[.92,.74],[1.74,-.50]],
-    [[-1.70,.64],[-.62,-.62],[.15,.72],[.92,-.50],[1.72,.58]]
-  ];
-  const set=shuffle(portrait?portraitSets:landscapeSets)[0];
-  return shuffle(set.map(([x,y])=>new THREE.Vector3(
-    x*mirror+rand(-.045,.045),y+rand(-.045,.045),rand(-.025,.10)
-  )));
+  // Five large choices: exactly 2 top + 1 center + 2 bottom.
+  // Item assignment still changes every round because the option and slot arrays are shuffled.
+  const base=portrait
+    ? [[-.92,1.38],[.92,1.38],[0,.02],[-.92,-1.38],[.92,-1.38]]
+    : [[-1.42,.96],[1.42,.96],[0,0],[-1.42,-.96],[1.42,-.96]];
+
+  return base.map(([x,y],i)=>new THREE.Vector3(
+    x*mirror+rand(-.025,.025),
+    y+rand(-.025,.025),
+    rand(-.02,.07)
+  ));
 }
 function fitSearchObject(g,item,portrait){
   g.updateMatrixWorld(true);
   const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
   const complex=['saturn','uranus','black-hole','milky-way','solar-system'].includes(item.id);
-  const targetRadius=portrait?(complex?.67:.71):(complex?.78:.82);
+  // Larger than V168, while keeping rings/special objects from touching neighboring choices.
+  const targetRadius=portrait?(complex?.77:.82):(complex?.86:.91);
   const radius=Math.max(.01,sphere.radius);
   g.scale.multiplyScalar(targetRadius/radius);
 }
