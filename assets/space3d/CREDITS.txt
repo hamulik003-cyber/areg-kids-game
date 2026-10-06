@@ -4,37 +4,3 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 https://creativecommons.org/licenses/by/4.0/
 
 Textures are based on NASA elevation and imagery data and are used here as 2K equirectangular maps.
-
-
-Additional V165/V166 natural-satellite and dwarf-planet textures:
-- NASA / USGS / JPL mission mosaics and planetary maps, via open-source solar-system projects.
-- chipi/orrery satellite maps (Björn Jónsson planetary maps and Wikimedia/NASA imagery; see upstream texture provenance).
-- HowardZlh/stellar-odyssey Ceres map (NASA Dawn global mosaic, public domain).
-- Atlas26 satellite maps for selected Uranian/Neptunian moons.
-- Solar System Scope fictional dwarf-planet maps for Haumea / Makemake / Eris (CC BY 4.0 where applicable).
-
-Project keeps local copies under assets/space3d/ for stable offline/PWA rendering.
-
-- Fiazul/space-survey Charon map (NASA/USGS-derived planetary map; see upstream credits).
-
-
-V175 full-globe policy:
-- Earth, Mars, Jupiter and every mapped globe use the same Three.js SphereGeometry + UV/equirectangular TextureLoader + MeshStandardMaterial rendering path.
-- Partial flyby mosaics and flat photos are no longer wrapped around spheres.
-- Bodies without a clean complete global map in this repo (Deimos, Titania, Oberon, Triton, Charon, Pluto, Haumea, Makemake, Eris) use internally generated full 2:1 equirectangular educational maps with horizontally wrapped features, avoiding black missing-data regions and longitude seams.
-- Black hole, Milky Way and Solar System remain native Three.js 3D objects; the Solar System's mini-planets reuse the same planet texture maps rather than a poster image.
-
-
-V184 canonical visual remaster:
-- Existing complete global maps in assets/space3d are now used directly on SphereGeometry without runtime reference-image color grading.
-- Moon, Mimas, Tethys, Dione, Rhea, Ariel, Umbriel, Miranda and Nereid use deterministic 2048x1024 equirectangular educational maps generated locally in the renderer. Their longitude edges are explicitly seam-blended before upload to Three.js.
-- The generated moon maps preserve the learning references' dominant palettes and key recognizable terrain cues (for example Mimas/Herschel, icy fractures, dense cratering, Miranda-style patchwork).
-- Nereid intentionally uses a neutral rocky/icy educational surface rather than presenting invented detail as measured global imagery.
-- Special objects (Solar System, Milky Way and Black Hole) are native Three.js constructions; V183 poster/reference sprites were removed.
-
-
-V185 moon identity + full-globe lighting fix:
-- Deimos, Titania, Oberon, Triton and Pluto no longer wrap incomplete/partial photographic coverage around a sphere; they use deterministic full 2:1 maps to prevent black hemispheres and missing-data wedges.
-- Mimas, Tethys, Dione, Rhea, Ariel, Umbriel and Miranda received higher-contrast, object-specific terrain patterns. Fractures are localized rather than globe-wide horizontal bands.
-- MeshStandardMaterial now uses a restrained emissive-map night-side lift per body, preserving texture identity without flattening the 3D lighting.
-- Search-scene key/fill/exposure were reduced to stop pale icy moons from blowing out to the same white ball.
