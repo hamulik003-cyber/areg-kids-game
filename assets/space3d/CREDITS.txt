@@ -4,3 +4,13 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 https://creativecommons.org/licenses/by/4.0/
 
 Textures are based on NASA elevation and imagery data and are used here as 2K equirectangular maps.
+
+
+Additional V165/V166 natural-satellite and dwarf-planet textures:
+- NASA / USGS / JPL mission mosaics and planetary maps, via open-source solar-system projects.
+- chipi/orrery satellite maps (Björn Jónsson planetary maps and Wikimedia/NASA imagery; see upstream texture provenance).
+- HowardZlh/stellar-odyssey Ceres map (NASA Dawn global mosaic, public domain).
+- Atlas26 satellite maps for selected Uranian/Neptunian moons.
+- Solar System Scope fictional dwarf-planet maps for Haumea / Makemake / Eris (CC BY 4.0 where applicable).
+
+Project keeps local copies under assets/space3d/ for stable offline/PWA rendering.
