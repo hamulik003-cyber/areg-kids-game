@@ -441,8 +441,8 @@
       games:[
         {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'planetGallery'},
         {id:'constellations',label:'Համաստեղություններ',thumb:'01-hayk-orion.jpg',kind:'constellationGallery'},
-        {id:'space-search',label:'Տիեզերական որոնում',thumb:'28-solar-system.jpg',kind:'spaceSearch'},
-        {id:'constellation-game',label:'Վառիր համաստեղությունը',thumb:'04-cassiopeia.jpg',kind:'constellationQuest'}
+        {id:'rocket',label:'Հրթիռ',thumb:'space-game-3.jpg',kind:'rocket'},
+        {id:'constellation',label:'Համաստեղություն',thumb:'space-game-4.jpg',kind:'connect'}
       ]
     },
     mind:{
@@ -611,25 +611,17 @@
   $('#sectionBack').addEventListener('click',closeSection);
   $('#activityBack').addEventListener('click',backToSection);
 
-  function fitSpaceGameLabels(){
-    const specs=[
-      ['constellations',16,10.5],
-      ['space-search',15.6,10],
-      ['constellation-game',15.2,9.5]
-    ];
-    specs.forEach(([id,max,min])=>{
-      const label=sectionGames.querySelector(`.toddler-game-card[data-game="${id}"] .toddler-game-label`);
-      if(!label)return;
-      label.style.setProperty('white-space','nowrap','important');
-      label.style.setProperty('letter-spacing','-.035em','important');
-      label.style.setProperty('font-size',max+'px','important');
-      const step=.25;
-      let size=max;
-      while(size>min && label.scrollWidth>label.clientWidth){
-        size=Math.max(min,size-step);
-        label.style.setProperty('font-size',size+'px','important');
-      }
-    });
+  function fitSpaceConstellationsLabel(){
+    const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
+    if(!label)return;
+    label.style.setProperty('font-size','16px','important');
+    label.style.setProperty('letter-spacing','-.035em','important');
+    const min=10.5,step=.25;
+    let size=16;
+    while(size>min && label.scrollWidth>label.clientWidth){
+      size=Math.max(min,size-step);
+      label.style.setProperty('font-size',size+'px','important');
+    }
   }
 
   function openSection(id){
@@ -649,7 +641,7 @@
         b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
       });
     }
-    homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceGameLabels();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceGameLabels);}});
+    homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
   }
 
   function saveMagicUnlocked(){
@@ -735,31 +727,8 @@
   }
   function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
-  function spaceGameContext(){
-    return {
-      activityContent,
-      PLANETS,
-      CONSTELLATIONS,
-      settings,
-      menuMusic,
-      applyAudio,
-      pickArmenianSpeechVoice,
-      gameCleanup,
-      awardStar(){
-        stars+=1;
-        saveStars();
-        updateStars();
-      }
-    };
-  }
-  function launchSpaceProGame(name){
-    const api=window.AregSpaceGames;
-    if(api&&typeof api[name]==='function')return api[name](spaceGameContext());
-    return gameRocket();
-  }
-
   function renderGame(g){
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpaceProGame('spaceSearch'),constellationQuest:()=>launchSpaceProGame('constellationQuest'),shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 

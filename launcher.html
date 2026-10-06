@@ -1,4 +1,4 @@
-<!-- V148 no-cache-wipe launcher -->
+<!-- V130 planet status colors -->
 <!doctype html>
 <html lang="hy">
 <head>
@@ -13,9 +13,11 @@
 </head>
 <body>
 <script>
-(() => {
+(async () => {
   const stamp = Date.now();
-  location.replace('./?kiosk=v148-' + stamp + '&__areg_build=148');
+  try { if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r => r.unregister())); } } catch (_) {}
+  try { if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); } } catch (_) {}
+  location.replace('./?kiosk=v143-' + stamp + '&hardrefresh=1');
 })();
 </script>
 </body>
