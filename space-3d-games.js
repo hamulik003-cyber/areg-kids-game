@@ -56,17 +56,39 @@ function glowTexture(){
 const GLOW=glowTexture();
 function starField(scene){
   const skyTex=getTexture('assets/space3d/2k_stars_milky_way.jpg');
-  const sky=new THREE.Mesh(
-    new THREE.SphereGeometry(32,48,32),
-    new THREE.MeshBasicMaterial({map:skyTex,side:THREE.BackSide,color:0xffffff})
-  );
+  const skyMat=new THREE.MeshBasicMaterial({map:skyTex,side:THREE.BackSide,color:0xffffff,fog:false});
+  skyMat.toneMapped=false;
+  const sky=new THREE.Mesh(new THREE.SphereGeometry(34,48,32),skyMat);
   scene.add(sky);
-  const count=260,p=new Float32Array(count*3);
-  for(let i=0;i<count;i++){p[i*3]=rand(-18,18);p[i*3+1]=rand(-11,11);p[i*3+2]=rand(-15,4)}
+
+  const count=720,p=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2;
+    const z=rand(-14,3);
+    const radius=rand(8,20);
+    p[i*3]=Math.cos(a)*radius;
+    p[i*3+1]=rand(-11,11);
+    p[i*3+2]=z;
+  }
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));
-  const pts=new THREE.Points(g,new THREE.PointsMaterial({color:0xe8f1ff,size:.025,transparent:true,opacity:.72,depthWrite:false}));
-  scene.add(pts);
-  const grp=new THREE.Group();grp.add(sky,pts);return grp;
+  const ptsMat=new THREE.PointsMaterial({
+    color:0xf2f7ff,size:.045,transparent:true,opacity:.92,depthWrite:false,
+    blending:THREE.AdditiveBlending,sizeAttenuation:true
+  });
+  ptsMat.toneMapped=false;
+  const pts=new THREE.Points(g,ptsMat);scene.add(pts);
+
+  const bright=new THREE.Group();
+  for(let i=0;i<26;i++){
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:GLOW,color:i%5===0?0xffefb0:0xbfd8ff,transparent:true,
+      opacity:rand(.26,.62),depthWrite:false,blending:THREE.AdditiveBlending
+    }));
+    sp.position.set(rand(-10,10),rand(-7,7),rand(-13,-4));
+    const sz=rand(.08,.22);sp.scale.set(sz,sz,1);bright.add(sp);
+  }
+  scene.add(bright);
+  const grp=new THREE.Group();grp.add(sky,pts,bright);return grp;
 }
 function nebula(){return null}
 function ringMesh(item,inner=1.22,outer=2.08){
@@ -180,12 +202,35 @@ function createHud(root,title){
   hud.innerHTML=`<div class="s3d-prompt"><small>${title}</small><strong>Պատրաստվիր</strong></div><div class="s3d-score">✦ <b>0</b></div>`;
   root.appendChild(hud);return {prompt:hud.querySelector('strong'),score:hud.querySelector('b')};
 }
+function searchSlots(root,camera){
+  const aspect=Math.max(.38,Math.min(1.15,root.clientWidth/Math.max(1,root.clientHeight)));
+  // Portrait phones get a tight centered triangle. Nothing can live near screen edges.
+  if(aspect<.72){
+    return [
+      new THREE.Vector3(0,1.22,.05),
+      new THREE.Vector3(-.88,-1.18,.14),
+      new THREE.Vector3(.88,-1.18,.02)
+    ];
+  }
+  return [
+    new THREE.Vector3(-1.55,.15,.05),
+    new THREE.Vector3(0,.15,.14),
+    new THREE.Vector3(1.55,.15,.02)
+  ];
+}
+function fitSearchObject(g,item,portrait){
+  // Keep even Saturn's rings fully inside the iPhone safe area.
+  const factor=portrait
+    ? (item.id==='saturn'?.54:item.id==='uranus'?.64:item.id==='sun'?.67:item.id==='jupiter'?.68:.76)
+    : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
+  g.scale.multiplyScalar(factor);
+}
 function gameSpaceSearch(ctx){
   ctx.activityContent.innerHTML='';ctx.menuMusic.pause();
   const root=document.createElement('div');root.className='s3d-root';ctx.activityContent.appendChild(root);
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
-  const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x010207);
-  const camera=new THREE.PerspectiveCamera(46,1,.1,80);camera.position.set(0,.25,8.2);
+  const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x030817);
+  const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,9.25);
   scene.add(new THREE.HemisphereLight(0x7896c8,0x020308,.18));
   const key=new THREE.DirectionalLight(0xffffff,4.15);key.position.set(-4.5,5.5,7);scene.add(key);
   const rim=new THREE.DirectionalLight(0x496dff,.34);rim.position.set(5,-2,2);scene.add(rim);
@@ -193,16 +238,23 @@ function gameSpaceSearch(ctx){
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
   const next=bag(pool);let groups=[],target=null,score=0,locked=false,disposed=false,last=performance.now(),wrong=null,winStart=0,timer=0,recent=[];
-  const slots=[new THREE.Vector3(-2.45,.72,0),new THREE.Vector3(0,-1.35,.25),new THREE.Vector3(2.45,.72,-.15)];
   function decoys(t){let p=shuffle(pool.filter(x=>x.id!==t.id&&!recent.includes(x.id)));if(p.length<2)p=shuffle(pool.filter(x=>x.id!==t.id));return p.slice(0,2)}
   function clear(){groups.forEach(g=>{scene.remove(g);disposeObject(g)});groups=[];pickables.length=0}
   function round(){
-    clear();locked=true;winStart=0;wrong=null;target=next();const opts=shuffle([target,...decoys(target)]),ss=shuffle(slots);
+    clear();locked=true;winStart=0;wrong=null;target=next();
+    const opts=shuffle([target,...decoys(target)]);
+    const slots=shuffle(searchSlots(root,camera));
+    const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+target.name;
     const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
-    built.forEach((g,i)=>{g.position.copy(ss[i]);g.position.z+=rand(-.18,.18);scene.add(g);groups.push(g);g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)})});
+    built.forEach((g,i)=>{
+      fitSearchObject(g,opts[i],portrait);
+      g.position.copy(slots[i]);
+      scene.add(g);groups.push(g);
+      g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)});
+    });
     locked=false;voice('Գտի՛ր '+target.name,ctx);
   }
   function pointer(e){
@@ -216,7 +268,9 @@ function gameSpaceSearch(ctx){
   renderer.domElement.addEventListener('pointerup',pointer);
   function loop(t){
     if(disposed)return;const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.0015;
-    camera.position.x=Math.sin(t*.00018)*.15;camera.position.y=.18+Math.cos(t*.00016)*.05;camera.lookAt(0,0,0);
+    camera.position.x=Math.sin(t*.00018)*.035;
+    camera.position.y=.10+Math.cos(t*.00016)*.025;
+    camera.lookAt(0,-.08,0);
     groups.forEach((g,i)=>{
       if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18);
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
