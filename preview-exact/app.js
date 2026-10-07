@@ -360,32 +360,23 @@
     {id:'saturn',img:'08-saturn.jpg',name:'Սատուրն',status:'Գազային հսկա',kind:'saturn',c1:'#ead79d',c2:'#9f8557',accent:'#e4c77e'},
     {id:'uranus',img:'09-uranus.jpg',name:'Ուրան',status:'Սառցային հսկա',kind:'ring',c1:'#91e0e4',c2:'#4ca8b4',accent:'#83d8df'},
     {id:'neptune',img:'10-neptune.jpg',name:'Նեպտուն',status:'Սառցային հսկա',kind:'bands',c1:'#4b7ce3',c2:'#173e91',accent:'#5686e9'},
-    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
-
     {id:'phobos',img:'11-phobos.jpg',name:'Ֆոբոս',status:'Բնական արբանյակ',kind:'rock',c1:'#92847a',c2:'#534841',accent:'#9a8b82'},
     {id:'deimos',img:'12-deimos.jpg',name:'Դեյմոս',status:'Բնական արբանյակ',kind:'rock',c1:'#aa9c91',c2:'#65584f',accent:'#aea198'},
-
     {id:'io',img:'13-io.jpg',name:'Իո',status:'Բնական արբանյակ',kind:'spots',c1:'#eadf71',c2:'#8e8635',accent:'#e5d65f'},
     {id:'europa',img:'14-europa.jpg',name:'Եվրոպա',status:'Բնական արբանյակ',kind:'cracks',c1:'#dfd1ad',c2:'#907b5c',accent:'#dfc899'},
     {id:'ganymede',img:'15-ganymede.jpg',name:'Գանիմեդ',status:'Բնական արբանյակ',kind:'rock',c1:'#a7917c',c2:'#55473d',accent:'#a08a77'},
     {id:'callisto',img:'16-callisto.jpg',name:'Կալիստո',status:'Բնական արբանյակ',kind:'spots',c1:'#827368',c2:'#3d3430',accent:'#86766b'},
-
     {id:'titan',img:'17-titan.jpg',name:'Տիտան',status:'Բնական արբանյակ',kind:'haze',c1:'#dfa84e',c2:'#83521f',accent:'#e0a542'},
     {id:'enceladus',img:'18-enceladus.jpg',name:'Էնցելադուս',status:'Բնական արբանյակ',kind:'cracks',c1:'#f0fbff',c2:'#9cc8df',accent:'#dff6ff'},
-    {id:'mimas',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/mimas.jpg',name:'Միմաս',status:'Բնական արբանյակ',kind:'rock',c1:'#b9b7b0',c2:'#686761',accent:'#c9c6bd'},
-    {id:'tethys',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/tethys.jpg',name:'Թեթիս',status:'Բնական արբանյակ',kind:'ice',c1:'#d8dde0',c2:'#858c91',accent:'#e5e9eb'},
-    {id:'dione',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/dione.jpg',name:'Դիոնե',status:'Բնական արբանյակ',kind:'cracks',c1:'#d7dde0',c2:'#7d888f',accent:'#e5eef2'},
-    {id:'rhea',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/rhea.jpg',name:'Ռեա',status:'Բնական արբանյակ',kind:'rock',c1:'#b8bdc1',c2:'#71767a',accent:'#c9cdd0'},
-
     {id:'titania',img:'19-titania.jpg',name:'Տիտանիա',status:'Բնական արբանյակ',kind:'rock',c1:'#b2bfbd',c2:'#617674',accent:'#aebfbd'},
     {id:'oberon',img:'20-oberon.jpg',name:'Օբերոն',status:'Բնական արբանյակ',kind:'rock',c1:'#817f79',c2:'#44413d',accent:'#85817d'},
-    {id:'ariel',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/ariel.jpg',name:'Արիել',status:'Բնական արբանյակ',kind:'cracks',c1:'#c6d6d8',c2:'#778f95',accent:'#d8e7e8'},
-    {id:'umbriel',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/umbriel.jpg',name:'Ումբրիել',status:'Բնական արբանյակ',kind:'rock',c1:'#777b7c',c2:'#3e4345',accent:'#818889'},
-    {id:'miranda',texture:'https://raw.githubusercontent.com/cosmoscout/cosmoscout-vr/369aad3c5361f52d353dfb1fa8b05b254d89e86b/plugins/csp-simple-bodies/textures/miranda.jpg',name:'Միրանդա',status:'Բնական արբանյակ',kind:'cracks',c1:'#b9c1c0',c2:'#66716f',accent:'#cbd2cf'},
-
     {id:'triton',img:'21-triton.jpg',name:'Տրիտոն',status:'Բնական արբանյակ',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
-    {id:'nereid',texture:'https://raw.githubusercontent.com/callumprentice/callumprentice.github.io/0aaee72c5e001cc8d9d0a7a04d0a927c09fc7f6f/apps/celestial_bodies/surface_textures/neptune/nereid.jpg',name:'Ներեիդ',status:'Բնական արբանյակ',kind:'rock',c1:'#8b9093',c2:'#4a5054',accent:'#959b9f'},
-
+    {id:'charon',img:'22-charon.jpg',name:'Խարոն',status:'Բնական արբանյակ',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
+    {id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',status:'Գաճաճ մոլորակ',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
+    {id:'ceres',img:'24-ceres.jpg',name:'Ցերերա',status:'Գաճաճ մոլորակ',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
+    {id:'haumea',img:'25-haumea.jpg',name:'Հաումեա',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
+    {id:'makemake',img:'26-makemake.jpg',name:'Մակեմակե',status:'Գաճաճ մոլորակ',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
+    {id:'eris',img:'27-eris.jpg',name:'Էրիս',status:'Գաճաճ մոլորակ',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
     {id:'solar-system',img:'28-solar-system.jpg',name:'Արեգակնային համակարգ',status:'Մոլորակային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
     {id:'milky-way',img:'29-milky-way.jpg',name:'Ծիր Կաթին',status:'Գալակտիկա',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
     {id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',status:'Տիեզերական օբյեկտ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
