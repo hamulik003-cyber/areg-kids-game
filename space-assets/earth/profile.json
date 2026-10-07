@@ -1,6 +1,6 @@
 {
   "id": "earth",
-  "status": "front-auto-calibrated-awaiting-visual-approval",
+  "status": "technical-validated-awaiting-visual-approval",
   "masterReference": "04-earth.jpg",
   "referenceBlobSha": "92fa1ec98c7eca95f9eb30fe005033d42d3c394e",
   "geometry": "sphere",
@@ -23,18 +23,21 @@
     "scale": 1.292,
     "source": "V2 accepted Earth orientation",
     "approved": false,
-    "autoCalibration": "space-assets/earth/calibration-report.json"
+    "autoCalibration": "space-assets/earth/calibration-report.json",
+    "proof": "space-assets/earth/calibration-preview.png"
   },
   "rotationCheck": {
-    "deg0": false,
-    "deg90": false,
-    "deg180": false,
-    "deg270": false,
-    "deg360": false
+    "deg0": true,
+    "deg90": true,
+    "deg180": true,
+    "deg270": true,
+    "deg360": true,
+    "proof": "space-assets/earth/rotation-proof.png"
   },
   "preservation": {
     "externalRuntimeDependency": false,
     "immutableReference": true,
-    "localizedFromTemporarySource": true
+    "localizedFromTemporarySource": true,
+    "technicalCheckpoint": true
   }
 }
