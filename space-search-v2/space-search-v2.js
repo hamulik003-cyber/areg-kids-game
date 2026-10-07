@@ -113,13 +113,9 @@ const PROFILE={
     reference:'10-neptune.jpg',
     texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/4fc34365-6eed-421f-a729-430892504419.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjRjNjFhOGZmNjRmNDgyNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzNTYzMX0.vU5TXv2uSBP_b5yUqYvHN8sdwCMS94rPp3yZ8CklCwg',
     idle:.69,win:1.34,spin:.15,tilt:0,frontY:-Math.PI/2,grade:'direct-generated',
-    // Experimental remaster proof: use the newly generated 2:1 map directly.
-    // Preserve native colors/feature scale; no procedural grading or canvas projection.
+    // Same direct texture pipeline as the accepted Moon proof.
     directTexture:true,
-    basic:true,
-    // Keep the 1774x887 NPOT source at native resolution on iOS/WebGL1.
-    // RepeatWrapping + mipmaps can force older WebGL paths to downscale it to 1024x512.
-    preserveNativeNPOT:true
+    basic:true
   },
 
   // Batch 2 — direct native 2:1 maps supplied by the user.
@@ -491,23 +487,12 @@ async function processedTexture(item){
         loader.load(cfg.texture,resolve,undefined,reject);
       });
       t.colorSpace=THREE.SRGBColorSpace;
-      if(cfg.preserveNativeNPOT){
-        // Preserve the original non-power-of-two image exactly on iPhone/WebGL1:
-        // no repeat wrapping, no generated mip chain, no implicit POT rescale.
-        t.wrapS=THREE.ClampToEdgeWrapping;
-        t.wrapT=THREE.ClampToEdgeWrapping;
-        t.minFilter=THREE.LinearFilter;
-        t.magFilter=THREE.LinearFilter;
-        t.anisotropy=1;
-        t.generateMipmaps=false;
-      }else{
-        t.wrapS=THREE.RepeatWrapping;
-        t.wrapT=THREE.ClampToEdgeWrapping;
-        t.minFilter=THREE.LinearMipmapLinearFilter;
-        t.magFilter=THREE.LinearFilter;
-        t.anisotropy=16;
-        t.generateMipmaps=true;
-      }
+      t.wrapS=THREE.RepeatWrapping;
+      t.wrapT=THREE.ClampToEdgeWrapping;
+      t.minFilter=THREE.LinearMipmapLinearFilter;
+      t.magFilter=THREE.LinearFilter;
+      t.anisotropy=12;
+      t.generateMipmaps=true;
       t.needsUpdate=true;
       textureCache.set(item.id,t);
       pendingTexture.delete(item.id);
@@ -687,7 +672,7 @@ async function buildPlanet(item){
 }
 
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,VIEWER_MODE?3:1.75));
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.04;
 renderer.domElement.className='v2-canvas';stage.insertBefore(renderer.domElement,stage.firstChild);
