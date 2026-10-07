@@ -1,0 +1,19 @@
+{
+  "id": "haumea",
+  "status": "pilot",
+  "reference": "25-haumea.jpg",
+  "geometry": "triaxial-plus-ring",
+  "texture": null,
+  "rings": {
+    "approved": false
+  },
+  "frontView": {
+    "approved": false
+  },
+  "rotationCheck": {
+    "deg90": false,
+    "deg180": false,
+    "deg270": false,
+    "deg360": false
+  }
+}
