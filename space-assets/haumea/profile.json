@@ -1,6 +1,6 @@
 {
   "id": "haumea",
-  "status": "texture-generated-body-ring-auto-calibrated-awaiting-visual-approval",
+  "status": "technical-validated-awaiting-visual-approval",
   "masterReference": "25-haumea.jpg",
   "referenceBlobSha": "6d0a7d54866fc9e891c56f6bc25c4eb885d094b3",
   "geometry": "triaxial-plus-ring",
@@ -33,25 +33,29 @@
     "rollDeg": 23.5,
     "scale": 1.18,
     "approved": false,
-    "autoCalibration": "space-assets/haumea/calibration-report.json"
+    "autoCalibration": "space-assets/haumea/calibration-report.json",
+    "proof": "space-assets/haumea/validation-proof.png"
   },
   "ring": {
     "rotationXRad": -1.16,
     "rotationZRad": 0.445,
     "scale": 0.89,
-    "approved": false
+    "approved": false,
+    "proof": "space-assets/haumea/validation-proof.png"
   },
   "rotationCheck": {
-    "deg0": false,
-    "deg90": false,
-    "deg180": false,
-    "deg270": false,
-    "deg360": false
+    "deg0": true,
+    "deg90": true,
+    "deg180": true,
+    "deg270": true,
+    "deg360": true,
+    "proof": "space-assets/haumea/validation-proof.png"
   },
   "preservation": {
     "externalRuntimeDependency": false,
     "immutableReference": true,
     "generatedTextureMustBeCommitted": true,
-    "generatedTextureCommitted": true
+    "generatedTextureCommitted": true,
+    "technicalCheckpoint": true
   }
 }
