@@ -19,3 +19,10 @@ V165 reference-projected first-five fix:
 - The hidden hemisphere is mirrored from the same reference surface, creating a closed 360-degree texture with identical left/right longitude edge pixels and no visible seam.
 - Blue/purple gallery background pixels are rejected during projection so the nebula background cannot leak onto the 3D body.
 - V163 camera, three-object layout, animation timing, win/lose feedback and interaction logic remain unchanged.
+
+
+V166 UV orientation correction:
+- Corrected the reference-projected batch texture offset from +0.25 to -0.25.
+- Three.js SphereGeometry presents the +Z camera-facing point around u=0.75; the reconstructed gallery reference face is centered at u=0.50. The previous +0.25 shift moved the mirrored back boundary to the visible center and caused the vertical/horizontal smear seen on Deimos, Europa, Io, Phobos and Ganymede.
+- The -0.25 shift places the learned gallery face at the front and moves the mirrored boundary to the hidden/rear side.
+- No V163 layout, camera, animation, feedback, sizing or interaction code was changed.

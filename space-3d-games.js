@@ -181,7 +181,7 @@ async function prepareBatchTexture(item){
     t.colorSpace=THREE.SRGBColorSpace;
     t.wrapS=THREE.RepeatWrapping;
     t.wrapT=THREE.ClampToEdgeWrapping;
-    t.offset.x=.25;
+    t.offset.x=-.25;
     t.minFilter=THREE.LinearMipmapLinearFilter;
     t.magFilter=THREE.LinearFilter;
     t.anisotropy=16;
