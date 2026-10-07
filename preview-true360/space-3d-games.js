@@ -736,7 +736,7 @@ function gameSpaceSearch(ctx){
   const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
-  const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
+  const pool=ctx.PLANETS.filter(x=>TRUE360_IDS.has(x.id));
   const next=bag(pool);
 
   let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
