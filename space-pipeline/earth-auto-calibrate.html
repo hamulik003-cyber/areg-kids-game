@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CALIBRATING</title>
+<style>
+html,body{margin:0;background:#050914;color:#fff;font:14px system-ui,sans-serif}
+main{width:1120px;margin:24px auto}
+h1{font-size:24px;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.card{background:#0b1326;border:1px solid #263856;border-radius:18px;padding:12px}
+.card h2{font-size:13px;margin:0 0 8px;color:#a9bee8}
+.card img,.card canvas{display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#020612;border-radius:12px}
+pre{white-space:pre-wrap;background:#091021;border:1px solid #263856;border-radius:14px;padding:14px;margin-top:16px;color:#cfe0ff}
+</style>
+</head>
+<body>
+<main>
+<h1>Earth V3 automatic front calibration</h1>
+<div class="grid">
+  <section class="card"><h2>MASTER REFERENCE</h2><img id="refView" src="../04-earth.jpg" alt=""></section>
+  <section class="card"><h2>CALIBRATED 3D</h2><canvas id="view3d" width="512" height="512"></canvas></section>
+  <section class="card"><h2>50% OVERLAY</h2><canvas id="overlay" width="512" height="512"></canvas></section>
+</div>
+<pre id="result">{"status":"running"}</pre>
+</main>
+<script type="module">
+import * as THREE from '../vendor/three.module.min.js';
+
+const N=512,BASE_FRONT=-90;
+const resultEl=document.getElementById('result');
+const refImg=document.getElementById('refView');
+const viewCanvas=document.getElementById('view3d');
+const overlayCanvas=document.getElementById('overlay');
+
+function waitImage(img){
+  return new Promise((resolve,reject)=>{
+    if(img.complete&&img.naturalWidth){resolve();return}
+    img.onload=()=>resolve();img.onerror=reject;
+  });
+}
+function drawContain(ctx,img,w,h){
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#020612';ctx.fillRect(0,0,w,h);
+  const s=Math.min(w/img.naturalWidth,h/img.naturalHeight);
+  const dw=img.naturalWidth*s,dh=img.naturalHeight*s;
+  ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);
+}
+function colorDist(a,b){const dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];return Math.sqrt(dr*dr+dg*dg+db*db)}
+function estimateBg(data){
+  const pts=[],k=28;
+  for(const [x0,y0] of [[0,0],[N-k,0],[0,N-k],[N-k,N-k]]){
+    for(let y=y0;y<y0+k;y+=3)for(let x=x0;x<x0+k;x+=3){
+      const i=(y*N+x)*4;pts.push([data[i],data[i+1],data[i+2]]);
+    }
+  }
+  return [0,1,2].map(c=>Math.round(pts.reduce((s,p)=>s+p[c],0)/pts.length));
+}
+function estimateRadius(data,bg){
+  const cx=N/2,cy=N/2,max=N*.48,radii=[];
+  for(let deg=0;deg<360;deg+=5){
+    const a=deg*Math.PI/180;let last=0,miss=0,seen=false;
+    for(let r=0;r<max;r++){
+      const x=Math.max(0,Math.min(N-1,Math.round(cx+Math.cos(a)*r)));
+      const y=Math.max(0,Math.min(N-1,Math.round(cy+Math.sin(a)*r)));
+      const i=(y*N+x)*4,d=colorDist([data[i],data[i+1],data[i+2]],bg);
+      if(d>24){last=r;miss=0;seen=true}else if(seen){miss++}
+      if(seen&&r>40&&miss>=10)break;
+    }
+    if(last>60)radii.push(last);
+  }
+  radii.sort((a,b)=>a-b);
+  return radii.length?radii[Math.floor(radii.length/2)]:N*.36;
+}
+function pixelMetric(ref,ren,radius){
+  const cx=N/2,cy=N/2,r2=(radius*.72)**2;let sum=0,count=0;
+  for(let y=Math.floor(cy-radius*.72);y<=cy+radius*.72;y+=4){
+    for(let x=Math.floor(cx-radius*.72);x<=cx+radius*.72;x+=4){
+      const dx=x-cx,dy=y-cy;if(dx*dx+dy*dy>r2)continue;
+      const i=(y*N+x)*4;
+      const rr=ref[i],rg=ref[i+1],rb=ref[i+2],ar=ren[i],ag=ren[i+1],ab=ren[i+2];
+      const rs=rr+rg+rb+1,as=ar+ag+ab+1;
+      const chroma=Math.abs(rr/rs-ar/as)+Math.abs(rg/rs-ag/as)+Math.abs(rb/rs-ab/as);
+      const rl=Math.log1p((rr+rg+rb)/3),al=Math.log1p((ar+ag+ab)/3);
+      sum+=chroma+.16*Math.abs(rl-al);count++;
+    }
+  }
+  return sum/Math.max(1,count);
+}
+
+try{
+  await waitImage(refImg);
+  const refCanvas=document.createElement('canvas');refCanvas.width=refCanvas.height=N;
+  const rctx=refCanvas.getContext('2d',{willReadFrequently:true});
+  drawContain(rctx,refImg,N,N);
+  const refData=rctx.getImageData(0,0,N,N).data;
+  const bg=estimateBg(refData);
+  const refRadius=estimateRadius(refData,bg);
+
+  const renderer=new THREE.WebGLRenderer({canvas:viewCanvas,antialias:true,preserveDrawingBuffer:true});
+  renderer.setPixelRatio(1);renderer.setSize(N,N,false);
+  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;
+  renderer.setClearColor(new THREE.Color(bg[0]/255,bg[1]/255,bg[2]/255),1);
+  const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1.35,1.35,1.35,-1.35,.1,10);
+  camera.position.set(0,0,3);
+  const texture=await new THREE.TextureLoader().loadAsync('../space-assets/earth/texture-2k.png');
+  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=THREE.RepeatWrapping;
+  const earth=new THREE.Mesh(new THREE.SphereGeometry(1,192,128),new THREE.MeshBasicMaterial({map:texture}));
+  scene.add(earth);
+
+  const baseRadius=N/2.7;
+  const scale=Math.max(.70,Math.min(1.30,refRadius/baseRadius));
+  earth.scale.setScalar(scale);
+  const cctx=document.createElement('canvas').getContext('2d',{willReadFrequently:true});
+  cctx.canvas.width=cctx.canvas.height=N;
+
+  function renderAt(deg){
+    earth.rotation.set(0,THREE.MathUtils.degToRad(deg),0);
+    renderer.render(scene,camera);
+    cctx.clearRect(0,0,N,N);cctx.drawImage(viewCanvas,0,0,N,N);
+    return cctx.getImageData(0,0,N,N).data;
+  }
+
+  let best={deg:BASE_FRONT,score:Infinity};
+  for(let deg=BASE_FRONT-42;deg<=BASE_FRONT+42;deg+=2){
+    const score=pixelMetric(refData,renderAt(deg),refRadius);
+    if(score<best.score)best={deg,score};
+  }
+  const coarse=best.deg;
+  for(let deg=coarse-2;deg<=coarse+2.0001;deg+=.25){
+    const score=pixelMetric(refData,renderAt(deg),refRadius);
+    if(score<best.score)best={deg,score};
+  }
+
+  const finalData=renderAt(best.deg);
+  const octx=overlayCanvas.getContext('2d');
+  octx.putImageData(new ImageData(new Uint8ClampedArray(finalData),N,N),0,0);
+  octx.globalAlpha=.5;octx.drawImage(refCanvas,0,0,N,N);octx.globalAlpha=1;
+
+  const report={
+    status:'ok',
+    algorithm:'v1-center-disk-chroma-match',
+    baselineFrontDeg:BASE_FRONT,
+    measuredFrontDeg:Number(best.deg.toFixed(2)),
+    yawOffsetDeg:Number((best.deg-BASE_FRONT).toFixed(2)),
+    measuredScale:Number(scale.toFixed(4)),
+    referenceRadiusPx:Number(refRadius.toFixed(2)),
+    metricScore:Number(best.score.toFixed(6)),
+    texture:'space-assets/earth/texture-2k.png',
+    reference:'04-earth.jpg',
+    approved:false
+  };
+  resultEl.textContent=JSON.stringify(report,null,2);
+  document.title='CALIBRATION_READY';
+}catch(err){
+  const report={status:'error',message:String(err&&err.stack||err)};
+  resultEl.textContent=JSON.stringify(report,null,2);
+  document.title='CALIBRATION_ERROR';
+}
+</script>
+</body>
+</html>

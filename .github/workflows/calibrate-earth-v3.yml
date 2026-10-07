@@ -1,0 +1,90 @@
+name: Calibrate Earth V3
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - space-pipeline-v3-earth
+    paths:
+      - 'space-pipeline/earth-auto-calibrate.html'
+      - '.github/workflows/calibrate-earth-v3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-pipeline-v3-earth
+
+      - name: Start local server
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/earth-v3-server.log 2>&1 &
+          echo $! >/tmp/earth-v3-server.pid
+          sleep 2
+
+      - name: Run automatic browser calibration
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "No Chromium browser found"; exit 1; }
+          timeout 60s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=15000             --dump-dom             http://127.0.0.1:8080/space-pipeline/earth-auto-calibrate.html             >/tmp/earth-calibration-dom.html 2>/tmp/earth-chrome.log
+          grep -q 'CALIBRATION_READY' /tmp/earth-calibration-dom.html || {
+            cat /tmp/earth-chrome.log || true
+            cat /tmp/earth-calibration-dom.html || true
+            exit 1
+          }
+
+      - name: Save report and update profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, html, json
+          dom=Path('/tmp/earth-calibration-dom.html').read_text(encoding='utf-8',errors='replace')
+          m=re.search(r'<pre id="result">([\s\S]*?)</pre>',dom)
+          if not m:
+              raise SystemExit('Calibration result not found')
+          payload=html.unescape(m.group(1)).strip()
+          report=json.loads(payload)
+          if report.get('status')!='ok':
+              raise SystemExit('Calibration failed: '+json.dumps(report))
+          out=Path('space-assets/earth/calibration-report.json')
+          out.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          p=Path('space-assets/earth/profile.json')
+          profile=json.loads(p.read_text(encoding='utf-8'))
+          fv=profile.setdefault('frontView',{})
+          fv['rotationYDeg']=report['measuredFrontDeg']
+          fv['rotationYRad']=round(report['measuredFrontDeg']*3.141592653589793/180,12)
+          fv['scale']=report['measuredScale']
+          fv['autoCalibration']='space-assets/earth/calibration-report.json'
+          fv['approved']=False
+          profile['status']='front-auto-calibrated-awaiting-visual-approval'
+          p.write_text(json.dumps(profile,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Save visual calibration preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 60s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=15000             --window-size=1200,900             --screenshot=space-assets/earth/calibration-preview.png             http://127.0.0.1:8080/space-pipeline/earth-auto-calibrate.html             >/tmp/earth-shot.log 2>&1
+          test -s space-assets/earth/calibration-preview.png
+
+      - name: Commit calibration result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/earth/profile.json                   space-assets/earth/calibration-report.json                   space-assets/earth/calibration-preview.png
+          git commit -m "V3 Earth: auto-calibrate front match" || exit 0
+          git push origin HEAD:space-pipeline-v3-earth
