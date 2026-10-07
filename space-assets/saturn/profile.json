@@ -1,6 +1,6 @@
 {
   "id": "saturn",
-  "status": "awaiting-auto-calibration",
+  "status": "front-and-ring-auto-calibrated-awaiting-visual-approval",
   "masterReference": "08-saturn.jpg",
   "referenceBlobSha": "b6c7418de1f074f33300e017a823256d678e606f",
   "geometry": "oblate-sphere-plus-rings",
@@ -14,19 +14,24 @@
     "extraGrading": false
   },
   "frontView": {
-    "rotationYRad": 0.35,
-    "rotationYDeg": 20.0535,
-    "rollDeg": 26.73,
-    "scale": 1.0,
-    "approved": false
+    "rotationYRad": -0.191113553093,
+    "rotationYDeg": -10.95,
+    "rollDeg": 32.73,
+    "scale": 1.55,
+    "approved": false,
+    "autoCalibration": "space-assets/saturn/calibration-report.json"
   },
-  "shape": {"x":1.0,"y":0.91,"z":1.0},
+  "shape": {
+    "x": 1.0,
+    "y": 0.91,
+    "z": 1.0
+  },
   "ring": {
-    "inner": 1.20,
+    "inner": 1.2,
     "outer": 2.02,
-    "scale": 1.02,
-    "rotationXRad": -1.01,
-    "rotationZRad": 0.31,
+    "scale": 1.1,
+    "rotationXRad": -1.14,
+    "rotationZRad": 0.29,
     "opacity": 0.98,
     "approved": false
   },

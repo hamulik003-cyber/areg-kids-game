@@ -1,0 +1,16 @@
+{
+  "status": "ok",
+  "algorithm": "v3-saturn-body-ring-two-stage-match",
+  "measuredYawDeg": -10.95,
+  "measuredRollDeg": 32.73,
+  "measuredScale": 1.55,
+  "ringScale": 1.1,
+  "ringRotationXRad": -1.14,
+  "ringRotationZRad": 0.29,
+  "bodyMetric": 0.417719,
+  "ringMetric": 0.558294,
+  "texture": "assets/space3d/2k_saturn.jpg",
+  "ringTexture": "assets/space3d/2k_saturn_ring_alpha.png",
+  "reference": "08-saturn.jpg",
+  "approved": false
+}
