@@ -1,0 +1,9 @@
+{
+  "fixes": {
+    "blackHole": "removed embedded referenceArtSprite background",
+    "milkyWay": "removed embedded referenceArtSprite background",
+    "haumea": "display roll locked to -31deg to match reference orientation; ring roll aligned",
+    "makemake": "forced spherical geometry; ignores oval kind"
+  },
+  "approved": false
+}
