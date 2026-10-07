@@ -18,6 +18,9 @@ const byte=v=>Math.max(0,Math.min(255,Math.round(v)));
 const rand=(a,b)=>a+Math.random()*(b-a);
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
+const QUERY=new URLSearchParams(location.search);
+const FOCUS_ID=QUERY.get('focus');
+
 const PLANETS=[
   {id:'sun',name:'Արև',find:'Արևը'},
   {id:'mercury',name:'Մերկուրի',find:'Մերկուրին'},
@@ -61,8 +64,14 @@ const PROFILE={
   },
   mars:{
     reference:'06-mars.jpg',texture:'assets/space3d/2k_mars.jpg',
-    idle:.65,win:1.35,spin:.14,tilt:25.19,frontY:.18,grade:'mars',
-    roughness:.98,emissive:.025,atmosphere:{color:0xff7b50,strength:.09,power:3.0,radius:1.018}
+    idle:.65,win:1.35,spin:.14,tilt:25.19,frontY:0,grade:'mars',
+    // Gallery-derived spherical projection proof. The central/front hemisphere is
+    // reconstructed from the exact "Մոլորակներ" card, while the unseen back half
+    // comes from the real full 360° Mars map and is style-matched instead of mirrored.
+    galleryProjection:{cx:.5007,cy:.4866,radius:.3890,frontCenterU:.25,blendNearLimb:.22},
+    basic:true,
+    atmosphere:{color:0xff5f22,strength:.34,power:2.45,radius:1.032},
+    glow:{color:0xff5a17,opacity:.20,scale:2.38}
   },
   jupiter:{
     reference:'07-jupiter.jpg',texture:'assets/space3d/2k_jupiter.jpg',
@@ -273,11 +282,96 @@ function makeFallbackMoon(){
   }
   return c;
 }
+function smoothstep(a,b,x){
+  const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);
+}
+function sampleRGBA(data,W,H,x,y){
+  x=clamp(x,0,W-1);y=clamp(y,0,H-1);
+  const x0=Math.floor(x),y0=Math.floor(y),x1=Math.min(W-1,x0+1),y1=Math.min(H-1,y0+1);
+  const tx=x-x0,ty=y-y0;
+  const i00=(y0*W+x0)*4,i10=(y0*W+x1)*4,i01=(y1*W+x0)*4,i11=(y1*W+x1)*4;
+  const out=[0,0,0,255];
+  for(let c=0;c<3;c++){
+    const a=data[i00+c]*(1-tx)+data[i10+c]*tx;
+    const b=data[i01+c]*(1-tx)+data[i11+c]*tx;
+    out[c]=a*(1-ty)+b*ty;
+  }
+  return out;
+}
+async function buildGalleryProjectedTexture(item){
+  const cfg=PROFILE[item.id],gp=cfg.galleryProjection;
+  const [refImg,baseImg]=await Promise.all([loadImage(cfg.reference),loadImage(cfg.texture)]);
+
+  const W=2048,H=1024;
+  const baseCanvas=document.createElement('canvas');baseCanvas.width=W;baseCanvas.height=H;
+  const bx=baseCanvas.getContext('2d',{alpha:false,willReadFrequently:true});
+  bx.drawImage(baseImg,0,0,W,H);
+  const baseIm=bx.getImageData(0,0,W,H);
+  gradePixels(item.id,baseIm.data,W,H);
+  sealSeam(baseIm.data,W,H,18);
+
+  const refCanvas=document.createElement('canvas');refCanvas.width=refImg.naturalWidth||refImg.width;refCanvas.height=refImg.naturalHeight||refImg.height;
+  const rx=refCanvas.getContext('2d',{alpha:false,willReadFrequently:true});
+  rx.drawImage(refImg,0,0,refCanvas.width,refCanvas.height);
+  const refIm=rx.getImageData(0,0,refCanvas.width,refCanvas.height);
+  const cx=gp.cx*refCanvas.width,cy=gp.cy*refCanvas.height,rad=gp.radius*refCanvas.width;
+
+  const outCanvas=document.createElement('canvas');outCanvas.width=W;outCanvas.height=H;
+  const ox=outCanvas.getContext('2d',{alpha:false,willReadFrequently:true});
+  const out=ox.createImageData(W,H);
+
+  for(let y=0;y<H;y++){
+    const vv=(y+.5)/H;
+    const lat=(.5-vv)*Math.PI;
+    const cl=Math.cos(lat),sy=Math.sin(lat);
+    for(let x=0;x<W;x++){
+      const uu=(x+.5)/W;
+      let du=uu-gp.frontCenterU;
+      du-=Math.round(du);
+      const lon=du*Math.PI*2;
+      const sx=cl*Math.sin(lon);
+      const sz=cl*Math.cos(lon);
+      const oi=(y*W+x)*4;
+      const bi=oi;
+
+      let rr=baseIm.data[bi],gg=baseIm.data[bi+1],bb=baseIm.data[bi+2];
+
+      if(sz>0){
+        const px=cx+rad*sx;
+        const py=cy-rad*sy;
+        const ref=sampleRGBA(refIm.data,refCanvas.width,refCanvas.height,px,py);
+
+        // Exact gallery face dominates the visible hemisphere. Only the outer limb
+        // crossfades into the real 360° texture so baked card-rim lighting does not
+        // rotate across the globe as a fake surface feature.
+        const wFront=smoothstep(.025,gp.blendNearLimb??.22,sz);
+        rr=mix(rr,ref[0],wFront);gg=mix(gg,ref[1],wFront);bb=mix(bb,ref[2],wFront);
+      }
+
+      out.data[oi]=byte(rr);out.data[oi+1]=byte(gg);out.data[oi+2]=byte(bb);out.data[oi+3]=255;
+    }
+  }
+
+  sealSeam(out.data,W,H,18);
+  ox.putImageData(out,0,0);
+
+  const t=new THREE.CanvasTexture(outCanvas);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;
+  t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;
+  t.anisotropy=16;t.needsUpdate=true;
+  return t;
+}
+
 async function processedTexture(item){
   if(textureCache.has(item.id))return textureCache.get(item.id);
   if(pendingTexture.has(item.id))return pendingTexture.get(item.id);
   const p=(async()=>{
     const cfg=PROFILE[item.id];
+    if(cfg.galleryProjection){
+      const t=await buildGalleryProjectedTexture(item);
+      textureCache.set(item.id,t);pendingTexture.delete(item.id);return t;
+    }
     let canvas;
     if(item.id==='moon'){
       // Fully local procedural 2:1 globe: no external dependency, no front-image projection,
@@ -502,6 +596,10 @@ function reward(){
 }
 
 function nextTarget(){
+  if(FOCUS_ID){
+    const forced=PLANETS.find(x=>x.id===FOCUS_ID);
+    if(forced)return forced;
+  }
   let pool=PLANETS.filter(x=>!recent.includes(x.id));
   if(pool.length<3)pool=PLANETS;
   const t=pool[Math.floor(Math.random()*pool.length)];
