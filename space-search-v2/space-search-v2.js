@@ -110,57 +110,61 @@ const PROFILE={
   },
 
   // Batch 2 — direct native 2:1 maps supplied by the user.
+  // IMPORTANT: map assignment is verified by visual identity against gallery cards 11–20,
+  // NOT by upload/carousel order. Keep these pairings locked.
+  // 11 Phobos←map10, 12 Deimos←map9, 13 Io←map8, 14 Europa←map7, 15 Ganymede←map6,
+  // 16 Callisto←map5, 17 Titan←map4, 18 Enceladus←map3, 19 Titania←map2, 20 Oberon←map1.
   // Same pipeline as the accepted Mars proof: no recoloring, no projection, no canvas upscale.
   phobos:{
     reference:'11-phobos.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/13aec523-564f-48f4-8385-03e3a98fe506.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODYyY2M0MDE5NTdiOGQ2OSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxOTEwNX0.pXLpypPFVTLZVqY3GEzPy4g9_o_S0BJDDA1SBocaND0',
-    idle:.62,win:1.30,spin:.14,tilt:8,frontY:0,directTexture:true,basic:true,irregular:{x:1.10,y:.96,z:.83,amp:.10}
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c5a815f6-ebb3-4233-98c1-24c9035576ee.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmZiNmJhYjBjMWNlZjc3ZCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NTEyMH0.woorLNvOre989V5gaQIAonaBhxEpYpDKS4kgDFVOVLk',
+    idle:.62,win:1.30,spin:.14,tilt:8,frontY:0,directTexture:true,basic:true,irregular:{x:1.12,y:.95,z:.83,amp:.105}
   },
   deimos:{
     reference:'12-deimos.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/ca40dd19-f91b-4802-9e39-1d1ef746301c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTgyMDc4ODIzNTU0NTc1NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2NjExNH0.heXsU7guohgOcsSzqkJleSmac4bmA-HxPT6AlA7Mw7Y',
-    idle:.60,win:1.28,spin:.13,tilt:-11,frontY:0,directTexture:true,basic:true,irregular:{x:1.08,y:.94,z:.88,amp:.075}
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5b9b1fbc-56a8-494b-8f66-abc4f45b69a0.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNGU1Mjg3OTc2YzVmYjhhMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NzkxMX0.WTdaf2bvms5HzayAHQMTgA5YuW6eb9SOZeNIyyLPJg8',
+    idle:.60,win:1.28,spin:.13,tilt:-11,frontY:0,directTexture:true,basic:true,irregular:{x:1.08,y:.96,z:.91,amp:.048}
   },
   io:{
     reference:'13-io.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c2d46d42-c5cd-4b2c-beac-f05a02b32ddf.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjYzYjkxNjlkNjk4OTI5OCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDc2MX0.0h2o4iwLx2T-ygFmbBxkbb5jAgmaFqAymJAFEUmSqlE',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/94a1dbd7-23cb-40af-bcf2-499c73a231de.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTBkZDJjMmM0NzIzMjljNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNTU0OH0.JvrYfAy85v7opxkZK4PKlOUHUFxZjCODmSe1b_gePnQ',
     idle:.64,win:1.31,spin:.15,tilt:0,frontY:0,directTexture:true,basic:true
   },
   europa:{
     reference:'14-europa.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/38561135-d762-403b-a130-ff1d1934b1a4.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODY2NDQzMzUzZDk5ODkwNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNzM0OX0.8r68Ou10Co5sqqAeYLx2XqjOp2ybW9odkLoOTZYsnAY',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/0ff5ba1d-468a-4dae-8b48-b08c9012a15c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjA2YWJjY2FlYzdkNjIxZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzMTA4Mn0.FKvyus96b1a1q4mMB00wLHH1U67to2kQ2CuPt4H8uGg',
     idle:.64,win:1.31,spin:.14,tilt:1,frontY:0,directTexture:true,basic:true
   },
   ganymede:{
     reference:'15-ganymede.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/8d861d6a-c57f-495e-9146-2f9acb70103e.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOGUzN2VlNjgwMTFmZTliZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMTc4NH0.mfl2EhjI2nSJ9PpoOvN8wxsotJYwensYbCQHcPQSQLU',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/b9ef5896-b60f-4585-ab03-39e6241f4c55.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWRlNDFkMzBmYWFlNDJjYSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzODk5Mn0.Xx44OE8S-dp0j5w-aiP-8hCdvVPqH-zjJmPV1FgSmVU',
     idle:.66,win:1.32,spin:.13,tilt:2,frontY:0,directTexture:true,basic:true
   },
   callisto:{
     reference:'16-callisto.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/b9ef5896-b60f-4585-ab03-39e6241f4c55.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWRlNDFkMzBmYWFlNDJjYSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzODk5Mn0.Xx44OE8S-dp0j5w-aiP-8hCdvVPqH-zjJmPV1FgSmVU',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/8d861d6a-c57f-495e-9146-2f9acb70103e.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOGUzN2VlNjgwMTFmZTliZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMTc4NH0.mfl2EhjI2nSJ9PpoOvN8wxsotJYwensYbCQHcPQSQLU',
     idle:.65,win:1.31,spin:.12,tilt:0,frontY:0,directTexture:true,basic:true
   },
   titan:{
     reference:'17-titan.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/0ff5ba1d-468a-4dae-8b48-b08c9012a15c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjA2YWJjY2FlYzdkNjIxZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzMTA4Mn0.FKvyus96b1a1q4mMB00wLHH1U67to2kQ2CuPt4H8uGg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/38561135-d762-403b-a130-ff1d1934b1a4.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODY2NDQzMzUzZDk5ODkwNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNzM0OX0.8r68Ou10Co5sqqAeYLx2XqjOp2ybW9odkLoOTZYsnAY',
     idle:.66,win:1.32,spin:.11,tilt:.3,frontY:0,directTexture:true,basic:true,
     atmosphere:{color:0xffb13b,strength:.18,power:2.7,radius:1.025}
   },
   enceladus:{
     reference:'18-enceladus.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/94a1dbd7-23cb-40af-bcf2-499c73a231de.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTBkZDJjMmM0NzIzMjljNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNTU0OH0.JvrYfAy85v7opxkZK4PKlOUHUFxZjCODmSe1b_gePnQ',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c2d46d42-c5cd-4b2c-beac-f05a02b32ddf.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjYzYjkxNjlkNjk4OTI5OCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDc2MX0.0h2o4iwLx2T-ygFmbBxkbb5jAgmaFqAymJAFEUmSqlE',
     idle:.62,win:1.30,spin:.12,tilt:.1,frontY:0,directTexture:true,basic:true,
     atmosphere:{color:0xb8e9ff,strength:.10,power:2.9,radius:1.018}
   },
   titania:{
     reference:'19-titania.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5b9b1fbc-56a8-494b-8f66-abc4f45b69a0.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNGU1Mjg3OTc2YzVmYjhhMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NzkxMX0.WTdaf2bvms5HzayAHQMTgA5YuW6eb9SOZeNIyyLPJg8',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/ca40dd19-f91b-4802-9e39-1d1ef746301c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTgyMDc4ODIzNTU0NTc1NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2NjExNH0.heXsU7guohgOcsSzqkJleSmac4bmA-HxPT6AlA7Mw7Y',
     idle:.63,win:1.30,spin:.12,tilt:.4,frontY:0,directTexture:true,basic:true
   },
   oberon:{
     reference:'20-oberon.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c5a815f6-ebb3-4233-98c1-24c9035576ee.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmZiNmJhYjBjMWNlZjc3ZCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NTEyMH0.woorLNvOre989V5gaQIAonaBhxEpYpDKS4kgDFVOVLk',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/13aec523-564f-48f4-8385-03e3a98fe506.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODYyY2M0MDE5NTdiOGQ2OSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxOTEwNX0.pXLpypPFVTLZVqY3GEzPy4g9_o_S0BJDDA1SBocaND0',
     idle:.63,win:1.30,spin:.12,tilt:.3,frontY:0,directTexture:true,basic:true
   }
 };
