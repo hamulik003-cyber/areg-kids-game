@@ -198,8 +198,10 @@ const VISUAL_MATCH={
   // User-supplied 2:1 maps. Their reference-matched face was generated at map center (u≈0.5).
   // Three SphereGeometry shows u≈0.25 toward the camera at zero yaw, so -90° yaw is required
   // to present the same face first. Native sRGB color is preserved: no grading, no ACES remap.
-  phobos:   {viewerScale:1.40,gameScale:.60,winScale:1.28,frontYaw:-Math.PI/2,rollDeg:-8,shape:{x:1.18,y:.93,z:.81,deform:.085,seed:.45},toneMapped:false},
-  deimos:   {viewerScale:1.34,gameScale:.58,winScale:1.24,frontYaw:-Math.PI/2,rollDeg:-4,shape:{x:1.035,y:1.00,z:.975,deform:.010,seed:2.15},toneMapped:false},
+  // Mars-moon silhouettes: axis ratios follow the real bodies (Phobos ≈27×22×18 km, Deimos ≈15×12×11 km).
+  // The custom geometry below adds only broad, low-frequency asymmetry so they read like the Planets-section references, not deformed spheres.
+  phobos:   {viewerScale:1.30,gameScale:.54,winScale:1.22,frontYaw:-Math.PI/2,rollDeg:-7,shape:{kind:'phobos',x:1.227,y:1.00,z:.818,deform:.060,seed:.45},toneMapped:false},
+  deimos:   {viewerScale:1.28,gameScale:.52,winScale:1.18,frontYaw:-Math.PI/2,rollDeg:-5,shape:{kind:'deimos',x:1.250,y:1.00,z:.917,deform:.032,seed:2.15},toneMapped:false},
   io:       {viewerScale:1.51,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.4},toneMapped:false},
   europa:   {viewerScale:1.49,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.6},toneMapped:false},
   ganymede: {viewerScale:1.50,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.8},toneMapped:false},
@@ -594,8 +596,41 @@ function bodyGeometry(item,cfg){
     x:legacy.x||1,y:legacy.y||1,z:legacy.z||1,deform:legacy.amp||0
   };
   const p=geo.attributes.position,v=new THREE.Vector3();
+
   for(let i=0;i<p.count;i++){
     v.fromBufferAttribute(p,i).normalize();
+
+    // Phobos and Deimos are not spheres. Build their silhouettes from their real
+    // tri-axial proportions, then add only broad asymmetry to match the gallery cards.
+    if(shape.kind==='phobos' || shape.kind==='deimos'){
+      const ax=shape.x||1, ay=shape.y||1, az=shape.z||1;
+      const q=shape.kind==='phobos'?2.18:2.42; // rounded irregular body, Deimos slightly smoother/blockier
+      const denom=Math.pow(
+        Math.pow(Math.abs(v.x)/ax,q)+
+        Math.pow(Math.abs(v.y)/ay,q)+
+        Math.pow(Math.abs(v.z)/az,q),
+        1/q
+      );
+      let r=1/Math.max(.0001,denom);
+      const seed=shape.seed||0;
+      const low=
+        Math.sin(v.x*2.75+v.y*1.35+seed)*.42+
+        Math.sin(v.y*3.25-v.z*2.05+seed*1.4)*.33+
+        Math.cos(v.z*2.55+v.x*1.70-seed*.8)*.25;
+      r*=1+(shape.deform||0)*low;
+
+      if(shape.kind==='phobos'){
+        // Stronger one-sided, potato-like asymmetry seen in the Phobos card.
+        r*=1 + .030*v.x - .020*v.y + .018*v.x*v.z - .014*v.y*v.z;
+      }else{
+        // Deimos remains irregular but noticeably smoother and less distorted.
+        r*=1 + .016*v.x - .010*v.z + .008*v.x*v.y;
+      }
+
+      p.setXYZ(v.x*r,v.y*r,v.z*r);
+      continue;
+    }
+
     let r=1;
     const amp=shape.deform||0;
     if(amp){
