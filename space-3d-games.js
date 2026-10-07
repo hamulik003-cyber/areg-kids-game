@@ -72,11 +72,11 @@ const TEXTURE_PATHS={
   makemake:'assets/space3d/real/makemake.jpg',
   eris:'assets/space3d/real/eris.jpg'
 };
-const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
+const REALISTIC_IDS=new Set([...Object.keys(TEXTURE_PATHS),'charon']);
 const USER_UV_IDS=new Set([
   'io','europa','ganymede','callisto','titan','enceladus','titania','oberon','triton','sun',
   'mercury','moon','pluto','venus','ceres','earth','haumea','makemake','eris','jupiter',
-  'uranus'
+  'uranus','mars','saturn','neptune','phobos','deimos','charon'
 ]);
 const USER_UV_DB='areg-space-user-uv-v1';
 const USER_UV_STORE='textures';
