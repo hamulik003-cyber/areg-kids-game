@@ -1,0 +1,16 @@
+{
+  "id": "jupiter",
+  "status": "pilot",
+  "reference": "07-jupiter.jpg",
+  "geometry": "sphere",
+  "texture": null,
+  "frontView": {
+    "approved": false
+  },
+  "rotationCheck": {
+    "deg90": false,
+    "deg180": false,
+    "deg270": false,
+    "deg360": false
+  }
+}
