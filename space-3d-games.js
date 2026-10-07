@@ -991,7 +991,7 @@ function galaxy(item){
   );
   hit.userData.parentPick=g;g.add(hit);
 
-  g.rotation.x=-.42;g.rotation.z=.16;g.userData.galaxyPoints=pts;
+  g.rotation.x=-.64;g.rotation.z=.28;g.userData.galaxyPoints=pts;
   return g;
 }
 
@@ -1053,7 +1053,7 @@ function solarSystem(item){
   );
   hit.userData.parentPick=g;g.add(hit);
   g.userData.orbiters=orbiters;
-  g.rotation.x=-.26;
+  g.rotation.x=-.52;g.rotation.z=.16;
   return g;
 }
 
