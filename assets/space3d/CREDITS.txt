@@ -4,3 +4,10 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 https://creativecommons.org/licenses/by/4.0/
 
 Textures are based on NASA elevation and imagery data and are used here as 2K equirectangular maps.
+
+
+V167 Batch 1 locked merge:
+- Merged the accepted true-360 versions of Phobos, Deimos, Io, Europa and Ganymede into the main Space Search.
+- V163 gameplay engine remains unchanged: same camera, 3-object layout, rotation behavior, scaling, interaction logic, feedback timing and win/lose animation.
+- Space Search target pool is now 15 objects total: the original 10 V163 objects plus these 5 accepted bodies.
+- All five use local full-globe equirectangular textures; no mirrored fake backside is used.

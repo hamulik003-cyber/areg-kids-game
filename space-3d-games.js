@@ -54,7 +54,12 @@ const TEXTURE_PATHS={
   jupiter:'assets/space3d/2k_jupiter.jpg',
   saturn:'assets/space3d/2k_saturn.jpg',
   uranus:'assets/space3d/2k_uranus.jpg',
-  neptune:'assets/space3d/2k_neptune.jpg'
+  neptune:'assets/space3d/2k_neptune.jpg',
+  phobos:'assets/space3d/2k_phobos.jpg',
+  deimos:'assets/space3d/2k_deimos_true360.jpg',
+  io:'assets/space3d/4k_io.jpg',
+  europa:'assets/space3d/2k_europa.jpg',
+  ganymede:'assets/space3d/2k_ganymede.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
@@ -75,6 +80,184 @@ function getTexture(path,{srgb=true}={}){
   texCache.set(path,t);
   return t;
 }
+const TRUE360_IDS=new Set(['phobos','deimos','io','europa','ganymede']);
+const true360Cache=new Map();
+const true360Pending=new Map();
+
+function loadTrue360Image(path){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.decoding='async';
+    img.onload=()=>resolve(img);
+    img.onerror=reject;
+    img.src=path;
+  });
+}
+function byte(v){return Math.max(0,Math.min(255,Math.round(v)))}
+function mix(a,b,t){return a+(b-a)*t}
+function true360LumaBounds(data){
+  const hist=new Uint32Array(256);
+  let total=0;
+  for(let i=0;i<data.length;i+=16){
+    const l=Math.max(0,Math.min(255,Math.round(.299*data[i]+.587*data[i+1]+.114*data[i+2])));
+    hist[l]++;total++;
+  }
+  const loTarget=total*.03,hiTarget=total*.97;
+  let acc=0,lo=0,hi=255;
+  for(let i=0;i<256;i++){acc+=hist[i];if(acc>=loTarget){lo=i;break}}
+  acc=0;
+  for(let i=0;i<256;i++){acc+=hist[i];if(acc>=hiTarget){hi=i;break}}
+  if(hi-lo<20){lo=Math.max(0,lo-10);hi=Math.min(255,hi+10)}
+  return [lo,hi];
+}
+function true360Grade(id,data){
+  // LOCKED: Io and Phobos stay byte-for-byte on their accepted grading path.
+  if(id==='io'){
+    for(let i=0;i<data.length;i+=4){
+      let r=data[i],g=data[i+1],b=data[i+2];
+      const l=.299*r+.587*g+.114*b;
+      const sat=1.58;
+      data[i]=byte((l+(r-l)*sat)*1.18+7);
+      data[i+1]=byte((l+(g-l)*sat)*1.08+3);
+      data[i+2]=byte((l+(b-l)*1.20)*.70);
+    }
+    return;
+  }
+  if(id==='phobos'){
+    const p=[[45,31,27],[127,89,69],[235,199,166]];
+    for(let i=0;i<data.length;i+=4){
+      const l=(.299*data[i]+.587*data[i+1]+.114*data[i+2])/255;
+      let p0,p1,t;
+      if(l<.52){p0=p[0];p1=p[1];t=l/.52}else{p0=p[1];p1=p[2];t=(l-.52)/.48}
+      data[i]=byte(mix(p0[0],p1[0],t));
+      data[i+1]=byte(mix(p0[1],p1[1],t));
+      data[i+2]=byte(mix(p0[2],p1[2],t));
+    }
+    return;
+  }
+
+  const [lo,hi]=true360LumaBounds(data);
+  const span=Math.max(1,hi-lo);
+
+  if(id==='deimos'){
+    // Preserve crater detail from the complete 2:1 map; neutral brown-gray, not pink/white.
+    const dark=[46,42,39],mid=[104,94,86],light=[178,160,145];
+    for(let i=0;i<data.length;i+=4){
+      const raw=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+      let n=Math.max(0,Math.min(1,(raw-lo)/span));
+      n=Math.pow(n,.94);
+      let p0,p1,t;
+      if(n<.56){p0=dark;p1=mid;t=n/.56}else{p0=mid;p1=light;t=(n-.56)/.44}
+      data[i]=byte(mix(p0[0],p1[0],t));
+      data[i+1]=byte(mix(p0[1],p1[1],t));
+      data[i+2]=byte(mix(p0[2],p1[2],t));
+    }
+    return;
+  }
+
+  if(id==='europa'){
+    // Preserve the source map's real line network. Boost only existing warm chroma,
+    // never repaint broad low-luma terrain as rust.
+    for(let i=0;i<data.length;i+=4){
+      let r=data[i],g=data[i+1],b=data[i+2];
+      let l=.299*r+.587*g+.114*b;
+      const c=1.16;
+      r=byte((r-128)*c+128);
+      g=byte((g-128)*c+128);
+      b=byte((b-128)*c+128);
+      l=.299*r+.587*g+.114*b;
+      const sat=1.34;
+      r=byte(l+(r-l)*sat);
+      g=byte(l+(g-l)*sat);
+      b=byte(l+(b-l)*sat);
+
+      const warm=Math.max(0,Math.min(1,((r-b)-10)/70));
+      if(warm>0){
+        r=byte(r+22*warm);
+        g=byte(g-8*warm);
+        b=byte(b-18*warm);
+      }else{
+        // Keep the ice cool-neutral instead of pure white.
+        r=byte(r*.985);
+        g=byte(g*.995);
+        b=byte(Math.min(255,b*1.015+2));
+      }
+      data[i]=r;data[i+1]=g;data[i+2]=b;
+    }
+    return;
+  }
+
+  if(id==='ganymede'){
+    // Keep the real global mosaic colors/landmarks. Only mild contrast + warm-gray tone.
+    for(let i=0;i<data.length;i+=4){
+      let r=data[i],g=data[i+1],b=data[i+2];
+      let l=.299*r+.587*g+.114*b;
+      const c=1.20;
+      r=byte((r-128)*c+128);
+      g=byte((g-128)*c+128);
+      b=byte((b-128)*c+128);
+      l=.299*r+.587*g+.114*b;
+      const sat=1.10;
+      r=byte(l+(r-l)*sat+5);
+      g=byte(l+(g-l)*sat);
+      b=byte(l+(b-l)*sat-5);
+      data[i]=r;data[i+1]=g;data[i+2]=b;
+    }
+    return;
+  }
+}
+
+function sealTrue360Seam(data,W,H,band=18){
+  band=Math.max(6,Math.min(band,Math.floor(W*.025)));
+  for(let y=0;y<H;y++){
+    for(let k=0;k<band;k++){
+      const li=(y*W+k)*4,ri=(y*W+(W-1-k))*4;
+      const edge=1-k/(band-1);
+      for(let c=0;c<3;c++){
+        const avg=(data[li+c]+data[ri+c])*.5;
+        data[li+c]=byte(mix(data[li+c],avg,edge*.72));
+        data[ri+c]=byte(mix(data[ri+c],avg,edge*.72));
+      }
+    }
+  }
+}
+async function prepareTrue360Texture(item){
+  if(!TRUE360_IDS.has(item.id))return null;
+  if(true360Cache.has(item.id))return true360Cache.get(item.id);
+  if(true360Pending.has(item.id))return true360Pending.get(item.id);
+  const pending=(async()=>{
+    const path=TEXTURE_PATHS[item.id];
+    const img=await loadTrue360Image(path);
+    const W=2048,H=1024;
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const x=c.getContext('2d',{alpha:false,willReadFrequently:true});
+    x.drawImage(img,0,0,W,H);
+    const im=x.getImageData(0,0,W,H);
+    true360Grade(item.id,im.data);
+    sealTrue360Seam(im.data,W,H,18);
+    x.putImageData(im,0,0);
+
+    const t=new THREE.CanvasTexture(c);
+    t.colorSpace=THREE.SRGBColorSpace;
+    t.wrapS=THREE.RepeatWrapping;
+    t.wrapT=THREE.ClampToEdgeWrapping;
+    t.minFilter=THREE.LinearMipmapLinearFilter;
+    t.magFilter=THREE.LinearFilter;
+    t.anisotropy=16;
+    t.needsUpdate=true;
+    true360Cache.set(item.id,t);
+    true360Pending.delete(item.id);
+    return t;
+  })().catch(err=>{true360Pending.delete(item.id);throw err});
+  true360Pending.set(item.id,pending);
+  return pending;
+}
+function textureForItem(item){
+  if(TRUE360_IDS.has(item.id))return true360Cache.get(item.id)||canvasTexture(item);
+  const path=TEXTURE_PATHS[item.id];
+  return path?getTexture(path):canvasTexture(item);
+}
+
 function canvasTexture(item){
   const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,512,256);g.addColorStop(0,item.c1||'#7397c8');g.addColorStop(1,item.c2||'#263a67');x.fillStyle=g;x.fillRect(0,0,512,256);
@@ -399,12 +582,41 @@ function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
-  const texturePath=TEXTURE_PATHS[item.id];
-  const tex=texturePath?getTexture(texturePath):canvasTexture(item);
+
+  if(item.id==='phobos'||item.id==='deimos'){
+    geo=new THREE.SphereGeometry(1,96,64);
+    const p=geo.attributes.position;
+    for(let i=0;i<p.count;i++){
+      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+      const strength=item.id==='phobos'?.030:.022;
+      const n=1
+        +Math.sin(x*5.3+y*3.1-z*2.7)*strength
+        +Math.cos(y*6.0+z*4.4)*(strength*.62)
+        +Math.sin(z*7.2-x*2.1)*(strength*.36);
+      p.setXYZ(i,x*n,y*n,z*n);
+    }
+    p.needsUpdate=true;geo.computeVertexNormals();
+    if(item.id==='phobos')geo.scale(1.13,.90,.96);
+    else geo.scale(1.08,.94,.98);
+  }
+
+  const tex=textureForItem(item);
   const isSun=item.id==='sun';
+  const isTrue360=TRUE360_IDS.has(item.id);
+  const true360Lift={
+    phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
+  }[item.id]??0;
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.96,metalness:0});
+    : new THREE.MeshStandardMaterial({
+        map:tex,color:0xffffff,
+        roughness:item.id==='earth'?.82:(isTrue360?.95:.96),
+        metalness:0,
+        emissive:isTrue360?0xffffff:0x000000,
+        emissiveMap:isTrue360?tex:null,
+        emissiveIntensity:true360Lift
+      });
+
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
@@ -515,7 +727,8 @@ function findObjectName(item){
     jupiter:'Յուպիտերը',
     saturn:'Սատուրնը',
     uranus:'Ուրանը',
-    neptune:'Նեպտունը'
+    neptune:'Նեպտունը',
+    phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
@@ -617,7 +830,9 @@ function gameSpaceSearch(ctx){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  function buildRound(){
+  let roundSeq=0;
+  async function buildRound(){
+    const seq=++roundSeq;
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
     target=next();
     const opts=shuffle([target,...decoys(target)]);
@@ -625,6 +840,14 @@ function gameSpaceSearch(ctx){
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
+    try{
+      await Promise.all(opts.map(prepareTrue360Texture));
+    }catch{
+      if(disposed||seq!==roundSeq)return;
+      setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},500);
+      return;
+    }
+    if(disposed||seq!==roundSeq)return;
 
     const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
@@ -806,7 +1029,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     renderer.dispose();renderer.forceContextLoss?.();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
