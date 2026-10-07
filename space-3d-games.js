@@ -179,6 +179,21 @@ async function prepareUserUvTexture(item){
   if(userUvCache.has(item.id))return userUvCache.get(item.id);
   if(userUvPending.has(item.id))return userUvPending.get(item.id);
   const pending=(async()=>{
+    // Moon override: a newly approved Moon map saved by the Moon importer
+    // must win over the older repository/remote fallback immediately.
+    if(item.id==='moon'){
+      const moonBlob=await readUserUvBlob('moon');
+      if(moonBlob){
+        const url=URL.createObjectURL(moonBlob);
+        try{
+          const img=await loadTrue360Image(url);
+          const t=exactUvTextureFromImage(img);
+          userUvCache.set(item.id,t);
+          return t;
+        }finally{URL.revokeObjectURL(url)}
+      }
+    }
+
     const repoTex=await prepareRepoUvTexture(item);
     if(repoTex){
       userUvCache.set(item.id,repoTex);
