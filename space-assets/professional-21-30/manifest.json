@@ -93,5 +93,45 @@
     }
   ],
   "externalRuntimeDependencies": false,
-  "approved": false
+  "approved": false,
+  "fullGamePoolTarget": 30,
+  "restoredExisting16to20": [
+    {
+      "n": 16,
+      "id": "callisto",
+      "texture": "assets/space3d/2k_callisto.jpg",
+      "radius": 1.17,
+      "spin": 0.055
+    },
+    {
+      "n": 17,
+      "id": "titan",
+      "texture": "assets/space3d/4k_titan.jpg",
+      "radius": 1.19,
+      "spin": 0.058,
+      "haze": true
+    },
+    {
+      "n": 18,
+      "id": "enceladus",
+      "texture": "assets/space3d/real/enceladus.jpg",
+      "radius": 1.12,
+      "spin": 0.26
+    },
+    {
+      "n": 19,
+      "id": "titania",
+      "texture": "assets/space3d/real/titania.jpg",
+      "radius": 1.13,
+      "spin": 0.082
+    },
+    {
+      "n": 20,
+      "id": "oberon",
+      "texture": "assets/space3d/real/oberon.jpg",
+      "radius": 1.13,
+      "spin": 0.058
+    }
+  ],
+  "note": "App launcher uses space-3d-games.js; branch restores V183 local assets for 16-20 and professional V183 path for 21-30 so runtime pool reaches 30."
 }

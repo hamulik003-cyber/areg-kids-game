@@ -60,6 +60,11 @@ const TEXTURE_PATHS={
   io:'assets/space3d/4k_io.jpg',
   europa:'assets/space3d/2k_europa.jpg',
   ganymede:'assets/space3d/2k_ganymede.jpg',
+  callisto:'assets/space3d/2k_callisto.jpg',
+  titan:'assets/space3d/4k_titan.jpg',
+  enceladus:'assets/space3d/real/enceladus.jpg',
+  titania:'assets/space3d/real/titania.jpg',
+  oberon:'assets/space3d/real/oberon.jpg',
   triton:'assets/space3d/real/triton.jpg',
   charon:'assets/space3d/real/charon.jpg',
   pluto:'assets/space3d/real/pluto.jpg',
@@ -68,14 +73,16 @@ const TEXTURE_PATHS={
   makemake:'assets/space3d/real/makemake.jpg',
   eris:'assets/space3d/real/eris.jpg'
 };
-const PROFESSIONAL_BODY_IDS=new Set(['triton','charon','pluto','ceres','haumea','makemake','eris']);
+const PROFESSIONAL_BODY_IDS=new Set(['callisto','titan','enceladus','titania','oberon','triton','charon','pluto','ceres','haumea','makemake','eris']);
+const NEW_21_27_IDS=new Set(['triton','charon','pluto','ceres','haumea','makemake','eris']);
 const SPECIAL_SPACE_IDS=new Set(['solar-system','milky-way','black-hole']);
-const PROFESSIONAL_21_30=new Set([...PROFESSIONAL_BODY_IDS,...SPECIAL_SPACE_IDS]);
+const PROFESSIONAL_21_30=new Set([...NEW_21_27_IDS,...SPECIAL_SPACE_IDS]);
+const V183_RADIUS_IDS=new Set([...PROFESSIONAL_BODY_IDS,...SPECIAL_SPACE_IDS]);
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32,pluto:119.6,haumea:126,eris:78};
 const DISPLAY_SCALE={sun:1.18,mercury:.70,venus:.88,earth:.90,moon:.70,mars:.78,jupiter:1.12,saturn:1.02,uranus:.92,neptune:.92};
-const PROFESSIONAL_RADIUS={triton:1.14,charon:1.12,pluto:1.16,ceres:1.13,haumea:1.17,makemake:1.14,eris:1.14,'solar-system':1.30,'milky-way':1.28,'black-hole':1.28};
-const PROFESSIONAL_SPIN={triton:-.104,charon:.092,pluto:-.092,ceres:.315,haumea:.420,makemake:.175,eris:.155};
+const PROFESSIONAL_RADIUS={callisto:1.17,titan:1.19,enceladus:1.12,titania:1.13,oberon:1.13,triton:1.14,charon:1.12,pluto:1.16,ceres:1.13,haumea:1.17,makemake:1.14,eris:1.14,'solar-system':1.30,'milky-way':1.28,'black-hole':1.28};
+const PROFESSIONAL_SPIN={callisto:.055,titan:.058,enceladus:.260,titania:.082,oberon:.058,triton:-.104,charon:.092,pluto:-.092,ceres:.315,haumea:.420,makemake:.175,eris:.155};
 const texLoader=new THREE.TextureLoader();
 const texCache=new Map();
 function getTexture(path,{srgb=true}={}){
@@ -797,7 +804,7 @@ function spherePlanet(item){
     : isProBody
       ? new THREE.MeshStandardMaterial({
           map:tex,color:0xffffff,
-          roughness:item.id==='triton'?.96:.97,
+          roughness:({titan:.94,enceladus:.97,titania:.97,oberon:.98,callisto:.98,triton:.96}[item.id]??.97),
           metalness:0,
           emissive:tint,
           emissiveMap:tex,
@@ -823,6 +830,13 @@ function spherePlanet(item){
     }));
     clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
     const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
+  }
+  if(item.id==='titan'){
+    const haze=new THREE.Mesh(
+      new THREE.SphereGeometry(1.028,64,42),
+      new THREE.MeshBasicMaterial({color:0xe5a34d,side:THREE.BackSide,transparent:true,opacity:.08,depthWrite:false,blending:THREE.AdditiveBlending})
+    );
+    haze.userData.parentPick=grp;grp.add(haze);
   }
   if(item.id==='saturn'){
     const r=ringMesh(item,1.22,2.1);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
@@ -1073,7 +1087,7 @@ function searchSlots(root,camera){
   ];
 }
 function fitSearchObject(g,item,portrait){
-  if(PROFESSIONAL_21_30.has(item.id)){
+  if(V183_RADIUS_IDS.has(item.id)){
     g.updateMatrixWorld(true);
     const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
     const desired=PROFESSIONAL_RADIUS[item.id]??1.14;
@@ -1101,6 +1115,7 @@ function findObjectName(item){
     uranus:'Ուրանը',
     neptune:'Նեպտունը',
     phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը',
+    callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',titania:'Տիտանիան',oberon:'Օբերոնը',
     triton:'Տրիտոնը',charon:'Խարոնը',pluto:'Պլուտոնը',ceres:'Ցերերան',
     haumea:'Հաումեան',makemake:'Մակեմակեն',eris:'Էրիսը',
     'solar-system':'Արեգակնային համակարգը','milky-way':'Ծիր Կաթինը','black-hole':'Սև խոռոչը'
