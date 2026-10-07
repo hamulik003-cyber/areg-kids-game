@@ -54,7 +54,12 @@ const TEXTURE_PATHS={
   jupiter:'assets/space3d/2k_jupiter.jpg',
   saturn:'assets/space3d/2k_saturn.jpg',
   uranus:'assets/space3d/2k_uranus.jpg',
-  neptune:'assets/space3d/2k_neptune.jpg'
+  neptune:'assets/space3d/2k_neptune.jpg',
+  phobos:'batch:phobos',
+  deimos:'batch:deimos',
+  io:'batch:io',
+  europa:'batch:europa',
+  ganymede:'batch:ganymede'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
@@ -75,6 +80,127 @@ function getTexture(path,{srgb=true}={}){
   texCache.set(path,t);
   return t;
 }
+const BATCH_TEXTURE_IDS=new Set(['phobos','deimos','io','europa','ganymede']);
+const BATCH_TEXTURE_SOURCES={
+  phobos:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/phobos.jpg',
+  deimos:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/deimos.jpg',
+  io:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/io.jpg',
+  europa:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/europa.jpg',
+  ganymede:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/ganymede.jpg'
+};
+const batchTextureCache=new Map();
+const batchTexturePending=new Map();
+
+function clampByte(v){return Math.max(0,Math.min(255,Math.round(v)))}
+function mixByte(a,b,t){return a+(b-a)*t}
+function loadBatchImage(id){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.decoding='async';
+    img.onload=()=>resolve(img);
+    img.onerror=reject;
+    img.src=BATCH_TEXTURE_SOURCES[id];
+  });
+}
+function fillPolarNoData(data,W,H){
+  const threshold=12;
+  const valid=(x,y)=>{
+    const i=(y*W+x)*4;
+    return Math.max(data[i],data[i+1],data[i+2])>threshold;
+  };
+  for(let x=0;x<W;x++){
+    let top=0;while(top<H*.28&&!valid(x,top))top++;
+    if(top>0&&top<H*.28){
+      const si=(top*W+x)*4;
+      for(let y=0;y<top;y++){const di=(y*W+x)*4;data[di]=data[si];data[di+1]=data[si+1];data[di+2]=data[si+2]}
+    }
+    let bottom=H-1;while(bottom>H*.72&&!valid(x,bottom))bottom--;
+    if(bottom<H-1&&bottom>H*.72){
+      const si=(bottom*W+x)*4;
+      for(let y=bottom+1;y<H;y++){const di=(y*W+x)*4;data[di]=data[si];data[di+1]=data[si+1];data[di+2]=data[si+2]}
+    }
+  }
+}
+function gradeBatchPixels(id,data){
+  const palettes={
+    phobos:[[40,29,26],[132,93,73],[232,199,171]],
+    deimos:[[45,36,34],[120,91,80],[220,201,187]],
+    europa:[[105,58,38],[158,169,174],[244,235,214]],
+    ganymede:[[42,35,33],[118,105,94],[226,216,204]]
+  };
+  for(let i=0;i<data.length;i+=4){
+    let r=data[i],g=data[i+1],b=data[i+2];
+    if(id==='io'){
+      const l=.299*r+.587*g+.114*b;
+      const sat=1.48;
+      r=clampByte((l+(r-l)*sat)*1.17+9);
+      g=clampByte((l+(g-l)*sat)*1.10+5);
+      b=clampByte((l+(b-l)*1.12)*.73);
+      data[i]=r;data[i+1]=g;data[i+2]=b;continue;
+    }
+    const l=(.299*r+.587*g+.114*b)/255;
+    const p=palettes[id]||palettes.ganymede;
+    let a,c,t;
+    if(l<.52){a=p[0];c=p[1];t=l/.52}
+    else{a=p[1];c=p[2];t=(l-.52)/.48}
+    data[i]=clampByte(mixByte(a[0],c[0],t));
+    data[i+1]=clampByte(mixByte(a[1],c[1],t));
+    data[i+2]=clampByte(mixByte(a[2],c[2],t));
+  }
+}
+function sealBatchSeam(data,W,H,band=32){
+  band=Math.max(4,Math.min(band,Math.floor(W*.06)));
+  for(let y=0;y<H;y++){
+    for(let k=0;k<band;k++){
+      const li=(y*W+k)*4,ri=(y*W+(W-1-k))*4;
+      const w=1-k/(band-1);
+      for(let c=0;c<3;c++){
+        const avg=(data[li+c]+data[ri+c])*.5;
+        data[li+c]=clampByte(mixByte(data[li+c],avg,w));
+        data[ri+c]=clampByte(mixByte(data[ri+c],avg,w));
+      }
+    }
+  }
+}
+async function prepareBatchTexture(item){
+  if(!BATCH_TEXTURE_IDS.has(item.id))return null;
+  if(batchTextureCache.has(item.id))return batchTextureCache.get(item.id);
+  if(batchTexturePending.has(item.id))return batchTexturePending.get(item.id);
+
+  const pending=(async()=>{
+    const img=await loadBatchImage(item.id);
+    const W=2048,H=1024;
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const x=c.getContext('2d',{alpha:false,willReadFrequently:true});
+    x.drawImage(img,0,0,W,H);
+    const im=x.getImageData(0,0,W,H);
+    fillPolarNoData(im.data,W,H);
+    gradeBatchPixels(item.id,im.data);
+    sealBatchSeam(im.data,W,H,36);
+    x.putImageData(im,0,0);
+
+    const t=new THREE.CanvasTexture(c);
+    t.colorSpace=THREE.SRGBColorSpace;
+    t.wrapS=THREE.RepeatWrapping;
+    t.wrapT=THREE.ClampToEdgeWrapping;
+    t.minFilter=THREE.LinearMipmapLinearFilter;
+    t.magFilter=THREE.LinearFilter;
+    t.anisotropy=16;
+    t.needsUpdate=true;
+    batchTextureCache.set(item.id,t);
+    batchTexturePending.delete(item.id);
+    return t;
+  })().catch(err=>{batchTexturePending.delete(item.id);throw err});
+  batchTexturePending.set(item.id,pending);
+  return pending;
+}
+function textureForItem(item){
+  if(BATCH_TEXTURE_IDS.has(item.id))return batchTextureCache.get(item.id)||canvasTexture(item);
+  const path=TEXTURE_PATHS[item.id];
+  return path?getTexture(path):canvasTexture(item);
+}
+
 function canvasTexture(item){
   const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,512,256);g.addColorStop(0,item.c1||'#7397c8');g.addColorStop(1,item.c2||'#263a67');x.fillStyle=g;x.fillRect(0,0,512,256);
@@ -399,10 +525,28 @@ function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
-  const texturePath=TEXTURE_PATHS[item.id];
-  const tex=texturePath?getTexture(texturePath):canvasTexture(item);
+
+  if(item.id==='phobos'||item.id==='deimos'){
+    geo=new THREE.SphereGeometry(1,96,64);
+    const p=geo.attributes.position;
+    for(let i=0;i<p.count;i++){
+      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+      const strength=item.id==='phobos'?.040:.028;
+      const n=1
+        +Math.sin(x*5.3+y*3.1-z*2.7)*strength
+        +Math.cos(y*6.0+z*4.4)*(strength*.68)
+        +Math.sin(z*7.2-x*2.1)*(strength*.42);
+      p.setXYZ(i,x*n,y*n,z*n);
+    }
+    p.needsUpdate=true;geo.computeVertexNormals();
+    if(item.id==='phobos')geo.scale(1.17,.86,.94);
+    else geo.scale(1.10,.92,.97);
+  }
+
+  const tex=textureForItem(item);
   const isSun=item.id==='sun';
-  const mat=isSun
+  const bakedBatch=BATCH_TEXTURE_IDS.has(item.id);
+  const mat=(isSun||bakedBatch)
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.96,metalness:0});
   const mesh=new THREE.Mesh(geo,mat);
@@ -515,7 +659,12 @@ function findObjectName(item){
     jupiter:'Յուպիտերը',
     saturn:'Սատուրնը',
     uranus:'Ուրանը',
-    neptune:'Նեպտունը'
+    neptune:'Նեպտունը',
+    phobos:'Ֆոբոսը',
+    deimos:'Դեյմոսը',
+    io:'Իոն',
+    europa:'Եվրոպան',
+    ganymede:'Գանիմեդը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
@@ -617,7 +766,9 @@ function gameSpaceSearch(ctx){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  function buildRound(){
+  let roundSeq=0;
+  async function buildRound(){
+    const seq=++roundSeq;
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
     target=next();
     const opts=shuffle([target,...decoys(target)]);
@@ -625,6 +776,14 @@ function gameSpaceSearch(ctx){
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
+    try{
+      await Promise.all(opts.map(prepareBatchTexture));
+    }catch{
+      if(disposed||seq!==roundSeq)return;
+      setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},500);
+      return;
+    }
+    if(disposed||seq!==roundSeq)return;
 
     const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
@@ -806,7 +965,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     renderer.dispose();renderer.forceContextLoss?.();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();

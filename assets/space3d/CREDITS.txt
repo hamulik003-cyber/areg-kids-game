@@ -4,3 +4,10 @@ License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 https://creativecommons.org/licenses/by/4.0/
 
 Textures are based on NASA elevation and imagery data and are used here as 2K equirectangular maps.
+
+
+V164 first-five seam-safe batch:
+- Added Phobos, Deimos, Io, Europa and Ganymede to Space Search without changing the accepted V163 layout/camera/feedback engine.
+- Base global mosaics are pinned from Hotragn/HotEARTH commit 8b022bd0f89469ac9395417eb11eca4db876aef0, whose source notes trace them to NASA/JPL/Caltech/USGS mosaics.
+- Runtime preprocessing resamples every new body to 2048x1024 equirectangular, fills black polar no-data only, color-grades to the matching Planets-gallery identity, and mathematically blends the ±180° longitude band to prevent a visible seam.
+- The five use baked-texture rendering so one hemisphere cannot turn black from scene lighting. Phobos and Deimos keep mild irregular geometry.
