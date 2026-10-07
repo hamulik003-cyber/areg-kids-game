@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "algorithm": "v5-haumea-triaxial-projected-texture-ring-match",
+  "measuredYawDeg": -79,
+  "measuredRollDeg": 23.5,
+  "measuredScale": 1.18,
+  "ringScale": 0.89,
+  "ringRotationXRad": -1.16,
+  "ringRotationZRad": 0.445,
+  "bodyMetric": 0.284763,
+  "ringMetric": 0.912015,
+  "texture": "space-assets/haumea/texture-2k.png",
+  "reference": "25-haumea.jpg",
+  "approved": false
+}
