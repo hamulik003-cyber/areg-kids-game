@@ -19,8 +19,7 @@ h1{font-size:24px;margin:5px 0 6px}.sub{color:#a7b9d8;font-size:13px;line-height
 .ref img{object-fit:cover}.pick{display:block;margin-top:8px;border:1px solid #34588d;background:#102449;color:#fff;border-radius:11px;padding:9px;text-align:center;font-size:12px;font-weight:900}
 input{display:none}.note{margin-top:6px;color:#879dc0;font-size:10.5px;line-height:1.35}
 .special{background:#111728;border:1px solid #505b77}.special .state{color:#ffd47a}.special .compare{grid-template-columns:1fr}
-.go{display:block;margin-top:14px;text-decoration:none;background:#17683c;color:#fff;padding:14px;border-radius:16px;text-align:center;font-weight:900}
-.err{color:#ff8f9b}
+.actions{display:grid;gap:10px;margin-top:14px}.export{appearance:none;border:0;background:#1d5f9f;color:#fff;padding:14px;border-radius:16px;text-align:center;font-weight:900;font-size:15px}.export:disabled{opacity:.42}.go{display:block;text-decoration:none;background:#17683c;color:#fff;padding:14px;border-radius:16px;text-align:center;font-weight:900}.err{color:#ff8f9b}.busy{color:#ffd47a}
 </style>
 </head>
 <body><div class="wrap">
@@ -29,7 +28,7 @@ input{display:none}.note{margin-top:6px;color:#879dc0;font-size:10.5px;line-heig
 <div class="sub">Յուրաքանչյուր UV slot-ը արդեն կապված է ճիշտ object ID-ին և կողքին ցույց է տալիս հենց «Մոլորակներ» բաժնի համապատասխան reference նկարը։ Այստեղ հերթականություն չկա՝ ընտրում ես միայն տվյալ անունի տակ։ Existing saved UV-ները ավտոմատ բացվում են։</div>
 <div class="summary" id="summary">Կարդում եմ պահպանված UV-ները…</div>
 <div class="grid" id="grid"></div>
-<a class="go" href="./index.html?uvall=1">Բացել իրական «Տիեզերական որոնում» խաղը</a>
+<div class="actions"><button class="export" id="exportBtn" disabled>Export all 27 exact UV · ZIP</button><a class="go" href="./index.html?uvall=1">Բացել իրական «Տիեզերական որոնում» խաղը</a></div>
 </div>
 <script>
 const ITEMS=[
@@ -67,7 +66,7 @@ const SPECIAL=[
  ['black-hole','Սև խոռոչ','30-black-hole.jpg']
 ];
 const DB='areg-space-user-uv-v1',STORE='textures';
-const grid=document.getElementById('grid'),summary=document.getElementById('summary');
+const grid=document.getElementById('grid'),summary=document.getElementById('summary'),exportBtn=document.getElementById('exportBtn');
 const saved=new Set();
 
 function openDb(){return new Promise((resolve,reject)=>{
@@ -85,7 +84,8 @@ function dims(file){return new Promise((resolve,reject)=>{
 })}
 function refresh(){
  const n=saved.size;
- summary.innerHTML='Exact UV պահպանված՝ <b>'+n+'/27</b> · Special 3-ը UV չեն պահանջում։';
+ summary.innerHTML='Exact UV պահպանված՝ <b>'+n+'/27</b> · Special 3-ը UV չեն պահանջում։'+(n===27?' <b>· ZIP export պատրաստ է</b>':'');
+ exportBtn.disabled=n!==27;
 }
 function mount(){
  ITEMS.forEach(([id,name,ref,note])=>{
@@ -138,6 +138,63 @@ async function restore(){
  }catch{}
  refresh();
 }
+
+function getRec(db,id){return new Promise(resolve=>{
+ const tx=db.transaction(STORE,'readonly'),rq=tx.objectStore(STORE).get(id);
+ rq.onsuccess=()=>resolve(rq.result||null);rq.onerror=()=>resolve(null);
+})}
+function extFor(rec){
+ const n=String(rec?.name||'').toLowerCase();
+ if(n.endsWith('.png')||rec?.type==='image/png')return '.png';
+ if(n.endsWith('.webp')||rec?.type==='image/webp')return '.webp';
+ return '.jpg';
+}
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);t[n]=c>>>0}return t})();
+function crc32(bytes){let c=0xffffffff;for(let i=0;i<bytes.length;i++)c=CRC_TABLE[(c^bytes[i])&255]^(c>>>8);return(c^0xffffffff)>>>0}
+function u16(v){return new Uint8Array([v&255,(v>>>8)&255])}
+function u32(v){return new Uint8Array([v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255])}
+function join(parts){let n=0;parts.forEach(p=>n+=p.length);const out=new Uint8Array(n);let o=0;parts.forEach(p=>{out.set(p,o);o+=p.length});return out}
+function dosNow(){const d=new Date(),time=((d.getHours()&31)<<11)|((d.getMinutes()&63)<<5)|((d.getSeconds()/2)&31),date=(((d.getFullYear()-1980)&127)<<9)|(((d.getMonth()+1)&15)<<5)|(d.getDate()&31);return{time,date}}
+async function makeStoredZip(files){
+ const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;const dt=dosNow();
+ for(const f of files){
+  const name=enc.encode(f.name),data=f.data,crc=crc32(data),flags=0x0800;
+  const local=join([u32(0x04034b50),u16(20),u16(flags),u16(0),u16(dt.time),u16(dt.date),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),name,data]);
+  locals.push(local);
+  const central=join([u32(0x02014b50),u16(20),u16(20),u16(flags),u16(0),u16(dt.time),u16(dt.date),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset),name]);
+  centrals.push(central);offset+=local.length;
+ }
+ const centralBytes=join(centrals),localBytes=join(locals);
+ const end=join([u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(centralBytes.length),u32(localBytes.length),u16(0)]);
+ return new Blob([localBytes,centralBytes,end],{type:'application/zip'});
+}
+async function exportAll(){
+ if(saved.size!==27)return;
+ exportBtn.disabled=true;exportBtn.textContent='Պատրաստում եմ ZIP-ը…';summary.innerHTML='<span class="busy">Կարդում եմ 27 original UV ֆայլերը՝ առանց վերափոխման…</span>';
+ try{
+  const db=await openDb(),files=[],manifest=[];
+  for(let i=0;i<ITEMS.length;i++){
+   const [id,name,ref]=ITEMS[i],rec=await getRec(db,id);
+   if(!rec?.blob)throw new Error(name+' UV-ը չի գտնվել IndexedDB-ում');
+   const data=new Uint8Array(await rec.blob.arrayBuffer()),ext=extFor(rec),index=String(i+1).padStart(2,'0');
+   const fname='uv/'+index+'-'+id+ext;
+   files.push({name:fname,data});
+   manifest.push({index:i+1,id,name,reference:ref,file:fname,originalName:rec.name||'',width:rec.width||null,height:rec.height||null,size:data.length,type:rec.type||rec.blob.type||''});
+  }
+  const manifestBytes=new TextEncoder().encode(JSON.stringify({version:1,source:'areg-space-user-uv-v1',count:27,items:manifest},null,2));
+  files.push({name:'manifest.json',data:manifestBytes});
+  const zip=await makeStoredZip(files),url=URL.createObjectURL(zip),a=document.createElement('a');
+  a.href=url;a.download='areg-exact-uv-27.zip';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  summary.innerHTML='ZIP պատրաստ է՝ <b>areg-exact-uv-27.zip</b> · 27 original UV + manifest.json։';
+ }catch(err){
+  summary.innerHTML='<span class="err">'+String(err.message||err)+'</span>';
+ }finally{
+  exportBtn.textContent='Export all 27 exact UV · ZIP';exportBtn.disabled=saved.size!==27;
+ }
+}
+exportBtn.addEventListener('click',exportAll);
+
 mount();restore();
 </script>
 </body></html>
