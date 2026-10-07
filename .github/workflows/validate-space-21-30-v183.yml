@@ -1,0 +1,62 @@
+name: Validate Professional Space 21-30
+
+on:
+  push:
+    branches:
+      - space-professional-21-30-v183
+    paths:
+      - 'space-3d-games.js'
+      - 'space-assets/professional-21-30/proof.html'
+      - '.github/workflows/validate-space-21-30-v183.yml'
+      - 'assets/space3d/real/**'
+      - 'assets/space3d/2k_ceres.jpg'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-professional-21-30-v183
+
+      - name: Start local site
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/proof-server.log 2>&1 &
+          sleep 2
+
+      - name: Render all ten professional proofs
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "Chromium not found"; exit 1; }
+          mkdir -p space-assets/professional-21-30/proofs
+          for id in triton charon pluto ceres haumea makemake eris solar-system milky-way black-hole; do
+            echo "Rendering $id"
+            timeout 90s "$CHROME"               --headless=new --no-sandbox --disable-dev-shm-usage               --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader               --virtual-time-budget=6500               --window-size=1400,760               --screenshot="space-assets/professional-21-30/proofs/$id.png"               "http://127.0.0.1:8080/space-assets/professional-21-30/proof.html?id=$id"               >/tmp/proof-$id.log 2>&1
+            test -s "space-assets/professional-21-30/proofs/$id.png"
+          done
+
+      - name: Check real game module syntax and load
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 90s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=6500             --dump-dom             "http://127.0.0.1:8080/space-assets/professional-21-30/proof.html?id=triton"             >/tmp/proof-dom.html 2>/tmp/proof-dom.log
+          grep -q 'PROOF_READY_TRITON' /tmp/proof-dom.html || {
+            cat /tmp/proof-dom.log || true
+            cat /tmp/proof-dom.html || true
+            exit 1
+          }
+
+      - name: Commit proof screenshots
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/professional-21-30/proofs
+          git commit -m "Professional Space: save V183 proofs for objects 21-30" || exit 0
+          git push origin HEAD:space-professional-21-30-v183

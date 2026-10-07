@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROOF_LOADING</title>
+<style>
+html,body{margin:0;background:#030712;color:#f5f8ff;font:15px system-ui,sans-serif}
+main{width:1360px;margin:20px auto}
+header{display:flex;align-items:end;justify-content:space-between;margin-bottom:14px}
+h1{margin:0;font-size:27px} small{color:#8ea9df;font-weight:800;letter-spacing:.12em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:#091328;border:1px solid #26395e;border-radius:20px;padding:14px}
+.card h2{margin:0 0 10px;font-size:13px;color:#bfd1f5}
+.visual{height:620px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 46%,#14254a 0,#07142f 48%,#020611 100%);display:grid;place-items:center}
+.visual img{width:100%;height:100%;object-fit:contain}
+.visual canvas{width:100%;height:100%;display:block}
+footer{margin-top:12px;color:#7f96c4}
+</style>
+</head>
+<body>
+<main>
+<header><div><small>V183 PROFESSIONAL RESTORE · 21–30</small><h1 id="title">Loading…</h1></div><strong id="status">rendering</strong></header>
+<section class="grid">
+ <article class="card"><h2>MASTER REFERENCE</h2><div class="visual"><img id="ref" alt=""></div></article>
+ <article class="card"><h2>REAL GAME THREE.JS RENDER</h2><div class="visual" id="host"></div></article>
+</section>
+<footer id="meta"></footer>
+</main>
+<script type="module">
+import * as THREE from '../../vendor/three.module.min.js';
+await import('../../space-3d-games.js');
+
+const ITEMS={
+ triton:{id:'triton',img:'21-triton.jpg',name:'Տրիտոն',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
+ charon:{id:'charon',img:'22-charon.jpg',name:'Խարոն',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
+ pluto:{id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
+ ceres:{id:'ceres',img:'24-ceres.jpg',name:'Ցերերա',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
+ haumea:{id:'haumea',img:'25-haumea.jpg',name:'Հաումեա',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
+ makemake:{id:'makemake',img:'26-makemake.jpg',name:'Մակեմակե',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
+ eris:{id:'eris',img:'27-eris.jpg',name:'Էրիս',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
+ 'solar-system':{id:'solar-system',img:'28-solar-system.jpg',name:'Արեգակնային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
+ 'milky-way':{id:'milky-way',img:'29-milky-way.jpg',name:'Ծիր Կաթին',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
+ 'black-hole':{id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
+};
+const params=new URLSearchParams(location.search),id=params.get('id')||'triton',item=ITEMS[id]||ITEMS.triton;
+document.getElementById('title').textContent=item.name+' · '+item.id;
+document.getElementById('ref').src='../../'+item.img;
+document.getElementById('meta').textContent='reference: '+item.img+' · renderer: Three.js r180 · V183 per-object professional path';
+
+const host=document.getElementById('host');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance',preserveDrawingBuffer:true});
+renderer.setPixelRatio(1);renderer.setSize(650,620,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.setClearColor(0x07142f,1);host.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(47,650/620,.1,80);camera.position.set(0,.05,6.4);
+scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
+scene.add(new THREE.AmbientLight(0x6176a6,.48));
+const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
+const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
+
+const g=window.AregSpace3D.__proofBuildObject(item);
+scene.add(g);g.updateMatrixWorld(true);
+const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
+const target=id==='solar-system'||id==='milky-way'||id==='black-hole'?1.55:1.48;
+g.scale.multiplyScalar(target/Math.max(.01,sphere.radius));
+g.position.set(0,0,0);
+
+let started=performance.now();
+function loop(t){
+  const dt=Math.min(.04,(t-started)/1000);started=t;
+  if(g.userData.accretion){
+    g.userData.accretion[0].rotation.z+=dt*.42;
+    g.userData.accretion[1].rotation.z-=dt*.24;
+    if(g.userData.accretion[2])g.userData.accretion[2].rotation.z+=dt*.12;
+  }
+  if(g.userData.orbiters){
+    g.userData.orbiters.forEach((p,oi)=>{
+      const rr=p.userData.orbitRadius||1,a=t*.00018*(p.userData.orbitSpeed||1)+oi*1.37;
+      p.position.set(Math.cos(a)*rr,0,Math.sin(a)*rr*.55);
+    });
+  }
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+setTimeout(()=>{document.getElementById('status').textContent='ready';document.title='PROOF_READY_'+id.toUpperCase()},3600);
+</script>
+</body>
+</html>
