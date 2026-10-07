@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SATURN_CALIBRATING</title>
+<style>
+html,body{margin:0;background:#050914;color:#fff;font:14px system-ui,sans-serif}
+main{width:1540px;margin:20px auto}
+header{display:flex;justify-content:space-between;align-items:end;margin-bottom:16px}
+h1{margin:0;font-size:28px} small{color:#9bb1db}
+.top{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.proof{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}
+.card{background:#0b1326;border:1px solid #263856;border-radius:18px;padding:12px}
+.card h2{font-size:13px;margin:0 0 8px;color:#bfd0ef}
+.card img,.card canvas{display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#020612;border-radius:12px}
+pre{white-space:pre-wrap;background:#091021;border:1px solid #263856;border-radius:14px;padding:14px;margin-top:16px;color:#cfe0ff}
+</style>
+</head>
+<body>
+<main>
+<header><div><small>SPACE ASSET PIPELINE V3</small><h1>Saturn · body + rings calibration</h1></div><strong id="summary">running…</strong></header>
+<section class="top">
+  <article class="card"><h2>MASTER REFERENCE · 08-saturn.jpg</h2><img id="refView" src="../08-saturn.jpg" alt=""></article>
+  <article class="card"><h2>CALIBRATED 3D</h2><canvas id="view3d" width="420" height="420"></canvas></article>
+  <article class="card"><h2>50% OVERLAY</h2><canvas id="overlay" width="420" height="420"></canvas></article>
+</section>
+<section class="proof">
+  <article class="card"><h2>0° FRONT</h2><canvas data-proof="0" width="280" height="280"></canvas></article>
+  <article class="card"><h2>90°</h2><canvas data-proof="90" width="280" height="280"></canvas></article>
+  <article class="card"><h2>180°</h2><canvas data-proof="180" width="280" height="280"></canvas></article>
+  <article class="card"><h2>270°</h2><canvas data-proof="270" width="280" height="280"></canvas></article>
+  <article class="card"><h2>360° = FRONT</h2><canvas data-proof="360" width="280" height="280"></canvas></article>
+</section>
+<pre id="result">{"status":"running"}</pre>
+</main>
+<script type="module">
+import * as THREE from '../vendor/three.module.min.js';
+
+const N=420,BASE_Y=20.0535,BASE_ROLL=26.73;
+const BASE_RING={scale:1.02,x:-1.01,z:.31};
+const resultEl=document.getElementById('result'),summary=document.getElementById('summary');
+const refImg=document.getElementById('refView'),viewCanvas=document.getElementById('view3d'),overlayCanvas=document.getElementById('overlay');
+
+function waitImage(img){return new Promise((resolve,reject)=>{if(img.complete&&img.naturalWidth){resolve();return}img.onload=resolve;img.onerror=reject})}
+function drawContain(ctx,img,w,h){ctx.clearRect(0,0,w,h);ctx.fillStyle='#020612';ctx.fillRect(0,0,w,h);const s=Math.min(w/img.naturalWidth,h/img.naturalHeight),dw=img.naturalWidth*s,dh=img.naturalHeight*s;ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh)}
+function dist(a,b){const dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];return Math.sqrt(dr*dr+dg*dg+db*db)}
+function bgOf(data){const pts=[],k=24;for(const [x0,y0] of [[0,0],[N-k,0],[0,N-k],[N-k,N-k]])for(let y=y0;y<y0+k;y+=3)for(let x=x0;x<x0+k;x+=3){const i=(y*N+x)*4;pts.push([data[i],data[i+1],data[i+2]])}return [0,1,2].map(c=>Math.round(pts.reduce((s,p)=>s+p[c],0)/pts.length))}
+function radiusOf(data,bg){const cx=N/2,cy=N/2,radii=[];for(let deg=0;deg<360;deg+=6){const a=deg*Math.PI/180;let last=0,miss=0,seen=false;for(let r=0;r<N*.48;r++){const x=Math.max(0,Math.min(N-1,Math.round(cx+Math.cos(a)*r))),y=Math.max(0,Math.min(N-1,Math.round(cy+Math.sin(a)*r))),i=(y*N+x)*4,d=dist([data[i],data[i+1],data[i+2]],bg);if(d>24){last=r;miss=0;seen=true}else if(seen){miss++}if(seen&&r>35&&miss>=10)break}if(last>50)radii.push(last)}radii.sort((a,b)=>a-b);return radii.length?radii[Math.floor(radii.length*.38)]:N*.28}
+function diskMetric(ref,ren,radius){const cx=N/2,cy=N/2,r2=(radius*.70)**2;let sum=0,count=0;for(let y=Math.floor(cy-radius*.70);y<=cy+radius*.70;y+=4)for(let x=Math.floor(cx-radius*.70);x<=cx+radius*.70;x+=4){const dx=x-cx,dy=y-cy;if(dx*dx+dy*dy>r2)continue;const i=(y*N+x)*4,rr=ref[i],rg=ref[i+1],rb=ref[i+2],ar=ren[i],ag=ren[i+1],ab=ren[i+2],rs=rr+rg+rb+1,as=ar+ag+ab+1;sum+=Math.abs(rr/rs-ar/as)+Math.abs(rg/rs-ag/as)+Math.abs(rb/rs-ab/as);count++}return sum/Math.max(1,count)}
+function fullMetric(ref,ren,bg){let sum=0,count=0;for(let y=8;y<N-8;y+=5)for(let x=8;x<N-8;x+=5){const i=(y*N+x)*4;const rd=dist([ref[i],ref[i+1],ref[i+2]],bg),ad=dist([ren[i],ren[i+1],ren[i+2]],bg);const rm=rd>24?1:0,am=ad>24?1:0;sum+=Math.abs(rm-am)*2.2+Math.min(1,Math.abs(rd-ad)/120)*.25;count++}return sum/Math.max(1,count)}
+
+try{
+ await waitImage(refImg);
+ const refCanvas=document.createElement('canvas');refCanvas.width=refCanvas.height=N;
+ const rctx=refCanvas.getContext('2d',{willReadFrequently:true});drawContain(rctx,refImg,N,N);
+ const refData=rctx.getImageData(0,0,N,N).data,bg=bgOf(refData),refRadius=radiusOf(refData,bg);
+
+ const renderer=new THREE.WebGLRenderer({canvas:viewCanvas,antialias:true,preserveDrawingBuffer:true});
+ renderer.setPixelRatio(1);renderer.setSize(N,N,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;renderer.setClearColor(new THREE.Color(bg[0]/255,bg[1]/255,bg[2]/255),1);
+ const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-2.35,2.35,2.35,-2.35,.1,10);camera.position.set(0,0,5);
+
+ const texture=await new THREE.TextureLoader().loadAsync('../assets/space3d/2k_saturn.jpg');texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=THREE.RepeatWrapping;
+ const planet=new THREE.Mesh(new THREE.SphereGeometry(1,192,128),new THREE.MeshBasicMaterial({map:texture}));planet.scale.set(1,.91,1);scene.add(planet);
+
+ const ringTex=await new THREE.TextureLoader().loadAsync('../assets/space3d/2k_saturn_ring_alpha.png');ringTex.colorSpace=THREE.SRGBColorSpace;
+ const rg=new THREE.RingGeometry(1.20,2.02,220),pos=rg.attributes.position,uv=rg.attributes.uv;
+ for(let i=0;i<pos.count;i++){const r=Math.hypot(pos.getX(i),pos.getY(i));uv.setXY(i,Math.max(0,Math.min(1,(r-1.20)/.82)),.5)}
+ const ring=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({map:ringTex,alphaMap:ringTex,color:0xffd77a,side:THREE.DoubleSide,transparent:true,opacity:.98,alphaTest:.014,depthWrite:true}));
+ scene.add(ring);
+
+ const cctx=document.createElement('canvas').getContext('2d',{willReadFrequently:true});cctx.canvas.width=cctx.canvas.height=N;
+ function renderAt(yaw,roll,scale,rs,rx,rz){
+   planet.rotation.set(0,THREE.MathUtils.degToRad(yaw),THREE.MathUtils.degToRad(roll));planet.scale.set(scale,scale*.91,scale);
+   ring.scale.setScalar(scale*rs);ring.rotation.set(rx,0,rz);
+   renderer.render(scene,camera);cctx.clearRect(0,0,N,N);cctx.drawImage(viewCanvas,0,0,N,N);return cctx.getImageData(0,0,N,N).data
+ }
+
+ const baseScale=Math.max(.70,Math.min(1.55,refRadius/(N/4.7)));
+ let best={yaw:BASE_Y,roll:BASE_ROLL,scale:baseScale,score:Infinity};
+ for(let roll=BASE_ROLL-5;roll<=BASE_ROLL+5;roll+=1)for(let yaw=BASE_Y-36;yaw<=BASE_Y+36;yaw+=3){
+   const score=diskMetric(refData,renderAt(yaw,roll,baseScale,BASE_RING.scale,BASE_RING.x,BASE_RING.z),refRadius);
+   if(score<best.score)best={yaw,roll,scale:baseScale,score}
+ }
+ const coarse={...best};
+ for(let roll=coarse.roll-1;roll<=coarse.roll+1.001;roll+=.25)for(let yaw=coarse.yaw-2;yaw<=coarse.yaw+2.001;yaw+=.25){
+   const score=diskMetric(refData,renderAt(yaw,roll,baseScale,BASE_RING.scale,BASE_RING.x,BASE_RING.z),refRadius);
+   if(score<best.score)best={yaw,roll,scale:baseScale,score}
+ }
+
+ let bestRing={scale:BASE_RING.scale,x:BASE_RING.x,z:BASE_RING.z,score:Infinity};
+ for(let rs=.94;rs<=1.10;rs+=.04)for(let rx=BASE_RING.x-.16;rx<=BASE_RING.x+.1601;rx+=.08)for(let rz=BASE_RING.z-.16;rz<=BASE_RING.z+.1601;rz+=.08){
+   const score=fullMetric(refData,renderAt(best.yaw,best.roll,best.scale,rs,rx,rz),bg);
+   if(score<bestRing.score)bestRing={scale:rs,x:rx,z:rz,score}
+ }
+ const cr={...bestRing};
+ for(let rs=cr.scale-.04;rs<=cr.scale+.0401;rs+=.01)for(let rx=cr.x-.06;rx<=cr.x+.0601;rx+=.03)for(let rz=cr.z-.06;rz<=cr.z+.0601;rz+=.03){
+   const score=fullMetric(refData,renderAt(best.yaw,best.roll,best.scale,rs,rx,rz),bg);
+   if(score<bestRing.score)bestRing={scale:rs,x:rx,z:rz,score}
+ }
+
+ const finalData=renderAt(best.yaw,best.roll,best.scale,bestRing.scale,bestRing.x,bestRing.z);
+ const octx=overlayCanvas.getContext('2d');octx.putImageData(new ImageData(new Uint8ClampedArray(finalData),N,N),0,0);octx.globalAlpha=.5;octx.drawImage(refCanvas,0,0,N,N);octx.globalAlpha=1;
+
+ for(const canvas of document.querySelectorAll('canvas[data-proof]')){
+   const rr=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});rr.setPixelRatio(1);rr.setSize(280,280,false);rr.outputColorSpace=THREE.SRGBColorSpace;rr.toneMapping=THREE.NoToneMapping;rr.setClearColor(0x020612,1);
+   const ss=new THREE.Scene(),cc=new THREE.OrthographicCamera(-2.35,2.35,2.35,-2.35,.1,10);cc.position.set(0,0,5);
+   const pp=new THREE.Mesh(new THREE.SphereGeometry(1,160,120),new THREE.MeshBasicMaterial({map:texture}));pp.scale.set(best.scale,best.scale*.91,best.scale);pp.rotation.set(0,THREE.MathUtils.degToRad(best.yaw+Number(canvas.dataset.proof)),THREE.MathUtils.degToRad(best.roll));ss.add(pp);
+   const rgeo=new THREE.RingGeometry(1.20,2.02,180),p2=rgeo.attributes.position,u2=rgeo.attributes.uv;for(let i=0;i<p2.count;i++){const r=Math.hypot(p2.getX(i),p2.getY(i));u2.setXY(i,Math.max(0,Math.min(1,(r-1.20)/.82)),.5)}
+   const rmesh=new THREE.Mesh(rgeo,new THREE.MeshBasicMaterial({map:ringTex,alphaMap:ringTex,color:0xffd77a,side:THREE.DoubleSide,transparent:true,opacity:.98,alphaTest:.014,depthWrite:true}));rmesh.scale.setScalar(best.scale*bestRing.scale);rmesh.rotation.set(bestRing.x,0,bestRing.z);ss.add(rmesh);rr.render(ss,cc)
+ }
+
+ const report={status:'ok',algorithm:'v3-saturn-body-ring-two-stage-match',measuredYawDeg:Number(best.yaw.toFixed(2)),measuredRollDeg:Number(best.roll.toFixed(2)),measuredScale:Number(best.scale.toFixed(4)),ringScale:Number(bestRing.scale.toFixed(3)),ringRotationXRad:Number(bestRing.x.toFixed(4)),ringRotationZRad:Number(bestRing.z.toFixed(4)),bodyMetric:Number(best.score.toFixed(6)),ringMetric:Number(bestRing.score.toFixed(6)),texture:'assets/space3d/2k_saturn.jpg',ringTexture:'assets/space3d/2k_saturn_ring_alpha.png',reference:'08-saturn.jpg',approved:false};
+ resultEl.textContent=JSON.stringify(report,null,2);summary.textContent='yaw '+report.measuredYawDeg+'° · roll '+report.measuredRollDeg+'° · scale '+report.measuredScale+' · ring '+report.ringScale;document.title='SATURN_CALIBRATION_READY'
+}catch(err){resultEl.textContent=JSON.stringify({status:'error',message:String(err&&err.stack||err)},null,2);document.title='SATURN_CALIBRATION_ERROR'}
+</script>
+</body>
+</html>

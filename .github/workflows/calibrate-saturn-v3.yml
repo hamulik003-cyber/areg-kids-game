@@ -1,0 +1,76 @@
+name: Calibrate Saturn V3
+
+on:
+  push:
+    branches:
+      - space-pipeline-v3-saturn
+    paths:
+      - 'space-pipeline/saturn-auto-calibrate.html'
+      - '.github/workflows/calibrate-saturn-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-pipeline-v3-saturn
+
+      - name: Start local server
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/saturn-v3-server.log 2>&1 &
+          sleep 2
+
+      - name: Run Saturn body and ring calibration
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "No Chromium browser found"; exit 1; }
+          timeout 120s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=50000             --dump-dom             http://127.0.0.1:8080/space-pipeline/saturn-auto-calibrate.html             >/tmp/saturn-dom.html 2>/tmp/saturn-chrome.log
+          grep -q 'SATURN_CALIBRATION_READY' /tmp/saturn-dom.html || {
+            cat /tmp/saturn-chrome.log || true
+            cat /tmp/saturn-dom.html || true
+            exit 1
+          }
+
+      - name: Save report and profile
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, html, json, math
+          dom=Path('/tmp/saturn-dom.html').read_text(encoding='utf-8',errors='replace')
+          m=re.search(r'<pre id="result">([\s\S]*?)</pre>',dom)
+          if not m: raise SystemExit('Calibration result not found')
+          report=json.loads(html.unescape(m.group(1)).strip())
+          if report.get('status')!='ok': raise SystemExit(json.dumps(report))
+          Path('space-assets/saturn/calibration-report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+          p=Path('space-assets/saturn/profile.json');profile=json.loads(p.read_text(encoding='utf-8'))
+          fv=profile.setdefault('frontView',{})
+          fv['rotationYDeg']=report['measuredYawDeg'];fv['rotationYRad']=round(math.radians(report['measuredYawDeg']),12)
+          fv['rollDeg']=report['measuredRollDeg'];fv['scale']=report['measuredScale'];fv['autoCalibration']='space-assets/saturn/calibration-report.json';fv['approved']=False
+          ring=profile.setdefault('ring',{});ring['scale']=report['ringScale'];ring['rotationXRad']=report['ringRotationXRad'];ring['rotationZRad']=report['ringRotationZRad'];ring['approved']=False
+          profile['status']='front-and-ring-auto-calibrated-awaiting-visual-approval'
+          p.write_text(json.dumps(profile,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Save combined visual proof
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 120s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=50000             --window-size=1600,1450             --screenshot=space-assets/saturn/validation-proof.png             http://127.0.0.1:8080/space-pipeline/saturn-auto-calibrate.html             >/tmp/saturn-shot.log 2>&1
+          test -s space-assets/saturn/validation-proof.png
+
+      - name: Commit Saturn calibration
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/saturn/profile.json                   space-assets/saturn/calibration-report.json                   space-assets/saturn/validation-proof.png
+          git commit -m "V3 Saturn: auto-calibrate body rings and 360 proof" || exit 0
+          git push origin HEAD:space-pipeline-v3-saturn

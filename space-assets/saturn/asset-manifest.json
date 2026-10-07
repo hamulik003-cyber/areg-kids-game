@@ -1,0 +1,22 @@
+{
+  "asset": "saturn",
+  "reference": {
+    "path": "08-saturn.jpg",
+    "blobSha": "b6c7418de1f074f33300e017a823256d678e606f",
+    "sizeBytes": 564398
+  },
+  "texture": {
+    "path": "assets/space3d/2k_saturn.jpg",
+    "blobSha": "d8b23dfe7d959aae965be0ece559a25c75651b6b",
+    "sizeBytes": 199916
+  },
+  "ringTexture": {
+    "path": "assets/space3d/2k_saturn_ring_alpha.png",
+    "blobSha": "ce82586716badc707b49e6143c3ffc50b2326774",
+    "sizeBytes": 12119
+  },
+  "runtime": {
+    "usesExternalUrl": false,
+    "calibrationPage": "space-pipeline/saturn-auto-calibrate.html"
+  }
+}

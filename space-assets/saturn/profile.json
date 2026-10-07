@@ -1,19 +1,46 @@
 {
   "id": "saturn",
-  "status": "pilot",
-  "reference": "08-saturn.jpg",
-  "geometry": "sphere-plus-rings",
-  "texture": null,
-  "rings": {
-    "approved": false
+  "status": "awaiting-auto-calibration",
+  "masterReference": "08-saturn.jpg",
+  "referenceBlobSha": "b6c7418de1f074f33300e017a823256d678e606f",
+  "geometry": "oblate-sphere-plus-rings",
+  "texture": "assets/space3d/2k_saturn.jpg",
+  "textureBlobSha": "d8b23dfe7d959aae965be0ece559a25c75651b6b",
+  "ringTexture": "assets/space3d/2k_saturn_ring_alpha.png",
+  "ringTextureBlobSha": "ce82586716badc707b49e6143c3ffc50b2326774",
+  "colorPipeline": {
+    "colorSpace": "sRGB",
+    "toneMapping": "none",
+    "extraGrading": false
   },
   "frontView": {
+    "rotationYRad": 0.35,
+    "rotationYDeg": 20.0535,
+    "rollDeg": 26.73,
+    "scale": 1.0,
+    "approved": false
+  },
+  "shape": {"x":1.0,"y":0.91,"z":1.0},
+  "ring": {
+    "inner": 1.20,
+    "outer": 2.02,
+    "scale": 1.02,
+    "rotationXRad": -1.01,
+    "rotationZRad": 0.31,
+    "opacity": 0.98,
     "approved": false
   },
   "rotationCheck": {
+    "deg0": false,
     "deg90": false,
     "deg180": false,
     "deg270": false,
     "deg360": false
+  },
+  "preservation": {
+    "externalRuntimeDependency": false,
+    "immutableReference": true,
+    "textureAlreadyLocal": true,
+    "ringTextureAlreadyLocal": true
   }
 }
