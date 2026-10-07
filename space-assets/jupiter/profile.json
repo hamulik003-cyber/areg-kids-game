@@ -1,6 +1,6 @@
 {
   "id": "jupiter",
-  "status": "front-auto-calibrated-awaiting-visual-approval",
+  "status": "technical-validated-awaiting-visual-approval",
   "masterReference": "07-jupiter.jpg",
   "referenceBlobSha": "80f4b436637bca75ad399bac10cab61325597c60",
   "geometry": "sphere",
@@ -19,18 +19,21 @@
     "scale": 1.292,
     "source": "V2 Jupiter baseline",
     "approved": false,
-    "autoCalibration": "space-assets/jupiter/calibration-report.json"
+    "autoCalibration": "space-assets/jupiter/calibration-report.json",
+    "proof": "space-assets/jupiter/validation-proof.png"
   },
   "rotationCheck": {
-    "deg0": false,
-    "deg90": false,
-    "deg180": false,
-    "deg270": false,
-    "deg360": false
+    "deg0": true,
+    "deg90": true,
+    "deg180": true,
+    "deg270": true,
+    "deg360": true,
+    "proof": "space-assets/jupiter/validation-proof.png"
   },
   "preservation": {
     "externalRuntimeDependency": false,
     "immutableReference": true,
-    "textureAlreadyLocal": true
+    "textureAlreadyLocal": true,
+    "technicalCheckpoint": true
   }
 }
