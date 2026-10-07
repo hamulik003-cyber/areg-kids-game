@@ -62,11 +62,14 @@ const PROFILE={
     roughness:.96,emissive:.045,atmosphere:{color:0xffbd55,strength:.16,power:2.8,radius:1.025}
   },
   earth:{
-    reference:'04-earth.jpg',texture:'assets/space3d/2k_earth_daymap.jpg',
-    idle:.70,win:1.34,spin:.15,tilt:23.44,frontY:2.08,grade:'earth',
-    roughness:.84,emissive:.035,
-    clouds:{texture:'assets/space3d/2k_earth_clouds.jpg',opacity:.56,spin:.055},
-    atmosphere:{color:0x38b8ff,strength:.48,power:2.35,radius:1.043}
+    reference:'04-earth.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/f3792367-3d37-4dd8-88fd-1471f0245990.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMjg2MmY3NWRlNTg3ODEwZCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyOTY5M30.380UCmpdf2mP2alVEXfiirQNoLn9pABJXxzV-KxOdrw',
+    idle:.70,win:1.34,spin:.15,tilt:0,frontY:-Math.PI/2,grade:'direct-generated',
+    // Earth proof: the gallery-matched 2:1 map is used directly, exactly like the accepted Mars pipeline.
+    // Clouds are already baked into this approved-style map, so no second cloud layer is added.
+    directTexture:true,
+    basic:true,
+    atmosphere:{color:0x38b8ff,strength:.26,power:2.55,radius:1.032}
   },
   moon:{
     reference:'05-moon.jpg',texture:null,
@@ -180,7 +183,7 @@ const VISUAL_MATCH={
   sun:      {viewerScale:1.54,gameScale:.72,winScale:1.34,frontYaw:.15,rollDeg:7.25,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:0},toneMapped:true},
   mercury:  {viewerScale:1.50,gameScale:.62,winScale:1.34,frontYaw:.18,rollDeg:.03,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.2},toneMapped:true},
   venus:    {viewerScale:1.54,gameScale:.68,winScale:1.36,frontYaw:-.35,rollDeg:177.4,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.4},toneMapped:true},
-  earth:    {viewerScale:1.52,gameScale:.70,winScale:1.34,frontYaw:2.08,rollDeg:23.44,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.6},toneMapped:true},
+  earth:    {viewerScale:1.52,gameScale:.70,winScale:1.34,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.6},toneMapped:false},
   moon:     {viewerScale:1.50,gameScale:.62,winScale:1.33,frontYaw:.85,rollDeg:6.68,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.8},toneMapped:true},
   mars:     {viewerScale:1.62,gameScale:.65,winScale:1.35,frontYaw:0,rollDeg:25.19,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:1.0},toneMapped:true},
   jupiter:  {viewerScale:1.56,gameScale:.75,winScale:1.36,frontYaw:-1.45,rollDeg:3.13,shape:{x:1.00,y:.94,z:1.00,deform:0,seed:1.2},toneMapped:true},
