@@ -3,13 +3,15 @@ name: Validate Professional Space 21-30
 on:
   push:
     branches:
-      - space-professional-21-30-v183
+      - space-professional-21-30-v183-full30
     paths:
       - 'space-3d-games.js'
       - 'space-assets/professional-21-30/proof.html'
       - '.github/workflows/validate-space-21-30-v183.yml'
       - 'assets/space3d/real/**'
       - 'assets/space3d/2k_ceres.jpg'
+      - 'assets/space3d/2k_callisto.jpg'
+      - 'assets/space3d/4k_titan.jpg'
   workflow_dispatch:
 
 permissions:
@@ -21,7 +23,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: space-professional-21-30-v183
+          ref: space-professional-21-30-v183-full30
+
+      - name: Verify exact 30-object runtime pool
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('space-3d-games.js').read_text(encoding='utf-8')
+          m=re.search(r"const TEXTURE_PATHS=\{([\s\S]*?)\n\};",s)
+          if not m: raise SystemExit('TEXTURE_PATHS not found')
+          body_ids=re.findall(r"^\s*([a-z][a-z0-9-]*):",m.group(1),re.M)
+          expected_body=[
+            'sun','mercury','venus','earth','moon','mars','jupiter','saturn','uranus','neptune',
+            'phobos','deimos','io','europa','ganymede','callisto','titan','enceladus','titania','oberon',
+            'triton','charon','pluto','ceres','haumea','makemake','eris'
+          ]
+          if body_ids != expected_body:
+              raise SystemExit(f'Body pool mismatch: {body_ids}')
+          sm=re.search(r"const SPECIAL_SPACE_IDS=new Set\(\[([^\]]+)\]\)",s)
+          if not sm: raise SystemExit('SPECIAL_SPACE_IDS not found')
+          special=re.findall(r"'([^']+)'",sm.group(1))
+          expected_special=['solar-system','milky-way','black-hole']
+          if special != expected_special:
+              raise SystemExit(f'Special pool mismatch: {special}')
+          total=len(body_ids)+len(special)
+          print(f'POOL_COUNT={total}')
+          print(f'BODY_COUNT={len(body_ids)}')
+          print(f'SPECIAL_COUNT={len(special)}')
+          if total != 30:
+              raise SystemExit(f'Expected 30, got {total}')
+          PY
 
       - name: Start local site
         run: |
@@ -59,4 +92,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add space-assets/professional-21-30/proofs
           git commit -m "Professional Space: save V183 proofs for objects 21-30" || exit 0
-          git push origin HEAD:space-professional-21-30-v183
+          git push origin HEAD:space-professional-21-30-v183-full30
