@@ -3,7 +3,7 @@ import * as THREE from './vendor/three.module.min.js';
 const DATA={
   earth:{name:'Երկիր',find:'Երկիրը',texture:'space-assets/earth/texture-2k.png',yaw:-93.5,roll:0,scale:.90,shape:[1,1,1],spin:.16,atmosphere:0x38b8ff},
   jupiter:{name:'Յուպիտեր',find:'Յուպիտերը',texture:'assets/space3d/2k_jupiter.jpg',yaw:-43.58,roll:-1.12,scale:1.03,shape:[1,.94,1],spin:.20},
-  saturn:{name:'Սատուրն',find:'Սատուրնը',texture:'assets/space3d/2k_saturn.jpg',yaw:20.0535,roll:26.73,scale:.78,shape:[1,.91,1],spin:.17,ring:true,ringScale:1.02,ringX:-1.01,ringZ:.31}
+  saturn:{name:'Սատուրն',find:'Սատուրնը',texture:'assets/space3d/2k_saturn.jpg',yaw:-10.95,roll:32.73,scale:.78,shape:[1,.91,1],spin:.17,ring:true,ringScale:1.10,ringX:-1.14,ringZ:.29}
 };
 
 const stage=document.getElementById('stage'),canvas=document.getElementById('scene'),loading=document.getElementById('loading'),prompt=document.getElementById('prompt'),scoreEl=document.getElementById('score');
