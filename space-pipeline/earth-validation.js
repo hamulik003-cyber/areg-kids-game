@@ -1,7 +1,7 @@
 import * as THREE from '../vendor/three.module.min.js';
-const FRONT_Y=-Math.PI/2,texUrl='../space-assets/earth/texture-2k.png';
+const FRONT_Y=THREE.MathUtils.degToRad(-93.5),texUrl='../space-assets/earth/texture-2k.png';
 const badge=document.getElementById('angleBadge'),scaleRange=document.getElementById('scaleRange'),scaleValue=document.getElementById('scaleValue'),yawRange=document.getElementById('yawRange'),yawValue=document.getElementById('yawValue'),autoRotate=document.getElementById('autoRotate'),overlayOpacity=document.getElementById('overlayOpacity'),overlayImg=document.getElementById('overlayImg'),buttons=[...document.querySelectorAll('[data-angle]')];
-let presetDeg=0,yawDeg=0,scale=1,autoDeg=0,last=performance.now();
+let presetDeg=0,yawDeg=0,scale=1.292,autoDeg=0,last=performance.now();
 function makeView(canvas){
  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;renderer.setClearColor(0x020612,1);
