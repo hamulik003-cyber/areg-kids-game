@@ -20,6 +20,7 @@ function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Ma
 
 const QUERY=new URLSearchParams(location.search);
 const FOCUS_ID=QUERY.get('focus');
+const VIEWER_MODE=FOCUS_ID==='mars';
 
 const PLANETS=[
   {id:'sun',name:'Արև',find:'Արևը'},
@@ -627,6 +628,38 @@ function nextTarget(){
 async function buildRound(){
   const token=++roundToken;clearRound();locked=true;stage.classList.remove('is-win');
   target=nextTarget();
+
+  if(VIEWER_MODE){
+    promptEl.textContent='Մարս • 360° փորձնական դիտում';
+    const scoreBox=scoreEl.closest('.v2-score');
+    if(scoreBox)scoreBox.style.display='none';
+    loadingEl.textContent='Բեռնվում է Մարսի 360° texture-ը…';
+    loadingEl.classList.remove('hide');
+
+    let g;
+    try{g=await buildPlanet(target)}
+    catch(e){
+      console.error(e);
+      loadingEl.textContent='Չհաջողվեց բեռնել texture-ը։ Նորից փորձում եմ…';
+      if(token===roundToken)setTimeout(buildRound,700);
+      return;
+    }
+    if(token!==roundToken){disposeGroup(g);return}
+
+    loadingEl.classList.add('hide');
+    g.userData.basePos=new THREE.Vector3(0,-.04,1.15);
+    g.userData.enterPos=new THREE.Vector3(0,-.04,.10);
+    g.userData.viewerScale=1.62;
+    g.userData.enterScale=new THREE.Vector3(1,1,1).multiplyScalar(.92);
+    g.position.copy(g.userData.enterPos);
+    g.scale.copy(g.userData.enterScale);
+    setOpacity(g,0);
+    scene.add(g);
+    groups.push(g);
+    transition={type:'viewer-enter',start:performance.now(),duration:850};
+    return;
+  }
+
   const decoys=shuffle(PLANETS.filter(x=>x.id!==target.id)).slice(0,2);
   const options=shuffle([target,...decoys]),spot=shuffle(slots());
   promptEl.textContent='Գտի՛ր՝ '+target.find;
@@ -697,6 +730,7 @@ function choose(g){
 }
 
 renderer.domElement.addEventListener('pointerup',e=>{
+  if(VIEWER_MODE)return;
   if(locked||transition)return;
   const r=renderer.domElement.getBoundingClientRect();
   mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;
@@ -711,13 +745,14 @@ function loop(t){
   stars3d.rotation.y+=dt*.002;
   camera.position.x=Math.sin(t*.00017)*.028;
   camera.position.y=.10+Math.cos(t*.00015)*.020;
-  camera.position.z+=(((win&&!transition)?8.55:9.25)-camera.position.z)*.045;
-  camera.lookAt(0,-.06,0);
+  const targetCameraZ=VIEWER_MODE?8.05:((win&&!transition)?8.55:9.25);
+  camera.position.z+=(targetCameraZ-camera.position.z)*.045;
+  camera.lookAt(0,VIEWER_MODE?-.04:-.06,0);
 
   let enterDone=true,exitDone=true;
   groups.forEach((g,i)=>{
     const cfg=PROFILE[g.userData.item.id];
-    if(g.userData.surface)g.userData.surface.rotation.y+=dt*cfg.spin*(g.userData.win?2.0:1);
+    if(g.userData.surface)g.userData.surface.rotation.y+=dt*(VIEWER_MODE?.20:cfg.spin*(g.userData.win?2.0:1));
     if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*cfg.clouds.spin;
 
     if(wrong?.g===g){
@@ -730,7 +765,14 @@ function loop(t){
       }
     }
 
-    if(transition?.type==='enter'){
+    if(transition?.type==='viewer-enter'){
+      const q=clamp((t-transition.start)/transition.duration,0,1),e=easeOut(q);
+      g.position.lerpVectors(g.userData.enterPos,g.userData.basePos,e);
+      const final=new THREE.Vector3(1,1,1).multiplyScalar(g.userData.viewerScale||1.62);
+      g.scale.lerpVectors(g.userData.enterScale,final,e);
+      setOpacity(g,e);
+      if(q<1)enterDone=false;
+    }else if(transition?.type==='enter'){
       const stagger=i*60,q=clamp((t-transition.start-stagger)/(transition.duration-stagger),0,1),e=easeOut(q);
       g.position.lerpVectors(g.userData.enterPos,g.userData.basePos,e);
       const final=new THREE.Vector3(1,1,1).multiplyScalar(PROFILE[g.userData.item.id].idle);
@@ -752,6 +794,7 @@ function loop(t){
     }
   });
 
+  if(transition?.type==='viewer-enter'&&enterDone){transition=null;locked=true}
   if(transition?.type==='enter'&&enterDone){transition=null;locked=false}
   if(transition?.type==='exit'&&exitDone){transition=null;win=null;buildRound()}
   renderer.render(scene,camera);requestAnimationFrame(loop);
