@@ -76,7 +76,7 @@ const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const USER_UV_IDS=new Set([
   'io','europa','ganymede','callisto','titan','enceladus','titania','oberon','triton','sun',
   'mercury','moon','pluto','venus','ceres','earth','haumea','makemake','eris','jupiter',
-  'uranus','saturn'
+  'uranus'
 ]);
 const USER_UV_DB='areg-space-user-uv-v1';
 const USER_UV_STORE='textures';
