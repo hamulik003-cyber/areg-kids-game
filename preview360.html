@@ -1,0 +1,188 @@
+<!-- V163 centered halos + single soft green flash -->
+<!doctype html>
+<html lang="hy" data-theme="day" data-font="system">
+<head>
+  <base href="/areg-kids-game/" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta charset="utf-8" />
+  <script>
+  (()=>{try{
+    const u=new URL(location.href);
+    if(u.searchParams.get('__areg_build')!=='163'){
+      u.searchParams.set('__areg_build','163');
+      u.searchParams.set('__ts',Date.now().toString());
+      location.replace(u.toString());
+    }
+  }catch(_){}})();
+  </script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <meta name="theme-color" content="#f4d6a8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Արեգ 3D աշխարհ</title>
+  <link rel="stylesheet" href="styles.css?v=139" />
+  <link rel="stylesheet" href="space-3d-games.css?v=163" />
+</head>
+<body>
+  <div id="appBackground" aria-hidden="true"></div>
+  <div id="ambientLayer" aria-hidden="true">
+    <span class="particle p1">✦</span><span class="particle p2">•</span><span class="particle p3">✧</span>
+    <span class="particle p4">❧</span><span class="particle p5">✦</span><span class="particle p6">•</span>
+  </div>
+
+  <main id="homeScreen" class="screen screen--active" aria-label="Գլխավոր ընտրացանկ">
+    <div id="designStage" class="design-stage" role="application" aria-label="Արեգ 3D աշխարհ">
+      <button id="avatarButton" class="asset-button avatar-button" aria-label="Կերպար ընտրել">
+        <img class="asset-img" src="avatar-frame.png?v=60" alt="" draggable="false" />
+        <img id="savedAvatar" class="saved-avatar" alt="Ընտրված նկար" draggable="false" hidden />
+      </button>
+
+      <img class="logo asset-img" src="logo.png?v=60" alt="Արեգ 3D աշխարհ" draggable="false" />
+      <span class="logo-sheen" aria-hidden="true"></span>
+      <span class="logo-spark logo-spark-1" aria-hidden="true">✦</span>
+      <span class="logo-spark logo-spark-2" aria-hidden="true">✦</span>
+      <span class="logo-spark logo-spark-3" aria-hidden="true">✦</span>
+      <span class="logo-spark logo-spark-4" aria-hidden="true">✦</span>
+
+      <button id="starCounter" class="asset-button star-counter dynamic-star-counter" aria-label="0 աստղ">
+        <span class="home-star-glyph" aria-hidden="true">⭐</span>
+        <span id="homeStars" class="home-stars-number">0</span>
+      </button>
+
+      <button id="settingsButton" class="asset-button settings-button" aria-label="Կարգավորումներ">
+        <img class="asset-img" src="settings.png?v=60" alt="" draggable="false" />
+      </button>
+
+      <button class="section-card nature-card home-section-card" data-section="nature" aria-label="Բնություն">
+        <img class="home-card-art" src="home-nature-art.jpg?v=60" alt="" draggable="false" />
+        <span class="home-card-label">Բնություն</span>
+        <span class="home-card-leaf leaf-left" aria-hidden="true"></span>
+        <span class="home-card-leaf leaf-right" aria-hidden="true"></span>
+        <span class="home-v44-sheen" aria-hidden="true"></span>
+      </button>
+      <button class="section-card space-card home-section-card" data-section="space" aria-label="Տիեզերք">
+        <img class="home-card-art" src="home-space-art.jpg?v=60" alt="" draggable="false" />
+        <span class="home-card-label">Տիեզերք</span>
+        <span class="home-card-leaf leaf-left" aria-hidden="true"></span>
+        <span class="home-card-leaf leaf-right" aria-hidden="true"></span>
+        <span class="home-v44-sheen" aria-hidden="true"></span>
+      </button>
+      <button class="section-card mind-card home-section-card" data-section="mind" aria-label="Մտքի խաղեր">
+        <img class="home-card-art" src="home-mind-art.jpg?v=60" alt="" draggable="false" />
+        <span class="home-card-label">Մտքի խաղեր</span>
+        <span class="home-card-leaf leaf-left" aria-hidden="true"></span>
+        <span class="home-card-leaf leaf-right" aria-hidden="true"></span>
+        <span class="home-v44-sheen" aria-hidden="true"></span>
+      </button>
+      <button class="section-card create-card home-section-card" data-section="create" aria-label="Ստեղծիր">
+        <img class="home-card-art" src="home-create-art.jpg?v=60" alt="" draggable="false" />
+        <span class="home-card-label">Ստեղծիր</span>
+        <span class="home-card-leaf leaf-left" aria-hidden="true"></span>
+        <span class="home-card-leaf leaf-right" aria-hidden="true"></span>
+        <span class="home-v44-sheen" aria-hidden="true"></span>
+      </button>
+      <button class="section-card magic-card home-section-card home-section-card--wide" data-section="magic" aria-label="Կախարդական աստղերի սենյակ">
+        <img class="home-card-art" src="home-magic-art.jpg?v=60" alt="" draggable="false" />
+        <span class="home-card-label">Կախարդական աստղերի սենյակ</span>
+        <span class="home-card-leaf leaf-left" aria-hidden="true"></span>
+        <span class="home-card-leaf leaf-right" aria-hidden="true"></span>
+        <span class="home-v44-sheen" aria-hidden="true"></span>
+      </button>
+      <img class="bottom-landscape asset-img" src="bottom-landscape.png?v=60" alt="" draggable="false" />
+    </div>
+  </main>
+
+  <section id="sectionScreen" class="screen toddler-section-screen" hidden>
+    <img id="sectionBackdrop" class="section-backdrop-image" alt="" draggable="false" />
+    <div class="section-dim" aria-hidden="true"></div>
+    <div class="toddler-section-shell">
+      <div class="toddler-topbar">
+        <button id="sectionBack" class="wood-round section-back" aria-label="Հետ">←</button>
+        <div id="sectionTitle" class="wood-title">Բնություն</div>
+        <div class="wood-stars" aria-label="Աստղեր">⭐ <span id="sectionStars">120</span></div>
+      </div>
+      <div class="section-hero-card">
+        <img id="sectionHero" alt="" draggable="false" />
+        <span class="section-card-sheen section-hero-sheen" aria-hidden="true"></span>
+      </div>
+      <div id="sectionGames" class="section-games-grid"></div>
+    </div>
+  </section>
+
+  <section id="activityScreen" class="screen activity-screen" hidden>
+    <div class="activity-shell">
+      <div class="activity-topbar">
+        <button id="activityBack" class="wood-round" aria-label="Հետ">←</button>
+        <div class="activity-title-wrap">
+          <div id="activitySectionTitle" class="activity-section-title"></div>
+          <div id="activityTitle" class="activity-title"></div>
+        </div>
+        <div class="activity-stars">⭐ <span id="activityStars">120</span></div>
+      </div>
+      <div id="activityContent" class="activity-content"></div>
+    </div>
+  </section>
+
+  <div id="settingsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="modal-backdrop" data-close="settings"></div>
+    <div class="settings-panel">
+      <div class="panel-header">
+        <h2 id="settingsTitle">Կարգավորումներ</h2>
+        <button class="round-close" data-close="settings" aria-label="Փակել">×</button>
+      </div>
+      <div class="settings-list">
+        <label class="setting-row"><span>Ընդհանուր ձայն</span><input id="masterSound" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Երաժշտություն</span><input id="musicSound" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Ձայնային հուշումներ</span><input id="voiceHints" type="checkbox" /><span class="switch"></span></label>
+        <label class="setting-row"><span>Էֆեկտներ</span><input id="gameEffects" type="checkbox" /><span class="switch"></span></label>
+      </div>
+      <h3 class="theme-heading font-heading">Տառաձև</h3>
+      <div id="fontGrid" class="font-grid" aria-label="Ընտրել տառաձև"></div>
+      <p class="font-help">Բոլոր տարբերակները նախատեսված են հայերեն տեքստերի համար և աշխատում են նաև առանց ինտերնետի։</p>
+      <h3 class="theme-heading">Թեմա</h3>
+      <div id="themeGrid" class="theme-grid" aria-label="Ընտրել թեմա"></div>
+      <div class="theme-blur-control">
+        <div class="theme-blur-head"><span>Ֆոնի blur</span><strong><span id="themeBlurValue">10</span> px</strong></div>
+        <input id="themeBlur" type="range" min="0" max="24" step="1" value="10" aria-label="Ֆոնի blur-ի ուժը" />
+      </div>
+    </div>
+  </div>
+
+  <div id="avatarModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="avatarTitle" hidden>
+    <div class="modal-backdrop" data-close="avatar"></div>
+    <div class="avatar-panel">
+      <div class="panel-header">
+        <h2 id="avatarTitle">Իմ կերպարը</h2>
+        <button class="round-close" data-close="avatar" aria-label="Փակել">×</button>
+      </div>
+      <div id="cropPreview" class="crop-preview" aria-label="Կլոր նախադիտում">
+        <img id="cropImage" alt="Ընտրված լուսանկար" draggable="false" hidden />
+        <div id="cropPlaceholder" class="crop-placeholder">Ընտրիր լուսանկար</div>
+      </div>
+      <div class="avatar-actions">
+        <label class="wood-button file-button">Ընտրել պատկերասրահից<input id="photoInput" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" /></label>
+      </div>
+
+      <div class="preset-avatar-head">Պատրաստի մուլտային կերպարներ</div>
+      <div id="presetAvatarGrid" class="preset-avatar-grid" aria-label="Պատրաստի կերպարներ"></div>
+      <div class="zoom-tools">
+        <button id="zoomOut" class="round-tool" aria-label="Փոքրացնել">−</button>
+        <input id="zoomSlider" type="range" min="0.4" max="4" step="0.01" value="1" aria-label="Մասշտաբ" />
+        <button id="zoomIn" class="round-tool" aria-label="Մեծացնել">+</button>
+      </div>
+      <p class="crop-help">Կարող ես լուսանկար ընտրել պատկերասրահից կամ ընտրել պատրաստի մուլտային կերպար։</p>
+      <button id="saveAvatar" class="wood-button save-avatar" disabled>Պահպանել</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="auto"></audio>
+  <script type="module" src="/areg-kids-game/preview-true360/space-3d-games.js?v=2"></script>
+  <script src="/areg-kids-game/preview-true360/app.js?v=2"></script>
+</body>
+</html>
