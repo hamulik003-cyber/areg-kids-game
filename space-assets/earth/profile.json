@@ -1,13 +1,35 @@
 {
   "id": "earth",
-  "status": "texture-localized-awaiting-front-validation",
+  "status": "front-calibration-baseline",
   "masterReference": "04-earth.jpg",
+  "referenceBlobSha": "92fa1ec98c7eca95f9eb30fe005033d42d3c394e",
   "geometry": "sphere",
   "texture": "space-assets/earth/texture-2k.png",
+  "textureBlobSha": "e5484384a987df5b290675a68c465a0df99f55a6",
   "textureDimensions": {"width":1774,"height":887,"aspect":"2:1"},
   "material": "MeshBasicMaterial",
-  "colorPipeline": {"colorSpace":"sRGB","toneMapping":"none","extraGrading":false},
-  "frontView": {"rotationYRad":-1.5707963267948966,"scale":1,"approved":false},
-  "rotationCheck": {"deg0":false,"deg90":false,"deg180":false,"deg270":false,"deg360":false},
-  "preservation": {"externalRuntimeDependency":false,"immutableReference":true}
+  "colorPipeline": {
+    "colorSpace": "sRGB",
+    "toneMapping": "none",
+    "extraGrading": false
+  },
+  "frontView": {
+    "rotationYRad": -1.5707963267948966,
+    "rotationYDeg": -90,
+    "scale": 1,
+    "source": "V2 accepted Earth orientation",
+    "approved": false
+  },
+  "rotationCheck": {
+    "deg0": false,
+    "deg90": false,
+    "deg180": false,
+    "deg270": false,
+    "deg360": false
+  },
+  "preservation": {
+    "externalRuntimeDependency": false,
+    "immutableReference": true,
+    "localizedFromTemporarySource": true
+  }
 }
