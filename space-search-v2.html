@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="hy">
+<head>
+  <meta charset="utf-8" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <meta name="theme-color" content="#08142e" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Space Search V2</title>
+  <link rel="stylesheet" href="styles.css?v=139" />
+  <link rel="stylesheet" href="space-3d-games.css?v=163" />
+  <link rel="stylesheet" href="space-search-v2/space-search-v2.css?v=200" />
+</head>
+<body>
+  <main class="v2-page">
+    <header class="v2-topbar">
+      <button id="v2Back" class="v2-back" aria-label="Հետ">←</button>
+      <div class="v2-title">
+        <span>Տիեզերք</span>
+        <strong>Տիեզերական որոնում V2</strong>
+      </div>
+      <div class="v2-stars" aria-label="Աստղեր">⭐ <span id="v2Stars">0</span></div>
+    </header>
+
+    <section id="v2Stage" class="v2-stage" aria-label="Տիեզերական որոնում">
+      <div class="v2-hud">
+        <div class="v2-prompt">
+          <small>ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ</small>
+          <strong id="v2Prompt">Պատրաստվում է…</strong>
+        </div>
+        <div class="v2-score">✦ <b id="v2Score">0</b></div>
+      </div>
+      <div id="v2Loading" class="v2-loading">Բեռնվում են 360° մոլորակները…</div>
+    </section>
+
+    <div class="v2-build">V2 • full 360 globe pipeline</div>
+  </main>
+
+  <script type="module" src="space-search-v2/space-search-v2.js?v=200"></script>
+</body>
+</html>
