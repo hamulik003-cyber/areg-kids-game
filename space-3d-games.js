@@ -59,9 +59,64 @@ const TEXTURE_PATHS={
   deimos:'assets/space3d/2k_deimos_true360.jpg',
   io:'assets/space3d/4k_io.jpg',
   europa:'assets/space3d/2k_europa.jpg',
-  ganymede:'assets/space3d/2k_ganymede.jpg'
+  ganymede:'assets/space3d/2k_ganymede.jpg',
+  callisto:'assets/space3d/2k_callisto.jpg',
+  titan:'assets/space3d/4k_titan.jpg',
+  enceladus:'assets/space3d/real/enceladus.jpg',
+  titania:'assets/space3d/real/titania.jpg',
+  oberon:'assets/space3d/real/oberon.jpg',
+  triton:'assets/space3d/real/triton.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
+const USER_UV_IDS=new Set(['io','europa','ganymede','callisto','titan','enceladus','titania','oberon','triton','sun']);
+const USER_UV_DB='areg-space-user-uv-v1';
+const USER_UV_STORE='textures';
+const userUvCache=new Map();
+const userUvPending=new Map();
+
+function openUserUvDb(){
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window)){resolve(null);return}
+    const q=indexedDB.open(USER_UV_DB,1);
+    q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(USER_UV_STORE))q.result.createObjectStore(USER_UV_STORE,{keyPath:'id'})};
+    q.onsuccess=()=>resolve(q.result);
+    q.onerror=()=>reject(q.error);
+  });
+}
+async function readUserUvBlob(id){
+  const db=await openUserUvDb();if(!db)return null;
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(USER_UV_STORE,'readonly');
+    const rq=tx.objectStore(USER_UV_STORE).get(id);
+    rq.onsuccess=()=>resolve(rq.result?.blob||null);
+    rq.onerror=()=>reject(rq.error);
+  });
+}
+async function prepareUserUvTexture(item){
+  if(!USER_UV_IDS.has(item.id))return null;
+  if(userUvCache.has(item.id))return userUvCache.get(item.id);
+  if(userUvPending.has(item.id))return userUvPending.get(item.id);
+  const pending=(async()=>{
+    const blob=await readUserUvBlob(item.id);
+    if(!blob)return null;
+    const url=URL.createObjectURL(blob);
+    try{
+      const img=await loadTrue360Image(url);
+      const t=new THREE.Texture(img);
+      t.colorSpace=THREE.SRGBColorSpace;
+      t.wrapS=THREE.RepeatWrapping;
+      t.wrapT=THREE.ClampToEdgeWrapping;
+      t.minFilter=THREE.LinearMipmapLinearFilter;
+      t.magFilter=THREE.LinearFilter;
+      t.anisotropy=16;
+      t.needsUpdate=true;
+      userUvCache.set(item.id,t);
+      return t;
+    }finally{URL.revokeObjectURL(url)}
+  })().finally(()=>userUvPending.delete(item.id));
+  userUvPending.set(item.id,pending);
+  return pending;
+}
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
 const DISPLAY_SCALE={sun:1.18,mercury:.70,venus:.88,earth:.90,moon:.70,mars:.78,jupiter:1.12,saturn:1.02,uranus:.92,neptune:.92};
 const texLoader=new THREE.TextureLoader();
@@ -222,6 +277,8 @@ function sealTrue360Seam(data,W,H,band=18){
   }
 }
 async function prepareTrue360Texture(item){
+  const userTex=await prepareUserUvTexture(item);
+  if(userTex)return userTex;
   if(!TRUE360_IDS.has(item.id))return null;
   if(true360Cache.has(item.id))return true360Cache.get(item.id);
   if(true360Pending.has(item.id))return true360Pending.get(item.id);
@@ -253,6 +310,7 @@ async function prepareTrue360Texture(item){
   return pending;
 }
 function textureForItem(item){
+  if(userUvCache.has(item.id))return userUvCache.get(item.id);
   if(TRUE360_IDS.has(item.id))return true360Cache.get(item.id)||canvasTexture(item);
   const path=TEXTURE_PATHS[item.id];
   return path?getTexture(path):canvasTexture(item);
@@ -602,13 +660,16 @@ function spherePlanet(item){
 
   const tex=textureForItem(item);
   const isSun=item.id==='sun';
-  const isTrue360=TRUE360_IDS.has(item.id);
+  const hasUserUV=userUvCache.has(item.id);
+  const isTrue360=TRUE360_IDS.has(item.id)&&!hasUserUV;
   const true360Lift={
     phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
   }[item.id]??0;
-  const mat=isSun
-    ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({
+  const mat=hasUserUV
+    ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff,toneMapped:false})
+    : isSun
+      ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff,toneMapped:false})
+      : new THREE.MeshStandardMaterial({
         map:tex,color:0xffffff,
         roughness:item.id==='earth'?.82:(isTrue360?.95:.96),
         metalness:0,
@@ -618,6 +679,7 @@ function spherePlanet(item){
       });
 
   const mesh=new THREE.Mesh(geo,mat);
+  if(hasUserUV)mesh.rotation.y=-Math.PI/2;
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
@@ -640,7 +702,8 @@ function spherePlanet(item){
     glow.scale.set(3.0,3.0,1);grp.add(glow);
   }
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
-  grp.userData.spin=item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22);
+  const retrograde=new Set(['venus','uranus','titania','oberon','triton']);
+  grp.userData.spin=(retrograde.has(item.id)?-1:1)*Math.abs(rand(.10,.22));
   return grp;
 }
 function blackHole(item){
@@ -728,7 +791,8 @@ function findObjectName(item){
     saturn:'Սատուրնը',
     uranus:'Ուրանը',
     neptune:'Նեպտունը',
-    phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը'
+    phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը',
+    callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',titania:'Տիտանիան',oberon:'Օբերոնը',triton:'Տրիտոնը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
