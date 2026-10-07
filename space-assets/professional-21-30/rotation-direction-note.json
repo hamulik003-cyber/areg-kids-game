@@ -1,0 +1,38 @@
+{
+  "convention": "prograde = counter-clockwise as seen from solar-system north; retrograde = clockwise",
+  "retrograde": [
+    "venus",
+    "uranus",
+    "titania",
+    "oberon",
+    "triton",
+    "charon",
+    "pluto"
+  ],
+  "prograde": [
+    "sun",
+    "mercury",
+    "earth",
+    "moon",
+    "mars",
+    "jupiter",
+    "saturn",
+    "neptune",
+    "phobos",
+    "deimos",
+    "io",
+    "europa",
+    "ganymede",
+    "callisto",
+    "titan",
+    "enceladus",
+    "ceres"
+  ],
+  "directionUndetermined": [
+    "haumea",
+    "makemake",
+    "eris"
+  ],
+  "solarSystemBackgroundReferenceRemoved": true,
+  "approved": false
+}

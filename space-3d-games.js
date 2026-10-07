@@ -82,7 +82,15 @@ const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32,pluto:119.6,haumea:126,eris:78};
 const DISPLAY_SCALE={sun:1.18,mercury:.70,venus:.88,earth:.90,moon:.70,mars:.78,jupiter:1.12,saturn:1.02,uranus:.92,neptune:.92};
 const PROFESSIONAL_RADIUS={callisto:1.17,titan:1.19,enceladus:1.12,titania:1.13,oberon:1.13,triton:1.14,charon:1.12,pluto:1.16,ceres:1.13,haumea:1.17,makemake:1.14,eris:1.14,'solar-system':1.30,'milky-way':1.28,'black-hole':1.28};
-const PROFESSIONAL_SPIN={callisto:.055,titan:.058,enceladus:.260,titania:.082,oberon:.058,triton:-.104,charon:.092,pluto:-.092,ceres:.315,haumea:.420,makemake:.175,eris:.155};
+const ROTATION_SIGN={
+  sun:1,mercury:1,venus:-1,earth:1,moon:1,mars:1,jupiter:1,saturn:1,uranus:-1,neptune:1,
+  phobos:1,deimos:1,io:1,europa:1,ganymede:1,callisto:1,titan:1,enceladus:1,
+  titania:-1,oberon:-1,triton:-1,charon:-1,pluto:-1,ceres:1,
+  // Haumea / Makemake / Eris: spin sense is not securely established; keep display convention prograde.
+  haumea:1,makemake:1,eris:1
+};
+const ROTATION_DIRECTION_UNKNOWN=new Set(['haumea','makemake','eris']);
+const PROFESSIONAL_SPIN_MAG={callisto:.055,titan:.058,enceladus:.260,titania:.082,oberon:.058,triton:.104,charon:.092,pluto:.092,ceres:.315,haumea:.420,makemake:.175,eris:.155};
 const texLoader=new THREE.TextureLoader();
 const texCache=new Map();
 function getTexture(path,{srgb=true}={}){
@@ -858,9 +866,12 @@ function spherePlanet(item){
     glow.scale.set(3.0,3.0,1);grp.add(glow);
   }
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
-  grp.userData.spin=isProBody
-    ? (PROFESSIONAL_SPIN[item.id]??.105)
-    : (item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22));
+  const sign=ROTATION_SIGN[item.id]??1;
+  const mag=isProBody
+    ? (PROFESSIONAL_SPIN_MAG[item.id]??.105)
+    : (item.id==='venus'?.12:item.id==='uranus'?.16:rand(.10,.22));
+  grp.userData.spin=sign*Math.abs(mag);
+  grp.userData.rotationDirection=ROTATION_DIRECTION_UNKNOWN.has(item.id)?'unknown':(sign<0?'retrograde':'prograde');
   return grp;
 }
 function blackHole(item){
@@ -1042,7 +1053,6 @@ function solarSystem(item){
   );
   hit.userData.parentPick=g;g.add(hit);
   g.userData.orbiters=orbiters;
-  const ref=referenceArtSprite(item,4.15,3.55,.60);ref.userData.parentPick=g;g.add(ref);g.userData.referenceArt=ref;
   g.rotation.x=-.26;
   return g;
 }
