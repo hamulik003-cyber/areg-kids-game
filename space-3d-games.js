@@ -1361,5 +1361,62 @@ function gameConstellationQuest(ctx){
   round();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};clear();renderer.dispose();renderer.forceContextLoss?.();idleMat.dispose();litMat.dispose();lineMat.dispose();if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio()});
 }
-window.AregSpace3D={spaceSearch:gameSpaceSearch,constellationQuest:gameConstellationQuest};
+async function comparisonSnapshot(item,{width=360,height=250}={}){
+  await prepareTrue360Texture(item);
+
+  const renderer=new THREE.WebGLRenderer({
+    antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'
+  });
+  renderer.setPixelRatio(1);
+  renderer.setSize(width,height,false);
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.08;
+
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x07142f);
+  const camera=new THREE.PerspectiveCamera(45,width/height,.1,80);
+  camera.position.set(0,.04,7.9);
+
+  scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
+  scene.add(new THREE.AmbientLight(0x6176a6,.48));
+  const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+  const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
+  const stars=starField(scene);
+
+  const g=buildObject(item);
+  g.position.set(0,0,0);
+  scene.add(g);
+  g.updateMatrixWorld(true);
+
+  // Normalize only the thumbnail framing; geometry, texture, tilt and rings
+  // remain exactly the same as the current Space Search object.
+  const box=new THREE.Box3().setFromObject(g);
+  const sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
+  const targetRadius=(item.id==='black-hole'||item.id==='milky-way'||item.id==='solar-system')?1.48:1.62;
+  const k=clamp(targetRadius/Math.max(.01,sphere.radius),.42,2.45);
+  g.scale.multiplyScalar(k);
+  g.updateMatrixWorld(true);
+
+  // Give async TextureLoader maps (notably the Moon override) a moment to settle.
+  if(item.id==='moon')await new Promise(r=>setTimeout(r,420));
+
+  camera.lookAt(0,0,0);
+  renderer.render(scene,camera);
+  const data=renderer.domElement.toDataURL('image/png');
+
+  scene.remove(g);
+  disposeObject(g);
+  stars?.parent?.remove?.(stars);
+  renderer.dispose();
+  renderer.forceContextLoss?.();
+  return data;
+}
+
+window.AregSpace3D={
+  spaceSearch:gameSpaceSearch,
+  constellationQuest:gameConstellationQuest,
+  comparisonSnapshot
+};
 window.dispatchEvent(new Event('areg-space3d-ready'));
