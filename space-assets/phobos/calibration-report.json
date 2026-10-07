@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "algorithm": "v4-phobos-irregular-silhouette-texture-match",
+  "measuredYawDeg": -112,
+  "measuredRollDeg": 3.5,
+  "measuredScale": 0.8874,
+  "metricScore": 0.958199,
+  "shape": {
+    "x": 1.18,
+    "y": 0.96,
+    "z": 0.86,
+    "deform": 0.125,
+    "seed": 0.45
+  },
+  "texture": "assets/space3d/2k_phobos.jpg",
+  "reference": "11-phobos.jpg",
+  "approved": false
+}

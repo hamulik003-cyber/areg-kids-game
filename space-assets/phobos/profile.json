@@ -1,6 +1,6 @@
 {
   "id": "phobos",
-  "status": "awaiting-auto-calibration",
+  "status": "front-and-geometry-auto-calibrated-awaiting-visual-approval",
   "masterReference": "11-phobos.jpg",
   "referenceBlobSha": "8ad43d44c2a82661935a87f7bef9301aca3fc145",
   "geometry": "irregular-mesh",
@@ -12,11 +12,12 @@
     "extraGrading": false
   },
   "frontView": {
-    "rotationYDeg": -90,
-    "rotationYRad": -1.570796326795,
-    "rollDeg": -2,
-    "scale": 1,
-    "approved": false
+    "rotationYDeg": -112,
+    "rotationYRad": -1.954768762234,
+    "rollDeg": 3.5,
+    "scale": 0.8874,
+    "approved": false,
+    "autoCalibration": "space-assets/phobos/calibration-report.json"
   },
   "shape": {
     "kind": "phobos",
