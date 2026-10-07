@@ -110,9 +110,13 @@ const PROFILE={
     ring:{kind:'uranus',inner:1.14,outer:1.39,x:-1.06,z:.29,opacity:.44}
   },
   neptune:{
-    reference:'10-neptune.jpg',texture:'assets/space3d/2k_neptune.jpg',
-    idle:.69,win:1.34,spin:.15,tilt:28.32,frontY:-.55,grade:'neptune',
-    roughness:.92,emissive:.055,
+    reference:'10-neptune.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/4fc34365-6eed-421f-a729-430892504419.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjRjNjFhOGZmNjRmNDgyNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzNTYzMX0.vU5TXv2uSBP_b5yUqYvHN8sdwCMS94rPp3yZ8CklCwg',
+    idle:.69,win:1.34,spin:.15,tilt:0,frontY:-Math.PI/2,grade:'direct-generated',
+    // Experimental remaster proof: use the newly generated 2:1 map directly.
+    // Preserve native colors/feature scale; no procedural grading or canvas projection.
+    directTexture:true,
+    basic:true,
     atmosphere:{color:0x347dff,strength:.20,power:2.65,radius:1.026}
   },
 
@@ -193,7 +197,7 @@ const VISUAL_MATCH={
   jupiter:  {viewerScale:1.56,gameScale:.75,winScale:1.36,frontYaw:-1.45,rollDeg:3.13,shape:{x:1.00,y:.94,z:1.00,deform:0,seed:1.2},toneMapped:true},
   saturn:   {viewerScale:1.18,gameScale:.59,winScale:1.08,frontYaw:.35,rollDeg:26.73,shape:{x:1.00,y:.91,z:1.00,deform:0,seed:1.4},toneMapped:true,ring:{scale:1.02,x:-1.01,z:.31}},
   uranus:   {viewerScale:1.26,gameScale:.66,winScale:1.18,frontYaw:.15,rollDeg:-8,shape:{x:1.00,y:.98,z:1.00,deform:0,seed:1.6},toneMapped:true,ring:{scale:1.04,x:-1.06,z:.29}},
-  neptune:  {viewerScale:1.52,gameScale:.69,winScale:1.34,frontYaw:-.55,rollDeg:28.32,shape:{x:1.00,y:.98,z:1.00,deform:0,seed:1.8},toneMapped:true},
+  neptune:  {viewerScale:1.52,gameScale:.69,winScale:1.34,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:1.8},toneMapped:false},
 
   // User-supplied 2:1 maps. Their reference-matched face was generated at map center (u≈0.5).
   // Three SphereGeometry shows u≈0.25 toward the camera at zero yaw, so -90° yaw is required
