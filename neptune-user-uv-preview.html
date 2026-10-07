@@ -12,16 +12,21 @@ body{padding:max(12px,env(safe-area-inset-top)) 12px max(18px,env(safe-area-inse
 .card{background:#07142f;border:1px solid #26436e;border-radius:20px;padding:10px;margin-bottom:12px}.card h2{font-size:12px;color:#a9c5ef;margin:0 0 8px}
 .map{width:100%;border-radius:13px;display:block}
 .stage{height:min(60vh,560px);min-height:380px;border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 46%,#12346c 0,#07142f 50%,#020611 100%)}
-.stage canvas{display:block;width:100%;height:100%}.note{font-size:12px;line-height:1.45;color:#91a9ce}
+.stage canvas{display:block;width:100%;height:100%}.picker{display:block;background:#173f72;border:1px solid #5da8ff;color:#fff;border-radius:15px;padding:12px 14px;margin:0 0 8px;font-weight:900;text-align:center;cursor:pointer}
+.picker input{display:none}.status{font-size:12px;line-height:1.4;color:#9fc0ec;margin:0 0 12px}.note{font-size:12px;line-height:1.45;color:#91a9ce}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="badge">HIDDEN UV TEST</div>
   <div class="title">Նեպտուն · քո UV փռվածքով</div>
+  <label class="picker">Ընտրել օրիգինալ 1536×768 UV-ը
+    <input id="uvFile" type="file" accept="image/jpeg,image/png,image/webp">
+  </label>
+  <div class="status" id="uvStatus">Հիմա ցուցադրվում է test texture-ը։ Ընտրիր քո օրիգինալ նկարը՝ full-quality preview-ի համար։</div>
   <div class="card"><h2>ՔՈ 2:1 UV MAP-ը</h2><img id="map" class="map"></div>
   <div class="card"><h2>ԻՐԱԿԱՆ THREE.JS SPHERE</h2><div id="stage" class="stage"></div></div>
-  <div class="note">Փորձնական էջում texture-ը քո ուղարկած 1536×768 map-ի թեթև local JPEG պատճենն է։ UV mapping-ը չի փոխվել։ Եթե նստեց ճիշտ՝ վերջնականում դրվում է օրիգինալ resolution-ը։</div>
+  <div class="note">Սեղմիր «Ընտրել օրիգինալ 1536×768 UV-ը» և ընտրիր հենց քո ուղարկած նկարը։ Այն բեռնվում է միայն քո հեռախոսի browser-ի հիշողությունից և sphere-ի վրա դրվում է առանց resize/compression-ի։</div>
 </div>
 <script type="module">
 import * as THREE from './vendor/three.module.min.js';
@@ -36,19 +41,52 @@ renderer.setSize(stage.clientWidth,stage.clientHeight,false);
 stage.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(42,1,.1,50);camera.position.set(0,0,4.1);
-const tex=await new THREE.TextureLoader().loadAsync(url);
-tex.colorSpace=THREE.SRGBColorSpace;
-tex.wrapS=THREE.RepeatWrapping;
-tex.wrapT=THREE.ClampToEdgeWrapping;
-tex.minFilter=THREE.LinearMipmapLinearFilter;
-tex.magFilter=THREE.LinearFilter;
-tex.anisotropy=16;
+let tex=await new THREE.TextureLoader().loadAsync(url);
+function prepTexture(t){
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;
+  t.wrapT=THREE.ClampToEdgeWrapping;
+  t.minFilter=THREE.LinearMipmapLinearFilter;
+  t.magFilter=THREE.LinearFilter;
+  t.anisotropy=16;
+  t.needsUpdate=true;
+  return t;
+}
+prepTexture(tex);
 const geo=new THREE.SphereGeometry(1.35,128,96);
 const mat=new THREE.MeshBasicMaterial({map:tex,color:0xffffff,toneMapped:false});
 const mesh=new THREE.Mesh(geo,mat);
 mesh.rotation.z=THREE.MathUtils.degToRad(28.32);
 mesh.rotation.y=-Math.PI/2;
 scene.add(mesh);
+const fileInput=document.getElementById('uvFile');
+const statusEl=document.getElementById('uvStatus');
+const mapImg=document.getElementById('map');
+let localObjectUrl=null;
+fileInput.addEventListener('change',async()=>{
+  const file=fileInput.files?.[0];
+  if(!file)return;
+  if(localObjectUrl)URL.revokeObjectURL(localObjectUrl);
+  localObjectUrl=URL.createObjectURL(file);
+  try{
+    const img=await createImageBitmap(file);
+    const dims=img.width+'×'+img.height;
+    img.close?.();
+    const next=await new THREE.TextureLoader().loadAsync(localObjectUrl);
+    prepTexture(next);
+    const prev=mat.map;
+    mat.map=next;
+    mat.needsUpdate=true;
+    mapImg.src=localObjectUrl;
+    if(prev && prev!==tex)prev.dispose?.();
+    tex=next;
+    statusEl.textContent='FULL QUALITY ACTIVE · '+dims+' · '+Math.round(file.size/1024)+' KB · առանց resize/compression';
+    statusEl.style.color='#78f0b0';
+  }catch(err){
+    statusEl.textContent='Չստացվեց բեռնել նկարը։ Փորձիր նույն JPEG/PNG ֆայլը նորից։';
+    statusEl.style.color='#ff9d9d';
+  }
+});
 function resize(){
  const w=Math.max(2,stage.clientWidth),h=Math.max(2,stage.clientHeight);
  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
