@@ -22,8 +22,8 @@ input{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;marg
 <body><div class="wrap">
 <div class="kicker">EXACT 2:1 UV · REAL GAME</div>
 <h1>10 UV փռվածքների ներմուծում</h1>
-<div class="sub">Ընտրիր այս 10 նկարները հենց այս հերթականությամբ՝ Իո, Եվրոպա, Գանիմեդ, Կալիստո, Տիտան, Էնցելադուս, Տիտանիա, Օբերոն, Տրիտոն, Արև։ Ֆայլերը պահվում են նույն bytes-ով՝ առանց resize/compression-ի։</div>
-<label class="pick">Ընտրել բոլոր 10 original 1536×768 UV-ները<input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+<div class="sub">Ընտրիր այս 10 նկարները հենց այս հերթականությամբ՝ Իո, Եվրոպա, Գանիմեդ, Կալիստո, Տիտան, Էնցելադուս, Տիտանիա, Օբերոն, Տրիտոն, Արև։ Ֆայլերը կարող են լինել տարբեր resolution-ով, բայց պետք է լինեն ճիշտ 2:1։ Պահվում են նույն bytes-ով՝ առանց resize/compression-ի։</div>
+<label class="pick">Ընտրել բոլոր 10 original 2:1 UV-ները<input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
 <div class="grid" id="grid"></div>
 <div class="status" id="status">Սպասում եմ 10 ֆայլին…</div>
 <a class="go" id="go" href="./index.html?uvpack=1">Բացել իրական խաղը</a>
@@ -47,7 +47,7 @@ document.getElementById('files').addEventListener('change',async e=>{
     const db=await openDb();
     for(let i=0;i<10;i++){
       const f=files[i],[id,name]=ITEMS[i],[w,h]=await dims(f);
-      if(w!==1536||h!==768)throw new Error(name+'՝ '+w+'×'+h+' է, պետք է լինի 1536×768');
+      if(w!==1536||h!==768)throw new Error(name+'՝ '+w+'×'+h+' է, պետք է լինի 2:1');
       await put(db,{id,blob:f,name:f.name,width:w,height:h,size:f.size,type:f.type,savedAt:Date.now()});
       const img=document.getElementById('p-'+id),u=URL.createObjectURL(f);img.onload=()=>URL.revokeObjectURL(u);img.src=u;
       document.getElementById('c-'+id).classList.add('ok');
