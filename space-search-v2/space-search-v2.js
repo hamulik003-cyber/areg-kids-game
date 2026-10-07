@@ -20,7 +20,7 @@ function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Ma
 
 const QUERY=new URLSearchParams(location.search);
 const FOCUS_ID=QUERY.get('focus');
-const VIEWER_MODE=FOCUS_ID==='mars';
+const VIEWER_MODE=!!FOCUS_ID;
 
 const PLANETS=[
   {id:'sun',name:'Արև',find:'Արևը'},
@@ -32,7 +32,17 @@ const PLANETS=[
   {id:'jupiter',name:'Յուպիտեր',find:'Յուպիտերը'},
   {id:'saturn',name:'Սատուրն',find:'Սատուրնը'},
   {id:'uranus',name:'Ուրան',find:'Ուրանը'},
-  {id:'neptune',name:'Նեպտուն',find:'Նեպտունը'}
+  {id:'neptune',name:'Նեպտուն',find:'Նեպտունը'},
+  {id:'phobos',name:'Ֆոբոս',find:'Ֆոբոսը'},
+  {id:'deimos',name:'Դեյմոս',find:'Դեյմոսը'},
+  {id:'io',name:'Իո',find:'Իոն'},
+  {id:'europa',name:'Եվրոպա',find:'Եվրոպան'},
+  {id:'ganymede',name:'Գանիմեդ',find:'Գանիմեդը'},
+  {id:'callisto',name:'Կալիստո',find:'Կալիստոն'},
+  {id:'titan',name:'Տիտան',find:'Տիտանը'},
+  {id:'enceladus',name:'Էնցելադուս',find:'Էնցելադուսը'},
+  {id:'titania',name:'Տիտանիա',find:'Տիտանիան'},
+  {id:'oberon',name:'Օբերոն',find:'Օբերոնը'}
 ];
 
 const PROFILE={
@@ -97,6 +107,61 @@ const PROFILE={
     idle:.69,win:1.34,spin:.15,tilt:28.32,frontY:-.55,grade:'neptune',
     roughness:.92,emissive:.055,
     atmosphere:{color:0x347dff,strength:.20,power:2.65,radius:1.026}
+  },
+
+  // Batch 2 — direct native 2:1 maps supplied by the user.
+  // Same pipeline as the accepted Mars proof: no recoloring, no projection, no canvas upscale.
+  phobos:{
+    reference:'11-phobos.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/13aec523-564f-48f4-8385-03e3a98fe506.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODYyY2M0MDE5NTdiOGQ2OSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxOTEwNX0.pXLpypPFVTLZVqY3GEzPy4g9_o_S0BJDDA1SBocaND0',
+    idle:.62,win:1.30,spin:.14,tilt:8,frontY:0,directTexture:true,basic:true,irregular:{x:1.10,y:.96,z:.83,amp:.10}
+  },
+  deimos:{
+    reference:'12-deimos.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/ca40dd19-f91b-4802-9e39-1d1ef746301c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTgyMDc4ODIzNTU0NTc1NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2NjExNH0.heXsU7guohgOcsSzqkJleSmac4bmA-HxPT6AlA7Mw7Y',
+    idle:.60,win:1.28,spin:.13,tilt:-11,frontY:0,directTexture:true,basic:true,irregular:{x:1.08,y:.94,z:.88,amp:.075}
+  },
+  io:{
+    reference:'13-io.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c2d46d42-c5cd-4b2c-beac-f05a02b32ddf.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjYzYjkxNjlkNjk4OTI5OCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDc2MX0.0h2o4iwLx2T-ygFmbBxkbb5jAgmaFqAymJAFEUmSqlE',
+    idle:.64,win:1.31,spin:.15,tilt:0,frontY:0,directTexture:true,basic:true
+  },
+  europa:{
+    reference:'14-europa.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/38561135-d762-403b-a130-ff1d1934b1a4.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODY2NDQzMzUzZDk5ODkwNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNzM0OX0.8r68Ou10Co5sqqAeYLx2XqjOp2ybW9odkLoOTZYsnAY',
+    idle:.64,win:1.31,spin:.14,tilt:1,frontY:0,directTexture:true,basic:true
+  },
+  ganymede:{
+    reference:'15-ganymede.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/8d861d6a-c57f-495e-9146-2f9acb70103e.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOGUzN2VlNjgwMTFmZTliZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMTc4NH0.mfl2EhjI2nSJ9PpoOvN8wxsotJYwensYbCQHcPQSQLU',
+    idle:.66,win:1.32,spin:.13,tilt:2,frontY:0,directTexture:true,basic:true
+  },
+  callisto:{
+    reference:'16-callisto.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/b9ef5896-b60f-4585-ab03-39e6241f4c55.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWRlNDFkMzBmYWFlNDJjYSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzODk5Mn0.Xx44OE8S-dp0j5w-aiP-8hCdvVPqH-zjJmPV1FgSmVU',
+    idle:.65,win:1.31,spin:.12,tilt:0,frontY:0,directTexture:true,basic:true
+  },
+  titan:{
+    reference:'17-titan.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/0ff5ba1d-468a-4dae-8b48-b08c9012a15c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjA2YWJjY2FlYzdkNjIxZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzMTA4Mn0.FKvyus96b1a1q4mMB00wLHH1U67to2kQ2CuPt4H8uGg',
+    idle:.66,win:1.32,spin:.11,tilt:.3,frontY:0,directTexture:true,basic:true,
+    atmosphere:{color:0xffb13b,strength:.18,power:2.7,radius:1.025}
+  },
+  enceladus:{
+    reference:'18-enceladus.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/94a1dbd7-23cb-40af-bcf2-499c73a231de.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTBkZDJjMmM0NzIzMjljNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNTU0OH0.JvrYfAy85v7opxkZK4PKlOUHUFxZjCODmSe1b_gePnQ',
+    idle:.62,win:1.30,spin:.12,tilt:.1,frontY:0,directTexture:true,basic:true,
+    atmosphere:{color:0xb8e9ff,strength:.10,power:2.9,radius:1.018}
+  },
+  titania:{
+    reference:'19-titania.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5b9b1fbc-56a8-494b-8f66-abc4f45b69a0.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNGU1Mjg3OTc2YzVmYjhhMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NzkxMX0.WTdaf2bvms5HzayAHQMTgA5YuW6eb9SOZeNIyyLPJg8',
+    idle:.63,win:1.30,spin:.12,tilt:.4,frontY:0,directTexture:true,basic:true
+  },
+  oberon:{
+    reference:'20-oberon.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c5a815f6-ebb3-4233-98c1-24c9035576ee.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmZiNmJhYjBjMWNlZjc3ZCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NTEyMH0.woorLNvOre989V5gaQIAonaBhxEpYpDKS4kgDFVOVLk',
+    idle:.63,win:1.30,spin:.12,tilt:.3,frontY:0,directTexture:true,basic:true
   }
 };
 
@@ -476,11 +541,28 @@ function uranusRing(){
   });
   return g;
 }
+function bodyGeometry(cfg){
+  const geo=new THREE.SphereGeometry(1,96,64);
+  if(!cfg.irregular)return geo;
+  const p=geo.attributes.position,v=new THREE.Vector3();
+  for(let i=0;i<p.count;i++){
+    v.fromBufferAttribute(p,i).normalize();
+    const n=
+      Math.sin(v.x*5.7+v.y*2.3)*.42+
+      Math.sin(v.y*7.1-v.z*3.9)*.31+
+      Math.cos(v.z*6.4+v.x*2.8)*.27;
+    const r=1+(cfg.irregular.amp||.08)*n;
+    p.setXYZ(i,v.x*r*(cfg.irregular.x||1),v.y*r*(cfg.irregular.y||1),v.z*r*(cfg.irregular.z||1));
+  }
+  p.needsUpdate=true;geo.computeVertexNormals();geo.computeBoundingSphere();
+  return geo;
+}
+
 async function buildPlanet(item){
   const cfg=PROFILE[item.id];
   const tex=await processedTexture(item);
   const root=new THREE.Group();root.userData.item=item;root.userData.pickable=true;
-  const geo=new THREE.SphereGeometry(1,96,64);
+  const geo=bodyGeometry(cfg);
   const mat=cfg.basic
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
@@ -630,10 +712,10 @@ async function buildRound(){
   target=nextTarget();
 
   if(VIEWER_MODE){
-    promptEl.textContent='Մարս • 360° փորձնական դիտում';
+    promptEl.textContent=target.name+' • 360° փորձնական դիտում';
     const scoreBox=scoreEl.closest('.v2-score');
     if(scoreBox)scoreBox.style.display='none';
-    loadingEl.textContent='Բեռնվում է Մարսի 360° texture-ը…';
+    loadingEl.textContent='Բեռնվում է '+target.name+' 360° texture-ը…';
     loadingEl.classList.remove('hide');
 
     let g;
