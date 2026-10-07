@@ -1,0 +1,18 @@
+{
+  "asset": "haumea",
+  "reference": {
+    "path": "25-haumea.jpg",
+    "blobSha": "6d0a7d54866fc9e891c56f6bc25c4eb885d094b3",
+    "sizeBytes": 566596
+  },
+  "generatedTexture": {
+    "path": "space-assets/haumea/texture-2k.png",
+    "width": 2048,
+    "height": 1024,
+    "generator": "space-pipeline/haumea-texture-generator.html"
+  },
+  "runtime": {
+    "usesExternalUrl": false,
+    "calibrationPage": "space-pipeline/haumea-auto-calibrate.html"
+  }
+}

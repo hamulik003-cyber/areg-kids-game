@@ -1,0 +1,99 @@
+name: Build and Calibrate Haumea V3
+
+on:
+  push:
+    branches:
+      - space-pipeline-v3-haumea
+    paths:
+      - 'space-pipeline/haumea-texture-generator.html'
+      - 'space-pipeline/haumea-auto-calibrate.html'
+      - '.github/workflows/calibrate-haumea-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-pipeline-v3-haumea
+
+      - name: Start local server
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/haumea-v3-server.log 2>&1 &
+          sleep 2
+
+      - name: Generate permanent Haumea 2 to 1 texture
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "No Chromium browser found"; exit 1; }
+          timeout 90s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --virtual-time-budget=20000             --dump-dom             http://127.0.0.1:8080/space-pipeline/haumea-texture-generator.html             >/tmp/haumea-texture-dom.html 2>/tmp/haumea-texture-chrome.log
+          grep -q 'HAUMEA_TEXTURE_READY' /tmp/haumea-texture-dom.html
+          mkdir -p space-assets/haumea
+          timeout 90s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --virtual-time-budget=20000             --force-device-scale-factor=1             --window-size=2048,1024             --screenshot=space-assets/haumea/texture-2k.png             http://127.0.0.1:8080/space-pipeline/haumea-texture-generator.html             >/tmp/haumea-texture-shot.log 2>&1
+          test -s space-assets/haumea/texture-2k.png
+          python3 - <<'PY'
+          import struct
+          p='space-assets/haumea/texture-2k.png'
+          with open(p,'rb') as f:
+              assert f.read(8)==b'\x89PNG\r\n\x1a\n'
+              n=struct.unpack('>I',f.read(4))[0]; kind=f.read(4)
+              assert kind==b'IHDR' and n>=8
+              w,h=struct.unpack('>II',f.read(8))
+          print('Haumea texture',w,h)
+          if (w,h)!=(2048,1024): raise SystemExit(f'Unexpected texture size {w}x{h}')
+          PY
+
+      - name: Run Haumea body and ring calibration
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 120s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=60000             --dump-dom             http://127.0.0.1:8080/space-pipeline/haumea-auto-calibrate.html             >/tmp/haumea-dom.html 2>/tmp/haumea-chrome.log
+          grep -q 'HAUMEA_CALIBRATION_READY' /tmp/haumea-dom.html || {
+            cat /tmp/haumea-chrome.log || true
+            cat /tmp/haumea-dom.html || true
+            exit 1
+          }
+
+      - name: Save report and profile
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, html, json, math
+          dom=Path('/tmp/haumea-dom.html').read_text(encoding='utf-8',errors='replace')
+          m=re.search(r'<pre id="result">([\s\S]*?)</pre>',dom)
+          if not m: raise SystemExit('Calibration result not found')
+          report=json.loads(html.unescape(m.group(1)).strip())
+          if report.get('status')!='ok': raise SystemExit(json.dumps(report))
+          Path('space-assets/haumea/calibration-report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+          p=Path('space-assets/haumea/profile.json');profile=json.loads(p.read_text(encoding='utf-8'))
+          fv=profile.setdefault('frontView',{})
+          fv['rotationYDeg']=report['measuredYawDeg'];fv['rotationYRad']=round(math.radians(report['measuredYawDeg']),12)
+          fv['rollDeg']=report['measuredRollDeg'];fv['scale']=report['measuredScale'];fv['autoCalibration']='space-assets/haumea/calibration-report.json';fv['approved']=False
+          ring=profile.setdefault('ring',{});ring['scale']=report['ringScale'];ring['rotationXRad']=report['ringRotationXRad'];ring['rotationZRad']=report['ringRotationZRad'];ring['approved']=False
+          profile['status']='texture-generated-body-ring-auto-calibrated-awaiting-visual-approval'
+          profile['preservation']['generatedTextureCommitted']=True
+          p.write_text(json.dumps(profile,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Save visual proof
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 120s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=60000             --window-size=1600,1450             --screenshot=space-assets/haumea/validation-proof.png             http://127.0.0.1:8080/space-pipeline/haumea-auto-calibrate.html             >/tmp/haumea-proof.log 2>&1
+          test -s space-assets/haumea/validation-proof.png
+
+      - name: Commit permanent texture calibration and proof
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/haumea/texture-2k.png                   space-assets/haumea/profile.json                   space-assets/haumea/calibration-report.json                   space-assets/haumea/validation-proof.png
+          git commit -m "V3 Haumea: persist texture calibrate body ring and proof" || exit 0
+          git push origin HEAD:space-pipeline-v3-haumea

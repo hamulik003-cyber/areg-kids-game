@@ -1,19 +1,55 @@
 {
   "id": "haumea",
-  "status": "pilot",
-  "reference": "25-haumea.jpg",
+  "status": "awaiting-generated-texture-and-auto-calibration",
+  "masterReference": "25-haumea.jpg",
+  "referenceBlobSha": "6d0a7d54866fc9e891c56f6bc25c4eb885d094b3",
   "geometry": "triaxial-plus-ring",
-  "texture": null,
-  "rings": {
-    "approved": false
+  "texture": "space-assets/haumea/texture-2k.png",
+  "textureGeneratedFrom": {
+    "reference": "25-haumea.jpg",
+    "generator": "space-pipeline/haumea-texture-generator.html",
+    "deterministic": true
+  },
+  "galleryProjection": {
+    "cx": 0.505,
+    "cy": 0.472,
+    "radiusX": 0.405,
+    "radiusY": 0.292,
+    "angleDeg": -31,
+    "frontCenterU": 0.50,
+    "blendNearLimb": 0.20
+  },
+  "shape": {
+    "kind": "haumea",
+    "x": 1.56,
+    "y": 0.91,
+    "z": 0.78,
+    "deform": 0.020,
+    "seed": 4.2
   },
   "frontView": {
+    "rotationYDeg": -90,
+    "rotationYRad": -1.570796326795,
+    "rollDeg": 31,
+    "scale": 1,
+    "approved": false
+  },
+  "ring": {
+    "rotationXRad": -1.02,
+    "rotationZRad": 0.54,
+    "scale": 1.0,
     "approved": false
   },
   "rotationCheck": {
+    "deg0": false,
     "deg90": false,
     "deg180": false,
     "deg270": false,
     "deg360": false
+  },
+  "preservation": {
+    "externalRuntimeDependency": false,
+    "immutableReference": true,
+    "generatedTextureMustBeCommitted": true
   }
 }

@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>HAUMEA_TEXTURE_BUILDING</title>
+<style>
+html,body{margin:0;width:2048px;height:1024px;overflow:hidden;background:#000}
+canvas{display:block;width:2048px;height:1024px}
+</style>
+</head>
+<body>
+<canvas id="out" width="2048" height="1024"></canvas>
+<script>
+const W=2048,H=1024,GP={cx:.505,cy:.472,radiusX:.405,radiusY:.292,angleDeg:-31,frontCenterU:.50,blendNearLimb:.20};
+const out=document.getElementById('out'),ox=out.getContext('2d',{alpha:false,willReadFrequently:true});
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t,byte=v=>Math.max(0,Math.min(255,Math.round(v)));
+const smoothstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+function sample(data,w,h,x,y){x=clamp(x,0,w-1);y=clamp(y,0,h-1);const x0=Math.floor(x),y0=Math.floor(y),x1=Math.min(w-1,x0+1),y1=Math.min(h-1,y0+1),tx=x-x0,ty=y-y0;const o=(xx,yy)=>(yy*w+xx)*4,idx=[o(x0,y0),o(x1,y0),o(x0,y1),o(x1,y1)];const r=[];for(let c=0;c<4;c++){const a=mix(data[idx[0]+c],data[idx[1]+c],tx),b=mix(data[idx[2]+c],data[idx[3]+c],tx);r[c]=mix(a,b,ty)}return r}
+function seal(data,w,h,n){for(let y=0;y<h;y++)for(let k=0;k<n;k++){const t=(k+.5)/n*.5,a=(y*w+k)*4,b=(y*w+(w-n+k))*4;for(let c=0;c<3;c++){const av=data[a+c],bv=data[b+c],m=(av+bv)/2;data[a+c]=byte(mix(av,m,t));data[b+c]=byte(mix(bv,m,t))}}}
+function makeBase(){
+ const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{alpha:false});
+ x.fillStyle='#aeb8c5';x.fillRect(0,0,W,H);
+ for(let i=0;i<26;i++){const y=(i+.5)/26*H,a=.035+(i%4)*.008;x.fillStyle='rgba(235,242,248,'+a+')';x.fillRect(0,y-18,W,36)}
+ for(let i=0;i<34;i++){const yy=(.43+Math.sin(i*.71)*.055)*H,hh=16+(i%5)*8;x.fillStyle='rgba('+(128+(i%4)*10)+','+(67+(i%3)*8)+','+(58+(i%2)*7)+','+(.06+(i%5)*.012)+')';x.fillRect(0,yy-hh/2,W,hh)}
+ let seed=0x4841554d;const R=()=>{seed+=0x6D2B79F5;let t=seed;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+ for(let i=0;i<5200;i++){const px=R()*W,py=R()*H,r=1+R()*8,warm=R()>.82;x.fillStyle=warm?'rgba(119,67,62,'+(.025+R()*.055)+')':'rgba(245,249,252,'+(.018+R()*.050)+')';x.beginPath();x.arc(px,py,r,0,Math.PI*2);x.fill()}
+ return c;
+}
+const img=new Image();img.src='../25-haumea.jpg';
+img.onload=()=>{
+ const base=makeBase(),bx=base.getContext('2d',{alpha:false,willReadFrequently:true}),baseIm=bx.getImageData(0,0,W,H);seal(baseIm.data,W,H,18);
+ const rc=document.createElement('canvas');rc.width=img.naturalWidth;rc.height=img.naturalHeight;const rx=rc.getContext('2d',{alpha:false,willReadFrequently:true});rx.drawImage(img,0,0);const ref=rx.getImageData(0,0,rc.width,rc.height);
+ const cx=GP.cx*rc.width,cy=GP.cy*rc.height,radX=GP.radiusX*rc.width,radY=GP.radiusY*rc.width,ang=GP.angleDeg*Math.PI/180,ca=Math.cos(ang),sa=Math.sin(ang);
+ const dst=ox.createImageData(W,H);
+ for(let y=0;y<H;y++){const vv=(y+.5)/H,lat=(.5-vv)*Math.PI,cl=Math.cos(lat),sy=Math.sin(lat);for(let x=0;x<W;x++){const uu=(x+.5)/W;let du=uu-GP.frontCenterU;du-=Math.round(du);const lon=du*Math.PI*2,sx=cl*Math.sin(lon),sz=cl*Math.cos(lon),oi=(y*W+x)*4;let rr=baseIm.data[oi],gg=baseIm.data[oi+1],bb=baseIm.data[oi+2];if(sz>0){const lx=radX*sx,ly=-radY*sy,px=cx+lx*ca-ly*sa,py=cy+lx*sa+ly*ca,r=sample(ref.data,rc.width,rc.height,px,py),wf=smoothstep(.025,GP.blendNearLimb,sz);rr=mix(rr,r[0],wf);gg=mix(gg,r[1],wf);bb=mix(bb,r[2],wf)}dst.data[oi]=byte(rr);dst.data[oi+1]=byte(gg);dst.data[oi+2]=byte(bb);dst.data[oi+3]=255}}
+ seal(dst.data,W,H,18);ox.putImageData(dst,0,0);document.title='HAUMEA_TEXTURE_READY';document.body.dataset.ready='1';
+};
+img.onerror=()=>{document.title='HAUMEA_TEXTURE_ERROR'};
+</script>
+</body>
+</html>

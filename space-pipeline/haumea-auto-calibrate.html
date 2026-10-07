@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HAUMEA_CALIBRATING</title>
+<style>
+html,body{margin:0;background:#050914;color:#fff;font:14px system-ui,sans-serif}
+main{width:1540px;margin:20px auto}
+header{display:flex;justify-content:space-between;align-items:end;margin-bottom:16px}
+h1{margin:0;font-size:28px} small{color:#9bb1db}
+.top{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.proof{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}
+.card{background:#0b1326;border:1px solid #263856;border-radius:18px;padding:12px}
+.card h2{font-size:13px;margin:0 0 8px;color:#bfd0ef}
+.card img,.card canvas{display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#020612;border-radius:12px}
+pre{white-space:pre-wrap;background:#091021;border:1px solid #263856;border-radius:14px;padding:14px;margin-top:16px;color:#cfe0ff}
+</style>
+</head>
+<body>
+<main>
+<header><div><small>SPACE ASSET PIPELINE V3</small><h1>Haumea · triaxial body + ring calibration</h1></div><strong id="summary">running…</strong></header>
+<section class="top">
+ <article class="card"><h2>MASTER REFERENCE · 25-haumea.jpg</h2><img id="refView" src="../25-haumea.jpg" alt=""></article>
+ <article class="card"><h2>CALIBRATED 3D</h2><canvas id="view3d" width="360" height="360"></canvas></article>
+ <article class="card"><h2>50% OVERLAY</h2><canvas id="overlay" width="360" height="360"></canvas></article>
+</section>
+<section class="proof">
+ <article class="card"><h2>0° FRONT</h2><canvas data-proof="0" width="280" height="280"></canvas></article>
+ <article class="card"><h2>90°</h2><canvas data-proof="90" width="280" height="280"></canvas></article>
+ <article class="card"><h2>180°</h2><canvas data-proof="180" width="280" height="280"></canvas></article>
+ <article class="card"><h2>270°</h2><canvas data-proof="270" width="280" height="280"></canvas></article>
+ <article class="card"><h2>360° = FRONT</h2><canvas data-proof="360" width="280" height="280"></canvas></article>
+</section>
+<pre id="result">{"status":"running"}</pre>
+</main>
+<script type="module">
+import * as THREE from '../vendor/three.module.min.js';
+const N=360,BASE_Y=-90,BASE_ROLL=31,BASE_RING={scale:1,x:-1.02,z:.54},SHAPE={x:1.56,y:.91,z:.78,deform:.020,seed:4.2};
+const resultEl=document.getElementById('result'),summary=document.getElementById('summary'),refImg=document.getElementById('refView'),viewCanvas=document.getElementById('view3d'),overlayCanvas=document.getElementById('overlay');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function waitImage(img){return new Promise((resolve,reject)=>{if(img.complete&&img.naturalWidth){resolve();return}img.onload=resolve;img.onerror=reject})}
+function drawContain(ctx,img,w,h){ctx.clearRect(0,0,w,h);ctx.fillStyle='#020612';ctx.fillRect(0,0,w,h);const s=Math.min(w/img.naturalWidth,h/img.naturalHeight),dw=img.naturalWidth*s,dh=img.naturalHeight*s;ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh)}
+function d3(r,g,b,bg){const dr=r-bg[0],dg=g-bg[1],db=b-bg[2];return Math.sqrt(dr*dr+dg*dg+db*db)}
+function bgOf(data){const pts=[],k=24;for(const [x0,y0] of [[0,0],[N-k,0],[0,N-k],[N-k,N-k]])for(let y=y0;y<y0+k;y+=2)for(let x=x0;x<x0+k;x+=2){const i=(y*N+x)*4;pts.push([data[i],data[i+1],data[i+2]])}return [0,1,2].map(c=>Math.round(pts.reduce((s,p)=>s+p[c],0)/pts.length))}
+function metric(ref,ren,bg,centerOnly=false){let sum=0,count=0;const cx=N*.505,cy=N*.472;for(let y=6;y<N-6;y+=3)for(let x=6;x<N-6;x+=3){if(centerOnly){const dx=(x-cx)/(N*.32),dy=(y-cy)/(N*.25);if(dx*dx+dy*dy>1)continue}const i=(y*N+x)*4,rd=d3(ref[i],ref[i+1],ref[i+2],bg),ad=d3(ren[i],ren[i+1],ren[i+2],bg),rm=rd>24?1:0,am=ad>24?1:0;let e=Math.abs(rm-am)*2.2;if(rm&&am){const rs=ref[i]+ref[i+1]+ref[i+2]+1,as=ren[i]+ren[i+1]+ren[i+2]+1;e+=Math.abs(ref[i]/rs-ren[i]/as)+Math.abs(ref[i+1]/rs-ren[i+1]/as)+Math.abs(ref[i+2]/rs-ren[i+2]/as)}sum+=e;count++}return sum/Math.max(1,count)}
+function buildGeometry(frontYawDeg){
+ const geo=new THREE.SphereGeometry(1,144,104),p=geo.attributes.position,v=new THREE.Vector3(),yaw=THREE.MathUtils.degToRad(frontYawDeg),cy=Math.cos(yaw),sy=Math.sin(yaw),q=2;
+ for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i).normalize();const fx=v.x*cy+v.z*sy,fy=v.y,fz=-v.x*sy+v.z*cy,denom=Math.pow(Math.pow(Math.abs(fx)/SHAPE.x,q)+Math.pow(Math.abs(fy)/SHAPE.y,q)+Math.pow(Math.abs(fz)/SHAPE.z,q),1/q);let r=1/Math.max(.0001,denom);const low=Math.sin(fx*2.2+SHAPE.seed)*.45+Math.sin(fy*2.7-SHAPE.seed)*.30+Math.cos(fz*2.0+SHAPE.seed*.7)*.25;r*=1+SHAPE.deform*low;const sx=fx*r,syf=fy*r,sz=fz*r,lx=sx*cy-sz*sy,lz=sx*sy+sz*cy;p.setXYZ(lx,syf,lz)}
+ p.needsUpdate=true;geo.computeVertexNormals();geo.computeBoundingSphere();return geo
+}
+function ringGroup(){
+ const g=new THREE.Group(),specs=[[1.18,1.205,.38,0xd8ecff],[1.235,1.252,.82,0xf3f8ff],[1.276,1.289,.34,0xaecfee]];
+ for(const [a,b,o,c] of specs){const m=new THREE.Mesh(new THREE.RingGeometry(a,b,240),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));m.material.toneMapped=false;g.add(m)}return g
+}
+try{
+ await waitImage(refImg);
+ const refCanvas=document.createElement('canvas');refCanvas.width=refCanvas.height=N;const rctx=refCanvas.getContext('2d',{willReadFrequently:true});drawContain(rctx,refImg,N,N);const refData=rctx.getImageData(0,0,N,N).data,bg=bgOf(refData);
+ const renderer=new THREE.WebGLRenderer({canvas:viewCanvas,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(1);renderer.setSize(N,N,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;renderer.setClearColor(new THREE.Color(bg[0]/255,bg[1]/255,bg[2]/255),1);
+ const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-2.15,2.15,2.15,-2.15,.1,10);camera.position.set(0,0,5);
+ const texture=await new THREE.TextureLoader().loadAsync('../space-assets/haumea/texture-2k.png');texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=THREE.RepeatWrapping;
+ const body=new THREE.Mesh(buildGeometry(BASE_Y),new THREE.MeshBasicMaterial({map:texture}));scene.add(body);const ring=ringGroup();scene.add(ring);
+ const cctx=document.createElement('canvas').getContext('2d',{willReadFrequently:true});cctx.canvas.width=cctx.canvas.height=N;
+ function renderAt(yaw,roll,scale,rs,rx,rz){body.rotation.set(0,THREE.MathUtils.degToRad(yaw),THREE.MathUtils.degToRad(roll));body.scale.setScalar(scale);ring.scale.setScalar(scale*rs);ring.rotation.set(rx,0,rz);renderer.render(scene,camera);cctx.clearRect(0,0,N,N);cctx.drawImage(viewCanvas,0,0,N,N);return cctx.getImageData(0,0,N,N).data}
+ let best={yaw:BASE_Y,roll:BASE_ROLL,scale:1.08,score:Infinity};
+ for(let yaw=BASE_Y-20;yaw<=BASE_Y+20;yaw+=4)for(let roll=BASE_ROLL-6;roll<=BASE_ROLL+6;roll+=2)for(const scale of [1.00,1.06,1.12,1.18]){const score=metric(refData,renderAt(yaw,roll,scale,BASE_RING.scale,BASE_RING.x,BASE_RING.z),bg,true);if(score<best.score)best={yaw,roll,scale,score}}
+ const coarse={...best};body.geometry.dispose();body.geometry=buildGeometry(coarse.yaw);best={...coarse,score:Infinity};
+ for(let yaw=coarse.yaw-2;yaw<=coarse.yaw+2.001;yaw+=.5)for(let roll=coarse.roll-1.5;roll<=coarse.roll+1.501;roll+=.5)for(let ds=-.03;ds<=.0301;ds+=.01){const scale=coarse.scale*(1+ds),score=metric(refData,renderAt(yaw,roll,scale,BASE_RING.scale,BASE_RING.x,BASE_RING.z),bg,true);if(score<best.score)best={yaw,roll,scale,score}}
+ body.geometry.dispose();body.geometry=buildGeometry(best.yaw);
+ let br={scale:BASE_RING.scale,x:BASE_RING.x,z:BASE_RING.z,score:Infinity};
+ for(let rs=.92;rs<=1.08;rs+=.04)for(let rx=BASE_RING.x-.14;rx<=BASE_RING.x+.1401;rx+=.07)for(let rz=BASE_RING.z-.14;rz<=BASE_RING.z+.1401;rz+=.07){const score=metric(refData,renderAt(best.yaw,best.roll,best.scale,rs,rx,rz),bg,false);if(score<br.score)br={scale:rs,x:rx,z:rz,score}}
+ const cr={...br};
+ for(let rs=cr.scale-.03;rs<=cr.scale+.0301;rs+=.01)for(let rx=cr.x-.05;rx<=cr.x+.0501;rx+=.025)for(let rz=cr.z-.05;rz<=cr.z+.0501;rz+=.025){const score=metric(refData,renderAt(best.yaw,best.roll,best.scale,rs,rx,rz),bg,false);if(score<br.score)br={scale:rs,x:rx,z:rz,score}}
+ const finalData=renderAt(best.yaw,best.roll,best.scale,br.scale,br.x,br.z);const octx=overlayCanvas.getContext('2d');octx.putImageData(new ImageData(new Uint8ClampedArray(finalData),N,N),0,0);octx.globalAlpha=.5;octx.drawImage(refCanvas,0,0,N,N);octx.globalAlpha=1;
+ for(const canvas of document.querySelectorAll('canvas[data-proof]')){const rr=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});rr.setPixelRatio(1);rr.setSize(280,280,false);rr.outputColorSpace=THREE.SRGBColorSpace;rr.toneMapping=THREE.NoToneMapping;rr.setClearColor(0x020612,1);const ss=new THREE.Scene(),cc=new THREE.OrthographicCamera(-2.15,2.15,2.15,-2.15,.1,10);cc.position.set(0,0,5);const pp=new THREE.Mesh(buildGeometry(best.yaw),new THREE.MeshBasicMaterial({map:texture}));pp.scale.setScalar(best.scale);pp.rotation.set(0,THREE.MathUtils.degToRad(best.yaw+Number(canvas.dataset.proof)),THREE.MathUtils.degToRad(best.roll));ss.add(pp);const rg=ringGroup();rg.scale.setScalar(best.scale*br.scale);rg.rotation.set(br.x,0,br.z);ss.add(rg);rr.render(ss,cc)}
+ const report={status:'ok',algorithm:'v5-haumea-triaxial-projected-texture-ring-match',measuredYawDeg:Number(best.yaw.toFixed(2)),measuredRollDeg:Number(best.roll.toFixed(2)),measuredScale:Number(best.scale.toFixed(4)),ringScale:Number(br.scale.toFixed(3)),ringRotationXRad:Number(br.x.toFixed(4)),ringRotationZRad:Number(br.z.toFixed(4)),bodyMetric:Number(best.score.toFixed(6)),ringMetric:Number(br.score.toFixed(6)),texture:'space-assets/haumea/texture-2k.png',reference:'25-haumea.jpg',approved:false};
+ resultEl.textContent=JSON.stringify(report,null,2);summary.textContent='yaw '+report.measuredYawDeg+'° · roll '+report.measuredRollDeg+'° · scale '+report.measuredScale+' · ring '+report.ringScale;document.title='HAUMEA_CALIBRATION_READY'
+}catch(err){resultEl.textContent=JSON.stringify({status:'error',message:String(err&&err.stack||err)},null,2);document.title='HAUMEA_CALIBRATION_ERROR'}
+</script>
+</body>
+</html>
