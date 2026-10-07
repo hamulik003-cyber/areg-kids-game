@@ -81,10 +81,10 @@ const USER_UV_IDS=new Set([
 ]);
 const FINAL_UV_PATHS={
   sun:'assets/space3d/user-final/01-sun.png',
-  mercury:'assets/space3d/user-final/02-mercury.png',
+  mercury:'assets/space3d/user-final/02-mercury-v2.jpg',
   venus:'assets/space3d/user-final/03-venus.png',
   earth:'assets/space3d/user-final/04-earth.png',
-  moon:'assets/space3d/user-final/05-moon.png',
+  moon:'assets/space3d/user-final/05-moon-v2.jpg',
   mars:'assets/space3d/user-final/06-mars.png',
   jupiter:'assets/space3d/user-final/07-jupiter.png',
   saturn:'assets/space3d/user-final/08-saturn.png',
@@ -147,25 +147,10 @@ function exactUvTextureFromImage(img){
 async function prepareRepoUvTexture(item){
   if(finalUvCache.has(item.id))return finalUvCache.get(item.id);
 
-  // Moon exception: the accepted final UV looked unlike the real Moon in-game.
-  // Use the natural 4K lunar equirectangular map; TextureLoader also has a
-  // deterministic procedural Moon fallback if the remote source is unavailable.
-  if(item.id==='moon'){
-    const t=getTexture(TEXTURE_PATHS.moon);
-    t.colorSpace=THREE.SRGBColorSpace;
-    t.wrapS=THREE.RepeatWrapping;
-    t.wrapT=THREE.ClampToEdgeWrapping;
-    t.minFilter=THREE.LinearMipmapLinearFilter;
-    t.magFilter=THREE.LinearFilter;
-    t.anisotropy=16;
-    finalUvCache.set(item.id,t);
-    return t;
-  }
-
   const path=FINAL_UV_PATHS[item.id];
   if(!path||finalUvMiss.has(item.id))return null;
   try{
-    const img=await loadTrue360Image(path+'?v=final27repo3');
+    const img=await loadTrue360Image(path+'?v=final27repo4');
     const t=exactUvTextureFromImage(img);
     finalUvCache.set(item.id,t);
     return t;
@@ -179,21 +164,9 @@ async function prepareUserUvTexture(item){
   if(userUvCache.has(item.id))return userUvCache.get(item.id);
   if(userUvPending.has(item.id))return userUvPending.get(item.id);
   const pending=(async()=>{
-    // Newly approved maps for these objects must win over the older
-    // repository/fallback assets immediately after the dedicated importer saves them.
-    if(item.id==='moon'||item.id==='mercury'){
-      const overrideBlob=await readUserUvBlob(item.id);
-      if(overrideBlob){
-        const url=URL.createObjectURL(overrideBlob);
-        try{
-          const img=await loadTrue360Image(url);
-          const t=exactUvTextureFromImage(img);
-          userUvCache.set(item.id,t);
-          return t;
-        }finally{URL.revokeObjectURL(url)}
-      }
-    }
-
+    // Permanent repo assets are canonical. IndexedDB stays only as a
+    // temporary fallback while a newly approved replacement has not yet been
+    // committed to GitHub.
     const repoTex=await prepareRepoUvTexture(item);
     if(repoTex){
       userUvCache.set(item.id,repoTex);
