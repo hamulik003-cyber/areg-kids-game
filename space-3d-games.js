@@ -59,11 +59,23 @@ const TEXTURE_PATHS={
   deimos:'assets/space3d/2k_deimos_true360.jpg',
   io:'assets/space3d/4k_io.jpg',
   europa:'assets/space3d/2k_europa.jpg',
-  ganymede:'assets/space3d/2k_ganymede.jpg'
+  ganymede:'assets/space3d/2k_ganymede.jpg',
+  triton:'assets/space3d/real/triton.jpg',
+  charon:'assets/space3d/real/charon.jpg',
+  pluto:'assets/space3d/real/pluto.jpg',
+  ceres:'assets/space3d/2k_ceres.jpg',
+  haumea:'assets/space3d/real/haumea.jpg',
+  makemake:'assets/space3d/real/makemake.jpg',
+  eris:'assets/space3d/real/eris.jpg'
 };
+const PROFESSIONAL_BODY_IDS=new Set(['triton','charon','pluto','ceres','haumea','makemake','eris']);
+const SPECIAL_SPACE_IDS=new Set(['solar-system','milky-way','black-hole']);
+const PROFESSIONAL_21_30=new Set([...PROFESSIONAL_BODY_IDS,...SPECIAL_SPACE_IDS]);
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
-const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
+const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32,pluto:119.6,haumea:126,eris:78};
 const DISPLAY_SCALE={sun:1.18,mercury:.70,venus:.88,earth:.90,moon:.70,mars:.78,jupiter:1.12,saturn:1.02,uranus:.92,neptune:.92};
+const PROFESSIONAL_RADIUS={triton:1.14,charon:1.12,pluto:1.16,ceres:1.13,haumea:1.17,makemake:1.14,eris:1.14,'solar-system':1.30,'milky-way':1.28,'black-hole':1.28};
+const PROFESSIONAL_SPIN={triton:-.104,charon:.092,pluto:-.092,ceres:.315,haumea:.420,makemake:.175,eris:.155};
 const texLoader=new THREE.TextureLoader();
 const texCache=new Map();
 function getTexture(path,{srgb=true}={}){
@@ -257,6 +269,176 @@ function textureForItem(item){
   const path=TEXTURE_PATHS[item.id];
   return path?getTexture(path):canvasTexture(item);
 }
+
+const GALLERY_GRADE_CACHE=new Map();
+function getGalleryGradedTexture(item){
+  const key='gallery-grade-183:'+item.id;
+  if(GALLERY_GRADE_CACHE.has(key))return GALLERY_GRADE_CACHE.get(key);
+
+  const W=2048,H=1024;
+  const c=document.createElement('canvas');c.width=W;c.height=H;
+  const x=c.getContext('2d',{alpha:false});
+
+  const baseGrad=x.createLinearGradient(0,0,0,H);
+  baseGrad.addColorStop(0,item.accent||item.c1||'#aaa');
+  baseGrad.addColorStop(.5,item.c1||'#888');
+  baseGrad.addColorStop(1,item.c2||'#555');
+  x.fillStyle=baseGrad;x.fillRect(0,0,W,H);
+
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=THREE.RepeatWrapping;
+  tex.wrapT=THREE.ClampToEdgeWrapping;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+  tex.anisotropy=16;
+  GALLERY_GRADE_CACHE.set(key,tex);
+
+  const basePath=TEXTURE_PATHS[item.id];
+  let baseImg=null,refImg=null;
+
+  function clampByte(v){return Math.max(0,Math.min(255,v))}
+  function stats(img,mode){
+    const SW=360,SH=Math.max(2,Math.round(SW*img.naturalHeight/img.naturalWidth));
+    const sc=document.createElement('canvas');sc.width=SW;sc.height=SH;
+    const sx=sc.getContext('2d',{alpha:false});sx.drawImage(img,0,0,SW,SH);
+    const d=sx.getImageData(0,0,SW,SH).data;
+    let sr=0,sg=0,sb=0,sl=0,ss=0,n=0;
+    const cx=SW*.5,cy=SH*.485,rad=SW*.215;
+    for(let y=2;y<SH;y+=4){
+      for(let xx=2;xx<SW;xx+=4){
+        if(mode==='reference'){
+          const dx=xx-cx,dy=y-cy;
+          if(dx*dx+dy*dy>rad*rad)continue;
+        }
+        const i=(y*SW+xx)*4,r=d[i],g=d[i+1],b=d[i+2];
+        const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+        if(mode==='reference'&&mx<38)continue;
+        sr+=r;sg+=g;sb+=b;sl+=(.2126*r+.7152*g+.0722*b);
+        ss+=mx?((mx-mn)/mx):0;n++;
+      }
+    }
+    n=Math.max(1,n);
+    return {r:sr/n,g:sg/n,b:sb/n,l:sl/n,s:ss/n};
+  }
+
+  function render(){
+    if(!baseImg)return;
+    x.clearRect(0,0,W,H);
+    x.drawImage(baseImg,0,0,W,H);
+
+    if(refImg){
+      const src=stats(baseImg,'base'),tgt=stats(refImg,'reference');
+      const gr=Math.max(.70,Math.min(1.55,(tgt.r+20)/(src.r+20)));
+      const gg=Math.max(.70,Math.min(1.55,(tgt.g+20)/(src.g+20)));
+      const gb=Math.max(.70,Math.min(1.55,(tgt.b+20)/(src.b+20)));
+      const satGain=Math.max(.82,Math.min(1.55,(tgt.s+.035)/(src.s+.035)));
+      const lumGain=Math.max(.86,Math.min(1.26,(tgt.l+18)/(src.l+18)));
+      const im=x.getImageData(0,0,W,H),d=im.data;
+      const strength=.78;
+      for(let i=0;i<d.length;i+=4){
+        let r=d[i]*gr,g=d[i+1]*gg,b=d[i+2]*gb;
+        const l=.2126*r+.7152*g+.0722*b;
+        r=l+(r-l)*satGain;g=l+(g-l)*satGain;b=l+(b-l)*satGain;
+        r=(r-128)*1.055+128;g=(g-128)*1.055+128;b=(b-128)*1.055+128;
+        r*=lumGain;g*=lumGain;b*=lumGain;
+        d[i]=clampByte(d[i]*(1-strength)+r*strength);
+        d[i+1]=clampByte(d[i+1]*(1-strength)+g*strength);
+        d[i+2]=clampByte(d[i+2]*(1-strength)+b*strength);
+      }
+      x.putImageData(im,0,0);
+    }
+
+    sealLongitudeSeam(x,W,H,72);
+    tex.needsUpdate=true;
+  }
+
+  const useFallback=()=>{
+    const fb=item.id==='moon'?moonTexture():canvasTexture(item);
+    if(fb?.image){baseImg=fb.image;render()}
+  };
+
+  if(basePath){
+    const bi=new Image();bi.decoding='async';bi.crossOrigin='anonymous';
+    bi.onload=()=>{baseImg=bi;render()};
+    bi.onerror=useFallback;
+    bi.src=basePath;
+  }else useFallback();
+
+  if(item.img){
+    const ri=new Image();ri.decoding='async';
+    ri.onload=()=>{refImg=ri;render()};
+    ri.src=item.img+(item.img.includes('?')?'&':'?')+'v=183';
+  }
+  return tex;
+}
+
+
+const REFERENCE_ART_CACHE=new Map();
+function referenceArtSprite(item,scaleX,scaleY,opacity=.72){
+  const key='ref-art-183:'+item.id;
+  let tex=REFERENCE_ART_CACHE.get(key);
+  if(!tex){
+    const C=1024,c=document.createElement('canvas');c.width=C;c.height=C;
+    const x=c.getContext('2d',{alpha:true});
+    tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
+    tex.minFilter=THREE.LinearMipmapLinearFilter;tex.magFilter=THREE.LinearFilter;tex.anisotropy=12;
+    REFERENCE_ART_CACHE.set(key,tex);
+    const im=new Image();im.decoding='async';
+    im.onload=()=>{
+      const cfg={
+        'solar-system':[.50,.47,.94,.78],
+        'milky-way':[.50,.46,.94,.82],
+        'black-hole':[.50,.47,.96,.78]
+      }[item.id]||[.5,.5,.9,.8];
+      const sx=(cfg[0]-cfg[2]/2)*im.naturalWidth;
+      const sy=(cfg[1]-cfg[3]/2)*im.naturalHeight;
+      const sw=cfg[2]*im.naturalWidth,sh=cfg[3]*im.naturalHeight;
+      x.clearRect(0,0,C,C);x.drawImage(im,sx,sy,sw,sh,0,0,C,C);
+      const id=x.getImageData(0,0,C,C),d=id.data;
+      for(let py=0;py<C;py++){
+        for(let px=0;px<C;px++){
+          const dx=(px-C/2)/(C/2),dy=(py-C/2)/(C/2);
+          const rr=Math.sqrt(dx*dx+dy*dy);
+          const a=rr<.72?1:Math.max(0,1-(rr-.72)/.27);
+          d[(py*C+px)*4+3]=Math.round(255*a*a);
+        }
+      }
+      x.putImageData(id,0,0);tex.needsUpdate=true;
+    };
+    im.src=item.img+(item.img.includes('?')?'&':'?')+'v=183';
+  }
+  const mat=new THREE.SpriteMaterial({
+    map:tex,color:0xffffff,transparent:true,opacity,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  mat.toneMapped=false;
+  const sp=new THREE.Sprite(mat);sp.scale.set(scaleX,scaleY,1);sp.position.z=-.34;
+  return sp;
+}
+
+
+function sealLongitudeSeam(ctx,W,H,band=28){
+  // Make the ±180° columns mathematically continuous. Matching pixels are
+  // blended inward from both sides so RepeatWrapping cannot expose a vertical seam.
+  band=Math.max(2,Math.min(Math.floor(W*.08),band|0));
+  const img=ctx.getImageData(0,0,W,H),d=img.data;
+  const mix=(a,b,t)=>Math.round(a+(b-a)*t);
+  for(let y=0;y<H;y++){
+    for(let k=0;k<band;k++){
+      const xl=k,xr=W-1-k;
+      const il=(y*W+xl)*4,ir=(y*W+xr)*4;
+      const t=1-k/(band-1);
+      for(let c=0;c<3;c++){
+        const avg=(d[il+c]+d[ir+c])*.5;
+        d[il+c]=mix(d[il+c],avg,t);
+        d[ir+c]=mix(d[ir+c],avg,t);
+      }
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+
 
 function canvasTexture(item){
   const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
@@ -580,7 +762,10 @@ function atmosphereMesh(radius=1.035){
 }
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
-  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
+  const isProBody=PROFESSIONAL_BODY_IDS.has(item.id);
+  let geo=item.kind==='oval'
+    ? new THREE.SphereGeometry(1,isProBody?96:64,isProBody?64:40)
+    : new THREE.SphereGeometry(1,isProBody?96:72,isProBody?64:48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
 
   if(item.id==='phobos'||item.id==='deimos'){
@@ -600,22 +785,32 @@ function spherePlanet(item){
     else geo.scale(1.08,.94,.98);
   }
 
-  const tex=textureForItem(item);
+  const tex=isProBody?getGalleryGradedTexture(item):textureForItem(item);
   const isSun=item.id==='sun';
   const isTrue360=TRUE360_IDS.has(item.id);
   const true360Lift={
     phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
   }[item.id]??0;
+  const tint=new THREE.Color(item.c1||'#ffffff');
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
-    : new THREE.MeshStandardMaterial({
-        map:tex,color:0xffffff,
-        roughness:item.id==='earth'?.82:(isTrue360?.95:.96),
-        metalness:0,
-        emissive:isTrue360?0xffffff:0x000000,
-        emissiveMap:isTrue360?tex:null,
-        emissiveIntensity:true360Lift
-      });
+    : isProBody
+      ? new THREE.MeshStandardMaterial({
+          map:tex,color:0xffffff,
+          roughness:item.id==='triton'?.96:.97,
+          metalness:0,
+          emissive:tint,
+          emissiveMap:tex,
+          emissiveIntensity:.13
+        })
+      : new THREE.MeshStandardMaterial({
+          map:tex,color:0xffffff,
+          roughness:item.id==='earth'?.82:(isTrue360?.95:.96),
+          metalness:0,
+          emissive:isTrue360?0xffffff:0x000000,
+          emissiveMap:isTrue360?tex:null,
+          emissiveIntensity:true360Lift
+        });
 
   const mesh=new THREE.Mesh(geo,mat);
   mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
@@ -635,41 +830,209 @@ function spherePlanet(item){
   if(item.id==='uranus'){
     const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
+  if(item.id==='haumea'){
+    const rg=new THREE.RingGeometry(1.23,1.53,160);
+    const rm=new THREE.MeshBasicMaterial({color:0xd7d7d2,side:THREE.DoubleSide,transparent:true,opacity:.46,depthWrite:false});
+    const hr=new THREE.Mesh(rg,rm);
+    hr.rotation.set(-1.02,.18,-.42);
+    hr.userData.parentPick=grp;grp.add(hr);grp.userData.haumeaRing=hr;
+  }
   if(isSun){
     const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
     glow.scale.set(3.0,3.0,1);grp.add(glow);
   }
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
-  grp.userData.spin=item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22);
+  grp.userData.spin=isProBody
+    ? (PROFESSIONAL_SPIN[item.id]??.105)
+    : (item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22));
   return grp;
 }
 function blackHole(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.18;
-  const core=new THREE.Mesh(new THREE.SphereGeometry(.72,48,32),new THREE.MeshBasicMaterial({color:0x000000}));
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.16;
+
+  const core=new THREE.Mesh(
+    new THREE.SphereGeometry(.69,64,42),
+    new THREE.MeshBasicMaterial({color:0x000000})
+  );
   core.userData.parentPick=g;g.add(core);
-  const tor1=new THREE.Mesh(new THREE.TorusGeometry(1.25,.18,24,100),new THREE.MeshBasicMaterial({color:0xff9c32,transparent:true,opacity:.92}));
-  tor1.rotation.x=1.12;tor1.userData.parentPick=g;g.add(tor1);
-  const tor2=new THREE.Mesh(new THREE.TorusGeometry(1.55,.06,16,100),new THREE.MeshBasicMaterial({color:0xffe18a,transparent:true,opacity:.75}));
-  tor2.rotation.x=1.12;tor2.userData.parentPick=g;g.add(tor2);return g;
+
+  const glowMat=new THREE.SpriteMaterial({
+    map:GLOW,color:0xffb23e,transparent:true,opacity:.44,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  glowMat.toneMapped=false;
+  const glow=new THREE.Sprite(glowMat);glow.scale.set(2.28,2.28,1);glow.position.z=-.05;g.add(glow);
+
+  const disk1=new THREE.Mesh(
+    new THREE.RingGeometry(.80,1.72,180),
+    new THREE.MeshBasicMaterial({
+      color:0xff8a2f,side:THREE.DoubleSide,transparent:true,opacity:.72,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    })
+  );
+  disk1.rotation.x=1.12;disk1.userData.parentPick=g;g.add(disk1);
+
+  const disk2=new THREE.Mesh(
+    new THREE.TorusGeometry(1.24,.075,18,160),
+    new THREE.MeshBasicMaterial({
+      color:0xffe5a0,transparent:true,opacity:.82,depthWrite:false,
+      blending:THREE.AdditiveBlending
+    })
+  );
+  disk2.rotation.x=1.12;disk2.userData.parentPick=g;g.add(disk2);
+
+  const lens=new THREE.Mesh(
+    new THREE.TorusGeometry(.92,.020,12,128),
+    new THREE.MeshBasicMaterial({
+      color:0xffffff,transparent:true,opacity:.48,depthWrite:false,
+      blending:THREE.AdditiveBlending
+    })
+  );
+  lens.rotation.x=1.12;lens.userData.parentPick=g;g.add(lens);
+  const violet=new THREE.Mesh(
+    new THREE.TorusGeometry(1.46,.105,18,180),
+    new THREE.MeshBasicMaterial({
+      color:0x704dff,transparent:true,opacity:.38,depthWrite:false,
+      blending:THREE.AdditiveBlending
+    })
+  );
+  violet.rotation.set(1.12,.10,-.18);violet.userData.parentPick=g;g.add(violet);
+  const outer=new THREE.Mesh(
+    new THREE.RingGeometry(1.32,1.92,180),
+    new THREE.MeshBasicMaterial({
+      color:0xff5f20,side:THREE.DoubleSide,transparent:true,opacity:.24,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    })
+  );
+  outer.rotation.set(1.12,-.06,.12);outer.userData.parentPick=g;g.add(outer);
+
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.64,24,16),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  hit.userData.parentPick=g;g.add(hit);
+  g.userData.accretion=[disk1,disk2,lens,violet,outer];
+  const ref=referenceArtSprite(item,3.95,3.30,.54);ref.userData.parentPick=g;g.add(ref);g.userData.referenceArt=ref;
+  return g;
 }
+
 function galaxy(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.08;
-  const N=850,p=new Float32Array(N*3);
-  for(let i=0;i<N;i++){const r=Math.pow(Math.random(),.6)*1.9,a=r*4.4+Math.floor(Math.random()*3)*2.1+rand(-.25,.25);p[i*3]=Math.cos(a)*r;p[i*3+1]=rand(-.12,.12)*(2-r/2);p[i*3+2]=Math.sin(a)*r*.58}
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(p,3));
-  const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xc4d3ff,size:.045,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.055;
+  const N=2300,p=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const arm=i%4;
+    const r=Math.pow(Math.random(),.58)*1.92;
+    const a=r*4.75+arm*(Math.PI*.5)+rand(-.20,.20);
+    const thickness=(.16*(1-r/2.25)+.025);
+    p[i*3]=Math.cos(a)*r;
+    p[i*3+1]=rand(-thickness,thickness);
+    p[i*3+2]=Math.sin(a)*r*.62;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(p,3));
+  const pts=new THREE.Points(
+    geo,new THREE.PointsMaterial({
+      color:0x7ea8ff,size:.052,transparent:true,opacity:.92,
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+    })
+  );
   pts.userData.parentPick=g;g.add(pts);
-  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.55,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.parentPick=g;g.add(hit);return g;
+  const mag=new THREE.Points(
+    geo.clone(),new THREE.PointsMaterial({
+      color:0xdb5cff,size:.035,transparent:true,opacity:.42,
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
+    })
+  );
+  mag.rotation.y=.19;mag.scale.set(.97,1,.97);mag.userData.parentPick=g;g.add(mag);
+
+  const coreMat=new THREE.SpriteMaterial({
+    map:GLOW,color:0xffe6a0,transparent:true,opacity:.82,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  coreMat.toneMapped=false;
+  const core=new THREE.Sprite(coreMat);core.scale.set(.92,.92,1);g.add(core);
+
+  const auraMat=new THREE.SpriteMaterial({
+    map:GLOW,color:0x718dff,transparent:true,opacity:.16,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  auraMat.toneMapped=false;
+  const aura=new THREE.Sprite(auraMat);aura.scale.set(3.35,2.10,1);aura.material.rotation=.18;aura.position.z=-.24;g.add(aura);
+
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.65,24,16),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  hit.userData.parentPick=g;g.add(hit);
+
+  g.rotation.x=-.42;g.rotation.z=.16;g.userData.galaxyPoints=pts;
+  const ref=referenceArtSprite(item,3.90,3.35,.66);ref.userData.parentPick=g;g.add(ref);g.userData.referenceArt=ref;
+  return g;
 }
+
 function solarSystem(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.12;
-  const sun=new THREE.Mesh(new THREE.SphereGeometry(.42,32,22),new THREE.MeshStandardMaterial({color:0xffca38,emissive:0xff8a15,emissiveIntensity:1.8}));sun.userData.parentPick=g;g.add(sun);
-  [0.72,1.0,1.28,1.55].forEach((r,i)=>{
-    const curve=new THREE.EllipseCurve(0,0,r,r*.55,0,Math.PI*2);const pts=curve.getPoints(80).map(v=>new THREE.Vector3(v.x,0,v.y));
-    const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x6e89c6,transparent:true,opacity:.32}));g.add(line);
-    const p=new THREE.Mesh(new THREE.SphereGeometry(.09+i*.02,18,12),new THREE.MeshStandardMaterial({color:[0xb4a49a,0xd2a56a,0x4a8cdc,0xd26847][i]}));p.position.set(r,0,0);p.userData.parentPick=g;g.add(p);
-  });return g;
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.04;
+
+  const sunTex=getTexture(TEXTURE_PATHS.sun);
+  const sun=new THREE.Mesh(
+    new THREE.SphereGeometry(.36,40,28),
+    new THREE.MeshBasicMaterial({map:sunTex,color:0xffffff})
+  );
+  sun.userData.parentPick=g;g.add(sun);
+
+  const sgMat=new THREE.SpriteMaterial({
+    map:GLOW,color:0xffa52b,transparent:true,opacity:.46,depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  sgMat.toneMapped=false;
+  const sg=new THREE.Sprite(sgMat);sg.scale.set(1.20,1.20,1);sg.position.z=-.05;g.add(sg);
+
+  const mini=[
+    ['mercury',.48,.032,1.00],['venus',.64,.046,.84],['earth',.82,.050,.69],['mars',1.00,.040,.55],
+    ['jupiter',1.24,.105,.33],['saturn',1.48,.092,.25],['uranus',1.72,.070,.19],['neptune',1.94,.068,.15]
+  ];
+  const orbiters=[];
+
+  mini.forEach(([id,radius,size,speed],i)=>{
+    const curve=new THREE.EllipseCurve(0,0,radius,radius*.56,0,Math.PI*2);
+    const pts=curve.getPoints(96).map(v=>new THREE.Vector3(v.x,0,v.y));
+    const line=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({color:0x6f8dff,transparent:true,opacity:.42})
+    );
+    g.add(line);
+
+    const tex=getTexture(TEXTURE_PATHS[id]);
+    const p=new THREE.Mesh(
+      new THREE.SphereGeometry(size,22,14),
+      new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:.94,metalness:0})
+    );
+    const a=i*.91;
+    p.position.set(Math.cos(a)*radius,0,Math.sin(a)*radius*.56);
+    p.userData.parentPick=g;
+    p.userData.orbitRadius=radius;
+    p.userData.orbitIndex=i;
+    p.userData.orbitSpeed=speed;
+    g.add(p);orbiters.push(p);
+
+    if(id==='saturn'){
+      const rg=new THREE.RingGeometry(size*1.35,size*2.05,48);
+      const rm=new THREE.MeshBasicMaterial({color:0xd8c79a,side:THREE.DoubleSide,transparent:true,opacity:.72,depthWrite:false});
+      const rr=new THREE.Mesh(rg,rm);rr.rotation.x=1.18;rr.userData.parentPick=g;p.add(rr);
+    }
+  });
+
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.98,20,14),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  hit.userData.parentPick=g;g.add(hit);
+  g.userData.orbiters=orbiters;
+  const ref=referenceArtSprite(item,4.15,3.55,.60);ref.userData.parentPick=g;g.add(ref);g.userData.referenceArt=ref;
+  g.rotation.x=-.26;
+  return g;
 }
+
 function buildObject(item){
   if(item.id==='black-hole')return blackHole(item);
   if(item.id==='milky-way')return galaxy(item);
@@ -710,7 +1073,16 @@ function searchSlots(root,camera){
   ];
 }
 function fitSearchObject(g,item,portrait){
-  // Keep even Saturn's rings fully inside the iPhone safe area.
+  if(PROFESSIONAL_21_30.has(item.id)){
+    g.updateMatrixWorld(true);
+    const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
+    const desired=PROFESSIONAL_RADIUS[item.id]??1.14;
+    const targetRadius=portrait?desired:desired*1.04;
+    const radius=Math.max(.01,sphere.radius);
+    g.scale.multiplyScalar(targetRadius/radius);
+    return;
+  }
+  // LOCKED existing 1-20 path.
   const factor=portrait
     ? (item.id==='saturn'?.54:item.id==='uranus'?.64:item.id==='sun'?.67:item.id==='jupiter'?.68:.76)
     : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
@@ -728,7 +1100,10 @@ function findObjectName(item){
     saturn:'Սատուրնը',
     uranus:'Ուրանը',
     neptune:'Նեպտունը',
-    phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը'
+    phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը',
+    triton:'Տրիտոնը',charon:'Խարոնը',pluto:'Պլուտոնը',ceres:'Ցերերան',
+    haumea:'Հաումեան',makemake:'Մակեմակեն',eris:'Էրիսը',
+    'solar-system':'Արեգակնային համակարգը','milky-way':'Ծիր Կաթինը','black-hole':'Սև խոռոչը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
@@ -815,7 +1190,7 @@ function gameSpaceSearch(ctx){
   const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
   const stars=starField(scene),shooting=createShootingStars(scene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
-  const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
+  const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id)||SPECIAL_SPACE_IDS.has(x.id));
   const next=bag(pool);
 
   let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
@@ -947,6 +1322,21 @@ function gameSpaceSearch(ctx){
     groups.forEach((g,i)=>{
       if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.15:1);
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
+      if(g.userData.accretion){
+        g.userData.accretion[0].rotation.z+=dt*.42;
+        g.userData.accretion[1].rotation.z-=dt*.24;
+        if(g.userData.accretion[2])g.userData.accretion[2].rotation.z+=dt*.12;
+      }
+      if(g.userData.galaxyPoints){
+        g.userData.galaxyPoints.rotation.y+=dt*.12;
+        g.userData.galaxyPoints.rotation.z+=dt*.035;
+      }
+      if(g.userData.orbiters){
+        g.userData.orbiters.forEach((p,oi)=>{
+          const rr=p.userData.orbitRadius||1,a=t*.00018*(p.userData.orbitSpeed||1)+oi*1.37;
+          p.position.set(Math.cos(a)*rr,0,Math.sin(a)*rr*.55);
+        });
+      }
       if(g.userData.ring?.userData?.rocks){
         const dir=g.userData.item?.id==='uranus'?-1:1;
         g.userData.ring.userData.rocks.rotation.z+=dt*.11*dir;
