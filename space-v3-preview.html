@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#071126">
+<title>Տիեզերական որոնում V3 Preview</title>
+<link rel="stylesheet" href="space-v3-preview.css?v=1">
+</head>
+<body>
+<main class="preview">
+  <header class="topbar">
+    <a class="back" href="./" aria-label="Հետ">←</a>
+    <div class="title">
+      <small>ՓՈՐՁՆԱԿԱՆ V3</small>
+      <strong>Տիեզերական որոնում</strong>
+    </div>
+    <span class="badge">TEST</span>
+  </header>
+
+  <section class="hud">
+    <small>ԳՏԻՐ</small>
+    <strong id="prompt">Երկիրը</strong>
+    <div class="progress"><span id="score">0</span>/3</div>
+  </section>
+
+  <section class="stage" id="stage" aria-label="Տիեզերական որոնում V3 preview">
+    <canvas id="scene"></canvas>
+    <div id="loading" class="loading">Բեռնվում են V3 մոլորակները…</div>
+  </section>
+
+  <section class="controls">
+    <button type="button" data-target="earth" class="active">Երկիր</button>
+    <button type="button" data-target="jupiter">Յուպիտեր</button>
+    <button type="button" data-target="saturn">Սատուրն <small>WIP</small></button>
+  </section>
+
+  <p class="note">Սա թաքնված preview է․ հիմնական խաղի menu-ն և live gameplay-ը չեն փոխվել։</p>
+</main>
+<script type="module" src="space-v3-preview.js?v=1"></script>
+</body>
+</html>

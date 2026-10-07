@@ -1,0 +1,19 @@
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#050914;color:#f7f9ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#050914}
+body{background:radial-gradient(circle at 50% -10%,#132b62 0,#071126 34%,#030711 72%,#010309 100%)}
+button,a{font:inherit}
+.preview{width:min(860px,100%);margin:0 auto;padding:env(safe-area-inset-top) 14px calc(24px + env(safe-area-inset-bottom))}
+.topbar{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:14px 0 10px}
+.back{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;text-decoration:none;color:#fff;background:#ffffff10;border:1px solid #ffffff1f;font-size:26px}
+.title{min-width:0}.title small{display:block;color:#89a7e7;font-size:10px;font-weight:900;letter-spacing:.14em}.title strong{display:block;font-size:20px;line-height:1.15}
+.badge{font-size:10px;font-weight:900;letter-spacing:.12em;border:1px solid #5b7cc5;border-radius:999px;padding:7px 9px;color:#bcd0ff;background:#10214a}
+.hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding:8px 4px 12px}.hud small{font-size:10px;font-weight:900;letter-spacing:.15em;color:#819bd4}.hud strong{font-size:26px}.progress{font-weight:900;color:#9fb7eb}
+.stage{position:relative;overflow:hidden;aspect-ratio:9/11;border:1px solid #ffffff1f;border-radius:28px;background:radial-gradient(circle at 50% 45%,#101d3c 0,#050a16 50%,#01030a 100%);box-shadow:inset 0 0 80px #0008}
+.stage canvas{display:block;width:100%;height:100%}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:#9eb4e5;font-weight:800;background:#050914cc;transition:opacity .25s}
+.loading.is-hidden{opacity:0;pointer-events:none}
+.controls{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px}.controls button{flex:1 0 auto;min-height:44px;border:1px solid #29457e;border-radius:13px;background:#0b1835;color:#dce8ff;padding:0 13px;font-weight:850}.controls button.active{background:#dce8ff;color:#071126}.controls small{font-size:8px;opacity:.65}
+.note{margin:10px 2px 0;color:#748ab8;font-size:11px;line-height:1.45}
+@media(min-width:700px){.stage{aspect-ratio:16/10}.preview{padding-inline:22px}.hud strong{font-size:30px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
