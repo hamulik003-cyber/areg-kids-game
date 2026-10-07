@@ -11,3 +11,11 @@ V164 first-five seam-safe batch:
 - Base global mosaics are pinned from Hotragn/HotEARTH commit 8b022bd0f89469ac9395417eb11eca4db876aef0, whose source notes trace them to NASA/JPL/Caltech/USGS mosaics.
 - Runtime preprocessing resamples every new body to 2048x1024 equirectangular, fills black polar no-data only, color-grades to the matching Planets-gallery identity, and mathematically blends the ±180° longitude band to prevent a visible seam.
 - The five use baked-texture rendering so one hemisphere cannot turn black from scene lighting. Phobos and Deimos keep mild irregular geometry.
+
+
+V165 reference-projected first-five fix:
+- Replaced the first-five external moon mosaics with runtime equirectangular textures derived directly from the existing Planets-gallery reference images 11-phobos.jpg through 15-ganymede.jpg.
+- The visible front hemisphere therefore preserves the exact gallery color palette, contrast and landmark identity the child learns first.
+- The hidden hemisphere is mirrored from the same reference surface, creating a closed 360-degree texture with identical left/right longitude edge pixels and no visible seam.
+- Blue/purple gallery background pixels are rejected during projection so the nebula background cannot leak onto the 3D body.
+- V163 camera, three-object layout, animation timing, win/lose feedback and interaction logic remain unchanged.

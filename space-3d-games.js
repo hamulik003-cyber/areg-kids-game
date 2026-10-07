@@ -81,87 +81,56 @@ function getTexture(path,{srgb=true}={}){
   return t;
 }
 const BATCH_TEXTURE_IDS=new Set(['phobos','deimos','io','europa','ganymede']);
-const BATCH_TEXTURE_SOURCES={
-  phobos:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/phobos.jpg',
-  deimos:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/deimos.jpg',
-  io:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/io.jpg',
-  europa:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/europa.jpg',
-  ganymede:'https://raw.githubusercontent.com/Hotragn/HotEARTH/8b022bd0f89469ac9395417eb11eca4db876aef0/public/textures/moons/ganymede.jpg'
+const BATCH_REFERENCE_IMAGES={
+  phobos:'11-phobos.jpg',
+  deimos:'12-deimos.jpg',
+  io:'13-io.jpg',
+  europa:'14-europa.jpg',
+  ganymede:'15-ganymede.jpg'
+};
+const BATCH_REFERENCE_CROP={
+  phobos:{cx:.505,cy:.487,r:.305},
+  deimos:{cx:.505,cy:.490,r:.285},
+  io:{cx:.505,cy:.490,r:.350},
+  europa:{cx:.505,cy:.480,r:.335},
+  ganymede:{cx:.505,cy:.490,r:.350}
 };
 const batchTextureCache=new Map();
 const batchTexturePending=new Map();
+const batchImageCache=new Map();
 
-function clampByte(v){return Math.max(0,Math.min(255,Math.round(v)))}
-function mixByte(a,b,t){return a+(b-a)*t}
-function loadBatchImage(id){
-  return new Promise((resolve,reject)=>{
+function loadBatchReferenceImage(id){
+  if(batchImageCache.has(id))return batchImageCache.get(id);
+  const p=new Promise((resolve,reject)=>{
     const img=new Image();
-    img.crossOrigin='anonymous';
     img.decoding='async';
     img.onload=()=>resolve(img);
     img.onerror=reject;
-    img.src=BATCH_TEXTURE_SOURCES[id];
+    img.src=BATCH_REFERENCE_IMAGES[id]+'?v=130';
   });
+  batchImageCache.set(id,p);
+  return p;
 }
-function fillPolarNoData(data,W,H){
-  const threshold=12;
-  const valid=(x,y)=>{
+function isSpaceReferencePixel(data,i){
+  const r=data[i],g=data[i+1],b=data[i+2];
+  const max=Math.max(r,g,b),min=Math.min(r,g,b),sat=max-min;
+  const blue=(b>r*1.08&&b>g*1.12&&b>85&&sat>35);
+  const purple=(r>g*1.22&&b>g*1.20&&Math.max(r,b)>90&&sat>32);
+  return blue||purple;
+}
+function referenceSample(data,W,H,cx,cy,rad,nx,ny){
+  let rr=Math.min(.999,Math.hypot(nx,ny));
+  let ang=Math.atan2(ny,nx);
+  for(let step=0;step<18;step++){
+    const shrink=1-step*.018;
+    const px=cx+Math.cos(ang)*rr*rad*shrink;
+    const py=cy-Math.sin(ang)*rr*rad*shrink;
+    const x=Math.max(0,Math.min(W-1,Math.round(px)));
+    const y=Math.max(0,Math.min(H-1,Math.round(py)));
     const i=(y*W+x)*4;
-    return Math.max(data[i],data[i+1],data[i+2])>threshold;
-  };
-  for(let x=0;x<W;x++){
-    let top=0;while(top<H*.28&&!valid(x,top))top++;
-    if(top>0&&top<H*.28){
-      const si=(top*W+x)*4;
-      for(let y=0;y<top;y++){const di=(y*W+x)*4;data[di]=data[si];data[di+1]=data[si+1];data[di+2]=data[si+2]}
-    }
-    let bottom=H-1;while(bottom>H*.72&&!valid(x,bottom))bottom--;
-    if(bottom<H-1&&bottom>H*.72){
-      const si=(bottom*W+x)*4;
-      for(let y=bottom+1;y<H;y++){const di=(y*W+x)*4;data[di]=data[si];data[di+1]=data[si+1];data[di+2]=data[si+2]}
-    }
+    if(!isSpaceReferencePixel(data,i)||step===17)return [data[i],data[i+1],data[i+2]];
   }
-}
-function gradeBatchPixels(id,data){
-  const palettes={
-    phobos:[[40,29,26],[132,93,73],[232,199,171]],
-    deimos:[[45,36,34],[120,91,80],[220,201,187]],
-    europa:[[105,58,38],[158,169,174],[244,235,214]],
-    ganymede:[[42,35,33],[118,105,94],[226,216,204]]
-  };
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i],g=data[i+1],b=data[i+2];
-    if(id==='io'){
-      const l=.299*r+.587*g+.114*b;
-      const sat=1.48;
-      r=clampByte((l+(r-l)*sat)*1.17+9);
-      g=clampByte((l+(g-l)*sat)*1.10+5);
-      b=clampByte((l+(b-l)*1.12)*.73);
-      data[i]=r;data[i+1]=g;data[i+2]=b;continue;
-    }
-    const l=(.299*r+.587*g+.114*b)/255;
-    const p=palettes[id]||palettes.ganymede;
-    let a,c,t;
-    if(l<.52){a=p[0];c=p[1];t=l/.52}
-    else{a=p[1];c=p[2];t=(l-.52)/.48}
-    data[i]=clampByte(mixByte(a[0],c[0],t));
-    data[i+1]=clampByte(mixByte(a[1],c[1],t));
-    data[i+2]=clampByte(mixByte(a[2],c[2],t));
-  }
-}
-function sealBatchSeam(data,W,H,band=32){
-  band=Math.max(4,Math.min(band,Math.floor(W*.06)));
-  for(let y=0;y<H;y++){
-    for(let k=0;k<band;k++){
-      const li=(y*W+k)*4,ri=(y*W+(W-1-k))*4;
-      const w=1-k/(band-1);
-      for(let c=0;c<3;c++){
-        const avg=(data[li+c]+data[ri+c])*.5;
-        data[li+c]=clampByte(mixByte(data[li+c],avg,w));
-        data[ri+c]=clampByte(mixByte(data[ri+c],avg,w));
-      }
-    }
-  }
+  return [128,128,128];
 }
 async function prepareBatchTexture(item){
   if(!BATCH_TEXTURE_IDS.has(item.id))return null;
@@ -169,25 +138,55 @@ async function prepareBatchTexture(item){
   if(batchTexturePending.has(item.id))return batchTexturePending.get(item.id);
 
   const pending=(async()=>{
-    const img=await loadBatchImage(item.id);
-    const W=2048,H=1024;
+    const img=await loadBatchReferenceImage(item.id);
+    const src=document.createElement('canvas');
+    src.width=img.naturalWidth||img.width;
+    src.height=img.naturalHeight||img.height;
+    const sx=src.getContext('2d',{alpha:false,willReadFrequently:true});
+    sx.drawImage(img,0,0);
+    const sd=sx.getImageData(0,0,src.width,src.height).data;
+    const crop=BATCH_REFERENCE_CROP[item.id];
+
+    const W=1536,H=768;
     const c=document.createElement('canvas');c.width=W;c.height=H;
-    const x=c.getContext('2d',{alpha:false,willReadFrequently:true});
-    x.drawImage(img,0,0,W,H);
-    const im=x.getImageData(0,0,W,H);
-    fillPolarNoData(im.data,W,H);
-    gradeBatchPixels(item.id,im.data);
-    sealBatchSeam(im.data,W,H,36);
+    const x=c.getContext('2d',{alpha:false});
+    const im=x.createImageData(W,H),d=im.data;
+    const cx=crop.cx*src.width,cy=crop.cy*src.height,rad=crop.r*src.width;
+
+    for(let y=0;y<H;y++){
+      const lat=(.5-y/(H-1))*Math.PI;
+      const sy=Math.sin(lat),cosLat=Math.cos(lat);
+      for(let xx=0;xx<W;xx++){
+        let lon=(xx/(W-1)-.5)*Math.PI*2;
+        if(lon>Math.PI/2)lon=Math.PI-lon;
+        else if(lon<-Math.PI/2)lon=-Math.PI-lon;
+
+        const nx=Math.sin(lon)*cosLat;
+        const ny=sy;
+        const rgb=referenceSample(sd,src.width,src.height,cx,cy,rad,nx,ny);
+        const di=(y*W+xx)*4;
+        d[di]=rgb[0];d[di+1]=rgb[1];d[di+2]=rgb[2];d[di+3]=255;
+      }
+    }
+
+    // Force an exact closed seam after projection.
+    for(let y=0;y<H;y++){
+      const li=(y*W)*4,ri=(y*W+W-1)*4;
+      const r=(d[li]+d[ri])>>1,g=(d[li+1]+d[ri+1])>>1,b=(d[li+2]+d[ri+2])>>1;
+      d[li]=d[ri]=r;d[li+1]=d[ri+1]=g;d[li+2]=d[ri+2]=b;
+    }
     x.putImageData(im,0,0);
 
     const t=new THREE.CanvasTexture(c);
     t.colorSpace=THREE.SRGBColorSpace;
     t.wrapS=THREE.RepeatWrapping;
     t.wrapT=THREE.ClampToEdgeWrapping;
+    t.offset.x=.25;
     t.minFilter=THREE.LinearMipmapLinearFilter;
     t.magFilter=THREE.LinearFilter;
     t.anisotropy=16;
     t.needsUpdate=true;
+
     batchTextureCache.set(item.id,t);
     batchTexturePending.delete(item.id);
     return t;
@@ -539,8 +538,8 @@ function spherePlanet(item){
       p.setXYZ(i,x*n,y*n,z*n);
     }
     p.needsUpdate=true;geo.computeVertexNormals();
-    if(item.id==='phobos')geo.scale(1.17,.86,.94);
-    else geo.scale(1.10,.92,.97);
+    if(item.id==='phobos')geo.scale(1.13,.90,.96);
+    else geo.scale(1.08,.94,.98);
   }
 
   const tex=textureForItem(item);
