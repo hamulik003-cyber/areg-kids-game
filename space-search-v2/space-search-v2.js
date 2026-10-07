@@ -118,36 +118,34 @@ const PROFILE={
     basic:true
   },
 
-  // Batch 2 — direct native 2:1 maps supplied by the user.
-  // IMPORTANT: map assignment is verified by visual identity against gallery cards 11–20,
-  // NOT by upload/carousel order. Keep these pairings locked.
-  // 11 Phobos←map10, 12 Deimos←map9, 13 Io←map8, 14 Europa←map7, 15 Ganymede←map6,
-  // 16 Callisto←map5, 17 Titan←map4, 18 Enceladus←map3, 19 Titania←map2, 20 Oberon←map1.
-  // Same pipeline as the accepted Mars proof: no recoloring, no projection, no canvas upscale.
+  // Proof batch — exact user-supplied order, rendered with the accepted Moon/Neptune direct-texture pipeline.
+  // 11 Phobos←Map1, 12 Deimos←Map2, 13 Io←Map3, 14 Europa←Map4, 15 Ganymede←Map5.
+  // No recoloring, no canvas repaint/projection, no atmosphere; native sRGB + MeshBasicMaterial.
+  // Shape: Phobos rugged/irregular, Deimos slightly irregular, Io/Europa/Ganymede spherical.
   phobos:{
     reference:'11-phobos.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/83116b0e-6f2b-4370-abee-f384cd9007f1.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmJlODYwZTlmNTg4NWFmNiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2OTY3M30.6yFyst7XH3nU5v3ErMNsIQ25WOu3QWnIG0B24WTbwxw',
-    idle:.62,win:1.30,spin:.14,tilt:8,frontY:0,directTexture:true,basic:true,irregular:{x:1.12,y:.95,z:.83,amp:.105}
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/0e7f51fd-3902-4d9e-ae8d-cddae224b41d.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMDBjNjBmYzJmYmMwYzA1NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNDE2Mn0.zJIp7l8XSwutXIT7fHA4K9mCvF82LWLq1k5yvtuVPvo',
+    idle:.62,win:1.30,spin:.14,tilt:0,frontY:-Math.PI/2,directTexture:true,basic:true
   },
   deimos:{
     reference:'12-deimos.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/868a2ae0-ce00-440f-8008-1acef607325f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTk1MDRjYTg2ZDA3MWI0NCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTU0MzIwOH0.5sltWPsRUIyb4sDpJeX9W_2TpN98XmySHx3J8HkIrV4',
-    idle:.60,win:1.28,spin:.13,tilt:-11,frontY:0,directTexture:true,basic:true,irregular:{x:1.08,y:.96,z:.91,amp:.048}
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/815be972-bb26-41cf-8462-f96d5835f2a3.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmUwNDJkMjA3NjgzMTBjZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDU2MH0.DNsnhy-kUAnJGnkxNlD4g3W4WKiH-giD9gj6pEsUsZI',
+    idle:.60,win:1.28,spin:.13,tilt:0,frontY:-Math.PI/2,directTexture:true,basic:true
   },
   io:{
     reference:'13-io.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5030131e-3bc5-420a-b965-19e8a2ec2d66.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTEzNGQ3ZjgwMjI4YWU0ZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxNzQzMn0.FOcBtYQoYRSUeOazcvgJZpBtv_LfbFY7XGSduMi67MQ',
-    idle:.64,win:1.31,spin:.15,tilt:0,frontY:0,directTexture:true,basic:true
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/e7582370-81a2-4e6d-82f4-f2c0ceb4b415.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZmIwMTU1MzUzY2IwZWFkOSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzNjU2NX0.dIpK-563zpeE0olCVGG85BlNh3a1LDJ_K06RtJ1YIFo',
+    idle:.64,win:1.31,spin:.15,tilt:0,frontY:-Math.PI/2,directTexture:true,basic:true
   },
   europa:{
     reference:'14-europa.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/2da1f071-7023-4bbb-8b55-cc79d65c4c43.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTVhZmI2ZjBjNTRhZTdhZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDc2OH0.arRYGPpf5Rou6UUMdLIugYNne9MSe0H-uRpIHyuZR_g',
-    idle:.64,win:1.31,spin:.14,tilt:1,frontY:0,directTexture:true,basic:true
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/ce6cb249-edfb-4109-9fee-c1b1c206fa5f.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMmNjMTBlZDQ1YzRiNmE3NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzNzc0OH0.spRF-QPti4NEVJyLiboom_6T64xNZy2sm5IVQ3bxYAk',
+    idle:.64,win:1.31,spin:.14,tilt:0,frontY:-Math.PI/2,directTexture:true,basic:true
   },
   ganymede:{
     reference:'15-ganymede.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/6ae16283-69f1-48c9-b05c-252102744784.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzA4MzBiYmZhNTRkOGI4NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDU5MX0.loqiM658KcisjeGl9aKXx3b8Azbgz1huPk4EoGseAfg',
-    idle:.66,win:1.32,spin:.13,tilt:2,frontY:0,directTexture:true,basic:true
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/2450e236-26cb-46ca-bc12-4ef1e494d083.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzg3ZjhlYTYzMjYxMDcxYyIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ5MzI4Nn0.T4rRJl8ntDvAAi9Z7iNigmDYlZT5Lm9R7HmBCQFWhhg',
+    idle:.66,win:1.32,spin:.13,tilt:0,frontY:-Math.PI/2,directTexture:true,basic:true
   },
   callisto:{
     reference:'16-callisto.jpg',
