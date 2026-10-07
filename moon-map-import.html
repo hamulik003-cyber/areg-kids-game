@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>AREG · Լուսնի նոր map</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#020611;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+body{padding:max(18px,env(safe-area-inset-top)) 14px max(30px,env(safe-area-inset-bottom))}
+.wrap{max-width:720px;margin:auto}.k{font-size:11px;font-weight:900;letter-spacing:.12em;color:#8dc9ff}
+h1{font-size:25px;margin:5px 0 8px}.sub{font-size:13px;line-height:1.5;color:#a8bad7}
+.card{margin-top:14px;background:#09152b;border:1px solid #315589;border-radius:18px;padding:12px}
+.preview{width:100%;aspect-ratio:2/1;object-fit:cover;background:#030815;border-radius:12px;display:block}
+.pick,.go{display:block;width:100%;margin-top:11px;padding:13px;border-radius:14px;text-align:center;font-weight:900;color:#fff;text-decoration:none}
+.pick{background:#14345f;border:1px solid #3c6ca6}.go{background:#17683c;display:none}
+input{display:none}.status{margin-top:10px;padding:10px 12px;background:#07142f;border-radius:12px;font-size:13px;line-height:1.45;color:#b8c9e4}
+.ok{color:#7bf0b0}.err{color:#ff9aa7}
+.meta{font-size:12px;color:#91a8ca;margin-top:7px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="k">MOON EXACT 2:1 UV · NEW OVERRIDE</div>
+<h1>Փոխել Լուսնի map-ը</h1>
+<div class="sub">Ընտրիր հենց նոր հաստատած <b>1536×768</b> 2:1 Լուսնի փռվածքը։ Այն կպահպանվի <b>նույն original bytes-ով</b>՝ առանց resize, compression կամ գույնի փոփոխության և անմիջապես կգերակայի հին Moon map-ին խաղում։</div>
+<div class="card">
+<img id="preview" class="preview" alt="">
+<label class="pick">Ընտրել նոր Լուսնի exact 2:1 map<input id="file" type="file" accept="image/jpeg,image/png,image/webp"></label>
+<div class="meta" id="meta">Սպասում է նոր map-ին։</div>
+<div class="status" id="status">Ընտրելուց հետո map-ը ավտոմատ կպահպանվի։</div>
+<a id="go" class="go" href="./index.html?moonmap=v2&__areg_build=196">Բացել խաղը նոր Լուսնով</a>
+</div>
+</div>
+<script>
+const DB='areg-space-user-uv-v1',STORE='textures';
+const f=document.getElementById('file'),p=document.getElementById('preview'),s=document.getElementById('status'),m=document.getElementById('meta'),go=document.getElementById('go');
+function openDb(){return new Promise((resolve,reject)=>{const q=indexedDB.open(DB,1);q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(STORE))q.result.createObjectStore(STORE,{keyPath:'id'})};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)})}
+function dims(file){return new Promise((resolve,reject)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>resolve({w:im.naturalWidth,h:im.naturalHeight,u});im.onerror=()=>{URL.revokeObjectURL(u);reject(new Error('Չկարողացա կարդալ նկարը'))};im.src=u})}
+function put(db,rec){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(rec);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+async function save(){
+ const file=f.files?.[0];if(!file)return;
+ try{
+   const {w,h,u}=await dims(file);
+   if(Math.abs(w/Math.max(1,h)-2)>.002){URL.revokeObjectURL(u);throw new Error('Սա '+w+'×'+h+' է․ պետք է լինի ճիշտ 2:1 map');}
+   const db=await openDb();
+   await put(db,{id:'moon',blob:file,name:file.name,width:w,height:h,size:file.size,type:file.type,savedAt:Date.now(),batch:'moon-v2-approved'});
+   p.onload=()=>URL.revokeObjectURL(u);p.src=u;
+   m.textContent=w+'×'+h+' · '+Math.round(file.size/1024)+' KB · '+file.name;
+   s.innerHTML='<span class="ok">Պատրաստ է։ Նոր Լուսնի map-ը պահպանված է և խաղում հին map-ից առաջնային է։</span>';
+   go.style.display='block';
+   localStorage.setItem('areg-moon-map-version','v2');
+ }catch(e){s.innerHTML='<span class="err">'+String(e.message||e)+'</span>'}
+}
+f.addEventListener('change',save);
+async function restore(){
+ try{
+   const db=await openDb();
+   const rec=await new Promise(resolve=>{const tx=db.transaction(STORE,'readonly'),rq=tx.objectStore(STORE).get('moon');rq.onsuccess=()=>resolve(rq.result||null);rq.onerror=()=>resolve(null)});
+   if(rec?.blob){
+     const u=URL.createObjectURL(rec.blob);p.onload=()=>URL.revokeObjectURL(u);p.src=u;
+     m.textContent=(rec.width||'?')+'×'+(rec.height||'?')+' · '+Math.round((rec.size||0)/1024)+' KB · '+(rec.name||'moon');
+     s.innerHTML='<span class="ok">Moon map արդեն պահպանված է։ Նոր ֆայլ ընտրելով կարող ես փոխարինել։</span>';
+     go.style.display='block';
+   }
+ }catch{}
+}
+restore();
+</script>
+</body></html>
