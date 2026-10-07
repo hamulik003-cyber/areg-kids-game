@@ -1,5 +1,5 @@
 // V163 centered proportional feedback rings + one soft green flash
-import * as THREE from './vendor/three.module.min.js';
+import * as THREE from '/areg-kids-game/vendor/three.module.min.js';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
