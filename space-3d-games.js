@@ -80,6 +80,153 @@ function getTexture(path,{srgb=true}={}){
   texCache.set(path,t);
   return t;
 }
+const ALIGN_IDS=new Set(['sun','earth','uranus']);
+const alignTextureCache=new Map();
+const alignTexturePending=new Map();
+
+function visualWrap01(v){return v-Math.floor(v)}
+function visualWrapDist(a,b){
+  let d=Math.abs(a-b);
+  return Math.min(d,1-d);
+}
+function visualContrast01(v,c){
+  return Math.max(0,Math.min(1,(v-.5)*c+.5));
+}
+function gradeSunReference(data){
+  for(let i=0;i<data.length;i+=4){
+    const r=data[i],g=data[i+1],b=data[i+2];
+    let l=(.299*r+.587*g+.114*b)/255;
+    l=visualContrast01(l,1.18);
+    const dark=[126,24,7],mid=[255,102,4],hot=[255,238,92];
+    let a,c,t;
+    if(l<.50){a=dark;c=mid;t=l/.50}else{a=mid;c=hot;t=(l-.50)/.50}
+    data[i]=byte(mix(a[0],c[0],t));
+    data[i+1]=byte(mix(a[1],c[1],t));
+    data[i+2]=byte(mix(a[2],c[2],t));
+  }
+}
+function gradeEarthReference(data){
+  for(let i=0;i<data.length;i+=4){
+    let r=data[i],g=data[i+1],b=data[i+2];
+    const l=.299*r+.587*g+.114*b;
+    const ocean=(b>r*1.12&&b>g*1.05);
+    const green=(g>r*1.04&&g>b*1.08);
+    const ice=(l>205&&Math.max(r,g,b)-Math.min(r,g,b)<34);
+    const desert=!ocean&&!green&&!ice&&r>g*1.04&&g>b*.95;
+
+    if(ocean){
+      r=byte(r*.72);
+      g=byte(g*1.24+8);
+      b=byte(b*1.38+16);
+    }else if(green){
+      r=byte(r*.88);
+      g=byte(g*1.28+7);
+      b=byte(b*.88);
+    }else if(desert){
+      r=byte(r*1.14+6);
+      g=byte(g*1.08+3);
+      b=byte(b*.86);
+    }else if(ice){
+      r=byte(r*1.06+4);g=byte(g*1.07+4);b=byte(b*1.09+5);
+    }else{
+      const c=1.10;
+      r=byte((r-128)*c+128);
+      g=byte((g-128)*c+128);
+      b=byte((b-128)*c+128);
+    }
+    data[i]=r;data[i+1]=g;data[i+2]=b;
+  }
+}
+function gradeUranusReference(data,W,H){
+  for(let y=0;y<H;y++){
+    const v=y/(H-1);
+    const lat=Math.abs(v-.5)*2;
+    for(let x=0;x<W;x++){
+      const u=x/(W-1);
+      const i=(y*W+x)*4;
+      const srcL=(.299*data[i]+.587*data[i+1]+.114*data[i+2])/255;
+
+      // Reference identity: vivid cyan-blue globe with soft horizontal cloud structure.
+      const broad=.5+.5*Math.cos((v-.5)*Math.PI);
+      const band1=Math.sin(v*Math.PI*18 + Math.sin(u*Math.PI*4)*.45);
+      const band2=Math.sin(v*Math.PI*31 - u*Math.PI*6 + Math.sin(u*Math.PI*10)*.20);
+      const cloudMask=Math.max(0,band1*.72+band2*.28-.42);
+
+      // Two soft storm-like cloud swirls, periodic in longitude so the texture remains closed.
+      const d1=visualWrapDist(u,.63),dy1=(v-.43);
+      const d2=visualWrapDist(u,.28),dy2=(v-.70);
+      const storm1=Math.exp(-(d1*d1/.010 + dy1*dy1/.006));
+      const storm2=Math.exp(-(d2*d2/.016 + dy2*dy2/.010));
+      const swirl=(storm1*(.55+.45*Math.sin((u*14+v*22)*Math.PI*2))
+                  +storm2*(.50+.50*Math.sin((u*11-v*18)*Math.PI*2)))*.62;
+
+      const sourceDetail=(srcL-.5)*.13;
+      let rr=54 + broad*25 - lat*8 + sourceDetail*255;
+      let gg=170 + broad*42 - lat*10 + sourceDetail*220;
+      let bb=218 + broad*35 - lat*7 + sourceDetail*210;
+
+      const light=Math.max(0,cloudMask)*22 + Math.max(0,swirl)*30;
+      rr+=light*.72;gg+=light*.96;bb+=light;
+      data[i]=byte(rr);data[i+1]=byte(gg);data[i+2]=byte(bb);
+    }
+  }
+}
+function sealAlignmentSeam(data,W,H,band=12){
+  band=Math.max(4,Math.min(band,Math.floor(W*.02)));
+  for(let y=0;y<H;y++){
+    for(let k=0;k<band;k++){
+      const li=(y*W+k)*4,ri=(y*W+(W-1-k))*4;
+      const w=(1-k/(band-1))*.72;
+      for(let c=0;c<3;c++){
+        const avg=(data[li+c]+data[ri+c])*.5;
+        data[li+c]=byte(mix(data[li+c],avg,w));
+        data[ri+c]=byte(mix(data[ri+c],avg,w));
+      }
+    }
+  }
+}
+async function prepareAlignedTexture(item){
+  if(!ALIGN_IDS.has(item.id))return null;
+  if(alignTextureCache.has(item.id))return alignTextureCache.get(item.id);
+  if(alignTexturePending.has(item.id))return alignTexturePending.get(item.id);
+
+  const pending=(async()=>{
+    const path=TEXTURE_PATHS[item.id];
+    const img=await loadTrue360Image(path);
+    const W=2048,H=1024;
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const x=c.getContext('2d',{alpha:false,willReadFrequently:true});
+    x.drawImage(img,0,0,W,H);
+    const im=x.getImageData(0,0,W,H);
+
+    if(item.id==='sun')gradeSunReference(im.data);
+    else if(item.id==='earth')gradeEarthReference(im.data);
+    else if(item.id==='uranus')gradeUranusReference(im.data,W,H);
+
+    sealAlignmentSeam(im.data,W,H,12);
+    x.putImageData(im,0,0);
+
+    const t=new THREE.CanvasTexture(c);
+    t.colorSpace=THREE.SRGBColorSpace;
+    t.wrapS=THREE.RepeatWrapping;
+    t.wrapT=THREE.ClampToEdgeWrapping;
+    t.minFilter=THREE.LinearMipmapLinearFilter;
+    t.magFilter=THREE.LinearFilter;
+    t.anisotropy=16;
+    t.needsUpdate=true;
+    alignTextureCache.set(item.id,t);
+    alignTexturePending.delete(item.id);
+    return t;
+  })().catch(err=>{alignTexturePending.delete(item.id);throw err});
+  alignTexturePending.set(item.id,pending);
+  return pending;
+}
+async function prepareVisualTexture(item){
+  if(TRUE360_IDS.has(item.id))return prepareTrue360Texture(item);
+  if(ALIGN_IDS.has(item.id))return prepareAlignedTexture(item);
+  return null;
+}
+
 const TRUE360_IDS=new Set(['phobos','deimos','io','europa','ganymede']);
 const true360Cache=new Map();
 const true360Pending=new Map();
@@ -254,6 +401,7 @@ async function prepareTrue360Texture(item){
 }
 function textureForItem(item){
   if(TRUE360_IDS.has(item.id))return true360Cache.get(item.id)||canvasTexture(item);
+  if(ALIGN_IDS.has(item.id))return alignTextureCache.get(item.id)||getTexture(TEXTURE_PATHS[item.id]);
   const path=TEXTURE_PATHS[item.id];
   return path?getTexture(path):canvasTexture(item);
 }
@@ -537,16 +685,17 @@ function ringMesh(item,inner=1.22,outer=2.08){
     });
   }else{
     mat=new THREE.MeshBasicMaterial({
-      color:0xb9dce3,side:THREE.DoubleSide,transparent:true,opacity:.30,depthWrite:false
+      color:item.id==='uranus'?0xc8f3ff:0xb9dce3,side:THREE.DoubleSide,transparent:true,
+      opacity:item.id==='uranus'?.56:.30,depthWrite:false
     });
   }
   const ring=new THREE.Mesh(geo,mat);ring.userData.ringSurface=true;group.add(ring);
 
   // Sparse rocky particles make the ring feel physical without becoming noisy.
-  const count=item.id==='saturn'?42:22;
+  const count=item.id==='saturn'?42:(item.id==='uranus'?12:22);
   const rockGeo=new THREE.IcosahedronGeometry(item.id==='saturn'?.027:.022,0);
   const rockMat=new THREE.MeshStandardMaterial({
-    color:item.id==='saturn'?0xc7b79b:0xa8c2c8,roughness:1,metalness:0
+    color:item.id==='saturn'?0xc7b79b:(item.id==='uranus'?0xbfe8f2:0xa8c2c8),roughness:1,metalness:0
   });
   const rocks=new THREE.InstancedMesh(rockGeo,rockMat,count);
   const dummy=new THREE.Object3D();
@@ -606,15 +755,16 @@ function spherePlanet(item){
   const true360Lift={
     phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
   }[item.id]??0;
+  const alignmentLift={earth:.10,uranus:.12}[item.id]??0;
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
         map:tex,color:0xffffff,
-        roughness:item.id==='earth'?.82:(isTrue360?.95:.96),
+        roughness:item.id==='earth'?.88:(item.id==='uranus'?.92:(isTrue360?.95:.96)),
         metalness:0,
-        emissive:isTrue360?0xffffff:0x000000,
-        emissiveMap:isTrue360?tex:null,
-        emissiveIntensity:true360Lift
+        emissive:(isTrue360||alignmentLift>0)?0xffffff:0x000000,
+        emissiveMap:(isTrue360||alignmentLift>0)?tex:null,
+        emissiveIntensity:isTrue360?true360Lift:alignmentLift
       });
 
   const mesh=new THREE.Mesh(geo,mat);
@@ -624,7 +774,8 @@ function spherePlanet(item){
   if(item.id==='earth'){
     const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg');
     const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.014,72,48),new THREE.MeshStandardMaterial({
-      color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.36,depthWrite:false,roughness:1,metalness:0
+      color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.50,depthWrite:false,roughness:1,metalness:0,
+      emissive:0xffffff,emissiveIntensity:.12
     }));
     clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
     const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
@@ -636,8 +787,8 @@ function spherePlanet(item){
     const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
   if(isSun){
-    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
-    glow.scale.set(3.0,3.0,1);grp.add(glow);
+    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffb52f,transparent:true,opacity:.72,depthWrite:false,blending:THREE.AdditiveBlending}));
+    glow.scale.set(3.12,3.12,1);grp.add(glow);
   }
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
   grp.userData.spin=item.id==='venus'?-.12:item.id==='uranus'?-.16:rand(.10,.22);
@@ -841,7 +992,7 @@ function gameSpaceSearch(ctx){
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
     try{
-      await Promise.all(opts.map(prepareTrue360Texture));
+      await Promise.all(opts.map(prepareVisualTexture));
     }catch{
       if(disposed||seq!==roundSeq)return;
       setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},500);
