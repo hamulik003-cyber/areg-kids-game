@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "algorithm": "v1-center-disk-chroma-match",
+  "baselineFrontDeg": -90,
+  "measuredFrontDeg": -93.5,
+  "yawOffsetDeg": -3.5,
+  "measuredScale": 1.292,
+  "referenceRadiusPx": 245,
+  "metricScore": 0.656565,
+  "texture": "space-assets/earth/texture-2k.png",
+  "reference": "04-earth.jpg",
+  "approved": false
+}
