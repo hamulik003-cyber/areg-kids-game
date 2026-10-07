@@ -179,12 +179,12 @@ async function prepareUserUvTexture(item){
   if(userUvCache.has(item.id))return userUvCache.get(item.id);
   if(userUvPending.has(item.id))return userUvPending.get(item.id);
   const pending=(async()=>{
-    // Moon override: a newly approved Moon map saved by the Moon importer
-    // must win over the older repository/remote fallback immediately.
-    if(item.id==='moon'){
-      const moonBlob=await readUserUvBlob('moon');
-      if(moonBlob){
-        const url=URL.createObjectURL(moonBlob);
+    // Newly approved maps for these objects must win over the older
+    // repository/fallback assets immediately after the dedicated importer saves them.
+    if(item.id==='moon'||item.id==='mercury'){
+      const overrideBlob=await readUserUvBlob(item.id);
+      if(overrideBlob){
+        const url=URL.createObjectURL(overrideBlob);
         try{
           const img=await loadTrue360Image(url);
           const t=exactUvTextureFromImage(img);
