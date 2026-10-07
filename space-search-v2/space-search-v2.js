@@ -169,6 +169,34 @@ const PROFILE={
   }
 };
 
+// Per-object visual match controls.
+// Every object is tuned independently against its card in the Planets section.
+// These controls are deliberately separate from game logic so texture identity,
+// silhouette, orientation and apparent size can be corrected without touching gameplay.
+const VISUAL_MATCH={
+  sun:      {viewerScale:1.54,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
+  mercury:  {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
+  venus:    {viewerScale:1.54,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
+  earth:    {viewerScale:1.52,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
+  moon:     {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
+  mars:     {viewerScale:1.62,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
+  jupiter:  {viewerScale:1.56,shape:{x:1.00,y:.94,z:1.00,deform:0},toneMapped:true},
+  saturn:   {viewerScale:1.18,shape:{x:1.00,y:.91,z:1.00,deform:0},toneMapped:true},
+  uranus:   {viewerScale:1.26,shape:{x:1.00,y:.98,z:1.00,deform:0},toneMapped:true},
+  neptune:  {viewerScale:1.52,shape:{x:1.00,y:.98,z:1.00,deform:0},toneMapped:true},
+  // User-supplied 2:1 maps: preserve their native sRGB colors.
+  phobos:   {viewerScale:1.43,shape:{x:1.15,y:.95,z:.82,deform:.070},toneMapped:false},
+  deimos:   {viewerScale:1.42,shape:{x:1.10,y:.98,z:.91,deform:.016},toneMapped:false},
+  io:       {viewerScale:1.51,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  europa:   {viewerScale:1.51,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  ganymede: {viewerScale:1.52,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  callisto: {viewerScale:1.52,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  titan:    {viewerScale:1.53,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  enceladus:{viewerScale:1.49,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  titania:  {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
+  oberon:   {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false}
+};
+
 const textureCache=new Map();
 const pendingTexture=new Map();
 const loader=new THREE.TextureLoader();
@@ -545,18 +573,30 @@ function uranusRing(){
   });
   return g;
 }
-function bodyGeometry(cfg){
-  const geo=new THREE.SphereGeometry(1,96,64);
-  if(!cfg.irregular)return geo;
+function bodyGeometry(item,cfg){
+  const geo=new THREE.SphereGeometry(1,112,80);
+  const match=VISUAL_MATCH[item.id]||{};
+  const legacy=cfg.irregular||{};
+  const shape=match.shape||{
+    x:legacy.x||1,y:legacy.y||1,z:legacy.z||1,deform:legacy.amp||0
+  };
   const p=geo.attributes.position,v=new THREE.Vector3();
   for(let i=0;i<p.count;i++){
     v.fromBufferAttribute(p,i).normalize();
-    const n=
-      Math.sin(v.x*5.7+v.y*2.3)*.42+
-      Math.sin(v.y*7.1-v.z*3.9)*.31+
-      Math.cos(v.z*6.4+v.x*2.8)*.27;
-    const r=1+(cfg.irregular.amp||.08)*n;
-    p.setXYZ(i,v.x*r*(cfg.irregular.x||1),v.y*r*(cfg.irregular.y||1),v.z*r*(cfg.irregular.z||1));
+    let r=1;
+    const amp=shape.deform||0;
+    if(amp){
+      const n=
+        Math.sin(v.x*3.7+v.y*1.8)*.40+
+        Math.sin(v.y*4.9-v.z*2.6)*.34+
+        Math.cos(v.z*3.4+v.x*2.1)*.26;
+      r+=amp*n;
+    }
+    p.setXYZ(
+      v.x*r*(shape.x||1),
+      v.y*r*(shape.y||1),
+      v.z*r*(shape.z||1)
+    );
   }
   p.needsUpdate=true;geo.computeVertexNormals();geo.computeBoundingSphere();
   return geo;
@@ -566,13 +606,15 @@ async function buildPlanet(item){
   const cfg=PROFILE[item.id];
   const tex=await processedTexture(item);
   const root=new THREE.Group();root.userData.item=item;root.userData.pickable=true;
-  const geo=bodyGeometry(cfg);
+  const match=VISUAL_MATCH[item.id]||{};
+  const geo=bodyGeometry(item,cfg);
   const mat=cfg.basic
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
         map:tex,color:0xffffff,roughness:cfg.roughness??.96,metalness:0,
         emissive:cfg.emissive?0xffffff:0x000000,emissiveMap:cfg.emissive?tex:null,emissiveIntensity:cfg.emissive||0
       });
+  if(match.toneMapped===false)mat.toneMapped=false;
   const surface=new THREE.Mesh(geo,mat);
   surface.rotation.z=THREE.MathUtils.degToRad(cfg.tilt||0);surface.rotation.y=cfg.frontY||0;
   surface.userData.parentPick=root;root.add(surface);root.userData.surface=surface;
@@ -602,6 +644,7 @@ async function buildPlanet(item){
   root.userData.baseScale=cfg.idle;
   root.userData.winScale=cfg.win;
   root.userData.spin=cfg.spin;
+  root.userData.visualMatch=match;
   return root;
 }
 
@@ -735,7 +778,7 @@ async function buildRound(){
     loadingEl.classList.add('hide');
     g.userData.basePos=new THREE.Vector3(0,-.04,1.15);
     g.userData.enterPos=new THREE.Vector3(0,-.04,.10);
-    g.userData.viewerScale=1.62;
+    g.userData.viewerScale=(VISUAL_MATCH[target.id]?.viewerScale)||1.62;
     g.userData.enterScale=new THREE.Vector3(1,1,1).multiplyScalar(.92);
     g.position.copy(g.userData.enterPos);
     g.scale.copy(g.userData.enterScale);
