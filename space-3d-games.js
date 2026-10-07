@@ -65,10 +65,18 @@ const TEXTURE_PATHS={
   enceladus:'assets/space3d/real/enceladus.jpg',
   titania:'assets/space3d/real/titania.jpg',
   oberon:'assets/space3d/real/oberon.jpg',
-  triton:'assets/space3d/real/triton.jpg'
+  triton:'assets/space3d/real/triton.jpg',
+  pluto:'assets/space3d/real/pluto.jpg',
+  ceres:'assets/space3d/2k_ceres.jpg',
+  haumea:'assets/space3d/real/haumea.jpg',
+  makemake:'assets/space3d/real/makemake.jpg',
+  eris:'assets/space3d/real/eris.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
-const USER_UV_IDS=new Set(['io','europa','ganymede','callisto','titan','enceladus','titania','oberon','triton','sun']);
+const USER_UV_IDS=new Set([
+  'io','europa','ganymede','callisto','titan','enceladus','titania','oberon','triton','sun',
+  'mercury','moon','pluto','venus','ceres','earth','haumea','makemake','eris','jupiter'
+]);
 const USER_UV_DB='areg-space-user-uv-v1';
 const USER_UV_STORE='textures';
 const userUvCache=new Map();
@@ -638,8 +646,9 @@ function atmosphereMesh(radius=1.035){
 }
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
-  let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
-  if(item.kind==='oval')geo.scale(1.28,.78,.88);
+  const useOval=item.id==='haumea';
+  let geo=useOval?new THREE.SphereGeometry(1,96,64):new THREE.SphereGeometry(1,72,48);
+  if(useOval)geo.scale(1.28,.78,.88);
 
   if(item.id==='phobos'||item.id==='deimos'){
     geo=new THREE.SphereGeometry(1,96,64);
@@ -680,10 +689,11 @@ function spherePlanet(item){
 
   const mesh=new THREE.Mesh(geo,mat);
   if(hasUserUV)mesh.rotation.y=-Math.PI/2;
-  mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
+  const displayRoll=item.id==='haumea'?-31:(AXIAL_TILT[item.id]||0);
+  mesh.rotation.z=THREE.MathUtils.degToRad(displayRoll);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
-  if(item.id==='earth'){
+  if(item.id==='earth'&&!hasUserUV){
     const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg');
     const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.014,72,48),new THREE.MeshStandardMaterial({
       color:0xffffff,alphaMap:cloudTex,transparent:true,opacity:.36,depthWrite:false,roughness:1,metalness:0
@@ -697,12 +707,19 @@ function spherePlanet(item){
   if(item.id==='uranus'){
     const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
+  if(item.id==='haumea'){
+    const rg=new THREE.RingGeometry(1.23,1.53,160);
+    const rm=new THREE.MeshBasicMaterial({color:0xd7d7d2,side:THREE.DoubleSide,transparent:true,opacity:.46,depthWrite:false,toneMapped:false});
+    const hr=new THREE.Mesh(rg,rm);
+    hr.rotation.set(-1.02,.18,THREE.MathUtils.degToRad(-31));
+    hr.userData.parentPick=grp;grp.add(hr);grp.userData.haumeaRing=hr;
+  }
   if(isSun){
     const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
     glow.scale.set(3.0,3.0,1);grp.add(glow);
   }
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
-  const retrograde=new Set(['venus','uranus','titania','oberon','triton']);
+  const retrograde=new Set(['venus','uranus','titania','oberon','triton','pluto']);
   grp.userData.spin=(retrograde.has(item.id)?-1:1)*Math.abs(rand(.10,.22));
   return grp;
 }
@@ -792,7 +809,8 @@ function findObjectName(item){
     uranus:'Ուրանը',
     neptune:'Նեպտունը',
     phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը',
-    callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',titania:'Տիտանիան',oberon:'Օբերոնը',triton:'Տրիտոնը'
+    callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',titania:'Տիտանիան',oberon:'Օբերոնը',triton:'Տրիտոնը',
+    charon:'Խարոնը',pluto:'Պլուտոնը',ceres:'Ցերերան',haumea:'Հաումեան',makemake:'Մակեմակեն',eris:'Էրիսը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
