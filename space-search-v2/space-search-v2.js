@@ -174,27 +174,33 @@ const PROFILE={
 // These controls are deliberately separate from game logic so texture identity,
 // silhouette, orientation and apparent size can be corrected without touching gameplay.
 const VISUAL_MATCH={
-  sun:      {viewerScale:1.54,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
-  mercury:  {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
-  venus:    {viewerScale:1.54,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
-  earth:    {viewerScale:1.52,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
-  moon:     {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
-  mars:     {viewerScale:1.62,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:true},
-  jupiter:  {viewerScale:1.56,shape:{x:1.00,y:.94,z:1.00,deform:0},toneMapped:true},
-  saturn:   {viewerScale:1.18,shape:{x:1.00,y:.91,z:1.00,deform:0},toneMapped:true},
-  uranus:   {viewerScale:1.26,shape:{x:1.00,y:.98,z:1.00,deform:0},toneMapped:true},
-  neptune:  {viewerScale:1.52,shape:{x:1.00,y:.98,z:1.00,deform:0},toneMapped:true},
-  // User-supplied 2:1 maps: preserve their native sRGB colors.
-  phobos:   {viewerScale:1.43,shape:{x:1.15,y:.95,z:.82,deform:.070},toneMapped:false},
-  deimos:   {viewerScale:1.42,shape:{x:1.10,y:.98,z:.91,deform:.016},toneMapped:false},
-  io:       {viewerScale:1.51,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  europa:   {viewerScale:1.51,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  ganymede: {viewerScale:1.52,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  callisto: {viewerScale:1.52,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  titan:    {viewerScale:1.53,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  enceladus:{viewerScale:1.49,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  titania:  {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false},
-  oberon:   {viewerScale:1.50,shape:{x:1.00,y:1.00,z:1.00,deform:0},toneMapped:false}
+  // viewerScale = close-up preview size; gameScale = normal 3-object game size.
+  // frontYaw / rollDeg define the exact first-view identity from the Planets card.
+  // shape is intentionally independent per object, even when spherical.
+  sun:      {viewerScale:1.54,gameScale:.72,winScale:1.34,frontYaw:.15,rollDeg:7.25,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:0},toneMapped:true},
+  mercury:  {viewerScale:1.50,gameScale:.62,winScale:1.34,frontYaw:.18,rollDeg:.03,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.2},toneMapped:true},
+  venus:    {viewerScale:1.54,gameScale:.68,winScale:1.36,frontYaw:-.35,rollDeg:177.4,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.4},toneMapped:true},
+  earth:    {viewerScale:1.52,gameScale:.70,winScale:1.34,frontYaw:2.08,rollDeg:23.44,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.6},toneMapped:true},
+  moon:     {viewerScale:1.50,gameScale:.62,winScale:1.33,frontYaw:.85,rollDeg:6.68,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.8},toneMapped:true},
+  mars:     {viewerScale:1.62,gameScale:.65,winScale:1.35,frontYaw:0,rollDeg:25.19,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:1.0},toneMapped:true},
+  jupiter:  {viewerScale:1.56,gameScale:.75,winScale:1.36,frontYaw:-1.45,rollDeg:3.13,shape:{x:1.00,y:.94,z:1.00,deform:0,seed:1.2},toneMapped:true},
+  saturn:   {viewerScale:1.18,gameScale:.59,winScale:1.08,frontYaw:.35,rollDeg:26.73,shape:{x:1.00,y:.91,z:1.00,deform:0,seed:1.4},toneMapped:true,ring:{scale:1.02,x:-1.01,z:.31}},
+  uranus:   {viewerScale:1.26,gameScale:.66,winScale:1.18,frontYaw:.15,rollDeg:-8,shape:{x:1.00,y:.98,z:1.00,deform:0,seed:1.6},toneMapped:true,ring:{scale:1.04,x:-1.06,z:.29}},
+  neptune:  {viewerScale:1.52,gameScale:.69,winScale:1.34,frontYaw:-.55,rollDeg:28.32,shape:{x:1.00,y:.98,z:1.00,deform:0,seed:1.8},toneMapped:true},
+
+  // User-supplied 2:1 maps. Their reference-matched face was generated at map center (u≈0.5).
+  // Three SphereGeometry shows u≈0.25 toward the camera at zero yaw, so -90° yaw is required
+  // to present the same face first. Native sRGB color is preserved: no grading, no ACES remap.
+  phobos:   {viewerScale:1.43,gameScale:.62,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:-7,shape:{x:1.15,y:.94,z:.83,deform:.078,seed:.45},toneMapped:false},
+  deimos:   {viewerScale:1.33,gameScale:.58,winScale:1.24,frontYaw:-Math.PI/2,rollDeg:-5,shape:{x:1.10,y:.95,z:.89,deform:.028,seed:2.15},toneMapped:false},
+  io:       {viewerScale:1.51,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:2.4},toneMapped:false},
+  europa:   {viewerScale:1.48,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:2.6},toneMapped:false},
+  ganymede: {viewerScale:1.49,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:2.8},toneMapped:false},
+  callisto: {viewerScale:1.49,gameScale:.65,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.0},toneMapped:false},
+  titan:    {viewerScale:1.48,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.2},toneMapped:false},
+  enceladus:{viewerScale:1.46,gameScale:.62,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.4},toneMapped:false},
+  titania:  {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.6},toneMapped:false},
+  oberon:   {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.8},toneMapped:false}
 };
 
 const textureCache=new Map();
@@ -586,10 +592,11 @@ function bodyGeometry(item,cfg){
     let r=1;
     const amp=shape.deform||0;
     if(amp){
+      const seed=shape.seed||0;
       const n=
-        Math.sin(v.x*3.7+v.y*1.8)*.40+
-        Math.sin(v.y*4.9-v.z*2.6)*.34+
-        Math.cos(v.z*3.4+v.x*2.1)*.26;
+        Math.sin(v.x*3.7+v.y*1.8+seed)*.40+
+        Math.sin(v.y*4.9-v.z*2.6+seed*1.7)*.34+
+        Math.cos(v.z*3.4+v.x*2.1-seed*.9)*.26;
       r+=amp*n;
     }
     p.setXYZ(
@@ -616,7 +623,8 @@ async function buildPlanet(item){
       });
   if(match.toneMapped===false)mat.toneMapped=false;
   const surface=new THREE.Mesh(geo,mat);
-  surface.rotation.z=THREE.MathUtils.degToRad(cfg.tilt||0);surface.rotation.y=cfg.frontY||0;
+  surface.rotation.z=THREE.MathUtils.degToRad(match.rollDeg??cfg.tilt??0);
+  surface.rotation.y=match.frontYaw??cfg.frontY??0;
   surface.userData.parentPick=root;root.add(surface);root.userData.surface=surface;
 
   if(cfg.clouds){
@@ -632,7 +640,11 @@ async function buildPlanet(item){
   }
   if(cfg.ring){
     const ring=cfg.ring.kind==='saturn'?saturnRing():uranusRing();
-    ring.rotation.set(cfg.ring.x,0,cfg.ring.z);ring.userData.baseX=cfg.ring.x;root.add(ring);root.userData.ring=ring;
+    const ringMatch=match.ring||{};
+    const ringX=ringMatch.x??cfg.ring.x,ringZ=ringMatch.z??cfg.ring.z;
+    ring.rotation.set(ringX,0,ringZ);
+    ring.scale.setScalar(ringMatch.scale??1);
+    ring.userData.baseX=ringX;root.add(ring);root.userData.ring=ring;
   }
   if(cfg.glow){
     const mat=new THREE.SpriteMaterial({map:GLOW,color:cfg.glow.color,transparent:true,opacity:cfg.glow.opacity,depthWrite:false,blending:THREE.AdditiveBlending});
@@ -640,9 +652,11 @@ async function buildPlanet(item){
     const sp=new THREE.Sprite(mat);sp.scale.set(cfg.glow.scale,cfg.glow.scale,1);root.add(sp);root.userData.sunGlow=sp;
   }
 
-  root.scale.setScalar(cfg.idle);
-  root.userData.baseScale=cfg.idle;
-  root.userData.winScale=cfg.win;
+  const gameScale=match.gameScale??cfg.idle;
+  const winScale=match.winScale??cfg.win;
+  root.scale.setScalar(gameScale);
+  root.userData.baseScale=gameScale;
+  root.userData.winScale=winScale;
   root.userData.spin=cfg.spin;
   root.userData.visualMatch=match;
   return root;
@@ -846,7 +860,7 @@ function choose(g){
     x.userData.win=x===g;x.userData.winFromPos=x.position.clone();x.userData.winFromScale=x.scale.clone();x.userData.winFromOpacity=x.userData.opacity??1;
     if(x===g){
       x.userData.winToPos=new THREE.Vector3(0,.02,1.48);
-      x.userData.winToScale=new THREE.Vector3(1,1,1).multiplyScalar(PROFILE[x.userData.item.id].win);
+      x.userData.winToScale=new THREE.Vector3(1,1,1).multiplyScalar(x.userData.winScale);
       x.userData.winHalo=makeHalo(x,0x4df37b);
     }else{
       const dir=Math.sign(x.position.x||((i-1)||1));
@@ -904,7 +918,7 @@ function loop(t){
     }else if(transition?.type==='enter'){
       const stagger=i*60,q=clamp((t-transition.start-stagger)/(transition.duration-stagger),0,1),e=easeOut(q);
       g.position.lerpVectors(g.userData.enterPos,g.userData.basePos,e);
-      const final=new THREE.Vector3(1,1,1).multiplyScalar(PROFILE[g.userData.item.id].idle);
+      const final=new THREE.Vector3(1,1,1).multiplyScalar(g.userData.baseScale);
       g.scale.lerpVectors(g.userData.enterScale,final,e);setOpacity(g,e);
       if(q<1)enterDone=false;
     }else if(transition?.type==='exit'){
