@@ -116,7 +116,10 @@ const PROFILE={
     // Experimental remaster proof: use the newly generated 2:1 map directly.
     // Preserve native colors/feature scale; no procedural grading or canvas projection.
     directTexture:true,
-    basic:true
+    basic:true,
+    // Keep the 1774x887 NPOT source at native resolution on iOS/WebGL1.
+    // RepeatWrapping + mipmaps can force older WebGL paths to downscale it to 1024x512.
+    preserveNativeNPOT:true
   },
 
   // Batch 2 — direct native 2:1 maps supplied by the user.
@@ -488,12 +491,23 @@ async function processedTexture(item){
         loader.load(cfg.texture,resolve,undefined,reject);
       });
       t.colorSpace=THREE.SRGBColorSpace;
-      t.wrapS=THREE.RepeatWrapping;
-      t.wrapT=THREE.ClampToEdgeWrapping;
-      t.minFilter=THREE.LinearMipmapLinearFilter;
-      t.magFilter=THREE.LinearFilter;
-      t.anisotropy=16;
-      t.generateMipmaps=true;
+      if(cfg.preserveNativeNPOT){
+        // Preserve the original non-power-of-two image exactly on iPhone/WebGL1:
+        // no repeat wrapping, no generated mip chain, no implicit POT rescale.
+        t.wrapS=THREE.ClampToEdgeWrapping;
+        t.wrapT=THREE.ClampToEdgeWrapping;
+        t.minFilter=THREE.LinearFilter;
+        t.magFilter=THREE.LinearFilter;
+        t.anisotropy=1;
+        t.generateMipmaps=false;
+      }else{
+        t.wrapS=THREE.RepeatWrapping;
+        t.wrapT=THREE.ClampToEdgeWrapping;
+        t.minFilter=THREE.LinearMipmapLinearFilter;
+        t.magFilter=THREE.LinearFilter;
+        t.anisotropy=16;
+        t.generateMipmaps=true;
+      }
       t.needsUpdate=true;
       textureCache.set(item.id,t);
       pendingTexture.delete(item.id);
