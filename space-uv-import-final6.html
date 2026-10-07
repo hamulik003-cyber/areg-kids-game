@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>AREG · Final 6 Exact UV</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#020611;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+body{padding:max(18px,env(safe-area-inset-top)) 14px max(30px,env(safe-area-inset-bottom))}
+.wrap{max-width:760px;margin:auto}.kicker{font-size:11px;font-weight:900;letter-spacing:.14em;color:#83caff}
+h1{font-size:25px;margin:5px 0 8px}.sub{color:#a7b9d8;font-size:13px;line-height:1.5;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:#09152b;border:1px solid #29466f;border-radius:16px;padding:10px}
+.card.ok{border-color:#39c878}.card b{display:block;font-size:14px;margin-bottom:7px}.card small{display:block;color:#8fa8cf;line-height:1.35;min-height:36px}
+.card img{width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:9px;background:#030815;margin:8px 0}
+.pick{display:block;width:100%;border:1px solid #34588d;background:#102449;color:#fff;border-radius:12px;padding:10px;font-weight:850;text-align:center;font-size:13px}
+input{display:none}.status{margin-top:12px;padding:12px;border-radius:14px;background:#07142f;color:#b7c8e5;font-size:13px;line-height:1.5}
+.go{display:none;margin-top:12px;text-decoration:none;background:#17683c;color:#fff;padding:14px;border-radius:16px;text-align:center;font-weight:900}.err{color:#ff8f9b}.oktxt{color:#78f0b0}
+</style>
+</head>
+<body><div class="wrap">
+<div class="kicker">FINAL EXACT 2:1 UV · REAL SPACE SEARCH</div>
+<h1>Վերջնական 6 օբյեկտ</h1>
+<div class="sub">
+Յուրաքանչյուր քարտի տակ ընտրիր հենց համապատասխան original <b>1536×768</b> փռվածքը։
+Ֆայլը պահվում է <b>նույն bytes-ով</b>՝ առանց resize/compression/grading-ի։
+<b>Ֆոբոս/Դեյմոս geometry-ն չի փոխվում</b>, փոխվում է միայն texture-ը։
+<b>Սատուրնի օղակը չի փոխվում</b>։
+</div>
+<div class="grid" id="grid"></div>
+<div class="status" id="status">Ընտրիր 6/6 UV ֆայլերը։</div>
+<a class="go" id="go" href="./index.html?finaluv6=1">Բացել իրական «Տիեզերական որոնում» խաղը</a>
+</div>
+<script>
+const ITEMS=[
+ ['saturn','Սատուրն','Միայն մարմնի texture · օղակը LOCK'],
+ ['charon','Խարոն','Exact sphere texture'],
+ ['neptune','Նեպտուն','Նույն հաստատված direct-UV pipeline'],
+ ['phobos','Ֆոբոս','Geometry LOCK · texture only'],
+ ['deimos','Դեյմոս','Geometry LOCK · texture only'],
+ ['mars','Մարս','Exact sphere texture']
+];
+const DB='areg-space-user-uv-v1',STORE='textures';
+const grid=document.getElementById('grid'),statusEl=document.getElementById('status'),go=document.getElementById('go');
+const saved=new Set();
+
+ITEMS.forEach(([id,name,note],i)=>{
+ const d=document.createElement('div');d.className='card';d.id='c-'+id;
+ d.innerHTML='<b>'+(i+1)+'. '+name+'</b><small>'+note+'</small><img id="p-'+id+'"><label class="pick">Ընտրել '+name+' UV<input id="f-'+id+'" type="file" accept="image/jpeg,image/png,image/webp"></label>';
+ grid.appendChild(d);
+ document.getElementById('f-'+id).addEventListener('change',()=>saveOne(id,name));
+});
+
+function openDb(){return new Promise((resolve,reject)=>{
+ const q=indexedDB.open(DB,1);
+ q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(STORE))q.result.createObjectStore(STORE,{keyPath:'id'})};
+ q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)
+})}
+function dims(file){return new Promise((resolve,reject)=>{
+ const u=URL.createObjectURL(file),im=new Image();
+ im.onload=()=>{const v=[im.naturalWidth,im.naturalHeight,u];resolve(v)};
+ im.onerror=()=>{URL.revokeObjectURL(u);reject(new Error('image load'))};im.src=u
+})}
+function put(db,rec){return new Promise((resolve,reject)=>{
+ const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(rec);
+ tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)
+})}
+async function saveOne(id,name){
+ const inp=document.getElementById('f-'+id),file=inp.files?.[0];if(!file)return;
+ try{
+  const [w,h,u]=await dims(file);
+  if(Math.abs(w/Math.max(1,h)-2)>.002){URL.revokeObjectURL(u);throw new Error(name+'՝ '+w+'×'+h+' է, պետք է լինի ճիշտ 2:1');}
+  const db=await openDb();
+  await put(db,{id,blob:file,name:file.name,width:w,height:h,size:file.size,type:file.type,savedAt:Date.now(),batch:'final6'});
+  const img=document.getElementById('p-'+id);img.onload=()=>URL.revokeObjectURL(u);img.src=u;
+  document.getElementById('c-'+id).classList.add('ok');saved.add(id);
+  refresh();
+ }catch(err){statusEl.innerHTML='<span class="err">'+String(err.message||err)+'</span>'}
+}
+function refresh(){
+ const n=saved.size;
+ statusEl.innerHTML=n===6?'<span class="oktxt">Պատրաստ է՝ 6/6 exact UV պահպանված է։ Geometry lock-երը պահպանված են։</span>':'Պահպանված է '+n+'/6։';
+ go.style.display=n===6?'block':'none';
+ if(n===6)localStorage.setItem('areg-space-final-uv6','v1-6of6');
+}
+async function restore(){
+ try{
+  const db=await openDb();
+  await Promise.all(ITEMS.map(([id])=>new Promise(resolve=>{
+   const tx=db.transaction(STORE,'readonly'),rq=tx.objectStore(STORE).get(id);
+   rq.onsuccess=()=>{if(rq.result?.blob){saved.add(id);document.getElementById('c-'+id).classList.add('ok');const u=URL.createObjectURL(rq.result.blob),img=document.getElementById('p-'+id);img.onload=()=>URL.revokeObjectURL(u);img.src=u}resolve()};
+   rq.onerror=()=>resolve();
+  })));
+  refresh();
+ }catch{}
+}
+restore();
+</script>
+</body></html>
