@@ -78,6 +78,37 @@ const USER_UV_IDS=new Set([
   'mercury','moon','pluto','venus','ceres','earth','haumea','makemake','eris','jupiter',
   'uranus','mars','saturn','neptune','phobos','deimos','charon'
 ]);
+const FINAL_UV_PATHS={
+  sun:'assets/space3d/user-final/01-sun.png',
+  mercury:'assets/space3d/user-final/02-mercury.png',
+  venus:'assets/space3d/user-final/03-venus.png',
+  earth:'assets/space3d/user-final/04-earth.png',
+  moon:'assets/space3d/user-final/05-moon.png',
+  mars:'assets/space3d/user-final/06-mars.png',
+  jupiter:'assets/space3d/user-final/07-jupiter.png',
+  saturn:'assets/space3d/user-final/08-saturn.png',
+  uranus:'assets/space3d/user-final/09-uranus.png',
+  neptune:'assets/space3d/user-final/10-neptune.png',
+  phobos:'assets/space3d/user-final/11-phobos.png',
+  deimos:'assets/space3d/user-final/12-deimos.png',
+  io:'assets/space3d/user-final/13-io.png',
+  europa:'assets/space3d/user-final/14-europa.png',
+  ganymede:'assets/space3d/user-final/15-ganymede.png',
+  callisto:'assets/space3d/user-final/16-callisto.png',
+  titan:'assets/space3d/user-final/17-titan.png',
+  enceladus:'assets/space3d/user-final/18-enceladus.png',
+  titania:'assets/space3d/user-final/19-titania.png',
+  oberon:'assets/space3d/user-final/20-oberon.png',
+  triton:'assets/space3d/user-final/21-triton.png',
+  charon:'assets/space3d/user-final/22-charon.png',
+  pluto:'assets/space3d/user-final/23-pluto.png',
+  ceres:'assets/space3d/user-final/24-ceres.png',
+  haumea:'assets/space3d/user-final/25-haumea.png',
+  makemake:'assets/space3d/user-final/26-makemake.png',
+  eris:'assets/space3d/user-final/27-eris.png'
+};
+const finalUvCache=new Map();
+const finalUvMiss=new Set();
 const USER_UV_DB='areg-space-user-uv-v1';
 const USER_UV_STORE='textures';
 const userUvCache=new Map();
@@ -101,24 +132,47 @@ async function readUserUvBlob(id){
     rq.onerror=()=>reject(rq.error);
   });
 }
+function exactUvTextureFromImage(img){
+  const t=new THREE.Texture(img);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.RepeatWrapping;
+  t.wrapT=THREE.ClampToEdgeWrapping;
+  t.minFilter=THREE.LinearMipmapLinearFilter;
+  t.magFilter=THREE.LinearFilter;
+  t.anisotropy=16;
+  t.needsUpdate=true;
+  return t;
+}
+async function prepareRepoUvTexture(item){
+  const path=FINAL_UV_PATHS[item.id];
+  if(!path||finalUvMiss.has(item.id))return null;
+  if(finalUvCache.has(item.id))return finalUvCache.get(item.id);
+  try{
+    const img=await loadTrue360Image(path+'?v=final27');
+    const t=exactUvTextureFromImage(img);
+    finalUvCache.set(item.id,t);
+    return t;
+  }catch{
+    finalUvMiss.add(item.id);
+    return null;
+  }
+}
 async function prepareUserUvTexture(item){
   if(!USER_UV_IDS.has(item.id))return null;
   if(userUvCache.has(item.id))return userUvCache.get(item.id);
   if(userUvPending.has(item.id))return userUvPending.get(item.id);
   const pending=(async()=>{
+    const repoTex=await prepareRepoUvTexture(item);
+    if(repoTex){
+      userUvCache.set(item.id,repoTex);
+      return repoTex;
+    }
     const blob=await readUserUvBlob(item.id);
     if(!blob)return null;
     const url=URL.createObjectURL(blob);
     try{
       const img=await loadTrue360Image(url);
-      const t=new THREE.Texture(img);
-      t.colorSpace=THREE.SRGBColorSpace;
-      t.wrapS=THREE.RepeatWrapping;
-      t.wrapT=THREE.ClampToEdgeWrapping;
-      t.minFilter=THREE.LinearMipmapLinearFilter;
-      t.magFilter=THREE.LinearFilter;
-      t.anisotropy=16;
-      t.needsUpdate=true;
+      const t=exactUvTextureFromImage(img);
       userUvCache.set(item.id,t);
       return t;
     }finally{URL.revokeObjectURL(url)}
