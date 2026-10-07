@@ -72,7 +72,7 @@ const TEXTURE_PATHS={
   makemake:'assets/space3d/real/makemake.jpg',
   eris:'assets/space3d/real/eris.jpg'
 };
-const REALISTIC_IDS=new Set([...Object.keys(TEXTURE_PATHS),'charon']);
+const REALISTIC_IDS=new Set([...Object.keys(TEXTURE_PATHS),'charon','solar-system','milky-way','black-hole']);
 const USER_UV_IDS=new Set([
   'io','europa','ganymede','callisto','titan','enceladus','titania','oberon','triton','sun',
   'mercury','moon','pluto','venus','ceres','earth','haumea','makemake','eris','jupiter',
