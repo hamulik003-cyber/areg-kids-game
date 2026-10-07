@@ -192,7 +192,7 @@ const VISUAL_MATCH={
   // Three SphereGeometry shows u≈0.25 toward the camera at zero yaw, so -90° yaw is required
   // to present the same face first. Native sRGB color is preserved: no grading, no ACES remap.
   phobos:   {viewerScale:1.40,gameScale:.60,winScale:1.28,frontYaw:-Math.PI/2,rollDeg:-8,shape:{x:1.18,y:.93,z:.81,deform:.085,seed:.45},toneMapped:false},
-  deimos:   {viewerScale:1.34,gameScale:.58,winScale:1.24,frontYaw:-Math.PI/2,rollDeg:-5,shape:{x:1.09,y:.96,z:.90,deform:.024,seed:2.15},toneMapped:false},
+  deimos:   {viewerScale:1.34,gameScale:.58,winScale:1.24,frontYaw:-Math.PI/2,rollDeg:-4,shape:{x:1.035,y:1.00,z:.975,deform:.010,seed:2.15},toneMapped:false},
   io:       {viewerScale:1.51,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.4},toneMapped:false},
   europa:   {viewerScale:1.49,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.6},toneMapped:false},
   ganymede: {viewerScale:1.50,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.8},toneMapped:false},
