@@ -95,47 +95,109 @@ function loadTrue360Image(path){
 }
 function byte(v){return Math.max(0,Math.min(255,Math.round(v)))}
 function mix(a,b,t){return a+(b-a)*t}
+function true360LumaBounds(data){
+  const hist=new Uint32Array(256);
+  let total=0;
+  for(let i=0;i<data.length;i+=16){
+    const l=Math.max(0,Math.min(255,Math.round(.299*data[i]+.587*data[i+1]+.114*data[i+2])));
+    hist[l]++;total++;
+  }
+  const loTarget=total*.02,hiTarget=total*.98;
+  let acc=0,lo=0,hi=255;
+  for(let i=0;i<256;i++){acc+=hist[i];if(acc>=loTarget){lo=i;break}}
+  acc=0;
+  for(let i=0;i<256;i++){acc+=hist[i];if(acc>=hiTarget){hi=i;break}}
+  if(hi-lo<18){lo=Math.max(0,lo-9);hi=Math.min(255,hi+9)}
+  return [lo,hi];
+}
 function true360Grade(id,data){
-  const palettes={
-    phobos:[[45,31,27],[127,89,69],[235,199,166]],
-    deimos:[[34,25,24],[104,69,56],[212,178,151]],
-    ganymede:[[30,24,24],[103,78,66],[232,218,202]]
-  };
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i],g=data[i+1],b=data[i+2];
-
-    if(id==='io'){
+  // Io and Phobos are intentionally locked: preserve their accepted V5 look.
+  if(id==='io'){
+    for(let i=0;i<data.length;i+=4){
+      let r=data[i],g=data[i+1],b=data[i+2];
       const l=.299*r+.587*g+.114*b;
       const sat=1.58;
-      r=byte((l+(r-l)*sat)*1.18+7);
-      g=byte((l+(g-l)*sat)*1.08+3);
-      b=byte((l+(b-l)*1.20)*.70);
-      data[i]=r;data[i+1]=g;data[i+2]=b;continue;
+      data[i]=byte((l+(r-l)*sat)*1.18+7);
+      data[i+1]=byte((l+(g-l)*sat)*1.08+3);
+      data[i+2]=byte((l+(b-l)*1.20)*.70);
     }
-
-    if(id==='europa'){
-      let l=(.299*r+.587*g+.114*b)/255;
-      l=Math.max(0,Math.min(1,(l-.50)*1.95+.50));
-      const dark=[104,48,31],mid=[168,155,145],hi=[235,234,224];
+    return;
+  }
+  if(id==='phobos'){
+    const p=[[45,31,27],[127,89,69],[235,199,166]];
+    for(let i=0;i<data.length;i+=4){
+      const l=(.299*data[i]+.587*data[i+1]+.114*data[i+2])/255;
       let p0,p1,t;
-      if(l<.46){p0=dark;p1=mid;t=l/.46}
-      else{p0=mid;p1=hi;t=(l-.46)/.54}
+      if(l<.52){p0=p[0];p1=p[1];t=l/.52}else{p0=p[1];p1=p[2];t=(l-.52)/.48}
       data[i]=byte(mix(p0[0],p1[0],t));
       data[i+1]=byte(mix(p0[1],p1[1],t));
       data[i+2]=byte(mix(p0[2],p1[2],t));
-      continue;
     }
+    return;
+  }
 
-    const p=palettes[id]||palettes.ganymede;
-    let l=(.299*r+.587*g+.114*b)/255;
-    if(id==='ganymede') l=Math.max(0,Math.min(1,(l-.50)*1.70+.50));
-    if(id==='deimos') l=Math.max(0,Math.min(1,(l-.50)*1.45+.50));
-    let p0,p1,t;
-    if(l<.50){p0=p[0];p1=p[1];t=l/.50}
-    else{p0=p[1];p1=p[2];t=(l-.50)/.50}
-    data[i]=byte(mix(p0[0],p1[0],t));
-    data[i+1]=byte(mix(p0[1],p1[1],t));
-    data[i+2]=byte(mix(p0[2],p1[2],t));
+  const [lo,hi]=true360LumaBounds(data);
+  const span=Math.max(1,hi-lo);
+
+  if(id==='deimos'){
+    const dark=[50,38,34],mid=[132,101,84],light=[224,197,173];
+    for(let i=0;i<data.length;i+=4){
+      const raw=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+      let n=Math.max(0,Math.min(1,(raw-lo)/span));
+      n=Math.pow(n,.76);
+      let p0,p1,t;
+      if(n<.54){p0=dark;p1=mid;t=n/.54}else{p0=mid;p1=light;t=(n-.54)/.46}
+      data[i]=byte(mix(p0[0],p1[0],t));
+      data[i+1]=byte(mix(p0[1],p1[1],t));
+      data[i+2]=byte(mix(p0[2],p1[2],t));
+    }
+    return;
+  }
+
+  if(id==='europa'){
+    const rust=[152,74,43],ice=[225,229,225],bright=[244,242,231];
+    for(let i=0;i<data.length;i+=4){
+      const r=data[i],g=data[i+1],b=data[i+2];
+      const raw=.299*r+.587*g+.114*b;
+      let n=Math.max(0,Math.min(1,(raw-lo)/span));
+      n=Math.max(0,Math.min(1,(n-.50)*1.42+.50));
+      const chromaScale=1.42;
+      const rr=byte(raw+(r-raw)*chromaScale);
+      const gg=byte(raw+(g-raw)*chromaScale);
+      const bb=byte(raw+(b-raw)*chromaScale);
+
+      const crack=Math.max(0,Math.min(1,Math.pow(1-n,1.45)*1.35));
+      let base0,base1,t;
+      if(n<.62){base0=ice;base1=bright;t=n/.62}
+      else{base0=bright;base1=[250,246,234];t=(n-.62)/.38}
+      const ir=byte(mix(base0[0],base1[0],t));
+      const ig=byte(mix(base0[1],base1[1],t));
+      const ib=byte(mix(base0[2],base1[2],t));
+      const warm=Math.max(crack,Math.max(0,(rr-gg)/85)*.65);
+
+      data[i]=byte(mix(ir,rust[0],warm*.82));
+      data[i+1]=byte(mix(ig,rust[1],warm*.82));
+      data[i+2]=byte(mix(ib,rust[2],warm*.82));
+    }
+    return;
+  }
+
+  if(id==='ganymede'){
+    const deep=[45,34,31],mid=[116,91,78],high=[226,211,193];
+    for(let i=0;i<data.length;i+=4){
+      const r=data[i],g=data[i+1],b=data[i+2];
+      const raw=.299*r+.587*g+.114*b;
+      let n=Math.max(0,Math.min(1,(raw-lo)/span));
+      n=Math.max(0,Math.min(1,(n-.50)*1.48+.50));
+      let p0,p1,t;
+      if(n<.48){p0=deep;p1=mid;t=n/.48}else{p0=mid;p1=high;t=(n-.48)/.52}
+      const pr=mix(p0[0],p1[0],t),pg=mix(p0[1],p1[1],t),pb=mix(p0[2],p1[2],t);
+      const chroma=.22;
+      data[i]=byte(mix(pr,r,chroma));
+      data[i+1]=byte(mix(pg,g,chroma));
+      data[i+2]=byte(mix(pb,b,chroma));
+    }
+    return;
   }
 }
 
@@ -536,7 +598,7 @@ function spherePlanet(item){
   const isSun=item.id==='sun';
   const isTrue360=TRUE360_IDS.has(item.id);
   const true360Lift={
-    phobos:.14,deimos:.075,io:.14,europa:.065,ganymede:.075
+    phobos:.14,deimos:.17,io:.14,europa:.04,ganymede:.045
   }[item.id]??0;
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
