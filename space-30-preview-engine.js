@@ -770,10 +770,11 @@ function atmosphereMesh(radius=1.035){
 function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   const isProBody=PROFESSIONAL_BODY_IDS.has(item.id);
-  let geo=item.kind==='oval'
+  const useOval=item.id==='haumea';
+  let geo=useOval
     ? new THREE.SphereGeometry(1,isProBody?96:64,isProBody?64:40)
     : new THREE.SphereGeometry(1,isProBody?96:72,isProBody?64:48);
-  if(item.kind==='oval')geo.scale(1.28,.78,.88);
+  if(useOval)geo.scale(1.28,.78,.88);
 
   if(item.id==='phobos'||item.id==='deimos'){
     geo=new THREE.SphereGeometry(1,96,64);
@@ -820,7 +821,8 @@ function spherePlanet(item){
         });
 
   const mesh=new THREE.Mesh(geo,mat);
-  mesh.rotation.z=THREE.MathUtils.degToRad(AXIAL_TILT[item.id]||0);
+  const displayRoll=item.id==='haumea'?-31:(AXIAL_TILT[item.id]||0);
+  mesh.rotation.z=THREE.MathUtils.degToRad(displayRoll);
   mesh.userData.parentPick=grp;grp.add(mesh);
   grp.userData.surface=mesh;
   if(item.id==='earth'){
@@ -848,7 +850,7 @@ function spherePlanet(item){
     const rg=new THREE.RingGeometry(1.23,1.53,160);
     const rm=new THREE.MeshBasicMaterial({color:0xd7d7d2,side:THREE.DoubleSide,transparent:true,opacity:.46,depthWrite:false});
     const hr=new THREE.Mesh(rg,rm);
-    hr.rotation.set(-1.02,.18,-.42);
+    hr.rotation.set(-1.02,.18,THREE.MathUtils.degToRad(-31));
     hr.userData.parentPick=grp;grp.add(hr);grp.userData.haumeaRing=hr;
   }
   if(isSun){
@@ -926,7 +928,6 @@ function blackHole(item){
   );
   hit.userData.parentPick=g;g.add(hit);
   g.userData.accretion=[disk1,disk2,lens,violet,outer];
-  const ref=referenceArtSprite(item,3.95,3.30,.54);ref.userData.parentPick=g;g.add(ref);g.userData.referenceArt=ref;
   return g;
 }
 
@@ -980,7 +981,6 @@ function galaxy(item){
   hit.userData.parentPick=g;g.add(hit);
 
   g.rotation.x=-.42;g.rotation.z=.16;g.userData.galaxyPoints=pts;
-  const ref=referenceArtSprite(item,3.90,3.35,.66);ref.userData.parentPick=g;g.add(ref);g.userData.referenceArt=ref;
   return g;
 }
 
