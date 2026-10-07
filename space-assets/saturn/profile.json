@@ -1,0 +1,19 @@
+{
+  "id": "saturn",
+  "status": "pilot",
+  "reference": "08-saturn.jpg",
+  "geometry": "sphere-plus-rings",
+  "texture": null,
+  "rings": {
+    "approved": false
+  },
+  "frontView": {
+    "approved": false
+  },
+  "rotationCheck": {
+    "deg90": false,
+    "deg180": false,
+    "deg270": false,
+    "deg360": false
+  }
+}
