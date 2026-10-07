@@ -63,7 +63,7 @@ const PROFILE={
     roughness:1,emissive:.018
   },
   mars:{
-    reference:'06-mars.jpg',texture:'assets/space3d/mars_gallery_360_test.jpg',
+    reference:'06-mars.jpg',texture:'assets/space3d/mars_gallery_360_test.jpg?v=204',
     idle:.65,win:1.35,spin:.14,tilt:25.19,frontY:0,grade:'direct-generated',
     // Direct test of the generated 2:1 full-globe map supplied by the user:
     // no front-card projection and no recoloring on top of the generated texture.
