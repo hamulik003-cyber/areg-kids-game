@@ -63,10 +63,11 @@ const PROFILE={
     roughness:1,emissive:.018
   },
   mars:{
-    reference:'06-mars.jpg',texture:'assets/space3d/mars_gallery_360_test.jpg?v=204',
+    reference:'06-mars.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5a7c5c83-c9df-4d85-8e45-fab8b13890b9.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNDJiODAzYTIwOTczOWU5ZCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2MTQxMH0.byYfYauPUUGDyP0yKv5M7y2tYz7Rw8dgHn4AFxd2ltQ',
     idle:.65,win:1.35,spin:.14,tilt:25.19,frontY:0,grade:'direct-generated',
-    // Direct test of the generated 2:1 full-globe map supplied by the user:
-    // no front-card projection and no recoloring on top of the generated texture.
+    // Use the user's generated 2:1 map at its native resolution.
+    // Do not redraw it into a canvas, recolor it, or upscale a thumbnail.
     directTexture:true,
     basic:true,
     atmosphere:{color:0xff5f22,strength:.18,power:2.55,radius:1.026},
@@ -367,6 +368,24 @@ async function processedTexture(item){
   if(pendingTexture.has(item.id))return pendingTexture.get(item.id);
   const p=(async()=>{
     const cfg=PROFILE[item.id];
+
+    if(cfg.directTexture){
+      const t=await new Promise((resolve,reject)=>{
+        loader.load(cfg.texture,resolve,undefined,reject);
+      });
+      t.colorSpace=THREE.SRGBColorSpace;
+      t.wrapS=THREE.RepeatWrapping;
+      t.wrapT=THREE.ClampToEdgeWrapping;
+      t.minFilter=THREE.LinearMipmapLinearFilter;
+      t.magFilter=THREE.LinearFilter;
+      t.anisotropy=12;
+      t.generateMipmaps=true;
+      t.needsUpdate=true;
+      textureCache.set(item.id,t);
+      pendingTexture.delete(item.id);
+      return t;
+    }
+
     if(cfg.galleryProjection){
       const t=await buildGalleryProjectedTexture(item);
       textureCache.set(item.id,t);pendingTexture.delete(item.id);return t;
