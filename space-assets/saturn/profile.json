@@ -1,6 +1,6 @@
 {
   "id": "saturn",
-  "status": "front-and-ring-auto-calibrated-awaiting-visual-approval",
+  "status": "technical-validated-awaiting-visual-approval",
   "masterReference": "08-saturn.jpg",
   "referenceBlobSha": "b6c7418de1f074f33300e017a823256d678e606f",
   "geometry": "oblate-sphere-plus-rings",
@@ -19,12 +19,13 @@
     "rollDeg": 32.73,
     "scale": 1.55,
     "approved": false,
-    "autoCalibration": "space-assets/saturn/calibration-report.json"
+    "autoCalibration": "space-assets/saturn/calibration-report.json",
+    "proof": "space-assets/saturn/validation-proof.png"
   },
   "shape": {
-    "x": 1.0,
+    "x": 1,
     "y": 0.91,
-    "z": 1.0
+    "z": 1
   },
   "ring": {
     "inner": 1.2,
@@ -33,19 +34,22 @@
     "rotationXRad": -1.14,
     "rotationZRad": 0.29,
     "opacity": 0.98,
-    "approved": false
+    "approved": false,
+    "proof": "space-assets/saturn/validation-proof.png"
   },
   "rotationCheck": {
-    "deg0": false,
-    "deg90": false,
-    "deg180": false,
-    "deg270": false,
-    "deg360": false
+    "deg0": true,
+    "deg90": true,
+    "deg180": true,
+    "deg270": true,
+    "deg360": true,
+    "proof": "space-assets/saturn/validation-proof.png"
   },
   "preservation": {
     "externalRuntimeDependency": false,
     "immutableReference": true,
     "textureAlreadyLocal": true,
-    "ringTextureAlreadyLocal": true
+    "ringTextureAlreadyLocal": true,
+    "technicalCheckpoint": true
   }
 }
