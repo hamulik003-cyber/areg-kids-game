@@ -102,16 +102,16 @@ function true360LumaBounds(data){
     const l=Math.max(0,Math.min(255,Math.round(.299*data[i]+.587*data[i+1]+.114*data[i+2])));
     hist[l]++;total++;
   }
-  const loTarget=total*.02,hiTarget=total*.98;
+  const loTarget=total*.03,hiTarget=total*.97;
   let acc=0,lo=0,hi=255;
   for(let i=0;i<256;i++){acc+=hist[i];if(acc>=loTarget){lo=i;break}}
   acc=0;
   for(let i=0;i<256;i++){acc+=hist[i];if(acc>=hiTarget){hi=i;break}}
-  if(hi-lo<18){lo=Math.max(0,lo-9);hi=Math.min(255,hi+9)}
+  if(hi-lo<20){lo=Math.max(0,lo-10);hi=Math.min(255,hi+10)}
   return [lo,hi];
 }
 function true360Grade(id,data){
-  // Io and Phobos are intentionally locked: preserve their accepted V5 look.
+  // LOCKED: Io and Phobos stay byte-for-byte on their accepted grading path.
   if(id==='io'){
     for(let i=0;i<data.length;i+=4){
       let r=data[i],g=data[i+1],b=data[i+2];
@@ -140,13 +140,14 @@ function true360Grade(id,data){
   const span=Math.max(1,hi-lo);
 
   if(id==='deimos'){
-    const dark=[50,38,34],mid=[132,101,84],light=[224,197,173];
+    // Preserve crater detail from the complete 2:1 map; neutral brown-gray, not pink/white.
+    const dark=[46,42,39],mid=[104,94,86],light=[178,160,145];
     for(let i=0;i<data.length;i+=4){
       const raw=.299*data[i]+.587*data[i+1]+.114*data[i+2];
       let n=Math.max(0,Math.min(1,(raw-lo)/span));
-      n=Math.pow(n,.76);
+      n=Math.pow(n,.94);
       let p0,p1,t;
-      if(n<.54){p0=dark;p1=mid;t=n/.54}else{p0=mid;p1=light;t=(n-.54)/.46}
+      if(n<.56){p0=dark;p1=mid;t=n/.56}else{p0=mid;p1=light;t=(n-.56)/.44}
       data[i]=byte(mix(p0[0],p1[0],t));
       data[i+1]=byte(mix(p0[1],p1[1],t));
       data[i+2]=byte(mix(p0[2],p1[2],t));
@@ -155,47 +156,52 @@ function true360Grade(id,data){
   }
 
   if(id==='europa'){
-    const rust=[152,74,43],ice=[225,229,225],bright=[244,242,231];
+    // Preserve the source map's real line network. Boost only existing warm chroma,
+    // never repaint broad low-luma terrain as rust.
     for(let i=0;i<data.length;i+=4){
-      const r=data[i],g=data[i+1],b=data[i+2];
-      const raw=.299*r+.587*g+.114*b;
-      let n=Math.max(0,Math.min(1,(raw-lo)/span));
-      n=Math.max(0,Math.min(1,(n-.50)*1.42+.50));
-      const chromaScale=1.42;
-      const rr=byte(raw+(r-raw)*chromaScale);
-      const gg=byte(raw+(g-raw)*chromaScale);
-      const bb=byte(raw+(b-raw)*chromaScale);
+      let r=data[i],g=data[i+1],b=data[i+2];
+      let l=.299*r+.587*g+.114*b;
+      const c=1.16;
+      r=byte((r-128)*c+128);
+      g=byte((g-128)*c+128);
+      b=byte((b-128)*c+128);
+      l=.299*r+.587*g+.114*b;
+      const sat=1.34;
+      r=byte(l+(r-l)*sat);
+      g=byte(l+(g-l)*sat);
+      b=byte(l+(b-l)*sat);
 
-      const crack=Math.max(0,Math.min(1,Math.pow(1-n,1.45)*1.35));
-      let base0,base1,t;
-      if(n<.62){base0=ice;base1=bright;t=n/.62}
-      else{base0=bright;base1=[250,246,234];t=(n-.62)/.38}
-      const ir=byte(mix(base0[0],base1[0],t));
-      const ig=byte(mix(base0[1],base1[1],t));
-      const ib=byte(mix(base0[2],base1[2],t));
-      const warm=Math.max(crack,Math.max(0,(rr-gg)/85)*.65);
-
-      data[i]=byte(mix(ir,rust[0],warm*.82));
-      data[i+1]=byte(mix(ig,rust[1],warm*.82));
-      data[i+2]=byte(mix(ib,rust[2],warm*.82));
+      const warm=Math.max(0,Math.min(1,((r-b)-10)/70));
+      if(warm>0){
+        r=byte(r+22*warm);
+        g=byte(g-8*warm);
+        b=byte(b-18*warm);
+      }else{
+        // Keep the ice cool-neutral instead of pure white.
+        r=byte(r*.985);
+        g=byte(g*.995);
+        b=byte(Math.min(255,b*1.015+2));
+      }
+      data[i]=r;data[i+1]=g;data[i+2]=b;
     }
     return;
   }
 
   if(id==='ganymede'){
-    const deep=[45,34,31],mid=[116,91,78],high=[226,211,193];
+    // Keep the real global mosaic colors/landmarks. Only mild contrast + warm-gray tone.
     for(let i=0;i<data.length;i+=4){
-      const r=data[i],g=data[i+1],b=data[i+2];
-      const raw=.299*r+.587*g+.114*b;
-      let n=Math.max(0,Math.min(1,(raw-lo)/span));
-      n=Math.max(0,Math.min(1,(n-.50)*1.48+.50));
-      let p0,p1,t;
-      if(n<.48){p0=deep;p1=mid;t=n/.48}else{p0=mid;p1=high;t=(n-.48)/.52}
-      const pr=mix(p0[0],p1[0],t),pg=mix(p0[1],p1[1],t),pb=mix(p0[2],p1[2],t);
-      const chroma=.22;
-      data[i]=byte(mix(pr,r,chroma));
-      data[i+1]=byte(mix(pg,g,chroma));
-      data[i+2]=byte(mix(pb,b,chroma));
+      let r=data[i],g=data[i+1],b=data[i+2];
+      let l=.299*r+.587*g+.114*b;
+      const c=1.20;
+      r=byte((r-128)*c+128);
+      g=byte((g-128)*c+128);
+      b=byte((b-128)*c+128);
+      l=.299*r+.587*g+.114*b;
+      const sat=1.10;
+      r=byte(l+(r-l)*sat+5);
+      g=byte(l+(g-l)*sat);
+      b=byte(l+(b-l)*sat-5);
+      data[i]=r;data[i+1]=g;data[i+2]=b;
     }
     return;
   }
@@ -598,7 +604,7 @@ function spherePlanet(item){
   const isSun=item.id==='sun';
   const isTrue360=TRUE360_IDS.has(item.id);
   const true360Lift={
-    phobos:.14,deimos:.17,io:.14,europa:.04,ganymede:.045
+    phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
   }[item.id]??0;
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
