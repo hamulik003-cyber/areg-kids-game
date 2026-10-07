@@ -1,0 +1,75 @@
+name: Calibrate Phobos V3
+
+on:
+  push:
+    branches:
+      - space-pipeline-v3-phobos
+    paths:
+      - 'space-pipeline/phobos-auto-calibrate.html'
+      - '.github/workflows/calibrate-phobos-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-pipeline-v3-phobos
+
+      - name: Start local server
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/phobos-v3-server.log 2>&1 &
+          sleep 2
+
+      - name: Run Phobos irregular calibration
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "No Chromium browser found"; exit 1; }
+          timeout 120s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=50000             --dump-dom             http://127.0.0.1:8080/space-pipeline/phobos-auto-calibrate.html             >/tmp/phobos-dom.html 2>/tmp/phobos-chrome.log
+          grep -q 'PHOBOS_CALIBRATION_READY' /tmp/phobos-dom.html || {
+            cat /tmp/phobos-chrome.log || true
+            cat /tmp/phobos-dom.html || true
+            exit 1
+          }
+
+      - name: Save report and profile
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, html, json, math
+          dom=Path('/tmp/phobos-dom.html').read_text(encoding='utf-8',errors='replace')
+          m=re.search(r'<pre id="result">([\s\S]*?)</pre>',dom)
+          if not m: raise SystemExit('Calibration result not found')
+          report=json.loads(html.unescape(m.group(1)).strip())
+          if report.get('status')!='ok': raise SystemExit(json.dumps(report))
+          Path('space-assets/phobos/calibration-report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+          p=Path('space-assets/phobos/profile.json');profile=json.loads(p.read_text(encoding='utf-8'))
+          fv=profile.setdefault('frontView',{})
+          fv['rotationYDeg']=report['measuredYawDeg'];fv['rotationYRad']=round(math.radians(report['measuredYawDeg']),12)
+          fv['rollDeg']=report['measuredRollDeg'];fv['scale']=report['measuredScale'];fv['autoCalibration']='space-assets/phobos/calibration-report.json';fv['approved']=False
+          profile['status']='front-and-geometry-auto-calibrated-awaiting-visual-approval'
+          p.write_text(json.dumps(profile,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Save combined proof
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 120s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=50000             --window-size=1600,1450             --screenshot=space-assets/phobos/validation-proof.png             http://127.0.0.1:8080/space-pipeline/phobos-auto-calibrate.html             >/tmp/phobos-shot.log 2>&1
+          test -s space-assets/phobos/validation-proof.png
+
+      - name: Commit Phobos calibration
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/phobos/profile.json                   space-assets/phobos/calibration-report.json                   space-assets/phobos/validation-proof.png
+          git commit -m "V3 Phobos: auto-calibrate irregular geometry and proof" || exit 0
+          git push origin HEAD:space-pipeline-v3-phobos

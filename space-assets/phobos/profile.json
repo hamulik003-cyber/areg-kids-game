@@ -1,16 +1,42 @@
 {
   "id": "phobos",
-  "status": "pilot",
-  "reference": "11-phobos.jpg",
+  "status": "awaiting-auto-calibration",
+  "masterReference": "11-phobos.jpg",
+  "referenceBlobSha": "8ad43d44c2a82661935a87f7bef9301aca3fc145",
   "geometry": "irregular-mesh",
-  "texture": null,
+  "texture": "assets/space3d/2k_phobos.jpg",
+  "textureBlobSha": "4d74cbe22fa7a00a0777b9eb85206cd2dbf8a978",
+  "colorPipeline": {
+    "colorSpace": "sRGB",
+    "toneMapping": "none",
+    "extraGrading": false
+  },
   "frontView": {
+    "rotationYDeg": -90,
+    "rotationYRad": -1.570796326795,
+    "rollDeg": -2,
+    "scale": 1,
     "approved": false
   },
+  "shape": {
+    "kind": "phobos",
+    "x": 1.18,
+    "y": 0.96,
+    "z": 0.86,
+    "deform": 0.125,
+    "seed": 0.45,
+    "stickneyDepression": true
+  },
   "rotationCheck": {
+    "deg0": false,
     "deg90": false,
     "deg180": false,
     "deg270": false,
     "deg360": false
+  },
+  "preservation": {
+    "externalRuntimeDependency": false,
+    "immutableReference": true,
+    "textureAlreadyLocal": true
   }
 }

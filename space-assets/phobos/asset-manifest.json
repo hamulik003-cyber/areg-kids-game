@@ -1,0 +1,17 @@
+{
+  "asset": "phobos",
+  "reference": {
+    "path": "11-phobos.jpg",
+    "blobSha": "8ad43d44c2a82661935a87f7bef9301aca3fc145",
+    "sizeBytes": 591739
+  },
+  "texture": {
+    "path": "assets/space3d/2k_phobos.jpg",
+    "blobSha": "4d74cbe22fa7a00a0777b9eb85206cd2dbf8a978",
+    "sizeBytes": 601584
+  },
+  "runtime": {
+    "usesExternalUrl": false,
+    "calibrationPage": "space-pipeline/phobos-auto-calibrate.html"
+  }
+}
