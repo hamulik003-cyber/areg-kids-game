@@ -47,7 +47,7 @@ document.getElementById('files').addEventListener('change',async e=>{
     const db=await openDb();
     for(let i=0;i<10;i++){
       const f=files[i],[id,name]=ITEMS[i],[w,h]=await dims(f);
-      if(w!==1536||h!==768)throw new Error(name+'՝ '+w+'×'+h+' է, պետք է լինի 2:1');
+      const ratio=w/Math.max(1,h);if(Math.abs(ratio-2)>.002)throw new Error(name+'՝ '+w+'×'+h+' է, բայց պետք է լինի ճիշտ 2:1 UV');
       await put(db,{id,blob:f,name:f.name,width:w,height:h,size:f.size,type:f.type,savedAt:Date.now()});
       const img=document.getElementById('p-'+id),u=URL.createObjectURL(f);img.onload=()=>URL.revokeObjectURL(u);img.src=u;
       document.getElementById('c-'+id).classList.add('ok');
