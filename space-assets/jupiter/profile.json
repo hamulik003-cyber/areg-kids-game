@@ -1,6 +1,6 @@
 {
   "id": "jupiter",
-  "status": "awaiting-auto-calibration",
+  "status": "front-auto-calibrated-awaiting-visual-approval",
   "masterReference": "07-jupiter.jpg",
   "referenceBlobSha": "80f4b436637bca75ad399bac10cab61325597c60",
   "geometry": "sphere",
@@ -13,12 +13,13 @@
     "extraGrading": false
   },
   "frontView": {
-    "rotationYRad": -1.45,
-    "rotationYDeg": -83.07888,
-    "rollDeg": 3.13,
-    "scale": 1,
+    "rotationYRad": -0.760614488019,
+    "rotationYDeg": -43.58,
+    "rollDeg": -1.12,
+    "scale": 1.292,
     "source": "V2 Jupiter baseline",
-    "approved": false
+    "approved": false,
+    "autoCalibration": "space-assets/jupiter/calibration-report.json"
   },
   "rotationCheck": {
     "deg0": false,

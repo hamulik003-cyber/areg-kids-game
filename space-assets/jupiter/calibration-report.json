@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "algorithm": "v2-yaw-roll-scale-chroma-match",
+  "baselineYawDeg": -83.07888,
+  "baselineRollDeg": 3.13,
+  "measuredYawDeg": -43.58,
+  "measuredRollDeg": -1.12,
+  "measuredScale": 1.292,
+  "referenceRadiusPx": 245,
+  "metricScore": 0.44061,
+  "texture": "assets/space3d/2k_jupiter.jpg",
+  "reference": "07-jupiter.jpg",
+  "approved": false
+}
