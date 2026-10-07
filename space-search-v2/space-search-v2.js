@@ -63,15 +63,14 @@ const PROFILE={
     roughness:1,emissive:.018
   },
   mars:{
-    reference:'06-mars.jpg',texture:'assets/space3d/2k_mars.jpg',
-    idle:.65,win:1.35,spin:.14,tilt:25.19,frontY:0,grade:'mars',
-    // Gallery-derived spherical projection proof. The central/front hemisphere is
-    // reconstructed from the exact "Մոլորակներ" card, while the unseen back half
-    // comes from the real full 360° Mars map and is style-matched instead of mirrored.
-    galleryProjection:{cx:.5007,cy:.4866,radius:.3890,frontCenterU:.25,blendNearLimb:.22},
+    reference:'06-mars.jpg',texture:'assets/space3d/mars_gallery_360_test.jpg',
+    idle:.65,win:1.35,spin:.14,tilt:25.19,frontY:0,grade:'direct-generated',
+    // Direct test of the generated 2:1 full-globe map supplied by the user:
+    // no front-card projection and no recoloring on top of the generated texture.
+    directTexture:true,
     basic:true,
-    atmosphere:{color:0xff5f22,strength:.34,power:2.45,radius:1.032},
-    glow:{color:0xff5a17,opacity:.20,scale:2.38}
+    atmosphere:{color:0xff5f22,strength:.18,power:2.55,radius:1.026},
+    glow:{color:0xff5a17,opacity:.10,scale:2.30}
   },
   jupiter:{
     reference:'07-jupiter.jpg',texture:'assets/space3d/2k_jupiter.jpg',
@@ -384,7 +383,7 @@ async function processedTexture(item){
     }
     const ctx=canvas.getContext('2d',{alpha:false,willReadFrequently:true});
     const im=ctx.getImageData(0,0,canvas.width,canvas.height);
-    gradePixels(item.id,im.data,canvas.width,canvas.height);
+    if(!cfg.directTexture)gradePixels(item.id,im.data,canvas.width,canvas.height);
     sealSeam(im.data,canvas.width,canvas.height,16);
     ctx.putImageData(im,0,0);
     const t=new THREE.CanvasTexture(canvas);
