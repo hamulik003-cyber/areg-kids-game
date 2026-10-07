@@ -1,4 +1,4 @@
-const CACHE='areg-v185-exact-user-uv-batch2';
+const CACHE='areg-v186-exact-user-uv-batch3';
 const ASSETS=["./", "./theme-bg-ocean.svg", "./theme-bg-fluffy.svg", "./theme-bg-grass.svg", "./theme-bg-autumn.svg", "./theme-bg-winterforest.svg", "./theme-bg-pier.svg", "./theme-bg-mountainlake.svg", "./theme-bg-space.svg", "./theme-bg-snow.svg", "./theme-bg-magic.svg", "./index.html", "./styles.css", "./space-3d-games.css", "./vendor/three.core.min.js", "./vendor/three.module.min.js", "./space-3d-games.js", "./app.js", "./launcher.html", "./service-worker.js", "./avatar-frame.png", "./bottom-landscape.png", "./logo.png", "./settings.png", "./star-counter.png", "./menu-music.mp3", "./audio/animals/horse-voice.mp3", "./audio/animals/camel-voice.mp3", "./nature.png", "./space.png", "./mind.png", "./create.png", "./magic.png", "./nature-frame-guard.png", "./space-frame-guard.png", "./mind-frame-guard.png", "./create-frame-guard.png", "./magic-frame-guard.png", "./hero-nature.jpg", "./nature-game-1.jpg", "./nature-game-2.jpg", "./nature-game-3.jpg", "./nature-game-4.jpg", "./hero-space.jpg", "./space-game-1.jpg", "./space-game-2.jpg", "./space-game-3.jpg", "./space-game-4.jpg", "./hero-mind.jpg", "./mind-game-1.jpg", "./mind-game-2.jpg", "./mind-game-3.jpg", "./mind-game-4.jpg", "./hero-create.jpg", "./create-game-1.jpg", "./create-game-2.jpg", "./create-game-3.jpg", "./create-game-4.jpg", "./hero-magic.jpg", "./magic-game-1.jpg", "./magic-game-2.jpg", "./magic-game-3.jpg", "./magic-game-4.jpg", "./preset-gummy-bear.svg", "./preset-bunny.svg", "./preset-kitten.svg", "./preset-puppy.svg", "./preset-panda.svg", "./preset-fox.svg", "./preset-lion.svg", "./preset-monkey.svg", "./preset-koala.svg", "./preset-robot.svg",
   "./animal-dog.jpg",
   "./animal-wolf.jpg",
@@ -145,6 +145,7 @@ const ASSETS=["./", "./theme-bg-ocean.svg", "./theme-bg-fluffy.svg", "./theme-bg
   "./assets/space3d/real/oberon.jpg",
   "./assets/space3d/real/triton.jpg",
   "./space-uv-import-batch2.html",
+  "./space-uv-import-batch3.html",
   "./assets/space3d/real/pluto.jpg",
   "./assets/space3d/2k_ceres.jpg",
   "./assets/space3d/real/haumea.jpg",
