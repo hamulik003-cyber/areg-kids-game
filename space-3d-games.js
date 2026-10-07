@@ -144,11 +144,27 @@ function exactUvTextureFromImage(img){
   return t;
 }
 async function prepareRepoUvTexture(item){
+  if(finalUvCache.has(item.id))return finalUvCache.get(item.id);
+
+  // Moon exception: the accepted final UV looked unlike the real Moon in-game.
+  // Use the natural 4K lunar equirectangular map; TextureLoader also has a
+  // deterministic procedural Moon fallback if the remote source is unavailable.
+  if(item.id==='moon'){
+    const t=getTexture(TEXTURE_PATHS.moon);
+    t.colorSpace=THREE.SRGBColorSpace;
+    t.wrapS=THREE.RepeatWrapping;
+    t.wrapT=THREE.ClampToEdgeWrapping;
+    t.minFilter=THREE.LinearMipmapLinearFilter;
+    t.magFilter=THREE.LinearFilter;
+    t.anisotropy=16;
+    finalUvCache.set(item.id,t);
+    return t;
+  }
+
   const path=FINAL_UV_PATHS[item.id];
   if(!path||finalUvMiss.has(item.id))return null;
-  if(finalUvCache.has(item.id))return finalUvCache.get(item.id);
   try{
-    const img=await loadTrue360Image(path+'?v=final27repo1');
+    const img=await loadTrue360Image(path+'?v=final27repo2');
     const t=exactUvTextureFromImage(img);
     finalUvCache.set(item.id,t);
     return t;
@@ -763,11 +779,19 @@ function spherePlanet(item){
     const r=ringMesh(item,1.28,1.68);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
   }
   if(item.id==='haumea'){
-    const rg=new THREE.RingGeometry(1.23,1.53,160);
-    const rm=new THREE.MeshBasicMaterial({color:0xd7d7d2,side:THREE.DoubleSide,transparent:true,opacity:.46,depthWrite:false,toneMapped:false});
+    // Haumea's ring is locked to the body's spin axis. Keeping it as a child
+    // of the surface prevents the elongated body from visibly cutting through
+    // a stationary ring while it rotates.
+    const rg=new THREE.RingGeometry(1.34,1.48,192);
+    const rm=new THREE.MeshBasicMaterial({
+      color:0xc8c5bc,side:THREE.DoubleSide,transparent:true,opacity:.28,
+      depthWrite:false,toneMapped:false
+    });
     const hr=new THREE.Mesh(rg,rm);
-    hr.rotation.set(-1.02,.18,THREE.MathUtils.degToRad(-31));
-    hr.userData.parentPick=grp;grp.add(hr);grp.userData.haumeaRing=hr;
+    hr.rotation.x=Math.PI/2;
+    hr.userData.parentPick=grp;
+    mesh.add(hr);
+    grp.userData.haumeaRing=hr;
   }
   if(isSun){
     const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffa42c,transparent:true,opacity:.62,depthWrite:false,blending:THREE.AdditiveBlending}));
@@ -779,31 +803,128 @@ function spherePlanet(item){
   return grp;
 }
 function blackHole(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.18;
-  const core=new THREE.Mesh(new THREE.SphereGeometry(.72,48,32),new THREE.MeshBasicMaterial({color:0x000000}));
-  core.userData.parentPick=g;g.add(core);
-  const tor1=new THREE.Mesh(new THREE.TorusGeometry(1.25,.18,24,100),new THREE.MeshBasicMaterial({color:0xff9c32,transparent:true,opacity:.92}));
-  tor1.rotation.x=1.12;tor1.userData.parentPick=g;g.add(tor1);
-  const tor2=new THREE.Mesh(new THREE.TorusGeometry(1.55,.06,16,100),new THREE.MeshBasicMaterial({color:0xffe18a,transparent:true,opacity:.75}));
-  tor2.rotation.x=1.12;tor2.userData.parentPick=g;g.add(tor2);return g;
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.10;g.userData.spinAxis='z';
+  // Strong presentation tilt: the accretion disk must read as a thick 3D disk,
+  // not as a Saturn-like horizontal hoop.
+  g.rotation.set(THREE.MathUtils.degToRad(57),THREE.MathUtils.degToRad(-8),THREE.MathUtils.degToRad(24));
+  const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
+
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:GLOW,color:0xff7a20,transparent:true,opacity:.28,
+    blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false
+  }));
+  glow.scale.set(3.5,3.5,1);glow.position.z=-.10;visual.add(glow);
+
+  const core=new THREE.Mesh(
+    new THREE.SphereGeometry(.62,64,40),
+    new THREE.MeshBasicMaterial({color:0x000000,toneMapped:false})
+  );
+  core.userData.parentPick=g;visual.add(core);
+
+  const bands=[
+    [.69,.78,0xfff3bf,.78],
+    [.78,.91,0xffc15a,.72],
+    [.91,1.10,0xff8426,.58],
+    [1.10,1.34,0xff4e16,.38],
+    [1.34,1.52,0xb92d18,.20]
+  ];
+  bands.forEach(([inner,outer,color,opacity],i)=>{
+    const m=new THREE.Mesh(
+      new THREE.RingGeometry(inner,outer,192),
+      new THREE.MeshBasicMaterial({
+        color,side:THREE.DoubleSide,transparent:true,opacity,
+        blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false
+      })
+    );
+    m.position.z=(i-2)*.008;m.userData.parentPick=g;visual.add(m);
+  });
+
+  const photon=new THREE.Mesh(
+    new THREE.TorusGeometry(.665,.035,20,160),
+    new THREE.MeshBasicMaterial({
+      color:0xfff6d5,transparent:true,opacity:.92,
+      blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false
+    })
+  );
+  photon.userData.parentPick=g;visual.add(photon);
+
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.42,24,16),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  hit.userData.parentPick=g;visual.add(hit);
+  return g;
 }
 function galaxy(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.08;
-  const N=850,p=new Float32Array(N*3);
-  for(let i=0;i<N;i++){const r=Math.pow(Math.random(),.6)*1.9,a=r*4.4+Math.floor(Math.random()*3)*2.1+rand(-.25,.25);p[i*3]=Math.cos(a)*r;p[i*3+1]=rand(-.12,.12)*(2-r/2);p[i*3+2]=Math.sin(a)*r*.58}
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.045;g.userData.spinAxis='z';
+  g.rotation.set(THREE.MathUtils.degToRad(58),THREE.MathUtils.degToRad(7),THREE.MathUtils.degToRad(-26));
+  const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
+
+  const N=1450,p=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const r=Math.pow(Math.random(),.58)*1.78;
+    const arm=Math.floor(Math.random()*4);
+    const a=r*4.85+arm*(Math.PI*.5)+rand(-.20,.20);
+    p[i*3]=Math.cos(a)*r;
+    p[i*3+1]=Math.sin(a)*r*.72;
+    p[i*3+2]=rand(-.10,.10)*(1.12-r*.38);
+  }
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(p,3));
-  const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xc4d3ff,size:.045,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));
-  pts.userData.parentPick=g;g.add(pts);
-  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.55,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.parentPick=g;g.add(hit);return g;
+  const arms=new THREE.Points(geo,new THREE.PointsMaterial({
+    color:0xb9ccff,size:.040,transparent:true,opacity:.90,
+    blending:THREE.AdditiveBlending,depthWrite:false
+  }));
+  arms.userData.parentPick=g;visual.add(arms);
+
+  const C=320,cp=new Float32Array(C*3);
+  for(let i=0;i<C;i++){
+    const r=Math.pow(Math.random(),1.8)*.64,a=Math.random()*Math.PI*2;
+    cp[i*3]=Math.cos(a)*r;cp[i*3+1]=Math.sin(a)*r*.72;cp[i*3+2]=rand(-.16,.16)*(1-r);
+  }
+  const cgeo=new THREE.BufferGeometry();cgeo.setAttribute('position',new THREE.BufferAttribute(cp,3));
+  const core=new THREE.Points(cgeo,new THREE.PointsMaterial({
+    color:0xffdfad,size:.052,transparent:true,opacity:.92,
+    blending:THREE.AdditiveBlending,depthWrite:false
+  }));
+  core.userData.parentPick=g;visual.add(core);
+
+  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.62,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  hit.userData.parentPick=g;visual.add(hit);
+  return g;
 }
 function solarSystem(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.12;
-  const sun=new THREE.Mesh(new THREE.SphereGeometry(.42,32,22),new THREE.MeshStandardMaterial({color:0xffca38,emissive:0xff8a15,emissiveIntensity:1.8}));sun.userData.parentPick=g;g.add(sun);
-  [0.72,1.0,1.28,1.55].forEach((r,i)=>{
-    const curve=new THREE.EllipseCurve(0,0,r,r*.55,0,Math.PI*2);const pts=curve.getPoints(80).map(v=>new THREE.Vector3(v.x,0,v.y));
-    const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x6e89c6,transparent:true,opacity:.32}));g.add(line);
-    const p=new THREE.Mesh(new THREE.SphereGeometry(.09+i*.02,18,12),new THREE.MeshStandardMaterial({color:[0xb4a49a,0xd2a56a,0x4a8cdc,0xd26847][i]}));p.position.set(r,0,0);p.userData.parentPick=g;g.add(p);
-  });return g;
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.055;g.userData.spinAxis='z';
+  g.rotation.set(THREE.MathUtils.degToRad(59),THREE.MathUtils.degToRad(-6),THREE.MathUtils.degToRad(19));
+  const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
+
+  const sun=new THREE.Mesh(
+    new THREE.SphereGeometry(.34,40,28),
+    new THREE.MeshStandardMaterial({color:0xffd96a,emissive:0xff8a15,emissiveIntensity:1.9,roughness:.72})
+  );
+  sun.userData.parentPick=g;visual.add(sun);
+
+  const radii=[.58,.80,1.03,1.28,1.52];
+  const colors=[0xb6a397,0xe1b071,0x4a91df,0xd96f4d,0xe2c7a2];
+  radii.forEach((r,i)=>{
+    const curve=new THREE.EllipseCurve(0,0,r,r,0,Math.PI*2);
+    const pts=curve.getPoints(112).map(v=>new THREE.Vector3(v.x,v.y,0));
+    const line=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({color:0x88a6e5,transparent:true,opacity:.26})
+    );
+    visual.add(line);
+    const a=[.55,1.6,2.75,4.0,5.15][i];
+    const p=new THREE.Mesh(
+      new THREE.SphereGeometry(.075+i*.012,22,16),
+      new THREE.MeshStandardMaterial({color:colors[i],roughness:.92,metalness:0})
+    );
+    p.position.set(Math.cos(a)*r,Math.sin(a)*r,0);
+    p.userData.parentPick=g;visual.add(p);
+  });
+
+  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.58,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  hit.userData.parentPick=g;visual.add(hit);
+  return g;
 }
 function buildObject(item){
   if(item.id==='black-hole')return blackHole(item);
@@ -845,10 +966,20 @@ function searchSlots(root,camera){
   ];
 }
 function fitSearchObject(g,item,portrait){
-  // Keep even Saturn's rings fully inside the iPhone safe area.
+  // Large planar/special objects need more breathing room than spherical bodies.
+  const specialPortrait={
+    'black-hole':.43,
+    'milky-way':.46,
+    'solar-system':.48
+  };
+  const specialWide={
+    'black-hole':.60,
+    'milky-way':.64,
+    'solar-system':.66
+  };
   const factor=portrait
-    ? (item.id==='saturn'?.54:item.id==='uranus'?.64:item.id==='sun'?.67:item.id==='jupiter'?.68:.76)
-    : (item.id==='saturn'?.72:item.id==='uranus'?.78:.86);
+    ? (specialPortrait[item.id]??(item.id==='saturn'?.54:item.id==='uranus'?.64:item.id==='sun'?.67:item.id==='jupiter'?.68:.76))
+    : (specialWide[item.id]??(item.id==='saturn'?.72:item.id==='uranus'?.78:.86));
   g.scale.multiplyScalar(factor);
 }
 function findObjectName(item){
@@ -1082,7 +1213,11 @@ function gameSpaceSearch(ctx){
     let finishEnter=false,finishExit=false;
 
     groups.forEach((g,i)=>{
-      if(g.userData.surface)g.userData.surface.rotation.y+=dt*(g.userData.spin||.18)*(g.userData.win?2.15:1);
+      if(g.userData.surface){
+        const spinDelta=dt*(g.userData.spin||.18)*(g.userData.win?2.15:1);
+        if(g.userData.spinAxis==='z')g.userData.surface.rotation.z+=spinDelta;
+        else g.userData.surface.rotation.y+=spinDelta;
+      }
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
       if(g.userData.ring?.userData?.rocks){
         const dir=g.userData.item?.id==='uranus'?-1:1;
