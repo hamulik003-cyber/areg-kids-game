@@ -98,39 +98,47 @@ function mix(a,b,t){return a+(b-a)*t}
 function true360Grade(id,data){
   const palettes={
     phobos:[[45,31,27],[127,89,69],[235,199,166]],
-    deimos:[[48,38,34],[119,91,78],[218,198,179]],
-    ganymede:[[48,42,39],[125,111,99],[225,216,204]]
+    deimos:[[34,25,24],[104,69,56],[212,178,151]],
+    ganymede:[[30,24,24],[103,78,66],[232,218,202]]
   };
   for(let i=0;i<data.length;i+=4){
     let r=data[i],g=data[i+1],b=data[i+2];
+
     if(id==='io'){
       const l=.299*r+.587*g+.114*b;
-      const s=1.58;
-      r=byte((l+(r-l)*s)*1.18+7);
-      g=byte((l+(g-l)*s)*1.08+3);
+      const sat=1.58;
+      r=byte((l+(r-l)*sat)*1.18+7);
+      g=byte((l+(g-l)*sat)*1.08+3);
       b=byte((l+(b-l)*1.20)*.70);
       data[i]=r;data[i+1]=g;data[i+2]=b;continue;
     }
+
     if(id==='europa'){
-      const l=(.299*r+.587*g+.114*b)/255;
-      // Keep the source's real cracks, but push dark grooves toward rust and high ice toward cool white.
-      const dark=[118,67,49],mid=[173,171,163],hi=[239,237,225];
-      let a,c,t;
-      if(l<.50){a=dark;c=mid;t=l/.50}else{a=mid;c=hi;t=(l-.50)/.50}
-      data[i]=byte(mix(a[0],c[0],t));
-      data[i+1]=byte(mix(a[1],c[1],t));
-      data[i+2]=byte(mix(a[2],c[2],t));
+      let l=(.299*r+.587*g+.114*b)/255;
+      l=Math.max(0,Math.min(1,(l-.50)*1.95+.50));
+      const dark=[104,48,31],mid=[168,155,145],hi=[235,234,224];
+      let p0,p1,t;
+      if(l<.46){p0=dark;p1=mid;t=l/.46}
+      else{p0=mid;p1=hi;t=(l-.46)/.54}
+      data[i]=byte(mix(p0[0],p1[0],t));
+      data[i+1]=byte(mix(p0[1],p1[1],t));
+      data[i+2]=byte(mix(p0[2],p1[2],t));
       continue;
     }
+
     const p=palettes[id]||palettes.ganymede;
-    const l=(.299*r+.587*g+.114*b)/255;
-    let a,c,t;
-    if(l<.52){a=p[0];c=p[1];t=l/.52}else{a=p[1];c=p[2];t=(l-.52)/.48}
-    data[i]=byte(mix(a[0],c[0],t));
-    data[i+1]=byte(mix(a[1],c[1],t));
-    data[i+2]=byte(mix(a[2],c[2],t));
+    let l=(.299*r+.587*g+.114*b)/255;
+    if(id==='ganymede') l=Math.max(0,Math.min(1,(l-.50)*1.70+.50));
+    if(id==='deimos') l=Math.max(0,Math.min(1,(l-.50)*1.45+.50));
+    let p0,p1,t;
+    if(l<.50){p0=p[0];p1=p[1];t=l/.50}
+    else{p0=p[1];p1=p[2];t=(l-.50)/.50}
+    data[i]=byte(mix(p0[0],p1[0],t));
+    data[i+1]=byte(mix(p0[1],p1[1],t));
+    data[i+2]=byte(mix(p0[2],p1[2],t));
   }
 }
+
 function sealTrue360Seam(data,W,H,band=18){
   band=Math.max(6,Math.min(band,Math.floor(W*.025)));
   for(let y=0;y<H;y++){
@@ -527,15 +535,18 @@ function spherePlanet(item){
   const tex=textureForItem(item);
   const isSun=item.id==='sun';
   const isTrue360=TRUE360_IDS.has(item.id);
+  const true360Lift={
+    phobos:.14,deimos:.075,io:.14,europa:.065,ganymede:.075
+  }[item.id]??0;
   const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({
         map:tex,color:0xffffff,
-        roughness:item.id==='earth'?.82:(isTrue360?.94:.96),
+        roughness:item.id==='earth'?.82:(isTrue360?.95:.96),
         metalness:0,
         emissive:isTrue360?0xffffff:0x000000,
         emissiveMap:isTrue360?tex:null,
-        emissiveIntensity:isTrue360?.16:0
+        emissiveIntensity:true360Lift
       });
 
   const mesh=new THREE.Mesh(geo,mat);
