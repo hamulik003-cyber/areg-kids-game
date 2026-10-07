@@ -20,12 +20,12 @@ input{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;marg
 </head>
 <body><div class="wrap">
 <div class="kicker">EXACT 2:1 UV · REAL GAME · BATCH 3</div>
-<h1>Ուրան + Սատուրն</h1>
-<div class="sub">Ընտրիր այս երկու original 2:1 UV նկարները միասին՝ ցանկացած հերթականությամբ։ Էջը ինքն է տարբերակում <b>Ուրանը</b> (կապույտ/ցիան) և <b>Սատուրնը</b> (ոսկեգույն/նարնջագույն)։ Ֆայլերը պահվում են նույն bytes-ով՝ առանց resize/compression-ի և օգտագործվում են հենց իրական 3D մոլորակների մակերեսին։ Օղակները մնում են խաղի առանձին 3D օղակները։</div>
+<h1>Ուրան + Յուպիտեր</h1>
+<div class="sub">Ընտրիր այս երկու original 2:1 UV նկարները միասին՝ ցանկացած հերթականությամբ։ Էջը ինքն է տարբերակում <b>Ուրանը</b> (կապույտ/ցիան) և <b>Յուպիտերը</b> (ոսկեգույն/նարնջագույն գծավոր)։ Ֆայլերը պահվում են նույն bytes-ով՝ առանց resize/compression-ի և օգտագործվում են հենց իրական 3D մոլորակների մակերեսին։ Ուրանի օղակը մնում է խաղի առանձին 3D օղակը։</div>
 <label class="pick">Ընտրել 2 original UV նկարները<input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
 <div class="grid">
   <div class="card" id="c-uranus"><b>1. Ուրան</b><img id="p-uranus"></div>
-  <div class="card" id="c-saturn"><b>2. Սատուրն</b><img id="p-saturn"></div>
+  <div class="card" id="c-jupiter"><b>2. Յուպիտեր</b><img id="p-jupiter"></div>
 </div>
 <div class="status" id="status">Սպասում եմ 2 exact 2:1 UV ֆայլին…</div>
 <a class="go" id="go" href="./index.html?uvpack3=1">Բացել իրական խաղը</a>
@@ -55,7 +55,7 @@ async function analyze(file){
     let r=0,g=0,b=0,n=0;
     for(let i=0;i<d.length;i+=16){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
     r/=n;g/=n;b/=n;
-    const id=(g+b)>r*1.55?'uranus':'saturn';
+    const id=(g+b)>r*1.55?'uranus':'jupiter';
     return {file,id,w,h,url:u};
   }catch(e){URL.revokeObjectURL(u);throw e}
 }
@@ -66,13 +66,13 @@ function put(db,rec){return new Promise((resolve,reject)=>{
 
 document.getElementById('files').addEventListener('change',async e=>{
   const files=[...e.target.files];go.style.display='none';
-  ['uranus','saturn'].forEach(id=>document.getElementById('c-'+id).classList.remove('ok'));
+  ['uranus','jupiter'].forEach(id=>document.getElementById('c-'+id).classList.remove('ok'));
   if(files.length!==2){statusEl.innerHTML='<span class="err">Պետք է ընտրես ճիշտ 2 նկար։ Ընտրվել է '+files.length+'.</span>';return}
   try{
     const a=await Promise.all(files.map(analyze));
     if(new Set(a.map(v=>v.id)).size!==2){
       a.forEach(v=>URL.revokeObjectURL(v.url));
-      throw new Error('Չկարողացա վստահ տարբերակել երկու մոլորակները։ Ընտրիր հենց ուղարկված կապույտ Ուրանի և ոսկեգույն Սատուրնի UV-ները։');
+      throw new Error('Չկարողացա վստահ տարբերակել երկու մոլորակները։ Ընտրիր հենց ուղարկված կապույտ Ուրանի և ոսկեգույն/նարնջագույն Յուպիտերի UV-ները։');
     }
     const db=await openDb();
     for(const v of a){
@@ -82,7 +82,7 @@ document.getElementById('files').addEventListener('change',async e=>{
       document.getElementById('c-'+v.id).classList.add('ok');
     }
     localStorage.setItem('areg-space-user-uv-pack3','v1-2of2');
-    statusEl.textContent='Պատրաստ է՝ Ուրան + Սատուրն 2/2 exact UV պահպանված է։ Իրական խաղում մակերեսը կօգտագործվի նույն bytes-ով, իսկ օղակները կմնան առանձին 3D օբյեկտներ։';
+    statusEl.textContent='Պատրաստ է՝ Ուրան + Յուպիտեր 2/2 exact UV պահպանված է։ Իրական խաղում երկու մակերեսներն էլ կօգտագործվեն նույն bytes-ով՝ առանց գունային կամ տոնային փոփոխության։ Ուրանի օղակը մնում է առանձին 3D օբյեկտ։';
     go.style.display='block';
   }catch(err){statusEl.innerHTML='<span class="err">'+String(err.message||err)+'</span>'}
 });
