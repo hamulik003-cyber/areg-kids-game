@@ -54,12 +54,7 @@ const TEXTURE_PATHS={
   jupiter:'assets/space3d/2k_jupiter.jpg',
   saturn:'assets/space3d/2k_saturn.jpg',
   uranus:'assets/space3d/2k_uranus.jpg',
-  neptune:'assets/space3d/2k_neptune.jpg',
-  phobos:'batch:phobos',
-  deimos:'batch:deimos',
-  io:'batch:io',
-  europa:'batch:europa',
-  ganymede:'batch:ganymede'
+  neptune:'assets/space3d/2k_neptune.jpg'
 };
 const REALISTIC_IDS=new Set(Object.keys(TEXTURE_PATHS));
 const AXIAL_TILT={sun:7.25,mercury:.03,venus:177.4,earth:23.44,moon:6.68,mars:25.19,jupiter:3.13,saturn:26.73,uranus:97.77,neptune:28.32};
@@ -80,126 +75,6 @@ function getTexture(path,{srgb=true}={}){
   texCache.set(path,t);
   return t;
 }
-const BATCH_TEXTURE_IDS=new Set(['phobos','deimos','io','europa','ganymede']);
-const BATCH_REFERENCE_IMAGES={
-  phobos:'11-phobos.jpg',
-  deimos:'12-deimos.jpg',
-  io:'13-io.jpg',
-  europa:'14-europa.jpg',
-  ganymede:'15-ganymede.jpg'
-};
-const BATCH_REFERENCE_CROP={
-  phobos:{cx:.505,cy:.487,r:.305},
-  deimos:{cx:.505,cy:.490,r:.285},
-  io:{cx:.505,cy:.490,r:.350},
-  europa:{cx:.505,cy:.480,r:.335},
-  ganymede:{cx:.505,cy:.490,r:.350}
-};
-const batchTextureCache=new Map();
-const batchTexturePending=new Map();
-const batchImageCache=new Map();
-
-function loadBatchReferenceImage(id){
-  if(batchImageCache.has(id))return batchImageCache.get(id);
-  const p=new Promise((resolve,reject)=>{
-    const img=new Image();
-    img.decoding='async';
-    img.onload=()=>resolve(img);
-    img.onerror=reject;
-    img.src=BATCH_REFERENCE_IMAGES[id]+'?v=130';
-  });
-  batchImageCache.set(id,p);
-  return p;
-}
-function isSpaceReferencePixel(data,i){
-  const r=data[i],g=data[i+1],b=data[i+2];
-  const max=Math.max(r,g,b),min=Math.min(r,g,b),sat=max-min;
-  const blue=(b>r*1.08&&b>g*1.12&&b>85&&sat>35);
-  const purple=(r>g*1.22&&b>g*1.20&&Math.max(r,b)>90&&sat>32);
-  return blue||purple;
-}
-function referenceSample(data,W,H,cx,cy,rad,nx,ny){
-  let rr=Math.min(.999,Math.hypot(nx,ny));
-  let ang=Math.atan2(ny,nx);
-  for(let step=0;step<18;step++){
-    const shrink=1-step*.018;
-    const px=cx+Math.cos(ang)*rr*rad*shrink;
-    const py=cy-Math.sin(ang)*rr*rad*shrink;
-    const x=Math.max(0,Math.min(W-1,Math.round(px)));
-    const y=Math.max(0,Math.min(H-1,Math.round(py)));
-    const i=(y*W+x)*4;
-    if(!isSpaceReferencePixel(data,i)||step===17)return [data[i],data[i+1],data[i+2]];
-  }
-  return [128,128,128];
-}
-async function prepareBatchTexture(item){
-  if(!BATCH_TEXTURE_IDS.has(item.id))return null;
-  if(batchTextureCache.has(item.id))return batchTextureCache.get(item.id);
-  if(batchTexturePending.has(item.id))return batchTexturePending.get(item.id);
-
-  const pending=(async()=>{
-    const img=await loadBatchReferenceImage(item.id);
-    const src=document.createElement('canvas');
-    src.width=img.naturalWidth||img.width;
-    src.height=img.naturalHeight||img.height;
-    const sx=src.getContext('2d',{alpha:false,willReadFrequently:true});
-    sx.drawImage(img,0,0);
-    const sd=sx.getImageData(0,0,src.width,src.height).data;
-    const crop=BATCH_REFERENCE_CROP[item.id];
-
-    const W=1536,H=768;
-    const c=document.createElement('canvas');c.width=W;c.height=H;
-    const x=c.getContext('2d',{alpha:false});
-    const im=x.createImageData(W,H),d=im.data;
-    const cx=crop.cx*src.width,cy=crop.cy*src.height,rad=crop.r*src.width;
-
-    for(let y=0;y<H;y++){
-      const lat=(.5-y/(H-1))*Math.PI;
-      const sy=Math.sin(lat),cosLat=Math.cos(lat);
-      for(let xx=0;xx<W;xx++){
-        let lon=(xx/(W-1)-.5)*Math.PI*2;
-        if(lon>Math.PI/2)lon=Math.PI-lon;
-        else if(lon<-Math.PI/2)lon=-Math.PI-lon;
-
-        const nx=Math.sin(lon)*cosLat;
-        const ny=sy;
-        const rgb=referenceSample(sd,src.width,src.height,cx,cy,rad,nx,ny);
-        const di=(y*W+xx)*4;
-        d[di]=rgb[0];d[di+1]=rgb[1];d[di+2]=rgb[2];d[di+3]=255;
-      }
-    }
-
-    // Force an exact closed seam after projection.
-    for(let y=0;y<H;y++){
-      const li=(y*W)*4,ri=(y*W+W-1)*4;
-      const r=(d[li]+d[ri])>>1,g=(d[li+1]+d[ri+1])>>1,b=(d[li+2]+d[ri+2])>>1;
-      d[li]=d[ri]=r;d[li+1]=d[ri+1]=g;d[li+2]=d[ri+2]=b;
-    }
-    x.putImageData(im,0,0);
-
-    const t=new THREE.CanvasTexture(c);
-    t.colorSpace=THREE.SRGBColorSpace;
-    t.wrapS=THREE.RepeatWrapping;
-    t.wrapT=THREE.ClampToEdgeWrapping;
-    t.offset.x=-.25;
-    t.minFilter=THREE.LinearMipmapLinearFilter;
-    t.magFilter=THREE.LinearFilter;
-    t.anisotropy=16;
-    t.needsUpdate=true;
-
-    batchTextureCache.set(item.id,t);
-    batchTexturePending.delete(item.id);
-    return t;
-  })().catch(err=>{batchTexturePending.delete(item.id);throw err});
-  batchTexturePending.set(item.id,pending);
-  return pending;
-}
-function textureForItem(item){
-  if(BATCH_TEXTURE_IDS.has(item.id))return batchTextureCache.get(item.id)||canvasTexture(item);
-  const path=TEXTURE_PATHS[item.id];
-  return path?getTexture(path):canvasTexture(item);
-}
-
 function canvasTexture(item){
   const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,512,256);g.addColorStop(0,item.c1||'#7397c8');g.addColorStop(1,item.c2||'#263a67');x.fillStyle=g;x.fillRect(0,0,512,256);
@@ -524,28 +399,10 @@ function spherePlanet(item){
   const grp=new THREE.Group();grp.userData.item=item;grp.userData.pickable=true;
   let geo=item.kind==='oval'?new THREE.SphereGeometry(1,64,40):new THREE.SphereGeometry(1,72,48);
   if(item.kind==='oval')geo.scale(1.28,.78,.88);
-
-  if(item.id==='phobos'||item.id==='deimos'){
-    geo=new THREE.SphereGeometry(1,96,64);
-    const p=geo.attributes.position;
-    for(let i=0;i<p.count;i++){
-      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-      const strength=item.id==='phobos'?.040:.028;
-      const n=1
-        +Math.sin(x*5.3+y*3.1-z*2.7)*strength
-        +Math.cos(y*6.0+z*4.4)*(strength*.68)
-        +Math.sin(z*7.2-x*2.1)*(strength*.42);
-      p.setXYZ(i,x*n,y*n,z*n);
-    }
-    p.needsUpdate=true;geo.computeVertexNormals();
-    if(item.id==='phobos')geo.scale(1.13,.90,.96);
-    else geo.scale(1.08,.94,.98);
-  }
-
-  const tex=textureForItem(item);
+  const texturePath=TEXTURE_PATHS[item.id];
+  const tex=texturePath?getTexture(texturePath):canvasTexture(item);
   const isSun=item.id==='sun';
-  const bakedBatch=BATCH_TEXTURE_IDS.has(item.id);
-  const mat=(isSun||bakedBatch)
+  const mat=isSun
     ? new THREE.MeshBasicMaterial({map:tex,color:0xffffff})
     : new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:item.id==='earth'?.82:.96,metalness:0});
   const mesh=new THREE.Mesh(geo,mat);
@@ -658,12 +515,7 @@ function findObjectName(item){
     jupiter:'Յուպիտերը',
     saturn:'Սատուրնը',
     uranus:'Ուրանը',
-    neptune:'Նեպտունը',
-    phobos:'Ֆոբոսը',
-    deimos:'Դեյմոսը',
-    io:'Իոն',
-    europa:'Եվրոպան',
-    ganymede:'Գանիմեդը'
+    neptune:'Նեպտունը'
   })[item.id]||item.name;
 }
 function easeInOutCubic(q){
@@ -765,9 +617,7 @@ function gameSpaceSearch(ctx){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  let roundSeq=0;
-  async function buildRound(){
-    const seq=++roundSeq;
+  function buildRound(){
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
     target=next();
     const opts=shuffle([target,...decoys(target)]);
@@ -775,14 +625,6 @@ function gameSpaceSearch(ctx){
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
-    try{
-      await Promise.all(opts.map(prepareBatchTexture));
-    }catch{
-      if(disposed||seq!==roundSeq)return;
-      setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},500);
-      return;
-    }
-    if(disposed||seq!==roundSeq)return;
 
     const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
@@ -964,7 +806,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     renderer.dispose();renderer.forceContextLoss?.();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
