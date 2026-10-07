@@ -117,54 +117,54 @@ const PROFILE={
   // Same pipeline as the accepted Mars proof: no recoloring, no projection, no canvas upscale.
   phobos:{
     reference:'11-phobos.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c5a815f6-ebb3-4233-98c1-24c9035576ee.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmZiNmJhYjBjMWNlZjc3ZCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NTEyMH0.woorLNvOre989V5gaQIAonaBhxEpYpDKS4kgDFVOVLk',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/83116b0e-6f2b-4370-abee-f384cd9007f1.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNmJlODYwZTlmNTg4NWFmNiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2OTY3M30.6yFyst7XH3nU5v3ErMNsIQ25WOu3QWnIG0B24WTbwxw',
     idle:.62,win:1.30,spin:.14,tilt:8,frontY:0,directTexture:true,basic:true,irregular:{x:1.12,y:.95,z:.83,amp:.105}
   },
   deimos:{
     reference:'12-deimos.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5b9b1fbc-56a8-494b-8f66-abc4f45b69a0.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNGU1Mjg3OTc2YzVmYjhhMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ3NzkxMX0.WTdaf2bvms5HzayAHQMTgA5YuW6eb9SOZeNIyyLPJg8',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/868a2ae0-ce00-440f-8008-1acef607325f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYTk1MDRjYTg2ZDA3MWI0NCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTU0MzIwOH0.5sltWPsRUIyb4sDpJeX9W_2TpN98XmySHx3J8HkIrV4',
     idle:.60,win:1.28,spin:.13,tilt:-11,frontY:0,directTexture:true,basic:true,irregular:{x:1.08,y:.96,z:.91,amp:.048}
   },
   io:{
     reference:'13-io.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/94a1dbd7-23cb-40af-bcf2-499c73a231de.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTBkZDJjMmM0NzIzMjljNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNTU0OH0.JvrYfAy85v7opxkZK4PKlOUHUFxZjCODmSe1b_gePnQ',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/5030131e-3bc5-420a-b965-19e8a2ec2d66.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTEzNGQ3ZjgwMjI4YWU0ZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxNzQzMn0.FOcBtYQoYRSUeOazcvgJZpBtv_LfbFY7XGSduMi67MQ',
     idle:.64,win:1.31,spin:.15,tilt:0,frontY:0,directTexture:true,basic:true
   },
   europa:{
     reference:'14-europa.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/0ff5ba1d-468a-4dae-8b48-b08c9012a15c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjA2YWJjY2FlYzdkNjIxZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzMTA4Mn0.FKvyus96b1a1q4mMB00wLHH1U67to2kQ2CuPt4H8uGg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/2da1f071-7023-4bbb-8b55-cc79d65c4c43.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTVhZmI2ZjBjNTRhZTdhZSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDc2OH0.arRYGPpf5Rou6UUMdLIugYNne9MSe0H-uRpIHyuZR_g',
     idle:.64,win:1.31,spin:.14,tilt:1,frontY:0,directTexture:true,basic:true
   },
   ganymede:{
     reference:'15-ganymede.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/b9ef5896-b60f-4585-ab03-39e6241f4c55.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOWRlNDFkMzBmYWFlNDJjYSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzODk5Mn0.Xx44OE8S-dp0j5w-aiP-8hCdvVPqH-zjJmPV1FgSmVU',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/6ae16283-69f1-48c9-b05c-252102744784.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzA4MzBiYmZhNTRkOGI4NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDU5MX0.loqiM658KcisjeGl9aKXx3b8Azbgz1huPk4EoGseAfg',
     idle:.66,win:1.32,spin:.13,tilt:2,frontY:0,directTexture:true,basic:true
   },
   callisto:{
     reference:'16-callisto.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/8d861d6a-c57f-495e-9146-2f9acb70103e.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOGUzN2VlNjgwMTFmZTliZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMTc4NH0.mfl2EhjI2nSJ9PpoOvN8wxsotJYwensYbCQHcPQSQLU',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/d24f592c-2453-4363-b17a-000b0efb3840.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiNjI0MTgwMjQ4ZWNmMTE0ZiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzODIxMn0.Tl4RJxqRiRbINzt2A5ZOPRHgklBu9r3pGpu5cmwpnhA',
     idle:.65,win:1.31,spin:.12,tilt:0,frontY:0,directTexture:true,basic:true
   },
   titan:{
     reference:'17-titan.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/38561135-d762-403b-a130-ff1d1934b1a4.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODY2NDQzMzUzZDk5ODkwNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUyNzM0OX0.8r68Ou10Co5sqqAeYLx2XqjOp2ybW9odkLoOTZYsnAY',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/4f3a755b-0389-43e1-b57d-877ba9eedc70.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZWEzZjg0OTgyYjFiMDE0MiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTU0NDg1Nn0.GKgg0dzITjb9C1gJHW5b3TNVLwCURDkAA5qyynVAqnA',
     idle:.66,win:1.32,spin:.11,tilt:.3,frontY:0,directTexture:true,basic:true,
     atmosphere:{color:0xffb13b,strength:.18,power:2.7,radius:1.025}
   },
   enceladus:{
     reference:'18-enceladus.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/c2d46d42-c5cd-4b2c-beac-f05a02b32ddf.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYjYzYjkxNjlkNjk4OTI5OCIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxMDc2MX0.0h2o4iwLx2T-ygFmbBxkbb5jAgmaFqAymJAFEUmSqlE',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/1cdcf097-9d40-4f4c-9908-2f5fa44900c4.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiN2RlMzU2YjM2MTZhZmM2MyIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUwNjg2N30.qAX5bVvag_rpc_UVyqGvmpy7QsWjhKRl2FmBY9UJtaw',
     idle:.62,win:1.30,spin:.12,tilt:.1,frontY:0,directTexture:true,basic:true,
     atmosphere:{color:0xb8e9ff,strength:.10,power:2.9,radius:1.018}
   },
   titania:{
     reference:'19-titania.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/ca40dd19-f91b-4802-9e39-1d1ef746301c.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTgyMDc4ODIzNTU0NTc1NSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ2NjExNH0.heXsU7guohgOcsSzqkJleSmac4bmA-HxPT6AlA7Mw7Y',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/0ced3870-5bad-4a89-9063-3002a3edf32f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjZkOGI4NzM2N2RkM2QzMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ5MDkzMX0.SCbAKowdiAV1x_cPTF0bTId02PQW1eLinCHAzacWnv0',
     idle:.63,win:1.30,spin:.12,tilt:.4,frontY:0,directTexture:true,basic:true
   },
   oberon:{
     reference:'20-oberon.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/13aec523-564f-48f4-8385-03e3a98fe506.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODYyY2M0MDE5NTdiOGQ2OSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUxOTEwNX0.pXLpypPFVTLZVqY3GEzPy4g9_o_S0BJDDA1SBocaND0',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/cc660cc7-d782-485e-bb7e-4758f9a5f020.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZGRlYjJhMWVhZmE4MDVkMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzMTY3OH0.X8rsmGCEZFDj89UQ9a9ppbxwJkOhlNyl8O6oFgnmd2s',
     idle:.63,win:1.30,spin:.12,tilt:.3,frontY:0,directTexture:true,basic:true
   }
 };
@@ -191,16 +191,16 @@ const VISUAL_MATCH={
   // User-supplied 2:1 maps. Their reference-matched face was generated at map center (u≈0.5).
   // Three SphereGeometry shows u≈0.25 toward the camera at zero yaw, so -90° yaw is required
   // to present the same face first. Native sRGB color is preserved: no grading, no ACES remap.
-  phobos:   {viewerScale:1.43,gameScale:.62,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:-7,shape:{x:1.15,y:.94,z:.83,deform:.078,seed:.45},toneMapped:false},
-  deimos:   {viewerScale:1.33,gameScale:.58,winScale:1.24,frontYaw:-Math.PI/2,rollDeg:-5,shape:{x:1.10,y:.95,z:.89,deform:.028,seed:2.15},toneMapped:false},
-  io:       {viewerScale:1.51,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:2.4},toneMapped:false},
-  europa:   {viewerScale:1.48,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:2.6},toneMapped:false},
-  ganymede: {viewerScale:1.49,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:2.8},toneMapped:false},
-  callisto: {viewerScale:1.49,gameScale:.65,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.0},toneMapped:false},
-  titan:    {viewerScale:1.48,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.2},toneMapped:false},
-  enceladus:{viewerScale:1.46,gameScale:.62,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.4},toneMapped:false},
-  titania:  {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.6},toneMapped:false},
-  oberon:   {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:3.8},toneMapped:false}
+  phobos:   {viewerScale:1.40,gameScale:.60,winScale:1.28,frontYaw:-Math.PI/2,rollDeg:-8,shape:{x:1.18,y:.93,z:.81,deform:.085,seed:.45},toneMapped:false},
+  deimos:   {viewerScale:1.34,gameScale:.58,winScale:1.24,frontYaw:-Math.PI/2,rollDeg:-5,shape:{x:1.09,y:.96,z:.90,deform:.024,seed:2.15},toneMapped:false},
+  io:       {viewerScale:1.51,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.4},toneMapped:false},
+  europa:   {viewerScale:1.49,gameScale:.64,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.6},toneMapped:false},
+  ganymede: {viewerScale:1.50,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:2.8},toneMapped:false},
+  callisto: {viewerScale:1.49,gameScale:.65,winScale:1.31,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.0},toneMapped:false},
+  titan:    {viewerScale:1.50,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.2},toneMapped:false},
+  enceladus:{viewerScale:1.47,gameScale:.62,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.4},toneMapped:false},
+  titania:  {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.6},toneMapped:false},
+  oberon:   {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.8},toneMapped:false}
 };
 
 const textureCache=new Map();
