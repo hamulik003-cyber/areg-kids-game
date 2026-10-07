@@ -1,0 +1,16 @@
+{
+  "id": "phobos",
+  "status": "pilot",
+  "reference": "11-phobos.jpg",
+  "geometry": "irregular-mesh",
+  "texture": null,
+  "frontView": {
+    "approved": false
+  },
+  "rotationCheck": {
+    "deg90": false,
+    "deg180": false,
+    "deg270": false,
+    "deg360": false
+  }
+}
