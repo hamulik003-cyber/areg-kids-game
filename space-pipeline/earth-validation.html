@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Earth V3 Validation</title>
+<link rel="stylesheet" href="earth-validation.css">
+</head>
+<body>
+<main class="validator">
+<header><div><small>SPACE ASSET PIPELINE V3</small><h1>Երկիր · Reference ↔ 3D</h1></div><span class="status">LOCAL 2:1</span></header>
+<section class="compare">
+<article><div class="label">MASTER REFERENCE · 04-earth.jpg</div><div class="frame"><img src="../04-earth.jpg" alt="Երկիր՝ master reference"></div></article>
+<article><div class="label">V3 3D · texture-2k.png</div><div class="frame"><canvas id="earthCanvas"></canvas><b id="angleBadge">0°</b></div></article>
+</section>
+<section class="overlay">
+<div class="overlayHead"><strong>Overlay match</strong><label>Reference opacity <input id="overlayOpacity" type="range" min="0" max="100" value="50"></label></div>
+<div class="frame overlayFrame"><img id="overlayImg" src="../04-earth.jpg" alt=""><canvas id="overlayCanvas"></canvas></div>
+</section>
+<section class="controls">
+<div class="presets">
+<button type="button" data-angle="0" class="active">0° Front</button>
+<button type="button" data-angle="90">90°</button>
+<button type="button" data-angle="180">180°</button>
+<button type="button" data-angle="270">270°</button>
+<button type="button" data-angle="360">360°</button>
+</div>
+<label>Scale <input id="scaleRange" type="range" min="70" max="130" value="100"><output id="scaleValue">1.00</output></label>
+<label>Y offset <input id="yawRange" type="range" min="-180" max="180" value="0"><output id="yawValue">0°</output></label>
+<label class="auto"><input id="autoRotate" type="checkbox"> Auto rotate</label>
+</section>
+<footer>1774×887 · 2:1 · sRGB · no tone mapping · repository-local</footer>
+</main>
+<script type="module" src="earth-validation.js"></script>
+</body>
+</html>

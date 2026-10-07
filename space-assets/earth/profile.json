@@ -1,16 +1,13 @@
 {
   "id": "earth",
-  "status": "pilot",
-  "reference": "04-earth.jpg",
+  "status": "texture-localized-awaiting-front-validation",
+  "masterReference": "04-earth.jpg",
   "geometry": "sphere",
-  "texture": null,
-  "frontView": {
-    "approved": false
-  },
-  "rotationCheck": {
-    "deg90": false,
-    "deg180": false,
-    "deg270": false,
-    "deg360": false
-  }
+  "texture": "space-assets/earth/texture-2k.png",
+  "textureDimensions": {"width":1774,"height":887,"aspect":"2:1"},
+  "material": "MeshBasicMaterial",
+  "colorPipeline": {"colorSpace":"sRGB","toneMapping":"none","extraGrading":false},
+  "frontView": {"rotationYRad":-1.5707963267948966,"scale":1,"approved":false},
+  "rotationCheck": {"deg0":false,"deg90":false,"deg180":false,"deg270":false,"deg360":false},
+  "preservation": {"externalRuntimeDependency":false,"immutableReference":true}
 }
