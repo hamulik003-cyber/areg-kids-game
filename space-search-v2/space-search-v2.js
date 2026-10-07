@@ -111,7 +111,7 @@ const PROFILE={
   },
   neptune:{
     reference:'10-neptune.jpg',
-    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/4fc34365-6eed-421f-a729-430892504419.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjRjNjFhOGZmNjRmNDgyNSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzNTYzMX0.vU5TXv2uSBP_b5yUqYvHN8sdwCMS94rPp3yZ8CklCwg',
+    texture:'assets/space3d/neptune-remaster-360-v1.webp',
     idle:.69,win:1.34,spin:.15,tilt:0,frontY:-Math.PI/2,grade:'direct-generated',
     // Experimental remaster proof: use the newly generated 2:1 map directly.
     // Preserve native colors/feature scale; no procedural grading or canvas projection.
