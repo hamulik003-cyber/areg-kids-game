@@ -2112,5 +2112,10 @@
 
   function showToast(t){toast.textContent=t;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),900)}
   updateStars();
-  if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+  if('serviceWorker'in navigator)addEventListener('load',async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=194',{updateViaCache:'none'});
+      reg.update().catch(()=>{});
+    }catch{}
+  });
 })();
