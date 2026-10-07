@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Earth Rotation Proof</title>
+<style>
+html,body{margin:0;background:#050914;color:#fff;font:15px system-ui,sans-serif}
+main{width:1540px;margin:20px auto}
+header{display:flex;justify-content:space-between;align-items:end;margin-bottom:16px}
+h1{margin:0;font-size:28px} small{color:#9bb1db}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.card{background:#0b1326;border:1px solid #263856;border-radius:18px;padding:12px}
+.card h2{font-size:14px;margin:0 0 8px;color:#bfd0ef}
+canvas{display:block;width:100%;aspect-ratio:1/1;background:#020612;border-radius:12px}
+footer{margin-top:14px;color:#8ea4ce}
+</style>
+</head>
+<body>
+<main>
+<header><div><small>SPACE ASSET PIPELINE V3</small><h1>Earth · calibrated 360° rotation proof</h1></div><strong>front −93.5° · scale 1.292</strong></header>
+<section class="grid">
+<article class="card"><h2>0° FRONT</h2><canvas data-angle="0" width="280" height="280"></canvas></article>
+<article class="card"><h2>90°</h2><canvas data-angle="90" width="280" height="280"></canvas></article>
+<article class="card"><h2>180°</h2><canvas data-angle="180" width="280" height="280"></canvas></article>
+<article class="card"><h2>270°</h2><canvas data-angle="270" width="280" height="280"></canvas></article>
+<article class="card"><h2>360° = FRONT</h2><canvas data-angle="360" width="280" height="280"></canvas></article>
+</section>
+<footer>Local repository texture · sRGB · no tone mapping · no external runtime URL</footer>
+</main>
+<script type="module">
+import * as THREE from '../vendor/three.module.min.js';
+const FRONT=-93.5,SCALE=1.292;
+const texture=await new THREE.TextureLoader().loadAsync('../space-assets/earth/texture-2k.png');
+texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=THREE.RepeatWrapping;
+for(const canvas of document.querySelectorAll('canvas[data-angle]')){
+ const renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
+ renderer.setPixelRatio(1);renderer.setSize(280,280,false);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;renderer.setClearColor(0x020612,1);
+ const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1.35,1.35,1.35,-1.35,.1,10);camera.position.set(0,0,3);
+ const earth=new THREE.Mesh(new THREE.SphereGeometry(1,160,120),new THREE.MeshBasicMaterial({map:texture}));
+ earth.scale.setScalar(SCALE);earth.rotation.y=THREE.MathUtils.degToRad(FRONT+Number(canvas.dataset.angle));
+ scene.add(earth);renderer.render(scene,camera);
+}
+document.title='EARTH_ROTATION_PROOF_READY';
+</script>
+</body>
+</html>

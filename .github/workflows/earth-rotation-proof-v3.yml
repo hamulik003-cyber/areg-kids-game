@@ -1,0 +1,51 @@
+name: Earth Rotation Proof V3
+
+on:
+  push:
+    branches:
+      - space-pipeline-v3-earth
+    paths:
+      - 'space-pipeline/earth-rotation-proof.html'
+      - '.github/workflows/earth-rotation-proof-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-pipeline-v3-earth
+
+      - name: Start local server
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/earth-proof-server.log 2>&1 &
+          sleep 2
+
+      - name: Capture 5-angle proof
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "No Chromium browser found"; exit 1; }
+          timeout 60s "$CHROME" \
+            --headless=new --no-sandbox --disable-dev-shm-usage \
+            --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader \
+            --virtual-time-budget=12000 \
+            --window-size=1600,900 \
+            --screenshot=space-assets/earth/rotation-proof.png \
+            http://127.0.0.1:8080/space-pipeline/earth-rotation-proof.html \
+            >/tmp/earth-proof.log 2>&1
+          test -s space-assets/earth/rotation-proof.png
+
+      - name: Commit proof
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/earth/rotation-proof.png
+          git commit -m "V3 Earth: save 5-angle rotation proof" || exit 0
+          git push origin HEAD:space-pipeline-v3-earth
