@@ -1,16 +1,35 @@
 {
   "id": "jupiter",
-  "status": "pilot",
-  "reference": "07-jupiter.jpg",
+  "status": "awaiting-auto-calibration",
+  "masterReference": "07-jupiter.jpg",
+  "referenceBlobSha": "80f4b436637bca75ad399bac10cab61325597c60",
   "geometry": "sphere",
-  "texture": null,
+  "texture": "assets/space3d/2k_jupiter.jpg",
+  "textureBlobSha": "21f1951026dc8e539f751ef55b559fa683869c63",
+  "material": "MeshBasicMaterial",
+  "colorPipeline": {
+    "colorSpace": "sRGB",
+    "toneMapping": "none",
+    "extraGrading": false
+  },
   "frontView": {
+    "rotationYRad": -1.45,
+    "rotationYDeg": -83.07888,
+    "rollDeg": 3.13,
+    "scale": 1,
+    "source": "V2 Jupiter baseline",
     "approved": false
   },
   "rotationCheck": {
+    "deg0": false,
     "deg90": false,
     "deg180": false,
     "deg270": false,
     "deg360": false
+  },
+  "preservation": {
+    "externalRuntimeDependency": false,
+    "immutableReference": true,
+    "textureAlreadyLocal": true
   }
 }

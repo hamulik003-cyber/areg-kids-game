@@ -1,0 +1,17 @@
+{
+  "asset": "jupiter",
+  "reference": {
+    "path": "07-jupiter.jpg",
+    "blobSha": "80f4b436637bca75ad399bac10cab61325597c60",
+    "sizeBytes": 554949
+  },
+  "texture": {
+    "path": "assets/space3d/2k_jupiter.jpg",
+    "blobSha": "21f1951026dc8e539f751ef55b559fa683869c63",
+    "sizeBytes": 498976
+  },
+  "runtime": {
+    "usesExternalUrl": false,
+    "calibrationPage": "space-pipeline/jupiter-auto-calibrate.html"
+  }
+}

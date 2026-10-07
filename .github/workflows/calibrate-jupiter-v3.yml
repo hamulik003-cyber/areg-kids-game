@@ -1,0 +1,75 @@
+name: Calibrate Jupiter V3
+
+on:
+  push:
+    branches:
+      - space-pipeline-v3-jupiter
+    paths:
+      - 'space-pipeline/jupiter-auto-calibrate.html'
+      - '.github/workflows/calibrate-jupiter-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: space-pipeline-v3-jupiter
+
+      - name: Start local server
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/jupiter-v3-server.log 2>&1 &
+          sleep 2
+
+      - name: Run browser calibration
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$CHROME" || { echo "No Chromium browser found"; exit 1; }
+          timeout 90s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=30000             --dump-dom             http://127.0.0.1:8080/space-pipeline/jupiter-auto-calibrate.html             >/tmp/jupiter-dom.html 2>/tmp/jupiter-chrome.log
+          grep -q 'JUPITER_CALIBRATION_READY' /tmp/jupiter-dom.html || {
+            cat /tmp/jupiter-chrome.log || true
+            cat /tmp/jupiter-dom.html || true
+            exit 1
+          }
+
+      - name: Save report and profile
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, html, json, math
+          dom=Path('/tmp/jupiter-dom.html').read_text(encoding='utf-8',errors='replace')
+          m=re.search(r'<pre id="result">([\s\S]*?)</pre>',dom)
+          if not m: raise SystemExit('Calibration result not found')
+          report=json.loads(html.unescape(m.group(1)).strip())
+          if report.get('status')!='ok': raise SystemExit(json.dumps(report))
+          Path('space-assets/jupiter/calibration-report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+          p=Path('space-assets/jupiter/profile.json');profile=json.loads(p.read_text(encoding='utf-8'))
+          fv=profile.setdefault('frontView',{})
+          fv['rotationYDeg']=report['measuredYawDeg'];fv['rotationYRad']=round(math.radians(report['measuredYawDeg']),12)
+          fv['rollDeg']=report['measuredRollDeg'];fv['scale']=report['measuredScale'];fv['autoCalibration']='space-assets/jupiter/calibration-report.json';fv['approved']=False
+          profile['status']='front-auto-calibrated-awaiting-visual-approval'
+          p.write_text(json.dumps(profile,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Save combined visual proof
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          timeout 90s "$CHROME"             --headless=new --no-sandbox --disable-dev-shm-usage             --enable-webgl --ignore-gpu-blocklist --use-gl=angle --use-angle=swiftshader             --virtual-time-budget=30000             --window-size=1600,1450             --screenshot=space-assets/jupiter/validation-proof.png             http://127.0.0.1:8080/space-pipeline/jupiter-auto-calibrate.html             >/tmp/jupiter-shot.log 2>&1
+          test -s space-assets/jupiter/validation-proof.png
+
+      - name: Commit Jupiter calibration
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add space-assets/jupiter/profile.json                   space-assets/jupiter/calibration-report.json                   space-assets/jupiter/validation-proof.png
+          git commit -m "V3 Jupiter: auto-calibrate reference and rotation proof" || exit 0
+          git push origin HEAD:space-pipeline-v3-jupiter

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JUPITER_CALIBRATING</title>
+<style>
+html,body{margin:0;background:#050914;color:#fff;font:14px system-ui,sans-serif}
+main{width:1540px;margin:20px auto}
+header{display:flex;justify-content:space-between;align-items:end;margin-bottom:16px}
+h1{margin:0;font-size:28px} small{color:#9bb1db}
+.top{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.proof{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}
+.card{background:#0b1326;border:1px solid #263856;border-radius:18px;padding:12px}
+.card h2{font-size:13px;margin:0 0 8px;color:#bfd0ef}
+.card img,.card canvas{display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#020612;border-radius:12px}
+pre{white-space:pre-wrap;background:#091021;border:1px solid #263856;border-radius:14px;padding:14px;margin-top:16px;color:#cfe0ff}
+</style>
+</head>
+<body>
+<main>
+<header><div><small>SPACE ASSET PIPELINE V3</small><h1>Jupiter · automatic reference calibration</h1></div><strong id="summary">running…</strong></header>
+<section class="top">
+  <article class="card"><h2>MASTER REFERENCE · 07-jupiter.jpg</h2><img id="refView" src="../07-jupiter.jpg" alt=""></article>
+  <article class="card"><h2>CALIBRATED 3D</h2><canvas id="view3d" width="512" height="512"></canvas></article>
+  <article class="card"><h2>50% OVERLAY</h2><canvas id="overlay" width="512" height="512"></canvas></article>
+</section>
+<section class="proof">
+  <article class="card"><h2>0° FRONT</h2><canvas data-proof="0" width="280" height="280"></canvas></article>
+  <article class="card"><h2>90°</h2><canvas data-proof="90" width="280" height="280"></canvas></article>
+  <article class="card"><h2>180°</h2><canvas data-proof="180" width="280" height="280"></canvas></article>
+  <article class="card"><h2>270°</h2><canvas data-proof="270" width="280" height="280"></canvas></article>
+  <article class="card"><h2>360° = FRONT</h2><canvas data-proof="360" width="280" height="280"></canvas></article>
+</section>
+<pre id="result">{"status":"running"}</pre>
+</main>
+<script type="module">
+import * as THREE from '../vendor/three.module.min.js';
+
+const N=512,BASE_Y=-83.07888,BASE_ROLL=3.13;
+const resultEl=document.getElementById('result'),summary=document.getElementById('summary');
+const refImg=document.getElementById('refView'),viewCanvas=document.getElementById('view3d'),overlayCanvas=document.getElementById('overlay');
+
+function waitImage(img){return new Promise((resolve,reject)=>{if(img.complete&&img.naturalWidth){resolve();return}img.onload=resolve;img.onerror=reject})}
+function drawContain(ctx,img,w,h){ctx.clearRect(0,0,w,h);ctx.fillStyle='#020612';ctx.fillRect(0,0,w,h);const s=Math.min(w/img.naturalWidth,h/img.naturalHeight),dw=img.naturalWidth*s,dh=img.naturalHeight*s;ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh)}
+function dist(a,b){const dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];return Math.sqrt(dr*dr+dg*dg+db*db)}
+function bgOf(data){const pts=[],k=28;for(const [x0,y0] of [[0,0],[N-k,0],[0,N-k],[N-k,N-k]])for(let y=y0;y<y0+k;y+=3)for(let x=x0;x<x0+k;x+=3){const i=(y*N+x)*4;pts.push([data[i],data[i+1],data[i+2]])}return [0,1,2].map(c=>Math.round(pts.reduce((s,p)=>s+p[c],0)/pts.length))}
+function radiusOf(data,bg){const cx=N/2,cy=N/2,radii=[];for(let deg=0;deg<360;deg+=5){const a=deg*Math.PI/180;let last=0,miss=0,seen=false;for(let r=0;r<N*.48;r++){const x=Math.max(0,Math.min(N-1,Math.round(cx+Math.cos(a)*r))),y=Math.max(0,Math.min(N-1,Math.round(cy+Math.sin(a)*r))),i=(y*N+x)*4,d=dist([data[i],data[i+1],data[i+2]],bg);if(d>24){last=r;miss=0;seen=true}else if(seen){miss++}if(seen&&r>40&&miss>=10)break}if(last>60)radii.push(last)}radii.sort((a,b)=>a-b);return radii.length?radii[Math.floor(radii.length/2)]:N*.36}
+function metric(ref,ren,radius){const cx=N/2,cy=N/2,r2=(radius*.72)**2;let sum=0,count=0;for(let y=Math.floor(cy-radius*.72);y<=cy+radius*.72;y+=4)for(let x=Math.floor(cx-radius*.72);x<=cx+radius*.72;x+=4){const dx=x-cx,dy=y-cy;if(dx*dx+dy*dy>r2)continue;const i=(y*N+x)*4,rr=ref[i],rg=ref[i+1],rb=ref[i+2],ar=ren[i],ag=ren[i+1],ab=ren[i+2],rs=rr+rg+rb+1,as=ar+ag+ab+1;const chroma=Math.abs(rr/rs-ar/as)+Math.abs(rg/rs-ag/as)+Math.abs(rb/rs-ab/as);const rl=Math.log1p((rr+rg+rb)/3),al=Math.log1p((ar+ag+ab)/3);sum+=chroma+.16*Math.abs(rl-al);count++}return sum/Math.max(1,count)}
+
+try{
+ await waitImage(refImg);
+ const refCanvas=document.createElement('canvas');refCanvas.width=refCanvas.height=N;
+ const rctx=refCanvas.getContext('2d',{willReadFrequently:true});drawContain(rctx,refImg,N,N);
+ const refData=rctx.getImageData(0,0,N,N).data,bg=bgOf(refData),refRadius=radiusOf(refData,bg);
+
+ const renderer=new THREE.WebGLRenderer({canvas:viewCanvas,antialias:true,preserveDrawingBuffer:true});
+ renderer.setPixelRatio(1);renderer.setSize(N,N,false);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;renderer.setClearColor(new THREE.Color(bg[0]/255,bg[1]/255,bg[2]/255),1);
+ const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1.35,1.35,1.35,-1.35,.1,10);camera.position.set(0,0,3);
+ const texture=await new THREE.TextureLoader().loadAsync('../assets/space3d/2k_jupiter.jpg');texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=THREE.RepeatWrapping;
+ const planet=new THREE.Mesh(new THREE.SphereGeometry(1,192,128),new THREE.MeshBasicMaterial({map:texture}));scene.add(planet);
+ const scale=Math.max(.70,Math.min(1.45,refRadius/(N/2.7)));planet.scale.setScalar(scale);
+ const cctx=document.createElement('canvas').getContext('2d',{willReadFrequently:true});cctx.canvas.width=cctx.canvas.height=N;
+ function renderAt(yaw,roll){planet.rotation.set(0,THREE.MathUtils.degToRad(yaw),THREE.MathUtils.degToRad(roll));renderer.render(scene,camera);cctx.clearRect(0,0,N,N);cctx.drawImage(viewCanvas,0,0,N,N);return cctx.getImageData(0,0,N,N).data}
+
+ let best={yaw:BASE_Y,roll:BASE_ROLL,score:Infinity};
+ for(let roll=BASE_ROLL-5;roll<=BASE_ROLL+5;roll+=1)for(let yaw=BASE_Y-40;yaw<=BASE_Y+40;yaw+=2){const score=metric(refData,renderAt(yaw,roll),refRadius);if(score<best.score)best={yaw,roll,score}}
+ const coarse={...best};
+ for(let roll=coarse.roll-1;roll<=coarse.roll+1.001;roll+=.25)for(let yaw=coarse.yaw-2;yaw<=coarse.yaw+2.001;yaw+=.25){const score=metric(refData,renderAt(yaw,roll),refRadius);if(score<best.score)best={yaw,roll,score}}
+
+ const finalData=renderAt(best.yaw,best.roll);
+ const octx=overlayCanvas.getContext('2d');octx.putImageData(new ImageData(new Uint8ClampedArray(finalData),N,N),0,0);octx.globalAlpha=.5;octx.drawImage(refCanvas,0,0,N,N);octx.globalAlpha=1;
+
+ for(const canvas of document.querySelectorAll('canvas[data-proof]')){
+   const rr=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});rr.setPixelRatio(1);rr.setSize(280,280,false);rr.outputColorSpace=THREE.SRGBColorSpace;rr.toneMapping=THREE.NoToneMapping;rr.setClearColor(0x020612,1);
+   const ss=new THREE.Scene(),cc=new THREE.OrthographicCamera(-1.35,1.35,1.35,-1.35,.1,10);cc.position.set(0,0,3);
+   const pp=new THREE.Mesh(new THREE.SphereGeometry(1,160,120),new THREE.MeshBasicMaterial({map:texture}));pp.scale.setScalar(scale);pp.rotation.set(0,THREE.MathUtils.degToRad(best.yaw+Number(canvas.dataset.proof)),THREE.MathUtils.degToRad(best.roll));ss.add(pp);rr.render(ss,cc);
+ }
+
+ const report={status:'ok',algorithm:'v2-yaw-roll-scale-chroma-match',baselineYawDeg:BASE_Y,baselineRollDeg:BASE_ROLL,measuredYawDeg:Number(best.yaw.toFixed(2)),measuredRollDeg:Number(best.roll.toFixed(2)),measuredScale:Number(scale.toFixed(4)),referenceRadiusPx:Number(refRadius.toFixed(2)),metricScore:Number(best.score.toFixed(6)),texture:'assets/space3d/2k_jupiter.jpg',reference:'07-jupiter.jpg',approved:false};
+ resultEl.textContent=JSON.stringify(report,null,2);summary.textContent='yaw '+report.measuredYawDeg+'° · roll '+report.measuredRollDeg+'° · scale '+report.measuredScale;document.title='JUPITER_CALIBRATION_READY';
+}catch(err){resultEl.textContent=JSON.stringify({status:'error',message:String(err&&err.stack||err)},null,2);document.title='JUPITER_CALIBRATION_ERROR'}
+</script>
+</body>
+</html>
