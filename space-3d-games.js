@@ -148,7 +148,7 @@ async function prepareRepoUvTexture(item){
   if(!path||finalUvMiss.has(item.id))return null;
   if(finalUvCache.has(item.id))return finalUvCache.get(item.id);
   try{
-    const img=await loadTrue360Image(path+'?v=final27');
+    const img=await loadTrue360Image(path+'?v=final27repo1');
     const t=exactUvTextureFromImage(img);
     finalUvCache.set(item.id,t);
     return t;
