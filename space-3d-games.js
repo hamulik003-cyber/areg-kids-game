@@ -608,11 +608,10 @@ function findObjectName(item){
   return ({
     sun:'Արեգակը',mercury:'Մերկուրին',venus:'Վեներան',earth:'Երկիրը',moon:'Լուսինը',
     mars:'Մարսը',jupiter:'Յուպիտերը',saturn:'Սատուրնը',uranus:'Ուրանը',neptune:'Նեպտունը',
-    pluto:'Պլուտոնը',phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',
-    ganymede:'Գանիմեդը',callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',
-    mimas:'Միմասը',tethys:'Թեթիսը',dione:'Դիոնեն',rhea:'Ռեան',titania:'Տիտանիան',
-    oberon:'Օբերոնը',ariel:'Արիելը',umbriel:'Ումբրիելը',miranda:'Միրանդան',
-    triton:'Տրիտոնը',nereid:'Ներեիդը',
+    phobos:'Ֆոբոսը',deimos:'Դեյմոսը',io:'Իոն',europa:'Եվրոպան',ganymede:'Գանիմեդը',
+    callisto:'Կալիստոն',titan:'Տիտանը',enceladus:'Էնցելադուսը',titania:'Տիտանիան',
+    oberon:'Օբերոնը',triton:'Տրիտոնը',charon:'Խարոնը',pluto:'Պլուտոնը',ceres:'Ցերերան',
+    haumea:'Հաումեան',makemake:'Մակեմակեն',eris:'Էրիսը',
     'solar-system':'Արեգակնային համակարգը','milky-way':'Ծիր Կաթինը','black-hole':'Սև խոռոչը'
   })[item.id]||item.name;
 }
