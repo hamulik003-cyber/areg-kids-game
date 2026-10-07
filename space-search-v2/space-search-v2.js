@@ -45,6 +45,10 @@ const PLANETS=[
   {id:'oberon',name:'Օբերոն',find:'Օբերոնը'}
 ];
 
+const PROOF_ONLY=[
+  {id:'haumea',name:'Հաումեա',find:'Հաումեան'}
+];
+
 const PROFILE={
   sun:{
     reference:'01-sun.jpg',texture:'assets/space3d/2k_sun.jpg',
@@ -173,6 +177,22 @@ const PROFILE={
     reference:'20-oberon.jpg',
     texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/cc660cc7-d782-485e-bb7e-4758f9a5f020.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZGRlYjJhMWVhZmE4MDVkMiIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTUzMTY3OH0.X8rsmGCEZFDj89UQ9a9ppbxwJkOhlNyl8O6oFgnmd2s',
     idle:.63,win:1.30,spin:.12,tilt:.3,frontY:0,directTexture:true,basic:true
+  },
+
+  // Proof-only Haumea: true triaxial 3D body + dedicated ring + gallery-front texture projection.
+  haumea:{
+    reference:'25-haumea.jpg',
+    texture:null,
+    idle:.56,win:1.12,spin:.22,tilt:0,frontY:-Math.PI/2,basic:true,
+    galleryProjection:{
+      base:'haumea',
+      cx:.505,cy:.472,
+      radiusX:.405,radiusY:.292,
+      angleDeg:-31,
+      frontCenterU:.50,
+      blendNearLimb:.20
+    },
+    ring:{kind:'haumea',x:-1.02,z:.54}
   }
 };
 
@@ -209,7 +229,12 @@ const VISUAL_MATCH={
   titan:    {viewerScale:1.50,gameScale:.66,winScale:1.32,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.2},toneMapped:false},
   enceladus:{viewerScale:1.47,gameScale:.62,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.4},toneMapped:false},
   titania:  {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.6},toneMapped:false},
-  oberon:   {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.8},toneMapped:false}
+  oberon:   {viewerScale:1.47,gameScale:.63,winScale:1.30,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1,y:1,z:1,deform:0,seed:3.8},toneMapped:false},
+
+  // Haumea is deliberately modeled as a strongly elongated triaxial body, not a sphere.
+  haumea:   {viewerScale:1.22,gameScale:.56,winScale:1.12,frontYaw:-Math.PI/2,rollDeg:31,
+             shape:{kind:'haumea',x:1.56,y:.91,z:.78,deform:.020,seed:4.2},toneMapped:false,
+             ring:{x:-1.02,z:.54,scale:1.00}}
 };
 
 const textureCache=new Map();
@@ -411,23 +436,71 @@ function sampleRGBA(data,W,H,x,y){
   }
   return out;
 }
+function makeHaumeaBaseTexture(){
+  const c=document.createElement('canvas');c.width=2048;c.height=1024;
+  const x=c.getContext('2d',{alpha:false});
+  x.fillStyle='#aeb8c5';x.fillRect(0,0,c.width,c.height);
+
+  // Broad icy latitude bands.
+  for(let i=0;i<26;i++){
+    const y=(i+.5)/26*c.height;
+    const a=.035+(i%4)*.008;
+    x.fillStyle=`rgba(235,242,248,${a})`;
+    x.fillRect(0,y-18,c.width,36);
+  }
+
+  // Haumea-style reddish mineral belt with gentle waviness.
+  x.save();
+  x.globalCompositeOperation='source-over';
+  for(let i=0;i<34;i++){
+    const yy=(.43+Math.sin(i*.71)*.055)*c.height;
+    const hh=(16+(i%5)*8);
+    x.fillStyle=`rgba(${128+(i%4)*10},${67+(i%3)*8},${58+(i%2)*7},${.06+(i%5)*.012})`;
+    x.fillRect(0,yy-hh/2,c.width,hh);
+  }
+  x.restore();
+
+  // Deterministic rocky/icy mottling all around the unseen hemisphere.
+  let seed=0x4841554d;
+  const R=()=>{seed+=0x6D2B79F5;let t=seed;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
+  for(let i=0;i<5200;i++){
+    const px=R()*c.width,py=R()*c.height;
+    const r=1+R()*8;
+    const warm=R()>.82;
+    x.fillStyle=warm
+      ? `rgba(119,67,62,${.025+R()*.055})`
+      : `rgba(245,249,252,${.018+R()*.050})`;
+    x.beginPath();x.arc(px,py,r,0,Math.PI*2);x.fill();
+  }
+  return c;
+}
+
 async function buildGalleryProjectedTexture(item){
   const cfg=PROFILE[item.id],gp=cfg.galleryProjection;
-  const [refImg,baseImg]=await Promise.all([loadImage(cfg.reference),loadImage(cfg.texture)]);
+  const refImg=await loadImage(cfg.reference);
 
   const W=2048,H=1024;
-  const baseCanvas=document.createElement('canvas');baseCanvas.width=W;baseCanvas.height=H;
+  const baseCanvas=gp.base==='haumea'?makeHaumeaBaseTexture():document.createElement('canvas');
+  baseCanvas.width=W;baseCanvas.height=H;
   const bx=baseCanvas.getContext('2d',{alpha:false,willReadFrequently:true});
-  bx.drawImage(baseImg,0,0,W,H);
+  if(gp.base!=='haumea'){
+    const baseImg=await loadImage(cfg.texture);
+    bx.drawImage(baseImg,0,0,W,H);
+    const tmp=bx.getImageData(0,0,W,H);
+    gradePixels(item.id,tmp.data,W,H);
+    bx.putImageData(tmp,0,0);
+  }
   const baseIm=bx.getImageData(0,0,W,H);
-  gradePixels(item.id,baseIm.data,W,H);
   sealSeam(baseIm.data,W,H,18);
 
   const refCanvas=document.createElement('canvas');refCanvas.width=refImg.naturalWidth||refImg.width;refCanvas.height=refImg.naturalHeight||refImg.height;
   const rx=refCanvas.getContext('2d',{alpha:false,willReadFrequently:true});
   rx.drawImage(refImg,0,0,refCanvas.width,refCanvas.height);
   const refIm=rx.getImageData(0,0,refCanvas.width,refCanvas.height);
-  const cx=gp.cx*refCanvas.width,cy=gp.cy*refCanvas.height,rad=gp.radius*refCanvas.width;
+  const cx=gp.cx*refCanvas.width,cy=gp.cy*refCanvas.height;
+  const radX=(gp.radiusX??gp.radius)*refCanvas.width;
+  const radY=(gp.radiusY??gp.radius)*refCanvas.width;
+  const ang=THREE.MathUtils.degToRad(gp.angleDeg||0),ca=Math.cos(ang),sa=Math.sin(ang);
 
   const outCanvas=document.createElement('canvas');outCanvas.width=W;outCanvas.height=H;
   const ox=outCanvas.getContext('2d',{alpha:false,willReadFrequently:true});
@@ -450,8 +523,9 @@ async function buildGalleryProjectedTexture(item){
       let rr=baseIm.data[bi],gg=baseIm.data[bi+1],bb=baseIm.data[bi+2];
 
       if(sz>0){
-        const px=cx+rad*sx;
-        const py=cy-rad*sy;
+        const lx=radX*sx,ly=-radY*sy;
+        const px=cx+lx*ca-ly*sa;
+        const py=cy+lx*sa+ly*ca;
         const ref=sampleRGBA(refIm.data,refCanvas.width,refCanvas.height,px,py);
 
         // Exact gallery face dominates the visible hemisphere. Only the outer limb
@@ -588,6 +662,25 @@ function uranusRing(){
   });
   return g;
 }
+function haumeaRing(){
+  const g=new THREE.Group();
+  const specs=[
+    [1.18,1.205,.38,0xd8ecff],
+    [1.235,1.252,.82,0xf3f8ff],
+    [1.276,1.289,.34,0xaecfee]
+  ];
+  specs.forEach(([a,b,o,c])=>{
+    const geo=new THREE.RingGeometry(a,b,240);
+    const mat=new THREE.MeshBasicMaterial({
+      color:c,transparent:true,opacity:o,side:THREE.DoubleSide,
+      depthWrite:false,blending:THREE.AdditiveBlending
+    });
+    mat.toneMapped=false;
+    g.add(new THREE.Mesh(geo,mat));
+  });
+  return g;
+}
+
 function bodyGeometry(item,cfg){
   const geo=new THREE.SphereGeometry(1,112,80);
   const match=VISUAL_MATCH[item.id]||{};
@@ -602,20 +695,13 @@ function bodyGeometry(item,cfg){
 
     // Phobos and Deimos are not spheres. Build their silhouettes from their real
     // tri-axial proportions, then add only broad asymmetry to match the gallery cards.
-    if(shape.kind==='phobos' || shape.kind==='deimos'){
-      // Build the irregular body in the final camera-facing coordinate system.
-      // Texture front alignment rotates the mesh by frontYaw, so compensate here to keep
-      // the silhouette matching the Planets-section reference instead of becoming round.
+    if(shape.kind==='phobos' || shape.kind==='deimos' || shape.kind==='haumea'){
       const yaw=match.frontYaw??cfg.frontY??0;
-      const cy=Math.cos(yaw), sy=Math.sin(yaw);
+      const cy=Math.cos(yaw),sy=Math.sin(yaw);
+      const fx=v.x*cy+v.z*sy,fy=v.y,fz=-v.x*sy+v.z*cy;
 
-      // Direction after the mesh yaw (final/view-facing axes).
-      const fx=v.x*cy + v.z*sy;
-      const fy=v.y;
-      const fz=-v.x*sy + v.z*cy;
-
-      const ax=shape.x||1, ay=shape.y||1, az=shape.z||1;
-      const q=shape.kind==='phobos'?2.05:2.30;
+      const ax=shape.x||1,ay=shape.y||1,az=shape.z||1;
+      const q=shape.kind==='phobos'?3.05:(shape.kind==='deimos'?2.75:2.0);
       const denom=Math.pow(
         Math.pow(Math.abs(fx)/ax,q)+
         Math.pow(Math.abs(fy)/ay,q)+
@@ -625,37 +711,37 @@ function bodyGeometry(item,cfg){
       let r=1/Math.max(.0001,denom);
       const seed=shape.seed||0;
 
-      // Broad low-frequency asymmetry: strong on Phobos, gentler on Deimos.
-      const low=
-        Math.sin(fx*2.55+fy*1.15+seed)*.38+
-        Math.sin(fy*3.05-fz*1.85+seed*1.45)*.34+
-        Math.cos(fz*2.35+fx*1.55-seed*.75)*.28;
-      r*=1+(shape.deform||0)*low;
+      if(shape.kind==='phobos' || shape.kind==='deimos'){
+        const low=
+          Math.sin(fx*2.20+fy*1.05+seed)*.40+
+          Math.sin(fy*2.85-fz*1.65+seed*1.35)*.34+
+          Math.cos(fz*2.15+fx*1.45-seed*.70)*.26;
+        r*=1+(shape.deform||0)*low;
 
-      if(shape.kind==='phobos'){
-        // Pronounced potato silhouette: fuller right/lower body, flatter upper-left,
-        // and a stronger one-sided lobe like the gallery reference.
-        r*=1
-          + .065*fx
-          - .035*fy
-          + .040*fx*fy
-          - .030*fy*fy*fx
-          + .022*fx*fz;
+        if(shape.kind==='phobos'){
+          // Large, angular potato silhouette plus a real geometric Stickney depression.
+          r*=1+.080*fx-.050*fy+.055*fx*fy-.035*fy*fy*fx+.032*fx*fz;
+          const cx=.48,cyf=.03,cz=.876;
+          const dot=fx*cx+fy*cyf+fz*cz;
+          const t=clamp((dot-.80)/.20,0,1);
+          const bowl=Math.sin(t*Math.PI);
+          r*=1-.105*bowl*bowl;
+        }else{
+          // Smoother but unmistakably irregular Deimos silhouette.
+          r*=1+.050*fx-.030*fy+.030*fx*fy+.018*fz*fy;
+          const cx=.34,cyf=.34,cz=.877;
+          const dot=fx*cx+fy*cyf+fz*cz;
+          const t=clamp((dot-.88)/.12,0,1);
+          r*=1-.045*Math.sin(t*Math.PI)**2;
+        }
       }else{
-        // Deimos is still distinctly irregular, but smoother and less deeply deformed.
-        r*=1
-          + .038*fx
-          - .022*fy
-          + .022*fx*fy
-          + .014*fz*fy;
+        // Haumea: clean triaxial ellipsoid with only very subtle large-scale relief.
+        const low=Math.sin(fx*2.2+seed)*.45+Math.sin(fy*2.7-seed)*.30+Math.cos(fz*2.0+seed*.7)*.25;
+        r*=1+(shape.deform||0)*low;
       }
 
-      // Shaped point in final/view-facing axes.
-      const sx=fx*r, syf=fy*r, sz=fz*r;
-
-      // Rotate positions back by -yaw so the later mesh rotation restores this exact silhouette.
-      const lx=sx*cy - sz*sy;
-      const lz=sx*sy + sz*cy;
+      const sx=fx*r,syf=fy*r,sz=fz*r;
+      const lx=sx*cy-sz*sy,lz=sx*sy+sz*cy;
       p.setXYZ(lx,syf,lz);
       continue;
     }
@@ -710,7 +796,7 @@ async function buildPlanet(item){
     const atm=atmosphereMesh(cfg.atmosphere);atm.rotation.copy(surface.rotation);root.add(atm);
   }
   if(cfg.ring){
-    const ring=cfg.ring.kind==='saturn'?saturnRing():uranusRing();
+    const ring=cfg.ring.kind==='saturn'?saturnRing():(cfg.ring.kind==='haumea'?haumeaRing():uranusRing());
     const ringMatch=match.ring||{};
     const ringX=ringMatch.x??cfg.ring.x,ringZ=ringMatch.z??cfg.ring.z;
     ring.rotation.set(ringX,0,ringZ);
@@ -830,7 +916,7 @@ function reward(){
 
 function nextTarget(){
   if(FOCUS_ID){
-    const forced=PLANETS.find(x=>x.id===FOCUS_ID);
+    const forced=[...PLANETS,...PROOF_ONLY].find(x=>x.id===FOCUS_ID);
     if(forced)return forced;
   }
   let pool=PLANETS.filter(x=>!recent.includes(x.id));
