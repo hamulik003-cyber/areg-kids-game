@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Space Professional 21–30 Preview</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#020611;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+body{padding:max(12px,env(safe-area-inset-top)) 12px max(18px,env(safe-area-inset-bottom))}
+.wrap{max-width:820px;margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.badge{font-size:11px;font-weight:900;letter-spacing:.12em;color:#8fd0ff}.title{font-size:20px;font-weight:900}.count{font-size:12px;color:#a9bbda}
+.ref{height:150px;border:1px solid #23395d;border-radius:18px;overflow:hidden;background:#07142f;margin-bottom:10px}
+.ref img{width:100%;height:100%;object-fit:contain}
+.stage{height:min(58vh,560px);min-height:360px;border-radius:22px;overflow:hidden;border:1px solid #28436d;background:radial-gradient(circle at 50% 45%,#18315d 0,#07142f 46%,#020611 100%);position:relative}
+.stage canvas{display:block;width:100%;height:100%}
+.label{position:absolute;left:12px;bottom:12px;background:rgba(1,6,17,.72);backdrop-filter:blur(8px);padding:8px 11px;border-radius:12px;font-weight:900}
+.buttons{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;-webkit-overflow-scrolling:touch}
+.buttons button{flex:0 0 auto;border:1px solid #2d4e80;background:#0c1b34;color:#eaf3ff;border-radius:14px;padding:10px 13px;font-weight:800}
+.buttons button.active{background:#183e72;border-color:#5da8ff}
+.note{font-size:12px;line-height:1.45;color:#8fa6ca;margin-top:9px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><div class="badge">HIDDEN TEST · 21–30</div><div class="title" id="title">Տրիտոն</div></div><div class="count" id="count">21 / 30</div></div>
+  <div class="ref"><img id="ref" alt=""></div>
+  <div class="stage" id="stage"><div class="label" id="label">Տրիտոն</div></div>
+  <div class="buttons" id="buttons"></div>
+  <div class="note">Վերևում՝ քո reference նկարը, ներքևում՝ նոր Three.js իրական render-ը։ Սա hidden փորձնական էջ է և հիմնական խաղի menu/gameplay-ը չի փոխում։</div>
+</div>
+<script type="module">
+import * as THREE from './vendor/three.module.min.js';
+await import('./space-30-preview-engine.js?v=1');
+
+const ITEMS=[
+ {n:21,id:'triton',img:'21-triton.jpg',name:'Տրիտոն',kind:'ice',c1:'#c4d7da',c2:'#7d8f92',accent:'#b9d2d8'},
+ {n:22,id:'charon',img:'22-charon.jpg',name:'Խարոն',kind:'rock',c1:'#9f9891',c2:'#514c48',accent:'#a19a94'},
+ {n:23,id:'pluto',img:'23-pluto.jpg',name:'Պլուտոն',kind:'pluto',c1:'#cda181',c2:'#6e513e',accent:'#c99a78'},
+ {n:24,id:'ceres',img:'24-ceres.jpg',name:'Ցերերա',kind:'rock',c1:'#958981',c2:'#4f4741',accent:'#978b83'},
+ {n:25,id:'haumea',img:'25-haumea.jpg',name:'Հաումեա',kind:'oval',c1:'#ddd8ca',c2:'#8f887c',accent:'#d3cec1'},
+ {n:26,id:'makemake',img:'26-makemake.jpg',name:'Մակեմակե',kind:'oval',c1:'#bd7350',c2:'#6a3928',accent:'#c47755'},
+ {n:27,id:'eris',img:'27-eris.jpg',name:'Էրիս',kind:'ice',c1:'#e7e7e7',c2:'#8b8b8b',accent:'#dedede'},
+ {n:28,id:'solar-system',img:'28-solar-system.jpg',name:'Արեգակնային համակարգ',kind:'solar',c1:'#f4c341',c2:'#1d2d55',accent:'#ffc947'},
+ {n:29,id:'milky-way',img:'29-milky-way.jpg',name:'Ծիր Կաթին',kind:'galaxy',c1:'#c4d1ff',c2:'#4c5d9a',accent:'#c1cdff'},
+ {n:30,id:'black-hole',img:'30-black-hole.jpg',name:'Սև խոռոչ',kind:'blackhole',c1:'#ffb13b',c2:'#3a1c63',accent:'#ffad36'}
+];
+const stage=document.getElementById('stage'),buttons=document.getElementById('buttons');
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.setClearColor(0x07142f,1);stage.prepend(renderer.domElement);
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.05,6.3);
+scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));scene.add(new THREE.AmbientLight(0x6176a6,.48));
+const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
+const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
+const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
+let current=null,currentItem=null,last=performance.now();
+function dispose(g){if(!g)return;g.traverse(o=>{o.geometry?.dispose?.();if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose?.())}});scene.remove(g)}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+function show(item){
+  dispose(current);currentItem=item;
+  document.getElementById('title').textContent=item.name;document.getElementById('label').textContent=item.name;document.getElementById('count').textContent=item.n+' / 30';document.getElementById('ref').src=item.img;
+  [...buttons.children].forEach(b=>b.classList.toggle('active',b.dataset.id===item.id));
+  current=window.AregSpace3D.__proofBuildObject(item);scene.add(current);current.updateMatrixWorld(true);
+  const box=new THREE.Box3().setFromObject(current),sp=new THREE.Sphere();box.getBoundingSphere(sp);
+  const target=['solar-system','milky-way','black-hole'].includes(item.id)?1.48:1.38;
+  current.scale.multiplyScalar(target/Math.max(.01,sp.radius));current.position.set(0,0,0);
+}
+ITEMS.forEach(item=>{const b=document.createElement('button');b.textContent=item.n+'. '+item.name;b.dataset.id=item.id;b.onclick=()=>show(item);buttons.appendChild(b)});
+function loop(t){resize();const dt=Math.min(.04,(t-last)/1000);last=t;if(current){
+ if(current.userData.surface)current.userData.surface.rotation.y+=dt*(current.userData.spin??.105);
+ if(current.userData.accretion){current.userData.accretion[0].rotation.z+=dt*.42;current.userData.accretion[1].rotation.z-=dt*.24;if(current.userData.accretion[2])current.userData.accretion[2].rotation.z+=dt*.12}
+ if(current.userData.galaxyPoints){current.userData.galaxyPoints.rotation.y+=dt*.12;current.userData.galaxyPoints.rotation.z+=dt*.035}
+ if(current.userData.orbiters){current.userData.orbiters.forEach((p,oi)=>{const rr=p.userData.orbitRadius||1,a=t*.00018*(p.userData.orbitSpeed||1)+oi*1.37;p.position.set(Math.cos(a)*rr,0,Math.sin(a)*rr*.55)})}
+ }
+ renderer.render(scene,camera);requestAnimationFrame(loop)}
+show(ITEMS[0]);requestAnimationFrame(loop);
+</script>
+</body></html>
