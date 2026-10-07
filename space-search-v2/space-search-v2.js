@@ -72,9 +72,13 @@ const PROFILE={
     atmosphere:{color:0x38b8ff,strength:.26,power:2.55,radius:1.032}
   },
   moon:{
-    reference:'05-moon.jpg',texture:null,
-    idle:.62,win:1.33,spin:.13,tilt:6.68,frontY:.85,grade:'moon',
-    roughness:1,emissive:.018
+    reference:'05-moon.jpg',
+    texture:'https://d2jqrm6oza8nb6.cloudfront.net/datasets/03cd7106-85b1-484d-aee6-c5ba1211f525.jpeg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMzA2MWNjZGMxMjExODVhMSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTQ5MTgwNH0.zaO_zyTb9Ozye91YcTSH8p851Mt8yJjak6_w1fFe-W8',
+    idle:.62,win:1.33,spin:.13,tilt:0,frontY:-Math.PI/2,grade:'direct-generated',
+    // Experimental Moon proof: use the user's latest 2:1 map directly with no grading,
+    // no canvas redraw, and no tone mapping so screenshot colors stay as close as possible.
+    directTexture:true,
+    basic:true
   },
   mars:{
     reference:'06-mars.jpg',
@@ -184,7 +188,7 @@ const VISUAL_MATCH={
   mercury:  {viewerScale:1.50,gameScale:.62,winScale:1.34,frontYaw:.18,rollDeg:.03,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.2},toneMapped:true},
   venus:    {viewerScale:1.54,gameScale:.68,winScale:1.36,frontYaw:-.35,rollDeg:177.4,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.4},toneMapped:true},
   earth:    {viewerScale:1.52,gameScale:.70,winScale:1.34,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.6},toneMapped:false},
-  moon:     {viewerScale:1.50,gameScale:.62,winScale:1.33,frontYaw:.85,rollDeg:6.68,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.8},toneMapped:true},
+  moon:     {viewerScale:1.52,gameScale:.62,winScale:1.33,frontYaw:-Math.PI/2,rollDeg:0,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:.8},toneMapped:false},
   mars:     {viewerScale:1.62,gameScale:.65,winScale:1.35,frontYaw:0,rollDeg:25.19,shape:{x:1.00,y:1.00,z:1.00,deform:0,seed:1.0},toneMapped:true},
   jupiter:  {viewerScale:1.56,gameScale:.75,winScale:1.36,frontYaw:-1.45,rollDeg:3.13,shape:{x:1.00,y:.94,z:1.00,deform:0,seed:1.2},toneMapped:true},
   saturn:   {viewerScale:1.18,gameScale:.59,winScale:1.08,frontYaw:.35,rollDeg:26.73,shape:{x:1.00,y:.91,z:1.00,deform:0,seed:1.4},toneMapped:true,ring:{scale:1.02,x:-1.01,z:.31}},
