@@ -55,7 +55,7 @@ const PROFILE={
     atmosphere:{color:0x38b8ff,strength:.48,power:2.35,radius:1.043}
   },
   moon:{
-    reference:'05-moon.jpg',texture:'https://raw.githubusercontent.com/markfxm/SolarSystem/main/public/detail/4k_moon.jpg',
+    reference:'05-moon.jpg',texture:null,
     idle:.62,win:1.40,spin:.13,tilt:6.68,grade:'moon',
     roughness:1,emissive:.018
   },
@@ -235,13 +235,15 @@ async function processedTexture(item){
   if(pendingTexture.has(item.id))return pendingTexture.get(item.id);
   const p=(async()=>{
     const cfg=PROFILE[item.id];
-    let canvas=document.createElement('canvas');canvas.width=2048;canvas.height=1024;
-    const x=canvas.getContext('2d',{alpha:false,willReadFrequently:true});
-    try{
-      const img=await loadImage(cfg.texture);x.drawImage(img,0,0,canvas.width,canvas.height);
-    }catch(err){
-      if(item.id!=='moon')throw err;
+    let canvas;
+    if(item.id==='moon'){
+      // Fully local procedural 2:1 globe: no external dependency, no front-image projection,
+      // no tainted canvas and no fake backside.
       canvas=makeFallbackMoon();
+    }else{
+      canvas=document.createElement('canvas');canvas.width=2048;canvas.height=1024;
+      const x=canvas.getContext('2d',{alpha:false,willReadFrequently:true});
+      const img=await loadImage(cfg.texture);x.drawImage(img,0,0,canvas.width,canvas.height);
     }
     const ctx=canvas.getContext('2d',{alpha:false,willReadFrequently:true});
     const im=ctx.getImageData(0,0,canvas.width,canvas.height);
