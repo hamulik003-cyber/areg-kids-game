@@ -485,60 +485,39 @@
     activityStars.textContent=value;
   }
 
-  /* V235 responsive viewport: use the actual available CSS viewport, not the
-     hardware screen dimensions or a cached maximum browser height. */
+  /* viewport */
   const safeProbe=document.createElement('div');
-  Object.assign(safeProbe.style,{
-    position:'fixed',inset:'0',visibility:'hidden',pointerEvents:'none',
-    paddingTop:'env(safe-area-inset-top,0px)',
-    paddingRight:'env(safe-area-inset-right,0px)',
-    paddingBottom:'env(safe-area-inset-bottom,0px)',
-    paddingLeft:'env(safe-area-inset-left,0px)'
-  });
+  Object.assign(safeProbe.style,{position:'fixed',inset:'0',visibility:'hidden',pointerEvents:'none',paddingTop:'env(safe-area-inset-top,0px)'});
   document.body.appendChild(safeProbe);
-  const validSize=values=>{
-    const usable=values.filter(value=>Number.isFinite(value)&&value>0);
-    return usable.length?Math.min(...usable):1;
-  };
+  let stableViewportWidth=0, stableViewportHeight=0;
   function syncViewport(){
-    const vv=window.visualViewport;
-    const vw=validSize([vv?.width,innerWidth,document.documentElement.clientWidth]);
-    const vh=validSize([vv?.height,innerHeight,document.documentElement.clientHeight]);
-    const probe=getComputedStyle(safeProbe);
-    const inset=side=>Math.max(0,parseFloat(probe.getPropertyValue('padding-'+side))||0);
-    const safeTop=inset('top'),safeRight=inset('right'),safeBottom=inset('bottom'),safeLeft=inset('left');
-    const availableW=Math.max(1,vw-safeLeft-safeRight);
-    const availableH=Math.max(1,vh-safeTop-safeBottom);
-    // One uniform scale keeps every approved picture, circle, title and card in proportion.
-    const scale=Math.min(availableW/DESIGN_W,availableH/DESIGN_H);
-    root.style.setProperty('--app-h',vh+'px');
-    root.style.setProperty('--stage-scale',String(scale));
-    root.style.setProperty('--stage-x',(safeLeft+availableW/2)+'px');
-    root.style.setProperty('--stage-y',(safeTop+availableH/2)+'px');
-    // The entire stage is inside the safe viewport; shifting the HUD again
-    // would place it over the logo (old iOS-standalone regression).
-    root.style.setProperty('--avatar-safe-y','0px');
-    root.style.setProperty('--top-controls-safe-y','0px');
-    const standalone=window.matchMedia?.('(display-mode: standalone)')?.matches||
-      window.matchMedia?.('(display-mode: fullscreen)')?.matches||navigator.standalone===true;
-    const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||
-      (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-    root.classList.toggle('ios-standalone',Boolean(standalone&&ios));
+    const vv=visualViewport;
+    const rawW=vv?.width||innerWidth;
+    const rawH=Math.max(vv?.height||0,innerHeight||0);
+    const orientationChanged=stableViewportWidth&&Math.abs(rawW-stableViewportWidth)>80;
+    if(!stableViewportHeight||orientationChanged){stableViewportWidth=rawW;stableViewportHeight=rawH}
+    else{stableViewportWidth=rawW;stableViewportHeight=Math.max(stableViewportHeight,rawH)}
+    const vw=rawW, vh=stableViewportHeight;
+    const standalone=matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true;
+    const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    let lw=vw,lh=vh,safeTop=parseFloat(getComputedStyle(safeProbe).paddingTop)||0;
+    if(standalone&&ios){
+      const sw=screen?.width||vw,sh=screen?.height||vh,portrait=vw<=vh;
+      lw=portrait?Math.min(sw,sh):Math.max(sw,sh); lh=portrait?Math.max(sw,sh):Math.min(sw,sh);
+      if(!Number.isFinite(lw)||Math.abs(lw-vw)>120)lw=vw;
+      if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
+      safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
+    }else root.classList.remove('ios-standalone');
+    const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
+    root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
+    root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
+    if(standalone&&ios){
+      root.style.setProperty('--avatar-safe-y',`${Math.max(0,(safeTop+2)/scale-58)}px`);
+      root.style.setProperty('--top-controls-safe-y',`${Math.max(0,(safeTop+8)/scale-34)}px`);
+    }else{root.style.setProperty('--avatar-safe-y','0px');root.style.setProperty('--top-controls-safe-y','0px')}
   }
-  let resizeScheduled=false;
-  function scheduleViewportSync(){
-    if(resizeScheduled)return;
-    resizeScheduled=true;
-    requestAnimationFrame(()=>{resizeScheduled=false;syncViewport()});
-  }
-  syncViewport();
-  [100,500,1200].forEach(ms=>setTimeout(syncViewport,ms));
-  addEventListener('resize',scheduleViewportSync,{passive:true});
-  addEventListener('orientationchange',scheduleViewportSync,{passive:true});
-  window.visualViewport?.addEventListener('resize',scheduleViewportSync,{passive:true});
-  document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible')scheduleViewportSync();
-  });
+  syncViewport();[100,500,1200].forEach(ms=>setTimeout(syncViewport,ms));
+  addEventListener('resize',syncViewport,{passive:true});visualViewport?.addEventListener('resize',syncViewport,{passive:true});
 
   document.addEventListener('contextmenu',e=>e.preventDefault());
   document.addEventListener('dragstart',e=>e.preventDefault());
@@ -757,7 +736,7 @@
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=233')
+      space3DLoadPromise=import('./space-3d-games.js?v=232')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -2146,7 +2125,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=235',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=232',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

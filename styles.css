@@ -153,27 +153,29 @@ img { -webkit-user-drag:none; user-drag:none; user-select:none; -webkit-user-sel
 .toast { position:fixed; z-index:40; left:50%; bottom:calc(var(--safe-bottom) + 22px); transform:translate(-50%,18px); min-width:120px; max-width:82vw; padding:9px 14px; border-radius:14px; background:rgba(36,24,17,.78); color:white; font-weight:700; text-align:center; opacity:0; pointer-events:none; transition:.18s ease; }
 .toast.show { opacity:1; transform:translate(-50%,0); }
 
-/* V235: iOS PWA must use the REAL viewport height (not 100vh).
-   This keeps the header, stars and footer inside the visible safe area. */
-html.ios-standalone, html.ios-standalone body {
-  height:var(--app-h) !important;
-  min-height:var(--app-h) !important;
-  max-height:var(--app-h) !important;
+/* iOS installed PWA: native-game style full-bleed shell.
+   The game world fills the complete standalone screen; only interactive
+   HUD controls are inset from hardware/system overlays. */
+html.ios-standalone,
+html.ios-standalone body {
+  height:100vh !important;
+  min-height:100vh !important;
+  max-height:100vh !important;
   overflow:hidden !important;
 }
 html.ios-standalone body {
-  position:fixed !important;
-  inset:0 !important;
+  position:relative !important;
+  inset:auto !important;
 }
 html.ios-standalone #appBackground,
 html.ios-standalone #ambientLayer,
 html.ios-standalone .screen,
 html.ios-standalone .modal {
-  position:fixed !important;
+  position:absolute !important;
   inset:0 !important;
   width:100% !important;
-  height:var(--app-h) !important;
-  min-height:var(--app-h) !important;
+  height:100vh !important;
+  min-height:100vh !important;
 }
 
 [hidden] { display:none !important; }
@@ -3273,25 +3275,4 @@ html[data-theme^="photo-user-"] .section-dim{
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:clip !important;
-}
-
-/* V235: responsive screen layout and compact phones. The home stage is
-   uniformly scaled in JS; inner menus flex to available CSS viewport. */
-html,body{width:100%;max-width:100%;overflow:hidden}
-.screen{height:var(--app-h)}
-.toddler-section-shell,.activity-shell{max-height:var(--app-h);height:100%;box-sizing:border-box}
-@media (max-height:700px){
-  .toddler-section-shell{gap:8px;padding-left:10px;padding-right:10px}
-  .section-hero-card{flex-basis:min(25vh,185px);min-height:125px}
-  .section-games-grid{gap:8px}
-  .toddler-game-card{border-radius:19px !important}
-  .activity-shell{gap:7px;padding-left:9px;padding-right:9px}
-  .activity-topbar,.toddler-topbar{gap:6px;grid-template-columns:44px minmax(0,1fr) 74px}
-  .wood-round{height:44px;width:44px;font-size:24px}
-  .wood-title,.activity-title-wrap{min-height:46px;padding:5px;font-size:clamp(15px,4vw,23px)}
-  .wood-stars,.activity-stars{height:44px;font-size:16px;padding:0 3px}
-}
-@media (max-width:350px){
-  .toddler-section-shell,.activity-shell{padding-left:8px;padding-right:8px}
-  .toddler-game-label{font-size:clamp(12px,3.7vw,17px) !important}
 }
