@@ -1,8 +1,11 @@
 {
-  "generation": "Sharp 768px maximum-edge thumbnail, lossless WebP, source untouched",
+  "generation": "Sharp 768px high-fidelity WebP, pixel PSNR >= 40 dB or lossless fallback; source untouched",
+  "minPsnr": 40.01790214232716,
+  "averagePsnr": 68.19008632323637,
+  "losslessFallbacks": 83,
   "count": 191,
   "sourceBytes": 130930604,
-  "displayBytes": 103237956,
+  "displayBytes": 68590388,
   "files": [
     {
       "original": "animal-dog.jpg",
