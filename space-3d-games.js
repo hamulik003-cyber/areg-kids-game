@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=223';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=224';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1341,12 +1341,13 @@ function createHud(root,title){
 }
 function searchSlots(root,camera){
   const aspect=Math.max(.38,Math.min(1.15,root.clientWidth/Math.max(1,root.clientHeight)));
-  // Portrait phones get a tight centered triangle. Nothing can live near screen edges.
+  // V224 trial: descending portrait zigzag (right / left / right).
+  // The three choices stay random; only the three spatial slots are fixed.
   if(aspect<.72){
     return [
-      new THREE.Vector3(0,1.22,.05),
-      new THREE.Vector3(-1.19,-1.11,.14),
-      new THREE.Vector3(1.19,-1.11,.02)
+      new THREE.Vector3(.62,1.87,.05),
+      new THREE.Vector3(-.62,0,.14),
+      new THREE.Vector3(.62,-1.87,.02)
     ];
   }
   return [
@@ -1415,6 +1416,52 @@ function balancePortraitSearchPair(built,slots,root,camera){
   slots[li].y=-1.11;
   slots[ri].y=-1.11;
 }
+
+function searchVisibleBox(g){
+  // Exclude invisible touch targets, but include physical Saturn/Uranus
+  // ring geometry, tilted ellipsoids and broad black-hole/galaxy planes.
+  g.updateMatrixWorld(true);
+  const box=new THREE.Box3();
+  let hasGeometry=false;
+  g.traverse(o=>{
+    if(!o.visible||!(o.isMesh||o.isPoints||o.isLine)||!o.geometry)return;
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    if(!mats.some(m=>m && m.visible!==false && !(m.transparent && m.opacity<=.006)))return;
+    if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
+    if(!o.geometry.boundingBox)return;
+    const part=o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);
+    if(!hasGeometry){box.copy(part);hasGeometry=true;}
+    else box.union(part);
+  });
+  return hasGeometry?box:new THREE.Box3().setFromObject(g);
+}
+function fitPortraitZigzag(built,slots,root,camera){
+  const aspect=root.clientWidth/Math.max(1,root.clientHeight);
+  const tanY=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5));
+  const halfH=tanY*(camera.position.z-.18);
+  const halfW=halfH*aspect;
+  const sideMargin=Math.min(.17,halfW*.09);
+  const isWide=id=>id==='black-hole'||id==='milky-way'||id==='solar-system';
+  built.forEach((g,i)=>{
+    const id=g.userData.item.id;
+    // Aim for 35-40% larger 3D objects, but fit each visible silhouette
+    // to its available screen lane, even when it has an extended ring.
+    g.scale.multiplyScalar(1.40);
+    const preferred=Math.min(.70,halfW*.40);
+    const sideX=isWide(id)?preferred*.51:
+      (id==='saturn'||id==='uranus'||id==='haumea'?preferred*.72:preferred);
+    slots[i].x=(i===1?-1:1)*sideX;
+    slots[i].y=i===0?1.87:(i===1?0:-1.87);
+    const bb=searchVisibleBox(g);
+    const width=Math.max(.01,Math.abs(bb.min.x),Math.abs(bb.max.x));
+    const height=Math.max(.01,Math.abs(bb.min.y),Math.abs(bb.max.y));
+    // Per-row cap leaves a clear vertical gap between consecutive entries.
+    const maxWidth=Math.max(.15,halfW-sideMargin-sideX);
+    const maxHeight=Math.min(.86,halfH*.25);
+    const fit=Math.min(1,maxWidth/width,maxHeight/height);
+    if(fit<1)g.scale.multiplyScalar(fit);
+  });
+}
 function fitSearchObject(g,item,portrait){
   // Large planar/special objects need more breathing room than spherical bodies.
   const specialPortrait={
@@ -1454,14 +1501,23 @@ function easeInOutCubic(q){
 }
 function easeOutCubic(q){q=clamp(q,0,1);return 1-Math.pow(1-q,3)}
 function feedbackScaleMultiplier(g,camera,root){
-  // Use the final win camera position so the object can fill the screen closely without clipping.
-  const targetZ=1.62,finalCameraZ=8.48;
-  const distance=Math.max(1,finalCameraZ-targetZ);
-  const halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*distance;
-  const halfW=halfH*Math.max(.38,root.clientWidth/Math.max(1,root.clientHeight));
-  const safeRadius=Math.min(halfW*.91,halfH*.66);
-  const baseRadius=Math.max(.01,g.userData.baseRadius||1);
-  return clamp(safeRadius/baseRadius,1.38,3.65);
+  // V224: fill almost all of the available PHONE WIDTH on a correct answer.
+  // Exact visible-geometry bounds, not the invisible touch target, protect
+  // Saturn's rings, ellipsoids, galaxies and the black-hole accretion disk.
+  const box=searchVisibleBox(g);
+  const px=g.position.x,py=g.position.y,pz=g.position.z;
+  const radiusX=Math.max(.01,Math.abs(box.min.x-px),Math.abs(box.max.x-px));
+  const radiusY=Math.max(.01,Math.abs(box.min.y-py),Math.abs(box.max.y-py));
+  const nearDepth=Math.max(0,box.max.z-pz);
+  const tanY=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5));
+  const tanX=tanY*root.clientWidth/Math.max(1,root.clientHeight);
+  const distance=8.48-1.62;
+  // The nearest part of a scaled 3D shape gets bigger in perspective.
+  // Solve scale against that depth as well as x/y geometry margins.
+  const safeX=tanX*.948,safeY=tanY*.87;
+  const byWidth=(safeX*distance)/(radiusX+safeX*nearDepth);
+  const byHeight=(safeY*distance)/(radiusY+safeY*nearDepth);
+  return clamp(Math.min(byWidth,byHeight),.12,16);
 }
 function setObjectOpacity(g,alpha){
   alpha=clamp(alpha,0,1);g.userData.displayOpacity=alpha;
@@ -1559,7 +1615,7 @@ function gameSpaceSearch(ctx){
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
     target=next();
     const opts=shuffle([target,...decoys(target)]);
-    const slots=shuffle(searchSlots(root,camera));
+    const slots=searchSlots(root,camera);
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
@@ -1579,11 +1635,10 @@ function gameSpaceSearch(ctx){
     const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
 
-    // Size all three first, then solve the lower left/right pair together.
-    // Random choice/order remains unchanged; only collision-safe placement
-    // changes, with symmetric centers and matching lower Y coordinates.
+    // Keep shuffled choices, and assign them to the stable portrait
+    // top-right / middle-left / bottom-right zigzag slot order.
     built.forEach((g,i)=>fitSearchObject(g,opts[i],portrait));
-    if(portrait)balancePortraitSearchPair(built,slots,root,camera);
+    if(portrait)fitPortraitZigzag(built,slots,root,camera);
 
     const now=performance.now();
     built.forEach((g,i)=>{
