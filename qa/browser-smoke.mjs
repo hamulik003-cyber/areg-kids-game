@@ -15,10 +15,23 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
  page.setDefaultTimeout(15000);
  page.on('pageerror',e=>errors.push(e.message));
+ page.on('console',m=>{if(m.type()==='error')console.error('BROWSER CONSOLE '+m.text())});
+ page.on('requestfailed',req=>{if(process.env.AREG_BROWSER==='webkit')console.error('WEBKIT NETWORK '+req.url().slice(0,130)+' '+req.failure()?.errorText)});
+ const diag=async stage=>page.evaluate(stage=>({
+   stage,href:location.href,readyState:document.readyState,active:document.activeElement?.outerHTML?.slice(0,170),
+   homeClass:document.querySelector('#homeScreen')?.className,
+   screenClass:document.querySelector('#sectionScreen')?.className,
+   screenHidden:document.querySelector('#sectionScreen')?.hidden,
+   screenDisplay:getComputedStyle(document.querySelector('#sectionScreen')).display,
+   gamesCount:document.querySelectorAll('#sectionGames .toddler-game-card').length,
+   historyLength:history.length
+ }),stage);
  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=232',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
+  if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
   await page.locator('.section-card[data-section="'+section+'"]').click();
+  if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
   await page.waitForSelector('#sectionScreen.is-visible');
   if(section==='magic'){
    const n=await page.locator('.magic-collect-card').count();
