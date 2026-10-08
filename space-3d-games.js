@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=228';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=229';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -410,6 +410,21 @@ async function prepareTrue360Texture(item){
 }
 function textureForItem(item){
   if(userUvCache.has(item.id))return userUvCache.get(item.id);
+  // V229: a slow/failing async preparation must never leave a round empty.
+  // Load the SAME approved 2:1 repo texture through Three.js as a
+  // nonblocking emergency path; when the normal UV pipeline completes it
+  // continues to take priority on subsequent rounds.
+  if(USER_UV_IDS.has(item.id)&&FINAL_UV_PATHS[item.id]){
+    const tex=getTexture(FINAL_UV_PATHS[item.id]);
+    tex.colorSpace=THREE.SRGBColorSpace;
+    tex.wrapS=THREE.RepeatWrapping;
+    tex.wrapT=THREE.ClampToEdgeWrapping;
+    tex.minFilter=THREE.LinearMipmapLinearFilter;
+    tex.magFilter=THREE.LinearFilter;
+    tex.anisotropy=16;
+    tex.userData.aregRepoUvFallback=true;
+    return tex;
+  }
   if(TRUE360_IDS.has(item.id))return true360Cache.get(item.id)||canvasTexture(item);
   const path=TEXTURE_PATHS[item.id];
   return path?getTexture(path):canvasTexture(item);
@@ -826,7 +841,7 @@ function spherePlanet(item){
 
   const tex=textureForItem(item);
   const isSun=item.id==='sun';
-  const hasUserUV=userUvCache.has(item.id);
+  const hasUserUV=userUvCache.has(item.id)||!!tex.userData?.aregRepoUvFallback;
   const isTrue360=TRUE360_IDS.has(item.id)&&!hasUserUV;
   const true360Lift={
     phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
@@ -1335,6 +1350,17 @@ function buildObject(item){
   if(item.id==='solar-system')return solarSystem(item);
   return spherePlanet(item);
 }
+// A rare WebGL/texture allocation failure must not result in a visible
+// question with zero choices. Show a basic interactive body as a last resort.
+function emergencySpaceBody(item){
+  const g=new THREE.Group();
+  g.userData.item=item;g.userData.pickable=true;
+  const body=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),
+    new THREE.MeshBasicMaterial({color:item.c1||0x91aadd,toneMapped:false}));
+  body.userData.parentPick=g;g.userData.surface=body;
+  g.add(body);
+  return g;
+}
 function disposeObject(o){
   o.traverse(x=>{if(x.geometry)x.geometry.dispose();if(x.material){const ms=Array.isArray(x.material)?x.material:[x.material];ms.forEach(m=>m.dispose?.())}});
   // Miniature solar-system maps are generated per round; unlike globally
@@ -1562,6 +1588,12 @@ function winVisibleSurfaceSamples(g){
       }
     }
   }
+  // Galaxy art contains generous transparent outer padding. Calculate the
+  // winning closeup from the bright spiral footprint instead of the entire
+  // transparent square. This enlarges the galaxy's visible stars ~30%.
+  if(points.length&&g.userData.item?.id==='milky-way'){
+    for(const p of points)p.multiplyScalar(.77);
+  }
   if(points.length)return points;
   const bb=searchVisibleBox(g);
   for(const x of [bb.min.x,bb.max.x])
@@ -1601,8 +1633,12 @@ function feedbackWinPose(g,camera,root){
   // Increase their side margin from 4.8% to 7.2% of half-screen:
   // precisely 1.5x the previous empty space on the left and right.
   // MAX_ABS_X is likewise reduced 1.5x for off-centred/elongated bodies.
-  const TARGET_HALF_WIDTH=.928;
-  const MAX_ABS_X=.9445;
+  // V229: slightly more margin around ordinary spherical bodies (from
+  // 7.2% to 11% per half-width). Spiral stars are intentionally allowed
+  // their full luminous spread; the earlier square was mostly transparent.
+  const galaxy=g.userData.item?.id==='milky-way';
+  const TARGET_HALF_WIDTH=galaxy?.934:.890;
+  const MAX_ABS_X=galaxy?.946:.915;
   const MAX_ABS_Y=.895;
   const transformed=new THREE.Vector3();
   function measure(scale){
@@ -1725,32 +1761,51 @@ function gameSpaceSearch(ctx){
   async function buildRound(){
     const seq=++roundSeq;
     clear();locked=true;winStart=0;root.classList.remove('s3d-win');
+    hud.prompt.textContent='Պատրաստվում են մոլորակները…';
     target=next();
     const opts=shuffle([target,...decoys(target)]);
     const slots=searchSlots(root,camera);
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
-    hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
+    // V229: a rejected image/IndexedDB promise must NEVER start an infinite
+    // retry/empty field loop. Allow 2.6 seconds for official textures, then
+    // enter the round using the same approved repo image in lazy mode.
+    // Pending successful textures will populate caches for future rounds.
+    let releaseDeadline=0;
     try{
-      await Promise.all(opts.map(prepareTrue360Texture));
-      // Keep only a few recent high-resolution planet maps resident.
-      // This prevents long Space Search sessions from accumulating every
-      // 2:1 map in GPU/image memory on iPhone.
-      pruneUvTextureCaches(new Set(opts.map(x=>x.id)),9);
-    }catch{
-      if(disposed||seq!==roundSeq)return;
-      setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},500);
-      return;
+      await Promise.race([
+        Promise.allSettled(opts.map(prepareTrue360Texture)),
+        new Promise(resolve=>{releaseDeadline=setTimeout(resolve,2600)})
+      ]);
+    }catch(err){
+      console.warn('Space Search texture preparation recovered',err);
+    }finally{
+      clearTimeout(releaseDeadline);
     }
     if(disposed||seq!==roundSeq)return;
+    try{pruneUvTextureCaches(new Set(opts.map(x=>x.id)),9);}
+    catch(err){console.warn('Space Search texture cache recovered',err);}
 
-    const built=opts.map(it=>buildObject(it));
+    const built=opts.map(it=>{
+      try{return buildObject(it);}
+      catch(err){console.warn('Space Search object recovered',it.id,err);return emergencySpaceBody(it);}
+    });
     if(disposed){built.forEach(disposeObject);return}
 
-    // Keep shuffled choices, and assign them to the stable portrait
-    // top-right / middle-left / bottom-right zigzag slot order.
-    built.forEach((g,i)=>fitSearchObject(g,opts[i],portrait));
-    if(portrait)fitPortraitZigzag(built,slots,root,camera);
+    // V224 approved zigzag, with fail-safe regular sizing if an unusual
+    // geometry has invalid bounds on a memory-constrained mobile browser.
+    try{
+      built.forEach((g,i)=>fitSearchObject(g,opts[i],portrait));
+      if(portrait)fitPortraitZigzag(built,slots,root,camera);
+    }catch(err){
+      console.warn('Space Search layout recovered',err);
+      built.forEach((g,i)=>{
+        g.scale.setScalar(.52);
+        slots[i].x=i===1?-.58:.58;
+        slots[i].y=i===0?1.87:(i===1?0:-1.87);
+      });
+    }
+    hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
 
     const now=performance.now();
     built.forEach((g,i)=>{
