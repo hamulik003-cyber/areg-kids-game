@@ -732,23 +732,34 @@
       awardStar(){stars+=1;saveStars();updateStars();}
     };
   }
+  let space3DLoadPromise=null;
+  function ensureSpace3DLoaded(){
+    if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
+    if(!space3DLoadPromise){
+      space3DLoadPromise=import('./space-3d-games.js?v=199')
+        .then(()=>window.AregSpace3D)
+        .catch(err=>{space3DLoadPromise=null;throw err});
+    }
+    return space3DLoadPromise;
+  }
   function launchSpace3D(name){
+    let started=false;
     const run=()=>{
+      if(started)return true;
       const api=window.AregSpace3D;
       if(api&&typeof api[name]==='function'){
-        window.removeEventListener('areg-space3d-ready',run);
+        started=true;
         clearTimeout(run.timer);
-        return api[name](space3DContext());
+        api[name](space3DContext());
+        return true;
       }
+      return false;
     };
     if(run())return;
     showToast('3D բեռնում…');
-    window.addEventListener('areg-space3d-ready',run,{once:true});
-    run.timer=setTimeout(()=>{
-      window.removeEventListener('areg-space3d-ready',run);
-      if(!window.AregSpace3D)showToast('3D-ը չբեռնվեց');
-    },8000);
-    gameCleanup.push(()=>{clearTimeout(run.timer);window.removeEventListener('areg-space3d-ready',run)});
+    run.timer=setTimeout(()=>{if(!started)showToast('3D-ը չբեռնվեց')},8000);
+    ensureSpace3DLoaded().then(run).catch(()=>{clearTimeout(run.timer);if(!started)showToast('3D-ը չբեռնվեց')});
+    gameCleanup.push(()=>{started=true;clearTimeout(run.timer)});
   }
   function renderGame(g){
     const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:()=>launchSpace3D('constellationQuest'),shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
@@ -2114,7 +2125,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=198',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=199',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
