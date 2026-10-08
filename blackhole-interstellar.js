@@ -2,7 +2,7 @@
 // No procedural substitute: this image determines the silhouette, glowing
 // upper lensing crown, lowered foreground disk and lower photon reflection.
 // Loaded from GitHub (not localStorage, IndexedDB or a temporary CDN).
-const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=229';
+const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=230';
 export function renderInterstellarBlackHole(){
   const W=480,H=270,canvas=document.createElement('canvas');
   canvas.width=W;canvas.height=H;

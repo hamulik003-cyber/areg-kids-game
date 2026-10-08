@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=229';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=230';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -410,26 +410,10 @@ async function prepareTrue360Texture(item){
 }
 function textureForItem(item){
   if(userUvCache.has(item.id))return userUvCache.get(item.id);
-  // V229: a slow/failing async preparation must never leave a round empty.
-  // Load the SAME approved 2:1 repo texture through Three.js as a
-  // nonblocking emergency path; when the normal UV pipeline completes it
-  // continues to take priority on subsequent rounds.
-  if(USER_UV_IDS.has(item.id)&&FINAL_UV_PATHS[item.id]){
-    const tex=getTexture(FINAL_UV_PATHS[item.id]);
-    tex.colorSpace=THREE.SRGBColorSpace;
-    tex.wrapS=THREE.RepeatWrapping;
-    tex.wrapT=THREE.ClampToEdgeWrapping;
-    tex.minFilter=THREE.LinearMipmapLinearFilter;
-    tex.magFilter=THREE.LinearFilter;
-    tex.anisotropy=16;
-    tex.userData.aregRepoUvFallback=true;
-    return tex;
-  }
   if(TRUE360_IDS.has(item.id))return true360Cache.get(item.id)||canvasTexture(item);
   const path=TEXTURE_PATHS[item.id];
   return path?getTexture(path):canvasTexture(item);
 }
-
 function canvasTexture(item){
   const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,512,256);g.addColorStop(0,item.c1||'#7397c8');g.addColorStop(1,item.c2||'#263a67');x.fillStyle=g;x.fillRect(0,0,512,256);
@@ -841,7 +825,7 @@ function spherePlanet(item){
 
   const tex=textureForItem(item);
   const isSun=item.id==='sun';
-  const hasUserUV=userUvCache.has(item.id)||!!tex.userData?.aregRepoUvFallback;
+  const hasUserUV=userUvCache.has(item.id);
   const isTrue360=TRUE360_IDS.has(item.id)&&!hasUserUV;
   const true360Lift={
     phobos:.14,deimos:.10,io:.14,europa:.025,ganymede:.035
@@ -1350,17 +1334,6 @@ function buildObject(item){
   if(item.id==='solar-system')return solarSystem(item);
   return spherePlanet(item);
 }
-// A rare WebGL/texture allocation failure must not result in a visible
-// question with zero choices. Show a basic interactive body as a last resort.
-function emergencySpaceBody(item){
-  const g=new THREE.Group();
-  g.userData.item=item;g.userData.pickable=true;
-  const body=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),
-    new THREE.MeshBasicMaterial({color:item.c1||0x91aadd,toneMapped:false}));
-  body.userData.parentPick=g;g.userData.surface=body;
-  g.add(body);
-  return g;
-}
 function disposeObject(o){
   o.traverse(x=>{if(x.geometry)x.geometry.dispose();if(x.material){const ms=Array.isArray(x.material)?x.material:[x.material];ms.forEach(m=>m.dispose?.())}});
   // Miniature solar-system maps are generated per round; unlike globally
@@ -1757,55 +1730,72 @@ function gameSpaceSearch(ctx){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  let roundSeq=0;
+  // V230: the next three approved UV textures load WHILE the correct
+  // planet's 2.75-second celebration remains visible. A slow download
+  // must never replace a real planet with a black placeholder.
+  let queuedRound=null,roundSeq=0;
+  function createRoundPlan(){
+    const chosen=next();
+    return {target:chosen,opts:shuffle([chosen,...decoys(chosen)]),promise:null};
+  }
+  function warmUpcomingRound(){
+    if(queuedRound||disposed)return queuedRound;
+    const plan=createRoundPlan();
+    queuedRound=plan;
+    plan.promise=Promise.allSettled(plan.opts.map(prepareTrue360Texture))
+      .then(()=>{
+        // A failed image is replaced by a planet whose approved UV has
+        // already loaded, rather than drawing a texture-less black globe.
+        const failed=plan.opts.filter(it=>USER_UV_IDS.has(it.id)&&!userUvCache.has(it.id));
+        if(failed.length){
+          const cached=pool.filter(it=>!USER_UV_IDS.has(it.id)||userUvCache.has(it.id));
+          const old=groups.map(g=>g.userData.item);
+          const ready=shuffle([...new Map([...old,...cached].map(it=>[it.id,it])).values()])
+            .filter(it=>!USER_UV_IDS.has(it.id)||userUvCache.has(it.id));
+          if(ready.length>=3){
+            plan.opts=shuffle(ready.slice(0,3));
+            plan.target=plan.opts.find(it=>it.id!==target?.id)||plan.opts[0];
+          }
+        }
+        return plan;
+      });
+    return plan;
+  }
   async function buildRound(){
     const seq=++roundSeq;
-    clear();locked=true;winStart=0;root.classList.remove('s3d-win');
-    hud.prompt.textContent='Պատրաստվում են մոլորակները…';
-    target=next();
-    const opts=shuffle([target,...decoys(target)]);
+    locked=true;winStart=0;root.classList.remove('s3d-win');
+    const plan=queuedRound||createRoundPlan();
+    queuedRound=null;
+    try{
+      await (plan.promise||Promise.allSettled(plan.opts.map(prepareTrue360Texture)));
+    }catch(err){console.warn('Space Search preloading recovered',err)}
+    if(disposed||seq!==roundSeq)return;
+
+    const roundTarget=plan.target,opts=plan.opts;
     const slots=searchSlots(root,camera);
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
-    recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
-    // V229: a rejected image/IndexedDB promise must NEVER start an infinite
-    // retry/empty field loop. Allow 2.6 seconds for official textures, then
-    // enter the round using the same approved repo image in lazy mode.
-    // Pending successful textures will populate caches for future rounds.
-    let releaseDeadline=0;
+    let built=[];
     try{
-      await Promise.race([
-        Promise.allSettled(opts.map(prepareTrue360Texture)),
-        new Promise(resolve=>{releaseDeadline=setTimeout(resolve,2600)})
-      ]);
-    }catch(err){
-      console.warn('Space Search texture preparation recovered',err);
-    }finally{
-      clearTimeout(releaseDeadline);
-    }
-    if(disposed||seq!==roundSeq)return;
-    try{pruneUvTextureCaches(new Set(opts.map(x=>x.id)),9);}
-    catch(err){console.warn('Space Search texture cache recovered',err);}
-
-    const built=opts.map(it=>{
-      try{return buildObject(it);}
-      catch(err){console.warn('Space Search object recovered',it.id,err);return emergencySpaceBody(it);}
-    });
-    if(disposed){built.forEach(disposeObject);return}
-
-    // V224 approved zigzag, with fail-safe regular sizing if an unusual
-    // geometry has invalid bounds on a memory-constrained mobile browser.
-    try{
+      built=opts.map(it=>buildObject(it));
       built.forEach((g,i)=>fitSearchObject(g,opts[i],portrait));
       if(portrait)fitPortraitZigzag(built,slots,root,camera);
     }catch(err){
-      console.warn('Space Search layout recovered',err);
-      built.forEach((g,i)=>{
-        g.scale.setScalar(.52);
-        slots[i].x=i===1?-.58:.58;
-        slots[i].y=i===0?1.87:(i===1?0:-1.87);
-      });
+      console.warn('Space Search round construction retry',err);
+      built.forEach(g=>{try{disposeObject(g)}catch{}});
+      if(!disposed&&seq===roundSeq){
+        timer=setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},600);
+      }
+      return;
     }
+    if(disposed||seq!==roundSeq){built.forEach(disposeObject);return;}
+
+    // Only retire the previous objects after the real UVs AND all three
+    // valid bodies are ready. Never display a question without its choices.
+    clear();
+    target=roundTarget;
+    recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
+    try{pruneUvTextureCaches(new Set(opts.map(x=>x.id)),9);}catch{}
 
     const now=performance.now();
     built.forEach((g,i)=>{
@@ -1815,7 +1805,6 @@ function gameSpaceSearch(ctx){
       scene.add(g);g.updateMatrixWorld(true);
       const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
       g.userData.baseRadius=Math.max(.01,sphere.radius);
-
       g.userData.enterFromPos=slots[i].clone().add(new THREE.Vector3(
         slots[i].x===0?0:Math.sign(slots[i].x)*.22,
         slots[i].y>0?.16:-.12,
@@ -1883,7 +1872,19 @@ function gameSpaceSearch(ctx){
     });
     makePlanetWinFx(g,g.userData.item);
     root.classList.remove('s3d-win');void root.offsetWidth;root.classList.add('s3d-win');
-    clearTimeout(timer);timer=setTimeout(beginExit,2750);
+    // Start next-round IO during the confirmed win, while the current
+    // planet remains on screen. If it's slow, hold the current planet
+    // rather than showing an empty starfield or a loading sentence.
+    const upcoming=warmUpcomingRound();
+    clearTimeout(timer);
+    timer=setTimeout(()=>{
+      if(disposed||!winStart)return;
+      upcoming.promise.then(()=>{
+        if(!disposed&&winStart&&queuedRound===upcoming)beginExit();
+      },()=>{
+        if(!disposed&&winStart&&queuedRound===upcoming)beginExit();
+      });
+    },2750);
   }
 
   renderer.domElement.addEventListener('pointerup',pointer);
