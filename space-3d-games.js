@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=221';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=222';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1270,7 +1270,10 @@ function solarSystem(item){
     const orbit=new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
       new THREE.LineBasicMaterial({
-        color:0x849fd4,transparent:true,opacity:.25,depthWrite:false
+        // V222: brighter icy-blue paths remain readable on small iPhones.
+        // Lines stay depth-tested, so they pass naturally behind the Sun.
+        color:0xc3d5ff,transparent:true,opacity:.71-i*.018,
+        depthWrite:false,depthTest:true
       })
     );
     visual.add(orbit);
@@ -1351,6 +1354,63 @@ function searchSlots(root,camera){
     new THREE.Vector3(0,.15,.14),
     new THREE.Vector3(1.55,.15,.02)
   ];
+}
+// V222: exact visible-object footprints, excluding fully invisible raycast
+// helpers. Works for spheres, rings, galaxies, solar system and black hole.
+function searchVisualExtents(g){
+  g.updateMatrixWorld(true);
+  const bounds=new THREE.Box3();
+  let found=false;
+  g.traverse(o=>{
+    if(!(o.isMesh||o.isPoints||o.isLine)||!o.geometry)return;
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    if(!mats.some(m=>m && m.visible!==false &&
+       !(m.transparent && m.opacity<=.006)))return;
+    if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
+    if(!o.geometry.boundingBox)return;
+    const worldBox=o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);
+    if(!found){bounds.copy(worldBox);found=true;}
+    else bounds.union(worldBox);
+  });
+  if(!found)bounds.setFromObject(g);
+  return {
+    left:Math.max(0,-bounds.min.x),
+    right:Math.max(0,bounds.max.x)
+  };
+}
+function balancePortraitSearchPair(built,slots,root,camera){
+  // Solve both lower positions *together*, never individually: in V221
+  // independently clamping one side was responsible for asymmetry.
+  const li=slots.findIndex(s=>s.x<0);
+  const ri=slots.findIndex(s=>s.x>0);
+  if(li<0||ri<0)return;
+  const aspect=root.clientWidth/Math.max(1,root.clientHeight);
+  const halfWidth=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5))*
+    (camera.position.z-Math.max(slots[li].z,slots[ri].z))*aspect;
+  const margin=Math.min(.22,halfWidth*.10);
+  const gap=Math.min(.27,halfWidth*.13);
+  let l=searchVisualExtents(built[li]);
+  let r=searchVisualExtents(built[ri]);
+  // Account for actual world-space geometry of Saturn's rings, broad
+  // spiral galaxies and long accretion disks before selecting X centers.
+  const needed=Math.max(l.left,r.right)+(l.right+r.left)*.5;
+  if(needed>0){
+    const fit=clamp((halfWidth-margin-gap*.5)/needed,.20,1);
+    if(fit<.999){
+      built[li].scale.multiplyScalar(fit);
+      built[ri].scale.multiplyScalar(fit);
+      l=searchVisualExtents(built[li]);
+      r=searchVisualExtents(built[ri]);
+    }
+  }
+  const minX=(l.right+r.left+gap)*.5;
+  const maxX=halfWidth-margin-Math.max(l.left,r.right);
+  const preferred=Math.min(1.24,halfWidth*.59);
+  const center=clamp(preferred,minX,Math.max(minX,maxX));
+  slots[li].x=-center;
+  slots[ri].x=center;
+  slots[li].y=-1.11;
+  slots[ri].y=-1.11;
 }
 function fitSearchObject(g,item,portrait){
   // Large planar/special objects need more breathing room than spherical bodies.
@@ -1511,27 +1571,20 @@ function gameSpaceSearch(ctx){
     const built=opts.map(it=>buildObject(it));
     if(disposed){built.forEach(disposeObject);return}
 
+    // Size all three first, then solve the lower left/right pair together.
+    // Random choice/order remains unchanged; only collision-safe placement
+    // changes, with symmetric centers and matching lower Y coordinates.
+    built.forEach((g,i)=>fitSearchObject(g,opts[i],portrait));
+    if(portrait)balancePortraitSearchPair(built,slots,root,camera);
+
     const now=performance.now();
     built.forEach((g,i)=>{
-      fitSearchObject(g,opts[i],portrait);
       g.userData.baseScale=g.scale.clone();
       g.userData.basePosition=slots[i].clone();
       g.position.copy(slots[i]);
       scene.add(g);g.updateMatrixWorld(true);
       const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
       g.userData.baseRadius=Math.max(.01,sphere.radius);
-      // Keep large Saturn/Uranus ring silhouettes inside the real phone
-      // viewport, while using wider lower left/right positions when safe.
-      if(portrait&&slots[i].x!==0){
-        const aspect=root.clientWidth/Math.max(1,root.clientHeight);
-        const halfWidth=Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*
-          (camera.position.z-slots[i].z)*aspect;
-        const halfObjectWidth=(box.max.x-box.min.x)/2;
-        const maxSafeX=Math.max(0,halfWidth-halfObjectWidth-.19);
-        slots[i].x=Math.sign(slots[i].x)*Math.min(Math.abs(slots[i].x),maxSafeX);
-        g.userData.basePosition.copy(slots[i]);
-        g.position.copy(slots[i]);
-      }
 
       g.userData.enterFromPos=slots[i].clone().add(new THREE.Vector3(
         slots[i].x===0?0:Math.sign(slots[i].x)*.22,
