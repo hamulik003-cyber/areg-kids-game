@@ -115,6 +115,28 @@ const USER_UV_STORE='textures';
 const userUvCache=new Map();
 const userUvPending=new Map();
 
+function touchUvTexture(id,t){
+  if(finalUvCache.get(id)===t){
+    finalUvCache.delete(id);
+    finalUvCache.set(id,t);
+  }
+  if(userUvCache.get(id)===t){
+    userUvCache.delete(id);
+    userUvCache.set(id,t);
+  }
+}
+function pruneUvTextureCaches(keepIds=new Set(),max=9){
+  if(finalUvCache.size<=max)return;
+  for(const id of [...finalUvCache.keys()]){
+    if(finalUvCache.size<=max)break;
+    if(keepIds.has(id))continue;
+    const t=finalUvCache.get(id);
+    finalUvCache.delete(id);
+    if(userUvCache.get(id)===t)userUvCache.delete(id);
+    try{t?.dispose?.()}catch{}
+  }
+}
+
 function openUserUvDb(){
   return new Promise((resolve,reject)=>{
     if(!('indexedDB' in window)){resolve(null);return}
@@ -145,7 +167,11 @@ function exactUvTextureFromImage(img){
   return t;
 }
 async function prepareRepoUvTexture(item){
-  if(finalUvCache.has(item.id))return finalUvCache.get(item.id);
+  if(finalUvCache.has(item.id)){
+    const t=finalUvCache.get(item.id);
+    touchUvTexture(item.id,t);
+    return t;
+  }
 
   const path=FINAL_UV_PATHS[item.id];
   if(!path||finalUvMiss.has(item.id))return null;
@@ -161,7 +187,11 @@ async function prepareRepoUvTexture(item){
 }
 async function prepareUserUvTexture(item){
   if(!USER_UV_IDS.has(item.id))return null;
-  if(userUvCache.has(item.id))return userUvCache.get(item.id);
+  if(userUvCache.has(item.id)){
+    const t=userUvCache.get(item.id);
+    touchUvTexture(item.id,t);
+    return t;
+  }
   if(userUvPending.has(item.id))return userUvPending.get(item.id);
   const pending=(async()=>{
     // Permanent repo assets are canonical. IndexedDB stays only as a
@@ -1099,6 +1129,10 @@ function gameSpaceSearch(ctx){
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
     try{
       await Promise.all(opts.map(prepareTrue360Texture));
+      // Keep only a few recent high-resolution planet maps resident.
+      // This prevents long Space Search sessions from accumulating every
+      // 2:1 map in GPU/image memory on iPhone.
+      pruneUvTextureCaches(new Set(opts.map(x=>x.id)),9);
     }catch{
       if(disposed||seq!==roundSeq)return;
       setTimeout(()=>{if(!disposed&&seq===roundSeq)buildRound()},500);
