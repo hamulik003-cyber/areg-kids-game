@@ -624,6 +624,28 @@
     }
   }
 
+  // V243: these four existing files are decoded once in the background.
+  // Only the 2D section cards are warmed, not the 100+ MB 3D texture set.
+  let spaceSectionPicturesPromise=null;
+  function warmSpaceSectionPictures(){
+    if(spaceSectionPicturesPromise)return spaceSectionPicturesPromise;
+    spaceSectionPicturesPromise=Promise.all(SECTIONS.space.games.map(game=>
+      new Promise(resolve=>{
+        const image=new Image();image.decoding='async';
+        image.onload=()=>{
+          if(typeof image.decode==='function'){
+            image.decode().then(()=>resolve(true)).catch(()=>resolve(image.naturalWidth>0));
+          }else resolve(image.naturalWidth>0);
+        };
+        image.onerror=()=>resolve(false);
+        image.src=game.thumb;
+      })
+    ));
+    return spaceSectionPicturesPromise;
+  }
+  // Idle home-screen warmup: don't compete with the first paint.
+  setTimeout(()=>warmSpaceSectionPictures().catch(()=>{}),1000);
+
   function openSection(id){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
@@ -643,7 +665,18 @@
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
     if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
-    homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+    const revealSection=()=>{
+      if(currentSection!==id)return;
+      homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
+      requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+    };
+    if(id==='space'){
+      // Start downloading the 3D module from the section menu instead of
+      // delaying the game screen after a child taps Space Search.
+      setTimeout(()=>{if(currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},120);
+      const deadline=new Promise(resolve=>setTimeout(resolve,2600));
+      Promise.race([warmSpaceSectionPictures(),deadline]).then(revealSection,revealSection);
+    }else revealSection();
   }
 
   function saveMagicUnlocked(){
@@ -771,11 +804,12 @@
     // Warm and decode the first eight cards while the existing menu stays
     // visible. No all-gallery download and no white cards on cold entry.
     const nav=++galleryNavigationId;
-    if(game.kind==='spaceSearch'||game.kind==='constellationQuest')
-      ensureSpace3DLoaded().catch(()=>{});
+    const needsSpaceEngine=game.kind==='spaceSearch'||game.kind==='constellationQuest';
+    const spaceEngineReady=needsSpaceEngine?ensureSpace3DLoaded().catch(()=>{}):null;
     const launch=()=>{
       if(nav!==galleryNavigationId||sectionScreen.hidden)return;
-      cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;
+      cleanupGame();activityContent.classList.toggle('space-preparing',needsSpaceEngine);
+      currentGame=game;activityScreen.dataset.game=game.id;
       activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;
       updateStars();sectionScreen.classList.remove('is-visible');
       setTimeout(()=>{
@@ -785,7 +819,12 @@
         renderGame(game);
       },150);
     };
-    if(GALLERY_WARM_ITEMS[game.kind]){
+    if(needsSpaceEngine){
+      // The old code revealed a cream empty stage while the 3D module
+      // was still downloading. Keep the space section painted instead.
+      const deadline=new Promise(resolve=>setTimeout(resolve,3200));
+      Promise.race([spaceEngineReady,deadline]).then(launch,launch);
+    }else if(GALLERY_WARM_ITEMS[game.kind]){
       const timeout=new Promise(resolve=>setTimeout(resolve,7500));
       Promise.race([warmGalleryPreviews(game.kind,8),timeout]).then(launch,launch);
     }else launch();
@@ -2241,7 +2280,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=242',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=243',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
