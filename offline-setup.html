@@ -47,7 +47,7 @@ a.textlink{color:#bcd7ff;display:inline-block;margin:12px 0}
  <strong>Ինչպես տեղադրել էկրանին</strong>
  <p>Երբ գրի «Բոլոր ֆայլերը պատրաստ են», բացիր խաղը <strong>Safari-ով</strong>, սեղմիր <strong>Share → Add to Home Screen</strong>,
  ընտրիր <strong>Open as Web App</strong> և սեղմիր <strong>Add</strong>։</p>
- <a class="action" href="./?__areg_build=235">Բացել Արեգի խաղը</a>
+ <a class="action" href="./?__areg_build=236">Բացել Արեգի խաղը</a>
  <p class="notice muted">DotKiosk-ը կարող է օգտագործել առանձին պահոց։ Safari-ում պատրաստված անցանց տարբերակը փորձարկիր հենց Home Screen-ի պատկերակից։</p>
 </div>
 <p class="muted">Այս փաթեթը պարունակում է բոլոր տեղական պատկերները, հաստատված UV տեքստուրաները և տեղական երաժշտությունը։ 
@@ -65,7 +65,7 @@ iOS-ը պահեստի սղության դեպքում կարող է ժամանա
    status('Այս բրաուզերում տեղական պահեստավորումը հասանելի չէ');return;
  }
  try{
-   await navigator.serviceWorker.register('./service-worker.js?v=235');
+   await navigator.serviceWorker.register('./service-worker.js?v=236');
    await navigator.serviceWorker.ready;
    const r=await fetch('./offline-assets-v233.json',{cache:'no-store'});
    if(!r.ok)throw Error('Չհաջողվեց ստանալ խաղի ֆայլերի ցուցակը');
