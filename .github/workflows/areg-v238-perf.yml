@@ -1,0 +1,48 @@
+name: AREG V238 No-Quality-Loss Performance QA
+on:
+  push:
+    branches: [v238-smooth-loading-lab]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  test-and-bake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install local image processor and browser tests
+        run: npm install --no-save sharp@0.34.4 playwright@1.55.1
+      - name: Build lossless display thumbnails without altering originals
+        run: node qa/build-display-thumbs-v238.mjs
+      - name: Check all image, code and game integrity
+        run: node qa/full-audit.mjs
+      - name: Test all 191 previews, zoom, and cached offline reopen
+        run: node qa/gallery-regression-v238.mjs
+      - name: Test all 20 activity routes and full decoded image set
+        run: node qa/browser-smoke.mjs
+      - name: Save results for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-v238-performance-results
+          path: |
+            qa/results/
+            assets/thumbs/report-v238.json
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Commit verified previews to this experimental branch only
+        if: success()
+        run: |
+          git config user.name "areg-qa-bot"
+          git config user.email "areg-qa-bot@users.noreply.github.com"
+          git add assets/thumbs/
+          if ! git diff --cached --quiet; then
+            git commit -m "V238 [skip ci] generate verified lossless display thumbnails"
+            git push origin HEAD:v238-smooth-loading-lab
+          fi
