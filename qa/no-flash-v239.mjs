@@ -9,7 +9,8 @@ let browser;const failures=[];const facts={};
 try{
   await sleep(900);
   browser=process.env.AREG_BROWSER==='webkit'
-    ?await webkit.launch({headless:true})\n    :await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+    ?await webkit.launch({headless:true})
+    :await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:'block'});
   const page=await context.newPage();
   page.on('pageerror',err=>failures.push(err.message));
