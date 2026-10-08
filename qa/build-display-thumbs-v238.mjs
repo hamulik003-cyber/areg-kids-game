@@ -40,7 +40,7 @@ for(const [idx,relative] of unique.entries()){
   // High-fidelity preview only. Retain original at its original path and
   // show that exact file whenever a child zooms a gallery card.
   await previewSource.clone()
-    .webp({quality:96,effort:5,smartSubsample:true})
+    .webp({quality:98,effort:5,smartSubsample:true})
     .toFile(dest);
   const [originalPixels,encodedPixels]=await Promise.all([
     previewSource.clone().ensureAlpha().raw().toBuffer(),
