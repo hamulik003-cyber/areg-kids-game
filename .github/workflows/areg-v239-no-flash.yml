@@ -34,5 +34,7 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: npx playwright install --with-deps webkit
+      - name: Reject white cards and bitmap flashes in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/no-flash-v239.mjs
       - name: Check all game routes in Apple WebKit
         run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
