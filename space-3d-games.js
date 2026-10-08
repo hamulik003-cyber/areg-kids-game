@@ -1729,7 +1729,7 @@ function gameSpaceSearch(ctx){
   const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
   const next=bag(pool);
 
-  let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
+  let groups=[],retiringGroups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
   let wrong=null,winStart=0,winGroup=null,transition=null,timer=0,recent=[];
 
   function decoys(t){
@@ -1737,9 +1737,26 @@ function gameSpaceSearch(ctx){
     if(p.length<2)p=shuffle(pool.filter(x=>x.id!==t.id));
     return p.slice(0,2);
   }
+  function disposeRetiringGroups(){
+    retiringGroups.forEach(g=>{scene.remove(g);disposeObject(g)});
+    retiringGroups=[];
+    root.dataset.spaceCrossfade='idle';
+  }
   function clear(){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
+    groups=[];disposeRetiringGroups();pickables.length=0;wrong=null;winGroup=null;
+  }
+  function stagePriorRoundForCrossfade(){
+    // Keep the former winner visible only while the new real objects
+    // enter. Only the new three objects may receive pointer hits.
+    disposeRetiringGroups();
+    retiringGroups=groups;
     groups=[];pickables.length=0;wrong=null;winGroup=null;
+    for(const g of retiringGroups){
+      g.userData.crossfadeFromOpacity=g.userData.displayOpacity??0;
+      // Textures and materials are left alive until the new entrance ends.
+    }
+    root.dataset.spaceCrossfade=retiringGroups.length?'active':'initial';
   }
   // V231: bounded loading and a hard win-exit deadline.
   let queuedRound=null,roundSeq=0,prewarmTimer=0;
@@ -1827,7 +1844,7 @@ function gameSpaceSearch(ctx){
 
     // Only retire the previous objects after the real UVs AND all three
     // valid bodies are ready. Never display a question without its choices.
-    clear();
+    stagePriorRoundForCrossfade();
     target=roundTarget;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
@@ -1853,6 +1870,7 @@ function gameSpaceSearch(ctx){
       g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)});
     });
     transition={type:'enter',start:now,duration:780,voiceDone:false};
+    root.dataset.spaceRoundPhase='enter';
   }
   function beginExit(){
     if(disposed||transition?.type==='exit')return;
@@ -1868,6 +1886,7 @@ function gameSpaceSearch(ctx){
       g.userData.exitToScale=g.scale.clone().multiplyScalar(.68);
     });
     transition={type:'exit',start:now,duration:690};
+    root.dataset.spaceRoundPhase='exit';
   }
   function pointer(e){
     if(locked||transition)return;
@@ -2045,12 +2064,25 @@ function gameSpaceSearch(ctx){
       }
     });
 
+    // V242 true overlapping 3D crossfade: former winner remains visible
+    // through the first part of the new three objects' entrance and
+    // then fades out gradually. No empty or abruptly replaced frame.
+    if(transition?.type==='enter'&&retiringGroups.length){
+      const elapsed=t-transition.start;
+      // Fade out over 520ms; it is always gone before the 780ms
+      // entrance finishes, with the new round visibly gaining opacity.
+      const fade=1-easeInOutCubic(clamp(elapsed/520,0,1));
+      for(const prior of retiringGroups)
+        setObjectOpacity(prior,(prior.userData.crossfadeFromOpacity||0)*fade);
+    }
     if(transition?.type==='enter'){
       if(!transition.voiceDone&&t-transition.start>210){
         transition.voiceDone=true;voice('Գտի՛ր '+findObjectName(target),ctx);
       }
       if(finishEnter){
         groups.forEach(g=>{g.position.copy(g.userData.basePosition);g.scale.copy(g.userData.baseScale);setObjectOpacity(g,1)});
+        disposeRetiringGroups();
+        root.dataset.spaceRoundPhase='ready';
         transition=null;locked=false;
         // V240: the next round should prepare while the child is deciding,
         // NOT after their correct-answer animation is almost finished.
