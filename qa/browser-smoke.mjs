@@ -8,7 +8,7 @@ let browser;
 const errors=[],done=[];
 try{
  await sleep(1100);
- browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+ browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
  page.setDefaultTimeout(15000);
  page.on('pageerror',e=>errors.push(e.message));
