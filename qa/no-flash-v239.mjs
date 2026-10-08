@@ -19,9 +19,24 @@ try{
     if(delayed<20){delayed++;await sleep(550)}
     await route.continue();
   });
-  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=239',{waitUntil:'domcontentloaded'});
+  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=239',{waitUntil:'load',timeout:45000});
+  await page.waitForSelector('#homeScreen .section-card',{timeout:30000});
+  // iOS WebKit may paint the menu before its first pointer listeners settle.
+  await page.waitForTimeout(550);
   await page.locator('.section-card[data-section="nature"]').click();
-  await page.waitForSelector('#sectionScreen.is-visible');
+  try{
+    await page.waitForSelector('#sectionScreen.is-visible',{timeout:5500});
+  }catch{
+    const diag=await page.evaluate(()=>({
+      href:location.href,ready:document.readyState,
+      home:document.querySelector('#homeScreen')?.className,
+      section:document.querySelector('#sectionScreen')?.className,
+      hidden:document.querySelector('#sectionScreen')?.hidden
+    }));
+    console.log('V239_WEBKIT_SECTION_RETRY '+JSON.stringify(diag));
+    await page.locator('.section-card[data-section="nature"]').click();
+    await page.waitForSelector('#sectionScreen.is-visible',{timeout:15000});
+  }
   await page.locator('#sectionGames .toddler-game-card[data-game="birds"]').click();
   await page.waitForTimeout(180);
   facts.oldSectionVisibleWhilePreviewsPending=await page.locator('#sectionScreen.is-visible').count()===1;
