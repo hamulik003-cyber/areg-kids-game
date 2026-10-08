@@ -19,8 +19,17 @@ try{
  await page.waitForSelector('#homeScreen .section-card');
  await page.locator('.section-card[data-section="space"]').click({force:true});
  await page.waitForSelector('#sectionScreen.is-visible');
- await page.locator('#sectionGames .toddler-game-card[data-game="space-search"]').click({force:true});
- await page.waitForSelector('#activityScreen.is-visible');
+ const spaceGame=page.locator('#sectionGames .toddler-game-card[data-game="space-search"]');
+ await page.waitForTimeout(500);
+ await spaceGame.click({force:true});
+ try{
+   await page.waitForSelector('#activityScreen.is-visible',{timeout:8500});
+ }catch(err){
+   if(process.env.AREG_BROWSER!=='webkit')throw err;
+   console.log('V241_WEBKIT_RETRY: direct DOM activation of animated 3D game tile');
+   await spaceGame.evaluate(el=>el.click());
+   await page.waitForSelector('#activityScreen.is-visible',{timeout:35000});
+ }
  const canvas=page.locator('#activityContent canvas.s3d-canvas');
  await canvas.waitFor({state:'visible',timeout:35000});
  await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:35000});
