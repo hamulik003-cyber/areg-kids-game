@@ -45,7 +45,8 @@ try{
     const sample={id,count,readyVisibleMs:Date.now()-time,previewMax:Math.max(...measured.previews.map(v=>Math.max(v.w,v.h)))};
     // Dismiss overlay (audio may be unavailable, don't block the benchmark).
     await page.locator('.gallery-card-flight-host').click({force:true}).catch(()=>{});
-    await page.locator('#activityBack').click({force:true});
+    await page.waitForSelector('.gallery-card-flight-host',{state:'detached',timeout:15000});
+    await page.locator('#activityBack').click();
     await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
     await page.locator('#sectionBack').click();
     await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
