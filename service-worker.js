@@ -1,162 +1,88 @@
-const CACHE='areg-v198-moon-mercury-repo-ready';
-const ASSETS=["./", "./theme-bg-ocean.svg", "./theme-bg-fluffy.svg", "./theme-bg-grass.svg", "./theme-bg-autumn.svg", "./theme-bg-winterforest.svg", "./theme-bg-pier.svg", "./theme-bg-mountainlake.svg", "./theme-bg-space.svg", "./theme-bg-snow.svg", "./theme-bg-magic.svg", "./index.html", "./styles.css", "./space-3d-games.css", "./vendor/three.core.min.js", "./vendor/three.module.min.js", "./space-3d-games.js", "./app.js", "./launcher.html", "./service-worker.js", "./space-visual-compare.html", "./moon-map-import.html", "./mercury-map-import.html", "./avatar-frame.png", "./bottom-landscape.png", "./logo.png", "./settings.png", "./star-counter.png", "./menu-music.mp3", "./audio/animals/horse-voice.mp3", "./audio/animals/camel-voice.mp3", "./nature.png", "./space.png", "./mind.png", "./create.png", "./magic.png", "./nature-frame-guard.png", "./space-frame-guard.png", "./mind-frame-guard.png", "./create-frame-guard.png", "./magic-frame-guard.png", "./hero-nature.jpg", "./nature-game-1.jpg", "./nature-game-2.jpg", "./nature-game-3.jpg", "./nature-game-4.jpg", "./hero-space.jpg", "./space-game-1.jpg", "./space-game-2.jpg", "./space-game-3.jpg", "./space-game-4.jpg", "./hero-mind.jpg", "./mind-game-1.jpg", "./mind-game-2.jpg", "./mind-game-3.jpg", "./mind-game-4.jpg", "./hero-create.jpg", "./create-game-1.jpg", "./create-game-2.jpg", "./create-game-3.jpg", "./create-game-4.jpg", "./hero-magic.jpg", "./magic-game-1.jpg", "./magic-game-2.jpg", "./magic-game-3.jpg", "./magic-game-4.jpg", "./preset-gummy-bear.svg", "./preset-bunny.svg", "./preset-kitten.svg", "./preset-puppy.svg", "./preset-panda.svg", "./preset-fox.svg", "./preset-lion.svg", "./preset-monkey.svg", "./preset-koala.svg", "./preset-robot.svg",
-  "./animal-dog.jpg",
-  "./animal-wolf.jpg",
-  "./animal-lynx.jpg",
-  "./animal-cow.jpg",
-  "./animal-horse.jpg",
-  "./animal-goat.jpg",
-  "./animal-camel.jpg",
-  "./animal-sheep.jpg",
-  "./animal-cat.jpg",
-  "./animal-tiger.jpg",
-  "./animal-donkey.jpg",
-  "./animal-bull.jpg",
-  "./animal-deer.jpg",
-  "./animal-bison.jpg",
-  "./animal-hippo.jpg",
-  "./animal-zebra.jpg",
-  "./animal-giraffe.jpg",
-  "./animal-elephant.jpg",
-  "./animal-rabbit.jpg",
-  "./animal-monkey.jpg",
-  "./animal-lion.jpg",
-  "./animal-bear.jpg",
-  "./animal-panda.jpg",
-  "./animal-fox.jpg",
-  "./animal-pig.jpg",
-  "./animal-rhino.jpg",
-  "./animal-polar-bear.jpg",
-  "./animal-leopard.jpg",
-  "./animal-hyena.jpg",
-  "./animal-black-panther.jpg",
-  "./bird-magpie.jpg",
-  "./bird-crow.jpg",
-  "./bird-vulture.jpg",
-  "./bird-falcon.jpg",
-  "./bird-bald-eagle.jpg",
-  "./bird-lovebird.jpg",
-  "./bird-parrot.jpg",
-  "./bird-cockatiel.jpg",
-  "./bird-finch.jpg",
-  "./bird-canary.jpg",
-  "./bird-ostrich.jpg",
-  "./bird-hummingbird.jpg",
-  "./bird-woodpecker.jpg",
-  "./bird-cormorant.jpg",
-  "./bird-gull.jpg",
-  "./bird-swan.jpg",
-  "./bird-stork.jpg",
-  "./bird-owl.jpg",
-  "./bird-sparrow.jpg",
-  "./bird-swallow.jpg",
-  "./bird-guinea-fowl.jpg",
-  "./bird-peacock.jpg",
-  "./bird-quail.jpg",
-  "./bird-pigeon.jpg",
-  "./bird-turkey.jpg",
-  "./bird-goose.jpg",
-  "./bird-duck.jpg",
-  "./bird-chick.jpg",
-  "./bird-rooster.jpg",
-  "./bird-hen.jpg",
-  "./sea-dolphin.jpg",
-  "./sea-seahorse.jpg",
-  "./sea-octopus.jpg",
-  "./sea-turtle.jpg",
-  "./sea-clownfish.jpg",
-  "./sea-crab.jpg",
-  "./sea-jellyfish.jpg",
-  "./sea-starfish.jpg",
-  "./sea-whale.jpg",
-  "./sea-shark.jpg",
-  "./sea-pufferfish.jpg",
-  "./sea-manta.jpg",
-  "./sea-lionfish.jpg",
-  "./sea-moray-eel.jpg",
-  "./sea-lobster.jpg",
-  "./sea-squid.jpg",
-  "./sea-manatee.jpg",
-  "./sea-swordfish.jpg",
-  "./sea-seal.jpg",
-  "./sea-penguin.jpg",
-  "./sea-narwhal.jpg",
-  "./sea-orca.jpg",
-  "./sea-beluga.jpg",
-  "./sea-walrus.jpg",
-  "./sea-sea-otter.jpg",
-  "./sea-anglerfish.jpg",
-  "./sea-nautilus.jpg",
-  "./sea-cuttlefish.jpg",
-  "./sea-leafy-seadragon.jpg",
-  "./sea-shrimp.jpg",
-  "./sea-sterlet.jpg",
-  "./sea-trout.jpg",
-  "./sea-goldfish.jpg",
-  "./insect-butterfly.png",
-  "./insect-bee.png",
-  "./insect-ant.png",
-  "./insect-ladybug.png",
-  "./insect-cricket.png",
-  "./insect-dragonfly.png",
-  "./insect-praying-mantis.png",
-  "./insect-rhinoceros-beetle.png",
-  "./insect-grasshopper.png",
-  "./insect-damselfly.png",
-  "./insect-wasp.png",
-  "./insect-green-beetle.png",
-  "./insect-bumblebee.png",
-  "./insect-may-beetle.png",
-  "./insect-stag-beetle.png",
-  "./insect-water-strider.png",
-  "./insect-colorado-beetle.png",
-  "./insect-firefly.png",
-  "./insect-earwig.png",
-  "./insect-dung-beetle.png",
-  "./insect-fly.png",
-  "./insect-bark-beetle.png",
-  "./insect-louse.png",
-  "./insect-flower-butterfly.png",
-  "./insect-cabbage-butterfly.png",
-  "./insect-moth.png",
-  "./insect-aphid.png",
-  "./insect-mosquito.png",
-  "./insect-horsefly.png",
-  "./insect-termite.png"
-,
-  "./assets/space3d/2k_sun.jpg",
-  "./assets/space3d/2k_mercury.jpg",
-  "./assets/space3d/2k_venus_surface.jpg",
-  "./assets/space3d/2k_earth_daymap.jpg",
-  "./assets/space3d/2k_earth_clouds.jpg",
-  "./assets/space3d/2k_moon.jpg",
-  "./assets/space3d/2k_mars.jpg",
-  "./assets/space3d/2k_jupiter.jpg",
-  "./assets/space3d/2k_saturn.jpg",
-  "./assets/space3d/2k_saturn_ring_alpha.png",
-  "./assets/space3d/2k_uranus.jpg",
-  "./assets/space3d/2k_neptune.jpg",
-  "./assets/space3d/2k_stars_milky_way.jpg", "./assets/space3d/2k_phobos.jpg", "./assets/space3d/2k_deimos_true360.jpg", "./assets/space3d/4k_io.jpg", "./assets/space3d/2k_europa.jpg", "./assets/space3d/2k_ganymede.jpg",
-  "./space-uv-import.html",
-  "./assets/space3d/2k_callisto.jpg",
-  "./assets/space3d/4k_titan.jpg",
-  "./assets/space3d/real/enceladus.jpg",
-  "./assets/space3d/real/titania.jpg",
-  "./assets/space3d/real/oberon.jpg",
-  "./assets/space3d/real/triton.jpg",
-  "./space-uv-import-batch2.html",
-  "./space-uv-import-batch3.html",
-  "./space-uv-import-final6.html",
-  "./space-uv-import-all.html",
-  "./assets/space3d/real/pluto.jpg",
-  "./assets/space3d/2k_ceres.jpg",
-  "./assets/space3d/real/haumea.jpg",
-  "./assets/space3d/real/makemake.jpg",
-  "./assets/space3d/real/eris.jpg"];
+const CORE_CACHE='areg-v199-core';
+const RUNTIME_CACHE='areg-v199-runtime';
 
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{
-  if(e.request.method!=='GET')return;
-  e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return r}).catch(()=>caches.match(e.request).then(x=>x||caches.match('./index.html'))));
+const CORE=[
+  './index.html',
+  './launcher.html',
+  './styles.css?v=139',
+  './space-3d-games.css?v=199',
+  './app.js?v=199',
+  './space-3d-games.js?v=199',
+  './vendor/three.module.min.js',
+  './logo.png',
+  './avatar-frame.png',
+  './bottom-landscape.png',
+  './settings.png',
+  './star-counter.png',
+  './nature.png',
+  './space.png',
+  './mind.png',
+  './create.png',
+  './magic.png',
+  './theme-bg-ocean.svg',
+  './manifest.webmanifest',
+  './icon-192.png',
+  './icon-512.png'
+];
+
+self.addEventListener('install',event=>{
+  event.waitUntil(
+    caches.open(CORE_CACHE)
+      .then(cache=>cache.addAll(CORE))
+      .then(()=>self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(
+        keys
+          .filter(k=>k.startsWith('areg-')&&k!==CORE_CACHE&&k!==RUNTIME_CACHE)
+          .map(k=>caches.delete(k))
+      ))
+      .then(()=>self.clients.claim())
+  );
+});
+
+async function networkNavigation(request){
+  try{
+    return await fetch(request);
+  }catch{
+    return (await caches.match(request,{ignoreSearch:true}))
+      || (await caches.match('./index.html'));
+  }
+}
+
+async function cacheFirst(request){
+  const cached=await caches.match(request);
+  if(cached)return cached;
+  const response=await fetch(request);
+  if(response&&response.ok){
+    const cache=await caches.open(RUNTIME_CACHE);
+    cache.put(request,response.clone()).catch(()=>{});
+  }
+  return response;
+}
+
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET')return;
+
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin)return;
+
+  if(request.mode==='navigate'){
+    event.respondWith(networkNavigation(request));
+    return;
+  }
+
+  if(/\.(?:js|css|png|jpe?g|webp|gif|svg|mp3|wav|json|webmanifest)$/i.test(url.pathname)){
+    event.respondWith(cacheFirst(request));
+    return;
+  }
+
+  event.respondWith(
+    fetch(request).catch(()=>caches.match(request))
+  );
 });
