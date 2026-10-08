@@ -1018,17 +1018,30 @@
   function galleryThumbnail(src){
     return 'assets/thumbs/'+String(src).split('/').pop().replace(/\.[^.]+$/,'.webp');
   }
+  /* V239: never replace a rendered preview src in-place. WebKit may clear
+     its decoded bitmap while the 4K original arrives, making a white flash.
+     Render the full photo above the preview only after decoding is complete. */
   function promoteGalleryZoomPicture(original,previewCard,state){
-    if(!original||!previewCard)return;
-    const img=previewCard.querySelector('img');
-    if(!img)return;
-    const full=new Image();full.decoding='async';
-    const apply=()=>{if(activeGalleryPresentation===state&&!state.cancelled){
-      img.src=full.src;
-    }};
-    full.onload=apply;
+    const wrap=previewCard?.querySelector('.animal-image-wrap');
+    const preview=wrap?.querySelector('img');
+    if(!original||!wrap||!preview||state.cancelled)return;
+    const full=new Image();
+    full.className='gallery-hires-layer';
+    full.alt=preview.alt;
+    full.decoding='async';full.loading='eager';full.draggable=false;
+    full.style.objectFit=getComputedStyle(preview).objectFit;
+    const reveal=()=>{
+      if(activeGalleryPresentation!==state||state.cancelled||state.phase!=='arrived')return;
+      if(!full.naturalWidth||!full.naturalHeight)return;
+      wrap.appendChild(full);
+      requestAnimationFrame(()=>{
+        if(activeGalleryPresentation===state&&!state.cancelled&&state.phase==='arrived')
+          full.classList.add('is-ready');
+      });
+    };
     full.src=original;
-    if(typeof full.decode==='function')full.decode().then(apply).catch(()=>{});
+    if(typeof full.decode==='function')full.decode().then(reveal).catch(()=>{});
+    else full.onload=reveal;
   }
 
   function galleryNameSize(name){
@@ -1103,7 +1116,19 @@
     if(accent)shell.style.setProperty('--animal-accent',accent);
     if(accentSoft)shell.style.setProperty('--animal-accent-soft',accentSoft);
 
+    const originalImage=card.querySelector('.animal-image-wrap img');
+    if(originalImage&&(!originalImage.complete||originalImage.naturalWidth===0)){
+      try{await originalImage.decode()}catch{return}
+    }
+    if(!card.isConnected)return;
     const clone=card.cloneNode(true);
+    const cloneImage=clone.querySelector('.animal-image-wrap img');
+    if(cloneImage){
+      cloneImage.loading='eager';
+      // Predecode the flight image before hiding the original card.
+      try{await cloneImage.decode()}catch{return}
+    }
+    if(!card.isConnected)return;
     clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
     clone.tabIndex=-1;
     clone.style.setProperty('width','100%','important');
@@ -1140,10 +1165,8 @@
     const ty=targetTop-rect.top;
 
     const endTransform='translate3d('+tx+'px,'+ty+'px,0) scale('+scale+') rotateY(0deg) rotateZ(0deg)';
-    const state={host,shell,original:card,clone,cancelled:false,animation:null,endTransform};
+    const state={host,shell,original:card,clone,cancelled:false,animation:null,endTransform,phase:'flying'};
     activeGalleryPresentation=state;
-    promoteGalleryZoomPicture(card.querySelector('img')?.dataset.fullSrc,clone,state);
-
     host.classList.add('gallery-card-flight-host--visible');
 
     if(shell.animate){
@@ -1170,6 +1193,8 @@
     }
 
     shell.classList.add('gallery-card-flight-shell--arrived');
+    state.phase='arrived';
+    promoteGalleryZoomPicture(card.querySelector('img')?.dataset.fullSrc,clone,state);
     await new Promise(r=>setTimeout(r,90));
     if(state.cancelled)return;
 
@@ -1180,6 +1205,7 @@
       ]);
     }finally{
       if(state.cancelled)return;
+      state.phase='exiting';
       shell.classList.remove('gallery-card-flight-shell--arrived');
       await new Promise(r=>setTimeout(r,110));
       if(state.cancelled)return;
@@ -2215,7 +2241,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=2381',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=239',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
