@@ -1,0 +1,32 @@
+name: AREG V235 Responsive Phone QA
+on:
+  push:
+    branches: [v235-responsive-pwa-lab]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  viewport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install mobile browser QA dependencies
+        run: npm install --no-save playwright@1.55.1
+      - name: Test seven portrait phone layouts and launch section games
+        run: node qa/responsive-v235.mjs
+      - name: Check full game integrity
+        run: node qa/full-audit.mjs
+      - name: Save visual screenshots and viewport measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-v235-phone-layouts
+          path: qa/results/
+          if-no-files-found: warn
+          retention-days: 15
