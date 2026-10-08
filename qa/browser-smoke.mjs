@@ -43,8 +43,19 @@ try{
    if(n!==4)throw Error(section+' has '+n+' games, expected 4');
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
-    await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').click({force:process.env.AREG_BROWSER==='webkit'});
-    await page.waitForSelector('#activityScreen.is-visible');
+    const card=page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]');
+    await card.click({force:process.env.AREG_BROWSER==='webkit'});
+    try{
+      await page.waitForSelector('#activityScreen.is-visible',{timeout:7500});
+    }catch(error){
+      // Animated WebKit tiles can miss a synthetic click while the previous
+      // 3D context is releasing. Retry an actual DOM click, and fail if the
+      // activity still does not appear rather than silently skipping it.
+      if(process.env.AREG_BROWSER!=='webkit')throw error;
+      console.log('WEBKIT ACTIVITY RETRY '+JSON.stringify({section,id,diag:await diag(section+'/'+id)}));
+      await card.evaluate(element=>element.click());
+      await page.waitForSelector('#activityScreen.is-visible',{timeout:30000});
+    }
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});
