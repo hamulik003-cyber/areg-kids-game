@@ -1,0 +1,37 @@
+name: AREG V240 Space Round Regression
+on:
+  push:
+    branches: [v240-space-round-prewarm-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - name: Validate all files and approved assets
+        run: node qa/full-audit.mjs
+      - name: Check 3D module syntax and early next-round preparation
+        run: |
+          node --check space-3d-games.js
+          node -e "const s=require('fs').readFileSync('space-3d-games.js','utf8');if(!/if\(finishEnter\)[\s\S]*?warmUpcomingRound\(\)/.test(s))process.exit(1);"
+      - name: Verify all 20 game routes in Chrome
+        run: node qa/browser-smoke.mjs
+  test-webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Verify all 20 game routes in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
