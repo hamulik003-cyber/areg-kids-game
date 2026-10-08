@@ -940,88 +940,117 @@ function makeMilkyWayTexture(){
   ctx.translate(S/2,S/2);
   ctx.globalCompositeOperation='lighter';
 
-  // Soft extended stellar halo.
-  const halo=ctx.createRadialGradient(0,0,20,0,0,430);
-  halo.addColorStop(0,'rgba(255,232,190,.30)');
-  halo.addColorStop(.20,'rgba(216,204,255,.20)');
-  halo.addColorStop(.56,'rgba(74,111,255,.07)');
+  // Broad blue-violet stellar halo.
+  const halo=ctx.createRadialGradient(0,0,20,0,0,455);
+  halo.addColorStop(0,'rgba(255,225,188,.34)');
+  halo.addColorStop(.13,'rgba(255,191,177,.24)');
+  halo.addColorStop(.30,'rgba(191,157,255,.18)');
+  halo.addColorStop(.58,'rgba(74,102,255,.09)');
   halo.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,435,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,458,0,Math.PI*2);ctx.fill();
 
-  // Continuous spiral ribbons make the rotation path clearly readable from
-  // phone distance, while particles/noise keep the galaxy photographic.
-  for(let arm=0;arm<4;arm++){
-    const drawRibbon=(width,color,alpha,offset=0)=>{
-      ctx.strokeStyle=color.replace('ALPHA',String(alpha));
-      ctx.lineWidth=width;
-      ctx.lineCap='round';
-      ctx.lineJoin='round';
-      ctx.beginPath();
-      for(let j=0;j<=210;j++){
-        const r=34+j*(392/210);
-        const a=arm*Math.PI/2 + r*.0132 + offset;
-        const x=Math.cos(a)*r,y=Math.sin(a)*r*.80;
-        if(j===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-      }
-      ctx.stroke();
-    };
-    drawRibbon(24,'rgba(102,131,255,ALPHA)',.055,-.02);
-    drawRibbon(11,'rgba(170,190,255,ALPHA)',.095,0);
-    drawRibbon(3.2,'rgba(228,231,255,ALPHA)',.17,.015);
-  }
-
-  // Four luminous spiral arms. The particle layout is deterministic so the
-  // gallery/game look stays stable from launch to launch.
-  const armColors=[
-    [196,218,255],[157,183,255],[224,205,255],[126,166,255]
+  // Dense cloudy spiral arms like the approved photographic reference.
+  const gasColors=[
+    [121,129,255],[120,166,255],[190,128,255],[86,126,255]
   ];
   for(let arm=0;arm<4;arm++){
-    for(let i=0;i<2350;i++){
-      const r=Math.pow(rnd(),.62)*430;
-      const a=arm*Math.PI/2 + r*.0132 + (rnd()-.5)*(.36-r/1800);
-      const x=Math.cos(a)*r;
-      const y=Math.sin(a)*r*.80;
-      const w=1.1+rnd()*3.0*(1-r/520);
-      const col=armColors[arm];
-      const alpha=.060+rnd()*.205*(1-r/600);
-      ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-      ctx.beginPath();ctx.arc(x,y,w,0,Math.PI*2);ctx.fill();
+    const col=gasColors[arm];
+
+    // Wide nebular ribbons establish the arm mass.
+    for(let layer=0;layer<3;layer++){
+      ctx.beginPath();
+      for(let j=0;j<=240;j++){
+        const r=30+j*(405/240);
+        const a=arm*Math.PI/2+r*.01335+(layer-1)*.045;
+        const x=Math.cos(a)*r,y=Math.sin(a)*r*.78;
+        if(j===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.lineWidth=[44,24,10][layer];
+      ctx.strokeStyle=[
+        `rgba(${col[0]},${col[1]},${col[2]},.050)`,
+        `rgba(${Math.min(255,col[0]+35)},${Math.min(255,col[1]+35)},255,.080)`,
+        'rgba(232,225,255,.12)'
+      ][layer];
+      ctx.stroke();
+    }
+
+    // Large soft knots make the arms read as continuous clouds instead of dots.
+    for(let i=0;i<780;i++){
+      const r=42+Math.pow(rnd(),.67)*390;
+      const a=arm*Math.PI/2+r*.01335+(rnd()-.5)*.31;
+      const x=Math.cos(a)*r,y=Math.sin(a)*r*.78;
+      const rad=5+rnd()*15*(1-r/520);
+      const g=ctx.createRadialGradient(x,y,0,x,y,rad);
+      g.addColorStop(0,`rgba(${col[0]},${col[1]},${col[2]},${.030+rnd()*.065})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,rad,0,Math.PI*2);ctx.fill();
+    }
+
+    // Dense stellar material riding inside each cloudy arm.
+    for(let i=0;i<3000;i++){
+      const r=Math.pow(rnd(),.60)*438;
+      const a=arm*Math.PI/2+r*.01335+(rnd()-.5)*(.34-r/1900);
+      const x=Math.cos(a)*r,y=Math.sin(a)*r*.78;
+      const warm=rnd()>.82;
+      const alpha=.055+rnd()*.22*(1-r/620);
+      ctx.fillStyle=warm
+        ?`rgba(255,222,196,${alpha})`
+        :`rgba(178,196,255,${alpha})`;
+      const s=.45+rnd()*2.3*(1-r/570);
+      ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.fill();
     }
   }
 
-  // Warm dense galactic core.
-  for(let i=0;i<1850;i++){
-    const r=Math.pow(rnd(),2.15)*160,a=rnd()*Math.PI*2;
+  // Strong white-gold-pink central bulge, matching the reference's bright core.
+  const coreGlow=ctx.createRadialGradient(0,0,0,0,0,190);
+  coreGlow.addColorStop(0,'rgba(255,255,238,1)');
+  coreGlow.addColorStop(.08,'rgba(255,245,207,.94)');
+  coreGlow.addColorStop(.23,'rgba(255,199,169,.72)');
+  coreGlow.addColorStop(.46,'rgba(228,151,255,.34)');
+  coreGlow.addColorStop(.72,'rgba(117,116,255,.12)');
+  coreGlow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=coreGlow;ctx.beginPath();ctx.arc(0,0,194,0,Math.PI*2);ctx.fill();
+
+  for(let i=0;i<2900;i++){
+    const r=Math.pow(rnd(),2.35)*174,a=rnd()*Math.PI*2;
     const x=Math.cos(a)*r,y=Math.sin(a)*r*.70;
-    const s=.8+rnd()*3.2;
-    const t=r/160;
-    const rr=Math.round(255-18*t),gg=Math.round(225-30*t),bb=Math.round(176+38*t);
-    ctx.fillStyle=`rgba(${rr},${gg},${bb},${.08+rnd()*.23})`;
+    const t=r/174;
+    const rr=Math.round(255-16*t),gg=Math.round(239-54*t),bb=Math.round(206+39*t);
+    ctx.fillStyle=`rgba(${rr},${gg},${bb},${.10+rnd()*.34})`;
+    const s=.65+rnd()*3.3;
     ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.fill();
   }
 
-  // Dust lanes are transparent/dark gaps between the luminous arms.
+  // Dark, broken dust lanes give the dense spiral depth.
   ctx.globalCompositeOperation='destination-out';
   for(let arm=0;arm<4;arm++){
-    for(let i=0;i<520;i++){
-      const r=70+Math.pow(rnd(),.78)*350;
-      const a=arm*Math.PI/2 + r*.0132 + .22 + (rnd()-.5)*.10;
-      const x=Math.cos(a)*r,y=Math.sin(a)*r*.80;
-      ctx.fillStyle=`rgba(0,0,0,${.035+rnd()*.085})`;
-      ctx.beginPath();ctx.arc(x,y,1.4+rnd()*4.4,0,Math.PI*2);ctx.fill();
+    for(let i=0;i<760;i++){
+      const r=72+Math.pow(rnd(),.76)*355;
+      const a=arm*Math.PI/2+r*.01335+.20+(rnd()-.5)*.11;
+      const x=Math.cos(a)*r,y=Math.sin(a)*r*.78;
+      ctx.fillStyle=`rgba(0,0,0,${.035+rnd()*.09})`;
+      ctx.beginPath();ctx.arc(x,y,1.8+rnd()*5.4,0,Math.PI*2);ctx.fill();
     }
   }
 
-  // Sharp foreground stars and blue/purple nebular knots.
+  // Restore a razor-bright nucleus after cutting the dust lanes.
   ctx.globalCompositeOperation='lighter';
-  for(let i=0;i<1050;i++){
-    const r=Math.pow(rnd(),.58)*440,a=rnd()*Math.PI*2;
-    const x=Math.cos(a)*r,y=Math.sin(a)*r*.81;
-    const blue=rnd()>.55;
+  const nucleus=ctx.createRadialGradient(0,0,0,0,0,82);
+  nucleus.addColorStop(0,'rgba(255,255,247,1)');
+  nucleus.addColorStop(.18,'rgba(255,246,207,.96)');
+  nucleus.addColorStop(.48,'rgba(255,195,171,.56)');
+  nucleus.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=nucleus;ctx.beginPath();ctx.arc(0,0,84,0,Math.PI*2);ctx.fill();
+
+  for(let i=0;i<1300;i++){
+    const r=Math.pow(rnd(),.56)*445,a=rnd()*Math.PI*2;
+    const x=Math.cos(a)*r,y=Math.sin(a)*r*.79;
+    const blue=rnd()>.52;
     ctx.fillStyle=blue
-      ?`rgba(160,196,255,${.18+rnd()*.42})`
-      :`rgba(255,239,214,${.15+rnd()*.38})`;
-    const s=.35+rnd()*1.6;
+      ?`rgba(177,205,255,${.18+rnd()*.48})`
+      :`rgba(255,231,207,${.16+rnd()*.42})`;
+    const s=.35+rnd()*1.75;
     ctx.fillRect(x-s/2,y-s/2,s,s);
   }
 
@@ -1037,113 +1066,130 @@ function makeMilkyWayTexture(){
 
 function makeBlackHoleTexture(){
   if(_blackHoleTex)return _blackHoleTex;
-  const W=1024,H=600,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+  const W=1200,H=760,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
   const ctx=canvas.getContext('2d');
   let seed=0x62686f6c;
   const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-  const cx=W/2,cy=H/2+4;
+  const cx=W/2,cy=H/2+10;
 
   ctx.clearRect(0,0,W,H);
   ctx.save();
-  ctx.globalCompositeOperation='lighter';
 
-  // Broad warm halo around the gravitationally lensed disk.
-  const halo=ctx.createRadialGradient(cx,cy,70,cx,cy,315);
-  halo.addColorStop(0,'rgba(255,245,218,.18)');
-  halo.addColorStop(.30,'rgba(255,186,98,.10)');
-  halo.addColorStop(.65,'rgba(255,92,32,.035)');
+  // Warm atmospheric glow around the system.
+  ctx.globalCompositeOperation='lighter';
+  const halo=ctx.createRadialGradient(cx,cy,90,cx,cy,390);
+  halo.addColorStop(0,'rgba(255,248,227,.18)');
+  halo.addColorStop(.26,'rgba(255,192,126,.12)');
+  halo.addColorStop(.60,'rgba(225,105,52,.045)');
   halo.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=halo;ctx.fillRect(0,0,W,H);
 
-  // Far-side lensed arc above the event horizon — the signature
-  // Interstellar-like silhouette from the user's reference clip.
-  const arcGradient=ctx.createLinearGradient(cx-190,cy-170,cx+190,cy-170);
-  arcGradient.addColorStop(0,'rgba(255,142,61,.34)');
-  arcGradient.addColorStop(.27,'rgba(255,230,186,.88)');
-  arcGradient.addColorStop(.52,'rgba(255,255,244,1)');
-  arcGradient.addColorStop(.76,'rgba(255,213,157,.84)');
-  arcGradient.addColorStop(1,'rgba(255,112,42,.28)');
-  ctx.strokeStyle=arcGradient;
-  ctx.lineCap='round';
-  ctx.lineWidth=26;
-  ctx.beginPath();
-  ctx.ellipse(cx,cy+2,139,151,0,Math.PI*1.04,Math.PI*1.96);
-  ctx.stroke();
+  // The broad accretion disk is seen from above at a shallow angle and slopes
+  // upward to screen-right like the user's real reference.
+  ctx.save();
+  ctx.translate(cx,cy+30);
+  ctx.rotate(-.105);
+  ctx.translate(-cx,-cy);
 
-  ctx.globalAlpha=.30;ctx.lineWidth=48;
-  ctx.beginPath();ctx.ellipse(cx,cy+6,153,166,0,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
-  ctx.globalAlpha=1;
-
-  // Faint lower lensed image.
-  ctx.strokeStyle='rgba(255,168,96,.24)';ctx.lineWidth=18;
-  ctx.beginPath();ctx.ellipse(cx,cy+18,136,118,0,.06*Math.PI,.94*Math.PI);ctx.stroke();
-
-  // The accretion disk: thousands of hot streaks in a very thin ellipse.
-  for(let i=0;i<4200;i++){
-    const r=118+Math.pow(rnd(),1.45)*355;
+  // Diffuse outer disk clouds.
+  for(let i=0;i<5200;i++){
+    const r=145+Math.pow(rnd(),1.35)*430;
     const a=rnd()*Math.PI*2;
     const x=cx+Math.cos(a)*r;
-    const y=cy+Math.sin(a)*r*.145 + (rnd()-.5)*12;
-    const inner=Math.max(0,1-(r-118)/355);
-    const temp=rnd();
-    let col;
-    if(temp>.78) col=[255,248,223];
-    else if(temp>.42) col=[255,192,112];
-    else col=[218,87,38];
-    const alpha=(.025+rnd()*.105)*(0.55+inner*.9);
+    const y=cy+Math.sin(a)*r*.17+(rnd()-.5)*20;
+    const inner=Math.max(0,1-(r-145)/430);
+    const hot=rnd();
+    const col=hot>.80?[255,249,226]:(hot>.42?[255,194,120]:[204,95,52]);
+    const alpha=(.018+rnd()*.085)*(.65+inner*.9);
     ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-    ctx.lineWidth=.45+rnd()*1.7;
-    const len=2+rnd()*13*(.4+inner);
-    ctx.beginPath();ctx.moveTo(x-len,y);ctx.lineTo(x+len,y);ctx.stroke();
+    ctx.lineWidth=.55+rnd()*2.4;
+    const len=3+rnd()*18*(.45+inner);
+    ctx.beginPath();ctx.moveTo(x-len*.6,y);ctx.lineTo(x+len*.6,y+(rnd()-.5)*2.2);ctx.stroke();
   }
 
-  // Hot inner disk edges.
-  const diskGrad=ctx.createLinearGradient(cx-430,cy,cx+430,cy);
-  diskGrad.addColorStop(0,'rgba(255,102,40,.10)');
-  diskGrad.addColorStop(.24,'rgba(255,194,115,.70)');
-  diskGrad.addColorStop(.44,'rgba(255,250,223,.98)');
-  diskGrad.addColorStop(.58,'rgba(255,246,217,.98)');
-  diskGrad.addColorStop(.80,'rgba(255,161,81,.58)');
-  diskGrad.addColorStop(1,'rgba(255,81,31,.08)');
-  ctx.strokeStyle=diskGrad;ctx.lineWidth=10;
-  ctx.beginPath();ctx.moveTo(76,cy-3);ctx.quadraticCurveTo(cx,cy-20,W-76,cy-2);ctx.stroke();
-  ctx.lineWidth=4;ctx.globalAlpha=.92;
-  ctx.beginPath();ctx.moveTo(108,cy+15);ctx.quadraticCurveTo(cx,cy+29,W-108,cy+13);ctx.stroke();
+  // Dense, luminous front half below the event horizon.
+  for(let i=0;i<2600;i++){
+    const a=.04*Math.PI+rnd()*.92*Math.PI;
+    const r=150+Math.pow(rnd(),1.25)*405;
+    const x=cx+Math.cos(a)*r;
+    const y=cy+Math.sin(a)*r*.24+10+(rnd()-.5)*18;
+    const hot=rnd();
+    const col=hot>.68?[255,253,235]:(hot>.30?[255,202,132]:[225,114,61]);
+    const alpha=.032+rnd()*.13;
+    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
+    ctx.lineWidth=.9+rnd()*3.0;
+    const len=4+rnd()*23;
+    ctx.beginPath();ctx.moveTo(x-len*.55,y);ctx.lineTo(x+len*.55,y+(rnd()-.5)*2.8);ctx.stroke();
+  }
+
+  // Hot continuous inner edge.
+  const diskGrad=ctx.createLinearGradient(cx-520,cy,cx+520,cy);
+  diskGrad.addColorStop(0,'rgba(255,112,53,.12)');
+  diskGrad.addColorStop(.20,'rgba(255,192,116,.72)');
+  diskGrad.addColorStop(.40,'rgba(255,249,222,.98)');
+  diskGrad.addColorStop(.58,'rgba(255,255,239,1)');
+  diskGrad.addColorStop(.80,'rgba(255,183,104,.64)');
+  diskGrad.addColorStop(1,'rgba(234,96,43,.10)');
+  ctx.strokeStyle=diskGrad;
+  ctx.lineWidth=18;
+  ctx.beginPath();ctx.moveTo(84,cy+8);ctx.quadraticCurveTo(cx,cy+46,W-84,cy+11);ctx.stroke();
+  ctx.lineWidth=6;ctx.globalAlpha=.92;
+  ctx.beginPath();ctx.moveTo(110,cy-6);ctx.quadraticCurveTo(cx,cy-31,W-110,cy-3);ctx.stroke();
+  ctx.globalAlpha=1;
+  ctx.restore();
+
+  // Gravitationally lensed far side: a large horseshoe arch around the top.
+  const arcGrad=ctx.createLinearGradient(cx-260,cy-230,cx+260,cy-230);
+  arcGrad.addColorStop(0,'rgba(238,133,73,.42)');
+  arcGrad.addColorStop(.22,'rgba(255,216,160,.86)');
+  arcGrad.addColorStop(.46,'rgba(255,255,241,1)');
+  arcGrad.addColorStop(.64,'rgba(255,238,198,.96)');
+  arcGrad.addColorStop(.84,'rgba(255,176,97,.70)');
+  arcGrad.addColorStop(1,'rgba(221,93,45,.30)');
+  ctx.globalCompositeOperation='lighter';
+  ctx.strokeStyle=arcGrad;ctx.lineCap='round';
+  ctx.lineWidth=54;
+  ctx.beginPath();ctx.ellipse(cx,cy+2,158,188,-.04,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
+  ctx.globalAlpha=.30;ctx.lineWidth=88;
+  ctx.beginPath();ctx.ellipse(cx,cy+4,172,203,-.04,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
   ctx.globalAlpha=1;
 
-  // Dense near-side hot clouds. These sit on the lower/front arc so a modest
-  // 3D tilt reveals a visible foreground accretion layer instead of a flat line.
-  ctx.globalCompositeOperation='lighter';
-  for(let i=0;i<1300;i++){
-    const a=.05*Math.PI+rnd()*.90*Math.PI;
-    const r=122+Math.pow(rnd(),1.35)*330;
-    const x=cx+Math.cos(a)*r;
-    const y=cy+Math.sin(a)*r*.19+10+(rnd()-.5)*15;
-    const hot=rnd();
-    const col=hot>.72?[255,247,218]:(hot>.34?[255,184,99]:[219,92,45]);
-    const alpha=.028+rnd()*.115;
-    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-    ctx.lineWidth=.8+rnd()*2.6;
-    const len=3+rnd()*17;
-    ctx.beginPath();ctx.moveTo(x-len*.55,y);ctx.lineTo(x+len*.55,y+(rnd()-.5)*2.2);ctx.stroke();
-  }
+  // Faint lower lensed image, wider and softer.
+  ctx.strokeStyle='rgba(255,169,105,.32)';ctx.lineWidth=32;
+  ctx.beginPath();ctx.ellipse(cx,cy+28,157,138,-.04,.05*Math.PI,.95*Math.PI);ctx.stroke();
 
-  // Event horizon, drawn after the far-side lensing but before the front disk.
+  // Event horizon.
   ctx.globalCompositeOperation='source-over';
-  const black=ctx.createRadialGradient(cx-18,cy-14,22,cx,cy,118);
+  const black=ctx.createRadialGradient(cx-20,cy-18,18,cx,cy,142);
   black.addColorStop(0,'rgba(0,0,0,1)');
-  black.addColorStop(.82,'rgba(0,0,0,1)');
-  black.addColorStop(1,'rgba(0,0,0,.94)');
-  ctx.fillStyle=black;ctx.beginPath();ctx.arc(cx,cy,112,0,Math.PI*2);ctx.fill();
+  black.addColorStop(.88,'rgba(0,0,0,1)');
+  black.addColorStop(1,'rgba(2,1,1,.98)');
+  ctx.fillStyle=black;ctx.beginPath();ctx.arc(cx,cy,134,0,Math.PI*2);ctx.fill();
 
-  // Razor-thin photon rim.
+  // Fine photon ring.
   ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle='rgba(255,248,221,.94)';ctx.lineWidth=5;
-  ctx.beginPath();ctx.arc(cx,cy,116,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(255,248,226,.88)';ctx.lineWidth=4.5;
+  ctx.beginPath();ctx.arc(cx,cy,139,0,Math.PI*2);ctx.stroke();
 
-  // Repaint the near half of the disk across the event horizon.
-  ctx.strokeStyle=diskGrad;ctx.lineWidth=9;
-  ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(80,cy+4);ctx.quadraticCurveTo(cx,cy+40,W-80,cy+6);ctx.stroke();
+  // Near disk repainted on top of the horizon so the front side unmistakably
+  // passes in front, matching the user's reference.
+  ctx.save();
+  ctx.translate(cx,cy+30);
+  ctx.rotate(-.105);
+  ctx.translate(-cx,-cy);
+  ctx.strokeStyle=diskGrad;ctx.lineWidth=20;
+  ctx.beginPath();ctx.moveTo(95,cy+15);ctx.quadraticCurveTo(cx,cy+62,W-95,cy+17);ctx.stroke();
+
+  for(let i=0;i<900;i++){
+    const a=.10*Math.PI+rnd()*.80*Math.PI;
+    const r=154+Math.pow(rnd(),1.18)*385;
+    const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*.25+19+(rnd()-.5)*14;
+    ctx.strokeStyle=`rgba(255,${170+Math.floor(rnd()*80)},${92+Math.floor(rnd()*110)},${.035+rnd()*.12})`;
+    ctx.lineWidth=.8+rnd()*2.4;
+    const len=4+rnd()*20;
+    ctx.beginPath();ctx.moveTo(x-len*.5,y);ctx.lineTo(x+len*.5,y);ctx.stroke();
+  }
+  ctx.restore();
 
   ctx.restore();
   const tex=new THREE.CanvasTexture(canvas);
@@ -1157,39 +1203,30 @@ function makeBlackHoleTexture(){
 
 function blackHole(item){
   const g=new THREE.Group();
-  g.userData.item=item;g.userData.pickable=true;g.userData.spin=.018;g.userData.spinAxis='z';
+  g.userData.item=item;g.userData.pickable=true;
 
-  // Reference presentation: almost edge-on cinematic accretion disk with
-  // gravitational lensing above and below the event horizon.
+  // Keep the lensing silhouette stable; the glowing gas texture itself already
+  // contains the rotational flow. Rotating the whole card looked artificial.
+  g.userData.spin=0;g.userData.spinAxis='z';
   g.rotation.set(
-    THREE.MathUtils.degToRad(22),
+    THREE.MathUtils.degToRad(10),
     THREE.MathUtils.degToRad(-3),
-    THREE.MathUtils.degToRad(-7)
+    THREE.MathUtils.degToRad(-5)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
   const plate=new THREE.Mesh(
-    new THREE.PlaneGeometry(3.55,2.08),
+    new THREE.PlaneGeometry(3.95,2.50),
     new THREE.MeshBasicMaterial({
       map:makeBlackHoleTexture(),transparent:true,depthWrite:false,
       depthTest:true,toneMapped:false,side:THREE.DoubleSide
     })
   );
-  plate.userData.parentPick=g;
-  visual.add(plate);
-
-  // Actual 3D black event horizon gives the flat reference a little depth.
-  const core=new THREE.Mesh(
-    new THREE.SphereGeometry(.40,48,32),
-    new THREE.MeshBasicMaterial({color:0x000000,toneMapped:false})
-  );
-  core.position.z=-.035;
-  core.userData.parentPick=g;
-  visual.add(core);
+  plate.userData.parentPick=g;visual.add(plate);
 
   const hit=new THREE.Mesh(
-    new THREE.SphereGeometry(1.58,24,16),
+    new THREE.SphereGeometry(1.72,24,16),
     new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
   );
   hit.userData.parentPick=g;visual.add(hit);
@@ -1198,51 +1235,51 @@ function blackHole(item){
 
 function galaxy(item){
   const g=new THREE.Group();
-  g.userData.item=item;g.userData.pickable=true;g.userData.spin=.032;g.userData.spinAxis='z';
+  g.userData.item=item;g.userData.pickable=true;
+  g.userData.spin=.026;g.userData.spinAxis='z';
 
-  // A photographic spiral presentation: readable spiral arms, warm core,
-  // dark dust lanes and a modest 3D tilt instead of the old dotted strip.
+  // Slightly more face-on than before so the dense luminous spiral is readable,
+  // while still retaining the reference's 3D diagonal presentation.
   g.rotation.set(
-    THREE.MathUtils.degToRad(52),
+    THREE.MathUtils.degToRad(44),
     THREE.MathUtils.degToRad(6),
-    THREE.MathUtils.degToRad(-24)
+    THREE.MathUtils.degToRad(-20)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
   const disk=new THREE.Mesh(
-    new THREE.PlaneGeometry(3.75,3.05),
+    new THREE.PlaneGeometry(4.05,3.35),
     new THREE.MeshBasicMaterial({
       map:makeMilkyWayTexture(),transparent:true,opacity:1,
       depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending,
       toneMapped:false,side:THREE.DoubleSide
     })
   );
-  disk.userData.parentPick=g;
-  visual.add(disk);
+  disk.userData.parentPick=g;visual.add(disk);
 
-  // Sparse 3D stars above/below the galactic plane keep it from reading
-  // as a flat sticker when the object rotates.
-  const N=760,p=new Float32Array(N*3),col=new Float32Array(N*3);
+  // A denser shallow 3D stellar layer adds volume without destroying the
+  // photographic spiral texture.
+  const N=980,p=new Float32Array(N*3),col=new Float32Array(N*3);
   for(let i=0;i<N;i++){
-    const r=Math.pow(Math.random(),.62)*1.70,a=Math.random()*Math.PI*2;
+    const r=Math.pow(Math.random(),.62)*1.82,a=Math.random()*Math.PI*2;
     p[i*3]=Math.cos(a)*r;
     p[i*3+1]=Math.sin(a)*r*.78;
-    p[i*3+2]=rand(-.16,.16)*(1-r*.32);
-    const warm=Math.random()>.72;
-    col[i*3]=warm?1:.58;col[i*3+1]=warm?.86:.70;col[i*3+2]=warm?.66:1;
+    p[i*3+2]=rand(-.15,.15)*(1-r*.29);
+    const warm=Math.random()>.76;
+    col[i*3]=warm?1:.60;col[i*3+1]=warm?.85:.72;col[i*3+2]=warm?.66:1;
   }
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.BufferAttribute(p,3));
   geo.setAttribute('color',new THREE.BufferAttribute(col,3));
   const stars=new THREE.Points(geo,new THREE.PointsMaterial({
-    vertexColors:true,size:.028,transparent:true,opacity:.82,
+    vertexColors:true,size:.029,transparent:true,opacity:.82,
     blending:THREE.AdditiveBlending,depthWrite:false
   }));
   stars.userData.parentPick=g;visual.add(stars);
 
   const hit=new THREE.Mesh(
-    new THREE.SphereGeometry(1.72,24,16),
+    new THREE.SphereGeometry(1.82,24,16),
     new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
   );
   hit.userData.parentPick=g;visual.add(hit);
@@ -1324,13 +1361,13 @@ function searchSlots(root,camera){
 function fitSearchObject(g,item,portrait){
   // Large planar/special objects need more breathing room than spherical bodies.
   const specialPortrait={
-    'black-hole':.43,
-    'milky-way':.46,
+    'black-hole':.50,
+    'milky-way':.53,
     'solar-system':.48
   };
   const specialWide={
-    'black-hole':.60,
-    'milky-way':.64,
+    'black-hole':.68,
+    'milky-way':.72,
     'solar-system':.66
   };
   const factor=portrait
