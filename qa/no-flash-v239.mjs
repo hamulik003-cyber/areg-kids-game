@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 // V239 controlled slow-network acceptance test: do not reveal blank gallery.
 // Run Chromium with SW blocked so the first 8 preview requests are cold.
-import {chromium} from 'playwright';
+import {chromium,webkit} from 'playwright';
 import {spawn} from 'node:child_process';
 import {setTimeout as sleep} from 'node:timers/promises';
 const server=spawn('python3',['-m','http.server','8765','--bind','127.0.0.1'],{stdio:'ignore'});
 let browser;const failures=[];const facts={};
 try{
   await sleep(900);
-  browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+  browser=process.env.AREG_BROWSER==='webkit'
+    ?await webkit.launch({headless:true})\n    :await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:'block'});
   const page=await context.newPage();
   page.on('pageerror',err=>failures.push(err.message));
