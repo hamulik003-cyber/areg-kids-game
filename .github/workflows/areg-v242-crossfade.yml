@@ -1,0 +1,37 @@
+name: AREG V242 True 3D Crossfade QA
+on:
+  push:
+    branches: [v242-crossfade-3d-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium-and-overlap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1 pngjs@7
+      - name: Verify game files, graphics and versioned shell
+        run: node qa/full-audit.mjs
+      - name: Verify 3D syntax
+        run: node --check space-3d-games.js
+      - name: Verify all twenty games in Chromium
+        run: node qa/browser-smoke.mjs
+      - name: Capture and test crossfade rendering and object disposal
+        run: node qa/v241-space-transition.mjs
+  apple-webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Verify all twenty games in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
