@@ -948,27 +948,49 @@ function makeMilkyWayTexture(){
   halo.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,435,0,Math.PI*2);ctx.fill();
 
+  // Continuous spiral ribbons make the rotation path clearly readable from
+  // phone distance, while particles/noise keep the galaxy photographic.
+  for(let arm=0;arm<4;arm++){
+    const drawRibbon=(width,color,alpha,offset=0)=>{
+      ctx.strokeStyle=color.replace('ALPHA',String(alpha));
+      ctx.lineWidth=width;
+      ctx.lineCap='round';
+      ctx.lineJoin='round';
+      ctx.beginPath();
+      for(let j=0;j<=210;j++){
+        const r=34+j*(392/210);
+        const a=arm*Math.PI/2 + r*.0132 + offset;
+        const x=Math.cos(a)*r,y=Math.sin(a)*r*.80;
+        if(j===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    };
+    drawRibbon(24,'rgba(102,131,255,ALPHA)',.055,-.02);
+    drawRibbon(11,'rgba(170,190,255,ALPHA)',.095,0);
+    drawRibbon(3.2,'rgba(228,231,255,ALPHA)',.17,.015);
+  }
+
   // Four luminous spiral arms. The particle layout is deterministic so the
   // gallery/game look stays stable from launch to launch.
   const armColors=[
     [196,218,255],[157,183,255],[224,205,255],[126,166,255]
   ];
   for(let arm=0;arm<4;arm++){
-    for(let i=0;i<1500;i++){
+    for(let i=0;i<2350;i++){
       const r=Math.pow(rnd(),.62)*430;
       const a=arm*Math.PI/2 + r*.0132 + (rnd()-.5)*(.36-r/1800);
       const x=Math.cos(a)*r;
       const y=Math.sin(a)*r*.80;
-      const w=1.0+rnd()*2.5*(1-r/520);
+      const w=1.1+rnd()*3.0*(1-r/520);
       const col=armColors[arm];
-      const alpha=.045+rnd()*.15*(1-r/600);
+      const alpha=.060+rnd()*.205*(1-r/600);
       ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
       ctx.beginPath();ctx.arc(x,y,w,0,Math.PI*2);ctx.fill();
     }
   }
 
   // Warm dense galactic core.
-  for(let i=0;i<1250;i++){
+  for(let i=0;i<1850;i++){
     const r=Math.pow(rnd(),2.15)*160,a=rnd()*Math.PI*2;
     const x=Math.cos(a)*r,y=Math.sin(a)*r*.70;
     const s=.8+rnd()*3.2;
@@ -992,7 +1014,7 @@ function makeMilkyWayTexture(){
 
   // Sharp foreground stars and blue/purple nebular knots.
   ctx.globalCompositeOperation='lighter';
-  for(let i=0;i<700;i++){
+  for(let i=0;i<1050;i++){
     const r=Math.pow(rnd(),.58)*440,a=rnd()*Math.PI*2;
     const x=Math.cos(a)*r,y=Math.sin(a)*r*.81;
     const blue=rnd()>.55;
@@ -1061,7 +1083,7 @@ function makeBlackHoleTexture(){
     const r=118+Math.pow(rnd(),1.45)*355;
     const a=rnd()*Math.PI*2;
     const x=cx+Math.cos(a)*r;
-    const y=cy+Math.sin(a)*r*.105 + (rnd()-.5)*8;
+    const y=cy+Math.sin(a)*r*.145 + (rnd()-.5)*12;
     const inner=Math.max(0,1-(r-118)/355);
     const temp=rnd();
     let col;
@@ -1089,6 +1111,23 @@ function makeBlackHoleTexture(){
   ctx.beginPath();ctx.moveTo(108,cy+15);ctx.quadraticCurveTo(cx,cy+29,W-108,cy+13);ctx.stroke();
   ctx.globalAlpha=1;
 
+  // Dense near-side hot clouds. These sit on the lower/front arc so a modest
+  // 3D tilt reveals a visible foreground accretion layer instead of a flat line.
+  ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<1300;i++){
+    const a=.05*Math.PI+rnd()*.90*Math.PI;
+    const r=122+Math.pow(rnd(),1.35)*330;
+    const x=cx+Math.cos(a)*r;
+    const y=cy+Math.sin(a)*r*.19+10+(rnd()-.5)*15;
+    const hot=rnd();
+    const col=hot>.72?[255,247,218]:(hot>.34?[255,184,99]:[219,92,45]);
+    const alpha=.028+rnd()*.115;
+    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
+    ctx.lineWidth=.8+rnd()*2.6;
+    const len=3+rnd()*17;
+    ctx.beginPath();ctx.moveTo(x-len*.55,y);ctx.lineTo(x+len*.55,y+(rnd()-.5)*2.2);ctx.stroke();
+  }
+
   // Event horizon, drawn after the far-side lensing but before the front disk.
   ctx.globalCompositeOperation='source-over';
   const black=ctx.createRadialGradient(cx-18,cy-14,22,cx,cy,118);
@@ -1104,7 +1143,7 @@ function makeBlackHoleTexture(){
 
   // Repaint the near half of the disk across the event horizon.
   ctx.strokeStyle=diskGrad;ctx.lineWidth=9;
-  ctx.beginPath();ctx.moveTo(80,cy+2);ctx.quadraticCurveTo(cx,cy+19,W-80,cy+3);ctx.stroke();
+  ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(80,cy+4);ctx.quadraticCurveTo(cx,cy+40,W-80,cy+6);ctx.stroke();
 
   ctx.restore();
   const tex=new THREE.CanvasTexture(canvas);
@@ -1123,9 +1162,9 @@ function blackHole(item){
   // Reference presentation: almost edge-on cinematic accretion disk with
   // gravitational lensing above and below the event horizon.
   g.rotation.set(
-    THREE.MathUtils.degToRad(7),
-    THREE.MathUtils.degToRad(-4),
-    THREE.MathUtils.degToRad(-4)
+    THREE.MathUtils.degToRad(22),
+    THREE.MathUtils.degToRad(-3),
+    THREE.MathUtils.degToRad(-7)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
@@ -1174,8 +1213,8 @@ function galaxy(item){
   const disk=new THREE.Mesh(
     new THREE.PlaneGeometry(3.75,3.05),
     new THREE.MeshBasicMaterial({
-      map:makeMilkyWayTexture(),transparent:true,depthWrite:false,
-      depthTest:true,blending:THREE.AdditiveBlending,
+      map:makeMilkyWayTexture(),transparent:true,opacity:1,
+      depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending,
       toneMapped:false,side:THREE.DoubleSide
     })
   );
@@ -1184,7 +1223,7 @@ function galaxy(item){
 
   // Sparse 3D stars above/below the galactic plane keep it from reading
   // as a flat sticker when the object rotates.
-  const N=520,p=new Float32Array(N*3),col=new Float32Array(N*3);
+  const N=760,p=new Float32Array(N*3),col=new Float32Array(N*3);
   for(let i=0;i<N;i++){
     const r=Math.pow(Math.random(),.62)*1.70,a=Math.random()*Math.PI*2;
     p[i*3]=Math.cos(a)*r;
@@ -1197,7 +1236,7 @@ function galaxy(item){
   geo.setAttribute('position',new THREE.BufferAttribute(p,3));
   geo.setAttribute('color',new THREE.BufferAttribute(col,3));
   const stars=new THREE.Points(geo,new THREE.PointsMaterial({
-    vertexColors:true,size:.025,transparent:true,opacity:.72,
+    vertexColors:true,size:.028,transparent:true,opacity:.82,
     blending:THREE.AdditiveBlending,depthWrite:false
   }));
   stars.userData.parentPick=g;visual.add(stars);
