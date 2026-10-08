@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole} from './blackhole-interstellar.js?v=216';
+import {renderInterstellarBlackHole,makeBlackHoleFlowMaterial} from './blackhole-interstellar.js?v=217';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1098,8 +1098,16 @@ function blackHole(item){
   );
   plate.userData.parentPick=g;visual.add(plate);
 
-  // The reference photograph contains the exact foreground flow and lensing.
-  // Do not overlay mismatched particles on the black event horizon.
+  // A separate translucent GPU layer moves warm light along the already
+  // approved accretion paths. The V216 photo and dark center never move.
+  const gasFlow=new THREE.Mesh(
+    new THREE.PlaneGeometry(4.64,2.61),
+    makeBlackHoleFlowMaterial(THREE,plate.material.map)
+  );
+  gasFlow.position.z=.003;
+  gasFlow.userData.parentPick=g;
+  visual.add(gasFlow);
+  g.userData.blackHoleFlow=gasFlow;
 
   const hit=new THREE.Mesh(
     new THREE.SphereGeometry(1.72,24,16),
@@ -1288,7 +1296,11 @@ function setObjectOpacity(g,alpha){
     if(!o.material)return;
     const mats=Array.isArray(o.material)?o.material:[o.material];
     mats.forEach(m=>{
-      if(m.isShaderMaterial)return;
+      if(m.isShaderMaterial){
+        if(m.userData?.isBlackHoleFlow&&m.uniforms?.uOpacity)
+          m.uniforms.uOpacity.value=alpha;
+        return;
+      }
       if(!m.userData.__s3dFadeInit){
         m.userData.__s3dFadeInit=true;
         m.userData.__s3dBaseOpacity=Number.isFinite(m.opacity)?m.opacity:1;
@@ -1491,6 +1503,11 @@ function gameSpaceSearch(ctx){
         else g.userData.surface.rotation.y+=spinDelta;
       }
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
+      // Animate the lensing and accretion glints, NOT the whole black hole.
+      if(g.userData.blackHoleFlow){
+        const u=g.userData.blackHoleFlow.material.uniforms;
+        u.uTime.value=(u.uTime.value+dt)%10000;
+      }
       if(g.userData.accretionFlow){
         const flow=g.userData.accretionFlow;
         const meta=flow.userData.flowMeta||[];

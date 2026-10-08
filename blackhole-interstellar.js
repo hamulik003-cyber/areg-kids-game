@@ -2,7 +2,7 @@
 // No procedural substitute: this image determines the silhouette, glowing
 // upper lensing crown, lowered foreground disk and lower photon reflection.
 // Loaded from GitHub (not localStorage, IndexedDB or a temporary CDN).
-const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=216';
+const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=217';
 export function renderInterstellarBlackHole(){
   const W=480,H=270,canvas=document.createElement('canvas');
   canvas.width=W;canvas.height=H;
@@ -56,4 +56,79 @@ export function renderInterstellarBlackHole(){
   im.onerror=fallback;
   im.src=IMAGE_URL;
   return canvas;
+}
+
+// V217: GPU-only gliding light lanes.  The V216 reference photo remains
+// the original stationary texture, including its opaque black event horizon.
+// This additive layer adds slow orbital gas movement without turning the card.
+export function makeBlackHoleFlowMaterial(THREE,photo){
+  const material=new THREE.ShaderMaterial({
+    uniforms:{
+      uPhoto:{value:photo},
+      uTime:{value:0},
+      uOpacity:{value:1}
+    },
+    vertexShader:`
+      varying vec2 vUv;
+      void main(){
+        vUv=uv;
+        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+      }
+    `,
+    fragmentShader:`
+      precision highp float;
+      uniform sampler2D uPhoto;
+      uniform float uTime;
+      uniform float uOpacity;
+      varying vec2 vUv;
+      float band(float x,float center,float width){
+        return 1.0-smoothstep(width*.35,width,abs(x-center));
+      }
+      void main(){
+        vec4 photo=texture2D(uPhoto,vUv);
+        // The silhouette and empty background must stay completely untouched.
+        float luminance=dot(photo.rgb,vec3(.299,.587,.114));
+        float bright=photo.a*smoothstep(.13,.59,luminance);
+        if(bright<.002){gl_FragColor=vec4(0.0);return;}
+        vec2 p=vUv-vec2(.5,.505);
+        // The user's picture slopes down toward screen-right; follow that
+        // existing photographed band instead of spinning the whole texture.
+        float frontLane=p.y+.195*p.x+.004;
+        float disk=band(frontLane,0.0,.145);
+        // Slowly advect tiny warm-white highlights along this diagonal track.
+        float thin=pow(.5+.5*sin(p.x*93.0-uTime*2.7+frontLane*24.0),12.0);
+        float wide=pow(.5+.5*sin(p.x*45.0-uTime*1.35-frontLane*9.0),9.0);
+        float diskFlow=disk*(thin*.72+wide*.38);
+        // Lensed upper crown and lower reflection: orbit around the black
+        // event horizon as streaming arcs, not as a rigid rotating object.
+        vec2 ell=vec2(p.x/.27,p.y/.315);
+        float orbitalRadius=length(ell);
+        float angle=atan(ell.y,ell.x);
+        float ringBand=band(orbitalRadius,1.0,.50);
+        float top=smoothstep(.015,.15,p.y);
+        float bottom=1.0-smoothstep(-.16,-.015,p.y);
+        float ringArea=ringBand*max(top,bottom*.68);
+        float longTrail=pow(.5+.5*sin(angle*15.0-uTime*1.85
+                                   +(orbitalRadius-1.0)*7.0),10.0);
+        float fineTrail=pow(.5+.5*sin(angle*29.0-uTime*3.1
+                                   -(orbitalRadius-1.0)*11.0),16.0);
+        float orbitFlow=ringArea*(longTrail*.78+fineTrail*.32);
+        // Soft drifting filaments; no on/off flash, no extra noise texture.
+        float filament=.5+.5*sin(p.x*118.0-uTime*.83+frontLane*48.0);
+        float motion=(diskFlow+orbitFlow)*(.79+.21*filament);
+        float opacity=min(.46,bright*motion*.54)*uOpacity;
+        vec3 gold=mix(vec3(1.0,.55,.24),vec3(1.0,.94,.73),
+                     smoothstep(.2,.86,luminance));
+        gl_FragColor=vec4(gold,opacity);
+      }
+    `,
+    transparent:true,
+    depthWrite:false,
+    depthTest:true,
+    blending:THREE.AdditiveBlending,
+    toneMapped:false,
+    side:THREE.DoubleSide
+  });
+  material.userData.isBlackHoleFlow=true;
+  return material;
 }

@@ -1,15 +1,15 @@
-const CORE_CACHE='areg-v216-core';
-const RUNTIME_CACHE='areg-v216-runtime';
+const CORE_CACHE='areg-v217-core';
+const RUNTIME_CACHE='areg-v217-runtime';
 
 const CORE=[
   './index.html',
   './launcher.html',
   './styles.css?v=139',
-  './space-3d-games.css?v=216',
-  './app.js?v=216',
-  './space-3d-games.js?v=216',
-  './blackhole-interstellar.js?v=216',
-  './assets/space3d/black-hole-reference-v216.webp?v=216',
+  './space-3d-games.css?v=217',
+  './app.js?v=217',
+  './space-3d-games.js?v=217',
+  './blackhole-interstellar.js?v=217',
+  './assets/space3d/black-hole-reference-v216.webp?v=217',
   './vendor/three.module.min.js',
   './logo.png',
   './avatar-frame.png',
