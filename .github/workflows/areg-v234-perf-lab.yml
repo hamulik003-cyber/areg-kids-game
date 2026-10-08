@@ -1,0 +1,30 @@
+name: AREG V234 Performance Lab
+on:
+  push:
+    branches: [v234-performance-lab]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runtime
+        run: npm install --no-save playwright@1.55.1
+      - name: Measure normal versus 4x CPU constrained browsing
+        run: node qa/performance-baseline.mjs
+      - name: Store exact baseline measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-v234-baseline
+          path: qa/results/areg-v234-baseline.json
+          if-no-files-found: warn
+          retention-days: 30
