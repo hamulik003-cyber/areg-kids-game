@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=222';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=223';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1405,8 +1405,11 @@ function balancePortraitSearchPair(built,slots,root,camera){
   }
   const minX=(l.right+r.left+gap)*.5;
   const maxX=halfWidth-margin-Math.max(l.left,r.right);
-  const preferred=Math.min(1.24,halfWidth*.59);
-  const center=clamp(preferred,minX,Math.max(minX,maxX));
+  // V223: prefer the closest symmetric *safe* separation, not a fixed
+  // distance of 1.24 world units. Small moons no longer sit far apart,
+  // while large gas giants and ringed planets still respect the frame.
+  const breathingRoom=Math.min(.055,halfWidth*.032);
+  const center=Math.max(minX,Math.min(minX+breathingRoom,maxX));
   slots[li].x=-center;
   slots[ri].x=center;
   slots[li].y=-1.11;
@@ -1521,14 +1524,19 @@ function gameSpaceSearch(ctx){
   ctx.activityContent.innerHTML='';ctx.menuMusic.pause();
   const root=document.createElement('div');root.className='s3d-root';ctx.activityContent.appendChild(root);
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
-  const renderer=rendererFor(root),scene=new THREE.Scene();scene.background=new THREE.Color(0x07142f);
+  const renderer=rendererFor(root),scene=new THREE.Scene();
+  // V223: composite the starfield first into the background. A foreground
+  // sphere can never receive an accidental white star during its win zoom.
+  const backgroundScene=new THREE.Scene();
+  backgroundScene.background=new THREE.Color(0x07142f);
+  renderer.autoClear=false;
   const camera=new THREE.PerspectiveCamera(47,1,.1,80);camera.position.set(0,.10,9.25);
   scene.add(new THREE.HemisphereLight(0xb8d1ff,0x11172c,.90));
   scene.add(new THREE.AmbientLight(0x6176a6,.48));
   const key=new THREE.DirectionalLight(0xffffff,3.45);key.position.set(-4.5,5.5,7);scene.add(key);
   const fill=new THREE.DirectionalLight(0xc5d9ff,1.80);fill.position.set(4.8,1.8,6.5);scene.add(fill);
   const rim=new THREE.DirectionalLight(0x7486ff,.82);rim.position.set(5,-2,2);scene.add(rim);
-  const stars=starField(scene),shooting=createShootingStars(scene);
+  const stars=starField(backgroundScene),shooting=createShootingStars(backgroundScene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
   const next=bag(pool);
@@ -1780,13 +1788,27 @@ function gameSpaceSearch(ctx){
     }
 
     shooting.update(t);
-    resize(renderer,camera,root);renderer.render(scene,camera);requestAnimationFrame(loop);
+    // Background first, planets second: no star can render over a planet,
+    // regardless of material alpha / Three.js transparent-object ordering.
+    resize(renderer,camera,root);
+    renderer.clear(true,true,true);
+    renderer.render(backgroundScene,camera);
+    renderer.clearDepth();
+    renderer.render(scene,camera);
+    requestAnimationFrame(loop);
   }
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
     disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
+    stars.traverse(o=>{
+      o.geometry?.dispose?.();
+      if(o.material){
+        const mats=Array.isArray(o.material)?o.material:[o.material];
+        mats.forEach(m=>m.dispose?.());
+      }
+    });
     renderer.dispose();renderer.forceContextLoss?.();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
   });
