@@ -34,6 +34,18 @@ try{
  await canvas.waitFor({state:'visible',timeout:35000});
  await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:35000});
  await page.waitForTimeout(1500);
+ await page.evaluate(()=>{
+   const root=document.querySelector('.s3d-root');
+   window.__aregCrossfadeTrace=[];
+   new MutationObserver(()=>{
+     window.__aregCrossfadeTrace.push({
+       ms:Math.round(performance.now()),
+       phase:root.dataset.spaceRoundPhase||'',
+       crossfade:root.dataset.spaceCrossfade||'',
+       planetMeshes:root.querySelector('canvas')?1:0
+     });
+   }).observe(root,{attributes:true,attributeFilter:['data-space-crossfade','data-space-round-phase']});
+ });
 
  const score=async()=>Number((await page.locator('.s3d-score b').textContent())||0);
  const initial=await score();
@@ -75,7 +87,12 @@ try{
      minBright:Math.min(...counts.map(x=>x.bright)),darkSamples:blackIntervals,
      data:counts}));
    if(blackIntervals.length)throw Error('WebGL intermediate black frames: '+JSON.stringify(blackIntervals));
-   await page.waitForFunction(n=>Number(document.querySelector('.s3d-score b')?.textContent||0)>=n,initial+1,{timeout:5000});
+   await page.waitForFunction(()=>window.__aregCrossfadeTrace?.some(e=>e.crossfade==='active'),null,{timeout:8500});
+   await page.waitForFunction(()=>window.__aregCrossfadeTrace?.some(e=>e.crossfade==='active')&&
+     window.__aregCrossfadeTrace?.at(-1)?.crossfade==='idle',null,{timeout:7000});
+   const trace=await page.evaluate(()=>window.__aregCrossfadeTrace);
+   if(!trace.some(e=>e.crossfade==='active'))throw Error('No overlap stage observed');
+   console.log('V242_CROSSFADE_PASS '+JSON.stringify(trace.filter(e=>e.crossfade==='active'||e.crossfade==='idle').slice(-8)));
    console.log('V241_3D_TRANSITION_PASS: no black planet stage during winning transition');
  }
  if(errors.length)throw Error('Uncaught browser JavaScript error: '+errors.join('; '));
