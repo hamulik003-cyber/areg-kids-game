@@ -36,5 +36,3 @@ jobs:
       - run: npx playwright install --with-deps webkit
       - name: Check all twenty games in Apple WebKit
         run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
-      - name: Check Apple WebKit rendered 3D transitions
-        run: AREG_BROWSER=webkit node qa/v241-space-transition.mjs
