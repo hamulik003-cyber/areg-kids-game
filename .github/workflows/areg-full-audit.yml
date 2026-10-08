@@ -1,7 +1,7 @@
 name: AREG Full Game Audit
 on:
   push:
-    branches: [main, v238-smooth-loading-lab]
+    branches: [main, v238-smooth-loading-lab, v2381-3d-cache-version-fix]
   workflow_dispatch:
 
 jobs:
