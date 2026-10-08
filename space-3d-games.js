@@ -2033,10 +2033,12 @@ function gameSpaceSearch(ctx){
         const e=easeInOutCubic(q);
         g.position.lerpVectors(g.userData.exitFromPos,g.userData.exitToPos,e);
         g.scale.lerpVectors(g.userData.exitFromScale,g.userData.exitToScale,e);
-        // The winner remains softly visible while the next round is
-        // built. Wrong choices have opacity 0 and MUST NOT reappear.
+        // V242: a correct-answer planet must stay BRIGHT while the
+        // next three objects finish preparation. Do not dim it to 34%
+        // before crossfade; that was the nearly-black 0.5 s frame.
+        // The hidden incorrect choices remain fully invisible.
         const fromOpacity=g.userData.exitFromOpacity;
-        const floor=fromOpacity>.12?Math.min(fromOpacity,TRANSITION_VISIBLE_FLOOR):0;
+        const floor=g.userData.win?fromOpacity:0;
         setObjectOpacity(g,floor+(fromOpacity-floor)*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
