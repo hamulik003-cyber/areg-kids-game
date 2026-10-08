@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=226';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=227';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1098,6 +1098,22 @@ function blackHole(item){
   );
   plate.userData.parentPick=g;visual.add(plate);
 
+  // Seal the actual event horizon, not the golden disk. The original
+  // photographic texture stays untouched; a black elliptical occluder
+  // behind its centre makes the hole opaque from EVERY viewing angle.
+  // This also blocks any 3D body or halo from leaking through the core.
+  const horizon=new THREE.Mesh(
+    new THREE.CircleGeometry(1,72),
+    new THREE.MeshBasicMaterial({
+      color:0x01060e,toneMapped:false,depthTest:true,depthWrite:true,
+      side:THREE.DoubleSide
+    })
+  );
+  horizon.scale.set(.565,.620,1);
+  horizon.position.set(0,-.052,-.007);
+  horizon.userData.parentPick=g;
+  visual.add(horizon);
+
   // A transparent animated canvas sits over the original unmoving V216
   // photo. Real moving curved filaments are clearly visible at iPhone size.
   const animated=makeBlackHoleAnimatedFlow(plate.material.map.image);
@@ -1500,70 +1516,95 @@ function easeInOutCubic(q){
   q=clamp(q,0,1);return q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2;
 }
 function easeOutCubic(q){q=clamp(q,0,1);return 1-Math.pow(1-q,3)}
-// V226: ONE screen-space final-size rule for every correctly tapped body.
-// Small bodies travel farther forward; large bodies travel less, but the
-// final *visible silhouette* always aims to occupy the same phone width.
-// Wide Saturn/Uranus rings, Haumea and broad space objects are never cropped.
+// V227: sample the REAL object surface rather than the eight corners of
+// an imaginary enclosing cube. A planet's bounding-box corner is outside
+// the spherical surface; V226 accidentally reserved space for that false
+// corner, leaving its actual globe much smaller than the intended ~95%.
+// Use bounded vertex sampling once when the child answers correctly.
+function winVisibleSurfaceSamples(g){
+  g.updateMatrixWorld(true);
+  const origin=g.position.clone(),points=[];
+  const v=new THREE.Vector3();
+  g.traverse(o=>{
+    if(!o.visible||!(o.isMesh||o.isPoints||o.isLine)||!o.geometry)return;
+    const ms=Array.isArray(o.material)?o.material:[o.material];
+    if(!ms.some(m=>m&&m.visible!==false &&
+       !(m.transparent&&m.opacity<=.006)))return;
+    const p=o.geometry.attributes?.position;
+    if(!p||!p.count)return;
+    // A maximum of 350 samples per drawable keeps the tap responsive on
+    // mobile while covering planetary spheres, Saturn rings, galaxy planes.
+    const step=Math.max(1,Math.floor(p.count/350));
+    for(let i=0;i<p.count;i+=step){
+      v.fromBufferAttribute(p,i).applyMatrix4(o.matrixWorld).sub(origin);
+      if(Number.isFinite(v.x)&&Number.isFinite(v.y)&&Number.isFinite(v.z))
+        points.push(v.clone());
+    }
+  });
+  if(points.length)return points;
+  const bb=searchVisibleBox(g);
+  for(const x of [bb.min.x,bb.max.x])
+    for(const y of [bb.min.y,bb.max.y])
+      for(const z of [bb.min.z,bb.max.z])
+        points.push(new THREE.Vector3(x-origin.x,y-origin.y,z-origin.z));
+  return points;
+}
 function feedbackWinPose(g,camera,root){
-  const box=searchVisibleBox(g);
   const origin=g.position.clone();
-  const corners=[];
-  for(const x of [box.min.x,box.max.x])
-    for(const y of [box.min.y,box.max.y])
-      for(const z of [box.min.z,box.max.z])
-        corners.push(new THREE.Vector3(x,y,z).sub(origin));
-
-  const screenAspect=Math.max(.2,root.clientWidth/Math.max(1,root.clientHeight));
-  // Measure the currently visible planet, not its nominal world-space radius.
+  const points=winVisibleSurfaceSamples(g);
+  const aspect=Math.max(.2,root.clientWidth/Math.max(1,root.clientHeight));
   camera.updateMatrixWorld(true);
-  let initialLeft=Infinity,initialRight=-Infinity;
-  for(const corner of corners){
-    const p=corner.clone().add(origin).project(camera);
-    if(Number.isFinite(p.x)){
-      initialLeft=Math.min(initialLeft,p.x);
-      initialRight=Math.max(initialRight,p.x);
+
+  let loX=Infinity,hiX=-Infinity;
+  const cameraPoint=new THREE.Vector3();
+  for(const p of points){
+    cameraPoint.copy(p).add(origin).project(camera);
+    if(Number.isFinite(cameraPoint.x)){
+      loX=Math.min(loX,cameraPoint.x);
+      hiX=Math.max(hiX,cameraPoint.x);
     }
   }
-  const initialWidth=Number.isFinite(initialLeft)?
-    (initialRight-initialLeft)*.5:.3;
-  const initialSize=clamp((initialWidth-.12)/.37,0,1);
-  // Smaller initial silhouette = longer physical approach towards camera.
-  const finalZ=3.35-1.18*initialSize;
-  const position=new THREE.Vector3(0,.015,finalZ);
-
-  // Use the final win camera, not the camera's current interpolating position.
-  // Projecting every corner accounts for the actual perspective and 3D depth.
+  const startingScreenWidth=Number.isFinite(loX)?(hiX-loX)*.5:.3;
+  const relativeSize=clamp((startingScreenWidth-.12)/.43,0,1);
+  // More noticeable travel: physically bring small planets closer, while
+  // large gas giants need a shorter approach. Final visible width is equal.
+  const position=new THREE.Vector3(0,-.045,4.55-1.20*relativeSize);
   const finalCam=camera.clone();
-  finalCam.aspect=screenAspect;
+  finalCam.aspect=aspect;
   finalCam.position.set(0,.10,8.48);
   finalCam.lookAt(0,-.08,0);
   finalCam.updateProjectionMatrix();
   finalCam.updateMatrixWorld(true);
-  // Width cap includes a clear left/right phone-frame safety margin.
-  // All ordinary spherical planets converge to the same ~95% screen width.
-  // Ringed/wide/tall bodies fit their WHOLE visible outline within this cap.
-  const TARGET_X=.948,MAX_X=.962,MAX_Y=.87;
-  const valid=(multiplier)=>{
-    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
-    for(const point of corners){
-      const p=point.clone().multiplyScalar(multiplier).add(position).project(finalCam);
-      if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.z>=1)return false;
-      minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
-      minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);
+
+  const TARGET_HALF_WIDTH=.952;
+  const MAX_ABS_X=.963;
+  const MAX_ABS_Y=.895;
+  const transformed=new THREE.Vector3();
+  function measure(scale){
+    let xMin=Infinity,xMax=-Infinity,yMin=Infinity,yMax=-Infinity;
+    for(const p of points){
+      transformed.copy(p).multiplyScalar(scale).add(position).project(finalCam);
+      if(!Number.isFinite(transformed.x)||!Number.isFinite(transformed.y)||
+         transformed.z>=1||transformed.z<=-1)return null;
+      xMin=Math.min(xMin,transformed.x);xMax=Math.max(xMax,transformed.x);
+      yMin=Math.min(yMin,transformed.y);yMax=Math.max(yMax,transformed.y);
     }
-    // MAX_X / MAX_Y protect off-center silhouettes; TARGET_X sets one
-    // predictable apparent size regardless of the initial planet size.
-    return (maxX-minX)*.5<=TARGET_X &&
-      Math.max(Math.abs(minX),Math.abs(maxX))<=MAX_X &&
-      Math.max(Math.abs(minY),Math.abs(maxY))<=MAX_Y;
-  };
-  let lo=0,hi=64;
-  for(let i=0;i<28;i++){
-    const mid=(lo+hi)*.5;
-    if(valid(mid))lo=mid;else hi=mid;
+    return {width:(xMax-xMin)*.5,
+      maxX:Math.max(Math.abs(xMin),Math.abs(xMax)),
+      maxY:Math.max(Math.abs(yMin),Math.abs(yMax))};
   }
-  // Reuse the original scale proportions; do not alter UV maps or ring shape.
-  return {position,multiplier:Math.max(.0001,lo)};
+  // Strictly monotone perspective sizing solved to pixel-space tolerance.
+  // Every spherical planet reaches the same screen size regardless of the
+  // starting zigzag slot or its original display scale.
+  let minScale=0,maxScale=64;
+  for(let k=0;k<27;k++){
+    const scale=(minScale+maxScale)*.5;
+    const m=measure(scale);
+    if(m&&m.width<=TARGET_HALF_WIDTH&&m.maxX<=MAX_ABS_X&&m.maxY<=MAX_ABS_Y)
+      minScale=scale;
+    else maxScale=scale;
+  }
+  return {position,multiplier:Math.max(.0001,minScale)};
 }
 function setObjectOpacity(g,alpha){
   alpha=clamp(alpha,0,1);g.userData.displayOpacity=alpha;
@@ -1762,7 +1803,7 @@ function gameSpaceSearch(ctx){
     });
     makePlanetWinFx(g,g.userData.item);
     root.classList.remove('s3d-win');void root.offsetWidth;root.classList.add('s3d-win');
-    clearTimeout(timer);timer=setTimeout(beginExit,1850);
+    clearTimeout(timer);timer=setTimeout(beginExit,2750);
   }
 
   renderer.domElement.addEventListener('pointerup',pointer);
@@ -1862,9 +1903,9 @@ function gameSpaceSearch(ctx){
         setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
-        // Deliberate cinematic forward zoom, not a tiny size pulse.
-        // Smooth start + smooth arrival; same projected final size for all.
-        const q=clamp((t-winStart)/1040,0,1),e=easeInOutCubic(q);
+        // Reach the consistent frame-filling size sooner, then hold it so
+        // a child can clearly enjoy seeing the discovered planet up close.
+        const q=clamp((t-winStart)/850,0,1),e=easeOutCubic(q);
         g.position.lerpVectors(g.userData.winFromPosition,g.userData.winToPosition,e);
         g.scale.lerpVectors(g.userData.winFromScale,g.userData.winTargetScale,e);
         if(g.userData.win){
@@ -1877,7 +1918,11 @@ function gameSpaceSearch(ctx){
             fx.userData.glow.scale.set(s,s,1);
           }
         }else{
-          setObjectOpacity(g,1-e*.68);
+          // V227: the two decoys disappear completely, not just 68%.
+          // Otherwise a moon behind the black-hole photographic disk
+          // remains visible through the glowing translucent outskirts.
+          const vanish=clamp((t-winStart)/280,0,1);
+          setObjectOpacity(g,1-easeOutCubic(vanish));
         }
       }
     });
