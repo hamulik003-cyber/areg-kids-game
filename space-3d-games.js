@@ -1210,9 +1210,9 @@ function blackHole(item){
   // Do not spin the whole silhouette; only the flowing gas particles animate.
   g.userData.spin=0;g.userData.spinAxis='z';
   g.rotation.set(
-    THREE.MathUtils.degToRad(16),
-    THREE.MathUtils.degToRad(-10),
-    THREE.MathUtils.degToRad(14)
+    THREE.MathUtils.degToRad(30),
+    THREE.MathUtils.degToRad(-18),
+    THREE.MathUtils.degToRad(24)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
@@ -1234,7 +1234,7 @@ function blackHole(item){
   const flowMeta=[];
   let flowSeed=0x61636372;
   const flowRnd=()=>{flowSeed=(Math.imul(flowSeed,1664525)+1013904223)>>>0;return flowSeed/4294967296};
-  const diskAngle=-.105;
+  const diskAngle=-.16;
   const ca=Math.cos(diskAngle),sa=Math.sin(diskAngle);
   for(let i=0;i<flowCount;i++){
     const radius=.62+Math.pow(flowRnd(),.72)*1.16;
