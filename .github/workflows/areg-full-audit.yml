@@ -1,7 +1,7 @@
 name: AREG Full Game Audit
 on:
   push:
-    branches: [main]
+    branches: [main, v238-smooth-loading-lab]
   workflow_dispatch:
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
     needs: assets-and-code
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true
+    continue-on-error: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
