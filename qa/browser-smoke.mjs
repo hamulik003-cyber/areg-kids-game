@@ -43,7 +43,7 @@ try{
    if(n!==4)throw Error(section+' has '+n+' games, expected 4');
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
-    await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').click();
+    await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').click({force:process.env.AREG_BROWSER==='webkit'});
     await page.waitForSelector('#activityScreen.is-visible');
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
