@@ -736,7 +736,7 @@
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=231')
+      space3DLoadPromise=import('./space-3d-games.js?v=232')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -1129,7 +1129,7 @@
   }
 
   function gameAnimalGallery(){
-    warmAnimalAudioCache();
+    // V232: no 60-clip background audio storm on iPhone; play on tap.
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
@@ -1150,7 +1150,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=93" alt="${animal.name}" draggable="false">
+          <img src="${animal.image}?v=93" loading="lazy" decoding="async" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1343,7 +1343,7 @@
   }
 
   function gameBirdGallery(){
-    warmBirdAudioCache();
+    // V232: avoid 60 more remote audio downloads while opening cards.
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
@@ -1364,7 +1364,7 @@
       card.setAttribute('aria-label',`${bird.name}, ${bird.type} թռչուն`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${bird.image}?v=93" alt="${bird.name}" draggable="false">
+          <img src="${bird.image}?v=93" loading="lazy" decoding="async" alt="${bird.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1501,7 +1501,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=93" alt="${creature.name}" draggable="false">
+          <img src="${creature.image}?v=93" loading="lazy" decoding="async" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
@@ -1639,7 +1639,7 @@
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=93" alt="${insect.name}" draggable="false">
+          <img src="${insect.image}?v=93" loading="lazy" decoding="async" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
@@ -1822,7 +1822,7 @@
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${planet.img}?v=130" alt="${planet.name}" draggable="false">
+          <img src="${planet.img}?v=130" loading="lazy" decoding="async" alt="${planet.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--planet">
@@ -1893,7 +1893,7 @@
       card.setAttribute('aria-label',`${item.name}, ${item.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${item.img}?v=137" alt="${item.name}" draggable="false">
+          <img src="${item.img}?v=137" loading="lazy" decoding="async" alt="${item.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--constellation">
@@ -2125,7 +2125,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=231',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=232',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

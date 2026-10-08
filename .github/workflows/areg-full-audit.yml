@@ -1,0 +1,28 @@
+name: AREG Full Game Audit
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  assets-and-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node qa/full-audit.mjs
+
+  mobile-browser:
+    needs: assets-and-code
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install chromium --with-deps
+      - run: node qa/browser-smoke.mjs

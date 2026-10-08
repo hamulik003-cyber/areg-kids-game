@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=231';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1342,12 +1342,18 @@ function disposeObject(o){
 }
 function rendererFor(host){
   const r=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  r.setPixelRatio(Math.min(devicePixelRatio||1,1.9));r.outputColorSpace=THREE.SRGBColorSpace;
+  // V232: preserve approved appearance while reducing mobile GPU cost.
+  r.setPixelRatio(Math.min(devicePixelRatio||1,1.65));r.outputColorSpace=THREE.SRGBColorSpace;
   r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.08;r.shadowMap.enabled=false;
   r.domElement.className='s3d-canvas';host.appendChild(r.domElement);return r;
 }
 function resize(renderer,camera,host){
-  const w=Math.max(2,host.clientWidth),h=Math.max(2,host.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+  const w=Math.max(2,host.clientWidth),h=Math.max(2,host.clientHeight);
+  // Resize GPU buffers only when the actual viewport changed.
+  const canvas=renderer.domElement;
+  if(canvas._aregRenderW===w&&canvas._aregRenderH===h)return;
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+  canvas._aregRenderW=w;canvas._aregRenderH=h;
 }
 function createHud(root,title){
   const hud=document.createElement('div');hud.className='s3d-hud';
