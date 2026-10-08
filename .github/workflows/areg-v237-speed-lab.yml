@@ -1,0 +1,30 @@
+name: AREG V237 Launch Speed Lab
+on:
+  push:
+    branches: [v237-fast-launch-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser automation
+        run: npm install --no-save playwright@1.55.1
+      - name: Benchmark first and repeat menu launches
+        run: node qa/launch-speed-v237.mjs
+      - name: Check original V232 game compatibility
+        run: node qa/full-audit.mjs
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-launch-v237-benchmark
+          path: qa/results/
+          if-no-files-found: warn
+          retention-days: 15
