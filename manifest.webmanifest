@@ -2,14 +2,28 @@
   "name": "Արեգ 3D աշխարհ",
   "short_name": "Արեգ",
   "lang": "hy",
-  "start_url": "./?kiosk=v233&__areg_build=233",
+  "start_url": "./?__areg_build=235",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#f4d6a8",
   "theme_color": "#f4d6a8",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "display_override": [
+    "fullscreen",
+    "standalone"
   ]
 }
