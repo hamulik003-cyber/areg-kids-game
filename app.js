@@ -722,6 +722,11 @@
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
   function openGame(section,game){
+    // Begin downloading/parsing the 3D module during the existing 150ms
+    // transition. No visual change, no extra work in non-3D games.
+    if(game.kind==='spaceSearch'||game.kind==='constellationQuest'){
+      ensureSpace3DLoaded().catch(()=>{});
+    }
     cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
     sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
   }
