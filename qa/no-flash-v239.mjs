@@ -37,7 +37,7 @@ try{
     await page.locator('.section-card[data-section="nature"]').click();
     await page.waitForSelector('#sectionScreen.is-visible',{timeout:15000});
   }
-  await page.locator('#sectionGames .toddler-game-card[data-game="birds"]').click();
+  await page.locator('#sectionGames .toddler-game-card[data-game="birds"]').click({force:process.env.AREG_BROWSER==='webkit'});
   await page.waitForTimeout(180);
   facts.oldSectionVisibleWhilePreviewsPending=await page.locator('#sectionScreen.is-visible').count()===1;
   if(!facts.oldSectionVisibleWhilePreviewsPending)throw Error('Section disappeared before preview decoding');
@@ -51,7 +51,7 @@ try{
   if(facts.galleryCards!==30)throw Error('Bird gallery count changed');
 
   const first=page.locator('#activityContent .animal-card').first();
-  await first.click();
+  await first.click({force:process.env.AREG_BROWSER==='webkit'});
   await page.waitForSelector('.gallery-card-flight-shell',{timeout:15000});
   facts.flightImage=await page.evaluate(()=>{
     const src=document.querySelector('.gallery-card-flight-shell .animal-image-wrap img');
