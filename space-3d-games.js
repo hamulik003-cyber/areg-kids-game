@@ -1145,7 +1145,7 @@ function blackHole(item){
     new THREE.SphereGeometry(.40,48,32),
     new THREE.MeshBasicMaterial({color:0x000000,toneMapped:false})
   );
-  core.position.z=.025;
+  core.position.z=-.035;
   core.userData.parentPick=g;
   visual.add(core);
 
