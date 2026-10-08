@@ -3300,3 +3300,14 @@ html[data-theme^="photo-user-"] .section-dim{
 .gallery-card-flight-shell .animal-image-wrap > img.gallery-hires-layer.is-ready {
   opacity:1 !important;
 }
+
+/* V243: no cream/white flash while a real 3D scene starts up.
+   Once the approved renderer draws, it completely covers this backdrop. */
+.activity-content.space-preparing{
+  background:radial-gradient(circle at 62% 28%,rgba(55,89,159,.25),transparent 38%),
+             radial-gradient(circle at 32% 74%,rgba(54,27,119,.26),transparent 40%),
+             #07142f !important;
+}
+.section-screen[data-section="space"] .toddler-game-card img{
+  background:radial-gradient(circle at 55% 40%,#264a7b,#081832 75%) !important;
+}
