@@ -1195,6 +1195,10 @@ function galaxy(item){
   hit.userData.parentPick=g;visual.add(hit);
   return g;
 }
+// V238: deterministic miniature planet maps are shared across rounds.
+// Identical pixel values, no quality reduction; avoid eight CPU canvas builds
+// every time the solar-system answer reappears.
+const solarMiniTextureCache=new Map();
 function solarSystem(item){
   const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;
   // Keep the V219 approved view angle and framing, but let the planets move
@@ -1206,7 +1210,6 @@ function solarSystem(item){
     THREE.MathUtils.degToRad(19)
   );
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
-  const ownTextures=[];g.userData.generatedMaps=ownTextures;
   const sun=new THREE.Mesh(
     new THREE.SphereGeometry(.35,28,18),
     new THREE.MeshBasicMaterial({color:0xffdc88,toneMapped:false})
@@ -1235,6 +1238,8 @@ function solarSystem(item){
   ];
   const orbiters=[];
   function tinySurface(id,a,b){
+    const saved=solarMiniTextureCache.get(id);
+    if(saved)return saved;
     // 128x64 baked once at build time, not on each animation frame.
     // No downloads of eight full-resolution 2K textures.
     const width=128,height=64,c=document.createElement('canvas');
@@ -1273,7 +1278,7 @@ function solarSystem(item){
     tex.colorSpace=THREE.SRGBColorSpace;
     tex.wrapS=THREE.RepeatWrapping;
     tex.anisotropy=2;
-    ownTextures.push(tex);
+    solarMiniTextureCache.set(id,tex);
     return tex;
   }
   bodies.forEach(([id,radius,size,speed,phase,a,b],i)=>{
@@ -2063,6 +2068,8 @@ function gameSpaceSearch(ctx){
       }
     });
     renderer.dispose();renderer.forceContextLoss?.();
+    for(const tex of solarMiniTextureCache.values())tex.dispose();
+    solarMiniTextureCache.clear();
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
   });
 }
