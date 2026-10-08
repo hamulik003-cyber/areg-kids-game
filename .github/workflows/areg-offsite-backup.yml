@@ -1,0 +1,44 @@
+name: AREG Full Recoverable Backup
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/areg-offsite-backup.yml'
+  schedule:
+    - cron: '0 2 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Get the exact published source and full assets
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Package every tracked file without excluding images or audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p backup-output
+          printf 'Repository: hamulik003-cyber/areg-kids-game\nCommit: %s\nGenerated: %s\n' \
+            "$GITHUB_SHA" "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" > backup-output/RESTORE-INFO.txt
+          git ls-files -z | tar --null -T - -czf backup-output/AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz
+          cd backup-output
+          sha256sum AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz > SHA256SUMS.txt
+          test "$(du -k AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz | cut -f1)" -gt 100000
+          echo "Compressed project backup created:"
+          ls -lh
+      - name: Store portable downloadable backup for offsite copying
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-full-backup-${{ github.sha }}
+          path: backup-output/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
