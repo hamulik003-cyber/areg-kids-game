@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=219';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=220';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1181,36 +1181,127 @@ function galaxy(item){
   return g;
 }
 function solarSystem(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.055;g.userData.spinAxis='z';
-  g.rotation.set(THREE.MathUtils.degToRad(59),THREE.MathUtils.degToRad(-6),THREE.MathUtils.degToRad(19));
-  const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
-
-  const sun=new THREE.Mesh(
-    new THREE.SphereGeometry(.34,40,28),
-    new THREE.MeshStandardMaterial({color:0xffd96a,emissive:0xff8a15,emissiveIntensity:1.9,roughness:.72})
+  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;
+  // Keep the V219 approved view angle and framing, but let the planets move
+  // through depth rather than spinning the entire illustration.
+  g.userData.spin=0;g.userData.spinAxis='z';
+  g.rotation.set(
+    THREE.MathUtils.degToRad(59),
+    THREE.MathUtils.degToRad(-6),
+    THREE.MathUtils.degToRad(19)
   );
-  sun.userData.parentPick=g;visual.add(sun);
+  const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
+  const ownTextures=[];g.userData.generatedMaps=ownTextures;
+  const sun=new THREE.Mesh(
+    new THREE.SphereGeometry(.35,28,18),
+    new THREE.MeshBasicMaterial({color:0xffdc88,toneMapped:false})
+  );
+  sun.userData.parentPick=g;
+  visual.add(sun);
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:GLOW,color:0xffad3d,transparent:true,opacity:.36,
+    depthWrite:false,blending:THREE.AdditiveBlending
+  }));
+  glow.scale.set(1.16,1.16,1);visual.add(glow);
+  const sunLight=new THREE.PointLight(0xffd8a0,2.3,4.2,2);
+  visual.add(sunLight);
 
-  const radii=[.58,.80,1.03,1.28,1.52];
-  const colors=[0xb6a397,0xe1b071,0x4a91df,0xd96f4d,0xe2c7a2];
-  radii.forEach((r,i)=>{
-    const curve=new THREE.EllipseCurve(0,0,r,r,0,Math.PI*2);
-    const pts=curve.getPoints(112).map(v=>new THREE.Vector3(v.x,v.y,0));
-    const line=new THREE.Line(
+  // Eight planets in the correct Sun-outwards order. Scales and orbital
+  // distances are deliberately compressed to remain legible on iPhone.
+  const bodies=[
+    ['mercury',.52,.047,.77,.09,0x77777b,0xa6a2a2],
+    ['venus',.69,.069,.59,1.51,0xb78053,0xe8d39e],
+    ['earth',.87,.074,.45,2.68,0x195798,0x4092d2],
+    ['mars',1.05,.060,.37,3.68,0x963f2c,0xd97649],
+    ['jupiter',1.25,.143,.23,5.05,0x9f694d,0xf4d9aa],
+    ['saturn',1.46,.116,.18,3.02,0xa58e6c,0xe7ce99],
+    ['uranus',1.68,.086,.14,4.31,0x61c7d8,0xa0e7ee],
+    ['neptune',1.89,.085,.11,5.63,0x2552ae,0x498eea]
+  ];
+  const orbiters=[];
+  function tinySurface(id,a,b){
+    // 128x64 baked once at build time, not on each animation frame.
+    // No downloads of eight full-resolution 2K textures.
+    const width=128,height=64,c=document.createElement('canvas');
+    c.width=width;c.height=height;
+    const cx=c.getContext('2d'),img=cx.createImageData(width,height);
+    const A=[(a>>16)&255,(a>>8)&255,a&255];
+    const B=[(b>>16)&255,(b>>8)&255,b&255];
+    const striped=id==='jupiter'||id==='saturn';
+    for(let y=0;y<height;y++){
+      const lat=(y+.5)/height-.5;
+      for(let x=0;x<width;x++){
+        const u=x/width*2*Math.PI;
+        const swirl=Math.sin(u*3.0+lat*11.0)*.12+
+          Math.sin(u*7.0-lat*19.0)*.06;
+        const wave=striped?Math.sin(lat*(id==='jupiter'?91:74)+swirl*5):Math.sin(lat*23+u*3);
+        const noise=Math.sin(u*13+lat*53)*Math.cos(u*17-lat*23);
+        let t=Math.max(0,Math.min(1,.50+.27*wave+.16*noise));
+        if(id==='earth'){
+          const land=Math.sin(u*2.7+lat*8.0)+.56*Math.sin(u*5.3-lat*16.0);
+          if(land>.64){t=.78;A[0]=25;A[1]=75;A[2]=88;}
+        }
+        const whiteCap=id==='earth'&&Math.abs(lat)>.43;
+        const i=(y*width+x)*4;
+        for(let k=0;k<3;k++)img.data[i+k]=whiteCap?220:
+          Math.round(A[k]*(1-t)+B[k]*t);
+        img.data[i+3]=255;
+      }
+    }
+    cx.putImageData(img,0,0);
+    const tex=new THREE.CanvasTexture(c);
+    tex.colorSpace=THREE.SRGBColorSpace;
+    tex.wrapS=THREE.RepeatWrapping;
+    tex.anisotropy=2;
+    ownTextures.push(tex);
+    return tex;
+  }
+  bodies.forEach(([id,radius,size,speed,phase,a,b],i)=>{
+    const pts=[];
+    for(let j=0;j<=96;j++){
+      const ang=j/96*Math.PI*2;
+      pts.push(new THREE.Vector3(Math.cos(ang)*radius,Math.sin(ang)*radius,0));
+    }
+    const orbit=new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
-      new THREE.LineBasicMaterial({color:0x88a6e5,transparent:true,opacity:.26})
+      new THREE.LineBasicMaterial({
+        color:0x849fd4,transparent:true,opacity:.25,depthWrite:false
+      })
     );
-    visual.add(line);
-    const a=[.55,1.6,2.75,4.0,5.15][i];
-    const p=new THREE.Mesh(
-      new THREE.SphereGeometry(.075+i*.012,22,16),
-      new THREE.MeshStandardMaterial({color:colors[i],roughness:.92,metalness:0})
-    );
-    p.position.set(Math.cos(a)*r,Math.sin(a)*r,0);
-    p.userData.parentPick=g;visual.add(p);
+    visual.add(orbit);
+    const pivot=new THREE.Group();pivot.rotation.z=phase;
+    const mat=new THREE.MeshStandardMaterial({
+      map:tinySurface(id,a,b),roughness:.90,metalness:0,
+      emissive:0x171617,emissiveIntensity:.12
+    });
+    const globe=new THREE.Mesh(new THREE.SphereGeometry(size,24,16),mat);
+    globe.position.x=radius;globe.userData.parentPick=g;
+    pivot.add(globe);visual.add(pivot);
+    if(id==='saturn'||id==='uranus'){
+      // Actual tilted ring geometry. Three.js depth testing hides the
+      // far half behind the opaque planet sphere naturally.
+      const rings=new THREE.Mesh(
+        new THREE.RingGeometry(size*1.39,size*(id==='saturn'?2.05:1.80),48),
+        new THREE.MeshBasicMaterial({
+          color:id==='saturn'?0xe4c79a:0xb0d5d8,
+          side:THREE.DoubleSide,transparent:true,
+          opacity:id==='saturn'?.78:.62,depthWrite:false
+        })
+      );
+      rings.rotation.set(.82,0,-.31);
+      rings.position.x=radius;
+      rings.userData.parentPick=g;
+      pivot.add(rings);
+    }
+    orbiters.push({pivot,globe,speed});
   });
-
-  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.58,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  // Spheres occupy different world depths after the 59 degree X tilt.
+  // Depth-tested opaque Sun hides a planet when it crosses behind it.
+  g.userData.solarOrbiters=orbiters;
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.95,20,12),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
   hit.userData.parentPick=g;visual.add(hit);
   return g;
 }
@@ -1222,6 +1313,9 @@ function buildObject(item){
 }
 function disposeObject(o){
   o.traverse(x=>{if(x.geometry)x.geometry.dispose();if(x.material){const ms=Array.isArray(x.material)?x.material:[x.material];ms.forEach(m=>m.dispose?.())}});
+  // Miniature solar-system maps are generated per round; unlike globally
+  // cached approved UV textures these must be released on every round exit.
+  for(const tex of o.userData?.generatedMaps||[])tex.dispose();
 }
 function rendererFor(host){
   const r=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -1243,8 +1337,8 @@ function searchSlots(root,camera){
   if(aspect<.72){
     return [
       new THREE.Vector3(0,1.22,.05),
-      new THREE.Vector3(-.88,-1.18,.14),
-      new THREE.Vector3(.88,-1.18,.02)
+      new THREE.Vector3(-1.19,-1.11,.14),
+      new THREE.Vector3(1.19,-1.11,.02)
     ];
   }
   return [
@@ -1258,7 +1352,7 @@ function fitSearchObject(g,item,portrait){
   const specialPortrait={
     'black-hole':.50,
     'milky-way':.53,
-    'solar-system':.48
+    'solar-system':.52
   };
   const specialWide={
     'black-hole':.68,
@@ -1421,6 +1515,18 @@ function gameSpaceSearch(ctx){
       scene.add(g);g.updateMatrixWorld(true);
       const box=new THREE.Box3().setFromObject(g),sphere=new THREE.Sphere();box.getBoundingSphere(sphere);
       g.userData.baseRadius=Math.max(.01,sphere.radius);
+      // Keep large Saturn/Uranus ring silhouettes inside the real phone
+      // viewport, while using wider lower left/right positions when safe.
+      if(portrait&&slots[i].x!==0){
+        const aspect=root.clientWidth/Math.max(1,root.clientHeight);
+        const halfWidth=Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*
+          (camera.position.z-slots[i].z)*aspect;
+        const halfObjectWidth=(box.max.x-box.min.x)/2;
+        const maxSafeX=Math.max(0,halfWidth-halfObjectWidth-.19);
+        slots[i].x=Math.sign(slots[i].x)*Math.min(Math.abs(slots[i].x),maxSafeX);
+        g.userData.basePosition.copy(slots[i]);
+        g.position.copy(slots[i]);
+      }
 
       g.userData.enterFromPos=slots[i].clone().add(new THREE.Vector3(
         slots[i].x===0?0:Math.sign(slots[i].x)*.22,
@@ -1510,9 +1616,17 @@ function gameSpaceSearch(ctx){
         else g.userData.surface.rotation.y+=spinDelta;
       }
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
-      // Real moving streams along the lensing arcs; 24 texture frames/s
-      // keep animation smooth without a full 60fps canvas re-upload.
-      if(g.userData.blackHoleFlow){
+      if(g.userData.solarOrbiters){
+        // Independent orbital pivots, tiny static textures, real 3D depth.
+        for(const o of g.userData.solarOrbiters){
+          o.pivot.rotation.z+=dt*o.speed;
+          o.globe.rotation.y+=dt*.22;
+        }
+      }
+      // Freeze only the 24fps canvas texture UPLOAD during UI transitions.
+      // The V219 photo and current filaments remain visible while the same
+      // 860ms smooth winning tween used by all other planets takes place.
+      if(g.userData.blackHoleFlow && !transition && !winStart && !document.hidden){
         const f=g.userData.blackHoleFlow;
         f.userData.flowClock=(f.userData.flowClock+dt)%10000;
         if(f.userData.flowClock-f.userData.lastPaint>=1/24
