@@ -28,3 +28,18 @@ jobs:
           path: qa/results/areg-v234-baseline.json
           if-no-files-found: warn
           retention-days: 30
+
+  compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate all game assets, sections and offline shell
+        run: node qa/full-audit.mjs
+      - name: Install browser automation
+        run: npm install --no-save playwright@1.55.1
+      - name: Open all AREG games and decode every gallery image
+        run: node qa/browser-smoke.mjs
