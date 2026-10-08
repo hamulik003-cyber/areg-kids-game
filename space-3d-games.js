@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=230';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=231';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1730,35 +1730,58 @@ function gameSpaceSearch(ctx){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
     groups=[];pickables.length=0;wrong=null;winGroup=null;
   }
-  // V230: the next three approved UV textures load WHILE the correct
-  // planet's 2.75-second celebration remains visible. A slow download
-  // must never replace a real planet with a black placeholder.
-  let queuedRound=null,roundSeq=0;
+  // V231: bounded loading and a hard win-exit deadline.
+  let queuedRound=null,roundSeq=0,prewarmTimer=0;
   function createRoundPlan(){
     const chosen=next();
     return {target:chosen,opts:shuffle([chosen,...decoys(chosen)]),promise:null};
+  }
+  function isLoadedApproved(it){
+    return !USER_UV_IDS.has(it.id)||userUvCache.has(it.id);
+  }
+  function useLoadedPlan(plan){
+    if(plan.opts.length===3&&plan.opts.every(isLoadedApproved))return plan;
+    // Previously displayed approved textures are known to be visible.
+    const ready=new Map();
+    for(const it of plan.opts)if(isLoadedApproved(it))ready.set(it.id,it);
+    for(const g of groups){
+      const it=g.userData?.item;
+      if(it&&isLoadedApproved(it))ready.set(it.id,it);
+    }
+    for(const it of pool)if(isLoadedApproved(it))ready.set(it.id,it);
+    // Cold-start/offline fail-safe: three built-in, texture-independent
+    // space objects instead of a black textureless placeholder sphere.
+    for(const id of ['solar-system','milky-way','black-hole']){
+      const it=pool.find(x=>x.id===id);
+      if(it)ready.set(it.id,it);
+    }
+    const choices=shuffle([...ready.values()]);
+    if(choices.length>=3){
+      const wanted=choices.filter(x=>x.id===plan.target.id).slice(0,1);
+      plan.opts=shuffle([...wanted,...choices.filter(x=>x.id!==wanted[0]?.id)].slice(0,3));
+      plan.target=plan.opts.find(x=>x.id===plan.target.id)||plan.opts[0];
+    }
+    return plan;
+  }
+  function withPreparationDeadline(opts,ms){
+    // WebKit Image/IndexedDB promises can be unresolved indefinitely.
+    let timeout=0;
+    const deadline=new Promise(resolve=>{timeout=setTimeout(()=>resolve('deadline'),ms)});
+    const preparations=Promise.allSettled(opts.map(prepareTrue360Texture));
+    return Promise.race([preparations,deadline]).then(value=>{
+      clearTimeout(timeout);return value;
+    },err=>{
+      clearTimeout(timeout);
+      console.warn('Space Search recovered texture preparation',err);
+      return 'recovered';
+    });
   }
   function warmUpcomingRound(){
     if(queuedRound||disposed)return queuedRound;
     const plan=createRoundPlan();
     queuedRound=plan;
-    plan.promise=Promise.allSettled(plan.opts.map(prepareTrue360Texture))
-      .then(()=>{
-        // A failed image is replaced by a planet whose approved UV has
-        // already loaded, rather than drawing a texture-less black globe.
-        const failed=plan.opts.filter(it=>USER_UV_IDS.has(it.id)&&!userUvCache.has(it.id));
-        if(failed.length){
-          const cached=pool.filter(it=>!USER_UV_IDS.has(it.id)||userUvCache.has(it.id));
-          const old=groups.map(g=>g.userData.item);
-          const ready=shuffle([...new Map([...old,...cached].map(it=>[it.id,it])).values()])
-            .filter(it=>!USER_UV_IDS.has(it.id)||userUvCache.has(it.id));
-          if(ready.length>=3){
-            plan.opts=shuffle(ready.slice(0,3));
-            plan.target=plan.opts.find(it=>it.id!==target?.id)||plan.opts[0];
-          }
-        }
-        return plan;
-      });
+    plan.promise=withPreparationDeadline(plan.opts,1450)
+      .then(()=>useLoadedPlan(plan),()=>useLoadedPlan(plan));
     return plan;
   }
   async function buildRound(){
@@ -1766,11 +1789,9 @@ function gameSpaceSearch(ctx){
     locked=true;winStart=0;root.classList.remove('s3d-win');
     const plan=queuedRound||createRoundPlan();
     queuedRound=null;
-    try{
-      await (plan.promise||Promise.allSettled(plan.opts.map(prepareTrue360Texture)));
-    }catch(err){console.warn('Space Search preloading recovered',err)}
+    await (plan.promise||withPreparationDeadline(plan.opts,3600));
     if(disposed||seq!==roundSeq)return;
-
+    useLoadedPlan(plan);
     const roundTarget=plan.target,opts=plan.opts;
     const slots=searchSlots(root,camera);
     const portrait=(root.clientWidth/Math.max(1,root.clientHeight))<.72;
@@ -1872,19 +1893,12 @@ function gameSpaceSearch(ctx){
     });
     makePlanetWinFx(g,g.userData.item);
     root.classList.remove('s3d-win');void root.offsetWidth;root.classList.add('s3d-win');
-    // Start next-round IO during the confirmed win, while the current
-    // planet remains on screen. If it's slow, hold the current planet
-    // rather than showing an empty starfield or a loading sentence.
-    const upcoming=warmUpcomingRound();
+    // Prepare only after the first zoom second, avoiding stutter on iPhone.
+    clearTimeout(prewarmTimer);
+    prewarmTimer=setTimeout(()=>{if(!disposed&&winStart)warmUpcomingRound()},1000);
+    // NEVER await texture promises to exit a correct-answer celebration.
     clearTimeout(timer);
-    timer=setTimeout(()=>{
-      if(disposed||!winStart)return;
-      upcoming.promise.then(()=>{
-        if(!disposed&&winStart&&queuedRound===upcoming)beginExit();
-      },()=>{
-        if(!disposed&&winStart&&queuedRound===upcoming)beginExit();
-      });
-    },2750);
+    timer=setTimeout(()=>{if(!disposed&&winStart)beginExit()},2750);
   }
 
   renderer.domElement.addEventListener('pointerup',pointer);
@@ -2033,7 +2047,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;roundSeq++;clearTimeout(timer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;roundSeq++;clearTimeout(timer);clearTimeout(prewarmTimer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     stars.traverse(o=>{
       o.geometry?.dispose?.();
