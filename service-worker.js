@@ -1,12 +1,12 @@
 // V233 Offline Edition: free, local-first installed iPhone PWA.
-const CORE_CACHE='areg-v235-core';
-const RUNTIME_CACHE='areg-v235-runtime';
+const CORE_CACHE='areg-v236-core';
+const RUNTIME_CACHE='areg-v236-runtime';
 // Keep the user's downloaded assets across future service-worker updates.
 const DEVICE_ASSETS='areg-device-assets-v1';
 const CORE=[
-  './index.html','./manifest.webmanifest?v=235','./launcher.html','./offline-setup.html',
+  './index.html','./manifest.webmanifest?v=236','./launcher.html','./offline-setup.html',
   './offline-assets-v233.json','./styles.css?v=235',
-  './space-3d-games.css?v=233','./app.js?v=235',
+  './space-3d-games.css?v=233','./app.js?v=236',
   './space-3d-games.js?v=233','./blackhole-interstellar.js?v=233',
   './assets/space3d/black-hole-reference-v216.webp?v=233',
   './vendor/three.module.min.js','./logo.png','./avatar-frame.png',
