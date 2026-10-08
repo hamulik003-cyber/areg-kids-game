@@ -1,0 +1,35 @@
+name: AREG V243 Fast Space Entry QA
+on:
+  push:
+    branches: [v243-fast-space-entry-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --no-save playwright@1.55.1
+      - name: Verify unchanged all-game assets and versioned offline shell
+        run: node qa/full-audit.mjs
+      - name: Verify no blank Space tiles or cream 3D startup
+        run: node qa/v243-space-entry.mjs
+      - name: Verify all game routes
+        run: node qa/browser-smoke.mjs
+  webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Verify Space tile and 3D entry with delayed downloads in WebKit
+        run: AREG_BROWSER=webkit node qa/v243-space-entry.mjs
+      - name: Verify all 20 routes in WebKit
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
