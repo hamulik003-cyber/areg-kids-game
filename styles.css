@@ -3276,3 +3276,27 @@ html[data-theme^="photo-user-"] .section-dim{
   overflow:hidden !important;
   text-overflow:clip !important;
 }
+
+/* V239: two decoded bitmap layers. The preview stays painted underneath
+   until the original photograph is READY, so Safari/DotKiosk cannot display
+   a white intermediate frame during an image URL replacement. */
+.gallery-card-flight-shell .animal-image-wrap {
+  isolation:isolate !important;
+}
+.gallery-card-flight-shell .animal-image-wrap > img.gallery-hires-layer {
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  z-index:3 !important;
+  opacity:0 !important;
+  object-position:center center !important;
+  pointer-events:none !important;
+  transform:none !important;
+  transition:opacity 160ms linear !important;
+}
+.gallery-card-flight-shell .animal-image-wrap > img.gallery-hires-layer.is-ready {
+  opacity:1 !important;
+}
