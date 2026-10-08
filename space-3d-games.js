@@ -926,93 +926,286 @@ function spherePlanet(item){
   else grp.userData.spin=(retrograde.has(item.id)?-1:1)*Math.abs(rand(.10,.22));
   return grp;
 }
+let _milkyWayTex=null,_blackHoleTex=null;
+
+function makeMilkyWayTexture(){
+  if(_milkyWayTex)return _milkyWayTex;
+  const S=1024,canvas=document.createElement('canvas');canvas.width=S;canvas.height=S;
+  const ctx=canvas.getContext('2d');
+  let seed=0x6d696c6b;
+  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+
+  ctx.clearRect(0,0,S,S);
+  ctx.save();
+  ctx.translate(S/2,S/2);
+  ctx.globalCompositeOperation='lighter';
+
+  // Soft extended stellar halo.
+  const halo=ctx.createRadialGradient(0,0,20,0,0,430);
+  halo.addColorStop(0,'rgba(255,232,190,.30)');
+  halo.addColorStop(.20,'rgba(216,204,255,.20)');
+  halo.addColorStop(.56,'rgba(74,111,255,.07)');
+  halo.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,435,0,Math.PI*2);ctx.fill();
+
+  // Four luminous spiral arms. The particle layout is deterministic so the
+  // gallery/game look stays stable from launch to launch.
+  const armColors=[
+    [196,218,255],[157,183,255],[224,205,255],[126,166,255]
+  ];
+  for(let arm=0;arm<4;arm++){
+    for(let i=0;i<1500;i++){
+      const r=Math.pow(rnd(),.62)*430;
+      const a=arm*Math.PI/2 + r*.0132 + (rnd()-.5)*(.36-r/1800);
+      const x=Math.cos(a)*r;
+      const y=Math.sin(a)*r*.80;
+      const w=1.0+rnd()*2.5*(1-r/520);
+      const col=armColors[arm];
+      const alpha=.045+rnd()*.15*(1-r/600);
+      ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
+      ctx.beginPath();ctx.arc(x,y,w,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  // Warm dense galactic core.
+  for(let i=0;i<1250;i++){
+    const r=Math.pow(rnd(),2.15)*160,a=rnd()*Math.PI*2;
+    const x=Math.cos(a)*r,y=Math.sin(a)*r*.70;
+    const s=.8+rnd()*3.2;
+    const t=r/160;
+    const rr=Math.round(255-18*t),gg=Math.round(225-30*t),bb=Math.round(176+38*t);
+    ctx.fillStyle=`rgba(${rr},${gg},${bb},${.08+rnd()*.23})`;
+    ctx.beginPath();ctx.arc(x,y,s,0,Math.PI*2);ctx.fill();
+  }
+
+  // Dust lanes are transparent/dark gaps between the luminous arms.
+  ctx.globalCompositeOperation='destination-out';
+  for(let arm=0;arm<4;arm++){
+    for(let i=0;i<520;i++){
+      const r=70+Math.pow(rnd(),.78)*350;
+      const a=arm*Math.PI/2 + r*.0132 + .22 + (rnd()-.5)*.10;
+      const x=Math.cos(a)*r,y=Math.sin(a)*r*.80;
+      ctx.fillStyle=`rgba(0,0,0,${.035+rnd()*.085})`;
+      ctx.beginPath();ctx.arc(x,y,1.4+rnd()*4.4,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  // Sharp foreground stars and blue/purple nebular knots.
+  ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<700;i++){
+    const r=Math.pow(rnd(),.58)*440,a=rnd()*Math.PI*2;
+    const x=Math.cos(a)*r,y=Math.sin(a)*r*.81;
+    const blue=rnd()>.55;
+    ctx.fillStyle=blue
+      ?`rgba(160,196,255,${.18+rnd()*.42})`
+      :`rgba(255,239,214,${.15+rnd()*.38})`;
+    const s=.35+rnd()*1.6;
+    ctx.fillRect(x-s/2,y-s/2,s,s);
+  }
+
+  ctx.restore();
+  const tex=new THREE.CanvasTexture(canvas);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+  tex.anisotropy=8;
+  _milkyWayTex=tex;
+  return tex;
+}
+
+function makeBlackHoleTexture(){
+  if(_blackHoleTex)return _blackHoleTex;
+  const W=1024,H=600,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  let seed=0x62686f6c;
+  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  const cx=W/2,cy=H/2+4;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+
+  // Broad warm halo around the gravitationally lensed disk.
+  const halo=ctx.createRadialGradient(cx,cy,70,cx,cy,315);
+  halo.addColorStop(0,'rgba(255,245,218,.18)');
+  halo.addColorStop(.30,'rgba(255,186,98,.10)');
+  halo.addColorStop(.65,'rgba(255,92,32,.035)');
+  halo.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=halo;ctx.fillRect(0,0,W,H);
+
+  // Far-side lensed arc above the event horizon — the signature
+  // Interstellar-like silhouette from the user's reference clip.
+  const arcGradient=ctx.createLinearGradient(cx-190,cy-170,cx+190,cy-170);
+  arcGradient.addColorStop(0,'rgba(255,142,61,.34)');
+  arcGradient.addColorStop(.27,'rgba(255,230,186,.88)');
+  arcGradient.addColorStop(.52,'rgba(255,255,244,1)');
+  arcGradient.addColorStop(.76,'rgba(255,213,157,.84)');
+  arcGradient.addColorStop(1,'rgba(255,112,42,.28)');
+  ctx.strokeStyle=arcGradient;
+  ctx.lineCap='round';
+  ctx.lineWidth=26;
+  ctx.beginPath();
+  ctx.ellipse(cx,cy+2,139,151,0,Math.PI*1.04,Math.PI*1.96);
+  ctx.stroke();
+
+  ctx.globalAlpha=.30;ctx.lineWidth=48;
+  ctx.beginPath();ctx.ellipse(cx,cy+6,153,166,0,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // Faint lower lensed image.
+  ctx.strokeStyle='rgba(255,168,96,.24)';ctx.lineWidth=18;
+  ctx.beginPath();ctx.ellipse(cx,cy+18,136,118,0,.06*Math.PI,.94*Math.PI);ctx.stroke();
+
+  // The accretion disk: thousands of hot streaks in a very thin ellipse.
+  for(let i=0;i<4200;i++){
+    const r=118+Math.pow(rnd(),1.45)*355;
+    const a=rnd()*Math.PI*2;
+    const x=cx+Math.cos(a)*r;
+    const y=cy+Math.sin(a)*r*.105 + (rnd()-.5)*8;
+    const inner=Math.max(0,1-(r-118)/355);
+    const temp=rnd();
+    let col;
+    if(temp>.78) col=[255,248,223];
+    else if(temp>.42) col=[255,192,112];
+    else col=[218,87,38];
+    const alpha=(.025+rnd()*.105)*(0.55+inner*.9);
+    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
+    ctx.lineWidth=.45+rnd()*1.7;
+    const len=2+rnd()*13*(.4+inner);
+    ctx.beginPath();ctx.moveTo(x-len,y);ctx.lineTo(x+len,y);ctx.stroke();
+  }
+
+  // Hot inner disk edges.
+  const diskGrad=ctx.createLinearGradient(cx-430,cy,cx+430,cy);
+  diskGrad.addColorStop(0,'rgba(255,102,40,.10)');
+  diskGrad.addColorStop(.24,'rgba(255,194,115,.70)');
+  diskGrad.addColorStop(.44,'rgba(255,250,223,.98)');
+  diskGrad.addColorStop(.58,'rgba(255,246,217,.98)');
+  diskGrad.addColorStop(.80,'rgba(255,161,81,.58)');
+  diskGrad.addColorStop(1,'rgba(255,81,31,.08)');
+  ctx.strokeStyle=diskGrad;ctx.lineWidth=10;
+  ctx.beginPath();ctx.moveTo(76,cy-3);ctx.quadraticCurveTo(cx,cy-20,W-76,cy-2);ctx.stroke();
+  ctx.lineWidth=4;ctx.globalAlpha=.92;
+  ctx.beginPath();ctx.moveTo(108,cy+15);ctx.quadraticCurveTo(cx,cy+29,W-108,cy+13);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // Event horizon, drawn after the far-side lensing but before the front disk.
+  ctx.globalCompositeOperation='source-over';
+  const black=ctx.createRadialGradient(cx-18,cy-14,22,cx,cy,118);
+  black.addColorStop(0,'rgba(0,0,0,1)');
+  black.addColorStop(.82,'rgba(0,0,0,1)');
+  black.addColorStop(1,'rgba(0,0,0,.94)');
+  ctx.fillStyle=black;ctx.beginPath();ctx.arc(cx,cy,112,0,Math.PI*2);ctx.fill();
+
+  // Razor-thin photon rim.
+  ctx.globalCompositeOperation='lighter';
+  ctx.strokeStyle='rgba(255,248,221,.94)';ctx.lineWidth=5;
+  ctx.beginPath();ctx.arc(cx,cy,116,0,Math.PI*2);ctx.stroke();
+
+  // Repaint the near half of the disk across the event horizon.
+  ctx.strokeStyle=diskGrad;ctx.lineWidth=9;
+  ctx.beginPath();ctx.moveTo(80,cy+2);ctx.quadraticCurveTo(cx,cy+19,W-80,cy+3);ctx.stroke();
+
+  ctx.restore();
+  const tex=new THREE.CanvasTexture(canvas);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.magFilter=THREE.LinearFilter;
+  tex.anisotropy=8;
+  _blackHoleTex=tex;
+  return tex;
+}
+
 function blackHole(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.10;g.userData.spinAxis='z';
-  // Strong presentation tilt: the accretion disk must read as a thick 3D disk,
-  // not as a Saturn-like horizontal hoop.
-  g.rotation.set(THREE.MathUtils.degToRad(57),THREE.MathUtils.degToRad(-8),THREE.MathUtils.degToRad(24));
+  const g=new THREE.Group();
+  g.userData.item=item;g.userData.pickable=true;g.userData.spin=.018;g.userData.spinAxis='z';
+
+  // Reference presentation: almost edge-on cinematic accretion disk with
+  // gravitational lensing above and below the event horizon.
+  g.rotation.set(
+    THREE.MathUtils.degToRad(7),
+    THREE.MathUtils.degToRad(-4),
+    THREE.MathUtils.degToRad(-4)
+  );
+
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
-  const glow=new THREE.Sprite(new THREE.SpriteMaterial({
-    map:GLOW,color:0xff7a20,transparent:true,opacity:.28,
-    blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false
-  }));
-  glow.scale.set(3.5,3.5,1);glow.position.z=-.10;visual.add(glow);
-
-  const core=new THREE.Mesh(
-    new THREE.SphereGeometry(.62,64,40),
-    new THREE.MeshBasicMaterial({color:0x000000,toneMapped:false})
-  );
-  core.userData.parentPick=g;visual.add(core);
-
-  const bands=[
-    [.69,.78,0xfff3bf,.78],
-    [.78,.91,0xffc15a,.72],
-    [.91,1.10,0xff8426,.58],
-    [1.10,1.34,0xff4e16,.38],
-    [1.34,1.52,0xb92d18,.20]
-  ];
-  bands.forEach(([inner,outer,color,opacity],i)=>{
-    const m=new THREE.Mesh(
-      new THREE.RingGeometry(inner,outer,192),
-      new THREE.MeshBasicMaterial({
-        color,side:THREE.DoubleSide,transparent:true,opacity,
-        blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false
-      })
-    );
-    m.position.z=(i-2)*.008;m.userData.parentPick=g;visual.add(m);
-  });
-
-  const photon=new THREE.Mesh(
-    new THREE.TorusGeometry(.665,.035,20,160),
+  const plate=new THREE.Mesh(
+    new THREE.PlaneGeometry(3.55,2.08),
     new THREE.MeshBasicMaterial({
-      color:0xfff6d5,transparent:true,opacity:.92,
-      blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false
+      map:makeBlackHoleTexture(),transparent:true,depthWrite:false,
+      depthTest:true,toneMapped:false,side:THREE.DoubleSide
     })
   );
-  photon.userData.parentPick=g;visual.add(photon);
+  plate.userData.parentPick=g;
+  visual.add(plate);
+
+  // Actual 3D black event horizon gives the flat reference a little depth.
+  const core=new THREE.Mesh(
+    new THREE.SphereGeometry(.40,48,32),
+    new THREE.MeshBasicMaterial({color:0x000000,toneMapped:false})
+  );
+  core.position.z=.025;
+  core.userData.parentPick=g;
+  visual.add(core);
 
   const hit=new THREE.Mesh(
-    new THREE.SphereGeometry(1.42,24,16),
+    new THREE.SphereGeometry(1.58,24,16),
     new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
   );
   hit.userData.parentPick=g;visual.add(hit);
   return g;
 }
+
 function galaxy(item){
-  const g=new THREE.Group();g.userData.item=item;g.userData.pickable=true;g.userData.spin=.045;g.userData.spinAxis='z';
-  g.rotation.set(THREE.MathUtils.degToRad(58),THREE.MathUtils.degToRad(7),THREE.MathUtils.degToRad(-26));
+  const g=new THREE.Group();
+  g.userData.item=item;g.userData.pickable=true;g.userData.spin=.032;g.userData.spinAxis='z';
+
+  // A photographic spiral presentation: readable spiral arms, warm core,
+  // dark dust lanes and a modest 3D tilt instead of the old dotted strip.
+  g.rotation.set(
+    THREE.MathUtils.degToRad(52),
+    THREE.MathUtils.degToRad(6),
+    THREE.MathUtils.degToRad(-24)
+  );
+
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
-  const N=1450,p=new Float32Array(N*3);
+  const disk=new THREE.Mesh(
+    new THREE.PlaneGeometry(3.75,3.05),
+    new THREE.MeshBasicMaterial({
+      map:makeMilkyWayTexture(),transparent:true,depthWrite:false,
+      depthTest:true,blending:THREE.AdditiveBlending,
+      toneMapped:false,side:THREE.DoubleSide
+    })
+  );
+  disk.userData.parentPick=g;
+  visual.add(disk);
+
+  // Sparse 3D stars above/below the galactic plane keep it from reading
+  // as a flat sticker when the object rotates.
+  const N=520,p=new Float32Array(N*3),col=new Float32Array(N*3);
   for(let i=0;i<N;i++){
-    const r=Math.pow(Math.random(),.58)*1.78;
-    const arm=Math.floor(Math.random()*4);
-    const a=r*4.85+arm*(Math.PI*.5)+rand(-.20,.20);
+    const r=Math.pow(Math.random(),.62)*1.70,a=Math.random()*Math.PI*2;
     p[i*3]=Math.cos(a)*r;
-    p[i*3+1]=Math.sin(a)*r*.72;
-    p[i*3+2]=rand(-.10,.10)*(1.12-r*.38);
+    p[i*3+1]=Math.sin(a)*r*.78;
+    p[i*3+2]=rand(-.16,.16)*(1-r*.32);
+    const warm=Math.random()>.72;
+    col[i*3]=warm?1:.58;col[i*3+1]=warm?.86:.70;col[i*3+2]=warm?.66:1;
   }
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(p,3));
-  const arms=new THREE.Points(geo,new THREE.PointsMaterial({
-    color:0xb9ccff,size:.040,transparent:true,opacity:.90,
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(p,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const stars=new THREE.Points(geo,new THREE.PointsMaterial({
+    vertexColors:true,size:.025,transparent:true,opacity:.72,
     blending:THREE.AdditiveBlending,depthWrite:false
   }));
-  arms.userData.parentPick=g;visual.add(arms);
+  stars.userData.parentPick=g;visual.add(stars);
 
-  const C=320,cp=new Float32Array(C*3);
-  for(let i=0;i<C;i++){
-    const r=Math.pow(Math.random(),1.8)*.64,a=Math.random()*Math.PI*2;
-    cp[i*3]=Math.cos(a)*r;cp[i*3+1]=Math.sin(a)*r*.72;cp[i*3+2]=rand(-.16,.16)*(1-r);
-  }
-  const cgeo=new THREE.BufferGeometry();cgeo.setAttribute('position',new THREE.BufferAttribute(cp,3));
-  const core=new THREE.Points(cgeo,new THREE.PointsMaterial({
-    color:0xffdfad,size:.052,transparent:true,opacity:.92,
-    blending:THREE.AdditiveBlending,depthWrite:false
-  }));
-  core.userData.parentPick=g;visual.add(core);
-
-  const hit=new THREE.Mesh(new THREE.SphereGeometry(1.62,24,16),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  const hit=new THREE.Mesh(
+    new THREE.SphereGeometry(1.72,24,16),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
   hit.userData.parentPick=g;visual.add(hit);
   return g;
 }
