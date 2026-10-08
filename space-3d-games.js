@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole} from './blackhole-interstellar.js?v=215';
+import {renderInterstellarBlackHole} from './blackhole-interstellar.js?v=216';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1069,6 +1069,7 @@ function makeBlackHoleTexture(){
   if(_blackHoleTex)return _blackHoleTex;
   const canvas=renderInterstellarBlackHole();
   const tex=new THREE.CanvasTexture(canvas);
+  canvas.addEventListener('areg-blackhole-ready',()=>{tex.needsUpdate=true;},{once:true});
   tex.colorSpace=THREE.SRGBColorSpace;
   tex.minFilter=THREE.LinearMipmapLinearFilter;
   tex.magFilter=THREE.LinearFilter;
@@ -1081,20 +1082,15 @@ function blackHole(item){
   const g=new THREE.Group();
   g.userData.item=item;g.userData.pickable=true;
 
-  // Fixed three-axis viewing angle: the accretion disk rises toward screen-right
-  // like the reference, with a modest X/Y tilt for more visible depth.
-  // Do not spin the whole silhouette; only the flowing gas particles animate.
+  // The reference image already contains the desired steep disk perspective.
+  // No 3D rotation or silhouette spin: preserve its exact orientation.
   g.userData.spin=0;g.userData.spinAxis='z';
-  g.rotation.set(
-    THREE.MathUtils.degToRad(24),
-    THREE.MathUtils.degToRad(-10),
-    THREE.MathUtils.degToRad(10)
-  );
+  g.rotation.set(0,0,0);
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
   const plate=new THREE.Mesh(
-    new THREE.PlaneGeometry(4.36,2.70),
+    new THREE.PlaneGeometry(4.64,2.61),
     new THREE.MeshBasicMaterial({
       map:makeBlackHoleTexture(),transparent:true,depthWrite:false,
       depthTest:true,toneMapped:false,side:THREE.DoubleSide
@@ -1102,45 +1098,8 @@ function blackHole(item){
   );
   plate.userData.parentPick=g;visual.add(plate);
 
-  // Animated accretion-flow highlights. These move along fixed elliptical
-  // orbits; the black-hole silhouette itself never rotates.
-  const flowCount=110;
-  const flowPos=new Float32Array(flowCount*3);
-  const flowCol=new Float32Array(flowCount*3);
-  const flowMeta=[];
-  let flowSeed=0x61636372;
-  const flowRnd=()=>{flowSeed=(Math.imul(flowSeed,1664525)+1013904223)>>>0;return flowSeed/4294967296};
-  const diskAngle=.14;
-  const ca=Math.cos(diskAngle),sa=Math.sin(diskAngle);
-  for(let i=0;i<flowCount;i++){
-    const radius=.62+Math.pow(flowRnd(),.72)*1.16;
-    const phase=flowRnd()*Math.PI*2;
-    const speed=(.22+flowRnd()*.26)*(flowRnd()>.5?1:-1);
-    const flatten=.145+flowRnd()*.055;
-    const z=.010+flowRnd()*.010;
-    flowMeta.push({radius,phase,speed,flatten,z});
-
-    // warm-white core particles and gold/orange outer particles
-    const hot=1-(radius-.62)/1.16;
-    flowCol[i*3]=1;
-    flowCol[i*3+1]=.48+.48*hot;
-    flowCol[i*3+2]=.16+.58*hot;
-  }
-  const flowGeo=new THREE.BufferGeometry();
-  flowGeo.setAttribute('position',new THREE.BufferAttribute(flowPos,3));
-  flowGeo.setAttribute('color',new THREE.BufferAttribute(flowCol,3));
-  const flow=new THREE.Points(
-    flowGeo,
-    new THREE.PointsMaterial({
-      vertexColors:true,size:.018,transparent:true,opacity:.52,
-      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
-    })
-  );
-  flow.userData.parentPick=g;
-  flow.userData.flowMeta=flowMeta;
-  flow.userData.flowTime=0;
-  visual.add(flow);
-  g.userData.accretionFlow=flow;
+  // The reference photograph contains the exact foreground flow and lensing.
+  // Do not overlay mismatched particles on the black event horizon.
 
   const hit=new THREE.Mesh(
     new THREE.SphereGeometry(1.72,24,16),
