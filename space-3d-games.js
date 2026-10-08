@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=227';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=228';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1541,6 +1541,27 @@ function winVisibleSurfaceSamples(g){
         points.push(v.clone());
     }
   });
+  // V228: Phobos and Deimos are stretched, irregular, spinning rocks.
+  // A snapshot of the visible vertices at tap-time is NOT the largest
+  // outline they will have a moment later. Add a guaranteed enclosing
+  // sphere so zoom stays within the phone frame over a complete rotation.
+  // This only changes the win-size calculation, never their geometry,
+  // texture, actual shape, or spin animation.
+  if(points.length && (g.userData.item?.id==='phobos' ||
+                       g.userData.item?.id==='deimos')){
+    const maxRadius=points.reduce((r,p)=>Math.max(r,p.length()),0)*1.045;
+    for(let latitude=0;latitude<=12;latitude++){
+      const theta=Math.PI*latitude/12;
+      for(let longitude=0;longitude<24;longitude++){
+        const phi=2*Math.PI*longitude/24;
+        points.push(new THREE.Vector3(
+          maxRadius*Math.sin(theta)*Math.cos(phi),
+          maxRadius*Math.cos(theta),
+          maxRadius*Math.sin(theta)*Math.sin(phi)
+        ));
+      }
+    }
+  }
   if(points.length)return points;
   const bb=searchVisibleBox(g);
   for(const x of [bb.min.x,bb.max.x])
@@ -1576,8 +1597,12 @@ function feedbackWinPose(g,camera,root){
   finalCam.updateProjectionMatrix();
   finalCam.updateMatrixWorld(true);
 
-  const TARGET_HALF_WIDTH=.952;
-  const MAX_ABS_X=.963;
+  // V228: previous round planets filled 95.2% of half-screen width.
+  // Increase their side margin from 4.8% to 7.2% of half-screen:
+  // precisely 1.5x the previous empty space on the left and right.
+  // MAX_ABS_X is likewise reduced 1.5x for off-centred/elongated bodies.
+  const TARGET_HALF_WIDTH=.928;
+  const MAX_ABS_X=.9445;
   const MAX_ABS_Y=.895;
   const transformed=new THREE.Vector3();
   function measure(scale){
@@ -1593,9 +1618,9 @@ function feedbackWinPose(g,camera,root){
       maxX:Math.max(Math.abs(xMin),Math.abs(xMax)),
       maxY:Math.max(Math.abs(yMin),Math.abs(yMax))};
   }
-  // Strictly monotone perspective sizing solved to pixel-space tolerance.
-  // Every spherical planet reaches the same screen size regardless of the
-  // starting zigzag slot or its original display scale.
+  // Perspective-safe sizing solved to sub-pixel tolerance. The rotation
+  // envelope guarantees Phobos/Deimos remain inside the frame at every
+  // spin angle; ordinary spherical planets keep one standard win size.
   let minScale=0,maxScale=64;
   for(let k=0;k<27;k++){
     const scale=(minScale+maxScale)*.5;
