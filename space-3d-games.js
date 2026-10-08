@@ -689,7 +689,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
     const geo=new THREE.RingGeometry(a,b,192);
     const mat=new THREE.MeshBasicMaterial({
       color,side:THREE.DoubleSide,transparent:true,opacity,
-      depthWrite:false,depthTest:true,toneMapped:false
+      depthWrite:true,depthTest:true,toneMapped:false
     });
     const m=new THREE.Mesh(geo,mat);
     m.rotation.x=Math.PI/2;
@@ -707,9 +707,9 @@ function ringMesh(item,inner=1.22,outer=2.08){
     radialUvs(geo);
     const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png');
     const mat=new THREE.MeshBasicMaterial({
-      map:ringTex,alphaMap:ringTex,color:0xfff2d6,side:THREE.DoubleSide,
-      transparent:true,opacity:.995,alphaTest:.008,
-      depthWrite:false,depthTest:true,toneMapped:false
+      alphaMap:ringTex,color:0xffe6b3,side:THREE.DoubleSide,
+      transparent:true,opacity:1,alphaTest:.015,
+      depthWrite:true,depthTest:true,toneMapped:false
     });
     const ring=new THREE.Mesh(geo,mat);
     ring.rotation.x=Math.PI/2;
@@ -718,28 +718,28 @@ function ringMesh(item,inner=1.22,outer=2.08){
 
     // Slightly stronger natural banding so the rings stay readable on phone
     // screens while preserving the real Saturn-ring look.
-    addBand(1.22,1.30,0xe8d39e,.18,.001);
-    addBand(1.51,1.535,0x5c4f43,.34,.002);
-    addBand(1.60,1.69,0xf3dfac,.20,.0025);
-    addBand(1.73,1.755,0x4d433a,.28,.003);
-    addBand(1.82,1.92,0xd7c29a,.16,.0035);
-    addBand(1.98,2.00,0xbeb5a5,.30,.004);
+    addBand(1.22,1.30,0xe7cf96,.34,.001);
+    addBand(1.51,1.535,0x5c4f43,.52,.002);
+    addBand(1.60,1.69,0xf2d99f,.38,.0025);
+    addBand(1.73,1.755,0x4d433a,.46,.003);
+    addBand(1.82,1.92,0xd2bb8f,.30,.0035);
+    addBand(1.98,2.00,0xb9aa94,.44,.004);
   }else{
     // Uranus: thin separated rings, now a little more readable on iPhone.
-    addBand(1.16,1.178,0xa9bfd1,.34,-.004);
-    addBand(1.245,1.262,0x71879d,.42,-.003);
-    addBand(1.33,1.348,0xc4d6e6,.48,-.001);
-    addBand(1.425,1.443,0x637a90,.36,.001);
-    addBand(1.535,1.553,0xb2c7d9,.42,.003);
-    addBand(1.655,1.675,0x72899f,.34,.005);
+    addBand(1.16,1.178,0xa9bfd1,.58,-.004);
+    addBand(1.245,1.262,0x71879d,.66,-.003);
+    addBand(1.33,1.348,0xc4d6e6,.74,-.001);
+    addBand(1.425,1.443,0x637a90,.62,.001);
+    addBand(1.535,1.553,0xb2c7d9,.68,.003);
+    addBand(1.655,1.675,0x72899f,.58,.005);
 
     // Fine rocky/icy debris inside the Uranus ring system.
     // Instancing keeps this inexpensive enough for the phone build.
     const rockCount=120;
     const rockGeo=new THREE.IcosahedronGeometry(.010,0);
     const rockMat=new THREE.MeshBasicMaterial({
-      color:0xc9d4df,transparent:true,opacity:.78,
-      depthWrite:false,toneMapped:false
+      color:0xc9d4df,transparent:true,opacity:.90,
+      depthWrite:true,depthTest:true,toneMapped:false
     });
     const rocks=new THREE.InstancedMesh(rockGeo,rockMat,rockCount);
     const dummy=new THREE.Object3D();
@@ -763,6 +763,7 @@ function ringMesh(item,inner=1.22,outer=2.08){
   // The parent axial pivot controls the visible tilt. Keeping this group
   // neutral guarantees that ring plane and spin axis cannot drift apart.
   group.rotation.set(0,0,0);
+  group.traverse(o=>{if(o.isMesh)o.renderOrder=2});
   group.userData.ring=true;
   group.userData.baseRotationX=0;
   group.userData.winRotationX=0;
@@ -846,6 +847,7 @@ function spherePlanet(item){
     mesh.rotation.z=THREE.MathUtils.degToRad(displayRoll);
     grp.add(mesh);
   }
+  mesh.renderOrder=1;
   grp.userData.surface=mesh;
   if(item.id==='earth'&&!hasUserUV){
     const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg');
