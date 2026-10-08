@@ -51,7 +51,7 @@ check(sw.includes('areg-v243-core')&&sw.includes('areg-v243-runtime'),'SW cache 
 check(app.includes("import('./space-3d-games.js?v=242')"),'3D dynamic import may load stale code');
 check(sw.includes("'./space-3d-games.js?v=242'")&&sw.includes("'./app.js?v=243'"),'SW precache version mismatch');
 check(read('index.html').includes('app.js?v=243'),'HTML script version mismatch');
-check(read('index.html').includes('styles.css?v=239'),'No-flash CSS version mismatch');
+check(read('index.html').includes('styles.css?v=243'),'No-flash CSS version mismatch');
 check(app.includes('gallery-hires-layer')&&app.includes('warmGalleryPreviews'),'Gallery predecode fix missing');
 const core=sw.match(/const CORE=\[([\s\S]*?)\];/);
 if(core)for(const r of core[1].matchAll(/'\.\/([^']+)'/g)){const n=r[1].split('?')[0];total++;check(has(n),'missing precached '+n)}
