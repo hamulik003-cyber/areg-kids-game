@@ -678,58 +678,67 @@ function nebula(){return null}
 function ringMesh(item,inner=1.22,outer=2.08){
   const group=new THREE.Group();
 
-  // Saturn and Uranus rings are deliberately built as separate 3D meshes.
-  // The gallery references show layered ring bands with visible gaps, not a
-  // single flat gray disk, so we construct a stack of independent annuli.
-  const addBand=(a,b,color,opacity,{z=0,blend=false}={})=>{
+  const radialUvs=geo=>{
+    const pos=geo.attributes.position,uv=geo.attributes.uv;
+    for(let i=0;i<pos.count;i++){
+      const r=Math.hypot(pos.getX(i),pos.getY(i));
+      uv.setXY(i,clamp((r-inner)/(outer-inner),0,1),.5);
+    }
+  };
+  const addBand=(a,b,color,opacity,z=0)=>{
     const geo=new THREE.RingGeometry(a,b,192);
     const mat=new THREE.MeshBasicMaterial({
-      color,side:THREE.DoubleSide,transparent:opacity<.999,opacity,
-      depthWrite:false,depthTest:true,toneMapped:false,
-      blending:blend?THREE.AdditiveBlending:THREE.NormalBlending
+      color,side:THREE.DoubleSide,transparent:true,opacity,
+      depthWrite:false,depthTest:true,toneMapped:false
     });
-    const mesh=new THREE.Mesh(geo,mat);
-    mesh.position.z=z;
-    mesh.userData.ringSurface=true;
-    group.add(mesh);
-    return mesh;
+    const m=new THREE.Mesh(geo,mat);
+    m.rotation.x=Math.PI/2;
+    m.position.y=z;
+    m.userData.ringSurface=true;
+    group.add(m);
+    return m;
   };
 
   if(item.id==='saturn'){
-    // Reference look: warm cream/gold bands, several dark separations,
-    // broad but thin, with the planet visually sitting inside the ring.
-    addBand(1.13,1.20,0x7a512b,.42,{z:-.010});
-    addBand(1.20,1.31,0xffe0a1,.92,{z:-.006});
-    addBand(1.31,1.36,0xc58b44,.88,{z:-.003});
-    addBand(1.36,1.43,0x4e321f,.72,{z:0});
-    addBand(1.43,1.57,0xffd77f,.96,{z:.003});
-    addBand(1.57,1.62,0x6d4729,.84,{z:.006});
-    addBand(1.62,1.76,0xffedb5,.94,{z:.009});
-    addBand(1.76,1.84,0xd69b51,.90,{z:.012});
-    addBand(1.84,1.92,0xffd37a,.72,{z:.015});
-    addBand(1.92,1.97,0x7f532c,.34,{z:.018});
+    // Use the repository's real Saturn ring alpha map as the main ring body.
+    // The ring lies in the planet's local equatorial XZ plane; the parent
+    // axial pivot supplies the screen tilt, so body and rings always agree.
+    const geo=new THREE.RingGeometry(inner,outer,256);
+    radialUvs(geo);
+    const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png');
+    const mat=new THREE.MeshBasicMaterial({
+      map:ringTex,alphaMap:ringTex,color:0xffefd2,side:THREE.DoubleSide,
+      transparent:true,opacity:.94,alphaTest:.018,
+      depthWrite:false,depthTest:true,toneMapped:false
+    });
+    const ring=new THREE.Mesh(geo,mat);
+    ring.rotation.x=Math.PI/2;
+    ring.userData.ringSurface=true;
+    group.add(ring);
+
+    // Very subtle separators reinforce the Cassini-style banding without
+    // turning the ring into the previous cartoon bullseye.
+    addBand(1.51,1.535,0x5c4f43,.24,.002);
+    addBand(1.73,1.755,0x4d433a,.18,.003);
+    addBand(1.98,2.00,0xbeb5a5,.22,.004);
   }else{
-    // Reference look: multiple narrow icy blue-white rings with real gaps.
-    // This replaces the old thick gray donut.
-    addBand(1.14,1.18,0x9feeff,.42,{z:-.010,blend:true});
-    addBand(1.21,1.245,0xe7fbff,.82,{z:-.006,blend:true});
-    addBand(1.29,1.325,0x8fd8ff,.72,{z:-.002,blend:true});
-    addBand(1.37,1.405,0xf4ffff,.88,{z:.002,blend:true});
-    addBand(1.48,1.515,0x76c5ff,.70,{z:.006,blend:true});
-    addBand(1.60,1.64,0xd8f8ff,.76,{z:.010,blend:true});
-    addBand(1.69,1.72,0x70baff,.40,{z:.014,blend:true});
+    // Uranus: faint, narrow, widely separated dark/icy rings.
+    // No bright additive glow and no thick gray donut.
+    addBand(1.16,1.175,0x9fb3c7,.20,-.004);
+    addBand(1.245,1.258,0x697f96,.28,-.003);
+    addBand(1.33,1.344,0xb7c8d8,.32,-.001);
+    addBand(1.425,1.438,0x586f88,.24,.001);
+    addBand(1.535,1.550,0xa6bbcf,.28,.003);
+    addBand(1.655,1.670,0x6c8298,.22,.005);
   }
 
-  // Match the gallery presentation: both rings lean the same diagonal way
-  // and are seen much more edge-on than the previous search-game version.
-  const baseX=item.id==='saturn'?-1.22:-1.25;
-  const winX=item.id==='saturn'?-1.10:-1.12;
-  const baseZ=item.id==='saturn'?.46:.49;
-  group.rotation.set(baseX,0,baseZ);
+  // The parent axial pivot controls the visible tilt. Keeping this group
+  // neutral guarantees that ring plane and spin axis cannot drift apart.
+  group.rotation.set(0,0,0);
   group.userData.ring=true;
-  group.userData.baseRotationX=baseX;
-  group.userData.winRotationX=winX;
-  group.userData.baseRotationZ=baseZ;
+  group.userData.baseRotationX=0;
+  group.userData.winRotationX=0;
+  group.userData.baseRotationZ=0;
   return group;
 }
 function atmosphereMesh(radius=1.035){
@@ -786,9 +795,29 @@ function spherePlanet(item){
 
   const mesh=new THREE.Mesh(geo,mat);
   if(hasUserUV)mesh.rotation.y=-Math.PI/2;
-  const displayRoll=item.id==='haumea'?-31:(AXIAL_TILT[item.id]||0);
-  mesh.rotation.z=THREE.MathUtils.degToRad(displayRoll);
-  mesh.userData.parentPick=grp;grp.add(mesh);
+  mesh.userData.parentPick=grp;
+
+  const isRinged=item.id==='saturn'||item.id==='uranus';
+  let axisPivot=null;
+  if(isRinged){
+    axisPivot=new THREE.Group();
+    // Match the real-reference presentation for both planets:
+    // a moderately open ellipse, sloping up toward screen-right.
+    // Uranus intentionally shares Saturn's visible tilt, while retaining
+    // its own retrograde spin direction.
+    axisPivot.rotation.set(
+      THREE.MathUtils.degToRad(-19),
+      0,
+      THREE.MathUtils.degToRad(-18)
+    );
+    grp.add(axisPivot);
+    axisPivot.add(mesh);
+    grp.userData.axisPivot=axisPivot;
+  }else{
+    const displayRoll=item.id==='haumea'?-31:(AXIAL_TILT[item.id]||0);
+    mesh.rotation.z=THREE.MathUtils.degToRad(displayRoll);
+    grp.add(mesh);
+  }
   grp.userData.surface=mesh;
   if(item.id==='earth'&&!hasUserUV){
     const cloudTex=getTexture('assets/space3d/2k_earth_clouds.jpg');
@@ -799,10 +828,16 @@ function spherePlanet(item){
     const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
   }
   if(item.id==='saturn'){
-    const r=ringMesh(item,1.13,1.97);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
+    const r=ringMesh(item,1.14,2.04);
+    r.userData.parentPick=grp;
+    (axisPivot||grp).add(r);
+    grp.userData.ring=r;
   }
   if(item.id==='uranus'){
-    const r=ringMesh(item,1.14,1.72);r.userData.parentPick=grp;grp.add(r);grp.userData.ring=r;
+    const r=ringMesh(item,1.14,1.70);
+    r.userData.parentPick=grp;
+    (axisPivot||grp).add(r);
+    grp.userData.ring=r;
   }
   if(item.id==='haumea'){
     // Haumea's ring is locked to the body's spin axis. Keeping it as a child
@@ -825,7 +860,9 @@ function spherePlanet(item){
   }
   grp.scale.setScalar(DISPLAY_SCALE[item.id]||.82);
   const retrograde=new Set(['venus','uranus','titania','oberon','triton','pluto']);
-  grp.userData.spin=(retrograde.has(item.id)?-1:1)*Math.abs(rand(.10,.22));
+  if(item.id==='saturn')grp.userData.spin=.145;
+  else if(item.id==='uranus')grp.userData.spin=-.145;
+  else grp.userData.spin=(retrograde.has(item.id)?-1:1)*Math.abs(rand(.10,.22));
   return grp;
 }
 function blackHole(item){
