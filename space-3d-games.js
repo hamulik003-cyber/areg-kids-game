@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=220';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=221';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1237,14 +1237,19 @@ function solarSystem(item){
         const wave=striped?Math.sin(lat*(id==='jupiter'?91:74)+swirl*5):Math.sin(lat*23+u*3);
         const noise=Math.sin(u*13+lat*53)*Math.cos(u*17-lat*23);
         let t=Math.max(0,Math.min(1,.50+.27*wave+.16*noise));
+        let isLand=false;
         if(id==='earth'){
-          const land=Math.sin(u*2.7+lat*8.0)+.56*Math.sin(u*5.3-lat*16.0);
-          if(land>.64){t=.78;A[0]=25;A[1]=75;A[2]=88;}
+          const continent=Math.sin(u*2.7+lat*8.0)+.56*Math.sin(u*5.3-lat*16.0);
+          isLand=continent>.64;
         }
         const whiteCap=id==='earth'&&Math.abs(lat)>.43;
         const i=(y*width+x)*4;
-        for(let k=0;k<3;k++)img.data[i+k]=whiteCap?220:
-          Math.round(A[k]*(1-t)+B[k]*t);
+        for(let k=0;k<3;k++){
+          const ocean=Math.round(A[k]*(1-t)+B[k]*t);
+          // Local pixel values: never mutate the shared ocean palette.
+          const land=k===0?36+12*t:k===1?100+36*t:53+18*t;
+          img.data[i+k]=whiteCap?220:(isLand?Math.round(land):ocean);
+        }
         img.data[i+3]=255;
       }
     }
