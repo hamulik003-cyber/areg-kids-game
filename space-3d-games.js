@@ -1743,6 +1743,10 @@ function gameSpaceSearch(ctx){
   }
   // V231: bounded loading and a hard win-exit deadline.
   let queuedRound=null,roundSeq=0,prewarmTimer=0;
+  // V241: keep one recognizable 3D object on screen until the next
+  // approved round can render. Never show an empty intermediate stage.
+  // This does not change any geometry, UV artwork, or planet zoom pose.
+  const TRANSITION_VISIBLE_FLOOR=0.34;
   function createRoundPlan(){
     const chosen=next();
     return {target:chosen,opts:shuffle([chosen,...decoys(chosen)]),promise:null};
@@ -1844,7 +1848,7 @@ function gameSpaceSearch(ctx){
       ));
       g.userData.enterFromScale=g.userData.baseScale.clone().multiplyScalar(.64);
       g.position.copy(g.userData.enterFromPos);g.scale.copy(g.userData.enterFromScale);
-      setObjectOpacity(g,0);
+      setObjectOpacity(g,TRANSITION_VISIBLE_FLOOR);
       groups.push(g);
       g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)});
     });
@@ -2003,14 +2007,18 @@ function gameSpaceSearch(ctx){
         const e=easeOutCubic(q);
         g.position.lerpVectors(g.userData.enterFromPos,g.userData.basePosition,e);
         g.scale.lerpVectors(g.userData.enterFromScale,g.userData.baseScale,e);
-        setObjectOpacity(g,e);
+        setObjectOpacity(g,TRANSITION_VISIBLE_FLOOR+(1-TRANSITION_VISIBLE_FLOOR)*e);
         if(i===groups.length-1&&q>=1)finishEnter=true;
       }else if(transition?.type==='exit'){
         const q=clamp((t-transition.start)/transition.duration,0,1);
         const e=easeInOutCubic(q);
         g.position.lerpVectors(g.userData.exitFromPos,g.userData.exitToPos,e);
         g.scale.lerpVectors(g.userData.exitFromScale,g.userData.exitToScale,e);
-        setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));
+        // The winner remains softly visible while the next round is
+        // built. Wrong choices have opacity 0 and MUST NOT reappear.
+        const fromOpacity=g.userData.exitFromOpacity;
+        const floor=fromOpacity>.12?Math.min(fromOpacity,TRANSITION_VISIBLE_FLOOR):0;
+        setObjectOpacity(g,floor+(fromOpacity-floor)*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
         // Reach the consistent frame-filling size sooner, then hold it so
