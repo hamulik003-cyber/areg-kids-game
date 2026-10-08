@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=225';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=226';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1500,27 +1500,70 @@ function easeInOutCubic(q){
   q=clamp(q,0,1);return q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2;
 }
 function easeOutCubic(q){q=clamp(q,0,1);return 1-Math.pow(1-q,3)}
-function feedbackScaleMultiplier(g,camera,root){
-  // V224: fill almost all of the available PHONE WIDTH on a correct answer.
-  // Exact visible-geometry bounds, not the invisible touch target, protect
-  // Saturn's rings, ellipsoids, galaxies and the black-hole accretion disk.
+// V226: ONE screen-space final-size rule for every correctly tapped body.
+// Small bodies travel farther forward; large bodies travel less, but the
+// final *visible silhouette* always aims to occupy the same phone width.
+// Wide Saturn/Uranus rings, Haumea and broad space objects are never cropped.
+function feedbackWinPose(g,camera,root){
   const box=searchVisibleBox(g);
-  const px=g.position.x,py=g.position.y,pz=g.position.z;
-  const radiusX=Math.max(.01,Math.abs(box.min.x-px),Math.abs(box.max.x-px));
-  const radiusY=Math.max(.01,Math.abs(box.min.y-py),Math.abs(box.max.y-py));
-  const nearDepth=Math.max(0,box.max.z-pz);
-  const tanY=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5));
-  const tanX=tanY*root.clientWidth/Math.max(1,root.clientHeight);
-  // V225: push the chosen planet farther toward the child while solving
-  // the scale with the SAME final camera and winning-object Z. Otherwise
-  // the extra approach can clip Saturn's rings at the screen edges.
-  const distance=8.48-1.82;
-  // Near geometry and tilt are included in the silhouette-safe fit.
-  // The x camera drift is eased to zero as the win zoom completes.
-  const safeX=tanX*.975,safeY=tanY*.92;
-  const byWidth=(safeX*distance)/(radiusX+safeX*nearDepth);
-  const byHeight=(safeY*distance)/(radiusY+safeY*nearDepth);
-  return clamp(Math.min(byWidth,byHeight),.12,16);
+  const origin=g.position.clone();
+  const corners=[];
+  for(const x of [box.min.x,box.max.x])
+    for(const y of [box.min.y,box.max.y])
+      for(const z of [box.min.z,box.max.z])
+        corners.push(new THREE.Vector3(x,y,z).sub(origin));
+
+  const screenAspect=Math.max(.2,root.clientWidth/Math.max(1,root.clientHeight));
+  // Measure the currently visible planet, not its nominal world-space radius.
+  camera.updateMatrixWorld(true);
+  let initialLeft=Infinity,initialRight=-Infinity;
+  for(const corner of corners){
+    const p=corner.clone().add(origin).project(camera);
+    if(Number.isFinite(p.x)){
+      initialLeft=Math.min(initialLeft,p.x);
+      initialRight=Math.max(initialRight,p.x);
+    }
+  }
+  const initialWidth=Number.isFinite(initialLeft)?
+    (initialRight-initialLeft)*.5:.3;
+  const initialSize=clamp((initialWidth-.12)/.37,0,1);
+  // Smaller initial silhouette = longer physical approach towards camera.
+  const finalZ=3.35-1.18*initialSize;
+  const position=new THREE.Vector3(0,.015,finalZ);
+
+  // Use the final win camera, not the camera's current interpolating position.
+  // Projecting every corner accounts for the actual perspective and 3D depth.
+  const finalCam=camera.clone();
+  finalCam.aspect=screenAspect;
+  finalCam.position.set(0,.10,8.48);
+  finalCam.lookAt(0,-.08,0);
+  finalCam.updateProjectionMatrix();
+  finalCam.updateMatrixWorld(true);
+  // Width cap includes a clear left/right phone-frame safety margin.
+  // All ordinary spherical planets converge to the same ~95% screen width.
+  // Ringed/wide/tall bodies fit their WHOLE visible outline within this cap.
+  const TARGET_X=.948,MAX_X=.962,MAX_Y=.87;
+  const valid=(multiplier)=>{
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    for(const point of corners){
+      const p=point.clone().multiplyScalar(multiplier).add(position).project(finalCam);
+      if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.z>=1)return false;
+      minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);
+      minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);
+    }
+    // MAX_X / MAX_Y protect off-center silhouettes; TARGET_X sets one
+    // predictable apparent size regardless of the initial planet size.
+    return (maxX-minX)*.5<=TARGET_X &&
+      Math.max(Math.abs(minX),Math.abs(maxX))<=MAX_X &&
+      Math.max(Math.abs(minY),Math.abs(maxY))<=MAX_Y;
+  };
+  let lo=0,hi=64;
+  for(let i=0;i<28;i++){
+    const mid=(lo+hi)*.5;
+    if(valid(mid))lo=mid;else hi=mid;
+  }
+  // Reuse the original scale proportions; do not alter UV maps or ring shape.
+  return {position,multiplier:Math.max(.0001,lo)};
 }
 function setObjectOpacity(g,alpha){
   alpha=clamp(alpha,0,1);g.userData.displayOpacity=alpha;
@@ -1708,8 +1751,9 @@ function gameSpaceSearch(ctx){
       x.userData.winFromScale=x.scale.clone();
       x.userData.winFromOpacity=x.userData.displayOpacity??1;
       if(x===g){
-        x.userData.winToPosition=new THREE.Vector3(0,.06,1.82);
-        x.userData.winTargetScale=x.userData.baseScale.clone().multiplyScalar(feedbackScaleMultiplier(x,camera,root));
+        const pose=feedbackWinPose(x,camera,root);
+        x.userData.winToPosition=pose.position;
+        x.userData.winTargetScale=x.userData.baseScale.clone().multiplyScalar(pose.multiplier);
       }else{
         const dir=Math.sign(x.position.x||((i-1)||1));
         x.userData.winToPosition=x.position.clone().add(new THREE.Vector3(dir*.48,0,-.78));
@@ -1818,7 +1862,9 @@ function gameSpaceSearch(ctx){
         setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
-        const q=clamp((t-winStart)/860,0,1),e=easeOutCubic(q);
+        // Deliberate cinematic forward zoom, not a tiny size pulse.
+        // Smooth start + smooth arrival; same projected final size for all.
+        const q=clamp((t-winStart)/1040,0,1),e=easeInOutCubic(q);
         g.position.lerpVectors(g.userData.winFromPosition,g.userData.winToPosition,e);
         g.scale.lerpVectors(g.userData.winFromScale,g.userData.winTargetScale,e);
         if(g.userData.win){
