@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 // AREG iPhone-sized Chromium smoke test for all 5 sections + gameplay routes.
-import {chromium} from 'playwright';
+import {chromium,webkit} from 'playwright';
 import {spawn} from 'node:child_process';
 import {setTimeout as sleep} from 'node:timers/promises';
 const server=spawn('python3',['-m','http.server','8765','--bind','127.0.0.1'],{stdio:'ignore'});
 let browser;
 const errors=[],done=[];
+let decodedImages=0;
 try{
  await sleep(1100);
- browser=await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
+ browser=process.env.AREG_BROWSER==='webkit'
+  ?await webkit.launch({headless:true})
+  :await chromium.launch({channel:'chrome',headless:true,args:['--no-sandbox','--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
  page.setDefaultTimeout(15000);
  page.on('pageerror',e=>errors.push(e.message));
@@ -39,6 +42,26 @@ try{
       const i=document.querySelector('#activityContent .animal-card img');
       return i?.complete&&i?.naturalWidth>0;
      },null,{timeout:25000});
+     const expectedImages={animals:30,birds:30,sea:33,insects:30,planets:30,constellations:38};
+     if(Object.hasOwn(expectedImages,id)&&process.env.AREG_BROWSER!=='webkit'){
+       const count=await page.evaluate(async()=>{
+         const sources=[...document.querySelectorAll('#activityContent .animal-card img')]
+           .map(img=>({src:img.getAttribute('src'),name:img.alt}));
+         let decoded=0;
+         for(const item of sources){
+           const probe=new Image();
+           probe.decoding='async';
+           probe.src=item.src;
+           await probe.decode();
+           if(probe.naturalWidth<=0||probe.naturalHeight<=0)throw Error('Image failed to decode: '+item.name+' '+item.src);
+           decoded++;
+         }
+         return decoded;
+       });
+       if(count!==expectedImages[id])throw Error('Gallery '+id+': expected '+expectedImages[id]+' images decoded; got '+count);
+       decodedImages+=count;
+       console.log('ALL IMAGES PASS '+id+': '+count+' decoded');
+     }
     }
     done.push(section+'/'+id);
     await page.locator('#activityBack').click();
@@ -49,7 +72,7 @@ try{
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
  }
  if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' | ').slice(0,2000));
- console.log('BROWSER PASS '+done.length+' routes: '+JSON.stringify(done));
+ console.log('BROWSER PASS '+done.length+' routes; fully decoded '+decodedImages+' gallery images: '+JSON.stringify(done));
 }catch(e){
  console.error('BROWSER FAIL '+e.stack);
  console.error('completed routes '+JSON.stringify(done));

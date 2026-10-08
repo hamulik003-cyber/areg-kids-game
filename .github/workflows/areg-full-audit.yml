@@ -25,3 +25,17 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: node qa/browser-smoke.mjs
+
+  ios-webkit:
+    needs: assets-and-code
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
