@@ -23,7 +23,7 @@ const specs=[
 for(const [label,begin,end,key,expected] of specs){
  const s=key==='uv'?space:app;const a=s.indexOf(begin),b=s.indexOf(end,a);
  check(a>=0&&b>a,label+': array not found');if(a<0||b<=a)continue;
- const rx=key==='uv'?/:\s*'([^']+\.(?:png|jpg))'/g:new RegExp(key+":'([^']+)'",'g');
+ const rx=key==='uv'?/:\s*'([^']+\.(?:png|jpg))'/g:new RegExp(key+":[\\x22\\x27]([^\\x22\\x27]+)[\\x22\\x27]",'g');
  const names=[...s.slice(a,b).matchAll(rx)].map(x=>x[1]);
  check(names.length===expected,label+': expected '+expected+' images, got '+names.length);
  for(const n of names){
