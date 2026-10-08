@@ -46,11 +46,11 @@ for(const section of ['nature','space','mind','create','magic']){
 }
 for(const n of ['launcher.html','index.html','app.js','styles.css','space-3d-games.js','blackhole-interstellar.js','vendor/three.module.min.js','manifest.webmanifest'])check(has(n),'missing core '+n);
 const launcher=read('launcher.html');
-check(launcher.includes('kiosk=v232&__areg_build=241'),'DotKiosk launcher out of date');
-check(sw.includes('areg-v241-core')&&sw.includes('areg-v241-runtime'),'SW cache out of date');
-check(app.includes("import('./space-3d-games.js?v=241')"),'3D dynamic import may load stale code');
-check(sw.includes("'./space-3d-games.js?v=241'")&&sw.includes("'./app.js?v=241'"),'SW precache version mismatch');
-check(read('index.html').includes('app.js?v=241'),'HTML script version mismatch');
+check(launcher.includes('kiosk=v232&__areg_build=242'),'DotKiosk launcher out of date');
+check(sw.includes('areg-v242-core')&&sw.includes('areg-v242-runtime'),'SW cache out of date');
+check(app.includes("import('./space-3d-games.js?v=242')"),'3D dynamic import may load stale code');
+check(sw.includes("'./space-3d-games.js?v=242'")&&sw.includes("'./app.js?v=242'"),'SW precache version mismatch');
+check(read('index.html').includes('app.js?v=242'),'HTML script version mismatch');
 check(read('index.html').includes('styles.css?v=239'),'No-flash CSS version mismatch');
 check(app.includes('gallery-hires-layer')&&app.includes('warmGalleryPreviews'),'Gallery predecode fix missing');
 const core=sw.match(/const CORE=\[([\s\S]*?)\];/);
