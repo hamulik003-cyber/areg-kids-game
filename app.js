@@ -641,6 +641,8 @@
         b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
       });
     }
+    if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
+    if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
     homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
   }
 
@@ -716,21 +718,79 @@
     setTimeout(()=>{pic.classList.remove(className);card.classList.remove('magic-active')},1900);
   }
 
+  /* V239 - decode the first gallery row before revealing its cards. */
+  const GALLERY_WARM_ITEMS={
+    animalGallery:ANIMALS.map(x=>x.image),
+    birdGallery:BIRDS.map(x=>x.image),
+    seaGallery:SEA_CREATURES.map(x=>x.image),
+    insects:INSECTS.map(x=>x.image),
+    planetGallery:PLANETS.map(x=>x.img),
+    constellationGallery:CONSTELLATIONS.map(x=>x.img)
+  };
+  const galleryImagePromises=new Map();
+  function preloadGalleryPreview(file){
+    const url='assets/thumbs/'+String(file).split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=238';
+    if(galleryImagePromises.has(url))return galleryImagePromises.get(url);
+    const task=new Promise(resolve=>{
+      const img=new Image();img.decoding='async';
+      img.onload=()=>{
+        if(typeof img.decode==='function')img.decode().then(()=>resolve(true)).catch(()=>resolve(img.naturalWidth>0));
+        else resolve(img.naturalWidth>0);
+      };
+      img.onerror=()=>resolve(false);
+      img.src=url;
+    });
+    galleryImagePromises.set(url,task);
+    return task;
+  }
+  function warmGalleryPreviews(kind,count=8){
+    const list=GALLERY_WARM_ITEMS[kind];
+    return list?Promise.all(list.slice(0,count).map(preloadGalleryPreview)):Promise.resolve([]);
+  }
+  let galleryNavigationId=0;
+  function observeGalleryUpcomingImages(wrap){
+    if(!('IntersectionObserver' in window))return;
+    const obs=new IntersectionObserver(entries=>{
+      for(const e of entries){
+        if(!e.isIntersecting)continue;
+        e.target.loading='eager';
+        obs.unobserve(e.target);
+      }
+    },{root:wrap,rootMargin:'700px 0px',threshold:0});
+    wrap.querySelectorAll('img[loading="lazy"]').forEach(img=>obs.observe(img));
+    gameCleanup.push(()=>obs.disconnect());
+  }
+
   function closeSection(){
+    ++galleryNavigationId;
     document.body.classList.remove('magic-scroll-active');
     sectionScreen.classList.remove('is-visible');
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
   function openGame(section,game){
-    // Begin downloading/parsing the 3D module during the existing 150ms
-    // transition. No visual change, no extra work in non-3D games.
-    if(game.kind==='spaceSearch'||game.kind==='constellationQuest'){
+    // Warm and decode the first eight cards while the existing menu stays
+    // visible. No all-gallery download and no white cards on cold entry.
+    const nav=++galleryNavigationId;
+    if(game.kind==='spaceSearch'||game.kind==='constellationQuest')
       ensureSpace3DLoaded().catch(()=>{});
-    }
-    cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
-    sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
+    const launch=()=>{
+      if(nav!==galleryNavigationId||sectionScreen.hidden)return;
+      cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;
+      activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;
+      updateStars();sectionScreen.classList.remove('is-visible');
+      setTimeout(()=>{
+        if(nav!==galleryNavigationId)return;
+        sectionScreen.hidden=true;activityScreen.hidden=false;
+        requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));
+        renderGame(game);
+      },150);
+    };
+    if(GALLERY_WARM_ITEMS[game.kind]){
+      const timeout=new Promise(resolve=>setTimeout(resolve,7500));
+      Promise.race([warmGalleryPreviews(game.kind,8),timeout]).then(launch,launch);
+    }else launch();
   }
-  function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
+  function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function space3DContext(){
     return {activityContent,PLANETS,CONSTELLATIONS,settings,menuMusic,applyAudio,pickArmenianSpeechVoice,gameCleanup,
@@ -958,17 +1018,30 @@
   function galleryThumbnail(src){
     return 'assets/thumbs/'+String(src).split('/').pop().replace(/\.[^.]+$/,'.webp');
   }
+  /* V239: never replace a rendered preview src in-place. WebKit may clear
+     its decoded bitmap while the 4K original arrives, making a white flash.
+     Render the full photo above the preview only after decoding is complete. */
   function promoteGalleryZoomPicture(original,previewCard,state){
-    if(!original||!previewCard)return;
-    const img=previewCard.querySelector('img');
-    if(!img)return;
-    const full=new Image();full.decoding='async';
-    const apply=()=>{if(activeGalleryPresentation===state&&!state.cancelled){
-      img.src=full.src;
-    }};
-    full.onload=apply;
+    const wrap=previewCard?.querySelector('.animal-image-wrap');
+    const preview=wrap?.querySelector('img');
+    if(!original||!wrap||!preview||state.cancelled)return;
+    const full=new Image();
+    full.className='gallery-hires-layer';
+    full.alt=preview.alt;
+    full.decoding='async';full.loading='eager';full.draggable=false;
+    full.style.objectFit=getComputedStyle(preview).objectFit;
+    const reveal=()=>{
+      if(activeGalleryPresentation!==state||state.cancelled||state.phase!=='arrived')return;
+      if(!full.naturalWidth||!full.naturalHeight)return;
+      wrap.appendChild(full);
+      requestAnimationFrame(()=>{
+        if(activeGalleryPresentation===state&&!state.cancelled&&state.phase==='arrived')
+          full.classList.add('is-ready');
+      });
+    };
     full.src=original;
-    if(typeof full.decode==='function')full.decode().then(apply).catch(()=>{});
+    if(typeof full.decode==='function')full.decode().then(reveal).catch(()=>{});
+    else full.onload=reveal;
   }
 
   function galleryNameSize(name){
@@ -1043,7 +1116,19 @@
     if(accent)shell.style.setProperty('--animal-accent',accent);
     if(accentSoft)shell.style.setProperty('--animal-accent-soft',accentSoft);
 
+    const originalImage=card.querySelector('.animal-image-wrap img');
+    if(originalImage&&(!originalImage.complete||originalImage.naturalWidth===0)){
+      try{await originalImage.decode()}catch{return}
+    }
+    if(!card.isConnected)return;
     const clone=card.cloneNode(true);
+    const cloneImage=clone.querySelector('.animal-image-wrap img');
+    if(cloneImage){
+      cloneImage.loading='eager';
+      // Predecode the flight image before hiding the original card.
+      try{await cloneImage.decode()}catch{return}
+    }
+    if(!card.isConnected)return;
     clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
     clone.tabIndex=-1;
     clone.style.setProperty('width','100%','important');
@@ -1080,10 +1165,8 @@
     const ty=targetTop-rect.top;
 
     const endTransform='translate3d('+tx+'px,'+ty+'px,0) scale('+scale+') rotateY(0deg) rotateZ(0deg)';
-    const state={host,shell,original:card,clone,cancelled:false,animation:null,endTransform};
+    const state={host,shell,original:card,clone,cancelled:false,animation:null,endTransform,phase:'flying'};
     activeGalleryPresentation=state;
-    promoteGalleryZoomPicture(card.querySelector('img')?.dataset.fullSrc,clone,state);
-
     host.classList.add('gallery-card-flight-host--visible');
 
     if(shell.animate){
@@ -1110,6 +1193,8 @@
     }
 
     shell.classList.add('gallery-card-flight-shell--arrived');
+    state.phase='arrived';
+    promoteGalleryZoomPicture(card.querySelector('img')?.dataset.fullSrc,clone,state);
     await new Promise(r=>setTimeout(r,90));
     if(state.cancelled)return;
 
@@ -1120,6 +1205,7 @@
       ]);
     }finally{
       if(state.cancelled)return;
+      state.phase='exiting';
       shell.classList.remove('gallery-card-flight-shell--arrived');
       await new Promise(r=>setTimeout(r,110));
       if(state.cancelled)return;
@@ -1218,6 +1304,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1432,6 +1519,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1569,6 +1657,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1707,6 +1796,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1889,6 +1979,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
       stopPlanetPlayback({restoreMusic:true});
@@ -1953,6 +2044,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
       stopPlanetPlayback({restoreMusic:true});
@@ -2149,7 +2241,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=2381',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=239',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

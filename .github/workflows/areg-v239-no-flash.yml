@@ -1,0 +1,40 @@
+name: AREG V239 No White Gallery
+on:
+  push:
+    branches: [v239-no-white-gallery-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cold-network-and-galleries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - name: Check 191 originals, preview sources, and version integrity
+        run: node qa/full-audit.mjs
+      - name: Simulate slow images and reject white cards or flickering zoom
+        run: node qa/no-flash-v239.mjs
+      - name: Confirm gallery zoom and offline repeat
+        run: node qa/gallery-regression-v238.mjs
+      - name: Verify all twenty games in phone-sized Chrome
+        run: node qa/browser-smoke.mjs
+  apple-webkit:
+    needs: cold-network-and-galleries
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Reject white cards and bitmap flashes in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/no-flash-v239.mjs
+      - name: Check all game routes in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
