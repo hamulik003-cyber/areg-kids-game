@@ -15,7 +15,7 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
  page.setDefaultTimeout(20000);
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=241',{waitUntil:'load',timeout:45000});
+ await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=242',{waitUntil:'load',timeout:45000});
  await page.waitForSelector('#homeScreen .section-card');
  await page.locator('.section-card[data-section="space"]').click({force:true});
  await page.waitForSelector('#sectionScreen.is-visible');
