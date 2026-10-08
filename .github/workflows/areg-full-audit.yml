@@ -25,6 +25,7 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: node qa/browser-smoke.mjs
+      - run: node qa/offline-smoke.mjs
 
   ios-webkit:
     needs: assets-and-code

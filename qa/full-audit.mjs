@@ -53,5 +53,23 @@ if(core)for(const r of core[1].matchAll(/'\.\/([^']+)'/g)){const n=r[1].split('?
 const tokenExp=[...app.matchAll(/_jwt=[^.]+\.(eyJ[A-Za-z0-9_-]+)\./g)].map(x=>{try{return JSON.parse(Buffer.from(x[1].replace(/-/g,'+').replace(/_/g,'/'),'base64').toString()).exp}catch{return null}}).filter(Number.isFinite);
 const expired=tokenExp.filter(x=>x<Date.now()/1000).length;
 console.log('AUDIO WARNING: '+expired+' / '+tokenExp.length+' signed external audio URLs expired or require renewal (not covered by image checks).');
+// V233 Offline Edition: enumerate every real asset on the device install.
+const offline=JSON.parse(read('offline-assets-v233.json'));
+check(offline.version===233,'Offline manifest version mismatch');
+check(offline.groups.length===2,'Offline packages count mismatch');
+const offlineList=offline.groups.flatMap(g=>g.files);
+check(offlineList.length>=345,'Offline package missing game assets');
+check(new Set(offlineList).size===offlineList.length,'Duplicate offline paths');
+for(const file of offlineList)check(has(file),'Offline asset missing '+file);
+check(has('offline-setup.html'),'Offline setup missing');
+try{
+ const page=read('offline-setup.html');
+ const start=page.indexOf('<script>'),end=page.lastIndexOf('</script>');
+ if(start<0||end<=start)throw Error('installer script missing');
+ new Function(page.slice(start+8,end));
+}catch(e){fails.push('Offline setup script failed to compile: '+e.message)}
+check(sw.includes('areg-device-assets-v1'),'Offline cache not referenced by SW');
+check(sw.includes('offlineNavigation'),'Offline-first navigation missing');
+console.log('OFFLINE PACK '+offlineList.length+' files, '+Math.round(offline.groups.reduce((n,g)=>n+g.bytes,0)/1048576)+' MiB');
 console.log('AUDIT '+(fails.length?'FAIL':'PASS')+': '+total+' image/core assets, '+games+' mini-game entries, 5 sections.');
 if(fails.length){for(const e of fails)console.error('FAIL '+e);process.exitCode=1}

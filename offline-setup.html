@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11224e"><link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>Արեգ — տեղադրել անցանց խաղը</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#fff;background:#0d1936;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;padding:32px 18px 60px;min-height:100dvh;
+background:radial-gradient(circle at 85% 10%,#254b81,#101d3d 45%,#090f24);}
+main{max-width:620px;margin:auto}.kicker{color:#a7c4f7;font-weight:800;font-size:13px;letter-spacing:.09em}
+h1{line-height:1.25;font-size:clamp(25px,6vw,35px);margin:16px 0}
+p{line-height:1.65;color:#d2deee}.panel{background:#17264ab9;border:1px solid #536ba2;
+border-radius:20px;padding:18px;margin:16px 0;box-shadow:0 8px 25px #0002}
+.group{padding:12px 0;display:flex;align-items:center;justify-content:space-between;gap:8px;
+border-bottom:1px solid #ffffff19}.group:last-child{border:0}
+.group strong{display:block;font-size:15px}.group span{font-size:13px;color:#acc3dd}
+button,a.action{display:block;width:100%;border:0;border-radius:15px;background:#f3bb74;
+font-weight:800;font-size:17px;text-align:center;color:#4b2c1a;padding:16px;text-decoration:none}
+button:disabled{background:#666f84;color:#dee2e9}a.action{background:#dce6ff}
+.muted{font-size:13px;color:#adc2dc}
+.track{height:13px;border-radius:100px;background:#394d78;overflow:hidden}
+.bar{height:100%;background:linear-gradient(90deg,#73f1b7,#ffd27e);width:0%;transition:width .2s}
+.status{font-weight:700;color:#e9f1fc;font-size:15px} .good{color:#a9f6c3}
+.notice{border-left:3px solid #ffc580;padding-left:14px}
+a.textlink{color:#bcd7ff;display:inline-block;margin:12px 0}
+</style></head>
+<body><main>
+<div class="kicker">ԱՐԵԳԻ 3D ԱՇԽԱՐՀԸ · V233 OFFLINE</div>
+<h1>Տեղադրենք խաղը հենց iPhone-ում</h1>
+<p>Ներբեռնիր խաղի պատկերները և 3D մոլորակները <strong>միայն մեկ անգամ</strong>։
+Այնուհետև խաղը կկարողանա բացվել առանց GitHub-ին ամեն անգամ դիմելու։</p>
+<div class="panel">
+ <strong>Տեղական ֆայլերի ստուգում</strong>
+ <div id="groups"></div>
+ <p class="muted" id="storage">Հեռախոսի պահեստը ստուգվում է…</p>
+</div>
+<div class="panel">
+ <div class="track"><div class="bar" id="bar"></div></div>
+ <p class="status" id="status">Պատրաստվում է…</p>
+ <p class="muted" id="progress">Ինտերնետը դեռ մի՛ անջատիր։</p>
+ <button id="install" disabled>Ներբեռնել ամբողջ խաղը</button>
+ <button id="pause" style="margin-top:10px;background:#476089;color:white" disabled>Դադարեցնել ներբեռնումը</button>
+</div>
+<div class="panel">
+ <strong>Ինչպես տեղադրել էկրանին</strong>
+ <p>Երբ գրի «Բոլոր ֆայլերը պատրաստ են», բացիր խաղը <strong>Safari-ով</strong>, սեղմիր <strong>Share → Add to Home Screen</strong>,
+ ընտրիր <strong>Open as Web App</strong> և սեղմիր <strong>Add</strong>։</p>
+ <a class="action" href="./?kiosk=v233&__areg_build=233">Բացել Արեգի խաղը</a>
+ <p class="notice muted">DotKiosk-ը կարող է օգտագործել առանձին պահոց։ Safari-ում պատրաստված անցանց տարբերակը փորձարկիր հենց Home Screen-ի պատկերակից։</p>
+</div>
+<p class="muted">Այս փաթեթը պարունակում է բոլոր տեղական պատկերները, հաստատված UV տեքստուրաները և տեղական երաժշտությունը։ 
+Հին ժամկետանց արտաքին ձայնային հղումները փաթեթում չեն. անցանց խոսքային ձայնավորումը կախված է iPhone-ի հասանելի ձայներից։ 
+iOS-ը պահեստի սղության դեպքում կարող է ժամանակի ընթացքում մաքրել կայքի տվյալները։</p>
+</main>
+<script>
+(async()=>{
+ const $=id=>document.getElementById(id),btn=$('install'),pause=$('pause');
+ let run=false,manifest=null;
+ const cacheName='areg-device-assets-v1';
+ const status=(str,success=false)=>{$('status').textContent=str;$('status').className='status'+(success?' good':'')};
+ const mb=n=>Math.round(n/1048576);
+ if(!('caches' in window)||!('serviceWorker' in navigator)){
+   status('Այս բրաուզերում տեղական պահեստավորումը հասանելի չէ');return;
+ }
+ try{
+   await navigator.serviceWorker.register('./service-worker.js?v=233');
+   await navigator.serviceWorker.ready;
+   const r=await fetch('./offline-assets-v233.json',{cache:'no-store'});
+   if(!r.ok)throw Error('Չհաջողվեց ստանալ խաղի ֆայլերի ցուցակը');
+   manifest=await r.json();
+   $('groups').innerHTML=manifest.groups.map(g=>
+     '<div class="group"><div><strong>'+g.label+'</strong><span>'+
+       g.files.length+' ֆայլ · մոտ '+mb(g.bytes)+' ՄԲ</span></div>'+
+     '<span id="group-'+g.id+'">ստուգվում է</span></div>').join('');
+   btn.disabled=false;
+   await checkCache();
+ }catch(e){status('Սխալ․ '+e.message);return}
+ async function checkCache(){
+  const cache=await caches.open(cacheName),keys=await cache.keys();
+  const set=new Set(keys.map(req=>new URL(req.url).pathname));
+  const groups=manifest.groups,all=groups.flatMap(g=>g.files);
+  for(const g of groups){
+    const n=g.files.filter(f=>set.has(new URL(f,location.href).pathname)).length;
+    $('group-'+g.id).textContent=n+'/'+g.files.length;
+  }
+  const done=all.filter(f=>set.has(new URL(f,location.href).pathname)).length;
+  const pct=done/all.length*100;
+  $('bar').style.width=pct.toFixed(1)+'%';
+  $('progress').textContent=done+' / '+all.length+' ֆայլ պահված է հեռախոսում';
+  btn.textContent=done===all.length?'Բոլոր ֆայլերը պատրաստ են ✓':'Ներբեռնել / շարունակել ('+Math.round(pct)+'%)';
+  if(done===all.length){status('Ամբողջ խաղի տեղական փաթեթը պատրաստ է',true);btn.disabled=true}
+  else{status('Մնացել է '+(all.length-done)+' ֆայլ');btn.disabled=false}
+  if(navigator.storage?.estimate){
+    try{const e=await navigator.storage.estimate();
+      $('storage').textContent='Այս կայքի զբաղեցրած պահեստը՝ մոտ '+mb(e.usage||0)+' ՄԲ'
+        +(e.quota?' · հասանելի սահման՝ մոտ '+mb(e.quota)+' ՄԲ':'');
+    }catch{}
+  }
+ }
+ btn.addEventListener('click',async()=>{
+  if(run||!manifest)return;
+  run=true;btn.disabled=true;pause.disabled=false;
+  const cache=await caches.open(cacheName);
+  const keys=new Set((await cache.keys()).map(req=>new URL(req.url).pathname));
+  const todo=manifest.groups.flatMap(g=>g.files).filter(p=>!keys.has(new URL(p,location.href).pathname));
+  let index=0,finished=0,failed=0;
+  status('Նկարներն ու մոլորակները պահվում են հեռախոսում…');
+  async function worker(){
+   while(run&&index<todo.length){
+    const p=todo[index++];
+    try{
+      const original=new URL(p,location.href);
+      const download=new URL(original.href);
+      download.searchParams.set('__areg_pack','1');
+      const response=await fetch(download.href,{cache:'no-store'});
+      if(!response.ok||response.type==='opaque')throw Error('HTTP '+response.status);
+      await cache.put(original.href,response.clone());
+      finished++;
+    }catch(err){failed++;console.warn('Offline asset incomplete',p,err);}
+    const processed=finished+failed;
+    if(processed%5===0||processed===todo.length){
+      $('progress').textContent='Ներբեռնման ընթացք՝ '+processed+'/'+todo.length+
+        (failed?' · '+failed+' ձախողված ֆայլ':'');
+    }
+   }
+  }
+  await Promise.all([worker(),worker(),worker()]);
+  run=false;pause.disabled=true;
+  await checkCache();
+  if(failed)status('Որոշ ֆայլեր չպահվեցին ('+failed+')․ ստուգիր ազատ հիշողությունը և կրկին փորձիր');
+ });
+ pause.addEventListener('click',()=>{run=false;pause.disabled=true;status('Ներբեռնումը կանգնեցված է․ պահված ֆայլերը չեն կորչել')});
+})();
+</script>
+</body></html>

@@ -2,7 +2,7 @@
   "name": "Արեգ 3D աշխարհ",
   "short_name": "Արեգ",
   "lang": "hy",
-  "start_url": "./",
+  "start_url": "./?kiosk=v233&__areg_build=233",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
