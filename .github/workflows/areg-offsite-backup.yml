@@ -16,29 +16,108 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - name: Get the exact published source and full assets
+      - name: Check out exact source and image/audio assets
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
           persist-credentials: false
-      - name: Package every tracked file without excluding images or audio
+      - name: Produce complete, checksummed, 64 MiB backup segments
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p backup-output
-          printf 'Repository: hamulik003-cyber/areg-kids-game\nCommit: %s\nGenerated: %s\n' \
+          mkdir -p backup-output/parts
+          printf 'Repository: hamulik003-cyber/areg-kids-game\nCommit: %s\nGenerated UTC: %s\n' \
             "$GITHUB_SHA" "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" > backup-output/RESTORE-INFO.txt
           git ls-files -z | tar --null -T - -czf backup-output/AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz
           cd backup-output
           sha256sum AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz > SHA256SUMS.txt
-          test "$(du -k AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz | cut -f1)" -gt 100000
-          echo "Compressed project backup created:"
-          ls -lh
-      - name: Store portable downloadable backup for offsite copying
+          split -b 64m -d -a 2 AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz parts/areg.part-
+          (cd parts && sha256sum areg.part-* > ../PART-SHA256SUMS.txt)
+          segments="$(find parts -name 'areg.part-*' | wc -l)"
+          test "$segments" -ge 1
+          test "$segments" -le 8
+          printf 'Part count: %s\n' "$segments" >> RESTORE-INFO.txt
+          printf '%s\n' 'RESTORE (Mac/Linux): download all part ZIPs, extract their areg.part-XX files to one folder, then:' \
+            'cat areg.part-* > AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz' \
+            'sha256sum -c SHA256SUMS.txt' \
+            'tar -xzf AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz -C restored-areg' \
+            'On Windows use 7-Zip to join the parts in filename order; verify SHA256.' \
+            > RESTORE-STEPS.txt
+          rm AREG-KIDS-FULL-SOURCE-AND-ASSETS.tar.gz
+          echo "Independent pieces:"
+          ls -lh parts/*
+      - name: Restore information and full archive checksum
         uses: actions/upload-artifact@v4
         with:
-          name: areg-full-backup-${{ github.sha }}
-          path: backup-output/*
+          name: areg-restore-instructions-${{ github.sha }}
+          path: |
+            backup-output/RESTORE-INFO.txt
+            backup-output/RESTORE-STEPS.txt
+            backup-output/SHA256SUMS.txt
+            backup-output/PART-SHA256SUMS.txt
+          retention-days: 90
           if-no-files-found: error
+      - name: Upload part 01 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-01-${{ github.sha }}
+          path: backup-output/parts/areg.part-00
           compression-level: 0
           retention-days: 90
+          if-no-files-found: error
+      - name: Upload part 02 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-02-${{ github.sha }}
+          path: backup-output/parts/areg.part-01
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Upload part 03 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-03-${{ github.sha }}
+          path: backup-output/parts/areg.part-02
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Upload part 04 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-04-${{ github.sha }}
+          path: backup-output/parts/areg.part-03
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Upload part 05 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-05-${{ github.sha }}
+          path: backup-output/parts/areg.part-04
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Upload part 06 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-06-${{ github.sha }}
+          path: backup-output/parts/areg.part-05
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Upload part 07 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-07-${{ github.sha }}
+          path: backup-output/parts/areg.part-06
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Upload part 08 of 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-part-08-${{ github.sha }}
+          path: backup-output/parts/areg.part-07
+          compression-level: 0
+          retention-days: 90
+          if-no-files-found: ignore
