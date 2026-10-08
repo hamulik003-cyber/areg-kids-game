@@ -1,0 +1,34 @@
+name: AREG V236 Kiosk Viewport QA
+on:
+  push:
+    branches: [v236-kiosk-viewport-fix]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  viewport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runner
+        run: npm install --no-save playwright@1.55.1
+      - name: Verify DotKiosk full bleed and normal PWA safe areas
+        run: node qa/kiosk-v236.mjs
+      - name: Regression test regular phone viewports
+        run: node qa/responsive-v235.mjs
+      - name: Verify all art, games, 3D textures and offline shell
+        run: node qa/full-audit.mjs
+      - name: Save device test measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-v236-kiosk-results
+          path: qa/results/
+          if-no-files-found: warn
+          retention-days: 15
