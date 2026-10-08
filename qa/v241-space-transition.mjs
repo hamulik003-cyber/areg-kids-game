@@ -87,6 +87,10 @@ try{
      minBright:Math.min(...counts.map(x=>x.bright)),darkSamples:blackIntervals,
      data:counts}));
    if(blackIntervals.length)throw Error('WebGL intermediate black frames: '+JSON.stringify(blackIntervals));
+   // A nearly invisible planet is still bad UX. V241's 34% winner
+   // produced only 20 bright pixels in the transition frame.
+   const nearlyDark=counts.filter(p=>p.bright<200);
+   if(nearlyDark.length)throw Error('Nearly dark 3D frames: '+JSON.stringify(nearlyDark));
    await page.waitForFunction(()=>window.__aregCrossfadeTrace?.some(e=>e.crossfade==='active'),null,{timeout:8500});
    await page.waitForFunction(()=>window.__aregCrossfadeTrace?.some(e=>e.crossfade==='active')&&
      window.__aregCrossfadeTrace?.at(-1)?.crossfade==='idle',null,{timeout:7000});
