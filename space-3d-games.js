@@ -1148,9 +1148,9 @@ function makeBlackHoleTexture(){
   arcGrad.addColorStop(1,'rgba(221,93,45,.30)');
   ctx.globalCompositeOperation='lighter';
   ctx.strokeStyle=arcGrad;ctx.lineCap='round';
-  ctx.lineWidth=54;
+  ctx.lineWidth=38;
   ctx.beginPath();ctx.ellipse(cx,cy+2,158,188,-.04,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
-  ctx.globalAlpha=.30;ctx.lineWidth=88;
+  ctx.globalAlpha=.22;ctx.lineWidth=72;
   ctx.beginPath();ctx.ellipse(cx,cy+4,172,203,-.04,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
   ctx.globalAlpha=1;
 
@@ -1168,7 +1168,7 @@ function makeBlackHoleTexture(){
 
   // Fine photon ring.
   ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle='rgba(255,248,226,.88)';ctx.lineWidth=4.5;
+  ctx.strokeStyle='rgba(255,248,226,.64)';ctx.lineWidth=2.6;
   ctx.beginPath();ctx.arc(cx,cy,139,0,Math.PI*2);ctx.stroke();
 
   // Near disk repainted on top of the horizon so the front side unmistakably
@@ -1209,9 +1209,9 @@ function blackHole(item){
   // contains the rotational flow. Rotating the whole card looked artificial.
   g.userData.spin=0;g.userData.spinAxis='z';
   g.rotation.set(
-    THREE.MathUtils.degToRad(9),
-    THREE.MathUtils.degToRad(-2),
-    THREE.MathUtils.degToRad(-5)
+    THREE.MathUtils.degToRad(0),
+    THREE.MathUtils.degToRad(0),
+    THREE.MathUtils.degToRad(0)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
@@ -1227,7 +1227,7 @@ function blackHole(item){
 
   // Animated accretion-flow highlights. These move along fixed elliptical
   // orbits; the black-hole silhouette itself never rotates.
-  const flowCount=180;
+  const flowCount=110;
   const flowPos=new Float32Array(flowCount*3);
   const flowCol=new Float32Array(flowCount*3);
   const flowMeta=[];
@@ -1255,7 +1255,7 @@ function blackHole(item){
   const flow=new THREE.Points(
     flowGeo,
     new THREE.PointsMaterial({
-      vertexColors:true,size:.026,transparent:true,opacity:.82,
+      vertexColors:true,size:.018,transparent:true,opacity:.52,
       blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true
     })
   );
