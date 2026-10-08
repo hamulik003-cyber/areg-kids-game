@@ -1205,13 +1205,14 @@ function blackHole(item){
   const g=new THREE.Group();
   g.userData.item=item;g.userData.pickable=true;
 
-  // Keep the lensing silhouette stable; the glowing gas texture itself already
-  // contains the rotational flow. Rotating the whole card looked artificial.
+  // Fixed three-axis viewing angle: the accretion disk rises toward screen-right
+  // like the reference, with a modest X/Y tilt for more visible depth.
+  // Do not spin the whole silhouette; only the flowing gas particles animate.
   g.userData.spin=0;g.userData.spinAxis='z';
   g.rotation.set(
-    THREE.MathUtils.degToRad(0),
-    THREE.MathUtils.degToRad(0),
-    THREE.MathUtils.degToRad(0)
+    THREE.MathUtils.degToRad(16),
+    THREE.MathUtils.degToRad(-10),
+    THREE.MathUtils.degToRad(14)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
