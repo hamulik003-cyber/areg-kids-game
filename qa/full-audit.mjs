@@ -46,8 +46,8 @@ for(const section of ['nature','space','mind','create','magic']){
 }
 for(const n of ['launcher.html','index.html','app.js','styles.css','space-3d-games.js','blackhole-interstellar.js','vendor/three.module.min.js','manifest.webmanifest'])check(has(n),'missing core '+n);
 const launcher=read('launcher.html');
-check(launcher.includes('kiosk=v232&__areg_build=232'),'DotKiosk launcher out of date');
-check(sw.includes('areg-v232-core')&&sw.includes('areg-v232-runtime'),'SW cache out of date');
+check(launcher.includes('kiosk=v232&__areg_build=238'),'DotKiosk launcher out of date');
+check(sw.includes('areg-v238-core')&&sw.includes('areg-v238-runtime'),'SW cache out of date');
 const core=sw.match(/const CORE=\[([\s\S]*?)\];/);
 if(core)for(const r of core[1].matchAll(/'\.\/([^']+)'/g)){const n=r[1].split('?')[0];total++;check(has(n),'missing precached '+n)}
 const tokenExp=[...app.matchAll(/_jwt=[^.]+\.(eyJ[A-Za-z0-9_-]+)\./g)].map(x=>{try{return JSON.parse(Buffer.from(x[1].replace(/-/g,'+').replace(/_/g,'/'),'base64').toString()).exp}catch{return null}}).filter(Number.isFinite);

@@ -1,0 +1,775 @@
+{
+  "generation": "Sharp 768px high-fidelity WebP, pixel PSNR >= 40 dB or lossless fallback; source untouched",
+  "minPsnr": 40.047895081627544,
+  "averagePsnr": 65.4755343617194,
+  "losslessFallbacks": 73,
+  "count": 191,
+  "sourceBytes": 130930604,
+  "displayBytes": 66752604,
+  "files": [
+    {
+      "original": "animal-dog.jpg",
+      "thumbnail": "assets/thumbs/animal-dog.webp"
+    },
+    {
+      "original": "animal-wolf.jpg",
+      "thumbnail": "assets/thumbs/animal-wolf.webp"
+    },
+    {
+      "original": "animal-lynx.jpg",
+      "thumbnail": "assets/thumbs/animal-lynx.webp"
+    },
+    {
+      "original": "animal-cow.jpg",
+      "thumbnail": "assets/thumbs/animal-cow.webp"
+    },
+    {
+      "original": "animal-horse.jpg",
+      "thumbnail": "assets/thumbs/animal-horse.webp"
+    },
+    {
+      "original": "animal-goat.jpg",
+      "thumbnail": "assets/thumbs/animal-goat.webp"
+    },
+    {
+      "original": "animal-camel.jpg",
+      "thumbnail": "assets/thumbs/animal-camel.webp"
+    },
+    {
+      "original": "animal-sheep.jpg",
+      "thumbnail": "assets/thumbs/animal-sheep.webp"
+    },
+    {
+      "original": "animal-cat.jpg",
+      "thumbnail": "assets/thumbs/animal-cat.webp"
+    },
+    {
+      "original": "animal-tiger.jpg",
+      "thumbnail": "assets/thumbs/animal-tiger.webp"
+    },
+    {
+      "original": "animal-donkey.jpg",
+      "thumbnail": "assets/thumbs/animal-donkey.webp"
+    },
+    {
+      "original": "animal-bull.jpg",
+      "thumbnail": "assets/thumbs/animal-bull.webp"
+    },
+    {
+      "original": "animal-deer.jpg",
+      "thumbnail": "assets/thumbs/animal-deer.webp"
+    },
+    {
+      "original": "animal-bison.jpg",
+      "thumbnail": "assets/thumbs/animal-bison.webp"
+    },
+    {
+      "original": "animal-hippo.jpg",
+      "thumbnail": "assets/thumbs/animal-hippo.webp"
+    },
+    {
+      "original": "animal-zebra.jpg",
+      "thumbnail": "assets/thumbs/animal-zebra.webp"
+    },
+    {
+      "original": "animal-giraffe.jpg",
+      "thumbnail": "assets/thumbs/animal-giraffe.webp"
+    },
+    {
+      "original": "animal-elephant.jpg",
+      "thumbnail": "assets/thumbs/animal-elephant.webp"
+    },
+    {
+      "original": "animal-rabbit.jpg",
+      "thumbnail": "assets/thumbs/animal-rabbit.webp"
+    },
+    {
+      "original": "animal-monkey.jpg",
+      "thumbnail": "assets/thumbs/animal-monkey.webp"
+    },
+    {
+      "original": "animal-lion.jpg",
+      "thumbnail": "assets/thumbs/animal-lion.webp"
+    },
+    {
+      "original": "animal-bear.jpg",
+      "thumbnail": "assets/thumbs/animal-bear.webp"
+    },
+    {
+      "original": "animal-panda.jpg",
+      "thumbnail": "assets/thumbs/animal-panda.webp"
+    },
+    {
+      "original": "animal-fox.jpg",
+      "thumbnail": "assets/thumbs/animal-fox.webp"
+    },
+    {
+      "original": "animal-pig.jpg",
+      "thumbnail": "assets/thumbs/animal-pig.webp"
+    },
+    {
+      "original": "animal-rhino.jpg",
+      "thumbnail": "assets/thumbs/animal-rhino.webp"
+    },
+    {
+      "original": "animal-polar-bear.jpg",
+      "thumbnail": "assets/thumbs/animal-polar-bear.webp"
+    },
+    {
+      "original": "animal-leopard.jpg",
+      "thumbnail": "assets/thumbs/animal-leopard.webp"
+    },
+    {
+      "original": "animal-hyena.jpg",
+      "thumbnail": "assets/thumbs/animal-hyena.webp"
+    },
+    {
+      "original": "animal-black-panther.jpg",
+      "thumbnail": "assets/thumbs/animal-black-panther.webp"
+    },
+    {
+      "original": "bird-magpie.jpg",
+      "thumbnail": "assets/thumbs/bird-magpie.webp"
+    },
+    {
+      "original": "bird-crow.jpg",
+      "thumbnail": "assets/thumbs/bird-crow.webp"
+    },
+    {
+      "original": "bird-vulture.jpg",
+      "thumbnail": "assets/thumbs/bird-vulture.webp"
+    },
+    {
+      "original": "bird-falcon.jpg",
+      "thumbnail": "assets/thumbs/bird-falcon.webp"
+    },
+    {
+      "original": "bird-bald-eagle.jpg",
+      "thumbnail": "assets/thumbs/bird-bald-eagle.webp"
+    },
+    {
+      "original": "bird-lovebird.jpg",
+      "thumbnail": "assets/thumbs/bird-lovebird.webp"
+    },
+    {
+      "original": "bird-parrot.jpg",
+      "thumbnail": "assets/thumbs/bird-parrot.webp"
+    },
+    {
+      "original": "bird-cockatiel.jpg",
+      "thumbnail": "assets/thumbs/bird-cockatiel.webp"
+    },
+    {
+      "original": "bird-finch.jpg",
+      "thumbnail": "assets/thumbs/bird-finch.webp"
+    },
+    {
+      "original": "bird-canary.jpg",
+      "thumbnail": "assets/thumbs/bird-canary.webp"
+    },
+    {
+      "original": "bird-ostrich.jpg",
+      "thumbnail": "assets/thumbs/bird-ostrich.webp"
+    },
+    {
+      "original": "bird-hummingbird.jpg",
+      "thumbnail": "assets/thumbs/bird-hummingbird.webp"
+    },
+    {
+      "original": "bird-woodpecker.jpg",
+      "thumbnail": "assets/thumbs/bird-woodpecker.webp"
+    },
+    {
+      "original": "bird-cormorant.jpg",
+      "thumbnail": "assets/thumbs/bird-cormorant.webp"
+    },
+    {
+      "original": "bird-gull.jpg",
+      "thumbnail": "assets/thumbs/bird-gull.webp"
+    },
+    {
+      "original": "bird-swan.jpg",
+      "thumbnail": "assets/thumbs/bird-swan.webp"
+    },
+    {
+      "original": "bird-stork.jpg",
+      "thumbnail": "assets/thumbs/bird-stork.webp"
+    },
+    {
+      "original": "bird-owl.jpg",
+      "thumbnail": "assets/thumbs/bird-owl.webp"
+    },
+    {
+      "original": "bird-sparrow.jpg",
+      "thumbnail": "assets/thumbs/bird-sparrow.webp"
+    },
+    {
+      "original": "bird-swallow.jpg",
+      "thumbnail": "assets/thumbs/bird-swallow.webp"
+    },
+    {
+      "original": "bird-guinea-fowl.jpg",
+      "thumbnail": "assets/thumbs/bird-guinea-fowl.webp"
+    },
+    {
+      "original": "bird-peacock.jpg",
+      "thumbnail": "assets/thumbs/bird-peacock.webp"
+    },
+    {
+      "original": "bird-quail.jpg",
+      "thumbnail": "assets/thumbs/bird-quail.webp"
+    },
+    {
+      "original": "bird-pigeon.jpg",
+      "thumbnail": "assets/thumbs/bird-pigeon.webp"
+    },
+    {
+      "original": "bird-turkey.jpg",
+      "thumbnail": "assets/thumbs/bird-turkey.webp"
+    },
+    {
+      "original": "bird-goose.jpg",
+      "thumbnail": "assets/thumbs/bird-goose.webp"
+    },
+    {
+      "original": "bird-duck.jpg",
+      "thumbnail": "assets/thumbs/bird-duck.webp"
+    },
+    {
+      "original": "bird-chick.jpg",
+      "thumbnail": "assets/thumbs/bird-chick.webp"
+    },
+    {
+      "original": "bird-rooster.jpg",
+      "thumbnail": "assets/thumbs/bird-rooster.webp"
+    },
+    {
+      "original": "bird-hen.jpg",
+      "thumbnail": "assets/thumbs/bird-hen.webp"
+    },
+    {
+      "original": "sea-dolphin.jpg",
+      "thumbnail": "assets/thumbs/sea-dolphin.webp"
+    },
+    {
+      "original": "sea-seahorse.jpg",
+      "thumbnail": "assets/thumbs/sea-seahorse.webp"
+    },
+    {
+      "original": "sea-octopus.jpg",
+      "thumbnail": "assets/thumbs/sea-octopus.webp"
+    },
+    {
+      "original": "sea-turtle.jpg",
+      "thumbnail": "assets/thumbs/sea-turtle.webp"
+    },
+    {
+      "original": "sea-clownfish.jpg",
+      "thumbnail": "assets/thumbs/sea-clownfish.webp"
+    },
+    {
+      "original": "sea-crab.jpg",
+      "thumbnail": "assets/thumbs/sea-crab.webp"
+    },
+    {
+      "original": "sea-jellyfish.jpg",
+      "thumbnail": "assets/thumbs/sea-jellyfish.webp"
+    },
+    {
+      "original": "sea-starfish.jpg",
+      "thumbnail": "assets/thumbs/sea-starfish.webp"
+    },
+    {
+      "original": "sea-whale.jpg",
+      "thumbnail": "assets/thumbs/sea-whale.webp"
+    },
+    {
+      "original": "sea-shark.jpg",
+      "thumbnail": "assets/thumbs/sea-shark.webp"
+    },
+    {
+      "original": "sea-pufferfish.jpg",
+      "thumbnail": "assets/thumbs/sea-pufferfish.webp"
+    },
+    {
+      "original": "sea-manta.jpg",
+      "thumbnail": "assets/thumbs/sea-manta.webp"
+    },
+    {
+      "original": "sea-lionfish.jpg",
+      "thumbnail": "assets/thumbs/sea-lionfish.webp"
+    },
+    {
+      "original": "sea-moray-eel.jpg",
+      "thumbnail": "assets/thumbs/sea-moray-eel.webp"
+    },
+    {
+      "original": "sea-lobster.jpg",
+      "thumbnail": "assets/thumbs/sea-lobster.webp"
+    },
+    {
+      "original": "sea-squid.jpg",
+      "thumbnail": "assets/thumbs/sea-squid.webp"
+    },
+    {
+      "original": "sea-manatee.jpg",
+      "thumbnail": "assets/thumbs/sea-manatee.webp"
+    },
+    {
+      "original": "sea-swordfish.jpg",
+      "thumbnail": "assets/thumbs/sea-swordfish.webp"
+    },
+    {
+      "original": "sea-seal.jpg",
+      "thumbnail": "assets/thumbs/sea-seal.webp"
+    },
+    {
+      "original": "sea-penguin.jpg",
+      "thumbnail": "assets/thumbs/sea-penguin.webp"
+    },
+    {
+      "original": "sea-narwhal.jpg",
+      "thumbnail": "assets/thumbs/sea-narwhal.webp"
+    },
+    {
+      "original": "sea-orca.jpg",
+      "thumbnail": "assets/thumbs/sea-orca.webp"
+    },
+    {
+      "original": "sea-beluga.jpg",
+      "thumbnail": "assets/thumbs/sea-beluga.webp"
+    },
+    {
+      "original": "sea-walrus.jpg",
+      "thumbnail": "assets/thumbs/sea-walrus.webp"
+    },
+    {
+      "original": "sea-sea-otter.jpg",
+      "thumbnail": "assets/thumbs/sea-sea-otter.webp"
+    },
+    {
+      "original": "sea-anglerfish.jpg",
+      "thumbnail": "assets/thumbs/sea-anglerfish.webp"
+    },
+    {
+      "original": "sea-nautilus.jpg",
+      "thumbnail": "assets/thumbs/sea-nautilus.webp"
+    },
+    {
+      "original": "sea-cuttlefish.jpg",
+      "thumbnail": "assets/thumbs/sea-cuttlefish.webp"
+    },
+    {
+      "original": "sea-leafy-seadragon.jpg",
+      "thumbnail": "assets/thumbs/sea-leafy-seadragon.webp"
+    },
+    {
+      "original": "sea-shrimp.jpg",
+      "thumbnail": "assets/thumbs/sea-shrimp.webp"
+    },
+    {
+      "original": "sea-sterlet.jpg",
+      "thumbnail": "assets/thumbs/sea-sterlet.webp"
+    },
+    {
+      "original": "sea-trout.jpg",
+      "thumbnail": "assets/thumbs/sea-trout.webp"
+    },
+    {
+      "original": "sea-goldfish.jpg",
+      "thumbnail": "assets/thumbs/sea-goldfish.webp"
+    },
+    {
+      "original": "insect-butterfly.png",
+      "thumbnail": "assets/thumbs/insect-butterfly.webp"
+    },
+    {
+      "original": "insect-bee.png",
+      "thumbnail": "assets/thumbs/insect-bee.webp"
+    },
+    {
+      "original": "insect-ant.png",
+      "thumbnail": "assets/thumbs/insect-ant.webp"
+    },
+    {
+      "original": "insect-ladybug.png",
+      "thumbnail": "assets/thumbs/insect-ladybug.webp"
+    },
+    {
+      "original": "insect-cricket.png",
+      "thumbnail": "assets/thumbs/insect-cricket.webp"
+    },
+    {
+      "original": "insect-dragonfly.png",
+      "thumbnail": "assets/thumbs/insect-dragonfly.webp"
+    },
+    {
+      "original": "insect-praying-mantis.png",
+      "thumbnail": "assets/thumbs/insect-praying-mantis.webp"
+    },
+    {
+      "original": "insect-rhinoceros-beetle.png",
+      "thumbnail": "assets/thumbs/insect-rhinoceros-beetle.webp"
+    },
+    {
+      "original": "insect-grasshopper.png",
+      "thumbnail": "assets/thumbs/insect-grasshopper.webp"
+    },
+    {
+      "original": "insect-damselfly.png",
+      "thumbnail": "assets/thumbs/insect-damselfly.webp"
+    },
+    {
+      "original": "insect-wasp.png",
+      "thumbnail": "assets/thumbs/insect-wasp.webp"
+    },
+    {
+      "original": "insect-green-beetle.png",
+      "thumbnail": "assets/thumbs/insect-green-beetle.webp"
+    },
+    {
+      "original": "insect-bumblebee.png",
+      "thumbnail": "assets/thumbs/insect-bumblebee.webp"
+    },
+    {
+      "original": "insect-may-beetle.png",
+      "thumbnail": "assets/thumbs/insect-may-beetle.webp"
+    },
+    {
+      "original": "insect-stag-beetle.png",
+      "thumbnail": "assets/thumbs/insect-stag-beetle.webp"
+    },
+    {
+      "original": "insect-water-strider.png",
+      "thumbnail": "assets/thumbs/insect-water-strider.webp"
+    },
+    {
+      "original": "insect-colorado-beetle.png",
+      "thumbnail": "assets/thumbs/insect-colorado-beetle.webp"
+    },
+    {
+      "original": "insect-firefly.png",
+      "thumbnail": "assets/thumbs/insect-firefly.webp"
+    },
+    {
+      "original": "insect-earwig.png",
+      "thumbnail": "assets/thumbs/insect-earwig.webp"
+    },
+    {
+      "original": "insect-dung-beetle.png",
+      "thumbnail": "assets/thumbs/insect-dung-beetle.webp"
+    },
+    {
+      "original": "insect-fly.png",
+      "thumbnail": "assets/thumbs/insect-fly.webp"
+    },
+    {
+      "original": "insect-bark-beetle.png",
+      "thumbnail": "assets/thumbs/insect-bark-beetle.webp"
+    },
+    {
+      "original": "insect-louse.png",
+      "thumbnail": "assets/thumbs/insect-louse.webp"
+    },
+    {
+      "original": "insect-flower-butterfly.png",
+      "thumbnail": "assets/thumbs/insect-flower-butterfly.webp"
+    },
+    {
+      "original": "insect-cabbage-butterfly.png",
+      "thumbnail": "assets/thumbs/insect-cabbage-butterfly.webp"
+    },
+    {
+      "original": "insect-moth.png",
+      "thumbnail": "assets/thumbs/insect-moth.webp"
+    },
+    {
+      "original": "insect-aphid.png",
+      "thumbnail": "assets/thumbs/insect-aphid.webp"
+    },
+    {
+      "original": "insect-mosquito.png",
+      "thumbnail": "assets/thumbs/insect-mosquito.webp"
+    },
+    {
+      "original": "insect-horsefly.png",
+      "thumbnail": "assets/thumbs/insect-horsefly.webp"
+    },
+    {
+      "original": "insect-termite.png",
+      "thumbnail": "assets/thumbs/insect-termite.webp"
+    },
+    {
+      "original": "01-sun.jpg",
+      "thumbnail": "assets/thumbs/01-sun.webp"
+    },
+    {
+      "original": "02-mercury.jpg",
+      "thumbnail": "assets/thumbs/02-mercury.webp"
+    },
+    {
+      "original": "03-venus.jpg",
+      "thumbnail": "assets/thumbs/03-venus.webp"
+    },
+    {
+      "original": "04-earth.jpg",
+      "thumbnail": "assets/thumbs/04-earth.webp"
+    },
+    {
+      "original": "05-moon.jpg",
+      "thumbnail": "assets/thumbs/05-moon.webp"
+    },
+    {
+      "original": "06-mars.jpg",
+      "thumbnail": "assets/thumbs/06-mars.webp"
+    },
+    {
+      "original": "07-jupiter.jpg",
+      "thumbnail": "assets/thumbs/07-jupiter.webp"
+    },
+    {
+      "original": "08-saturn.jpg",
+      "thumbnail": "assets/thumbs/08-saturn.webp"
+    },
+    {
+      "original": "09-uranus.jpg",
+      "thumbnail": "assets/thumbs/09-uranus.webp"
+    },
+    {
+      "original": "10-neptune.jpg",
+      "thumbnail": "assets/thumbs/10-neptune.webp"
+    },
+    {
+      "original": "11-phobos.jpg",
+      "thumbnail": "assets/thumbs/11-phobos.webp"
+    },
+    {
+      "original": "12-deimos.jpg",
+      "thumbnail": "assets/thumbs/12-deimos.webp"
+    },
+    {
+      "original": "13-io.jpg",
+      "thumbnail": "assets/thumbs/13-io.webp"
+    },
+    {
+      "original": "14-europa.jpg",
+      "thumbnail": "assets/thumbs/14-europa.webp"
+    },
+    {
+      "original": "15-ganymede.jpg",
+      "thumbnail": "assets/thumbs/15-ganymede.webp"
+    },
+    {
+      "original": "16-callisto.jpg",
+      "thumbnail": "assets/thumbs/16-callisto.webp"
+    },
+    {
+      "original": "17-titan.jpg",
+      "thumbnail": "assets/thumbs/17-titan.webp"
+    },
+    {
+      "original": "18-enceladus.jpg",
+      "thumbnail": "assets/thumbs/18-enceladus.webp"
+    },
+    {
+      "original": "19-titania.jpg",
+      "thumbnail": "assets/thumbs/19-titania.webp"
+    },
+    {
+      "original": "20-oberon.jpg",
+      "thumbnail": "assets/thumbs/20-oberon.webp"
+    },
+    {
+      "original": "21-triton.jpg",
+      "thumbnail": "assets/thumbs/21-triton.webp"
+    },
+    {
+      "original": "22-charon.jpg",
+      "thumbnail": "assets/thumbs/22-charon.webp"
+    },
+    {
+      "original": "23-pluto.jpg",
+      "thumbnail": "assets/thumbs/23-pluto.webp"
+    },
+    {
+      "original": "24-ceres.jpg",
+      "thumbnail": "assets/thumbs/24-ceres.webp"
+    },
+    {
+      "original": "25-haumea.jpg",
+      "thumbnail": "assets/thumbs/25-haumea.webp"
+    },
+    {
+      "original": "26-makemake.jpg",
+      "thumbnail": "assets/thumbs/26-makemake.webp"
+    },
+    {
+      "original": "27-eris.jpg",
+      "thumbnail": "assets/thumbs/27-eris.webp"
+    },
+    {
+      "original": "28-solar-system.jpg",
+      "thumbnail": "assets/thumbs/28-solar-system.webp"
+    },
+    {
+      "original": "29-milky-way.jpg",
+      "thumbnail": "assets/thumbs/29-milky-way.webp"
+    },
+    {
+      "original": "30-black-hole.jpg",
+      "thumbnail": "assets/thumbs/30-black-hole.webp"
+    },
+    {
+      "original": "01-hayk-orion.jpg",
+      "thumbnail": "assets/thumbs/01-hayk-orion.webp"
+    },
+    {
+      "original": "02-ursa-major.jpg",
+      "thumbnail": "assets/thumbs/02-ursa-major.webp"
+    },
+    {
+      "original": "03-ursa-minor.jpg",
+      "thumbnail": "assets/thumbs/03-ursa-minor.webp"
+    },
+    {
+      "original": "04-cassiopeia.jpg",
+      "thumbnail": "assets/thumbs/04-cassiopeia.webp"
+    },
+    {
+      "original": "05-andromeda.jpg",
+      "thumbnail": "assets/thumbs/05-andromeda.webp"
+    },
+    {
+      "original": "06-pegasus.jpg",
+      "thumbnail": "assets/thumbs/06-pegasus.webp"
+    },
+    {
+      "original": "07-cepheus.jpg",
+      "thumbnail": "assets/thumbs/07-cepheus.webp"
+    },
+    {
+      "original": "08-draco.jpg",
+      "thumbnail": "assets/thumbs/08-draco.webp"
+    },
+    {
+      "original": "09-cygnus.jpg",
+      "thumbnail": "assets/thumbs/09-cygnus.webp"
+    },
+    {
+      "original": "10-lyra.jpg",
+      "thumbnail": "assets/thumbs/10-lyra.webp"
+    },
+    {
+      "original": "11-leo.jpg",
+      "thumbnail": "assets/thumbs/11-leo.webp"
+    },
+    {
+      "original": "12-cancer.jpg",
+      "thumbnail": "assets/thumbs/12-cancer.webp"
+    },
+    {
+      "original": "13-taurus.jpg",
+      "thumbnail": "assets/thumbs/13-taurus.webp"
+    },
+    {
+      "original": "14-scorpius.jpg",
+      "thumbnail": "assets/thumbs/14-scorpius.webp"
+    },
+    {
+      "original": "15-libra.jpg",
+      "thumbnail": "assets/thumbs/15-libra.webp"
+    },
+    {
+      "original": "16-hayk-belt.jpg",
+      "thumbnail": "assets/thumbs/16-hayk-belt.webp"
+    },
+    {
+      "original": "17-aquarius.jpg",
+      "thumbnail": "assets/thumbs/17-aquarius.webp"
+    },
+    {
+      "original": "18-virgo.jpg",
+      "thumbnail": "assets/thumbs/18-virgo.webp"
+    },
+    {
+      "original": "19-gemini.jpg",
+      "thumbnail": "assets/thumbs/19-gemini.webp"
+    },
+    {
+      "original": "20-capricornus.jpg",
+      "thumbnail": "assets/thumbs/20-capricornus.webp"
+    },
+    {
+      "original": "21-aries.jpg",
+      "thumbnail": "assets/thumbs/21-aries.webp"
+    },
+    {
+      "original": "22-pisces.jpg",
+      "thumbnail": "assets/thumbs/22-pisces.webp"
+    },
+    {
+      "original": "23-perseus.jpg",
+      "thumbnail": "assets/thumbs/23-perseus.webp"
+    },
+    {
+      "original": "24-hercules.jpg",
+      "thumbnail": "assets/thumbs/24-hercules.webp"
+    },
+    {
+      "original": "25-aquila.jpg",
+      "thumbnail": "assets/thumbs/25-aquila.webp"
+    },
+    {
+      "original": "26-delphinus.jpg",
+      "thumbnail": "assets/thumbs/26-delphinus.webp"
+    },
+    {
+      "original": "27-phoenix.jpg",
+      "thumbnail": "assets/thumbs/27-phoenix.webp"
+    },
+    {
+      "original": "28-hydra.jpg",
+      "thumbnail": "assets/thumbs/28-hydra.webp"
+    },
+    {
+      "original": "29-canis-major.jpg",
+      "thumbnail": "assets/thumbs/29-canis-major.webp"
+    },
+    {
+      "original": "30-canis-minor.jpg",
+      "thumbnail": "assets/thumbs/30-canis-minor.webp"
+    },
+    {
+      "original": "31-sagittarius.jpg",
+      "thumbnail": "assets/thumbs/31-sagittarius.webp"
+    },
+    {
+      "original": "32-ophiuchus.jpg",
+      "thumbnail": "assets/thumbs/32-ophiuchus.webp"
+    },
+    {
+      "original": "33-corona-borealis.jpg",
+      "thumbnail": "assets/thumbs/33-corona-borealis.webp"
+    },
+    {
+      "original": "34-cetus.jpg",
+      "thumbnail": "assets/thumbs/34-cetus.webp"
+    },
+    {
+      "original": "35-monoceros.jpg",
+      "thumbnail": "assets/thumbs/35-monoceros.webp"
+    },
+    {
+      "original": "36-auriga.jpg",
+      "thumbnail": "assets/thumbs/36-auriga.webp"
+    },
+    {
+      "original": "37-lupus.jpg",
+      "thumbnail": "assets/thumbs/37-lupus.webp"
+    },
+    {
+      "original": "38-piscis-austrinus.jpg",
+      "thumbnail": "assets/thumbs/38-piscis-austrinus.webp"
+    }
+  ]
+}
