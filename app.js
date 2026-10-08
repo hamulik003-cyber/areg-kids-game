@@ -500,13 +500,29 @@
     const usable=values.filter(value=>Number.isFinite(value)&&value>0);
     return usable.length?Math.min(...usable):1;
   };
+  // Explicit DotKiosk URL works even if its WKWebView does not expose an
+  // identifiable user-agent. Normal Safari and installed PWAs stay unchanged.
+  const kioskRequested=/^(?:v[0-9]+|full|fullscreen|1|true)$/i.test(
+    new URLSearchParams(location.search).get('kiosk')||'');
   function syncViewport(){
     const vv=window.visualViewport;
-    const vw=validSize([vv?.width,innerWidth,document.documentElement.clientWidth]);
-    const vh=validSize([vv?.height,innerHeight,document.documentElement.clientHeight]);
+    const installedPwa=window.matchMedia?.('(display-mode: standalone)')?.matches||
+      navigator.standalone===true;
+    const kioskMode=/dotkiosk/i.test(navigator.userAgent)||(kioskRequested&&!installedPwa);
+    const reportedWidths=[vv?.width,innerWidth,document.documentElement.clientWidth]
+      .filter(v=>Number.isFinite(v)&&v>0);
+    const reportedHeights=[vv?.height,innerHeight,document.documentElement.clientHeight]
+      .filter(v=>Number.isFinite(v)&&v>0);
+    // DotKiosk hides the system bars natively: do not reserve iPhone safe
+    // insets again. Use the full visible webview for its display surface.
+    // V235 safe-area sizing is deliberately preserved for ordinary PWAs.
+    const vw=kioskMode?Math.max(1,...reportedWidths):validSize(reportedWidths);
+    const vh=kioskMode?Math.max(1,...reportedHeights):validSize(reportedHeights);
     const probe=getComputedStyle(safeProbe);
     const inset=side=>Math.max(0,parseFloat(probe.getPropertyValue('padding-'+side))||0);
-    const safeTop=inset('top'),safeRight=inset('right'),safeBottom=inset('bottom'),safeLeft=inset('left');
+    const safeTop=kioskMode?0:inset('top'),safeRight=kioskMode?0:inset('right'),
+      safeBottom=kioskMode?0:inset('bottom'),safeLeft=kioskMode?0:inset('left');
+    root.dataset.aregViewportMode=kioskMode?'kiosk':'safe';
     const availableW=Math.max(1,vw-safeLeft-safeRight);
     const availableH=Math.max(1,vh-safeTop-safeBottom);
     // One uniform scale keeps every approved picture, circle, title and card in proportion.
@@ -2146,7 +2162,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=235',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=236',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
