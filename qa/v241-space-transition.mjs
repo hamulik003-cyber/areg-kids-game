@@ -66,7 +66,7 @@ try{
      minBright:Math.min(...counts.map(x=>x.bright)),darkSamples:blackIntervals,
      data:counts}));
    if(blackIntervals.length)throw Error('WebGL intermediate black frames: '+JSON.stringify(blackIntervals));
-   await page.waitForFunction(n=>Number(document.querySelector('.s3d-score b')?.textContent||0)>=n,null,{timeout:5000},initial+1);
+   await page.waitForFunction(n=>Number(document.querySelector('.s3d-score b')?.textContent||0)>=n,initial+1,{timeout:5000});
    console.log('V241_3D_TRANSITION_PASS: no black planet stage during winning transition');
  }
  if(errors.length)throw Error('Uncaught browser JavaScript error: '+errors.join('; '));
