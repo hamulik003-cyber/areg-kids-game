@@ -503,10 +503,24 @@ function moonTexture(){
   return MOON_TEX;
 }
 
+// V234: choose a lean renderer on 4-core / <=4GB Android phones.
+// High-end iPhones retain the V233 presentation. QA may override this via
+// ?__areg_quality=low (or high) without changing any saved game settings.
+function lowPower3D(){
+  const force=new URLSearchParams(location.search).get('__areg_quality');
+  if(force==='low')return true;
+  if(force==='high')return false;
+  const ram=Number(navigator.deviceMemory)||0;
+  const cores=Number(navigator.hardwareConcurrency)||0;
+  return (ram>0&&ram<=4)||(cores>0&&cores<=4);
+}
 let SPACE_BACKDROP=null;
 function spaceBackdropTexture(){
   if(SPACE_BACKDROP)return SPACE_BACKDROP;
-  const c=document.createElement('canvas');c.width=4096;c.height=2048;
+  const reduced=lowPower3D();
+  const pixelScale=reduced?.5:1;
+  const c=document.createElement('canvas');
+  c.width=reduced?2048:4096;c.height=reduced?1024:2048;
   const x=c.getContext('2d',{alpha:false});
   const r=(()=>{let s=0x53504143;return()=>{s+=0x6D2B79F5;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}})();
 
@@ -530,26 +544,26 @@ function spaceBackdropTexture(){
   });
 
   // Dense diagonal Milky Way band, drawn at 4K so it stays crisp on Retina screens.
-  for(let i=0;i<9200;i++){
+  for(let i=0;i<(reduced?3600:9200);i++){
     const px=r()*c.width;
     const center=c.height*(.46+.08*Math.sin(px/c.width*Math.PI*2+.55));
     const u=Math.max(1e-6,r()),v=r();
     const gaussian=Math.sqrt(-2*Math.log(u))*Math.cos(Math.PI*2*v);
-    const spread=105+r()*215;
+    const spread=(105+r()*215)*pixelScale;
     const py=center+gaussian*spread;
     if(py<0||py>c.height)continue;
-    const d=Math.min(1,Math.abs(py-center)/520);
+    const d=Math.min(1,Math.abs(py-center)/(520*pixelScale));
     const alpha=(1-d)*(.018+r()*.105);
-    const size=r()<.965?(.35+r()*1.15):(1.4+r()*2.4);
+    const size=(r()<.965?(.35+r()*1.15):(1.4+r()*2.4))*pixelScale;
     const cool=r()>.18;
     x.fillStyle=cool?`rgba(201,218,255,${alpha})`:`rgba(255,224,184,${alpha*.8})`;
     x.beginPath();x.arc(px,py,size,0,Math.PI*2);x.fill();
   }
 
-  for(let i=0;i<6400;i++){
+  for(let i=0;i<(reduced?2400:6400);i++){
     const px=r()*c.width,py=r()*c.height;
     const bright=r();
-    const size=bright>.995?2.2+r()*2.2:bright>.94?.9+r()*1.15:.35+r()*.65;
+    const size=(bright>.995?2.2+r()*2.2:bright>.94?.9+r()*1.15:.35+r()*.65)*pixelScale;
     const a=bright>.995?.95:.28+r()*.64;
     const warm=r()<.12;
     x.fillStyle=warm?`rgba(255,231,196,${a})`:`rgba(225,238,255,${a})`;
@@ -1341,9 +1355,14 @@ function disposeObject(o){
   for(const tex of o.userData?.generatedMaps||[])tex.dispose();
 }
 function rendererFor(host){
-  const r=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  // V232: preserve approved appearance while reducing mobile GPU cost.
-  r.setPixelRatio(Math.min(devicePixelRatio||1,1.65));r.outputColorSpace=THREE.SRGBColorSpace;
+  const low=lowPower3D();
+  // Disable costly MSAA only on low-spec devices; 3D object geometry,
+  // approved UV imagery, perspective and hit targets stay unchanged.
+  const r=new THREE.WebGLRenderer({
+    antialias:!low,alpha:false,powerPreference:'high-performance'
+  });
+  r.setPixelRatio(Math.min(devicePixelRatio||1,low?1.12:1.65));
+  r.outputColorSpace=THREE.SRGBColorSpace;
   r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.08;r.shadowMap.enabled=false;
   r.domElement.className='s3d-canvas';host.appendChild(r.domElement);return r;
 }
