@@ -707,8 +707,8 @@ function ringMesh(item,inner=1.22,outer=2.08){
     radialUvs(geo);
     const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png');
     const mat=new THREE.MeshBasicMaterial({
-      map:ringTex,alphaMap:ringTex,color:0xffefd2,side:THREE.DoubleSide,
-      transparent:true,opacity:.94,alphaTest:.018,
+      map:ringTex,alphaMap:ringTex,color:0xfff2d6,side:THREE.DoubleSide,
+      transparent:true,opacity:.995,alphaTest:.008,
       depthWrite:false,depthTest:true,toneMapped:false
     });
     const ring=new THREE.Mesh(geo,mat);
@@ -716,20 +716,48 @@ function ringMesh(item,inner=1.22,outer=2.08){
     ring.userData.ringSurface=true;
     group.add(ring);
 
-    // Very subtle separators reinforce the Cassini-style banding without
-    // turning the ring into the previous cartoon bullseye.
-    addBand(1.51,1.535,0x5c4f43,.24,.002);
-    addBand(1.73,1.755,0x4d433a,.18,.003);
-    addBand(1.98,2.00,0xbeb5a5,.22,.004);
+    // Slightly stronger natural banding so the rings stay readable on phone
+    // screens while preserving the real Saturn-ring look.
+    addBand(1.22,1.30,0xe8d39e,.18,.001);
+    addBand(1.51,1.535,0x5c4f43,.34,.002);
+    addBand(1.60,1.69,0xf3dfac,.20,.0025);
+    addBand(1.73,1.755,0x4d433a,.28,.003);
+    addBand(1.82,1.92,0xd7c29a,.16,.0035);
+    addBand(1.98,2.00,0xbeb5a5,.30,.004);
   }else{
-    // Uranus: faint, narrow, widely separated dark/icy rings.
-    // No bright additive glow and no thick gray donut.
-    addBand(1.16,1.175,0x9fb3c7,.20,-.004);
-    addBand(1.245,1.258,0x697f96,.28,-.003);
-    addBand(1.33,1.344,0xb7c8d8,.32,-.001);
-    addBand(1.425,1.438,0x586f88,.24,.001);
-    addBand(1.535,1.550,0xa6bbcf,.28,.003);
-    addBand(1.655,1.670,0x6c8298,.22,.005);
+    // Uranus: thin separated rings, now a little more readable on iPhone.
+    addBand(1.16,1.178,0xa9bfd1,.34,-.004);
+    addBand(1.245,1.262,0x71879d,.42,-.003);
+    addBand(1.33,1.348,0xc4d6e6,.48,-.001);
+    addBand(1.425,1.443,0x637a90,.36,.001);
+    addBand(1.535,1.553,0xb2c7d9,.42,.003);
+    addBand(1.655,1.675,0x72899f,.34,.005);
+
+    // Fine rocky/icy debris inside the Uranus ring system.
+    // Instancing keeps this inexpensive enough for the phone build.
+    const rockCount=120;
+    const rockGeo=new THREE.IcosahedronGeometry(.010,0);
+    const rockMat=new THREE.MeshBasicMaterial({
+      color:0xc9d4df,transparent:true,opacity:.78,
+      depthWrite:false,toneMapped:false
+    });
+    const rocks=new THREE.InstancedMesh(rockGeo,rockMat,rockCount);
+    const dummy=new THREE.Object3D();
+    const ringRadii=[1.17,1.253,1.339,1.434,1.544,1.665];
+    for(let i=0;i<rockCount;i++){
+      const a=Math.random()*Math.PI*2;
+      const rr=ringRadii[i%ringRadii.length]+rand(-.010,.010);
+      dummy.position.set(Math.cos(a)*rr,rand(-.010,.010),Math.sin(a)*rr);
+      const s=rand(.48,1.35);
+      dummy.scale.setScalar(s);
+      dummy.rotation.set(rand(0,Math.PI),rand(0,Math.PI),rand(0,Math.PI));
+      dummy.updateMatrix();
+      rocks.setMatrixAt(i,dummy.matrix);
+    }
+    rocks.instanceMatrix.needsUpdate=true;
+    rocks.userData.ringRocks=true;
+    group.add(rocks);
+    group.userData.rocks=rocks;
   }
 
   // The parent axial pivot controls the visible tilt. Keeping this group
@@ -1288,7 +1316,7 @@ function gameSpaceSearch(ctx){
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
       if(g.userData.ring?.userData?.rocks){
         const dir=g.userData.item?.id==='uranus'?-1:1;
-        g.userData.ring.userData.rocks.rotation.z+=dt*.11*dir;
+        g.userData.ring.userData.rocks.rotation.y+=dt*.10*dir;
       }
 
       if(wrong?.g===g){
