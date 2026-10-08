@@ -1,3 +1,4 @@
+import {renderInterstellarBlackHole} from './blackhole-interstellar.js?v=214';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1066,132 +1067,7 @@ function makeMilkyWayTexture(){
 
 function makeBlackHoleTexture(){
   if(_blackHoleTex)return _blackHoleTex;
-  const W=1200,H=760,canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  let seed=0x62686f6c;
-  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-  const cx=W/2,cy=H/2+10;
-
-  ctx.clearRect(0,0,W,H);
-  ctx.save();
-
-  // Warm atmospheric glow around the system.
-  ctx.globalCompositeOperation='lighter';
-  const halo=ctx.createRadialGradient(cx,cy,90,cx,cy,390);
-  halo.addColorStop(0,'rgba(255,248,227,.18)');
-  halo.addColorStop(.26,'rgba(255,192,126,.12)');
-  halo.addColorStop(.60,'rgba(225,105,52,.045)');
-  halo.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=halo;ctx.fillRect(0,0,W,H);
-
-  // The broad accretion disk is seen from above at a shallow angle and slopes
-  // upward to screen-right like the user's real reference.
-  ctx.save();
-  ctx.translate(cx,cy+30);
-  ctx.rotate(-.105);
-  ctx.translate(-cx,-cy);
-
-  // Diffuse outer disk clouds.
-  for(let i=0;i<5200;i++){
-    const r=145+Math.pow(rnd(),1.35)*430;
-    const a=rnd()*Math.PI*2;
-    const x=cx+Math.cos(a)*r;
-    const y=cy+Math.sin(a)*r*.17+(rnd()-.5)*20;
-    const inner=Math.max(0,1-(r-145)/430);
-    const hot=rnd();
-    const col=hot>.80?[255,249,226]:(hot>.42?[255,194,120]:[204,95,52]);
-    const alpha=(.018+rnd()*.085)*(.65+inner*.9);
-    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-    ctx.lineWidth=.55+rnd()*2.4;
-    const len=3+rnd()*18*(.45+inner);
-    ctx.beginPath();ctx.moveTo(x-len*.6,y);ctx.lineTo(x+len*.6,y+(rnd()-.5)*2.2);ctx.stroke();
-  }
-
-  // Dense, luminous front half below the event horizon.
-  for(let i=0;i<2600;i++){
-    const a=.04*Math.PI+rnd()*.92*Math.PI;
-    const r=150+Math.pow(rnd(),1.25)*405;
-    const x=cx+Math.cos(a)*r;
-    const y=cy+Math.sin(a)*r*.24+10+(rnd()-.5)*18;
-    const hot=rnd();
-    const col=hot>.68?[255,253,235]:(hot>.30?[255,202,132]:[225,114,61]);
-    const alpha=.032+rnd()*.13;
-    ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-    ctx.lineWidth=.9+rnd()*3.0;
-    const len=4+rnd()*23;
-    ctx.beginPath();ctx.moveTo(x-len*.55,y);ctx.lineTo(x+len*.55,y+(rnd()-.5)*2.8);ctx.stroke();
-  }
-
-  // Hot continuous inner edge.
-  const diskGrad=ctx.createLinearGradient(cx-520,cy,cx+520,cy);
-  diskGrad.addColorStop(0,'rgba(255,112,53,.12)');
-  diskGrad.addColorStop(.20,'rgba(255,192,116,.72)');
-  diskGrad.addColorStop(.40,'rgba(255,249,222,.98)');
-  diskGrad.addColorStop(.58,'rgba(255,255,239,1)');
-  diskGrad.addColorStop(.80,'rgba(255,183,104,.64)');
-  diskGrad.addColorStop(1,'rgba(234,96,43,.10)');
-  ctx.strokeStyle=diskGrad;
-  ctx.lineWidth=18;
-  ctx.beginPath();ctx.moveTo(84,cy+8);ctx.quadraticCurveTo(cx,cy+46,W-84,cy+11);ctx.stroke();
-  ctx.lineWidth=6;ctx.globalAlpha=.92;
-  ctx.beginPath();ctx.moveTo(110,cy-6);ctx.quadraticCurveTo(cx,cy-31,W-110,cy-3);ctx.stroke();
-  ctx.globalAlpha=1;
-  ctx.restore();
-
-  // Gravitationally lensed far side: a large horseshoe arch around the top.
-  const arcGrad=ctx.createLinearGradient(cx-260,cy-230,cx+260,cy-230);
-  arcGrad.addColorStop(0,'rgba(238,133,73,.42)');
-  arcGrad.addColorStop(.22,'rgba(255,216,160,.86)');
-  arcGrad.addColorStop(.46,'rgba(255,255,241,1)');
-  arcGrad.addColorStop(.64,'rgba(255,238,198,.96)');
-  arcGrad.addColorStop(.84,'rgba(255,176,97,.70)');
-  arcGrad.addColorStop(1,'rgba(221,93,45,.30)');
-  ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle=arcGrad;ctx.lineCap='round';
-  ctx.lineWidth=38;
-  ctx.beginPath();ctx.ellipse(cx,cy+2,158,188,-.04,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
-  ctx.globalAlpha=.22;ctx.lineWidth=72;
-  ctx.beginPath();ctx.ellipse(cx,cy+4,172,203,-.04,Math.PI*1.03,Math.PI*1.97);ctx.stroke();
-  ctx.globalAlpha=1;
-
-  // Faint lower lensed image, wider and softer.
-  ctx.strokeStyle='rgba(255,169,105,.32)';ctx.lineWidth=32;
-  ctx.beginPath();ctx.ellipse(cx,cy+28,157,138,-.04,.05*Math.PI,.95*Math.PI);ctx.stroke();
-
-  // Event horizon.
-  ctx.globalCompositeOperation='source-over';
-  const black=ctx.createRadialGradient(cx-20,cy-18,18,cx,cy,142);
-  black.addColorStop(0,'rgba(0,0,0,1)');
-  black.addColorStop(.88,'rgba(0,0,0,1)');
-  black.addColorStop(1,'rgba(2,1,1,.98)');
-  ctx.fillStyle=black;ctx.beginPath();ctx.arc(cx,cy,134,0,Math.PI*2);ctx.fill();
-
-  // Fine photon ring.
-  ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle='rgba(255,248,226,.64)';ctx.lineWidth=2.6;
-  ctx.beginPath();ctx.arc(cx,cy,139,0,Math.PI*2);ctx.stroke();
-
-  // Near disk repainted on top of the horizon so the front side unmistakably
-  // passes in front, matching the user's reference.
-  ctx.save();
-  ctx.translate(cx,cy+30);
-  ctx.rotate(-.105);
-  ctx.translate(-cx,-cy);
-  ctx.strokeStyle=diskGrad;ctx.lineWidth=20;
-  ctx.beginPath();ctx.moveTo(95,cy+15);ctx.quadraticCurveTo(cx,cy+62,W-95,cy+17);ctx.stroke();
-
-  for(let i=0;i<900;i++){
-    const a=.10*Math.PI+rnd()*.80*Math.PI;
-    const r=154+Math.pow(rnd(),1.18)*385;
-    const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r*.25+19+(rnd()-.5)*14;
-    ctx.strokeStyle=`rgba(255,${170+Math.floor(rnd()*80)},${92+Math.floor(rnd()*110)},${.035+rnd()*.12})`;
-    ctx.lineWidth=.8+rnd()*2.4;
-    const len=4+rnd()*20;
-    ctx.beginPath();ctx.moveTo(x-len*.5,y);ctx.lineTo(x+len*.5,y);ctx.stroke();
-  }
-  ctx.restore();
-
-  ctx.restore();
+  const canvas=renderInterstellarBlackHole();
   const tex=new THREE.CanvasTexture(canvas);
   tex.colorSpace=THREE.SRGBColorSpace;
   tex.minFilter=THREE.LinearMipmapLinearFilter;
@@ -1210,15 +1086,15 @@ function blackHole(item){
   // Do not spin the whole silhouette; only the flowing gas particles animate.
   g.userData.spin=0;g.userData.spinAxis='z';
   g.rotation.set(
-    THREE.MathUtils.degToRad(30),
-    THREE.MathUtils.degToRad(-18),
-    THREE.MathUtils.degToRad(24)
+    THREE.MathUtils.degToRad(18),
+    THREE.MathUtils.degToRad(-8),
+    THREE.MathUtils.degToRad(8)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
   const plate=new THREE.Mesh(
-    new THREE.PlaneGeometry(3.95,2.50),
+    new THREE.PlaneGeometry(4.20,2.36),
     new THREE.MeshBasicMaterial({
       map:makeBlackHoleTexture(),transparent:true,depthWrite:false,
       depthTest:true,toneMapped:false,side:THREE.DoubleSide
@@ -1234,7 +1110,7 @@ function blackHole(item){
   const flowMeta=[];
   let flowSeed=0x61636372;
   const flowRnd=()=>{flowSeed=(Math.imul(flowSeed,1664525)+1013904223)>>>0;return flowSeed/4294967296};
-  const diskAngle=-.16;
+  const diskAngle=-.055;
   const ca=Math.cos(diskAngle),sa=Math.sin(diskAngle);
   for(let i=0;i<flowCount;i++){
     const radius=.62+Math.pow(flowRnd(),.72)*1.16;
@@ -1662,7 +1538,7 @@ function gameSpaceSearch(ctx){
         const attr=flow.geometry?.attributes?.position;
         flow.userData.flowTime=(flow.userData.flowTime||0)+dt;
         const tt=flow.userData.flowTime;
-        const ang=-.105,ca=Math.cos(ang),sa=Math.sin(ang);
+        const ang=-.055,ca=Math.cos(ang),sa=Math.sin(ang);
         if(attr){
           for(let k=0;k<meta.length;k++){
             const m=meta[k],a=m.phase+tt*m.speed;
