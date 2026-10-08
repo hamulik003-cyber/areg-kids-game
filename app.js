@@ -948,6 +948,24 @@
     if(musicWasPlaying&&settings.master&&settings.music)ensureAudio();
   }
 
+  /* V238: tiny display asset while keeping untouched, full-resolution images
+     for the zoom overlay. Never make 191 heavy full-size requests at once. */
+  function galleryThumbnail(src){
+    return 'assets/thumbs/'+String(src).split('/').pop().replace(/\.[^.]+$/,'.webp');
+  }
+  function promoteGalleryZoomPicture(original,previewCard,state){
+    if(!original||!previewCard)return;
+    const img=previewCard.querySelector('img');
+    if(!img)return;
+    const full=new Image();full.decoding='async';
+    const apply=()=>{if(activeGalleryPresentation===state&&!state.cancelled){
+      img.src=full.src;
+    }};
+    full.onload=apply;
+    full.src=original;
+    if(typeof full.decode==='function')full.decode().then(apply).catch(()=>{});
+  }
+
   function galleryNameSize(name){
     const compact=String(name||'').trim().replace(/\s+/g,'');
     const n=Array.from(compact).length;
@@ -1059,6 +1077,7 @@
     const endTransform='translate3d('+tx+'px,'+ty+'px,0) scale('+scale+') rotateY(0deg) rotateZ(0deg)';
     const state={host,shell,original:card,clone,cancelled:false,animation:null,endTransform};
     activeGalleryPresentation=state;
+    promoteGalleryZoomPicture(card.querySelector('img')?.dataset.fullSrc,clone,state);
 
     host.classList.add('gallery-card-flight-host--visible');
 
@@ -1137,7 +1156,7 @@
     wrap.className='animal-gallery';
     wrap.setAttribute('aria-label','Կենդանիների պատկերասրահ');
 
-    ANIMALS.forEach(animal=>{
+    ANIMALS.forEach((animal,cardIndex)=>{
       const card=document.createElement('button');
       card.type='button';
       card.className='animal-card';
@@ -1150,7 +1169,7 @@
       card.setAttribute('aria-label',`${animal.name}, ${animal.type} կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${animal.image}?v=93" loading="lazy" decoding="async" alt="${animal.name}" draggable="false">
+          <img src="${galleryThumbnail(animal.image)}?v=238" data-full-src="${animal.image}?v=93" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${animal.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1351,7 +1370,7 @@
     wrap.className='animal-gallery';
     wrap.setAttribute('aria-label','Թռչունների պատկերասրահ');
 
-    BIRDS.forEach(bird=>{
+    BIRDS.forEach((bird,cardIndex)=>{
       const card=document.createElement('button');
       card.type='button';
       card.className='animal-card animal-card--bird';
@@ -1364,7 +1383,7 @@
       card.setAttribute('aria-label',`${bird.name}, ${bird.type} թռչուն`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${bird.image}?v=93" loading="lazy" decoding="async" alt="${bird.name}" draggable="false">
+          <img src="${galleryThumbnail(bird.image)}?v=238" data-full-src="${bird.image}?v=93" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${bird.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta">
@@ -1489,7 +1508,7 @@
     wrap.className='animal-gallery animal-gallery--sea';
     wrap.setAttribute('aria-label','Ջրային կենդանիների պատկերասրահ');
 
-    SEA_CREATURES.forEach(creature=>{
+    SEA_CREATURES.forEach((creature,cardIndex)=>{
       const palette=SEA_PALETTES[creature.group]||SEA_PALETTES.aquatic;
       const card=document.createElement('button');
       card.type='button';
@@ -1501,7 +1520,7 @@
       card.setAttribute('aria-label',`${creature.name}, ${creature.type} ջրային կենդանի`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${creature.image}?v=93" loading="lazy" decoding="async" alt="${creature.name}" draggable="false">
+          <img src="${galleryThumbnail(creature.image)}?v=238" data-full-src="${creature.image}?v=93" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${creature.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--sea">
@@ -1627,7 +1646,7 @@
     wrap.className='animal-gallery animal-gallery--insect';
     wrap.setAttribute('aria-label','Միջատների պատկերասրահ');
 
-    INSECTS.forEach(insect=>{
+    INSECTS.forEach((insect,cardIndex)=>{
       const palette=INSECT_PALETTES[insect.group]||INSECT_PALETTES.winged;
       const card=document.createElement('button');
       card.type='button';
@@ -1639,7 +1658,7 @@
       card.setAttribute('aria-label',`${insect.name}, ${insect.type} միջատ`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${insect.image}?v=93" loading="lazy" decoding="async" alt="${insect.name}" draggable="false">
+          <img src="${galleryThumbnail(insect.image)}?v=238" data-full-src="${insect.image}?v=93" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${insect.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--insect">
@@ -1810,7 +1829,7 @@
     wrap.className='animal-gallery animal-gallery--planet';
     wrap.setAttribute('aria-label','Մոլորակների և տիեզերական օբյեկտների պատկերասրահ');
 
-    PLANETS.forEach(planet=>{
+    PLANETS.forEach((planet,cardIndex)=>{
       const card=document.createElement('button');
       card.type='button';
       card.className='animal-card animal-card--planet';
@@ -1822,7 +1841,7 @@
       card.setAttribute('aria-label',`${planet.name}, ${planet.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${planet.img}?v=130" loading="lazy" decoding="async" alt="${planet.name}" draggable="false">
+          <img src="${galleryThumbnail(planet.img)}?v=238" data-full-src="${planet.img}?v=130" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${planet.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--planet">
@@ -1880,7 +1899,7 @@
     wrap.className='animal-gallery animal-gallery--constellation';
     wrap.setAttribute('aria-label','Համաստեղությունների պատկերասրահ');
 
-    CONSTELLATIONS.forEach(item=>{
+    CONSTELLATIONS.forEach((item,cardIndex)=>{
       const tone=CONSTELLATION_TONES[item.tone]||CONSTELLATION_TONES.indigo;
       const card=document.createElement('button');
       card.type='button';
@@ -1893,7 +1912,7 @@
       card.setAttribute('aria-label',`${item.name}, ${item.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${item.img}?v=137" loading="lazy" decoding="async" alt="${item.name}" draggable="false">
+          <img src="${galleryThumbnail(item.img)}?v=238" data-full-src="${item.img}?v=137" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${item.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--constellation">
@@ -2125,7 +2144,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=232',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=238',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
