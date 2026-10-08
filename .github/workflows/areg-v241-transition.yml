@@ -1,0 +1,38 @@
+name: AREG V241 Seamless 3D Transitions
+on:
+  push:
+    branches: [v241-seamless-space-transition-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome-game-and-transitions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test browser and PNG checker
+        run: npm install --no-save playwright@1.55.1 pngjs@7
+      - name: Validate original game assets and versioned offline shell
+        run: node qa/full-audit.mjs
+      - name: Check 3D implementation syntax
+        run: node --check space-3d-games.js
+      - name: Check all twenty games
+        run: node qa/browser-smoke.mjs
+      - name: Detect empty WebGL frames after correct answers
+        run: node qa/v241-space-transition.mjs
+  webkit-game-and-transitions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1 pngjs@7
+      - run: npx playwright install --with-deps webkit
+      - name: Check all twenty games in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
