@@ -641,6 +641,8 @@
         b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
       });
     }
+    if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
+    if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
     homeScreen.style.visibility='hidden';sectionScreen.hidden=false;requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
   }
 
@@ -716,21 +718,79 @@
     setTimeout(()=>{pic.classList.remove(className);card.classList.remove('magic-active')},1900);
   }
 
+  /* V239 - decode the first gallery row before revealing its cards. */
+  const GALLERY_WARM_ITEMS={
+    animalGallery:ANIMALS.map(x=>x.image),
+    birdGallery:BIRDS.map(x=>x.image),
+    seaGallery:SEA_CREATURES.map(x=>x.image),
+    insects:INSECTS.map(x=>x.image),
+    planetGallery:PLANETS.map(x=>x.img),
+    constellationGallery:CONSTELLATIONS.map(x=>x.img)
+  };
+  const galleryImagePromises=new Map();
+  function preloadGalleryPreview(file){
+    const url='assets/thumbs/'+String(file).split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=238';
+    if(galleryImagePromises.has(url))return galleryImagePromises.get(url);
+    const task=new Promise(resolve=>{
+      const img=new Image();img.decoding='async';
+      img.onload=()=>{
+        if(typeof img.decode==='function')img.decode().then(()=>resolve(true)).catch(()=>resolve(img.naturalWidth>0));
+        else resolve(img.naturalWidth>0);
+      };
+      img.onerror=()=>resolve(false);
+      img.src=url;
+    });
+    galleryImagePromises.set(url,task);
+    return task;
+  }
+  function warmGalleryPreviews(kind,count=8){
+    const list=GALLERY_WARM_ITEMS[kind];
+    return list?Promise.all(list.slice(0,count).map(preloadGalleryPreview)):Promise.resolve([]);
+  }
+  let galleryNavigationId=0;
+  function observeGalleryUpcomingImages(wrap){
+    if(!('IntersectionObserver' in window))return;
+    const obs=new IntersectionObserver(entries=>{
+      for(const e of entries){
+        if(!e.isIntersecting)continue;
+        e.target.loading='eager';
+        obs.unobserve(e.target);
+      }
+    },{root:wrap,rootMargin:'700px 0px',threshold:0});
+    wrap.querySelectorAll('img[loading="lazy"]').forEach(img=>obs.observe(img));
+    gameCleanup.push(()=>obs.disconnect());
+  }
+
   function closeSection(){
+    ++galleryNavigationId;
     document.body.classList.remove('magic-scroll-active');
     sectionScreen.classList.remove('is-visible');
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
   function openGame(section,game){
-    // Begin downloading/parsing the 3D module during the existing 150ms
-    // transition. No visual change, no extra work in non-3D games.
-    if(game.kind==='spaceSearch'||game.kind==='constellationQuest'){
+    // Warm and decode the first eight cards while the existing menu stays
+    // visible. No all-gallery download and no white cards on cold entry.
+    const nav=++galleryNavigationId;
+    if(game.kind==='spaceSearch'||game.kind==='constellationQuest')
       ensureSpace3DLoaded().catch(()=>{});
-    }
-    cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;updateStars();
-    sectionScreen.classList.remove('is-visible');setTimeout(()=>{sectionScreen.hidden=true;activityScreen.hidden=false;requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));renderGame(game)},150);
+    const launch=()=>{
+      if(nav!==galleryNavigationId||sectionScreen.hidden)return;
+      cleanupGame();currentGame=game;activityScreen.dataset.game=game.id;
+      activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;
+      updateStars();sectionScreen.classList.remove('is-visible');
+      setTimeout(()=>{
+        if(nav!==galleryNavigationId)return;
+        sectionScreen.hidden=true;activityScreen.hidden=false;
+        requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));
+        renderGame(game);
+      },150);
+    };
+    if(GALLERY_WARM_ITEMS[game.kind]){
+      const timeout=new Promise(resolve=>setTimeout(resolve,7500));
+      Promise.race([warmGalleryPreviews(game.kind,8),timeout]).then(launch,launch);
+    }else launch();
   }
-  function backToSection(){cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
+  function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
   function space3DContext(){
     return {activityContent,PLANETS,CONSTELLATIONS,settings,menuMusic,applyAudio,pickArmenianSpeechVoice,gameCleanup,
@@ -1218,6 +1278,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1432,6 +1493,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1569,6 +1631,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1707,6 +1770,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
 
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
@@ -1889,6 +1953,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
       stopPlanetPlayback({restoreMusic:true});
@@ -1953,6 +2018,7 @@
     });
 
     activityContent.appendChild(wrap);
+    observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
       cancelGalleryCardPresentation();
       stopPlanetPlayback({restoreMusic:true});
