@@ -2,7 +2,7 @@
 // No procedural substitute: this image determines the silhouette, glowing
 // upper lensing crown, lowered foreground disk and lower photon reflection.
 // Loaded from GitHub (not localStorage, IndexedDB or a temporary CDN).
-const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=218';
+const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=219';
 export function renderInterstellarBlackHole(){
   const W=480,H=270,canvas=document.createElement('canvas');
   canvas.width=W;canvas.height=H;
@@ -65,94 +65,116 @@ export function renderInterstellarBlackHole(){
   return canvas;
 }
 
-// V218: tangential, diffused accretion and gravitational-lensing flow. V216 remains
-// the original stationary texture, including its opaque black event horizon.
-// This additive layer adds slow orbital gas movement without turning the card.
-export function makeBlackHoleFlowMaterial(THREE,photo){
-  const material=new THREE.ShaderMaterial({
-    uniforms:{
-      uPhoto:{value:photo},
-      uTime:{value:0},
-      uOpacity:{value:1}
-    },
-    vertexShader:`
-      varying vec2 vUv;
-      void main(){
-        vUv=uv;
-        gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
+
+// V219 - physically moving gold glints, not subtle intensity changes.
+// Drawn into one tiny 480x270 transparent canvas at 24fps only while Space
+// Search runs; the V216 reference photograph stays entirely unchanged.
+export function makeBlackHoleAnimatedFlow(referenceCanvas){
+  const W=480,H=270;
+  const canvas=document.createElement('canvas');
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  const mask=document.createElement('canvas');
+  mask.width=W;mask.height=H;
+  const maskCtx=mask.getContext('2d');
+  let maskReady=false;
+  const rand=i=>{
+    const n=Math.sin(i*127.1+78.233)*43758.5453;
+    return n-Math.floor(n);
+  };
+  const smoothstep=(a,b,x)=>{
+    const q=Math.max(0,Math.min(1,(x-a)/(b-a)));
+    return q*q*(3-2*q);
+  };
+  const rebuildMask=()=>{
+    // Mask moving highlights to the actual bright threads of the approved
+    // photograph; this protects the black center and empty starfield.
+    try{
+      const base=referenceCanvas.getContext('2d',{willReadFrequently:true})
+        .getImageData(0,0,W,H);
+      const out=maskCtx.createImageData(W,H),d=base.data,m=out.data;
+      for(let i=0;i<d.length;i+=4){
+        const bright=.22*d[i]+.68*d[i+1]+.10*d[i+2];
+        const intensity=smoothstep(20,115,bright);
+        m[i]=255;m[i+1]=255;m[i+2]=255;
+        m[i+3]=Math.round(d[i+3]*intensity);
       }
-    `,
-    fragmentShader:`
-      precision highp float;
-      uniform sampler2D uPhoto;
-      uniform float uTime;
-      uniform float uOpacity;
-      varying vec2 vUv;
+      maskCtx.putImageData(out,0,0);
+      maskReady=true;
+    }catch(_){maskReady=false;}
+  };
+  referenceCanvas.addEventListener('areg-blackhole-ready',rebuildMask,{once:true});
 
-      // Gentle, continuous filament lanes follow the curvature of the
-      // real reference. No rotating silhouette, radial streaks or flashes.
-      void main(){
-        vec4 photo=texture2D(uPhoto,vUv);
-        float lum=dot(photo.rgb,vec3(.299,.587,.114));
-        float lightMask=photo.a*smoothstep(.12,.58,lum);
-        if(lightMask<.002){
-          gl_FragColor=vec4(0.0);
-          return;
-        }
-
-        // Source-image coordinates (top-left origin), matching the original
-        // diagonal disk and upper/lower gravitationally lensed crowns.
-        vec2 p=vec2(vUv.x-.5,.5-vUv.y);
-
-        // Tangential flow: all bright filaments run ALONG elliptical arcs.
-        // Angular phase progresses gently, so highlights move around the
-        // circumference instead of crossing the crown perpendicularly.
-        vec2 ell=vec2(p.x/.252,p.y/.365);
-        float r=length(ell);
-        float theta=atan(ell.y,ell.x);
-        float halo=exp(-pow((r-1.02)/.32,2.0));
-        float upper=1.0-smoothstep(.015,.13,p.y);
-        float lower=smoothstep(.05,.16,p.y);
-        float ringMask=halo*max(upper,lower*.83);
-
-        // Smooth nested contours oriented along the ring: tiny phase
-        // undulations travel tangentially, never pulsing the whole surface.
-        float circularFilaments=.68+.32*(.5+.5*sin(
-          (r-1.0)*61.0+.56*sin(theta*2.0-uTime*.48)
-        ));
-        float orbitAdvection=.62+.38*(.5+.5*sin(
-          theta*4.0-uTime*.77+.26*sin(theta*3.0)
-        ));
-        float crownFlow=ringMask*circularFilaments*orbitAdvection;
-
-        // Near-side disk descends to the right in the approved V216 photo.
-        // Follow its diagonal rather than overlaying crosswise light bars.
-        float lane=p.y-.26*p.x-.010;
-        float diskMask=exp(-pow(lane/.135,2.0));
-        float diskFilaments=.67+.33*(.5+.5*sin(
-          lane*105.0+.54*sin(p.x*11.0-uTime*.62)
-        ));
-        float diskAdvection=.62+.38*(.5+.5*sin(
-          p.x*15.0-uTime*.81+.30*sin(p.x*9.0-uTime*.30)
-        ));
-        float diskFlow=diskMask*diskFilaments*diskAdvection;
-
-        // Low, steady additive light keeps the photographic detail intact.
-        // The black event horizon is protected by the sampled photo mask.
-        float strength=lightMask*(.18*crownFlow+.21*diskFlow);
-        float alpha=min(.25,strength)*uOpacity;
-        vec3 warm=mix(vec3(1.0,.57,.27),vec3(1.0,.95,.78),
-                      smoothstep(.22,.82,lum));
-        gl_FragColor=vec4(warm,alpha);
-      }
-`,
-    transparent:true,
-    depthWrite:false,
-    depthTest:true,
-    blending:THREE.AdditiveBlending,
-    toneMapped:false,
-    side:THREE.DoubleSide
-  });
-  material.userData.isBlackHoleFlow=true;
-  return material;
+  const gold=(opacity,white=false)=>white?
+    'rgba(255,245,204,'+opacity+')':
+    'rgba(255,185,100,'+opacity+')';
+  const trace=(points,opacity,width,white=false)=>{
+    if(points.length<2)return;
+    const from=points[0],to=points[points.length-1];
+    const grad=ctx.createLinearGradient(from[0],from[1],to[0],to[1]);
+    grad.addColorStop(0,gold(0,white));
+    grad.addColorStop(.25,gold(opacity*.50,white));
+    grad.addColorStop(.63,gold(opacity,white));
+    grad.addColorStop(1,gold(0,white));
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=width;
+    ctx.beginPath();
+    points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+    ctx.stroke();
+  };
+  const orbit=(t,i,lower)=>{
+    const n=lower?i+100:i;
+    const radius=(lower?.92:1.0)+(rand(n+16)-.5)*.22;
+    const cx=240.0, cy=lower?141:137;
+    const rx=(lower?83:87)*radius,ry=(lower?89:97)*radius;
+    const speed=(lower?.39:.47)+rand(n+13)*.25;
+    const span=.11+rand(n+29)*.18;
+    const period=Math.PI;
+    // Angular motion ALONG the luminous arc, not radial flicker.
+    const phase=(rand(n+3)*period + t*speed)%period;
+    const center=(lower?0:-Math.PI)+phase;
+    const points=[];
+    for(let k=0;k<=11;k++){
+      const a=center-span*(1-k/11);
+      points.push([cx+Math.cos(a)*rx,cy+Math.sin(a)*ry]);
+    }
+    trace(points,lower?.36:.45,
+      .65+rand(n+25)*1.45,rand(n+31)>.60);
+  };
+  const diskY=x=>90+.235*x+2.8*Math.sin(x*.016);
+  const stream=(t,i)=>{
+    // Continuous left-to-right sliding, with tapered long filaments.
+    const speed=12+rand(i+173)*25;
+    const x0=((rand(i+81)*570+t*speed)%570)-57;
+    const length=18+rand(i+57)*33;
+    const offset=(rand(i+95)-.5)*24;
+    const points=[];
+    for(let j=0;j<=9;j++){
+      const x=x0+length*j/9;
+      points.push([x,diskY(x)+offset+1.8*Math.sin(x*.028+i)]);
+    }
+    trace(points,.31+rand(i+191)*.16,
+      .65+rand(i+205)*1.65,rand(i+111)>.60);
+  };
+  function paint(time){
+    ctx.clearRect(0,0,W,H);
+    if(!maskReady)return false;
+    ctx.save();
+    ctx.globalCompositeOperation='source-over';
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.shadowColor='rgba(255,169,95,.25)';
+    ctx.shadowBlur=1.6;
+    // Crown and lower lens receive curved, independently traveling streams.
+    for(let i=0;i<43;i++)orbit(time,i,false);
+    for(let i=0;i<28;i++)orbit(time,i,true);
+    // The lower inclined disk receives its own uninterrupted flow.
+    for(let i=0;i<48;i++)stream(time,i);
+    // Respect photographic luminance: never illuminate black interior.
+    ctx.shadowBlur=0;
+    ctx.globalCompositeOperation='destination-in';
+    ctx.drawImage(mask,0,0);
+    ctx.restore();
+    return true;
+  }
+  return {canvas,paint};
 }

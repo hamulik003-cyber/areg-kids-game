@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleFlowMaterial} from './blackhole-interstellar.js?v=218';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=219';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1098,14 +1098,25 @@ function blackHole(item){
   );
   plate.userData.parentPick=g;visual.add(plate);
 
-  // A separate translucent GPU layer moves warm light along the already
-  // approved accretion paths. The V216 photo and dark center never move.
+  // A transparent animated canvas sits over the original unmoving V216
+  // photo. Real moving curved filaments are clearly visible at iPhone size.
+  const animated=makeBlackHoleAnimatedFlow(plate.material.map.image);
+  const flowTexture=new THREE.CanvasTexture(animated.canvas);
+  flowTexture.colorSpace=THREE.SRGBColorSpace;
+  flowTexture.minFilter=THREE.LinearFilter;
+  flowTexture.magFilter=THREE.LinearFilter;
   const gasFlow=new THREE.Mesh(
     new THREE.PlaneGeometry(4.64,2.61),
-    makeBlackHoleFlowMaterial(THREE,plate.material.map)
+    new THREE.MeshBasicMaterial({
+      map:flowTexture,transparent:true,depthWrite:false,depthTest:true,
+      toneMapped:false,side:THREE.DoubleSide,opacity:1
+    })
   );
   gasFlow.position.z=.003;
   gasFlow.userData.parentPick=g;
+  gasFlow.userData.flowPaint=animated.paint;
+  gasFlow.userData.flowClock=0;
+  gasFlow.userData.lastPaint=-1;
   visual.add(gasFlow);
   g.userData.blackHoleFlow=gasFlow;
 
@@ -1296,11 +1307,7 @@ function setObjectOpacity(g,alpha){
     if(!o.material)return;
     const mats=Array.isArray(o.material)?o.material:[o.material];
     mats.forEach(m=>{
-      if(m.isShaderMaterial){
-        if(m.userData?.isBlackHoleFlow&&m.uniforms?.uOpacity)
-          m.uniforms.uOpacity.value=alpha;
-        return;
-      }
+      if(m.isShaderMaterial)return;
       if(!m.userData.__s3dFadeInit){
         m.userData.__s3dFadeInit=true;
         m.userData.__s3dBaseOpacity=Number.isFinite(m.opacity)?m.opacity:1;
@@ -1503,10 +1510,18 @@ function gameSpaceSearch(ctx){
         else g.userData.surface.rotation.y+=spinDelta;
       }
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
-      // Animate the lensing and accretion glints, NOT the whole black hole.
+      // Real moving streams along the lensing arcs; 24 texture frames/s
+      // keep animation smooth without a full 60fps canvas re-upload.
       if(g.userData.blackHoleFlow){
-        const u=g.userData.blackHoleFlow.material.uniforms;
-        u.uTime.value=(u.uTime.value+dt)%10000;
+        const f=g.userData.blackHoleFlow;
+        f.userData.flowClock=(f.userData.flowClock+dt)%10000;
+        if(f.userData.flowClock-f.userData.lastPaint>=1/24
+          || f.userData.flowClock<f.userData.lastPaint){
+          if(f.userData.flowPaint(f.userData.flowClock)){
+            f.material.map.needsUpdate=true;
+            f.userData.lastPaint=f.userData.flowClock;
+          }
+        }
       }
       if(g.userData.accretionFlow){
         const flow=g.userData.accretionFlow;
