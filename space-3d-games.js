@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole} from './blackhole-interstellar.js?v=214';
+import {renderInterstellarBlackHole} from './blackhole-interstellar.js?v=215';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1086,15 +1086,15 @@ function blackHole(item){
   // Do not spin the whole silhouette; only the flowing gas particles animate.
   g.userData.spin=0;g.userData.spinAxis='z';
   g.rotation.set(
-    THREE.MathUtils.degToRad(18),
-    THREE.MathUtils.degToRad(-8),
-    THREE.MathUtils.degToRad(8)
+    THREE.MathUtils.degToRad(24),
+    THREE.MathUtils.degToRad(-10),
+    THREE.MathUtils.degToRad(10)
   );
 
   const visual=new THREE.Group();g.add(visual);g.userData.surface=visual;
 
   const plate=new THREE.Mesh(
-    new THREE.PlaneGeometry(4.20,2.36),
+    new THREE.PlaneGeometry(4.36,2.70),
     new THREE.MeshBasicMaterial({
       map:makeBlackHoleTexture(),transparent:true,depthWrite:false,
       depthTest:true,toneMapped:false,side:THREE.DoubleSide
@@ -1110,7 +1110,7 @@ function blackHole(item){
   const flowMeta=[];
   let flowSeed=0x61636372;
   const flowRnd=()=>{flowSeed=(Math.imul(flowSeed,1664525)+1013904223)>>>0;return flowSeed/4294967296};
-  const diskAngle=-.055;
+  const diskAngle=.14;
   const ca=Math.cos(diskAngle),sa=Math.sin(diskAngle);
   for(let i=0;i<flowCount;i++){
     const radius=.62+Math.pow(flowRnd(),.72)*1.16;
@@ -1538,7 +1538,7 @@ function gameSpaceSearch(ctx){
         const attr=flow.geometry?.attributes?.position;
         flow.userData.flowTime=(flow.userData.flowTime||0)+dt;
         const tt=flow.userData.flowTime;
-        const ang=-.055,ca=Math.cos(ang),sa=Math.sin(ang);
+        const ang=.14,ca=Math.cos(ang),sa=Math.sin(ang);
         if(attr){
           for(let k=0;k<meta.length;k++){
             const m=meta[k],a=m.phase+tt*m.speed;
