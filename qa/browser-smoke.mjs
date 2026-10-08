@@ -26,7 +26,7 @@ try{
    gamesCount:document.querySelectorAll('#sectionGames .toddler-game-card').length,
    historyLength:history.length
  }),stage);
- await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=239',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=240',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
@@ -43,7 +43,7 @@ try{
    if(n!==4)throw Error(section+' has '+n+' games, expected 4');
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
-    await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').click();
+    await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').click({force:process.env.AREG_BROWSER==='webkit'});
     await page.waitForSelector('#activityScreen.is-visible');
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});

@@ -1904,9 +1904,13 @@ function gameSpaceSearch(ctx){
     });
     makePlanetWinFx(g,g.userData.item);
     root.classList.remove('s3d-win');void root.offsetWidth;root.classList.add('s3d-win');
-    // Prepare only after the first zoom second, avoiding stutter on iPhone.
+    // V240: a prepared upcoming round is reused without new work during
+    // this planet's win zoom. If a child answers unusually fast, preserve
+    // the old delayed fallback rather than stutter during the animation.
     clearTimeout(prewarmTimer);
-    prewarmTimer=setTimeout(()=>{if(!disposed&&winStart)warmUpcomingRound()},1000);
+    if(!queuedRound){
+      prewarmTimer=setTimeout(()=>{if(!disposed&&winStart)warmUpcomingRound()},1000);
+    }
     // NEVER await texture promises to exit a correct-answer celebration.
     clearTimeout(timer);
     timer=setTimeout(()=>{if(!disposed&&winStart)beginExit()},2750);
@@ -2040,6 +2044,16 @@ function gameSpaceSearch(ctx){
       if(finishEnter){
         groups.forEach(g=>{g.position.copy(g.userData.basePosition);g.scale.copy(g.userData.baseScale);setObjectOpacity(g,1)});
         transition=null;locked=false;
+        // V240: the next round should prepare while the child is deciding,
+        // NOT after their correct-answer animation is almost finished.
+        // Start only once the current entrance is complete to keep animation
+        // smooth and avoid simultaneous Three.js GPU work.
+        if(!queuedRound && !disposed){
+          clearTimeout(prewarmTimer);
+          prewarmTimer=setTimeout(()=>{
+            if(!disposed&&!winStart&&!transition)warmUpcomingRound();
+          },650);
+        }
       }
     }else if(transition?.type==='exit'&&finishExit){
       transition=null;buildRound();
