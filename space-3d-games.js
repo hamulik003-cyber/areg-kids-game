@@ -676,99 +676,120 @@ function starField(scene){
 }
 function nebula(){return null}
 function ringMesh(item,inner=1.22,outer=2.08){
-  const group=new THREE.Group();
+  const back=new THREE.Group();
+  const front=new THREE.Group();
 
-  const radialUvs=geo=>{
+  // After RingGeometry is rotated into the XZ plane:
+  // theta 0..PI is the camera-facing half, PI..2PI is the far half.
+  // We render them separately so the planet physically sits inside the ring.
+  const FRONT_START=0;
+  const FRONT_LEN=Math.PI;
+  const BACK_START=Math.PI;
+  const BACK_LEN=Math.PI;
+
+  const radialUvs=(geo,a,b)=>{
     const pos=geo.attributes.position,uv=geo.attributes.uv;
     for(let i=0;i<pos.count;i++){
       const r=Math.hypot(pos.getX(i),pos.getY(i));
-      uv.setXY(i,clamp((r-inner)/(outer-inner),0,1),.5);
+      uv.setXY(i,clamp((r-a)/(b-a),0,1),.5);
     }
   };
-  const addBand=(a,b,color,opacity,z=0)=>{
-    const geo=new THREE.RingGeometry(a,b,192);
-    const mat=new THREE.MeshBasicMaterial({
-      color,side:THREE.DoubleSide,transparent:true,opacity,
-      depthWrite:true,depthTest:true,toneMapped:false
-    });
-    const m=new THREE.Mesh(geo,mat);
+  const halfRing=(a,b,material,start,len)=>{
+    const geo=new THREE.RingGeometry(a,b,192,1,start,len);
+    radialUvs(geo,a,b);
+    const m=new THREE.Mesh(geo,material);
     m.rotation.x=Math.PI/2;
-    m.position.y=z;
     m.userData.ringSurface=true;
-    group.add(m);
+    return m;
+  };
+  const bandMaterial=(color,opacity)=>new THREE.MeshBasicMaterial({
+    color,side:THREE.DoubleSide,transparent:true,opacity,
+    depthWrite:false,depthTest:true,toneMapped:false
+  });
+  const addBand=(target,a,b,color,opacity,start,len,y=0)=>{
+    const m=halfRing(a,b,bandMaterial(color,opacity),start,len);
+    m.position.y=y;
+    target.add(m);
     return m;
   };
 
   if(item.id==='saturn'){
-    // Use the repository's real Saturn ring alpha map as the main ring body.
-    // The ring lies in the planet's local equatorial XZ plane; the parent
-    // axial pivot supplies the screen tilt, so body and rings always agree.
-    const geo=new THREE.RingGeometry(inner,outer,256);
-    radialUvs(geo);
     const ringTex=getTexture('assets/space3d/2k_saturn_ring_alpha.png');
-    const mat=new THREE.MeshBasicMaterial({
-      alphaMap:ringTex,color:0xffe6b3,side:THREE.DoubleSide,
-      transparent:true,opacity:1,alphaTest:.015,
-      depthWrite:true,depthTest:true,toneMapped:false
+    const makeSaturnMat=(opacity,color)=>new THREE.MeshBasicMaterial({
+      alphaMap:ringTex,color,side:THREE.DoubleSide,
+      transparent:true,opacity,alphaTest:.012,
+      depthWrite:false,depthTest:true,toneMapped:false
     });
-    const ring=new THREE.Mesh(geo,mat);
-    ring.rotation.x=Math.PI/2;
-    ring.userData.ringSurface=true;
-    group.add(ring);
 
-    // Slightly stronger natural banding so the rings stay readable on phone
-    // screens while preserving the real Saturn-ring look.
-    addBand(1.22,1.30,0xe7cf96,.34,.001);
-    addBand(1.51,1.535,0x5c4f43,.52,.002);
-    addBand(1.60,1.69,0xf2d99f,.38,.0025);
-    addBand(1.73,1.755,0x4d433a,.46,.003);
-    addBand(1.82,1.92,0xd2bb8f,.30,.0035);
-    addBand(1.98,2.00,0xb9aa94,.44,.004);
+    const backMain=halfRing(inner,outer,makeSaturnMat(.94,0xffdfaa),BACK_START,BACK_LEN);
+    const frontMain=halfRing(inner,outer,makeSaturnMat(1,0xffe8b8),FRONT_START,FRONT_LEN);
+    back.add(backMain);
+    front.add(frontMain);
+
+    // Natural band accents, split into far/near halves.
+    const bands=[
+      [1.22,1.30,0xe7cf96,.30],
+      [1.51,1.535,0x5c4f43,.46],
+      [1.60,1.69,0xf2d99f,.34],
+      [1.73,1.755,0x4d433a,.42],
+      [1.82,1.92,0xd2bb8f,.28],
+      [1.98,2.00,0xb9aa94,.38]
+    ];
+    bands.forEach(([a,b,color,opacity],i)=>{
+      addBand(back,a,b,color,opacity*.82,BACK_START,BACK_LEN,(i+1)*.0008);
+      addBand(front,a,b,color,opacity,FRONT_START,FRONT_LEN,(i+1)*.0008);
+    });
   }else{
-    // Uranus: thin separated rings, now a little more readable on iPhone.
-    addBand(1.16,1.178,0xa9bfd1,.58,-.004);
-    addBand(1.245,1.262,0x71879d,.66,-.003);
-    addBand(1.33,1.348,0xc4d6e6,.74,-.001);
-    addBand(1.425,1.443,0x637a90,.62,.001);
-    addBand(1.535,1.553,0xb2c7d9,.68,.003);
-    addBand(1.655,1.675,0x72899f,.58,.005);
+    // Uranus: narrow separated rings, also split into near/far halves.
+    const bands=[
+      [1.16,1.178,0xa9bfd1,.58],
+      [1.245,1.262,0x71879d,.66],
+      [1.33,1.348,0xc4d6e6,.74],
+      [1.425,1.443,0x637a90,.62],
+      [1.535,1.553,0xb2c7d9,.68],
+      [1.655,1.675,0x72899f,.58]
+    ];
+    bands.forEach(([a,b,color,opacity],i)=>{
+      addBand(back,a,b,color,opacity*.76,BACK_START,BACK_LEN,(i+1)*.0008);
+      addBand(front,a,b,color,opacity,FRONT_START,FRONT_LEN,(i+1)*.0008);
+    });
 
-    // Fine rocky/icy debris inside the Uranus ring system.
-    // Instancing keeps this inexpensive enough for the phone build.
-    const rockCount=120;
+    // Keep the good icy debris, but split it into front/back populations.
+    // This prevents stones from visually orbiting on the wrong side of Uranus.
     const rockGeo=new THREE.IcosahedronGeometry(.010,0);
     const rockMat=new THREE.MeshBasicMaterial({
       color:0xc9d4df,transparent:true,opacity:.90,
-      depthWrite:true,depthTest:true,toneMapped:false
+      depthWrite:false,depthTest:true,toneMapped:false
     });
-    const rocks=new THREE.InstancedMesh(rockGeo,rockMat,rockCount);
-    const dummy=new THREE.Object3D();
     const ringRadii=[1.17,1.253,1.339,1.434,1.544,1.665];
-    for(let i=0;i<rockCount;i++){
-      const a=Math.random()*Math.PI*2;
-      const rr=ringRadii[i%ringRadii.length]+rand(-.010,.010);
-      dummy.position.set(Math.cos(a)*rr,rand(-.010,.010),Math.sin(a)*rr);
-      const s=rand(.48,1.35);
-      dummy.scale.setScalar(s);
-      dummy.rotation.set(rand(0,Math.PI),rand(0,Math.PI),rand(0,Math.PI));
-      dummy.updateMatrix();
-      rocks.setMatrixAt(i,dummy.matrix);
-    }
-    rocks.instanceMatrix.needsUpdate=true;
-    rocks.userData.ringRocks=true;
-    group.add(rocks);
-    group.userData.rocks=rocks;
+    const buildRockHalf=(count,start,len)=>{
+      const rocks=new THREE.InstancedMesh(rockGeo,rockMat,count);
+      const dummy=new THREE.Object3D();
+      for(let i=0;i<count;i++){
+        const a=start+Math.random()*len;
+        const rr=ringRadii[i%ringRadii.length]+rand(-.010,.010);
+        dummy.position.set(Math.cos(a)*rr,rand(-.010,.010),Math.sin(a)*rr);
+        const s=rand(.48,1.35);
+        dummy.scale.setScalar(s);
+        dummy.rotation.set(rand(0,Math.PI),rand(0,Math.PI),rand(0,Math.PI));
+        dummy.updateMatrix();
+        rocks.setMatrixAt(i,dummy.matrix);
+      }
+      rocks.instanceMatrix.needsUpdate=true;
+      rocks.userData.ringRocks=true;
+      return rocks;
+    };
+    const backRocks=buildRockHalf(60,BACK_START,BACK_LEN);
+    const frontRocks=buildRockHalf(60,FRONT_START,FRONT_LEN);
+    back.add(backRocks);
+    front.add(frontRocks);
+    back.userData.rocks=backRocks;
+    front.userData.rocks=frontRocks;
   }
 
-  // The parent axial pivot controls the visible tilt. Keeping this group
-  // neutral guarantees that ring plane and spin axis cannot drift apart.
-  group.rotation.set(0,0,0);
-  group.traverse(o=>{if(o.isMesh)o.renderOrder=2});
-  group.userData.ring=true;
-  group.userData.baseRotationX=0;
-  group.userData.winRotationX=0;
-  group.userData.baseRotationZ=0;
-  return group;
+  back.userData.ringHalf='back';
+  front.userData.ringHalf='front';
+  return {back,front};
 }
 function atmosphereMesh(radius=1.035){
   const mat=new THREE.ShaderMaterial({
@@ -835,7 +856,7 @@ function spherePlanet(item){
     // Uranus intentionally shares Saturn's visible tilt, while retaining
     // its own retrograde spin direction.
     axisPivot.rotation.set(
-      THREE.MathUtils.degToRad(-19),
+      THREE.MathUtils.degToRad(19),
       0,
       THREE.MathUtils.degToRad(-18)
     );
@@ -857,17 +878,27 @@ function spherePlanet(item){
     clouds.rotation.z=mesh.rotation.z;clouds.userData.parentPick=grp;grp.add(clouds);grp.userData.clouds=clouds;
     const atm=atmosphereMesh(1.035);atm.rotation.z=mesh.rotation.z;grp.add(atm);
   }
-  if(item.id==='saturn'){
-    const r=ringMesh(item,1.14,2.04);
-    r.userData.parentPick=grp;
-    (axisPivot||grp).add(r);
-    grp.userData.ring=r;
-  }
-  if(item.id==='uranus'){
-    const r=ringMesh(item,1.14,1.70);
-    r.userData.parentPick=grp;
-    (axisPivot||grp).add(r);
-    grp.userData.ring=r;
+  if(item.id==='saturn'||item.id==='uranus'){
+    const r=item.id==='saturn'
+      ? ringMesh(item,1.14,2.04)
+      : ringMesh(item,1.14,1.70);
+    const parent=axisPivot||grp;
+
+    // Put the planet literally between the far and near ring halves.
+    // Child order is explicit, and depth testing preserves the 3D wrap.
+    parent.remove(mesh);
+    parent.add(r.back);
+    parent.add(mesh);
+    parent.add(r.front);
+
+    r.back.traverse(o=>{if(o.isMesh)o.userData.parentPick=grp});
+    r.front.traverse(o=>{if(o.isMesh)o.userData.parentPick=grp});
+    r.back.renderOrder=0;
+    mesh.renderOrder=1;
+    r.front.renderOrder=2;
+
+    grp.userData.ringBack=r.back;
+    grp.userData.ringFront=r.front;
   }
   if(item.id==='haumea'){
     // Haumea's ring is locked to the body's spin axis. Keeping it as a child
@@ -1249,7 +1280,6 @@ function gameSpaceSearch(ctx){
       g.userData.exitFromPos=g.position.clone();
       g.userData.exitFromScale=g.scale.clone();
       g.userData.exitFromOpacity=g.userData.displayOpacity??1;
-      if(g.userData.ring)g.userData.exitFromRingX=g.userData.ring.rotation.x;
       const dir=Math.sign(g.position.x||((i-1)||1));
       g.userData.exitToPos=g.position.clone().add(new THREE.Vector3(dir*.42,(i-1)*.05,-1.15));
       g.userData.exitToScale=g.scale.clone().multiplyScalar(.68);
@@ -1316,10 +1346,6 @@ function gameSpaceSearch(ctx){
         else g.userData.surface.rotation.y+=spinDelta;
       }
       if(g.userData.clouds)g.userData.clouds.rotation.y+=dt*.07;
-      if(g.userData.ring?.userData?.rocks){
-        const dir=g.userData.item?.id==='uranus'?-1:1;
-        g.userData.ring.userData.rocks.rotation.y+=dt*.10*dir;
-      }
 
       if(wrong?.g===g){
         const q=(t-wrong.start)/620;
@@ -1351,10 +1377,6 @@ function gameSpaceSearch(ctx){
         const e=easeInOutCubic(q);
         g.position.lerpVectors(g.userData.exitFromPos,g.userData.exitToPos,e);
         g.scale.lerpVectors(g.userData.exitFromScale,g.userData.exitToScale,e);
-        if(g.userData.ring){
-          const r=g.userData.ring,from=g.userData.exitFromRingX??r.rotation.x;
-          r.rotation.x=THREE.MathUtils.lerp(from,r.userData.baseRotationX??from,e);
-        }
         setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
@@ -1362,10 +1384,6 @@ function gameSpaceSearch(ctx){
         g.position.lerpVectors(g.userData.winFromPosition,g.userData.winToPosition,e);
         g.scale.lerpVectors(g.userData.winFromScale,g.userData.winTargetScale,e);
         if(g.userData.win){
-          if(g.userData.ring){
-            const r=g.userData.ring;
-            r.rotation.x=THREE.MathUtils.lerp(r.userData.baseRotationX??r.rotation.x,r.userData.winRotationX??r.rotation.x,e);
-          }
           const fx=g.userData.winFx;
           if(fx?.userData?.glowMat){
             const q=clamp((t-winStart)/900,0,1);
