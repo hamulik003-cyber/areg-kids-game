@@ -1,16 +1,21 @@
-const CORE_CACHE='areg-v232-core';
-const RUNTIME_CACHE='areg-v232-runtime';
+const CORE_CACHE='areg-v237-core';
+const RUNTIME_CACHE='areg-v237-runtime';
 
 const CORE=[
   './index.html',
   './launcher.html',
   './styles.css?v=139',
   './space-3d-games.css?v=232',
-  './app.js?v=232',
+  './app.js?v=237',
   './space-3d-games.js?v=232',
   './blackhole-interstellar.js?v=232',
   './assets/space3d/black-hole-reference-v216.webp?v=232',
   './vendor/three.module.min.js',
+  './home-nature-art.jpg',
+  './home-space-art.jpg',
+  './home-mind-art.jpg',
+  './home-create-art.jpg',
+  './home-magic-art.jpg',
   './logo.png',
   './avatar-frame.png',
   './bottom-landscape.png',
@@ -47,12 +52,27 @@ self.addEventListener('activate',event=>{
   );
 });
 
-async function networkNavigation(request){
+// Open the already installed game without waiting for GitHub Pages.
+// Updates remain versioned: app.js calls registration.update(), and each new
+// service worker populates a fresh CORE_CACHE before activation.
+async function fastNavigation(request){
+  const url=new URL(request.url);
+  const scopePath=new URL(self.registration.scope).pathname;
+  const inGameRoot=url.pathname===scopePath||
+    url.pathname===scopePath+'index.html'||
+    url.pathname===scopePath+'launcher.html';
+  if(inGameRoot){
+    const target=url.pathname.endsWith('/launcher.html')?'./launcher.html':'./index.html';
+    const cached=await caches.match(target,{cacheName:CORE_CACHE});
+    if(cached)return cached;
+  }
   try{
-    return await fetch(request);
+    const response=await fetch(request);
+    return response;
   }catch{
     return (await caches.match(request,{ignoreSearch:true}))
-      || (await caches.match('./index.html'));
+      ||(await caches.match('./index.html',{cacheName:CORE_CACHE}))
+      ||Response.error();
   }
 }
 
@@ -75,7 +95,7 @@ self.addEventListener('fetch',event=>{
   if(url.origin!==self.location.origin)return;
 
   if(request.mode==='navigate'){
-    event.respondWith(networkNavigation(request));
+    event.respondWith(fastNavigation(request));
     return;
   }
 
