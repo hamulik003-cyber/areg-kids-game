@@ -12,7 +12,7 @@ try{
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true,serviceWorkers:'allow'});
   const page=await context.newPage();
   page.on('pageerror',e=>failures.push('JS '+e.message));
-  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=2381',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=239',{waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#homeScreen .section-card');
   for(const [section,id,count] of [
     ['nature','animals',30],['nature','birds',30],
