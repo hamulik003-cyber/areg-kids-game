@@ -48,9 +48,11 @@ for(const n of ['launcher.html','index.html','app.js','styles.css','space-3d-gam
 const launcher=read('launcher.html');
 check(launcher.includes('kiosk=v232&__areg_build=239'),'DotKiosk launcher out of date');
 check(sw.includes('areg-v239-core')&&sw.includes('areg-v239-runtime'),'SW cache out of date');
-check(app.includes("import('./space-3d-games.js?v=239')"),'3D dynamic import may load stale code');
-check(sw.includes("'./space-3d-games.js?v=239'")&&sw.includes("'./app.js?v=239'"),'SW precache version mismatch');
+check(app.includes("import('./space-3d-games.js?v=2381')"),'3D dynamic import may load stale code');
+check(sw.includes("'./space-3d-games.js?v=2381'")&&sw.includes("'./app.js?v=239'"),'SW precache version mismatch');
 check(read('index.html').includes('app.js?v=239'),'HTML script version mismatch');
+check(read('index.html').includes('styles.css?v=239'),'No-flash CSS version mismatch');
+check(app.includes('gallery-hires-layer')&&app.includes('warmGalleryPreviews'),'Gallery predecode fix missing');
 const core=sw.match(/const CORE=\[([\s\S]*?)\];/);
 if(core)for(const r of core[1].matchAll(/'\.\/([^']+)'/g)){const n=r[1].split('?')[0];total++;check(has(n),'missing precached '+n)}
 const tokenExp=[...app.matchAll(/_jwt=[^.]+\.(eyJ[A-Za-z0-9_-]+)\./g)].map(x=>{try{return JSON.parse(Buffer.from(x[1].replace(/-/g,'+').replace(/_/g,'/'),'base64').toString()).exp}catch{return null}}).filter(Number.isFinite);
