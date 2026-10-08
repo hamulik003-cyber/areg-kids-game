@@ -2,7 +2,7 @@
 // No procedural substitute: this image determines the silhouette, glowing
 // upper lensing crown, lowered foreground disk and lower photon reflection.
 // Loaded from GitHub (not localStorage, IndexedDB or a temporary CDN).
-const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=217';
+const IMAGE_URL='./assets/space3d/black-hole-reference-v216.webp?v=218';
 export function renderInterstellarBlackHole(){
   const W=480,H=270,canvas=document.createElement('canvas');
   canvas.width=W;canvas.height=H;
@@ -43,9 +43,16 @@ export function renderInterstellarBlackHole(){
           const ellipse=dx*dx+dy*dy;
           const opaqueHole=Math.min(1,Math.max(0,(1.04-ellipse)/.09));
           opacity=Math.max(opacity,opaqueHole);
-          // Avoid a visible rectangular cut at the edge of the source photo.
-          const edge=Math.min(x,W-1-x,y,H-1-y);
-          opacity*=Math.min(1,Math.max(0,edge/6));
+          // V218: tapered photographic accretion tails. A long smooth
+          // horizontal feather removes hard scissor-cut endpoints without
+          // modifying the opaque central silhouette or approved image colors.
+          const horizontal=Math.min(x,W-1-x)/66;
+          const vertical=Math.min(y,H-1-y)/7;
+          const hx=Math.min(1,Math.max(0,horizontal));
+          const vy=Math.min(1,Math.max(0,vertical));
+          const smoothX=hx*hx*(3-2*hx);
+          const smoothY=vy*vy*(3-2*vy);
+          opacity*=smoothX*smoothY;
           d[i+3]=Math.round(opacity*255);
         }
       }
@@ -58,7 +65,7 @@ export function renderInterstellarBlackHole(){
   return canvas;
 }
 
-// V217: GPU-only gliding light lanes.  The V216 reference photo remains
+// V218: tangential, diffused accretion and gravitational-lensing flow. V216 remains
 // the original stationary texture, including its opaque black event horizon.
 // This additive layer adds slow orbital gas movement without turning the card.
 export function makeBlackHoleFlowMaterial(THREE,photo){
@@ -81,47 +88,64 @@ export function makeBlackHoleFlowMaterial(THREE,photo){
       uniform float uTime;
       uniform float uOpacity;
       varying vec2 vUv;
-      float band(float x,float center,float width){
-        return 1.0-smoothstep(width*.35,width,abs(x-center));
-      }
+
+      // Gentle, continuous filament lanes follow the curvature of the
+      // real reference. No rotating silhouette, radial streaks or flashes.
       void main(){
         vec4 photo=texture2D(uPhoto,vUv);
-        // The silhouette and empty background must stay completely untouched.
-        float luminance=dot(photo.rgb,vec3(.299,.587,.114));
-        float bright=photo.a*smoothstep(.13,.59,luminance);
-        if(bright<.002){gl_FragColor=vec4(0.0);return;}
-        vec2 p=vUv-vec2(.5,.505);
-        // The user's picture slopes down toward screen-right; follow that
-        // existing photographed band instead of spinning the whole texture.
-        float frontLane=p.y+.195*p.x+.004;
-        float disk=band(frontLane,0.0,.145);
-        // Slowly advect tiny warm-white highlights along this diagonal track.
-        float thin=pow(.5+.5*sin(p.x*93.0-uTime*2.7+frontLane*24.0),12.0);
-        float wide=pow(.5+.5*sin(p.x*45.0-uTime*1.35-frontLane*9.0),9.0);
-        float diskFlow=disk*(thin*.72+wide*.38);
-        // Lensed upper crown and lower reflection: orbit around the black
-        // event horizon as streaming arcs, not as a rigid rotating object.
-        vec2 ell=vec2(p.x/.27,p.y/.315);
-        float orbitalRadius=length(ell);
-        float angle=atan(ell.y,ell.x);
-        float ringBand=band(orbitalRadius,1.0,.50);
-        float top=smoothstep(.015,.15,p.y);
-        float bottom=1.0-smoothstep(-.16,-.015,p.y);
-        float ringArea=ringBand*max(top,bottom*.68);
-        float longTrail=pow(.5+.5*sin(angle*15.0-uTime*1.85
-                                   +(orbitalRadius-1.0)*7.0),10.0);
-        float fineTrail=pow(.5+.5*sin(angle*29.0-uTime*3.1
-                                   -(orbitalRadius-1.0)*11.0),16.0);
-        float orbitFlow=ringArea*(longTrail*.78+fineTrail*.32);
-        // Soft drifting filaments; no on/off flash, no extra noise texture.
-        float filament=.5+.5*sin(p.x*118.0-uTime*.83+frontLane*48.0);
-        float motion=(diskFlow+orbitFlow)*(.79+.21*filament);
-        float opacity=min(.46,bright*motion*.54)*uOpacity;
-        vec3 gold=mix(vec3(1.0,.55,.24),vec3(1.0,.94,.73),
-                     smoothstep(.2,.86,luminance));
-        gl_FragColor=vec4(gold,opacity);
+        float lum=dot(photo.rgb,vec3(.299,.587,.114));
+        float lightMask=photo.a*smoothstep(.12,.58,lum);
+        if(lightMask<.002){
+          gl_FragColor=vec4(0.0);
+          return;
+        }
+
+        // Source-image coordinates (top-left origin), matching the original
+        // diagonal disk and upper/lower gravitationally lensed crowns.
+        vec2 p=vec2(vUv.x-.5,.5-vUv.y);
+
+        // Tangential flow: all bright filaments run ALONG elliptical arcs.
+        // Angular phase progresses gently, so highlights move around the
+        // circumference instead of crossing the crown perpendicularly.
+        vec2 ell=vec2(p.x/.252,p.y/.365);
+        float r=length(ell);
+        float theta=atan(ell.y,ell.x);
+        float halo=exp(-pow((r-1.02)/.32,2.0));
+        float upper=1.0-smoothstep(.015,.13,p.y);
+        float lower=smoothstep(.05,.16,p.y);
+        float ringMask=halo*max(upper,lower*.83);
+
+        // Smooth nested contours oriented along the ring: tiny phase
+        // undulations travel tangentially, never pulsing the whole surface.
+        float circularFilaments=.68+.32*(.5+.5*sin(
+          (r-1.0)*61.0+.56*sin(theta*2.0-uTime*.48)
+        ));
+        float orbitAdvection=.62+.38*(.5+.5*sin(
+          theta*4.0-uTime*.77+.26*sin(theta*3.0)
+        ));
+        float crownFlow=ringMask*circularFilaments*orbitAdvection;
+
+        // Near-side disk descends to the right in the approved V216 photo.
+        // Follow its diagonal rather than overlaying crosswise light bars.
+        float lane=p.y-.26*p.x-.010;
+        float diskMask=exp(-pow(lane/.135,2.0));
+        float diskFilaments=.67+.33*(.5+.5*sin(
+          lane*105.0+.54*sin(p.x*11.0-uTime*.62)
+        ));
+        float diskAdvection=.62+.38*(.5+.5*sin(
+          p.x*15.0-uTime*.81+.30*sin(p.x*9.0-uTime*.30)
+        ));
+        float diskFlow=diskMask*diskFilaments*diskAdvection;
+
+        // Low, steady additive light keeps the photographic detail intact.
+        // The black event horizon is protected by the sampled photo mask.
+        float strength=lightMask*(.18*crownFlow+.21*diskFlow);
+        float alpha=min(.25,strength)*uOpacity;
+        vec3 warm=mix(vec3(1.0,.57,.27),vec3(1.0,.95,.78),
+                      smoothstep(.22,.82,lum));
+        gl_FragColor=vec4(warm,alpha);
       }
-    `,
+`,
     transparent:true,
     depthWrite:false,
     depthTest:true,

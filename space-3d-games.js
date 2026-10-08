@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleFlowMaterial} from './blackhole-interstellar.js?v=217';
+import {renderInterstellarBlackHole,makeBlackHoleFlowMaterial} from './blackhole-interstellar.js?v=218';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
