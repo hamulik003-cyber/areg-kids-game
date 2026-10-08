@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=224';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=225';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1511,10 +1511,13 @@ function feedbackScaleMultiplier(g,camera,root){
   const nearDepth=Math.max(0,box.max.z-pz);
   const tanY=Math.tan(THREE.MathUtils.degToRad(camera.fov*.5));
   const tanX=tanY*root.clientWidth/Math.max(1,root.clientHeight);
-  const distance=8.48-1.62;
-  // The nearest part of a scaled 3D shape gets bigger in perspective.
-  // Solve scale against that depth as well as x/y geometry margins.
-  const safeX=tanX*.948,safeY=tanY*.87;
+  // V225: push the chosen planet farther toward the child while solving
+  // the scale with the SAME final camera and winning-object Z. Otherwise
+  // the extra approach can clip Saturn's rings at the screen edges.
+  const distance=8.48-1.82;
+  // Near geometry and tilt are included in the silhouette-safe fit.
+  // The x camera drift is eased to zero as the win zoom completes.
+  const safeX=tanX*.975,safeY=tanY*.92;
   const byWidth=(safeX*distance)/(radiusX+safeX*nearDepth);
   const byHeight=(safeY*distance)/(radiusY+safeY*nearDepth);
   return clamp(Math.min(byWidth,byHeight),.12,16);
@@ -1705,7 +1708,7 @@ function gameSpaceSearch(ctx){
       x.userData.winFromScale=x.scale.clone();
       x.userData.winFromOpacity=x.userData.displayOpacity??1;
       if(x===g){
-        x.userData.winToPosition=new THREE.Vector3(0,.06,1.62);
+        x.userData.winToPosition=new THREE.Vector3(0,.06,1.82);
         x.userData.winTargetScale=x.userData.baseScale.clone().multiplyScalar(feedbackScaleMultiplier(x,camera,root));
       }else{
         const dir=Math.sign(x.position.x||((i-1)||1));
@@ -1723,7 +1726,10 @@ function gameSpaceSearch(ctx){
   function loop(t){
     if(disposed)return;
     const dt=Math.min(.04,(t-last)/1000);last=t;stars.rotation.y+=dt*.0015;
-    camera.position.x=Math.sin(t*.00018)*.035;
+    // Ease out idle side-to-side drift during the strong win close-up,
+    // keeping the now almost-full-width planet safely within the frame.
+    const winCameraStill=winStart?clamp(1-(t-winStart)/440,0,1):1;
+    camera.position.x=Math.sin(t*.00018)*.035*winCameraStill;
     camera.position.y=.10+Math.cos(t*.00016)*.025;
     camera.position.z+=((winStart?8.48:9.25)-camera.position.z)*.042;
     camera.lookAt(0,-.08,0);
