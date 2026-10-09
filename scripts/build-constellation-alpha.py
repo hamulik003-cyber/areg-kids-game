@@ -8,6 +8,7 @@ import json
 import re
 from pathlib import Path
 import numpy as np
+import cv2
 from PIL import Image, ImageFilter
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -39,6 +40,20 @@ def extract(source):
     yy,xx=np.ogrid[:h,:w]
     edge=np.minimum.reduce(np.broadcast_arrays(xx,yy,w-1-xx,h-1-yy))
     alpha*=np.clip(edge/9.0,0,1)
+    # Keep the luminous constellation body, not the disconnected nebula
+    # patches/stars from the old JPEG background. Two similarly large
+    # separate components are intentionally retained (e.g. BOTH Pisces).
+    seed=(alpha>.55).astype("uint8")
+    seed=cv2.dilate(seed,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(15,15)))
+    count,labels,stats,_=cv2.connectedComponentsWithStats(seed,8)
+    if count>1:
+        sizes=stats[1:,cv2.CC_STAT_AREA]
+        max_size=int(sizes.max())
+        chosen=[i+1 for i,area in enumerate(sizes) if area>=.45*max_size]
+        support=np.isin(labels,chosen).astype("uint8")
+        support=cv2.dilate(support,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(29,29)))
+        support=cv2.GaussianBlur(support.astype("float32"),(0,0),4)
+        alpha*=support
     rgba=np.empty((h,w,4),dtype=np.uint8)
     rgba[:,:,:3]=np.uint8(np.clip(rgb*1.48,0,255))
     rgba[:,:,3]=np.uint8(np.where(alpha<.085,0,alpha*255))
