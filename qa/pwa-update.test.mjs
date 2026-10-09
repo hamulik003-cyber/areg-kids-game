@@ -22,20 +22,29 @@ try{
   const url='http://127.0.0.1:8767/';
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
   await page.evaluate(async ()=>{
-    const registration=await navigator.serviceWorker.register('./service-worker.js?v=284',
+    await navigator.serviceWorker.register('./service-worker.js?v=284',
       {updateViaCache:'none'});
-    await navigator.serviceWorker.ready;
-    if(registration.active?.state!=='activated')
-      await new Promise((resolve,reject)=>{
-        const limit=setTimeout(()=>reject(Error('SW did not activate')),20000);
-        registration.addEventListener('updatefound',()=>{
-          if(registration.installing)registration.installing.addEventListener('statechange',()=>{
-            if(registration.installing?.state==='activated'){clearTimeout(limit);resolve();}
-          });
-        });
-        if(registration.active?.state==='activated'){clearTimeout(limit);resolve();}
-      });
   });
+  // Poll real SW lifecycle rather than waiting for 'updatefound' AFTER it
+  // may already have fired. Some Safari/Chrome CI runs install asynchronously.
+  try{
+    await page.waitForFunction(async()=>{
+      const reg=await navigator.serviceWorker.getRegistration('./');
+      return reg?.active?.state==='activated';
+    },null,{timeout:45000});
+  }catch(error){
+    const swStates=await page.evaluate(async()=>({
+      registrations:(await navigator.serviceWorker.getRegistrations()).map(reg=>({
+        scope:reg.scope,
+        active:reg.active?.state,waiting:reg.waiting?.state,
+        installing:reg.installing?.state,script:reg.active?.scriptURL
+      })),
+      cacheNames:await caches.keys(),
+      online:navigator.onLine
+    }));
+    throw Error('V284 service worker activation '+error.message+
+      ' '+JSON.stringify(swStates));
+  }
   if(!await page.evaluate(()=>!!navigator.serviceWorker.controller)){
     await page.reload({waitUntil:'domcontentloaded'});
   }
