@@ -61,6 +61,16 @@ check(/import\('\.\/constellation-quest-v246\.js\?v=\d+'\)/.test(app)&&app.inclu
 check(/\.\/constellation-quest-v246\.js\?v=\d+/.test(sw),'Constellation module not in offline core');
 const constellationSource=app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={'));
 const ids=[...constellationSource.matchAll(/\{id:'([^']+)',img:'([^']+)'/g)].map(m=>m[1]);
+const shuffleDefinition=quest.match(/function randomizedOrder\(items\)\{[\s\S]*?\n\}/)?.[0];
+check(!!shuffleDefinition,'V257 four-choice shuffle function missing');
+if(shuffleDefinition){
+ const shuffleItems=new Function(shuffleDefinition+';return randomizedOrder')();
+ const examples=[{id:'hayk'},{id:'pegasus'},{id:'orion'},{id:'gemini'}];
+ const out=shuffleItems(examples);
+ check(out.length===4&&out.every(v=>typeof v==='object'&&examples.includes(v))&&
+       new Set(out.map(v=>v.id)).size===4,
+       'V257 shuffled deck must return four actual constellation objects, not numeric array indices');
+}
 const skyCss=read('space-3d-games.css');
 check(ids.length===38&&new Set(ids).size===38,
       'Constellation four-choice search requires all 38 unique approved images');
