@@ -205,7 +205,7 @@ export function startConstellationQuest(ctx){
   let atlas=null,activeLayout=null,layoutError=false;
   // Lazy: one small coordinate atlas loads only when this minigame opens.
   // Final PNG/WebP assets remain on-demand and no other PWA game is affected.
-  const atlasPromise=fetch('./constellation-star-layouts.json?v=254',{cache:'force-cache'})
+  const atlasPromise=fetch('./constellation-star-layouts.json?v=255',{cache:'force-cache'})
     .then(r=>{if(!r.ok)throw new Error('Constellation atlas HTTP '+r.status);return r.json()})
     .then(data=>{
       if(!data||Object.keys(data).length!==38)throw new Error('Incomplete star atlas');
