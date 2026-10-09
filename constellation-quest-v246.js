@@ -162,10 +162,19 @@ function occasionalShootingStar(scene){
   };
 }
 
-function spatialPoints(item){
-  const raw=TRAILS[item.id]||'0.18,.25 .35,.55 .50,.35 .65,.64 .82,.39';
-  const pairs=raw.trim().split(/\s+/).map(v=>v.split(',').map(Number));
-  return pairs.map(([x,y],i)=>new THREE.Vector3((x-.5)*5.00,(.5-y)*5.00,Math.sin(i*1.93)*.14));
+// V254: the image pixel rectangle is the ONE coordinate system for both
+// touch stars and final illustration. Aspect ratio, CSS centering, and camera
+// projection are resolved on the actual device; all stars share z=0.
+function artworkAnchorsToWorld(anchorPoints,imageRect,canvasRect,camera){
+  const halfHeight=camera.position.z*Math.tan(camera.fov*Math.PI/360);
+  const halfWidth=halfHeight*camera.aspect;
+  if(!imageRect.width||!imageRect.height||!canvasRect.width||!canvasRect.height)
+    throw new Error('Constellation artwork has no measurable display rectangle');
+  return anchorPoints.map(([x,y])=>{
+    const sx=(imageRect.left+x*imageRect.width-canvasRect.left)/canvasRect.width;
+    const sy=(imageRect.top+y*imageRect.height-canvasRect.top)/canvasRect.height;
+    return new THREE.Vector3((sx-.5)*2*halfWidth,(.5-sy)*2*halfHeight,0);
+  });
 }
 
 export function startConstellationQuest(ctx){
@@ -235,6 +244,21 @@ export function startConstellationQuest(ctx){
   let points=[],target=0,disposed=false,roundStarted=0,completeAt=0,revealStartedAt=0;
   let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now(),exitStartedAt=0;
   const deck=randomizedOrder(ctx.CONSTELLATIONS),allCount=deck.length;
+  let atlas=null,activeLayout=null,layoutError=false;
+  // Lazy: one small coordinate atlas loads only when this minigame opens.
+  // Final PNG/WebP assets remain on-demand and no other PWA game is affected.
+  const atlasPromise=fetch('./constellation-star-layouts.json?v=254',{cache:'force-cache'})
+    .then(r=>{if(!r.ok)throw new Error('Constellation atlas HTTP '+r.status);return r.json()})
+    .then(data=>{
+      if(!data||Object.keys(data).length!==38)throw new Error('Incomplete star atlas');
+      if(disposed)return;
+      atlas=data;prepareRound(roundToken);
+    }).catch(err=>{
+      if(disposed)return;
+      layoutError=true;
+      console.error('Constellation alignment could not load:',err);
+      prompt.textContent='Աստղերի քարտեզը չի բեռնվել։ Փորձիր նորից բացել խաղը։';
+    });
   let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,keepAliveOsc=null,keepAliveGain=null,needEntryCueOnTouch=false;
   const timers=new Set();
   function later(fn,ms){
@@ -346,13 +370,13 @@ export function startConstellationQuest(ctx){
       sparks.push({sprite,born:performance.now(),dx:Math.cos(angle),dy:Math.sin(angle)});
     }
   }
-  function connect(a,b,t){
+  function connect(a,b,t,ai,bi){
     const haloMat=new THREE.MeshBasicMaterial({color:0x579fff,transparent:true,opacity:.15,depthWrite:false,blending:THREE.AdditiveBlending});
     const coreMat=new THREE.MeshBasicMaterial({color:0xc4ecff,transparent:true,opacity:.97,depthWrite:false});
     const halo=new THREE.Mesh(beamGeo,haloMat),core=new THREE.Mesh(beamGeo,coreMat);
     halo.renderOrder=1;core.renderOrder=2;
     group.add(halo,core);
-    segments.push({a:a.clone(),b:b.clone(),halo,core,start:t});
+    segments.push({a:a.clone(),b:b.clone(),ai,bi,halo,core,start:t});
   }
   // The solved 3D star puzzle must vanish under the ORIGINAL artwork:
   // its screen-space spheres and beams do not align with stars in the art.
@@ -362,6 +386,47 @@ export function startConstellationQuest(ctx){
     if(reveal.classList.contains('is-visible'))return;
     revealStartedAt=performance.now();
     reveal.classList.add('is-visible');
+  }
+  function syncArtworkGeometry(){
+    if(!activeLayout||!artReady||!art.naturalWidth)return false;
+    const ar=art.getBoundingClientRect();
+    const cr=renderer.domElement.getBoundingClientRect();
+    if(!ar.width||!ar.height||!cr.width||!cr.height)return false;
+    const updated=artworkAnchorsToWorld(activeLayout.points,ar,cr,camera);
+    points=updated;
+    nodes.forEach((n,i)=>{
+      n.p.copy(updated[i]);n.mesh.position.copy(updated[i]);n.aura.position.copy(updated[i]);
+    });
+    segments.forEach(seg=>{
+      if(Number.isInteger(seg.ai)&&Number.isInteger(seg.bi)){
+        seg.a.copy(updated[seg.ai]);seg.b.copy(updated[seg.bi]);
+      }
+    });
+    return true;
+  }
+  function prepareRound(token){
+    if(disposed||token!==roundToken||stage!=='loading'||!artReady||!atlas)return;
+    const layout=atlas[current.id];
+    if(!layout||!Array.isArray(layout.points)||layout.points.length<3||
+       !Array.isArray(layout.edges)||layout.points.some(p=>!Array.isArray(p)||p.length!==2||p.some(n=>!Number.isFinite(n)||n<0||n>1))){
+      layoutError=true;prompt.textContent='Այս համաստեղության աստղերի քարտեզը բացակայում է';
+      return;
+    }
+    activeLayout=layout;
+    // Frame sizes depend on the final illustration's true aspect ratio.
+    // Always prepare AFTER image.decode and camera viewport measurements.
+    if(!syncArtworkGeometry()){
+      later(()=>prepareRound(token),100);return;
+    }
+    points.forEach((p,i)=>nodes.push(createNode(p,i)));
+    progress.textContent='Վառված աստղեր՝ 0 / '+nodes.length;
+    group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
+    roundStarted=performance.now();stage='entering';
+    later(()=>{if(token===roundToken)stage='playing'},1250);
+    if(nextEntryScheduledFor===token){
+      nextEntryScheduledFor=0;
+      needEntryCueOnTouch=!!audioContext&&audioContext.state!=='running';
+    }else{needEntryCueOnTouch=false;sound('entry')}
   }
   function queueArt(item,token){
     artReady=false;artForToken=token;
@@ -374,7 +439,7 @@ export function startConstellationQuest(ctx){
       item.img.split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=252';
     art.onload=()=>{
       if(disposed||token!==roundToken)return;
-      const ready=()=>{if(disposed||token!==roundToken)return;artReady=true;art.classList.add('is-loaded');revealArtwork(token)};
+      const ready=()=>{if(disposed||token!==roundToken)return;artReady=true;art.classList.add('is-loaded');prepareRound(token);revealArtwork(token)};
       if(art.decode)art.decode().then(ready).catch(ready);
       else ready();
     };
@@ -386,25 +451,19 @@ export function startConstellationQuest(ctx){
     const token=++roundToken;
     clearRound();reveal.classList.remove('is-visible','is-exiting');
     root.classList.remove('s3d-quest-won');
-    completeAt=0;revealStartedAt=0;stage='entering';target=0;roundStarted=performance.now();
-    group.visible=true;
+    completeAt=0;revealStartedAt=0;stage='loading';target=0;roundStarted=performance.now();
+    activeLayout=null;points=[];group.visible=true;
     if(nextSlot>=allCount)nextSlot=0; // Same shuffled first constellation again after a full cycle.
     current=ctx.CONSTELLATIONS[deck[nextSlot++]];
     const position=nextSlot;
     number.textContent=position+'/'+allCount;
     prompt.textContent='Դիպչի՛ր կամ սահեցրո՛ւ մատդ';
-    points=spatialPoints(current);
-    points.forEach((p,i)=>nodes.push(createNode(p,i)));
-    progress.textContent='Վառված աստղեր՝ 0 / '+nodes.length;
-    group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
+    // Reserve the exact final caption height BEFORE measuring image pixels:
+    // no layout shift is permitted between tracing and revealing.
+    caption.textContent=current.name;
+    progress.textContent='Աստղերը հայտնվում են…';
     queueArt(current,token);
-    later(()=>{if(token!==roundToken)return;stage='playing';},1150);
-    // If the device interrupted the scheduled chime while between rounds,
-    // deliver it at the next real touch when Safari allows audio resume.
-    if(nextEntryScheduledFor===token){
-      nextEntryScheduledFor=0;
-      needEntryCueOnTouch=!!audioContext&&audioContext.state!=='running';
-    }else{needEntryCueOnTouch=false;sound('entry')}
+    prepareRound(token);
   }
   function award(){
     if(ctx.awardStar)ctx.awardStar();
@@ -459,7 +518,15 @@ export function startConstellationQuest(ctx){
     const n=nodes[target];n.lit=true;n.mesh.material.color.set(0xfff7cb);
     n.aura.material.color.set(0xffd88f);burst(n.p);
     sound('star');
-    if(target>0){connect(points[target-1],points[target],t);sound('line')}
+    // Only draw lines that are actually present in the final illustration.
+    // In branching patterns, each edge appears when BOTH star endpoints glow.
+    let connected=0;
+    for(const [a,b] of activeLayout.edges){
+      if((a===target&&nodes[b]?.lit)||(b===target&&nodes[a]?.lit)){
+        connect(points[a],points[b],t,a,b);connected++;
+      }
+    }
+    if(connected)sound('line');
     target++;
     progress.textContent='Վառված աստղեր՝ '+target+' / '+nodes.length;
     if(target===nodes.length){scheduleNextIntro();finish();}
@@ -530,6 +597,9 @@ export function startConstellationQuest(ctx){
     if(renderer.domElement._w===w&&renderer.domElement._h===h)return;
     renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
     renderer.domElement._w=w;renderer.domElement._h=h;
+    // Existing puzzle and artwork use the same responsive coordinate frame.
+    // Orientation/viewport changes cannot detach stars from image pixels.
+    if(activeLayout&&artReady)syncArtworkGeometry();
   }
   function animate(t){
     if(disposed)return;
@@ -550,7 +620,8 @@ export function startConstellationQuest(ctx){
     group.scale.setScalar((.83+.17*enterEase)*(1-leaving*.20));
     group.position.z=-.95*(1-enterEase)-1.25*leaving;
     group.position.y=.09*leaving;
-    group.rotation.y=Math.sin(t*.00026)*.035+.045*leaving;
+    // Avoid subtle parallax drift while child traces an image-fixed star map.
+    group.rotation.y=.045*leaving;
     nodes.forEach((n,i)=>{
       const appear=clamp((t-n.arrival)/370,0,1);
       const hint=stage==='playing'&&i===target;
