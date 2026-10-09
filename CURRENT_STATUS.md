@@ -37,3 +37,13 @@ User showed screenshot (example: 4 constellation illustrations, currently "Գտ�
 
 ## Next action
 Await GitHub Pages + automated browsers for V259, then user DotKiosk visual/audio feedback. If CI fails, fix the problem before claiming release.
+
+
+## Update V260 — 2026-10-09 (latest; read BEFORE V259 notes)
+- User approved the V259 sizes, slow large winner approach, long hold and silence on entering new choices. **ONLY remaining bug:** screenshot + 29-second DotKiosk video showed the other THREE smaller constellation images were still visible behind the giant selected winner throughout its winning stage.
+- Root cause suspected: the CSS keyframe fade was competing with inline `pose()` transitions/3D compositing on iPhone Safari; previous smoke test checked computed opacity but never asserted that the unwanted image DOM nodes disappeared. On the user device they lingered as faint ghosts.
+- PRE-FIX BACKUP: `backup/v259-before-definitive-loser-cleanup-v260` at commit `fb3a9b7d3251a2aaf49b15cf864cc190f7a53a7f`. Preserve forever.
+- V260 change is deliberately small: in `constellation-quest-v246.js?v=260`, after correct touch **only the three wrong cards** cancel old animations/transitions, do one 720ms CSS opacity transition (no translation, zoom, blinking), then at 820ms get `display:none` and are explicitly `remove()`d from the DOM. Their parent `cards` array remains until ordinary next-round cleanup; selected figure continues its completely unchanged V259 zoom, long hold and exit. The CSS no longer defines an additional overlapping loser keyframe; it provides a defensive `.s3d-find-hidden` rule.
+- QA `qa/browser-smoke.mjs` now verifies that 3 wrong images are MID-fade at 270ms, ALL 3 DOM nodes are gone by about 920ms, and winner is the ONLY remaining choice throughout the extended win hold. Must pass both Chromium and iOS WebKit; `qa/full-audit.mjs` protects the hard remove behavior.
+- `app.js`, `index.html` and `service-worker.js` switched together to v260. No audio, reward, images, starfield or unrelated games were touched.
+- Next: confirm latest GitHub Pages and three CI jobs; have user close and reopen DotKiosk (without uninstall), complete 2–3 rounds, and send a final screenshot of a close-up. Only after real iPhone approval consider V260 the new Pre-Final.
