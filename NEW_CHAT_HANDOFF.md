@@ -1,5 +1,5 @@
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
-_Թարմացված է 2026-10-10, V277-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
+_Թարմացված է 2026-10-10, V278-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
 
 ## Հանձնարարություն նոր զրույցի օգնականին
 Սա նախորդ երկա՜ր տեխնիկական աշխատանքի ուղիղ շարունակությունն է։ Մի խնդրիր օգտվողից ZIP, screenshot կամ repository URL կրկին։ Կա միացված GitHub connector. ԱՆՄԻՋԱՊԵՍ ստուգիր `hamulik003-cyber/areg-kids-game` repository-ի `main` ճյուղի վերջին commit, README/ `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, և հատկապես `constellation-quest-v246.js`։ Այս ֆայլը նոր զրույցի հրահանգների մեկ պատճենն է, բայց վերջին HEAD-ը միշտ աղբյուրն է։
@@ -57,3 +57,8 @@ _Թարմացված է 2026-10-10, V277-ի աշխատանքից հետո։ Կա�
 ## V277 — LATEST: faster approach only (user DotKiosk evaluation pending)
 - User loves V276 and requested only a slight speed increase in the winner's zoom: **1120ms → 1000ms**, same ease-in-out and same immediate simultaneous three stationary 580ms fading decoys on EVERY round. New-four 780ms entrance, win total 2750ms, exit 690ms, clear sky 160ms, all graphics/sounds/game state unchanged. Version v277 for safe PWA cache update.
 - Previous V276 green commit `3d186e59d290ecb2ff48dff7e70f32a99b04e7cb` is backed up at `backup/v276-approved-soft-animation-before-faster-hero-v277-2026-10-10`. Check current main exact-SHA audit and Pages before claiming CI success. Wait for user real DotKiosk confirmation.
+
+
+## V278 — latest; awaiting actual iPhone test
+- User requests experiment: 850ms winner approach (same time as Space Search planets but KEEP elegant `cubic-bezier(.42,0,.58,1)` rather than their quick-out easing). The winning constellation moves continuously from same tap; all other THREE stationary images fade over approved 580ms. All 38 rounds use shared handler. No adjustments to their approved 780ms next-four entrance, image assets, audio, 2750ms win stage, 690ms exit, 160ms sky, score/stars or any other section.
+- Latest pre-change green V277 HEAD `402114010cf9a4fe79b67ef3a02be538f6d30195` backup `backup/v277-approved-1000ms-before-850ms-test-v278-2026-10-10`. Updated QA for 850ms and sparse iOS WebKit RAF; verify exact V278 commit GitHub Actions and Pages before signoff. User must compare DotKiosk real video.
