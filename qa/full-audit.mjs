@@ -313,7 +313,7 @@ check(app.includes("stars-=item.cost")&&
   app.includes("magicUnlocked.add(item.id)")&&
   app.includes("if(!magicUnlocked.has(item.id))")&&
   app.includes("✓ Բացված է")&&
-  styles.includes(".magic-collect-card.is-unlocked .magic-lock{display:none !important}")&&
+  read("styles.css").includes(".magic-collect-card.is-unlocked .magic-lock{display:none !important}")&&
   sw.includes("'./styles.css?v=282'")&&
   html.includes('styles.css?v=282'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
