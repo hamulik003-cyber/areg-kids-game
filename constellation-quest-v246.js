@@ -229,7 +229,7 @@ export function startConstellationQuest(ctx){
   let points=[],target=0,disposed=false,roundStarted=0,completeAt=0;
   let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now(),exitStartedAt=0;
   const deck=randomizedOrder(ctx.CONSTELLATIONS),allCount=deck.length;
-  let nextSlot=0,artReady=false,artForToken=0,audioContext=null;
+  let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,activeUtterance=null;
   const timers=new Set();
   function later(fn,ms){
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
@@ -238,14 +238,33 @@ export function startConstellationQuest(ctx){
   function audio(){
     if(!ctx.settings.master||!ctx.settings.effects)return null;
     try{
-      if(!audioContext){
+      if(!audioContext||audioContext.state==='closed'){
         const AC=window.AudioContext||window.webkitAudioContext;
         if(!AC)return null;
         audioContext=new AC();
       }
-      if(audioContext.state!=='running')audioContext.resume().catch(()=>{});
       return audioContext;
     }catch{return null}
+  }
+  // Safari/iOS can interrupt audio after a synthesized spoken prompt.  Do not
+  // schedule notes into a suspended context; wait for a successful resume.
+  function withRunningAudio(play){
+    const ac=audio();if(!ac)return;
+    const run=()=>{if(!disposed&&ac===audioContext&&ac.state==='running')play(ac)};
+    if(ac.state==='running'){run();return}
+    ac.resume().then(run).catch(()=>{});
+  }
+  function scheduleNextIntro(){
+    // Queue the incoming constellation chime during the final *user gesture*.
+    // iOS otherwise may reject the non-gesture audio play at the next timer.
+    const nextToken=roundToken+1;
+    const delay=(660+6600+1160+420)/1000;
+    withRunningAudio(ac=>{
+      if(disposed||nextToken!==roundToken+1)return;
+      note(ac,523.25,delay,.39,.048);
+      note(ac,783.99,delay+.12,.45,.035);
+      nextEntryScheduledFor=nextToken;
+    });
   }
   function note(ac,f,at,d,vol,type='sine'){
     const t=ac.currentTime+.015+at,o=ac.createOscillator(),gain=ac.createGain();
@@ -257,7 +276,7 @@ export function startConstellationQuest(ctx){
     o.start(t);o.stop(t+d+.03);
   }
   function sound(kind){
-    const ac=audio();if(!ac)return;
+    withRunningAudio(ac=>{
     if(kind==='wrong'){
       // The same two-note descending wrong-answer SFX as the approved 3D planets.
       note(ac,329.63,0,.17,.054,'triangle');
@@ -274,17 +293,21 @@ export function startConstellationQuest(ctx){
         note(ac,f*2,i*.13+.04,.39,.012);
       });
     }else if(kind==='entry'){
-      note(ac,523.25,0,.35,.018);
-      note(ac,783.99,.12,.39,.016);
+      note(ac,523.25,0,.39,.048);
+      note(ac,783.99,.12,.45,.035);
     }
+    });
   }
   function speak(s){
     if(!ctx.settings.master||!ctx.settings.voice||!('speechSynthesis' in window))return;
     try{
-      speechSynthesis.cancel();
+      // Avoid cancelling the iOS audio session at every level transition.
+      if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
       const u=new SpeechSynthesisUtterance(s);
+      activeUtterance=u; // iOS retains the utterance until it finishes.
       u.lang='hy-AM';u.rate=.89;u.pitch=1.05;u.volume=.86;
       const v=ctx.pickArmenianSpeechVoice?.();if(v)u.voice=v;
+      u.onend=u.onerror=()=>{if(activeUtterance===u)activeUtterance=null};
       speechSynthesis.speak(u);
     }catch{}
   }
@@ -358,7 +381,8 @@ export function startConstellationQuest(ctx){
     group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
     queueArt(current,token);
     later(()=>{if(token!==roundToken)return;stage='playing';speak('Դիպչի՛ր կամ սահեցրո՛ւ մատդ փայլող աստղին');},1150);
-    sound('entry');
+    if(nextEntryScheduledFor===token){nextEntryScheduledFor=0;}
+    else sound('entry');
   }
   function award(){
     if(ctx.awardStar)ctx.awardStar();
@@ -421,7 +445,7 @@ export function startConstellationQuest(ctx){
     if(target>0){connect(points[target-1],points[target],t);sound('line')}
     target++;
     progress.textContent='Վառված աստղեր՝ '+target+' / '+nodes.length;
-    if(target===nodes.length)finish();
+    if(target===nodes.length){scheduleNextIntro();finish();}
   }
   function pointerDown(e){
     if(disposed||stage!=='playing'||heldPointer!==null)return;
@@ -564,6 +588,7 @@ export function startConstellationQuest(ctx){
     nebulaPlane.geometry.dispose();nebulaPlane.material.dispose();nebulaMap.dispose();
     mist.forEach(s=>s.material.dispose());
     renderer.dispose();renderer.forceContextLoss?.();
+    activeUtterance=null;
     if(audioContext){audioContext.close().catch(()=>{});audioContext=null}
     try{speechSynthesis.cancel()}catch{}
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
