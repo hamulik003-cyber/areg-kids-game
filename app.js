@@ -441,8 +441,8 @@
       games:[
         {id:'planets',label:'Մոլորակներ',thumb:'space-game-1.jpg',kind:'planetGallery'},
         {id:'constellations',label:'Համաստեղություններ',thumb:'01-hayk-orion.jpg',kind:'constellationGallery'},
-        {id:'space-search',label:'Տիեզերական որոնում',thumb:'space-game-3.jpg',kind:'spaceSearch'},
-        {id:'constellation-game',label:'Վառիր համաստեղությունը',thumb:'space-game-4.jpg',kind:'constellationQuest'}
+        {id:'space-search',label:'Գտիր ճիշտ մոլորակը',thumb:'space-game-3.jpg',kind:'spaceSearch'},
+        {id:'constellation-game',label:'Գտիր ճիշտ աստղապատկերը',thumb:'space-game-4.jpg',kind:'constellationQuest'}
       ]
     },
     mind:{
@@ -2365,7 +2365,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=282',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=283',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
