@@ -185,7 +185,7 @@ export function startConstellationQuest(ctx){
   let cards=[],target=null,queued=null,prewarmTimer=0,mainTimer=0;
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
-  let losingCards=[],loserFadeStart=0;
+  let losingCards=[],loserFadeStart=0,winningHero=null;
   const deckSize=ctx.CONSTELLATIONS.length;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720;
@@ -351,6 +351,70 @@ export function startConstellationQuest(ctx){
     for(const el of cards){el.onclick=null;el.remove()}
     cards=[];
   }
+  function clearWinningHero(){
+    if(winningHero){
+      winningHero.remove();
+      winningHero=null;
+    }
+  }
+  // The fully revealed artwork is ALWAYS positioned within the full play
+  // field, not via transforms applied to one of the four grid cells.
+  function heroGeometry(record,w,h){
+    const b=record.bounds;
+    const naturalW=record.width||560,naturalH=record.height||760;
+    const fit=Math.min(w/naturalW,h/naturalH);
+    const renderedW=naturalW*fit,renderedH=naturalH*fit;
+    const rawW=Math.max(1,renderedW*b.w),rawH=Math.max(1,renderedH*b.h);
+    const marginX=Math.min(16,w*.04),marginY=Math.min(16,h*.045);
+    const zoom=Math.min((w-2*marginX)/rawW,(h-2*marginY)/rawH);
+    const figureW=rawW*zoom,figureH=rawH*zoom;
+    return {
+      zoom,figureW,figureH,
+      shiftX:-zoom*(b.x-.5)*renderedW,
+      shiftY:-zoom*(b.y-.5)*renderedH,
+      marginX:(w-figureW)*.5,marginY:(h-figureH)*.5
+    };
+  }
+  function showWinningHero(button,record,item){
+    clearWinningHero();
+    const board=stage.getBoundingClientRect();
+    const origin=button.getBoundingClientRect();
+    const hero=document.createElement('div');
+    hero.className='s3d-find-hero';
+    hero.setAttribute('role','img');
+    hero.setAttribute('aria-label',item.name);
+    const img=document.createElement('img');
+    img.src=record.src;img.alt='';img.draggable=false;
+    img.decoding='async';
+    hero.appendChild(img);
+    stage.appendChild(hero);
+    winningHero=hero;
+    hero._imageRecord=record;
+    const geometry=heroGeometry(record,board.width,board.height);
+    img.style.transform='translate3d('+geometry.shiftX.toFixed(3)+'px,'+
+      geometry.shiftY.toFixed(3)+'px,0) scale('+geometry.zoom.toFixed(5)+')';
+    const oldW=Math.max(1,Number(button.dataset.figureWidthPx)||origin.width*.7);
+    const firstScale=oldW/Math.max(1,geometry.figureW);
+    const dx=origin.left+origin.width*.5-(board.left+board.width*.5);
+    const dy=origin.top+origin.height*.5-(board.top+board.height*.5);
+    hero.style.transition='none';
+    hero.style.transform='translate3d('+dx.toFixed(3)+'px,'+
+      dy.toFixed(3)+'px,0) scale('+firstScale.toFixed(5)+')';
+    hero.dataset.figureWidth=geometry.figureW.toFixed(2);
+    hero.dataset.figureHeight=geometry.figureH.toFixed(2);
+    hero.dataset.minMargin=Math.min(geometry.marginX,geometry.marginY).toFixed(2);
+    // The source card is retired in the very same paint as its replacement,
+    // removing the misplaced/oversized grid transform completely.
+    button.style.visibility='hidden';
+    button.remove();
+    root.dataset.heroMode='independent';
+    requestAnimationFrame(()=>{
+      if(disposed||phase!=='winning'||hero!==winningHero)return;
+      hero.style.transition='transform '+WIN_ZOOM_MS+
+        'ms cubic-bezier(.18,.73,.26,1)';
+      hero.style.transform='translate3d(0px,0px,0) scale(1)';
+    });
+  }
   function pose(el,{x=0,y=0,z=0,s=1,opacity=1},ms,easing='cubic-bezier(.18,.73,.26,1)'){
     el.style.transition=ms
       ?'transform '+ms+'ms '+easing+', opacity '+ms+'ms '+easing
@@ -361,7 +425,9 @@ export function startConstellationQuest(ctx){
   async function buildRound(){
     const seq=++sequence;
     phase='loading';locked=true;winAt=0;
-    losingCards=[];root.dataset.winnerIsolated='false';
+    losingCards=[];clearWinningHero();
+    root.dataset.winnerIsolated='false';
+    root.dataset.heroMode='none';
     root.dataset.constellationPhase='loading';
     const plan=queued||planRound();
     queued=null;
@@ -398,6 +464,7 @@ export function startConstellationQuest(ctx){
       img.alt='';img.draggable=false;img.decoding='async';
       img.src=imageSources[i].src;
       shell.appendChild(img);button.appendChild(shell);
+      button._imageRecord=imageSources[i];
       button.onclick=()=>choose(button,item);
       stage.appendChild(button);cards.push(button);
       pose(button,{x:i%2===0?-18:18,y:i<2?-16:16,z:-80,s:.64,opacity:0},0);
@@ -444,41 +511,19 @@ export function startConstellationQuest(ctx){
     progress.textContent='Գտա՛ր '+item.name;
     sound('correct');
     award();
-    const stageRect=stage.getBoundingClientRect(),rect=button.getBoundingClientRect();
-    const centerX=stageRect.left+stageRect.width*.5;
-    const centerY=stageRect.top+stageRect.height*.5;
-    // Use the V258 pixel-measured *visible alpha silhouette*, not the 2x2
-    // button's original dimensions. The largest of 38 illustrations now
-    // respects the same safe left/right margin without cutting off tall art.
-    const visibleW=Number(button.dataset.figureWidthPx)||rect.width*.72;
-    const visibleH=Number(button.dataset.figureHeightPx)||rect.height*.72;
-    const horizontalLimit=Math.max(1,stageRect.width-Math.min(36,stageRect.width*.06));
-    const verticalLimit=Math.max(1,stageRect.height*.92);
-    const scale=Math.min(horizontalLimit/visibleW,verticalLimit/visibleH);
-    button.dataset.winningScale=scale.toFixed(4);
-    button.dataset.winVisibleWidth=(visibleW*scale).toFixed(2);
-    button.dataset.winVisibleHeight=(visibleH*scale).toFixed(2);
-    root.dataset.winSideMargin=((stageRect.width-visibleW*scale)/2).toFixed(2);
+    // Independent, alpha-centered scene-space hero. The former grid-cell
+    // zoom could drift left/top and crop the figure on real iPhones.
+    showWinningHero(button,button._imageRecord,item);
     losingCards=[];loserFadeStart=performance.now();
     cards.forEach(card=>{
-      if(card===button){
-        card.classList.remove('s3d-find-wrong');
-        card.classList.add('s3d-find-selected');
-        card.style.zIndex='15';
-        pose(card,{x:centerX-(rect.left+rect.width*.5),
-          y:centerY-(rect.top+rect.height*.5),z:0,s:scale,opacity:1},
-          WIN_ZOOM_MS,'cubic-bezier(.18,.73,.26,1)');
-      }else{
-        // V260 iPhone fix: never depend on competing CSS transition /
-        // keyframe compositing. Update actual opacity every WebGL frame.
-        card.classList.remove('s3d-find-wrong');
-        card.classList.add('s3d-find-dismissing');
-        card.style.animation='none';
-        card.style.transition='none';
-        card.style.opacity='1';
-        card.style.pointerEvents='none';
-        losingCards.push(card);
-      }
+      if(card===button)return;
+      card.classList.remove('s3d-find-wrong');
+      card.classList.add('s3d-find-dismissing');
+      card.style.animation='none';
+      card.style.transition='none';
+      card.style.opacity='1';
+      card.style.pointerEvents='none';
+      losingCards.push(card);
     });
     // Backstop for backgrounded WebKit where requestAnimationFrame may pause.
     // Never let a compositor layer linger through the long winning hold.
@@ -509,25 +554,22 @@ export function startConstellationQuest(ctx){
     if(disposed||phase!=='winning')return;
     phase='exit';root.dataset.constellationPhase='exit';
     root.classList.remove('s3d-find-won');
-    // Only the centered selected constellation exits; loser nodes were
-    // permanently detached after their completed 720ms fade.
-    const card=cards.find(el=>el.classList.contains('s3d-find-selected'));
-    if(card){
-      card.style.transition='transform '+EXIT_MS+'ms cubic-bezier(.32,0,.68,.48), opacity '+
+    // Fade/retreat only the independent centered artwork, without
+    // moving any underlying 2x2 cell back into view.
+    const hero=winningHero;
+    if(hero){
+      hero.style.transition='transform '+EXIT_MS+
+        'ms cubic-bezier(.32,0,.68,.48), opacity '+
         EXIT_MS+'ms cubic-bezier(.42,0,.78,.48)';
-      const old=card.style.transform;
-      const found=old.match(/scale\(([\d.]+)\)/);
-      const startScale=found?Number(found[1]):1;
       requestAnimationFrame(()=>{
-        if(disposed||phase!=='exit')return;
-        card.style.transform=old.replace(/scale\([\d.]+\)/,
-          'scale('+(startScale*.64).toFixed(4)+')');
-        card.style.opacity='0';
+        if(disposed||phase!=='exit'||winningHero!==hero)return;
+        hero.style.transform='translate3d(0px,-8px,0) scale(.82)';
+        hero.style.opacity='0';
       });
     }
     delay(()=>{
       if(disposed)return;
-      resetCards();phase='starfield-pause';
+      clearWinningHero();resetCards();phase='starfield-pause';
       root.dataset.constellationPhase='starfield-pause';
       progress.textContent='✦ ✦ ✦';
       delay(buildRound,STARFIELD_PAUSE_MS);
@@ -539,6 +581,14 @@ export function startConstellationQuest(ctx){
     if(renderer.domElement._w===w&&renderer.domElement._h===h)return;
     renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
     renderer.domElement._w=w;renderer.domElement._h=h;
+    if(winningHero){
+      const record=winningHero._imageRecord;
+      const a=stage.getBoundingClientRect();
+      const m=heroGeometry(record,a.width,a.height);
+      winningHero.firstChild.style.transform='translate3d('+
+        m.shiftX.toFixed(3)+'px,'+m.shiftY.toFixed(3)+
+        'px,0) scale('+m.zoom.toFixed(5)+')';
+    }
   }
   let last=performance.now();
   function loop(t){
@@ -555,7 +605,7 @@ export function startConstellationQuest(ctx){
     if(disposed)return;disposed=true;sequence++;
     cancelAnimationFrame(raf);
     for(const id of timers)clearTimeout(id);
-    timers.clear();resetCards();cache.clear();queued=null;
+    timers.clear();clearWinningHero();resetCards();cache.clear();queued=null;
     meteor.dispose();
     scene.remove(stars,backdrop);
     starsGeometry.dispose();starsMaterial.dispose();
