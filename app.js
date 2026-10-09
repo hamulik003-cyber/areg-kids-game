@@ -822,7 +822,7 @@
     // visible. No all-gallery download and no white cards on cold entry.
     const nav=++galleryNavigationId;
     const needsSpaceEngine=game.kind==='spaceSearch'||game.kind==='constellationQuest';
-    const spaceEngineReady=needsSpaceEngine?ensureSpace3DLoaded().catch(()=>{}):null;
+    const spaceEngineReady=needsSpaceEngine?(game.kind==='constellationQuest'?ensureConstellationQuestLoaded():ensureSpace3DLoaded()).catch(()=>{}):null;
     const launch=()=>{
       if(nav!==galleryNavigationId||sectionScreen.hidden)return;
       cleanupGame();activityContent.classList.toggle('space-preparing',needsSpaceEngine);
@@ -863,6 +863,22 @@
     }
     return space3DLoadPromise;
   }
+  let constellationQuestLoadPromise=null;
+  function ensureConstellationQuestLoaded(){
+    if(!constellationQuestLoadPromise){
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js')
+        .catch(err=>{constellationQuestLoadPromise=null;throw err});
+    }
+    return constellationQuestLoadPromise;
+  }
+  function launchConstellationQuest(){
+    let cancelled=false;
+    gameCleanup.push(()=>{cancelled=true});
+    ensureConstellationQuestLoaded().then(api=>{
+      if(cancelled||activityScreen.hidden||activityScreen.dataset.game!=='constellation-game')return;
+      if(typeof api.startConstellationQuest==='function')api.startConstellationQuest(space3DContext());
+    }).catch(()=>{if(!cancelled)showToast('Համաստեղության խաղը չբեռնվեց')});
+  }
   function launchSpace3D(name){
     let started=false;
     const run=()=>{
@@ -883,7 +899,7 @@
     gameCleanup.push(()=>{started=true;clearTimeout(run.timer)});
   }
   function renderGame(g){
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:()=>launchSpace3D('constellationQuest'),shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -2298,7 +2314,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=245',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=246',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
