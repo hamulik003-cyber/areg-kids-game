@@ -469,6 +469,7 @@ export function startConstellationQuest(ctx){
         // Do not animate transform or change stacking/3D position on losers:
         // that made iOS WebKit appear to blink. Fade composited opacity alone.
         card.classList.remove('s3d-find-wrong');
+        card.style.setProperty('--s3d-loser-fade',LOSER_FADE_MS+'ms');
         card.classList.add('s3d-find-dismissing');
       }
     });
