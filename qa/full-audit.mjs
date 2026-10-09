@@ -87,7 +87,8 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
 check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720")&&
-      quest.includes('pose(card,{x:centerX-')&&
+      quest.includes('showWinningHero(button,button._imageRecord,item)')&&
+      quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
       quest.includes("delay(buildRound,STARFIELD_PAUSE_MS)")&&
       quest.includes("root.dataset.constellationPhase='ready'"),
@@ -116,13 +117,39 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
       skyCss.includes(".s3d-find-art-shell")&&
       skyCss.includes(".s3d-find-choice:nth-child(2) .s3d-find-art-shell"),
       'V258 artwork must be balanced by actual alpha silhouette, independently of float motion');
-check(quest.includes("const visibleW=Number(button.dataset.figureWidthPx)")&&
-      quest.includes("const horizontalLimit=Math.max(1,stageRect.width-Math.min(36,stageRect.width*.06))")&&
-      quest.includes("const verticalLimit=Math.max(1,stageRect.height*.92)")&&
-      quest.includes("button.dataset.winningScale=scale.toFixed(4)")&&
-      quest.includes("root.dataset.winSideMargin=")&&
-      skyCss.includes("filter:brightness(1.11) contrast(1.06) saturate(1.09)"),
-      'V259 all finished constellations must enlarge to consistent safe screen edges without clipping');
+check(quest.includes("function showWinningHero(button,record,item)")&&
+      quest.includes("function heroGeometry(record,w,h)")&&
+      quest.includes("button.remove()")&&
+      quest.includes("hero.style.transform='translate3d(0px,0px,0) scale(1)'")&&
+      quest.includes("const marginX=Math.min(16,w*.04)")&&
+      quest.includes("const marginY=Math.min(16,h*.045)")&&
+      quest.includes("clearWinningHero();resetCards();phase='starfield-pause'")&&
+      skyCss.includes(".s3d-find-hero{")&&
+      skyCss.includes(".s3d-find-hero img{"),
+      'V262 winner is alpha-centered within independent full-stage hero and old zoom is removed');
+const heroSource=quest.match(/function heroGeometry\(record,w,h\)\{[\s\S]*?\n  \}/)?.[0];
+check(!!heroSource,'V262 standalone hero geometry missing');
+if(heroSource){
+ const heroGeometry=new Function('clamp',heroSource+';return heroGeometry')(
+   (x,a,b)=>Math.max(a,Math.min(b,x)));
+ for(const [iw,ih,bounds] of [
+   [800,500,{x:.35,y:.78,w:.70,h:.27}],
+   [500,900,{x:.80,y:.20,w:.24,h:.85}],
+   [600,600,{x:.50,y:.50,w:.85,h:.85}],
+   [640,940,{x:.19,y:.81,w:.31,h:.27}]
+ ]){
+  for(const [w,h] of [[340,640],[430,780],[520,460]]){
+   const g=heroGeometry({width:iw,height:ih,bounds},w,h);
+   const fit=Math.min(w/iw,h/ih);
+   const centerX=w/2+g.shiftX+g.zoom*(bounds.x-.5)*iw*fit;
+   const centerY=h/2+g.shiftY+g.zoom*(bounds.y-.5)*ih*fit;
+   check(Number.isFinite(g.zoom)&&g.zoom>0&&g.figureW<=w-2*g.marginX+1e-4&&
+      g.figureH<=h-2*g.marginY+1e-4&&
+      Math.abs(centerX-w/2)<.001&&Math.abs(centerY-h/2)<.001,
+      'V262 cropped or miscentered the selected constellation on responsive stage');
+  }
+ }
+}
 check(quest.includes("function animateLoserFade(t)")&&
       quest.includes("const smooth=p*p*(3-2*p)")&&
       quest.includes("card.style.opacity=(1-smooth).toFixed(4)")&&
