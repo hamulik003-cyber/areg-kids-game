@@ -170,7 +170,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v279-reliable-subsequent-decoy-fades'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v280-safe-v278-restoration'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -286,7 +286,6 @@ try{
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
         if(!target)return {error:'next target absent'};
         target.click();
-        const engine=root.dataset.decoyFadeEngine;
         const score={count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
           stars:Number(localStorage.getItem('areg-stars-v35')||0),
           reward:root.querySelectorAll('.s3d-reward').length};
@@ -308,18 +307,13 @@ try{
           }
           requestAnimationFrame(tick);
         });
-        return {...score,engine,frames};
+        return {...score,frames};
       });
       console.log('V271 SECOND WIN REAL FRAMES '+JSON.stringify(tenth.frames));
       const secondLate=tenth.frames?.filter(f=>f.ms>=800&&f.losers.some(c=>c.opacity>.015));
-      const measuredSecond=tenth.frames?.filter(f=>f.ms>=220&&f.ms<=550&&f.losers.length===3)||[];
-      if(measuredSecond.some(f=>f.losers.some(c=>c.opacity>.96)))
-        throw Error('V279 second win did not start smooth fading '+JSON.stringify(measuredSecond));
-      if(tenth.engine!=='raf-consistent')
-        throw Error('V279 second win must use synchronized opacity instead of stale native fade');
       const secondSparse=tenth.frames?.[0]?.ms<100&&
         tenth.frames[0].losers.length===3&&
-        tenth.frames[0].losers.every(c=>c.animation==='none')&&
+        tenth.frames[0].losers.every(c=>c.animation==='running')&&
         tenth.frames.some(f=>f.ms>=660&&f.losers.length===0&&
           (f.motion==='approaching'||f.motion==='holding'));
       if(secondLate?.length||
@@ -340,7 +334,6 @@ try{
         if(!target)return {error:'third target absent'};
         const id=root.dataset.targetId;
         target.click();
-        const engine=root.dataset.decoyFadeEngine;
         const frames=[],start=performance.now();
         await new Promise(resolve=>{
           function tick(){
@@ -356,18 +349,15 @@ try{
           }
           requestAnimationFrame(tick);
         });
-        return {id,engine,frames,count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
+        return {id,frames,count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
           right:root.querySelector('.s3d-session-right')?.textContent};
       });
       console.log('V272 THIRD WIN REAL FRAMES '+JSON.stringify(third));
-      const measuredThird=third.frames?.filter(f=>f.ms>=220&&f.ms<=550&&f.decoys.length===3)||[];
-      if(measuredThird.some(f=>f.decoys.some(c=>c.alpha>.96)))
-        throw Error('V279 third win did not start smooth fading '+JSON.stringify(measuredThird));
       const thirdSparse=third.frames?.[0]?.ms<100&&third.frames[0].decoys.length===3&&
         third.frames[0].decoys.every(c=>c.alpha>.99)&&
         third.frames.some(f=>f.ms>=660&&f.decoys.length===0&&
           (f.hero==='approaching'||f.hero==='holding'));
-      if(third.error||third.engine!=='raf-consistent'||third.count!==11||third.right!=='3'||
+      if(third.error||third.count!==11||third.right!=='3'||
         third.frames.some(f=>f.ms>=800&&f.decoys.some(c=>c.alpha>.015))||
         third.frames.some(f=>f.ms>=790&&f.decoys.some(c=>c.alpha>.015))||
         (!thirdSparse&&!third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88))))
@@ -389,7 +379,7 @@ try{
         const motion=hero?._moveAnimation;
         if(!motion||decoys.length!==3)return {error:'missing coordinated native animations'};
         const initial={animation:motion.playState,progress:Number(root.dataset.heroApproachProgress),
-          decoys:decoys.map(c=>c._fadeAnimation?.playState||'raf'),engine:root.dataset.decoyFadeEngine};
+          decoys:decoys.map(c=>c._fadeAnimation?.playState)};
         const stallStart=performance.now();
         while(performance.now()-stallStart<420){
           Math.sqrt(performance.now()%197);
@@ -404,7 +394,7 @@ try{
           right:root.querySelector('.s3d-session-right')?.textContent};
       });
       if(gated.error||gated.initial.animation!=='running'||
-        gated.initial.engine!=='raf-consistent'||gated.initial.decoys.some(s=>s!=='raf')||
+        gated.initial.decoys.some(s=>s!=='running')||
         gated.after.motion!=='holding'||gated.after.progress!==1||
         gated.after.decoys!==0||gated.right!=='4')
         throw Error('V275 FOURTH WIN: hero must complete in one compositor timeline '+
@@ -416,7 +406,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=279');
+        const api=await import('./space-finding-session.js?v=280');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

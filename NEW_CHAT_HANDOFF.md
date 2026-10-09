@@ -1,5 +1,5 @@
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
-_Թարմացված է 2026-10-10, V279-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
+_Թարմացված է 2026-10-10, V280-ի անվտանգության վերադարձից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
 
 ## Հանձնարարություն նոր զրույցի օգնականին
 Սա նախորդ երկա՜ր տեխնիկական աշխատանքի ուղիղ շարունակությունն է։ Մի խնդրիր օգտվողից ZIP, screenshot կամ repository URL կրկին։ Կա միացված GitHub connector. ԱՆՄԻՋԱՊԵՍ ստուգիր `hamulik003-cyber/areg-kids-game` repository-ի `main` ճյուղի վերջին commit, README/ `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, և հատկապես `constellation-quest-v246.js`։ Այս ֆայլը նոր զրույցի հրահանգների մեկ պատճենն է, բայց վերջին HEAD-ը միշտ աղբյուրն է։
@@ -66,3 +66,6 @@ _Թարմացված է 2026-10-10, V279-ի աշխատանքից հետո։ Կա�
 
 ## V279 latest: actual iPhone video proves fade only works in first round
 - At ~7.9s FIRST correct answer fades 3 other silhouettes smoothly, but at ~13s SECOND and ~18s THIRD they stay opaque while winner zooms. Approved winner native 850ms must remain unchanged. V279 keeps first native 580ms fade and uses 580ms shared requestAnimationFrame opacity curve with exactly matching cubic-bezier(.42,0,.58,1) on ALL later 37 choices; iOS stale WAAPI on later rounds bypassed. Next-four 780ms entrance, prefetch, layout, other games, audio, scoring/stars unchanged. Updated QA verifies first, second, third and blocked fourth; needs exact commit CI/Pages plus user DotKiosk verification. Backup backup/v278-850ms-before-all-round-decoy-fade-fix-v279-2026-10-10 of 5dea4eaf23a699184b3aaccde1ce79fb7bf7afad.
+
+## V280 CURRENT: V279 rejected on real iPhone, safe restore from V278
+- User: V279 broke even FIRST correct answer soft fade. Reverted gameplay/QA to V278 green SHA 5dea4eaf23a699184b3aaccde1ce79fb7bf7afad, with only v280 PWA cache/import bump and V280 build dataset. 850ms winner and 580ms three-fade V278 behavior restored. This is NOT yet an all-round fade fix: previous video proved second/third wrong artwork fades visually late. Keep original 38 art/images/audio/scores/stars. V279 saved branch backup/v279-rejected-by-user-before-safe-rollback-v280-2026-10-10. Check exact main SHA CI/Pages, ask real DotKiosk test; never claim resolved until user's device verifies.

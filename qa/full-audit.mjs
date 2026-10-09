@@ -185,7 +185,7 @@ check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
   quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
   quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
   'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
-check(quest.includes("root.dataset.constellationBuild='v279-reliable-subsequent-decoy-fades'")&&
+check(quest.includes("root.dataset.constellationBuild='v280-safe-v278-restoration'")&&
   quest.includes("plan.ready=Promise.all(plan.options.map(preload))")&&
   quest.includes("plan.prepared=true;return records")&&
   quest.includes("const next=queued;")&&
@@ -199,7 +199,7 @@ check(quest.includes("root.dataset.constellationBuild='v279-reliable-subsequent-
   'V274 DO NOT clear winning art / empty the sky until all next quartet assets have decoded');
 const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
-    quest.includes("const eased=u*u*(3-2*u)")&&
+    quest.includes("const eased=p*p*(3-2*p)")&&
     quest.includes("card.style.opacity=(1-eased).toFixed(4)")&&
     quest.includes("LOSER_FADE_MS=580")&&
     quest.includes("shell.style.animationPlayState='paused'")&&
@@ -219,7 +219,7 @@ check(580<850&&
   quest.includes("WIN_ZOOM_MS=850")&&
   quest.includes("LOSER_FADE_MS=580"),
   'V278 approved gentle hero now approaches in 850ms while all three decoys fade in place over 580ms');
-check(quest.includes("root.dataset.constellationBuild='v279-reliable-subsequent-decoy-fades'")&&
+check(quest.includes("root.dataset.constellationBuild='v280-safe-v278-restoration'")&&
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
@@ -228,14 +228,14 @@ check(quest.includes("root.dataset.constellationBuild='v279-reliable-subsequent-
   !quest.includes("prewarmTimer=delay(warmNext,650)")&&
   quest.includes("if(disposed||queued||roundIndex===ctx.CONSTELLATIONS.length)return;"),
   'V272 MUST reserve WebKit GPU frames during EVERY answer and avoid prewarm while user decides');
-check(quest.includes("const useCompositor=roundIndex===1&&losingCards.every(card=>typeof card.animate==='function')")&&
+check(quest.includes("const useCompositor=losingCards.every(card=>typeof card.animate==='function')")&&
       quest.includes("const animation=card.animate(")&&
       quest.includes("animation.onfinish=()=>{")&&
-      quest.includes("root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf-consistent'")&&
+      quest.includes("root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf'")&&
       quest.includes("card._fadeAnimation?.cancel()")&&
       quest.indexOf("loserFadeStart=winAt;")<quest.indexOf("showWinningHero(button,button._imageRecord,item)")&&
       quest.indexOf("const animation=card.animate(")<quest.indexOf("showWinningHero(button,button._imageRecord,item)"),
-      'V279 first success uses approved compositor, every later round repaints all three opacity curves');
+      'V270 winning tap must start 3 compositor fades BEFORE hero creation');
 check(quest.includes("constellationFindName(target)")&&
     !quest.includes('s3d-find-progress')&&
     !quest.includes('roundLabel')&&
@@ -292,13 +292,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=279')&&
-      app.includes('space-3d-games.js?v=279')&&
-      app.includes('constellation-quest-v246.js?v=279'),
+check(sw.includes('space-finding-session.js?v=280')&&
+      app.includes('space-3d-games.js?v=280')&&
+      app.includes('constellation-quest-v246.js?v=280'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=279")&&
+check(refresh.includes("service-worker.js?v=280")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
