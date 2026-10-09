@@ -185,6 +185,7 @@ export function startConstellationQuest(ctx){
   let cards=[],target=null,queued=null,prewarmTimer=0,mainTimer=0;
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
+  let losingCards=[],loserFadeStart=0;
   const deckSize=ctx.CONSTELLATIONS.length;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720;
@@ -360,6 +361,7 @@ export function startConstellationQuest(ctx){
   async function buildRound(){
     const seq=++sequence;
     phase='loading';locked=true;winAt=0;
+    losingCards=[];root.dataset.winnerIsolated='false';
     root.dataset.constellationPhase='loading';
     const plan=queued||planRound();
     queued=null;
@@ -457,6 +459,7 @@ export function startConstellationQuest(ctx){
     button.dataset.winVisibleWidth=(visibleW*scale).toFixed(2);
     button.dataset.winVisibleHeight=(visibleH*scale).toFixed(2);
     root.dataset.winSideMargin=((stageRect.width-visibleW*scale)/2).toFixed(2);
+    losingCards=[];loserFadeStart=performance.now();
     cards.forEach(card=>{
       if(card===button){
         card.classList.remove('s3d-find-wrong');
@@ -466,36 +469,41 @@ export function startConstellationQuest(ctx){
           y:centerY-(rect.top+rect.height*.5),z:0,s:scale,opacity:1},
           WIN_ZOOM_MS,'cubic-bezier(.18,.73,.26,1)');
       }else{
-        // V260: CSS keyframe + the inline transition left by pose() could
-        // conflict on iOS DotKiosk, leaving translucent ghosts during win.
-        // Transition opacity ONLY, then remove the three losers from the DOM.
-        // Keep their current transform/position fixed for a genuine dissolve.
+        // V260 iPhone fix: never depend on competing CSS transition /
+        // keyframe compositing. Update actual opacity every WebGL frame.
         card.classList.remove('s3d-find-wrong');
         card.classList.add('s3d-find-dismissing');
         card.style.animation='none';
-        card.style.opacity='1';
         card.style.transition='none';
+        card.style.opacity='1';
         card.style.pointerEvents='none';
-        // Flush before enabling the sole opacity transition so Safari never
-        // treats the starting and ending alpha as the same frame.
-        void card.offsetWidth;
-        card.style.transition='opacity '+LOSER_FADE_MS+
-          'ms cubic-bezier(.25,.46,.45,.94)';
-        requestAnimationFrame(()=>{
-          if(disposed||phase!=='winning')return;
-          card.style.opacity='0';
-        });
-        delay(()=>{
-          if(disposed)return;
-          card.classList.add('s3d-find-hidden');
-          card.style.display='none'; // hard-stop any WebKit ghost layer
-          card.remove();           // no loser can reappear behind the winner
-        },LOSER_FADE_MS+100);
+        losingCards.push(card);
       }
     });
+    // Backstop for backgrounded WebKit where requestAnimationFrame may pause.
+    // Never let a compositor layer linger through the long winning hold.
+    delay(()=>finishLoserFade(),LOSER_FADE_MS+100);
     // 1.22s gentle approach, then >3 seconds full-size viewing; only then
     // a slow receding exit. Newly appearing choices have NO entry sound.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
+  }
+  function finishLoserFade(){
+    if(!losingCards.length)return;
+    for(const card of losingCards){
+      card.style.opacity='0';
+      card.classList.add('s3d-find-hidden');
+      card.style.display='none';
+      card.remove();
+    }
+    losingCards=[];
+    root.dataset.winnerIsolated='true';
+  }
+  function animateLoserFade(t){
+    if(!losingCards.length)return;
+    const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
+    const smooth=p*p*(3-2*p);
+    for(const card of losingCards)card.style.opacity=(1-smooth).toFixed(4);
+    if(p>=1)finishLoserFade();
   }
   function beginExit(){
     if(disposed||phase!=='winning')return;
@@ -536,6 +544,7 @@ export function startConstellationQuest(ctx){
   function loop(t){
     if(disposed)return;
     const dt=clamp((t-last)/1000,0,.05);last=t;
+    animateLoserFade(t);
     resize();stars.rotation.z+=dt*.0022;meteor.tick(t);
     mist.forEach((m,i)=>{m.material.opacity=.11+Math.sin(t*.00022+i)*.025});
     renderer.render(scene,camera);
