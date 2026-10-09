@@ -189,7 +189,13 @@ try{
       const early=reveal.samples.find(f=>f.ms>55&&f.ms<170&&
         f.motion==='approaching'&&f.losers.length===3&&
         f.losers.every(c=>c.opacity<.92));
-      if(!early)throw Error('V270 decoys did not start fading immediately after tap');
+      if(!early)throw Error('V270 WebKit first-fade diagnostic '+
+        JSON.stringify({engine:reveal.fadeEngine,build:reveal.build,
+          opening:reveal.samples.slice(0,12).map(f=>({
+            ms:Math.round(f.ms),motion:f.motion,
+            count:f.losers.length,alpha:f.losers.map(x=>x.opacity),
+            transform:f.losers.map(x=>x.transform)
+          }))}));
       const lingering=reveal.samples.filter(f=>f.ms>=470&&f.losers.length>0);
       if(lingering.length)
         throw Error('V270 decoys remained on screen after hero visually arrived '+
