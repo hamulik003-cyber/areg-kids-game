@@ -232,7 +232,7 @@ export function startConstellationQuest(ctx){
   const dotGeo=new THREE.IcosahedronGeometry(.085,1);
   const beamGeo=new THREE.CylinderGeometry(1,1,1,8,1,false);
   const nodes=[],segments=[],sparks=[];
-  let points=[],target=0,disposed=false,roundStarted=0,completeAt=0;
+  let points=[],target=0,disposed=false,roundStarted=0,completeAt=0,revealStartedAt=0;
   let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now(),exitStartedAt=0;
   const deck=randomizedOrder(ctx.CONSTELLATIONS),allCount=deck.length;
   let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,keepAliveOsc=null,keepAliveGain=null,needEntryCueOnTouch=false;
@@ -354,6 +354,15 @@ export function startConstellationQuest(ctx){
     group.add(halo,core);
     segments.push({a:a.clone(),b:b.clone(),halo,core,start:t});
   }
+  // The solved 3D star puzzle must vanish under the ORIGINAL artwork:
+  // its screen-space spheres and beams do not align with stars in the art.
+  // Fade them only once decoded alpha art is actually entering the scene.
+  function revealArtwork(token){
+    if(disposed||token!==roundToken||stage!=='revealed'||!artReady)return;
+    if(reveal.classList.contains('is-visible'))return;
+    revealStartedAt=performance.now();
+    reveal.classList.add('is-visible');
+  }
   function queueArt(item,token){
     artReady=false;artForToken=token;
     art.classList.remove('is-loaded');
@@ -365,7 +374,7 @@ export function startConstellationQuest(ctx){
       item.img.split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=252';
     art.onload=()=>{
       if(disposed||token!==roundToken)return;
-      const ready=()=>{if(disposed||token!==roundToken)return;artReady=true;art.classList.add('is-loaded')};
+      const ready=()=>{if(disposed||token!==roundToken)return;artReady=true;art.classList.add('is-loaded');revealArtwork(token)};
       if(art.decode)art.decode().then(ready).catch(ready);
       else ready();
     };
@@ -377,7 +386,8 @@ export function startConstellationQuest(ctx){
     const token=++roundToken;
     clearRound();reveal.classList.remove('is-visible','is-exiting');
     root.classList.remove('s3d-quest-won');
-    completeAt=0;stage='entering';target=0;roundStarted=performance.now();
+    completeAt=0;revealStartedAt=0;stage='entering';target=0;roundStarted=performance.now();
+    group.visible=true;
     if(nextSlot>=allCount)nextSlot=0; // Same shuffled first constellation again after a full cycle.
     current=ctx.CONSTELLATIONS[deck[nextSlot++]];
     const position=nextSlot;
@@ -430,11 +440,7 @@ export function startConstellationQuest(ctx){
       caption.textContent=current.name;
       // A decoded approved illustration dissolves into view over the 3D lights.
       // If the image is unavailable the constellation lines remain visible.
-      if(artReady)reveal.classList.add('is-visible');
-      else{
-        const show=()=>{if(token===roundToken&&stage==='revealed'&&artReady)reveal.classList.add('is-visible')};
-        later(show,350);later(show,900);later(show,1700);
-      }
+      revealArtwork(token); // If still decoding, onload calls this immediately when ready.
       sound('reveal');award();
       later(()=>exitRound(token),6600);
     },660);
@@ -536,6 +542,11 @@ export function startConstellationQuest(ctx){
     const enterEase=1-Math.pow(1-arrive,3);
     const leaving=stage==='exiting'?clamp((t-exitStartedAt)/1050,0,1):0;
     const exitFade=1-leaving*leaving*(3-2*leaving);
+    // Cross-fade from the solved virtual points to the exact artwork stars.
+    // Leave the live galaxy sky untouched; only puzzle nodes/lines vanish.
+    const dissolve=revealStartedAt>0?clamp((t-revealStartedAt-180)/1120,0,1):0;
+    const solvedOpacity=1-dissolve*dissolve*(3-2*dissolve);
+    if(revealStartedAt>0&&dissolve>=1)group.visible=false;
     group.scale.setScalar((.83+.17*enterEase)*(1-leaving*.20));
     group.position.z=-.95*(1-enterEase)-1.25*leaving;
     group.position.y=.09*leaving;
@@ -545,9 +556,9 @@ export function startConstellationQuest(ctx){
       const hint=stage==='playing'&&i===target;
       const pulse=hint?.5+.5*Math.sin(t*.00335):0;
       const wrong=t<n.wrongUntil;
-      n.mesh.material.opacity=appear*exitFade;
+      n.mesh.material.opacity=appear*exitFade*solvedOpacity;
       n.mesh.scale.setScalar(n.lit?1.33:hint?1.16+.23*pulse:1.00);
-      n.aura.material.opacity=appear*exitFade*(wrong?.83:n.lit?.64:hint?.48+.34*pulse:.30);
+      n.aura.material.opacity=appear*exitFade*solvedOpacity*(wrong?.83:n.lit?.64:hint?.48+.34*pulse:.30);
       n.aura.scale.setScalar(n.lit?.87:hint?.84+.20*pulse:.58);
       if(wrong){n.mesh.material.color.set(0xff707d);n.aura.material.color.set(0xff6078);}
       else if(n.lit){n.mesh.material.color.set(0xfff7cb);n.aura.material.color.set(0xffdc91);}
@@ -564,7 +575,7 @@ export function startConstellationQuest(ctx){
       [s.halo,s.core].forEach((m,i)=>{
         m.position.copy(middle);m.quaternion.copy(q);
         m.scale.set(i===0?.085:.018,len,i===0?.085:.018);
-        m.material.opacity=(i===0?.15:.97)*exitFade;
+        m.material.opacity=(i===0?.15:.97)*exitFade*solvedOpacity;
       });
     });
     for(let i=sparks.length-1;i>=0;i--){
@@ -574,7 +585,7 @@ export function startConstellationQuest(ctx){
       s.sprite.position.x+=s.dx*dt*.36;
       s.sprite.position.y+=s.dy*dt*.36;
       s.sprite.scale.setScalar(.15+n);
-      s.sprite.material.opacity=(1-age)*.73;
+      s.sprite.material.opacity=(1-age)*.73*solvedOpacity;
     }
     if(stage==='revealed'){
       group.scale.multiplyScalar(.9995);
