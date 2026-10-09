@@ -215,9 +215,8 @@
 .s3d-find-choice.s3d-find-dismissing{
   pointer-events:none;
 }
-.s3d-find-choice.s3d-find-dismissing .s3d-find-art-shell{
-  animation:none;
-}
+/* V263: keep the shell's gentle drift continuous as the parent moves
+   backwards. Stopping this animation at touch caused a visible snap. */
 .s3d-find-choice.s3d-find-hidden{
   display:none !important;
   visibility:hidden !important;
