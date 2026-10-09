@@ -26,7 +26,7 @@ try{
    gamesCount:document.querySelectorAll('#sectionGames .toddler-game-card').length,
    historyLength:history.length
  }),stage);
- await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=243',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=244',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
