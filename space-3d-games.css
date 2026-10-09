@@ -66,13 +66,16 @@
   position:absolute;inset:17% 2.5% 9%;
   z-index:6;pointer-events:none;display:flex;
   justify-content:center;align-items:center;flex-direction:column;
-  opacity:0;transform:scale(.76) translate3d(0,23px,0);
-  /* Slow magical reveal: finish the entire figure, then hold it in view. */
-  transition:opacity 2.85s cubic-bezier(.23,.08,.32,1),
-             transform 3.05s cubic-bezier(.18,.73,.26,1);
+  /* Pixel-perfect frame: keep the finished image's position/scale fixed.
+     The fantasy reveal remains a 3-second fade; its stars cannot shift. */
+  opacity:0;transform:none;
+  transition:opacity 2.85s cubic-bezier(.23,.08,.32,1);
   will-change:opacity,transform;
 }
-.s3d-quest-reveal.is-visible{opacity:1;transform:scale(1) translateY(0)}
+.s3d-quest-reveal.is-visible{opacity:1;transform:none}
+.s3d-quest-reveal:not(.is-visible):not(.is-exiting){
+  transition:none;transform:none;
+}
 /* Gentle receding illustration, like the approved 3D planet transition. */
 .s3d-quest-reveal.is-exiting{
   opacity:0;
