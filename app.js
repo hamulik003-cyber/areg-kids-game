@@ -714,7 +714,7 @@
   }
 
   function updateMagicAvailability(){
-    for(const card of $('.magic-collect-card',sectionGames)){
+    for(const card of sectionGames.querySelectorAll('.magic-collect-card')){
       const item=MAGIC_ITEMS.find(entry=>entry.id===card.dataset.id);
       if(!item)continue;
       card.classList.toggle('can-unlock',!magicUnlocked.has(item.id)&&stars>=item.cost);

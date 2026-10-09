@@ -309,6 +309,7 @@ check(sw.includes('space-finding-session.js?v=282')&&
 check(app.includes("stars-=item.cost")&&
   app.includes("saveStars();")&&
   app.includes("updateMagicAvailability()")&&
+  app.includes("for(const card of sectionGames.querySelectorAll(\'.magic-collect-card\'))")&&
   app.includes("$('.magic-lock',card)?.remove()")&&
   app.includes("magicUnlocked.add(item.id)")&&
   app.includes("if(!magicUnlocked.has(item.id))")&&
