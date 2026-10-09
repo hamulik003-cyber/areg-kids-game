@@ -90,7 +90,7 @@ check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_M
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
-      quest.includes("delay(buildRound,STARFIELD_PAUSE_MS)")&&
+      quest.includes("session.showCycleResult().then(()=>{if(!disposed)buildRound()})")&&
       quest.includes("root.dataset.constellationPhase='ready'"),
       'V265 video reference requires the approved planet-like winning pacing');
 check(quest.includes("sound('wrong')")&&quest.includes("sound('correct')")&&
