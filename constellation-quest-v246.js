@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=278';
+import {createFindingSession} from './space-finding-session.js?v=279';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,7 +226,7 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v278-gentle-850ms-winner';
+  root.dataset.constellationBuild='v279-reliable-subsequent-decoy-fades';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580;
   const delay=(fn,ms)=>{
@@ -636,8 +636,10 @@ export function startConstellationQuest(ctx){
     });
     // The Web Animations API can run opacity on Safari's compositor while
     // Three.js is drawing starfield frames on the JavaScript main thread.
-    const useCompositor=losingCards.every(card=>typeof card.animate==='function');
-    root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf';
+    const useCompositor=roundIndex===1&&losingCards.every(card=>typeof card.animate==='function');
+    // V279: keep the perfect first win, but repaint the next 37 rounds'
+    // fading alphas directly, avoiding Safari's stale compositor layers.
+    root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf-consistent';
     if(useCompositor){
       losingCards.forEach(card=>{
         const animation=card.animate(
@@ -702,7 +704,14 @@ export function startConstellationQuest(ctx){
     // engines where element.animate is unavailable.
     if(root.dataset.decoyFadeEngine==='compositor')return;
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const eased=p*p*(3-2*p);
+    // Match the original cubic-bezier(.42,0,.58,1) instead of approximating.
+    let u=p;
+    for(let i=0;i<4;i++){
+      const a=1-u,bx=1.26*a*a*u+1.74*a*u*u+u*u*u;
+      const dx=1.26*a*a+.96*a*u+1.26*u*u;
+      u=clamp(u-(bx-p)/dx,0,1);
+    }
+    const eased=u*u*(3-2*u);
     for(const card of losingCards)card.style.opacity=(1-eased).toFixed(4);
     if(p>=1)finishLoserFade();
   }
