@@ -115,6 +115,7 @@ try{
           opacity:Number(getComputedStyle(c).opacity),
           fading:c.classList.contains('s3d-find-dismissing'),
           name:getComputedStyle(c).animationName,
+          transition:c.style.transition,
           t:c.style.transform
         })),scale:Number(chosen?.dataset.winningScale),
         actualWidth:Number(chosen?.dataset.winVisibleWidth),
@@ -122,21 +123,30 @@ try{
         margin:Number(root.dataset.winSideMargin)};
       });
       if(!earlyFade.chosen||earlyFade.losers.length!==3||
-         earlyFade.losers.some(v=>!v.fading||!v.name.includes('s3dFindLoserFade')||
-           v.opacity<=.02||v.opacity>=.99))
-        throw Error('V259 all 3 losers must be MID-way through a smooth opacity fade '+JSON.stringify(earlyFade));
+         earlyFade.losers.some(v=>!v.fading||v.name!=='none'||
+           !v.transition.startsWith('opacity')||v.opacity<=.02||v.opacity>=.99))
+        throw Error('V260 losers must be MID-opacity transition without competing keyframes '+JSON.stringify(earlyFade));
       if(!Number.isFinite(earlyFade.scale)||earlyFade.scale<=1.1||
-         earlyFade.actualWidth>earlyFade.stageWidth||
-         earlyFade.margin<0)
-        throw Error('V259 winning size exceeded safe screen bounds '+JSON.stringify(earlyFade));
-      await page.waitForTimeout(600);
-      const fullyFaded=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice.s3d-find-dismissing')]
-        .map(c=>Number(getComputedStyle(c).opacity)));
-      if(fullyFaded.length!==3||fullyFaded.some(n=>n>.035))
-        throw Error('V259 other choices did not disappear cleanly '+JSON.stringify(fullyFaded));
-      await page.waitForTimeout(1700);
-      if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='winning')
-        throw Error('V259 correct figure must remain on screen for an extended hold');
+         earlyFade.actualWidth>earlyFade.stageWidth||earlyFade.margin<0)
+        throw Error('V260 winner size must retain approved V259 bounds '+JSON.stringify(earlyFade));
+      // A zero computed opacity is not sufficient on iOS: old WebKit frames
+      // were still composited behind the larger winner. The other three
+      // choices must be COMPLETELY REMOVED before full-size viewing starts.
+      await page.waitForTimeout(650);
+      const isolated=await page.evaluate(()=>({
+        phase:document.querySelector('.s3d-find256')?.dataset.constellationPhase,
+        cards:document.querySelectorAll('.s3d-find-choice').length,
+        winner:document.querySelectorAll('.s3d-find-choice.s3d-find-selected').length,
+        losers:document.querySelectorAll('.s3d-find-choice.s3d-find-dismissing').length
+      }));
+      if(isolated.phase!=='winning'||isolated.cards!==1||
+         isolated.winner!==1||isolated.losers!==0)
+        throw Error('V260 three loser DOM nodes must be gone by 920ms '+JSON.stringify(isolated));
+      await page.waitForTimeout(1600);
+      if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='winning'||
+         await page.locator('.s3d-find-choice').count()!==1)
+        throw Error('V260 enlarged winner must remain ALONE throughout long hold');
+      console.log('CONSTELLATION WINNER ISOLATED 1/1; no losing nodes or ghost layers');
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)
