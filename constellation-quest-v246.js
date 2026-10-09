@@ -188,7 +188,7 @@ export function startConstellationQuest(ctx){
   let losingCards=[],loserFadeStart=0,winningHero=null;
   const deckSize=ctx.CONSTELLATIONS.length;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720;
+  const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=WIN_ZOOM_MS;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -515,8 +515,11 @@ export function startConstellationQuest(ctx){
     award();
     // Independent, alpha-centered scene-space hero. The former grid-cell
     // zoom could drift left/top and crop the figure on real iPhones.
+    // One shared start moment: hero advances while the three unchosen
+    // constellations recede into deep space. Neither waits for the other.
+    loserFadeStart=performance.now();
     showWinningHero(button,button._imageRecord,item);
-    losingCards=[];loserFadeStart=performance.now();
+    losingCards=[];
     cards.forEach(card=>{
       if(card===button)return;
       card.classList.remove('s3d-find-wrong');
@@ -525,10 +528,13 @@ export function startConstellationQuest(ctx){
       card.style.transition='none';
       card.style.opacity='1';
       card.style.pointerEvents='none';
+      // At t=0 this is exactly the already settled entry pose. Every next
+      // frame gradually reduces apparent size and sends it behind the stage.
+      card.style.transform='translate3d(0px,0px,0px) scale(1)';
       losingCards.push(card);
     });
-    // Backstop for backgrounded WebKit where requestAnimationFrame may pause.
-    // Never let a compositor layer linger through the long winning hold.
+    // Backstop only for background-throttled WebKit. Under normal play the
+    // final rAF removes all three precisely as the hero finishes approach.
     delay(()=>finishLoserFade(),LOSER_FADE_MS+100);
     // 1.22s gentle approach, then >3 seconds full-size viewing; only then
     // a slow receding exit. Newly appearing choices have NO entry sound.
@@ -547,9 +553,19 @@ export function startConstellationQuest(ctx){
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
+    // Same 1220ms clock as the correct figure approaching its full size.
+    // Each losing object retreats in Z and shrinks progressively, fading
+    // throughout (never waiting until the winner is already centered).
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
     const smooth=p*p*(3-2*p);
-    for(const card of losingCards)card.style.opacity=(1-smooth).toFixed(4);
+    const scale=1-.30*smooth;
+    const depth=-110*smooth;
+    const alpha=1-smooth;
+    for(const card of losingCards){
+      card.style.transform='translate3d(0px,0px,'+depth.toFixed(2)+
+        'px) scale('+scale.toFixed(4)+')';
+      card.style.opacity=alpha.toFixed(4);
+    }
     if(p>=1)finishLoserFade();
   }
   function beginExit(){
