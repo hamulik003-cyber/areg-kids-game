@@ -150,42 +150,41 @@ if(heroSource){
   }
  }
 }
+// V275: the original two-stage hero algorithm STOPPED at 30% until the
+// decoy onfinish callback. The selected art must NEVER wait there again.
 check(quest.includes("function animateWinningHero(t)")&&
-       quest.includes("hero._winStartPose={x:dx,y:dy,s:firstScale}")&&
-       quest.includes("hero._approachStart=winAt")&&
-       quest.includes("const fadeCompleted=losingCards.length===0&&")&&
-       quest.includes("root.dataset.winnerIsolated==='true'&&hero._fadeReleaseAt>0")&&
-       quest.includes("const earlyProgress=.30*Math.sin(Math.PI*.5*early)")&&
-       quest.includes("e=.30+.70*(.5-.5*Math.cos(Math.PI*q))")&&
-       quest.includes("arrived=q>=1")&&
-       quest.includes("if(arrived){")&&
-       quest.includes("root.dataset.heroApproachProgress=e.toFixed(4)")&&
-       quest.includes("if(winningHero)winningHero._fadeReleaseAt=performance.now()")&&
-       quest.includes("root.dataset.heroMotion='holding'")&&
-       quest.includes("root.dataset.heroMotion='exiting'")&&
-       quest.includes("animateWinningHero(t)")&&
-       quest.includes("const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2")&&
-       space.includes("const q=clamp((t-winStart)/850,0,1),e=easeOutCubic(q)")&&
-       space.includes("transition={type:'exit',start:now,duration:690}")&&
-       space.includes("const STARFIELD_PAUSE_MS=160"),
-       'V273 hero moves on touch but may not finish until all THREE this-round fades completed; original 690ms exit & 160ms pause retained');
-// A structural guarantee, not only a stopwatch: slow iPhone frames cannot
-// let the selected hero reach full-size while ANY wrong image still exists.
-check(quest.includes("hero._fadeReleaseAt=0")&&
-  quest.includes("root.dataset.heroApproachProgress='0'")&&
-  quest.includes("let e=earlyProgress,arrived=false;")&&
-  quest.includes("if(fadeCompleted){")&&
-  quest.includes("const afterStart=Math.max(hero._approachStart+LOSER_FADE_MS,")&&
-  quest.includes("hero._fadeReleaseAt);")&&
-  quest.includes("root.dataset.heroApproachProgress='1'")&&
-  quest.includes("if(winningHero)winningHero._fadeReleaseAt=performance.now()"),
-  'V273 every new answer must have a fresh actual fade-completion gate');
+  quest.includes("hero._winStartPose={x:dx,y:dy,s:firstScale}")&&
+  quest.includes("hero._approachStart=winAt")&&
+  quest.includes("hero._moveAnimation=hero.animate(")&&
+  quest.includes("{duration:WIN_ZOOM_MS,easing:'cubic-bezier(.18,.70,.26,1)'")&&
+  quest.includes("hero._moveAnimation.onfinish=()=>{")&&
+  quest.includes("hero.style.transform=end")&&
+  quest.includes("root.dataset.heroMotion='holding'")&&
+  quest.includes("root.dataset.heroMotion='exiting'")&&
+  quest.includes("animateWinningHero(t)")&&
+  quest.includes("const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2")&&
+  space.includes("const q=clamp((t-winStart)/850,0,1),e=easeOutCubic(q)")&&
+  space.includes("transition={type:'exit',start:now,duration:690}")&&
+  space.includes("const STARFIELD_PAUSE_MS=160")&&
+  !quest.includes("earlyProgress")&&
+  !quest.includes("_fadeReleaseAt")&&
+  !quest.includes("const afterStart=Math.max(hero._approachStart+LOSER_FADE_MS,")&&
+  !quest.includes("let e=earlyProgress,arrived=false"),
+  'V275 winning hero must approach once, continuously, not stop at 30% and resume after fades');
+check(quest.includes("const animation=hero._moveAnimation;")&&
+  quest.includes("root.dataset.heroApproachProgress=p.toFixed(4)")&&
+  quest.includes("hero._moveAnimation.cancel();hero._moveAnimation=null")&&
+  quest.includes("winningHero._moveAnimation?.cancel()")&&
+  quest.includes("losingCards.every(c=>c._fadeFinished)")&&
+  quest.includes("if(winningHero){")&&
+  quest.includes("function beginExit()"),
+  'V275 compositor hero owns visual position; RAF is diagnostic, exit cancels only its own animation');
 check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
   quest.includes("c._fadeAnimation?.playState==='finished'")&&
   quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
   quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
   'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
-check(quest.includes("root.dataset.constellationBuild='v274-next-ready-before-exit'")&&
+check(quest.includes("root.dataset.constellationBuild='v275-uninterrupted-compositor-hero'")&&
   quest.includes("plan.ready=Promise.all(plan.options.map(preload))")&&
   quest.includes("plan.prepared=true;return records")&&
   quest.includes("const next=queued;")&&
@@ -219,7 +218,7 @@ check(340<850&&
   quest.includes("WIN_ZOOM_MS=850")&&
   quest.includes("LOSER_FADE_MS=340"),
   'V270 340ms decoy removal precedes perceptually early 850ms easeOutCubic hero');
-check(quest.includes("root.dataset.constellationBuild='v274-next-ready-before-exit'")&&
+check(quest.includes("root.dataset.constellationBuild='v275-uninterrupted-compositor-hero'")&&
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
@@ -292,13 +291,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=274')&&
-      app.includes('space-3d-games.js?v=274')&&
-      app.includes('constellation-quest-v246.js?v=274'),
+check(sw.includes('space-finding-session.js?v=275')&&
+      app.includes('space-3d-games.js?v=275')&&
+      app.includes('constellation-quest-v246.js?v=275'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=274")&&
+check(refresh.includes("service-worker.js?v=275")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

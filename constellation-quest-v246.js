@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=274';
+import {createFindingSession} from './space-finding-session.js?v=275';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,7 +226,7 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v274-next-ready-before-exit';
+  root.dataset.constellationBuild='v275-uninterrupted-compositor-hero';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340;
   const delay=(fn,ms)=>{
@@ -403,6 +403,8 @@ export function startConstellationQuest(ctx){
   }
   function clearWinningHero(){
     if(winningHero){
+      winningHero._moveAnimation?.cancel();
+      winningHero._moveAnimation=null;
       winningHero.remove();
       winningHero=null;
     }
@@ -448,7 +450,7 @@ export function startConstellationQuest(ctx){
     const dx=origin.left+origin.width*.5-(board.left+board.width*.5);
     const dy=origin.top+origin.height*.5-(board.top+board.height*.5);
     hero._winStartPose={x:dx,y:dy,s:firstScale}; // Preserve original selected art's on-screen origin.
-    hero._fadeReleaseAt=0; // Per-answer: must be set by THAT answer's 3-card fade.
+    hero._moveAnimation=null;
     root.dataset.heroApproachProgress='0';
     hero.style.transition='none';
     hero.style.transform='translate3d('+dx.toFixed(3)+'px,'+
@@ -472,38 +474,40 @@ export function startConstellationQuest(ctx){
     if(disposed||phase!=='winning'||!hero)return;
     hero._approachStart=winAt;
     root.dataset.heroMotion='approaching';
+    // V275: SINGLE uninterrupted, compositor-driven 850ms transform.
+    // The previous V273 code capped progress at 30% and WAITED for 3 other
+    // pictures' fade-completion callback. On iPhone this visibly STOPPED
+    // the selected hero and then restarted it. We NEVER gate its progress
+    // on a JS event again. All four native animations begin on the SAME TAP.
+    const from=hero._winStartPose;
+    const start='translate3d('+from.x.toFixed(3)+'px,'+
+      from.y.toFixed(3)+'px,0) scale('+from.s.toFixed(5)+')';
+    const end='translate3d(0px,0px,0px) scale(1)';
+    hero._moveAnimation=hero.animate(
+      [{transform:start},{transform:end}],
+      {duration:WIN_ZOOM_MS,easing:'cubic-bezier(.18,.70,.26,1)',
+       fill:'forwards',composite:'replace'}
+    );
+    hero._moveAnimation.onfinish=()=>{
+      if(disposed||winningHero!==hero)return;
+      // Commit final pose BEFORE cancelling WAAPI fill (no snap-back).
+      hero.style.transform=end;
+      hero._moveAnimation?.cancel();hero._moveAnimation=null;
+      root.dataset.heroApproachProgress='1';
+      if(phase==='winning')root.dataset.heroMotion='holding';
+    };
   }
-  // V273: CORRECT ART must never visually reach the foreground while any
-  // of the other three are still visible, even when DotKiosk drops RAF frames.
-  // The hero starts moving on touch, but its arrival is gated by completion
-  // of THIS round's actual compositor fades — not an assumed timeout.
-  // Both phases are continuous and have smooth zero-velocity joins.
+  // The selected figure moves in ONE continuous browser-compositor animation.
+  // RAF samples its clock for diagnostics only, not for visual transforms.
   function animateWinningHero(t){
     const hero=winningHero;
     if(!hero)return;
     if(phase==='winning'&&root.dataset.heroMotion==='approaching'){
-      const elapsed=Math.max(0,t-hero._approachStart);
-      const early=clamp(elapsed/LOSER_FADE_MS,0,1);
-      const earlyProgress=.30*Math.sin(Math.PI*.5*early);
-      const fadeCompleted=losingCards.length===0&&
-        root.dataset.winnerIsolated==='true'&&hero._fadeReleaseAt>0;
-      let e=earlyProgress,arrived=false;
-      if(fadeCompleted){
-        const afterStart=Math.max(hero._approachStart+LOSER_FADE_MS,
-          hero._fadeReleaseAt);
-        const q=clamp((t-afterStart)/(WIN_ZOOM_MS-LOSER_FADE_MS),0,1);
-        e=.30+.70*(.5-.5*Math.cos(Math.PI*q));
-        arrived=q>=1;
-      }
-      const from=hero._winStartPose;
-      root.dataset.heroApproachProgress=e.toFixed(4);
-      hero.style.transform='translate3d('+(from.x*(1-e)).toFixed(3)+'px,'+
-        (from.y*(1-e)).toFixed(3)+'px,0) scale('+
-        (from.s+(1-from.s)*e).toFixed(5)+')';
-      if(arrived){
-        hero.style.transform='translate3d(0px,0px,0) scale(1)';
-        root.dataset.heroApproachProgress='1';
-        root.dataset.heroMotion='holding';
+      const animation=hero._moveAnimation;
+      if(animation){
+        const current=Number(animation.currentTime||0);
+        const p=clamp(current/WIN_ZOOM_MS,0,1);
+        root.dataset.heroApproachProgress=p.toFixed(4);
       }
     }else if(phase==='exit'&&root.dataset.heroMotion==='exiting'){
       const p=clamp((t-hero._exitStart)/EXIT_MS,0,1);
@@ -682,9 +686,8 @@ export function startConstellationQuest(ctx){
     losingCards=[];
     selectedCard?.remove();selectedCard=null;
     root.dataset.winnerIsolated='true';
-    // The only release gate: 3 COMPLETED fades from the current answer.
-    // Never release from the 850ms clock alone or from a previous round.
-    if(winningHero)winningHero._fadeReleaseAt=performance.now();
+    // All THREE decoy fades are finished. Their removal NEVER interrupts or
+    // restarts the winner's already-running compositor transform.
     // Safe background loading can start now: fade already reached zero.
     // Earlier preloading during selection competed with mobile WebKit
     // compositor + WebGL precisely at the next correct-answer tap.
@@ -737,6 +740,11 @@ export function startConstellationQuest(ctx){
     // independent V262 center and do not restore an old 2x2 button.
     const hero=winningHero;
     if(hero){
+      // No in-flight animation may compete with the smooth exit motion.
+      if(hero._moveAnimation){
+        hero.style.transform='translate3d(0px,0px,0px) scale(1)';
+        hero._moveAnimation.cancel();hero._moveAnimation=null;
+      }
       hero.style.transition='none';
       hero._exitStart=performance.now();
       root.dataset.heroMotion='exiting';
