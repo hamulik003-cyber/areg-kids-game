@@ -13,9 +13,12 @@ from PIL import Image, ImageFilter
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/"assets"/"constellations-transparent"
 OUT.mkdir(parents=True,exist_ok=True)
-SOURCES=sorted(p for p in ROOT.iterdir() if re.fullmatch(r"\d{2}-[a-z-]+\.jpg",p.name))
-if len(SOURCES)!=38:
-    raise RuntimeError(f"Expected 38 approved root JPG files, found {len(SOURCES)}")
+# The repository also has numbered planet JPEGs; only use the canonical
+# constellation manifest, never a broad numbered-file glob.
+manifest_source=json.loads((ROOT/"constellations-manifest.json").read_text(encoding="utf-8"))
+SOURCES=[ROOT/item["file"] for item in manifest_source]
+if len(SOURCES)!=38 or len(set(SOURCES))!=38 or any(not p.is_file() for p in SOURCES):
+    raise RuntimeError("Canonical constellation manifest must list 38 unique existing JPGs")
 
 def extract(source):
     im=Image.open(source).convert("RGB")
