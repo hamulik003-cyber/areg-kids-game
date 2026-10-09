@@ -263,3 +263,7 @@ Investigation found actual Space Search code in space-3d-games.js: losers fade w
 
 ### V282 draft PR #4 QA path correction (2026-10-10)
 - First PR assets-and-code run: all four `qa/star-economy.test.mjs` tests PASSED, validating the actual source's 7+exit+3, independent planet/constellation, tenth-answer and replay-cycle reset. However static audit failed only its new magic CSS check because `styles` variable in old qa/full-audit.mjs points to `space-3d-games.css`, not the global `styles.css` where bonus-field rules actually live. Corrected assertion to `read('styles.css').includes(...)`. No runtime code change. Rerun same branch PR Chromium, iOS WebKit, unit and asset tests before publication.
+
+
+### V282 draft PR QA syntax guard (2026-10-10)
+- The next Chromium job failed at parser level before launching: extra `;` after an arrow callback inside the brand-new *qa/browser-smoke.mjs* magic purchased-collectible reload verification. Corrected the test property closure (not gameplay). Added `qa/browser-smoke.mjs` and `qa/star-economy.test.mjs` to `qa/full-audit.mjs` `node --check` JS syntax loop, guaranteeing invalid test source is caught within fast assets-and-code rather than running full browsers. No runtime change; replay PR checks before main promotion.

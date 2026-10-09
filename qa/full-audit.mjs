@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 const base=path.resolve(import.meta.dirname,'..'),read=p=>fs.readFileSync(path.join(base,p),'utf8'),has=p=>fs.existsSync(path.join(base,p)),fails=[];
 const check=(v,message)=>{if(!v)fails.push(message)};
 const app=read('app.js'),space=read('space-3d-games.js'),sw=read('service-worker.js');
-for(const p of ['app.js','space-3d-games.js','blackhole-interstellar.js','service-worker.js','space-30-preview-engine.js','space-v3-preview.js','constellation-quest-v246.js']){
+for(const p of ['app.js','space-3d-games.js','blackhole-interstellar.js','service-worker.js','space-30-preview-engine.js','space-v3-preview.js','constellation-quest-v246.js','qa/browser-smoke.mjs','qa/star-economy.test.mjs']){
   try{execFileSync(process.execPath,['--check',path.join(base,p)],{stdio:'pipe'})}
   catch(e){fails.push('invalid JS '+p+': '+e.stderr?.toString()?.slice(0,130))}
 }

@@ -95,7 +95,8 @@ try{
      ids:JSON.parse(localStorage.getItem('areg-magic-unlocked-v1')||'[]'),
      visible:['car','racecar','bus'].every(id=>{
        const card=document.querySelector('.magic-collect-card[data-id="'+id+'"]');
-       return card?.classList.contains('is-unlocked')&&!card.querySelector('.magic-lock')});
+       return card?.classList.contains('is-unlocked')&&!card.querySelector('.magic-lock');
+     })
    }));
    if(persisted.stars!==afterCar||!persisted.visible||
       !['car','racecar','bus'].every(id=>persisted.ids.includes(id)))
