@@ -3311,3 +3311,17 @@ html[data-theme^="photo-user-"] .section-dim{
 .section-screen[data-section="space"] .toddler-game-card img{
   background:radial-gradient(circle at 55% 40%,#264a7b,#081832 75%) !important;
 }
+
+
+/* V245 - decoded WebP previews; never expose the blank Safari image surface.
+   Gallery frame/layout/zoom animations are deliberately unchanged. */
+.animal-gallery .animal-image-wrap img[data-full-src]:not(.gallery-hires-layer){
+  opacity:0 !important;
+  transition:opacity 160ms ease-out !important;
+}
+.animal-gallery .animal-image-wrap img[data-full-src].is-decoded{
+  opacity:1 !important;
+}
+.gallery-card-flight-shell .animal-image-wrap img[data-full-src].is-decoded{
+  transition:none !important;
+}
