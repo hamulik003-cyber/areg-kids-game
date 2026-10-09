@@ -2,50 +2,8 @@
 // Deliberately separate from the approved Space Search renderer and assets.
 import * as THREE from './vendor/three.module.min.js';
 
-// Hand-composed, child-friendly connected star trails (0..1 coordinates).
-// These are gameplay diagrams, NOT scientific star charts. The approved
-// original image for each constellation is revealed only on completion.
-const TRAILS={
-  'hayk-orion':'0.59,.06 .76,.20 .72,.30 .53,.32 .43,.43 .38,.50 .42,.60 .34,.73 .20,.94 .42,.60 .60,.70 .69,.94',
-  'ursa-major':'0.17,.30 .26,.32 .34,.37 .43,.42 .59,.45 .71,.47 .67,.57 .57,.53 .44,.50 .33,.62 .23,.72 .19,.82',
-  'ursa-minor':'0.32,.62 .33,.71 .44,.65 .44,.73 .57,.59 .66,.52 .71,.44 .80,.34',
-  'cassiopeia':'0.30,.47 .38,.60 .50,.67 .60,.51 .71,.64',
-  'andromeda':'0.24,.24 .34,.35 .43,.43 .47,.55 .50,.61 .57,.70 .69,.83 .80,.89 .87,.94',
-  'pegasus':'0.13,.19 .25,.23 .33,.32 .42,.41 .55,.47 .68,.53 .80,.47 .86,.61 .70,.60 .57,.64 .40,.62 .35,.73 .27,.83 .21,.91',
-  'cepheus':'0.32,.23 .51,.30 .36,.50 .40,.77 .63,.79 .66,.55 .51,.30',
-  'draco':'0.32,.29 .41,.33 .45,.40 .35,.48 .38,.57 .55,.60 .61,.71 .53,.80 .56,.90 .69,.91 .83,.80 .86,.67 .87,.55 .85,.47',
-  'cygnus':'0.27,.38 .37,.42 .54,.50 .66,.55 .81,.62 .54,.50 .63,.38 .73,.30 .54,.50 .48,.60 .44,.68 .37,.80',
-  'lyra':'0.38,.39 .61,.39 .57,.53 .50,.75 .42,.53 .38,.39',
-  'leo':'0.68,.19 .63,.33 .60,.42 .72,.47 .65,.62 .71,.74 .76,.83 .65,.62 .48,.49 .34,.48 .25,.61 .15,.78',
-  'cancer':'0.33,.29 .45,.48 .50,.67 .60,.56 .73,.34 .60,.56 .45,.48',
-  'taurus':'0.22,.35 .36,.30 .47,.41 .42,.53 .52,.60 .43,.67 .42,.84 .61,.48 .79,.54 .78,.69 .85,.87',
-  'scorpius':'0.26,.71 .39,.69 .49,.58 .61,.49 .72,.41 .77,.33 .76,.25 .70,.17 .59,.14 .56,.20 .61,.31 .53,.57 .43,.79',
-  'libra':'0.50,.15 .50,.28 .24,.35 .24,.62 .50,.59 .76,.62 .76,.35 .50,.28',
-  'hayk-belt':'0.39,.45 .48,.47 .57,.49',
-  'aquarius':'0.39,.22 .50,.30 .44,.40 .51,.52 .48,.61 .40,.69 .28,.83 .35,.94 .52,.66 .60,.41',
-  'virgo':'0.46,.29 .58,.32 .56,.46 .64,.56 .60,.70 .52,.83 .45,.95 .60,.70 .72,.29 .56,.46 .35,.54 .24,.50',
-  'gemini':'0.38,.21 .33,.32 .37,.43 .33,.52 .45,.60 .38,.78 .68,.25 .69,.38 .65,.50 .72,.64 .66,.82 .69,.38 .37,.43',
-  'capricornus':'0.58,.13 .67,.22 .60,.35 .70,.44 .64,.57 .40,.56 .30,.66 .35,.81 .54,.88 .70,.44',
-  'aries':'0.68,.25 .61,.42 .69,.60 .75,.74 .61,.42 .32,.53 .25,.64 .15,.91',
-  'pisces':'0.50,.23 .36,.31 .30,.42 .33,.53 .34,.62 .44,.29 .58,.31 .76,.49 .73,.62 .66,.74 .56,.78 .50,.86 .42,.73',
-  'perseus':'0.50,.09 .28,.18 .30,.31 .41,.36 .53,.43 .48,.55 .40,.73 .27,.91 .62,.65 .70,.92 .78,.44',
-  'hercules':'0.50,.11 .31,.19 .29,.31 .47,.32 .55,.38 .67,.37 .72,.48 .81,.56 .62,.55 .51,.51 .43,.66 .33,.78 .22,.94 .62,.66 .68,.73 .71,.88',
-  'aquila':'0.24,.19 .29,.29 .37,.38 .44,.51 .55,.56 .70,.50 .86,.45 .55,.56 .46,.70 .61,.77 .68,.84',
-  'delphinus':'0.65,.21 .58,.34 .39,.39 .35,.54 .40,.70 .47,.77 .34,.86 .39,.39 .80,.31',
-  'phoenix':'0.21,.20 .29,.30 .37,.40 .41,.48 .54,.45 .64,.48 .77,.34 .84,.24 .54,.45 .52,.58 .46,.68 .39,.78 .45,.87 .60,.92 .71,.99',
-  'hydra':'0.27,.19 .38,.24 .42,.33 .32,.42 .34,.50 .52,.51 .64,.56 .60,.67 .44,.72 .38,.80 .44,.88 .63,.89 .74,.98',
-  'canis-major':'0.71,.23 .68,.33 .72,.47 .57,.53 .40,.49 .32,.62 .21,.82 .57,.53 .66,.65 .72,.78 .76,.88',
-  'canis-minor':'0.70,.32 .61,.49 .38,.57 .34,.69 .24,.81 .61,.49 .66,.66 .70,.81',
-  'sagittarius':'0.64,.14 .77,.22 .85,.37 .76,.57 .66,.67 .47,.59 .36,.47 .32,.36 .49,.46 .58,.48 .72,.41 .47,.59 .35,.74 .19,.93 .68,.86',
-  'ophiuchus':'0.42,.22 .55,.31 .47,.41 .38,.36 .31,.45 .26,.59 .30,.71 .38,.82 .35,.91 .52,.67 .69,.54 .74,.41 .70,.26 .74,.18',
-  'corona-borealis':'0.50,.34 .50,.55 .29,.60 .19,.45 .23,.54 .29,.60 .37,.65 .50,.68 .63,.65 .72,.60 .78,.46',
-  'cetus':'0.20,.19 .31,.29 .42,.35 .40,.46 .57,.52 .58,.65 .59,.76 .72,.85 .84,.72',
-  'monoceros':'0.85,.16 .68,.25 .62,.32 .58,.44 .70,.48 .81,.53 .78,.67 .58,.55 .50,.64 .42,.72 .31,.85 .27,.94',
-  'auriga':'0.38,.10 .32,.25 .40,.30 .51,.35 .42,.46 .35,.53 .54,.51 .71,.61 .78,.52 .69,.70 .75,.84 .61,.89 .50,.74 .38,.79',
-  'lupus':'0.70,.23 .73,.35 .67,.48 .70,.63 .68,.74 .75,.85 .39,.55 .34,.65 .28,.78',
-  'piscis-austrinus':'0.54,.34 .77,.42 .55,.47 .63,.56 .47,.69 .32,.68 .39,.78'
-};
-
+// V254: no approximate hand-drawn star positions remain.
+ // The 38 measured star layouts are stored in constellation-star-layouts.json.
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function randomizedOrder(items){
   const order=items.map((_,i)=>i);
@@ -524,6 +482,12 @@ export function startConstellationQuest(ctx){
     const projected=nodes[target].mesh.getWorldPosition(new THREE.Vector3()).project(camera);
     return {x:(projected.x+1)*rect.width*.5,y:(1-projected.y)*rect.height*.5};
   }
+  // An illustrated segment appears exactly when its second genuine
+  // landmark becomes lit. Works for open chains, forks, AND closing triangles.
+  function activatedIllustrationEdges(layout,index,lit){
+    return layout.edges.filter(([a,b])=>
+      (a===index&&lit[b])||(b===index&&lit[a]));
+  }
   function lightTarget(){
     if(disposed||stage!=='playing'||target>=nodes.length)return;
     const t=performance.now();
@@ -533,10 +497,8 @@ export function startConstellationQuest(ctx){
     // Only draw lines that are actually present in the final illustration.
     // In branching patterns, each edge appears when BOTH star endpoints glow.
     let connected=0;
-    for(const [a,b] of activeLayout.edges){
-      if((a===target&&nodes[b]?.lit)||(b===target&&nodes[a]?.lit)){
-        connect(points[a],points[b],t,a,b);connected++;
-      }
+    for(const [a,b] of activatedIllustrationEdges(activeLayout,target,nodes.map(n=>n.lit))){
+      connect(points[a],points[b],t,a,b);connected++;
     }
     if(connected)sound('line');
     target++;
