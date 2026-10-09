@@ -51,7 +51,10 @@ for source in SOURCES:
     png=OUT/(source.stem+".png")
     webp=OUT/(source.stem+".webp")
     art.save(png,format="PNG",optimize=False,compress_level=6)
-    art.save(webp,format="WEBP",quality=83,method=3)
+    # Keep full-resolution PNG archival source; size only the game-time copy.
+    runtime=art.copy()
+    runtime.thumbnail((560,760),Image.Resampling.LANCZOS)
+    runtime.save(webp,format="WEBP",quality=80,method=3)
     coverage=np.asarray(art.getchannel("A"))
     if coverage.max()<150 or np.count_nonzero(coverage>30)<200:
         raise RuntimeError("Unexpected empty mask: "+source.name)
