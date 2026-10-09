@@ -175,6 +175,30 @@
 .s3d-find-choice:nth-child(2) .s3d-find-art-shell{animation-delay:-1.3s}
 .s3d-find-choice:nth-child(3) .s3d-find-art-shell{animation-delay:-2.5s}
 .s3d-find-choice:nth-child(4) .s3d-find-art-shell{animation-delay:-3.6s}
+/* V262 winner is a NEW full-stage element, not a scaled grid button.
+   The image's measured alpha silhouette is centered in this rectangle.
+   Avoid perspective, transforms inherited from 2x2 cells or clipping. */
+.s3d-find-hero{
+  position:absolute;inset:0;z-index:30;
+  width:100%;height:100%;
+  pointer-events:none;
+  transform-origin:50% 50%;
+  opacity:1;
+  backface-visibility:hidden;
+  will-change:transform,opacity;
+}
+.s3d-find-hero img{
+  position:absolute;inset:0;
+  display:block;width:100%;height:100%;
+  object-fit:contain;object-position:center;
+  pointer-events:none;user-select:none;
+  -webkit-user-select:none;
+  filter:brightness(1.12) contrast(1.07) saturate(1.10)
+    drop-shadow(0 0 14px rgba(150,178,255,.33));
+  transform-origin:center center;
+  backface-visibility:hidden;
+}
+
 .s3d-find-choice.is-winning,
 .s3d-find-choice.s3d-find-selected{z-index:15}
 .s3d-find-choice.s3d-find-selected .s3d-find-art-shell{animation:none}
