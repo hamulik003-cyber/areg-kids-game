@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=WIN_ZOOM_MS")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=280")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -151,30 +151,26 @@ if(heroSource){
  }
 }
 check(quest.includes("function animateLoserFade(t)")&&
-      quest.includes("const smooth=p*p*(3-2*p)")&&
-      quest.includes("const scale=1-.30*smooth")&&
-      quest.includes("const depth=-110*smooth")&&
-      quest.includes("card.style.transform='translate3d(0px,0px,'+depth.toFixed(2)")&&
-      quest.includes("card.style.opacity=alpha.toFixed(4)")&&
-      quest.includes("loserFadeStart=performance.now()")&&
-      quest.includes("LOSER_FADE_MS=WIN_ZOOM_MS")&&
-      quest.includes("animateLoserFade(t)")&&
-      quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+100)")&&
-      quest.includes("card.style.transition='none'")&&
-      quest.includes("card.style.animation='none'")&&
-      quest.includes("card.remove()")&&
-      skyCss.includes(".s3d-find-choice.s3d-find-hidden")&&
-      !skyCss.includes(".s3d-find-choice.s3d-find-dismissing .s3d-find-art-shell{")&&
-      !quest.includes("sound('entry'")&&
-      !quest.includes("kind==='entry'"),
-      'V263 losers must recede from touch for exactly the full winner approach, smoothly fade, then detach');
+       quest.includes("const eased=1-(1-p)*(1-p)*(1-p)")&&
+       quest.includes("const scale=1-.28*eased")&&
+       quest.includes("const depth=-78*eased")&&
+       quest.includes("card.style.opacity=alpha.toFixed(4)")&&
+       quest.includes("LOSER_FADE_MS=280")&&
+       quest.includes("root.dataset.heroMotion='waiting'")&&
+       quest.includes("root.dataset.heroMotion='approaching'")&&
+       quest.includes("beginWinningHeroApproach();")&&
+       quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+100)")&&
+       quest.includes("card.remove()")&&
+       space.includes("const vanish=clamp((t-winStart)/280,0,1)")&&
+       !quest.includes("sound('entry'")&&
+       !quest.includes("kind==='entry'"),
+       'V264 all three decoys must fade 280ms BEFORE hero advances, like planets');
 for(const p of [0,.1,.25,.5,.75,.9,1]){
- const smooth=p*p*(3-2*p);
- const depth=-110*smooth, scale=1-.30*smooth, alpha=1-smooth;
- check(scale>=.7&&scale<=1&&depth>=-110&&depth<=0&&alpha>=0&&alpha<=1,
-       'V263 retreat curve must keep every silhouette positive and opacity bounded');
+ const e=1-(1-p)*(1-p)*(1-p);
+ check(1-.28*e>=.72-1e-8&&1-.28*e<=1&&
+       -78*e>=-78&&-78*e<=0&&1-e>=0&&1-e<=1,
+       'V264 retreat opacity, scale and depth curve must remain bounded');
 }
-
 
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
