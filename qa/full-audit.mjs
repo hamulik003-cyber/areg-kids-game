@@ -88,7 +88,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
 check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160")&&
       quest.includes('pose(card,{x:centerX-')&&
-      quest.includes("pose(card,{x:r.left<centerX?-26:26")&&
+      quest.includes("pose(card,{x:r.left<centerX?-30:30")&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
       quest.includes("delay(buildRound,STARFIELD_PAUSE_MS)")&&
       quest.includes("root.dataset.constellationPhase='ready'"),
