@@ -466,11 +466,31 @@ export function startConstellationQuest(ctx){
           y:centerY-(rect.top+rect.height*.5),z:0,s:scale,opacity:1},
           WIN_ZOOM_MS,'cubic-bezier(.18,.73,.26,1)');
       }else{
-        // Do not animate transform or change stacking/3D position on losers:
-        // that made iOS WebKit appear to blink. Fade composited opacity alone.
+        // V260: CSS keyframe + the inline transition left by pose() could
+        // conflict on iOS DotKiosk, leaving translucent ghosts during win.
+        // Transition opacity ONLY, then remove the three losers from the DOM.
+        // Keep their current transform/position fixed for a genuine dissolve.
         card.classList.remove('s3d-find-wrong');
-        card.style.setProperty('--s3d-loser-fade',LOSER_FADE_MS+'ms');
         card.classList.add('s3d-find-dismissing');
+        card.style.animation='none';
+        card.style.opacity='1';
+        card.style.transition='none';
+        card.style.pointerEvents='none';
+        // Flush before enabling the sole opacity transition so Safari never
+        // treats the starting and ending alpha as the same frame.
+        void card.offsetWidth;
+        card.style.transition='opacity '+LOSER_FADE_MS+
+          'ms cubic-bezier(.25,.46,.45,.94)';
+        requestAnimationFrame(()=>{
+          if(disposed||phase!=='winning')return;
+          card.style.opacity='0';
+        });
+        delay(()=>{
+          if(disposed)return;
+          card.classList.add('s3d-find-hidden');
+          card.style.display='none'; // hard-stop any WebKit ghost layer
+          card.remove();           // no loser can reappear behind the winner
+        },LOSER_FADE_MS+100);
       }
     });
     // 1.22s gentle approach, then >3 seconds full-size viewing; only then
@@ -481,8 +501,8 @@ export function startConstellationQuest(ctx){
     if(disposed||phase!=='winning')return;
     phase='exit';root.dataset.constellationPhase='exit';
     root.classList.remove('s3d-find-won');
-    // Only the centered selected constellation exits; losers are already
-    // fully transparent from their single 720ms fade. No second flash.
+    // Only the centered selected constellation exits; loser nodes were
+    // permanently detached after their completed 720ms fade.
     const card=cards.find(el=>el.classList.contains('s3d-find-selected'));
     if(card){
       card.style.transition='transform '+EXIT_MS+'ms cubic-bezier(.32,0,.68,.48), opacity '+
