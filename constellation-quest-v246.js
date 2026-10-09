@@ -443,7 +443,19 @@ export function startConstellationQuest(ctx){
       if(art.decode)art.decode().then(ready).catch(ready);
       else ready();
     };
-    art.onerror=()=>{if(token===roundToken)artReady=false};
+    art.onerror=()=>{
+      if(disposed||token!==roundToken)return;
+      artReady=false;
+      if(art.dataset.retry!=='png'){
+        // PNG is the full-quality on-demand fallback for older iOS WebP
+        // decoders. This never changes the final image coordinate system.
+        art.dataset.retry='png';
+        art.src=transparentSrc.replace(/\.webp\?/,'.png?');
+      }else{
+        prompt.textContent='Նկարը չի բեռնվում։ Ստուգիր կապը և նորից բացիր խաղը։';
+      }
+    };
+    art.dataset.retry='webp';
     art.src=transparentSrc;
     if(art.complete&&art.naturalWidth&&art.onload)art.onload();
   }
@@ -658,9 +670,8 @@ export function startConstellationQuest(ctx){
       s.sprite.scale.setScalar(.15+n);
       s.sprite.material.opacity=(1-age)*.73*solvedOpacity;
     }
-    if(stage==='revealed'){
-      group.scale.multiplyScalar(.9995);
-    }
+    // The completed puzzle stays pixel-aligned with the revealed image.
+    // No shrinking/rotation while the original artwork fades in.
     renderer.render(scene,camera);
     raf=requestAnimationFrame(animate);
   }
