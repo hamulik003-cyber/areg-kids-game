@@ -61,7 +61,18 @@ try{
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});
 
      if(id==='constellation-game'){
-      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready',null,{timeout:30000});
+      try {
+        await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready',null,{timeout:16000});
+      } catch(e) {
+        const status=await page.evaluate(()=>({
+          html:document.querySelector('#activityContent')?.innerHTML?.slice(0,900),
+          mode:document.querySelector('.s3d-find256')?.dataset,
+          prompt:document.querySelector('.s3d-find256 .s3d-prompt strong')?.textContent,
+          cards:document.querySelectorAll('.s3d-find-choice').length,
+          scripts:[...document.querySelectorAll('script')].slice(-4).map(s=>s.src)
+        }));
+        throw Error('Constellation loading diagnosis '+JSON.stringify(status)+' :: '+e.message);
+      }
       const initial=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
         const buttons=[...root.querySelectorAll('.s3d-find-choice')];
