@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=276';
+import {createFindingSession} from './space-finding-session.js?v=277';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,9 +226,9 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v276-soft-synchronized-constellation-motion';
+  root.dataset.constellationBuild='v277-gentle-1000ms-winner';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=1120,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=1000,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -474,7 +474,7 @@ export function startConstellationQuest(ctx){
     if(disposed||phase!=='winning'||!hero)return;
     hero._approachStart=winAt;
     root.dataset.heroMotion='approaching';
-    // V276: one gentle uninterrupted 1120ms compositor transform, soft start and finish.
+    // V277: preserve V276's approved gentle one-pass easing, reduce winner approach to 1000ms.
     // The previous V273 code capped progress at 30% and WAITED for 3 other
     // pictures' fade-completion callback. On iPhone this visibly STOPPED
     // the selected hero and then restarted it. We NEVER gate its progress
@@ -615,7 +615,7 @@ export function startConstellationQuest(ctx){
     if(ctx.recordCorrectAnswer('constellation-game'))award();
     // V270: START all three GPU/compositor dissolves on the SAME user tap,
     // BEFORE constructing the giant hero. This avoids the perceived late
-    // fade while the winner follows its 1120ms gentle ease-in-out path
+    // fade while the winner follows its 1000ms gentle ease-in-out path
     // from the same tap. All three decoys fade in place over 580ms.
     loserFadeStart=winAt;
     losingCards=[];
@@ -669,7 +669,7 @@ export function startConstellationQuest(ctx){
         finishLoserFade();
       }
     },LOSER_FADE_MS+150);
-    // Same-touch gentle motion, 1120ms grow, ~1.6s closeup, 690ms quiet exit.
+    // Same-touch gentle motion, 1000ms grow, ~1.75s closeup, 690ms quiet exit.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
   function finishLoserFade(){

@@ -1,5 +1,5 @@
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
-_Թարմացված է 2026-10-10, V276-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
+_Թարմացված է 2026-10-10, V277-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
 
 ## Հանձնարարություն նոր զրույցի օգնականին
 Սա նախորդ երկա՜ր տեխնիկական աշխատանքի ուղիղ շարունակությունն է։ Մի խնդրիր օգտվողից ZIP, screenshot կամ repository URL կրկին։ Կա միացված GitHub connector. ԱՆՄԻՋԱՊԵՍ ստուգիր `hamulik003-cyber/areg-kids-game` repository-ի `main` ճյուղի վերջին commit, README/ `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, և հատկապես `constellation-quest-v246.js`։ Այս ֆայլը նոր զրույցի հրահանգների մեկ պատճենն է, բայց վերջին HEAD-ը միշտ աղբյուրն է։
@@ -52,3 +52,8 @@ _Թարմացված է 2026-10-10, V276-ի աշխատանքից հետո։ Կա�
 ## V276 newest — device approval pending
 - The user requested a softer, synchronized result in every round. Correct picture immediately approaches in ONE uninterrupted 1120ms WAAPI ease-in-out; all 3 other pictures begin stationary gentle 580ms opacity fade on the SAME tap. No old 30% mid-zoom stop. Preserve approved next-four 780ms entrance and V274 preloading.
 - Last green V275 `9b3869ad38887e87760be5dc65427d87e03c738e` backed up at `backup/v275-before-soft-synchronized-constellation-transition-v276-2026-10-10`. Verify V276 exact main SHA CI/Pages and real DotKiosk 3–5 consecutive right-answer video. Older V275 content earlier in this handoff is historical.
+
+
+## V277 — LATEST: faster approach only (user DotKiosk evaluation pending)
+- User loves V276 and requested only a slight speed increase in the winner's zoom: **1120ms → 1000ms**, same ease-in-out and same immediate simultaneous three stationary 580ms fading decoys on EVERY round. New-four 780ms entrance, win total 2750ms, exit 690ms, clear sky 160ms, all graphics/sounds/game state unchanged. Version v277 for safe PWA cache update.
+- Previous V276 green commit `3d186e59d290ecb2ff48dff7e70f32a99b04e7cb` is backed up at `backup/v276-approved-soft-animation-before-faster-hero-v277-2026-10-10`. Check current main exact-SHA audit and Pages before claiming CI success. Wait for user real DotKiosk confirmation.

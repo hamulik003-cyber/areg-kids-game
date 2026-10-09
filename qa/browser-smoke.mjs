@@ -166,7 +166,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v276-soft-synchronized-constellation-motion'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v277-gentle-1000ms-winner'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -184,7 +184,7 @@ try{
          Math.abs(c.y-middle[i-1].losers[j].y)>1)))
         throw Error('V275 constellation decoy opacity/position regression '+JSON.stringify(middle));
       // V270: actual perceived-entrance test, not merely "gone by 850ms".
-      // V276: 580ms gentle fade and independent 1120ms winner approach
+      // V277: 580ms gentle fade and independent 1000ms winner approach
       // start in the same user gesture. iOS WebKit RAF may sample sparsely.
       // Assert visible intermediate opacity and stationary decoy positions.
       const early=reveal.samples.find(f=>f.ms>80&&f.ms<600&&
@@ -201,7 +201,7 @@ try{
       if(lingering.length)
         throw Error('V270 decoys remained on screen after hero visually arrived '+
           JSON.stringify(lingering.slice(0,3)));
-      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=660&&f.ms<=1120&&
+      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=660&&f.ms<=1000&&
         f.motion==='approaching'&&f.losers.length===0);
       if(!goneWhileApproaching)
         throw Error('V270 decoys did not finish before visual winner approach');
@@ -338,7 +338,7 @@ try{
         !third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88)))
         throw Error('V272 THREE consecutive rounds must share same fade '+JSON.stringify(third));
       // FOURTH win: deliberately stall JavaScript's main thread for
-      // ~420ms, simulating slow WebKit image/GPU work. The whole 1120ms
+      // ~420ms, simulating slow WebKit image/GPU work. The whole 1000ms
       // hero motion is now ONE native compositor timeline — no 30%-hold.
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
@@ -381,7 +381,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=276');
+        const api=await import('./space-finding-session.js?v=277');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

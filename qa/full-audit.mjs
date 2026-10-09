@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=1120,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=1000,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -185,7 +185,7 @@ check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
   quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
   quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
   'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
-check(quest.includes("root.dataset.constellationBuild='v276-soft-synchronized-constellation-motion'")&&
+check(quest.includes("root.dataset.constellationBuild='v277-gentle-1000ms-winner'")&&
   quest.includes("plan.ready=Promise.all(plan.options.map(preload))")&&
   quest.includes("plan.prepared=true;return records")&&
   quest.includes("const next=queued;")&&
@@ -213,13 +213,13 @@ for(const p of [0,.1,.25,.5,.75,.9,.98,1]){
   check(e>=0&&e<=1&&1-e>=0&&1-e<=1,
     'V269 760ms alpha-only decoy fade is continuous and bounded');
 }
-check(580<1120&&
+check(580<1000&&
   quest.includes("loserFadeStart=winAt")&&
   quest.includes("hero._approachStart=winAt")&&
-  quest.includes("WIN_ZOOM_MS=1120")&&
+  quest.includes("WIN_ZOOM_MS=1000")&&
   quest.includes("LOSER_FADE_MS=580"),
-  'V276 580ms decoy fade completes before gentle 1120ms hero arrival');
-check(quest.includes("root.dataset.constellationBuild='v276-soft-synchronized-constellation-motion'")&&
+  'V277 approved gentle hero now approaches in 1000ms after same-tap 580ms stationary fades');
+check(quest.includes("root.dataset.constellationBuild='v277-gentle-1000ms-winner'")&&
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
@@ -292,13 +292,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=276')&&
-      app.includes('space-3d-games.js?v=276')&&
-      app.includes('constellation-quest-v246.js?v=276'),
+check(sw.includes('space-finding-session.js?v=277')&&
+      app.includes('space-3d-games.js?v=277')&&
+      app.includes('constellation-quest-v246.js?v=277'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=276")&&
+check(refresh.includes("service-worker.js?v=277")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
