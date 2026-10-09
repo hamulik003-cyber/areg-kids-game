@@ -101,54 +101,50 @@ try{
       const wrongName=initial.names.find(n=>n!==correctName);
       if(!wrongName||!initial.names.includes(correctName))
         throw Error('Constellation correct choice missing from round');
-      await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),wrongName);
-      if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='ready')
-        throw Error('Incorrect constellation must not advance level');
-      await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),correctName);
-      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='winning',null,{timeout:3000});
-      // V263: both motions begin on the same winning tap. Do not check only
-      // hidden DOM at 920ms; the losing art should still be smoothly receding.
-      await page.waitForTimeout(270);
-      const early=await page.evaluate(()=>{
-        const root=document.querySelector('.s3d-find256');
-        const hero=root.querySelector('.s3d-find-hero');
-        const others=[...root.querySelectorAll('.s3d-find-choice')];
-        return {hero:!!hero,originalCorrect:others.some(c=>c.getAttribute('aria-label')===
-          root.querySelector('.s3d-prompt strong')?.textContent?.replace('Կեցցե՛ս։ ','')),
-          losers:others.map(c=>({
-            fading:c.classList.contains('s3d-find-dismissing'),
-            opacity:Number(getComputedStyle(c).opacity),
-            transition:c.style.transition,
-            animation:getComputedStyle(c).animationName,
-            transform:c.style.transform
-          }))};
-      });
-      if(!early.hero||early.originalCorrect||early.losers.length!==3||
-        early.losers.some(v=>!v.fading||v.animation!=='none'||v.transition!=='none'||
-          v.opacity<=.2||v.opacity>=.99||
-          !/translate3d\(\s*0px,\s*0px,\s*-[\d.]+px\)\s+scale\(0\.[\d]+\)/.test(v.transform)))
-        throw Error('V263 all three must simultaneously FADE AND RECEDE from touch '+
-          JSON.stringify(early));
-      await page.waitForTimeout(540);
-      const retreat=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')]
-        .map(c=>({opacity:Number(c.style.opacity),transform:c.style.transform})));
-      if(retreat.length!==3||retreat.some(v=>v.opacity>=.6||v.opacity<=0||
-          !/translate3d\(\s*0px,\s*0px,\s*-[\d.]+px\)\s+scale\(0\.[\d]+\)/.test(v.transform)))
-        throw Error('V263 losing images must keep moving backward through hero approach '+
-          JSON.stringify(retreat));
-      await page.waitForTimeout(560);
-      const isolated=await page.evaluate(()=>({
-        phase:document.querySelector('.s3d-find256')?.dataset.constellationPhase,
-        hero:document.querySelectorAll('.s3d-find-hero').length,
-        oldChoices:document.querySelectorAll('.s3d-find-choice').length,
-        removed:document.querySelector('.s3d-find256')?.dataset.winnerIsolated
-      }));
-      if(isolated.phase!=='winning'||isolated.hero!==1||isolated.oldChoices!==0||
-         isolated.removed!=='true')
-        throw Error('V263 three old figures must vanish by the end of hero 1220ms approach '+
-          JSON.stringify(isolated));
-      await page.waitForTimeout(650);
-      const centered=await page.evaluate(()=>{
+      // V264 samples real RAF frames of 280ms decoy fade BEFORE winner movement.
+       const reveal=await page.evaluate(async name=>{
+         const root=document.querySelector('.s3d-find256');
+         const button=[...root.querySelectorAll('.s3d-find-choice')]
+           .find(c=>c.getAttribute('aria-label')===name);
+         if(!button)return {error:'missing correct choice'};
+         button.click();
+         const hero=root.querySelector('.s3d-find-hero');
+         const startTransform=hero?.style.transform,samples=[],start=performance.now();
+         await new Promise(resolve=>{
+           function tick(){
+             const ms=performance.now()-start;
+             samples.push({ms,motion:root.dataset.heroMotion,
+               isolated:root.dataset.winnerIsolated,heroTransform:hero?.style.transform,
+               losers:[...root.querySelectorAll('.s3d-find-choice')].map(c=>({
+                 opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
+                 transition:c.style.transition,animation:getComputedStyle(c).animationName
+               }))});
+             if(ms>=470)resolve();else requestAnimationFrame(tick);
+           }
+           requestAnimationFrame(tick);
+         });
+         return {samples,startTransform,phase:root.dataset.constellationPhase,
+           heroCount:root.querySelectorAll('.s3d-find-hero').length};
+       },correctName);
+       if(reveal.error||reveal.phase!=='winning'||reveal.heroCount!==1||
+          reveal.samples.length<3)throw Error('V264 winner missing '+JSON.stringify(reveal));
+       const mid=reveal.samples.find(f=>f.ms>10&&f.ms<260&&f.motion==='waiting'&&
+         f.losers.length===3&&f.losers.every(c=>c.opacity>.025&&c.opacity<.985&&
+           c.transition==='none'&&c.animation==='none'&&
+           c.transform.includes('translate3d(0px,0px,-')&&
+           /scale\\(0\\.[\\d]+\\)/.test(c.transform)));
+       if(!mid)throw Error('V264 no smooth 3-figure fade '+JSON.stringify(reveal.samples.slice(0,12)));
+       if(reveal.samples.some(f=>f.losers.length>0&&
+         (f.motion!=='waiting'||f.heroTransform!==reveal.startTransform)))
+         throw Error('V264 winning image moved before 3 others disappeared');
+       const lastReveal=reveal.samples.at(-1);
+       if(lastReveal.losers.length!==0||lastReveal.isolated!=='true'||
+          lastReveal.motion!=='approaching'||
+          lastReveal.heroTransform===reveal.startTransform)
+         throw Error('V264 decoys not removed before zoom '+JSON.stringify(lastReveal));
+       // 280ms retreat plus 1220ms hero approach (with RAF margin).
+       await page.waitForTimeout(1250);
+       const centered=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
         const hero=root.querySelector('.s3d-find-hero');
         const img=hero?.querySelector('img');
