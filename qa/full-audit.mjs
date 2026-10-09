@@ -122,7 +122,7 @@ check(quest.includes("function showWinningHero(button,record,item)")&&
       quest.includes("button.remove()")&&
       quest.includes("hero.style.transform='translate3d(0px,0px,0) scale(1)'")&&
       quest.includes("const marginX=Math.min(16,w*.04)")&&
-      quest.includes("const marginY=Math.min(16,h*.045)")&&
+      quest.includes("marginY=Math.min(16,h*.045)")&&
       quest.includes("clearWinningHero();resetCards();phase='starfield-pause'")&&
       skyCss.includes(".s3d-find-hero{")&&
       skyCss.includes(".s3d-find-hero img{"),
