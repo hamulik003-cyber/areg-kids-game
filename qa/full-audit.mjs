@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 const base=path.resolve(import.meta.dirname,'..'),read=p=>fs.readFileSync(path.join(base,p),'utf8'),has=p=>fs.existsSync(path.join(base,p)),fails=[];
 const check=(v,message)=>{if(!v)fails.push(message)};
 const app=read('app.js'),space=read('space-3d-games.js'),sw=read('service-worker.js');
-for(const p of ['app.js','space-3d-games.js','blackhole-interstellar.js','service-worker.js','space-30-preview-engine.js','space-v3-preview.js']){
+for(const p of ['app.js','space-3d-games.js','blackhole-interstellar.js','service-worker.js','space-30-preview-engine.js','space-v3-preview.js','constellation-quest-v246.js']){
   try{execFileSync(process.execPath,['--check',path.join(base,p)],{stdio:'pipe'})}
   catch(e){fails.push('invalid JS '+p+': '+e.stderr?.toString()?.slice(0,130))}
 }
@@ -45,13 +45,27 @@ for(const section of ['nature','space','mind','create','magic']){
  console.log('PASS section '+section+' '+cards.length+' entries');
 }
 for(const n of ['launcher.html','index.html','app.js','styles.css','space-3d-games.js','blackhole-interstellar.js','vendor/three.module.min.js','manifest.webmanifest'])check(has(n),'missing core '+n);
-const launcher=read('launcher.html');
-check(launcher.includes('kiosk=v232&__areg_build=244'),'DotKiosk launcher out of date');
-check(sw.includes('areg-v244-core')&&sw.includes('areg-v244-runtime'),'SW cache out of date');
-check(app.includes("import('./space-3d-games.js?v=244')"),'3D dynamic import may load stale code');
-check(sw.includes("'./space-3d-games.js?v=244'")&&sw.includes("'./app.js?v=244'"),'SW precache version mismatch');
-check(read('index.html').includes('app.js?v=244'),'HTML script version mismatch');
-check(read('index.html').includes('styles.css?v=243'),'No-flash CSS version mismatch');
+const launcher=read('launcher.html'),html=read('index.html'),quest=read('constellation-quest-v246.js');
+check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_build'),'DotKiosk launcher should use clean standalone entry');
+const coreV=sw.match(/areg-v(\d+)-core/),runV=sw.match(/areg-v(\d+)-runtime/);
+const appV=html.match(/app\.js\?v=(\d+)/),styleV=html.match(/styles\.css\?v=(\d+)/);
+const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+)/);
+check(!!coreV&&!!runV&&coreV[1]===runV[1],'SW cache version mismatch');
+check(!!appV&&app.includes("service-worker.js?v="+appV[1]),'SW registration version mismatch');
+check(!!coreV&&!!appV&&coreV[1]===appV[1],'App/SW release version mismatch');
+check(!!appV&&sw.includes("'./app.js?v="+appV[1]+"'"),'SW precache app version mismatch');
+check(!!styleV&&sw.includes("'./styles.css?v="+styleV[1]+"'"),'SW precache CSS version mismatch');
+check(!!spaceCssV&&sw.includes("'./space-3d-games.css?v="+spaceCssV[1]+"'"),'SW precache 3D CSS version mismatch');
+check(/import\('\.\/space-3d-games\.js\?v=\d+'\)/.test(app),'Approved Space Search dynamic import missing');
+check(app.includes("import('./constellation-quest-v246.js')")&&app.includes('constellationQuest:launchConstellationQuest'),'Standalone constellation game not wired');
+check(sw.includes("'./constellation-quest-v246.js'"),'Constellation module not in offline core');
+const constellationSource=app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={'));
+const ids=[...constellationSource.matchAll(/\{id:'([^']+)',img:'([^']+)'/g)].map(m=>m[1]);
+const trailBody=quest.slice(quest.indexOf('const TRAILS='),quest.indexOf('const clamp='));
+const trails=[...trailBody.matchAll(/'([a-z0-9-]+)'\s*:\s*'([^']+)'/g)];
+check(ids.length===38&&trails.length===38,'Constellation paths must cover all 38 pictures');
+check(new Set(trails.map(m=>m[1])).size===38&&ids.every(id=>trails.some(m=>m[1]===id)),'Constellation picture/path ID mismatch');
+check(!html.includes('__areg_build'),'Old forced reload redirect reintroduced');
 check(app.includes('gallery-hires-layer')&&app.includes('warmGalleryPreviews'),'Gallery predecode fix missing');
 const core=sw.match(/const CORE=\[([\s\S]*?)\];/);
 if(core)for(const r of core[1].matchAll(/'\.\/([^']+)'/g)){const n=r[1].split('?')[0];total++;check(has(n),'missing precached '+n)}
