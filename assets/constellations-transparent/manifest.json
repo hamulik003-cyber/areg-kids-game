@@ -1,0 +1,420 @@
+[
+  {
+    "source": "01-hayk-orion.jpg",
+    "png": "assets/constellations-transparent/01-hayk-orion.png",
+    "webp": "assets/constellations-transparent/01-hayk-orion.webp",
+    "size": [
+      787,
+      1050
+    ],
+    "png_bytes": 967947,
+    "webp_bytes": 401792
+  },
+  {
+    "source": "02-ursa-major.jpg",
+    "png": "assets/constellations-transparent/02-ursa-major.png",
+    "webp": "assets/constellations-transparent/02-ursa-major.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 237617,
+    "webp_bytes": 97382
+  },
+  {
+    "source": "03-ursa-minor.jpg",
+    "png": "assets/constellations-transparent/03-ursa-minor.png",
+    "webp": "assets/constellations-transparent/03-ursa-minor.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 232620,
+    "webp_bytes": 94978
+  },
+  {
+    "source": "04-cassiopeia.jpg",
+    "png": "assets/constellations-transparent/04-cassiopeia.png",
+    "webp": "assets/constellations-transparent/04-cassiopeia.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 281852,
+    "webp_bytes": 115050
+  },
+  {
+    "source": "05-andromeda.jpg",
+    "png": "assets/constellations-transparent/05-andromeda.png",
+    "webp": "assets/constellations-transparent/05-andromeda.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 274413,
+    "webp_bytes": 110574
+  },
+  {
+    "source": "06-pegasus.jpg",
+    "png": "assets/constellations-transparent/06-pegasus.png",
+    "webp": "assets/constellations-transparent/06-pegasus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 283879,
+    "webp_bytes": 116018
+  },
+  {
+    "source": "07-cepheus.jpg",
+    "png": "assets/constellations-transparent/07-cepheus.png",
+    "webp": "assets/constellations-transparent/07-cepheus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 238488,
+    "webp_bytes": 97882
+  },
+  {
+    "source": "08-draco.jpg",
+    "png": "assets/constellations-transparent/08-draco.png",
+    "webp": "assets/constellations-transparent/08-draco.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 264224,
+    "webp_bytes": 109160
+  },
+  {
+    "source": "09-cygnus.jpg",
+    "png": "assets/constellations-transparent/09-cygnus.png",
+    "webp": "assets/constellations-transparent/09-cygnus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 291554,
+    "webp_bytes": 115622
+  },
+  {
+    "source": "10-lyra.jpg",
+    "png": "assets/constellations-transparent/10-lyra.png",
+    "webp": "assets/constellations-transparent/10-lyra.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 232706,
+    "webp_bytes": 95048
+  },
+  {
+    "source": "11-leo.jpg",
+    "png": "assets/constellations-transparent/11-leo.png",
+    "webp": "assets/constellations-transparent/11-leo.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 355676,
+    "webp_bytes": 138472
+  },
+  {
+    "source": "12-cancer.jpg",
+    "png": "assets/constellations-transparent/12-cancer.png",
+    "webp": "assets/constellations-transparent/12-cancer.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 321515,
+    "webp_bytes": 129304
+  },
+  {
+    "source": "13-taurus.jpg",
+    "png": "assets/constellations-transparent/13-taurus.png",
+    "webp": "assets/constellations-transparent/13-taurus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 355376,
+    "webp_bytes": 138164
+  },
+  {
+    "source": "14-scorpius.jpg",
+    "png": "assets/constellations-transparent/14-scorpius.png",
+    "webp": "assets/constellations-transparent/14-scorpius.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 324046,
+    "webp_bytes": 130114
+  },
+  {
+    "source": "15-libra.jpg",
+    "png": "assets/constellations-transparent/15-libra.png",
+    "webp": "assets/constellations-transparent/15-libra.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 313515,
+    "webp_bytes": 127958
+  },
+  {
+    "source": "16-hayk-belt.jpg",
+    "png": "assets/constellations-transparent/16-hayk-belt.png",
+    "webp": "assets/constellations-transparent/16-hayk-belt.webp",
+    "size": [
+      787,
+      1050
+    ],
+    "png_bytes": 1223607,
+    "webp_bytes": 506956
+  },
+  {
+    "source": "17-aquarius.jpg",
+    "png": "assets/constellations-transparent/17-aquarius.png",
+    "webp": "assets/constellations-transparent/17-aquarius.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 366506,
+    "webp_bytes": 146256
+  },
+  {
+    "source": "18-virgo.jpg",
+    "png": "assets/constellations-transparent/18-virgo.png",
+    "webp": "assets/constellations-transparent/18-virgo.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 340309,
+    "webp_bytes": 136718
+  },
+  {
+    "source": "19-gemini.jpg",
+    "png": "assets/constellations-transparent/19-gemini.png",
+    "webp": "assets/constellations-transparent/19-gemini.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 357253,
+    "webp_bytes": 142840
+  },
+  {
+    "source": "20-capricornus.jpg",
+    "png": "assets/constellations-transparent/20-capricornus.png",
+    "webp": "assets/constellations-transparent/20-capricornus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 348319,
+    "webp_bytes": 137388
+  },
+  {
+    "source": "21-aries.jpg",
+    "png": "assets/constellations-transparent/21-aries.png",
+    "webp": "assets/constellations-transparent/21-aries.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 340526,
+    "webp_bytes": 134392
+  },
+  {
+    "source": "22-pisces.jpg",
+    "png": "assets/constellations-transparent/22-pisces.png",
+    "webp": "assets/constellations-transparent/22-pisces.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 338464,
+    "webp_bytes": 135876
+  },
+  {
+    "source": "23-perseus.jpg",
+    "png": "assets/constellations-transparent/23-perseus.png",
+    "webp": "assets/constellations-transparent/23-perseus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 345455,
+    "webp_bytes": 140118
+  },
+  {
+    "source": "24-hercules.jpg",
+    "png": "assets/constellations-transparent/24-hercules.png",
+    "webp": "assets/constellations-transparent/24-hercules.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 357468,
+    "webp_bytes": 143668
+  },
+  {
+    "source": "25-aquila.jpg",
+    "png": "assets/constellations-transparent/25-aquila.png",
+    "webp": "assets/constellations-transparent/25-aquila.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 330097,
+    "webp_bytes": 132980
+  },
+  {
+    "source": "26-delphinus.jpg",
+    "png": "assets/constellations-transparent/26-delphinus.png",
+    "webp": "assets/constellations-transparent/26-delphinus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 284003,
+    "webp_bytes": 113352
+  },
+  {
+    "source": "27-phoenix.jpg",
+    "png": "assets/constellations-transparent/27-phoenix.png",
+    "webp": "assets/constellations-transparent/27-phoenix.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 390799,
+    "webp_bytes": 154934
+  },
+  {
+    "source": "28-hydra.jpg",
+    "png": "assets/constellations-transparent/28-hydra.png",
+    "webp": "assets/constellations-transparent/28-hydra.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 314678,
+    "webp_bytes": 127030
+  },
+  {
+    "source": "29-canis-major.jpg",
+    "png": "assets/constellations-transparent/29-canis-major.png",
+    "webp": "assets/constellations-transparent/29-canis-major.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 331791,
+    "webp_bytes": 134372
+  },
+  {
+    "source": "30-canis-minor.jpg",
+    "png": "assets/constellations-transparent/30-canis-minor.png",
+    "webp": "assets/constellations-transparent/30-canis-minor.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 310795,
+    "webp_bytes": 124314
+  },
+  {
+    "source": "31-sagittarius.jpg",
+    "png": "assets/constellations-transparent/31-sagittarius.png",
+    "webp": "assets/constellations-transparent/31-sagittarius.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 327683,
+    "webp_bytes": 132690
+  },
+  {
+    "source": "32-ophiuchus.jpg",
+    "png": "assets/constellations-transparent/32-ophiuchus.png",
+    "webp": "assets/constellations-transparent/32-ophiuchus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 332534,
+    "webp_bytes": 133028
+  },
+  {
+    "source": "33-corona-borealis.jpg",
+    "png": "assets/constellations-transparent/33-corona-borealis.png",
+    "webp": "assets/constellations-transparent/33-corona-borealis.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 290408,
+    "webp_bytes": 117898
+  },
+  {
+    "source": "34-cetus.jpg",
+    "png": "assets/constellations-transparent/34-cetus.png",
+    "webp": "assets/constellations-transparent/34-cetus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 356848,
+    "webp_bytes": 142808
+  },
+  {
+    "source": "35-monoceros.jpg",
+    "png": "assets/constellations-transparent/35-monoceros.png",
+    "webp": "assets/constellations-transparent/35-monoceros.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 342256,
+    "webp_bytes": 140368
+  },
+  {
+    "source": "36-auriga.jpg",
+    "png": "assets/constellations-transparent/36-auriga.png",
+    "webp": "assets/constellations-transparent/36-auriga.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 358369,
+    "webp_bytes": 145286
+  },
+  {
+    "source": "37-lupus.jpg",
+    "png": "assets/constellations-transparent/37-lupus.png",
+    "webp": "assets/constellations-transparent/37-lupus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 322740,
+    "webp_bytes": 130200
+  },
+  {
+    "source": "38-piscis-austrinus.jpg",
+    "png": "assets/constellations-transparent/38-piscis-austrinus.png",
+    "webp": "assets/constellations-transparent/38-piscis-austrinus.webp",
+    "size": [
+      480,
+      574
+    ],
+    "png_bytes": 340112,
+    "webp_bytes": 134786
+  }
+]
