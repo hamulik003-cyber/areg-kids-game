@@ -119,7 +119,7 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
       'V258 artwork must be balanced by actual alpha silhouette, independently of float motion');
 check(quest.includes("function showWinningHero(button,record,item)")&&
       quest.includes("function heroGeometry(record,w,h)")&&
-      quest.includes("button.remove()")&&
+      quest.includes("selectedCard?.remove()")&&
       quest.includes("hero.style.transform='translate3d(0px,0px,0) scale(1)'")&&
       quest.includes("const marginX=Math.min(16,w*.04)")&&
       quest.includes("marginY=Math.min(16,h*.045)")&&
@@ -152,7 +152,7 @@ if(heroSource){
 }
 check(quest.includes("function animateWinningHero(t)")&&
        quest.includes("hero._winStartPose={x:dx,y:dy,s:firstScale}")&&
-       quest.includes("hero._approachStart=performance.now()")&&
+       quest.includes("hero._approachStart=winAt")&&
        quest.includes("const p=clamp((t-hero._approachStart)/WIN_ZOOM_MS,0,1)")&&
        quest.includes("const e=1-(1-p)*(1-p)*(1-p)")&&
        quest.includes("root.dataset.heroMotion='holding'")&&
