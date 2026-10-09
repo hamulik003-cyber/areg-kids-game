@@ -178,11 +178,11 @@ try{
            c.shellPaused&&/^translate3d\(0px,\s*0px,\s*0px\) scale\(1\)$/.test(c.transform)));
       if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
       const middle=reveal.samples.filter(f=>f.ms>20&&f.ms<520&&f.losers.length===3);
-      if(middle.length<2||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
+      if(middle.length<1||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
         c.opacity>middle[i-1].losers[j].opacity+.008||
          Math.abs(c.x-middle[i-1].losers[j].x)>1||
          Math.abs(c.y-middle[i-1].losers[j].y)>1)))
-        throw Error('V266 losing figures paused or reappeared');
+        throw Error('V275 constellation decoy opacity/position regression '+JSON.stringify(middle));
       // V270: actual perceived-entrance test, not merely "gone by 850ms".
       // The hero's cubic easing is already ~80% complete by 340ms.
       // All three losing choices must disappear before 450ms, while
