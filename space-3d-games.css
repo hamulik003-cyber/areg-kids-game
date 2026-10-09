@@ -305,3 +305,25 @@
 @media (prefers-reduced-motion:reduce){
   .s3d-cycle-backdrop,.s3d-cycle-card,.s3d-cycle-particle{animation:none}
 }
+
+/* V268: green, touch-sized manual replay action — the result never auto closes. */
+.s3d-cycle-replay{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  box-sizing:border-box;min-height:54px;min-width:min(100%,230px);
+  padding:12px 22px;margin-top:9px;
+  border-radius:19px;border:1px solid rgba(196,255,203,.9);
+  background:linear-gradient(180deg,#48db7d 0%,#239f58 100%);
+  color:#052416;font-family:inherit;font-weight:1000;
+  font-size:clamp(16px,4.8vw,20px);line-height:1.15;
+  box-shadow:0 5px 0 #14653b,0 12px 30px rgba(14,136,69,.31),
+    inset 0 1px 0 rgba(255,255,255,.5);
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  transition:transform 160ms ease,filter 160ms ease;
+}
+.s3d-cycle-replay:active{transform:translateY(3px);filter:brightness(1.06);box-shadow:0 2px 0 #14653b}
+.s3d-cycle-replay:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.s3d-cycle-replay-icon{
+  display:inline-grid;place-items:center;width:30px;height:30px;
+  background:rgba(255,255,255,.28);border-radius:50%;
+  font-size:27px;line-height:1;font-weight:1000;
+}

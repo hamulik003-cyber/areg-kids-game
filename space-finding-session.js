@@ -9,43 +9,58 @@ export function classifyFindingResult(correct,wrong){
   return 'tie';
 }
 
+// Uses one gesture-unlocked AudioContext for the whole visit, not a new
+// context created minutes later (which iPhone WebKit may keep suspended).
 function playFindingResultsAudio(kind,ctx,ac){
-  if(!ctx?.settings?.master||!ctx?.settings?.effects||!ac)return;
-  const now=ac.currentTime+.02;
-  const note=(frequency,start,duration,volume,type='sine')=>{
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.type=type;o.frequency.setValueAtTime(frequency,now+start);
-    g.gain.setValueAtTime(.0001,now+start);
-    g.gain.exponentialRampToValueAtTime(volume,now+start+.018);
-    g.gain.exponentialRampToValueAtTime(.0001,now+start+duration);
-    o.connect(g);g.connect(ac.destination);
-    o.start(now+start);o.stop(now+start+duration+.025);
-  };
-  if(kind==='success'){
-    // Gently festive rising notes accompanied by synthetic applause.
-    [523.25,659.25,783.99,1046.5].forEach((n,i)=>note(n,i*.13,.36,.033));
-    const len=Math.round(ac.sampleRate*.095);
-    const buffer=ac.createBuffer(1,len,ac.sampleRate),arr=buffer.getChannelData(0);
-    for(let i=0;i<len;i++)arr[i]=(Math.random()*2-1)*(1-i/len);
-    for(let k=0;k<9;k++){
-      const source=ac.createBufferSource(),filter=ac.createBiquadFilter(),gain=ac.createGain();
-      source.buffer=buffer;filter.type='bandpass';filter.frequency.value=1150+(k%3)*400;
-      filter.Q.value=.8;gain.gain.value=.014+(k%3)*.004;
-      source.connect(filter);filter.connect(gain);gain.connect(ac.destination);
-      source.start(now+.16+k*.095);
+  if(!ctx?.settings?.master||!ctx?.settings?.effects||!ac||ac.state!=='running')return false;
+  try{
+    const now=ac.currentTime+.04;
+    const note=(frequency,offset,duration,volume,type='sine')=>{
+      const oscillator=ac.createOscillator(),gain=ac.createGain();
+      oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,now+offset);
+      gain.gain.setValueAtTime(.0001,now+offset);
+      gain.gain.exponentialRampToValueAtTime(volume,now+offset+.027);
+      gain.gain.exponentialRampToValueAtTime(.0001,now+offset+duration);
+      oscillator.connect(gain);gain.connect(ac.destination);
+      oscillator.start(now+offset);oscillator.stop(now+offset+duration+.045);
+    };
+    if(kind==='success'){
+      // Distinct HAPPY fanfare plus many soft, recognisable claps.
+      [523.25,659.25,783.99,1046.5,783.99,1046.5].forEach((f,i)=>
+        note(f,i*.17,.39,.052));
+      const sampleCount=Math.ceil(ac.sampleRate*.085);
+      const buffer=ac.createBuffer(1,sampleCount,ac.sampleRate),data=buffer.getChannelData(0);
+      // Each clap has a sharp onset plus a decaying little group of echoes.
+      for(let i=0;i<sampleCount;i++){
+        const k=i/sampleCount;
+        data[i]=(Math.random()*2-1)*Math.exp(-8*k)*
+          (0.75+0.25*Math.cos(35*k));
+      }
+      for(let i=0;i<22;i++){
+        const source=ac.createBufferSource(),high=ac.createBiquadFilter(),gain=ac.createGain();
+        source.buffer=buffer;high.type='bandpass';
+        high.frequency.value=1250+(i%5)*170;high.Q.value=.85;
+        gain.gain.value=.095+(i%4)*.011;
+        source.connect(high);high.connect(gain);gain.connect(ac.destination);
+        source.start(now+.22+i*.075+((i%3)-1)*.012);
+      }
+    }else if(kind==='encourage'){
+      // Gentle three-note acknowledgement — no scary buzzer or harsh brass.
+      note(392,0,.47,.04);note(349.23,.25,.45,.037);
+      note(329.63,.53,.57,.034);
+    }else{
+      note(440,0,.35,.038);note(523.25,.24,.40,.037);
     }
-  }else if(kind==='encourage'){
-    // Quiet, non-threatening two-note descending affirmation; no buzzer.
-    note(392,0,.38,.028);note(329.63,.27,.45,.023);
-    note(293.66,.54,.44,.016);
-  }else{
-    note(440,0,.26,.026);note(523.25,.23,.31,.024);
+    return true;
+  }catch(err){
+    console.warn('AREG result sound schedule:',err);
+    return false;
   }
 }
 
 export function createFindingSession(root,ctx,existingScore=null){
-  let wrong=0,correct=0,disposed=false,overlay=null,resultTimer=0;
-  let ac=null;
+  let wrong=0,correct=0,disposed=false,overlay=null;
+  let ac=null,keepAliveOsc=null,keepAliveGain=null,pendingResolve=null;
   const box=existingScore?.closest('.s3d-score')||
     document.createElement('div');
   box.className='s3d-score s3d-session-score';
@@ -70,21 +85,34 @@ export function createFindingSession(root,ctx,existingScore=null){
         const AC=window.AudioContext||window.webkitAudioContext;
         if(AC)ac=new AC();
       }
+      if(ac&&!keepAliveOsc){
+        // A nearly silent running oscillator keeps WebKit's audio graph alive
+        // between a child's last correct tap and the full-cycle result.
+        keepAliveOsc=ac.createOscillator();keepAliveGain=ac.createGain();
+        keepAliveOsc.frequency.value=34;keepAliveGain.gain.value=.000002;
+        keepAliveOsc.connect(keepAliveGain);keepAliveGain.connect(ac.destination);
+        keepAliveOsc.start();
+      }
       if(ac?.state==='suspended')ac.resume().catch(()=>{});
+      root.dataset.sessionAudio=ac?.state||'unavailable';
     }catch{}
   }
   function wrongAnswer(){if(disposed)return;unlockAudio();wrong++;update()}
   function rightAnswer(){if(disposed)return;unlockAudio();correct++;update()}
   function showCycleResult(){
     if(disposed)return Promise.resolve();
-    if(overlay){overlay.remove();overlay=null}
-    clearTimeout(resultTimer);
-    const outcome=classifyFindingResult(correct,wrong);
+    if(pendingResolve)return Promise.resolve(); // never stack dialogs
+    // Snapshot the just-completed cycle, then reset header immediately:
+    // the large result card retains the real (wrong/right) final counts.
+    const finalWrong=wrong,finalCorrect=correct;
+    const outcome=classifyFindingResult(finalCorrect,finalWrong);
+    wrong=0;correct=0;update();
     root.dataset.sessionResult=outcome;
     const el=document.createElement('div');
     el.className='s3d-cycle-backdrop s3d-cycle-'+outcome;
-    el.setAttribute('role','status');
-    el.setAttribute('aria-live','polite');
+    el.setAttribute('role','dialog');
+    el.setAttribute('aria-modal','true');
+    el.setAttribute('aria-label','Խաղաշրջանի արդյունքը');
     const title=outcome==='success'?'Ապրե՛ս, հրաշալի է։':
       outcome==='encourage'?'Լավ փորձ էր, շարունակի՛ր։':'Շատ լավ, շարունակե՛նք։';
     const desc=outcome==='success'?'Դու շատ ճիշտ պատասխաններ տվեցիր։':
@@ -94,46 +122,68 @@ export function createFindingSession(root,ctx,existingScore=null){
       '</div><div class="s3d-cycle-title"></div><div class="s3d-cycle-label"></div>'+
       '<div class="s3d-cycle-stats"><span class="s3d-session-wrong"></span>'+
       '<span class="s3d-session-slash">/</span><span class="s3d-session-right"></span></div>'+
-      '<div class="s3d-cycle-desc"></div></div>';
+      '<div class="s3d-cycle-desc"></div>'+
+      '<button type="button" class="s3d-cycle-replay" aria-label="Խաղալ նորից">'+
+      '<span class="s3d-cycle-replay-icon" aria-hidden="true">↻</span>'+
+      '<span>Խաղալ նորից</span></button></div>';
     el.querySelector('.s3d-cycle-title').textContent=title;
     el.querySelector('.s3d-cycle-label').textContent='Քո արդյունքը';
     el.querySelector('.s3d-cycle-desc').textContent=desc;
-    el.querySelector('.s3d-cycle-stats .s3d-session-wrong').textContent=String(wrong);
-    el.querySelector('.s3d-cycle-stats .s3d-session-right').textContent=String(correct);
-    el.querySelector('.s3d-cycle-stats .s3d-session-wrong').classList.toggle('is-active',wrong>0);
-    el.querySelector('.s3d-cycle-stats .s3d-session-right').classList.toggle('is-active',correct>0);
+    el.querySelector('.s3d-cycle-stats .s3d-session-wrong').textContent=String(finalWrong);
+    el.querySelector('.s3d-cycle-stats .s3d-session-right').textContent=String(finalCorrect);
+    el.querySelector('.s3d-cycle-stats .s3d-session-wrong').classList.toggle('is-active',finalWrong>0);
+    el.querySelector('.s3d-cycle-stats .s3d-session-right').classList.toggle('is-active',finalCorrect>0);
     if(outcome==='success'){
-      // Small DOM confetti is decorative only and has no picture/audio downloads.
       for(let i=0;i<18;i++){
-        const p=document.createElement('span');
-        p.className='s3d-cycle-particle';
-        p.textContent=i%3===0?'⭐':i%3===1?'✦':'●';
-        p.style.left=(10+(i*37)%82)+'%';
-        p.style.top=(8+(i*17)%72)+'%';
-        p.style.animationDelay=(i%7)*.11+'s';
-        el.appendChild(p);
+        const particle=document.createElement('span');
+        particle.className='s3d-cycle-particle';
+        particle.textContent=i%3===0?'⭐':i%3===1?'✦':'●';
+        particle.style.left=(10+(i*37)%82)+'%';
+        particle.style.top=(8+(i*17)%72)+'%';
+        particle.style.animationDelay=(i%7)*.11+'s';
+        el.appendChild(particle);
       }
     }
     root.appendChild(el);overlay=el;
-    playFindingResultsAudio(outcome,ctx,ac);
+    // Schedule on the same live audio context unlocked by actual earlier taps.
+    // If WebKit suspended it, resume and play after the resume resolves.
+    const play=()=>{
+      if(disposed||overlay!==el)return;
+      const ok=playFindingResultsAudio(outcome,ctx,ac);
+      root.dataset.resultAudio=ok?'scheduled':(ctx?.settings?.effects?'unavailable':'disabled');
+    };
+    if(ac?.state==='running')play();
+    else if(ac&&ctx?.settings?.master&&ctx?.settings?.effects)
+      ac.resume().then(play).catch(()=>{root.dataset.resultAudio='unavailable'});
+    else root.dataset.resultAudio='disabled';
+    root.dataset.sessionAwaitingReplay='true';
     return new Promise(resolve=>{
-      resultTimer=setTimeout(()=>{
-        resultTimer=0;
-        overlay?.remove();overlay=null;
-        pendingResolve=null;
-        resolve();
-      },3100);
-      // Resolves if user exits to menu during the celebration.
       pendingResolve=resolve;
+      const replay=el.querySelector('.s3d-cycle-replay');
+      replay.addEventListener('click',()=>{
+        if(disposed||overlay!==el||!pendingResolve)return;
+        // This is the ONLY way to advance the game beyond the final result.
+        const finish=pendingResolve;pendingResolve=null;
+        overlay.remove();overlay=null;
+        root.dataset.sessionAwaitingReplay='false';
+        root.dataset.sessionResult='none';
+        unlockAudio();
+        finish();
+      },{once:true});
     });
   }
-  let pendingResolve=null;
   function dispose(){
-    disposed=true;clearTimeout(resultTimer);resultTimer=0;
+    disposed=true;
     overlay?.remove();overlay=null;
+    root.dataset.sessionAwaitingReplay='false';
     if(pendingResolve){const done=pendingResolve;pendingResolve=null;done()}
+    try{keepAliveOsc?.stop()}catch{}
+    try{keepAliveOsc?.disconnect()}catch{}
+    try{keepAliveGain?.disconnect()}catch{}
     if(ac){ac.close().catch(()=>{});ac=null}
+    keepAliveOsc=null;keepAliveGain=null;
   }
+
   update();
   return {
     wrongAnswer,rightAnswer,showCycleResult,dispose,

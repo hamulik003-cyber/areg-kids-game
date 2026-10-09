@@ -1,5 +1,5 @@
 import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
-import {createFindingSession} from './space-finding-session.js?v=267';
+import {createFindingSession} from './space-finding-session.js?v=268';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -2082,6 +2082,10 @@ function gameSpaceSearch(ctx){
         root.dataset.cycleSeen='0';
         timer=setTimeout(()=>{
           if(disposed)return;
+          // No automatic restart: retain the result until the child taps
+          // the green "Խաղալ նորից" control. The score is reset to 0/0
+          // when that result appears, while the card retains final numbers.
+          root.dataset.spaceRoundPhase='result';
           session.showCycleResult().then(()=>{if(!disposed)buildRound()});
         },STARFIELD_PAUSE_MS);
       }else{

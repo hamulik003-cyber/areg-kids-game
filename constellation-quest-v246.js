@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=267';
+import {createFindingSession} from './space-finding-session.js?v=268';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -227,7 +227,7 @@ export function startConstellationQuest(ctx){
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=900;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=1000;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -593,6 +593,9 @@ export function startConstellationQuest(ctx){
       card.classList.remove('s3d-find-wrong');
       card.classList.add('s3d-find-dismissing');
       card.style.animation='none';
+      // Pause existing gentle floating in its CURRENT pose; no snap on tap.
+      const shell=card.querySelector('.s3d-find-art-shell');
+      if(shell)shell.style.animationPlayState='paused';
       card.style.transition='none';
       card.style.opacity='1';
       card.style.pointerEvents='none';
@@ -621,17 +624,13 @@ export function startConstellationQuest(ctx){
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
-    // V267: use the same gentle, unbroken entrance-style sweep in reverse.
-    // In the previous 650ms cubic, the moving art looked cut away suddenly.
-    // All properties progress across the same 900ms continuous sine curve.
+    // V268 user preference: stay in the SAME original grid positions.
+    // Like the reversed entrance, the art fades smoothly for one second.
+    // Do NOT translate, shrink, move backwards or stop then disappear.
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const e=.5-.5*Math.cos(Math.PI*p);
-    const scale=1-.36*e,depth=-165*e,alpha=1-e;
+    const eased=.5-.5*Math.cos(Math.PI*p);
     for(const card of losingCards){
-      const dir=cards.indexOf(card)%2===0?-1:1;
-      card.style.transform='translate3d('+(dir*42*e).toFixed(2)+'px,'+
-        (-8*e).toFixed(2)+'px,'+depth.toFixed(2)+'px) scale('+scale.toFixed(4)+')';
-      card.style.opacity=alpha.toFixed(4);
+      card.style.opacity=(1-eased).toFixed(4);
     }
     if(p>=1)finishLoserFade();
   }
@@ -654,6 +653,10 @@ export function startConstellationQuest(ctx){
       delay(()=>{
         if(disposed)return;
         if(roundIndex===ctx.CONSTELLATIONS.length){
+          // Final result lasts UNTIL the child presses the green replay.
+          // Scores reset to 0/0 at presentation, not after a fixed timeout.
+          phase='result';locked=true;
+          root.dataset.constellationPhase='result';
           session.showCycleResult().then(()=>{if(!disposed)buildRound()});
         }else buildRound();
       },STARFIELD_PAUSE_MS);

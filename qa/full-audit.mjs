@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=900")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=1000")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -165,20 +165,19 @@ check(quest.includes("function animateWinningHero(t)")&&
        'V265 hero must use actual planet 850ms RAF easing, 690ms retreat, 160ms sky pause');
 const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
-    quest.includes("const e=.5-.5*Math.cos(Math.PI*p)")&&
-    quest.includes("const scale=1-.36*e,depth=-165*e,alpha=1-e")&&
-    quest.includes("LOSER_FADE_MS=900")&&
+    quest.includes("const eased=.5-.5*Math.cos(Math.PI*p)")&&
+    quest.includes("card.style.opacity=(1-eased).toFixed(4)")&&
+    quest.includes("LOSER_FADE_MS=1000")&&
+    quest.includes("shell.style.animationPlayState='paused'")&&
     quest.includes("selectedCard=button")&&
     quest.includes("hero._approachStart=winAt")&&
     quest.includes("loserFadeStart=winAt")&&
-    quest.includes("selectedCard?.remove()")&&
-    quest.includes("card.style.opacity=alpha.toFixed(4)"),
-    'V267 three decoys dissolve softly over 900ms with uninterrupted reverse-entrance motion');
+    quest.includes("selectedCard?.remove()"),
+    'V268 three losing constellations stay STILL and gently fade in place concurrently with hero');
 for(const p of [0,.1,.25,.5,.75,.9,.98,1]){
   const e=.5-.5*Math.cos(Math.PI*p);
-  check(e>=0&&e<=1&&1-e>=0&&1-e<=1&&
-      1-.36*e>=.64-1e-8&&-165*e>=-165-1e-8,
-      'V267 continuous sine easing stays within bounds until zero opacity');
+  check(e>=0&&e<=1&&1-e>=0&&1-e<=1,
+    'V268 alpha-only fixed-position decoy fade is continuous and bounded');
 }
 check(quest.includes("constellationFindName(target)")&&
     !quest.includes('s3d-find-progress')&&
@@ -208,27 +207,38 @@ check(finding.includes('export function createFindingSession')&&
   finding.includes("root.dataset.sessionCorrect=String(correct)")&&
   finding.includes("root.dataset.sessionResult=outcome")&&
   finding.includes("function showCycleResult()")&&
-  finding.includes("playFindingResultsAudio(outcome,ctx,ac)")&&
-  finding.includes("let wrong=0,correct=0")&&
+  finding.includes("const finalWrong=wrong,finalCorrect=correct")&&
+  finding.includes("wrong=0;correct=0;update()")&&
+  finding.includes("root.dataset.sessionAwaitingReplay='true'")&&
+  finding.includes("replay.addEventListener('click'")&&
+  finding.includes('Խաղալ նորից')&&
+  finding.includes("keepAliveOsc=ac.createOscillator()")&&
+  finding.includes("ac.resume().then(play)")&&
+  finding.includes('source.start(now+.22+i*.075')&&
+  !finding.includes('resultTimer')&&
+  !finding.includes('setTimeout(()=>{')&&
   !finding.includes('localStorage.setItem(')&&
+  styles.includes('.s3d-cycle-replay')&&
   styles.includes('.s3d-session-wrong')&&styles.includes('.s3d-session-right')&&
   styles.includes('.s3d-cycle-card'),
-  'V267 requires in-memory red/green wrong/right scoreboard and kind, centered celebration');
+  'V268 child-controlled replay: reset header, keep final result, green manual button, live applause');
 check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   space.includes('seenTargets.add(target.id)')&&
   space.includes("if(seenTargets.size===pool.length)")&&
+  space.includes("root.dataset.spaceRoundPhase='result'")&&
   space.includes('session.showCycleResult().then(')&&
   space.includes('session.wrongAnswer()')&&
   space.includes('session.rightAnswer()')&&
   quest.includes("createFindingSession(root,ctx)")&&
   quest.includes("if(roundIndex===ctx.CONSTELLATIONS.length)")&&
+  quest.includes("root.dataset.constellationPhase='result'")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
-  'V267 both games must show one session result after a complete nonrepeating target cycle');
-check(sw.includes('space-finding-session.js?v=267')&&
-      app.includes('space-3d-games.js?v=267')&&
-      app.includes('constellation-quest-v246.js?v=267'),
-      'V267 versioned module imports and PWA offline cache must be synchronized');
+  'V268 BOTH games must pause at full-tour result until green replay tap');
+check(sw.includes('space-finding-session.js?v=268')&&
+      app.includes('space-3d-games.js?v=268')&&
+      app.includes('constellation-quest-v246.js?v=268'),
+      'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>

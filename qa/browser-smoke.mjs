@@ -148,9 +148,11 @@ try{
               placeholder:!!root.querySelector('.s3d-find-choice[style*="visibility: hidden"]'),
               losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
                 opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
-                transition:c.style.transition,animation:getComputedStyle(c).animationName
+                transition:c.style.transition,animation:getComputedStyle(c).animationName,
+                shellPaused:c.querySelector('.s3d-find-art-shell')?.style.animationPlayState==='paused',
+                x:c.getBoundingClientRect().x,y:c.getBoundingClientRect().y
               }))});
-            if(ms>=940)resolve();else requestAnimationFrame(tick);
+            if(ms>=1170)resolve();else requestAnimationFrame(tick);
           }
           requestAnimationFrame(tick);
         });
@@ -172,11 +174,13 @@ try{
          f.heroTransform!==reveal.startTransform&&
          f.losers.every(c=>c.opacity>.01&&c.opacity<1&&
            c.transition==='none'&&c.animation==='none'&&
-           c.transform.includes('translate3d(')));
+           c.shellPaused&&c.transform==='translate3d(0px,0px,0px) scale(1)'));
       if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
       const middle=reveal.samples.filter(f=>f.ms>40&&f.ms<590&&f.losers.length===3);
       if(middle.length<3||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
-        c.opacity>middle[i-1].losers[j].opacity+.008)))
+        c.opacity>middle[i-1].losers[j].opacity+.008||
+         Math.abs(c.x-middle[i-1].losers[j].x)>1||
+         Math.abs(c.y-middle[i-1].losers[j].y)>1)))
         throw Error('V266 losing figures paused or reappeared');
       const last=reveal.samples.at(-1);
       if(last.losers.length!==0||last.isolated!=='true'||last.motion!=='holding')
@@ -235,10 +239,10 @@ try{
       });
       if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
         throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
-      // Lightweight real-browser overlay check for positive / negative / tie:
-      // This deliberately does not render 38 full GPU rounds in CI.
+      // Real browser contract: modal LASTS until tapped, header is reset
+      // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=267');
+        const api=await import('./space-finding-session.js?v=268');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');
@@ -248,20 +252,38 @@ try{
           const session=api.createFindingSession(fake,{settings:{master:false,effects:false}});
           if(kind==='success'){session.rightAnswer();session.rightAnswer();session.wrongAnswer()}
           if(kind==='encourage'){session.wrongAnswer();session.wrongAnswer();session.rightAnswer()}
-          const running=session.showCycleResult();
+          const old=session.counts();
+          let resolved=false;
+          const running=session.showCycleResult().then(()=>{resolved=true});
           const overlay=fake.querySelector('.s3d-cycle-backdrop');
+          const replay=overlay?.querySelector('.s3d-cycle-replay');
+          // Timer regression: V267 auto-dismissed at 3100ms. V268 MUST not.
+          if(kind==='success')await new Promise(ok=>setTimeout(ok,3300));
+          const stillOpen=!!fake.querySelector('.s3d-cycle-backdrop');
+          const counts=session.counts();
           result.push({kind,actual:fake.dataset.sessionResult,
-            hasOverlay:!!overlay,hasStats:!!overlay?.querySelector('.s3d-cycle-stats'),
+            hasOverlay:!!overlay,stillOpen,resolvedBeforeTap:resolved,
+            awaitingReplay:fake.dataset.sessionAwaitingReplay,
+            finalWrong:overlay?.querySelector('.s3d-cycle-stats .s3d-session-wrong')?.textContent,
+            finalRight:overlay?.querySelector('.s3d-cycle-stats .s3d-session-right')?.textContent,
+            old,counts,hasReplay:replay?.textContent.includes('Խաղալ նորից'),
             particles:overlay?.querySelectorAll('.s3d-cycle-particle').length||0,
             hasTitle:!!overlay?.querySelector('.s3d-cycle-title')?.textContent});
-          session.dispose();await running;fake.remove();
+          replay?.click();await running;
+          if(!resolved||fake.querySelector('.s3d-cycle-backdrop'))
+            throw Error('V268 replay did not resume on click');
+          session.dispose();fake.remove();
         }
         return result;
       });
-      if(outcomes.length!==3||outcomes.some(x=>x.kind!==x.actual||!x.hasOverlay||!x.hasStats||!x.hasTitle)||
+      if(outcomes.length!==3||outcomes.some(x=>x.kind!==x.actual||!x.hasOverlay||
+         !x.stillOpen||x.resolvedBeforeTap||x.awaitingReplay!=='true'||
+         !x.hasReplay||!x.hasTitle||x.counts.wrong!==0||x.counts.correct!==0||
+         String(x.old.wrong)!==x.finalWrong||String(x.old.correct)!==x.finalRight)||
          outcomes[0].particles!==18||outcomes[1].particles!==0)
-        throw Error('V267 celebratory and gentle-result overlays invalid '+JSON.stringify(outcomes));
-      console.log('CONSTELLATION V267 PASS red/green session score, smooth retreat, results and 10th-star '+process.env.AREG_BROWSER);
+        throw Error('V268 manually restarted child-safe modal/score invalid '+JSON.stringify(outcomes));
+
+      console.log('CONSTELLATION V268 PASS stationary fade, manual replay gate, score reset, results and 10th-star '+process.env.AREG_BROWSER);
      }
 
 
