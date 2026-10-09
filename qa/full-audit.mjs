@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=WIN_ZOOM_MS")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -152,19 +152,29 @@ if(heroSource){
 }
 check(quest.includes("function animateLoserFade(t)")&&
       quest.includes("const smooth=p*p*(3-2*p)")&&
-      quest.includes("card.style.opacity=(1-smooth).toFixed(4)")&&
+      quest.includes("const scale=1-.30*smooth")&&
+      quest.includes("const depth=-110*smooth")&&
+      quest.includes("card.style.transform='translate3d(0px,0px,'+depth.toFixed(2)")&&
+      quest.includes("card.style.opacity=alpha.toFixed(4)")&&
+      quest.includes("loserFadeStart=performance.now()")&&
+      quest.includes("LOSER_FADE_MS=WIN_ZOOM_MS")&&
       quest.includes("animateLoserFade(t)")&&
       quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+100)")&&
       quest.includes("card.style.transition='none'")&&
       quest.includes("card.style.animation='none'")&&
-      quest.includes("card.classList.add('s3d-find-hidden')")&&
-      quest.includes("card.style.display='none'")&&
       quest.includes("card.remove()")&&
       skyCss.includes(".s3d-find-choice.s3d-find-hidden")&&
-      !skyCss.includes("@keyframes s3dFindLoserFade")&&
+      !skyCss.includes(".s3d-find-choice.s3d-find-dismissing .s3d-find-art-shell{")&&
       !quest.includes("sound('entry'")&&
       !quest.includes("kind==='entry'"),
-      'V261 losing images fade from the game frame clock, then fully leave WebKit DOM');
+      'V263 losers must recede from touch for exactly the full winner approach, smoothly fade, then detach');
+for(const p of [0,.1,.25,.5,.75,.9,1]){
+ const smooth=p*p*(3-2*p);
+ const depth=-110*smooth, scale=1-.30*smooth, alpha=1-smooth;
+ check(scale>=.7&&scale<=1&&depth>=-110&&depth<=0&&alpha>=0&&alpha<=1,
+       'V263 retreat curve must keep every silhouette positive and opacity bounded');
+}
+
 
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
