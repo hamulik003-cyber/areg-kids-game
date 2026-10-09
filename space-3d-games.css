@@ -81,39 +81,19 @@
              transform 1.08s cubic-bezier(.38,0,.72,.52);
 }
 
-/* V251: the source JPEG is square-ish but the earlier IMG element had an
-   oversized letterboxed box: CSS masks followed that box, not the JPEG edges.
-   Match the intrinsic image rectangle, feather it, and let a blurred duplicate
-   of the SAME artwork softly continue its nebula colors into the 3D sky. */
+/* V252: honest RGBA sprites. The live 3D nebula is the only background;
+   no dark JPG rectangles, huge filter blurs, edge masks, or blending hacks. */
 .s3d-quest-photo-stage{
-  position:relative;width:100%;min-height:0;
-  flex:1 1 auto;display:flex;align-items:center;justify-content:center;
-  isolation:isolate;mix-blend-mode:screen;pointer-events:none;overflow:visible;
-}
-.s3d-quest-photo-atmosphere{
-  position:absolute;inset:-8% -9%;z-index:0;pointer-events:none;
-  background-position:center;background-repeat:no-repeat;background-size:cover;
-  filter:blur(26px) saturate(1.18);
-  opacity:.82;transform:scale(1.045);
-  mix-blend-mode:screen;
-  -webkit-mask-image:radial-gradient(ellipse 54% 52% at center,
-    #000 21%,rgba(0,0,0,.8) 47%,rgba(0,0,0,.35) 68%,transparent 100%);
-  mask-image:radial-gradient(ellipse 54% 52% at center,
-    #000 21%,rgba(0,0,0,.8) 47%,rgba(0,0,0,.35) 68%,transparent 100%);
+  position:relative;width:100%;min-height:0;flex:1 1 auto;
+  display:flex;align-items:center;justify-content:center;
+  overflow:visible;pointer-events:none;
 }
 .s3d-quest-art{
-  position:relative;z-index:1;
-  display:block;width:auto;height:auto;max-width:100%;max-height:100%;
+  display:block;width:auto;height:auto;
+  max-width:100%;max-height:100%;
   object-fit:contain;object-position:center;
-  opacity:0;mix-blend-mode:screen;
-  filter:drop-shadow(0 0 13px rgba(117,161,255,.19));
-  /* The mask now follows the *actual image box*, not a letterboxed area. */
-  -webkit-mask-image:radial-gradient(ellipse 50% 50% at center,
-    #000 28%,rgba(0,0,0,.98) 50%,rgba(0,0,0,.69) 67%,
-    rgba(0,0,0,.18) 88%,transparent 100%);
-  mask-image:radial-gradient(ellipse 50% 50% at center,
-    #000 28%,rgba(0,0,0,.98) 50%,rgba(0,0,0,.69) 67%,
-    rgba(0,0,0,.18) 88%,transparent 100%);
+  opacity:0;
+  filter:drop-shadow(0 0 12px rgba(129,173,255,.24));
 }
 .s3d-quest-art.is-loaded{opacity:1}
 .s3d-quest-caption{
