@@ -183,10 +183,16 @@ export function startConstellationQuest(ctx){
   const progress=document.createElement('div');progress.className='s3d-quest-progress';
   root.appendChild(progress);
   const reveal=document.createElement('div');reveal.className='s3d-quest-reveal';
+  const photoStage=document.createElement('div');
+  photoStage.className='s3d-quest-photo-stage';
+  const photoAtmosphere=document.createElement('div');
+  photoAtmosphere.className='s3d-quest-photo-atmosphere';
+  photoAtmosphere.setAttribute('aria-hidden','true');
   const art=document.createElement('img');
   art.className='s3d-quest-art';art.alt='';art.decoding='async';art.draggable=false;
+  photoStage.append(photoAtmosphere,art);
   const caption=document.createElement('div');caption.className='s3d-quest-caption';
-  reveal.append(art,caption);root.appendChild(reveal);
+  reveal.append(photoStage,caption);root.appendChild(reveal);
 
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.4));
@@ -229,12 +235,15 @@ export function startConstellationQuest(ctx){
   let points=[],target=0,disposed=false,roundStarted=0,completeAt=0;
   let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now(),exitStartedAt=0;
   const deck=randomizedOrder(ctx.CONSTELLATIONS),allCount=deck.length;
-  let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,activeUtterance=null;
+  let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,keepAliveOsc=null,keepAliveGain=null;
   const timers=new Set();
   function later(fn,ms){
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
   }
+  // V251: one audio session for the entire minigame. Avoid SpeechSynthesis:
+  // on iOS that separate audio session was interrupting our WebAudio effects
+  // after the first level. Unlock this engine on an actual star touch.
   function audio(){
     if(!ctx.settings.master||!ctx.settings.effects)return null;
     try{
@@ -242,12 +251,17 @@ export function startConstellationQuest(ctx){
         const AC=window.AudioContext||window.webkitAudioContext;
         if(!AC)return null;
         audioContext=new AC();
+        keepAliveOsc=audioContext.createOscillator();
+        keepAliveGain=audioContext.createGain();
+        keepAliveOsc.frequency.value=32;
+        keepAliveGain.gain.value=0; // silence: keeps graph alive, not audible.
+        keepAliveOsc.connect(keepAliveGain);
+        keepAliveGain.connect(audioContext.destination);
+        keepAliveOsc.start();
       }
       return audioContext;
     }catch{return null}
   }
-  // Safari/iOS can interrupt audio after a synthesized spoken prompt.  Do not
-  // schedule notes into a suspended context; wait for a successful resume.
   function withRunningAudio(play){
     const ac=audio();if(!ac)return;
     const run=()=>{if(!disposed&&ac===audioContext&&ac.state==='running')play(ac)};
@@ -255,8 +269,8 @@ export function startConstellationQuest(ctx){
     ac.resume().then(run).catch(()=>{});
   }
   function scheduleNextIntro(){
-    // Queue the incoming constellation chime during the final *user gesture*.
-    // iOS otherwise may reject the non-gesture audio play at the next timer.
+    // The entire next-level chime is scheduled on the child's *last star tap*.
+    // In contrast to autoplay after a timer, this reuses the unlocked graph.
     const nextToken=roundToken+1;
     const delay=(660+6600+1160+420)/1000;
     withRunningAudio(ac=>{
@@ -298,19 +312,9 @@ export function startConstellationQuest(ctx){
     }
     });
   }
-  function speak(s){
-    if(!ctx.settings.master||!ctx.settings.voice||!('speechSynthesis' in window))return;
-    try{
-      // Avoid cancelling the iOS audio session at every level transition.
-      if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(s);
-      activeUtterance=u; // iOS retains the utterance until it finishes.
-      u.lang='hy-AM';u.rate=.89;u.pitch=1.05;u.volume=.86;
-      const v=ctx.pickArmenianSpeechVoice?.();if(v)u.voice=v;
-      u.onend=u.onerror=()=>{if(activeUtterance===u)activeUtterance=null};
-      speechSynthesis.speak(u);
-    }catch{}
-  }
+  // Narration is deliberately visual in this minigame until permanent
+  // local Armenian speech files are supplied. Device SpeechSynthesis cannot
+  // safely share the iOS audio session with short WebAudio effects.
   function removeNode(n){
     group.remove(n.mesh,n.aura);
     n.mesh.material.dispose();n.aura.material.dispose();
@@ -355,6 +359,9 @@ export function startConstellationQuest(ctx){
     art.classList.remove('is-loaded');
     art.removeAttribute('src');
     art.alt=item.name;
+    // The same already-decoded JPEG supplies a blurred, borderless color
+    // halo behind the main art; no new image download or custom heavy asset.
+    photoAtmosphere.style.backgroundImage='url('+JSON.stringify(item.img)+')';
     art.onload=()=>{
       if(disposed||token!==roundToken)return;
       const ready=()=>{if(disposed||token!==roundToken)return;artReady=true;art.classList.add('is-loaded')};
@@ -380,7 +387,7 @@ export function startConstellationQuest(ctx){
     progress.textContent='Վառված աստղեր՝ 0 / '+nodes.length;
     group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
     queueArt(current,token);
-    later(()=>{if(token!==roundToken)return;stage='playing';speak('Դիպչի՛ր կամ սահեցրո՛ւ մատդ փայլող աստղին');},1150);
+    later(()=>{if(token!==roundToken)return;stage='playing';},1150);
     if(nextEntryScheduledFor===token){nextEntryScheduledFor=0;}
     else sound('entry');
   }
@@ -424,7 +431,6 @@ export function startConstellationQuest(ctx){
         later(show,350);later(show,900);later(show,1700);
       }
       sound('reveal');award();
-      speak('Կեցցե՛ս։ '+current.name);
       later(()=>exitRound(token),6600);
     },660);
   }
@@ -588,7 +594,8 @@ export function startConstellationQuest(ctx){
     nebulaPlane.geometry.dispose();nebulaPlane.material.dispose();nebulaMap.dispose();
     mist.forEach(s=>s.material.dispose());
     renderer.dispose();renderer.forceContextLoss?.();
-    activeUtterance=null;
+    if(keepAliveOsc){try{keepAliveOsc.stop()}catch{}keepAliveOsc.disconnect();keepAliveOsc=null}
+    if(keepAliveGain){keepAliveGain.disconnect();keepAliveGain=null}
     if(audioContext){audioContext.close().catch(()=>{});audioContext=null}
     try{speechSynthesis.cancel()}catch{}
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
