@@ -488,11 +488,11 @@ export function startConstellationQuest(ctx){
       card.style.transition='transform '+EXIT_MS+'ms cubic-bezier(.32,0,.68,.48), opacity '+
         EXIT_MS+'ms cubic-bezier(.42,0,.78,.48)';
       const old=card.style.transform;
-      const found=old.match(/scale\\(([\\d.]+)\\)/);
+      const found=old.match(/scale\(([\d.]+)\)/);
       const startScale=found?Number(found[1]):1;
       requestAnimationFrame(()=>{
         if(disposed||phase!=='exit')return;
-        card.style.transform=old.replace(/scale\\([\\d.]+\\)/,
+        card.style.transform=old.replace(/scale\([\d.]+\)/,
           'scale('+(startScale*.64).toFixed(4)+')');
         card.style.opacity='0';
       });
