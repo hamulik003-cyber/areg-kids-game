@@ -188,7 +188,7 @@ export function startConstellationQuest(ctx){
   let losingCards=[],loserFadeStart=0,winningHero=null;
   const deckSize=ctx.CONSTELLATIONS.length;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=WIN_ZOOM_MS;
+  const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=280;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -410,6 +410,12 @@ export function startConstellationQuest(ctx){
     button.style.visibility='hidden';
     button.remove();
     root.dataset.heroMode='independent';
+    root.dataset.heroMotion='waiting'; // V264 hero stays still until decoys are gone.
+  }
+  function beginWinningHeroApproach(){
+    const hero=winningHero;
+    if(disposed||phase!=='winning'||!hero||root.dataset.heroMotion!=='waiting')return;
+    root.dataset.heroMotion='approaching';
     requestAnimationFrame(()=>{
       if(disposed||phase!=='winning'||hero!==winningHero)return;
       hero.style.transition='transform '+WIN_ZOOM_MS+
@@ -430,6 +436,7 @@ export function startConstellationQuest(ctx){
     losingCards=[];clearWinningHero();
     root.dataset.winnerIsolated='false';
     root.dataset.heroMode='none';
+    root.dataset.heroMotion='none';
     root.dataset.constellationPhase='loading';
     const plan=queued||planRound();
     queued=null;
@@ -515,8 +522,7 @@ export function startConstellationQuest(ctx){
     award();
     // Independent, alpha-centered scene-space hero. The former grid-cell
     // zoom could drift left/top and crop the figure on real iPhones.
-    // One shared start moment: hero advances while the three unchosen
-    // constellations recede into deep space. Neither waits for the other.
+    // V264: three decoys leave fast, THEN the selected hero starts advancing.
     loserFadeStart=performance.now();
     showWinningHero(button,button._imageRecord,item);
     losingCards=[];
@@ -533,8 +539,7 @@ export function startConstellationQuest(ctx){
       card.style.transform='translate3d(0px,0px,0px) scale(1)';
       losingCards.push(card);
     });
-    // Backstop only for background-throttled WebKit. Under normal play the
-    // final rAF removes all three precisely as the hero finishes approach.
+    // iOS fallback removes decoys first, then allows the hero to move.
     delay(()=>finishLoserFade(),LOSER_FADE_MS+100);
     // 1.22s gentle approach, then >3 seconds full-size viewing; only then
     // a slow receding exit. Newly appearing choices have NO entry sound.
@@ -550,17 +555,16 @@ export function startConstellationQuest(ctx){
     }
     losingCards=[];
     root.dataset.winnerIsolated='true';
+    beginWinningHeroApproach(); // Do not move winner until all 3 losers are removed.
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
-    // Same 1220ms clock as the correct figure approaching its full size.
-    // Each losing object retreats in Z and shrinks progressively, fading
-    // throughout (never waiting until the winner is already centered).
+    // 280ms easeOutCubic is the approved Space Search decoy fade rhythm.
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const smooth=p*p*(3-2*p);
-    const scale=1-.30*smooth;
-    const depth=-110*smooth;
-    const alpha=1-smooth;
+    const eased=1-(1-p)*(1-p)*(1-p);
+    const scale=1-.28*eased;
+    const depth=-78*eased;
+    const alpha=1-eased;
     for(const card of losingCards){
       card.style.transform='translate3d(0px,0px,'+depth.toFixed(2)+
         'px) scale('+scale.toFixed(4)+')';
