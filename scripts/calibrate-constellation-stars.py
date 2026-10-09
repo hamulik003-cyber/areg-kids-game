@@ -109,8 +109,25 @@ def calibrate(path):
     # unconstrained brightest-24 candidate list contains disconnected galactic
     # dust stars; discard nodes that do not join any line from the art.
     degree=[0]*len(reordered)
-    for i,j in edges:degree[i]+=1;degree[j]+=1
-    chosen=[i for i,n in enumerate(degree) if n>0]
+    neighbors=[set() for _ in reordered]
+    for i,j in edges:
+        degree[i]+=1;degree[j]+=1
+        neighbors[i].add(j);neighbors[j].add(i)
+    # Tiny isolated doublets typically come from the nebula background,
+    # not the illustrated animal/human star diagram. Keep the true connected
+    # body components; specifically preserve both real Pisces figures.
+    visited=set()
+    components=[]
+    for i in range(len(reordered)):
+        if i in visited or degree[i]==0:continue
+        stack=[i];visited.add(i);component=[]
+        while stack:
+            node=stack.pop();component.append(node)
+            for nxt in neighbors[node]:
+                if nxt not in visited:
+                    visited.add(nxt);stack.append(nxt)
+        components.append(component)
+    chosen=sorted(i for component in components if len(component)>=3 for i in component)
     if len(chosen)<3:
         raise RuntimeError(f"{path}: only {len(chosen)} line-supported points")
     # Avoid overwhelming young children with 24 touches while retaining the
