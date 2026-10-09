@@ -6,7 +6,9 @@ import * as THREE from './vendor/three.module.min.js';
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function randomizedOrder(items){
-  const order=items.map((_,i)=>i);
+  // V257: shuffle ITEMS, not numeric indices. The old star-trace game
+  // indexed its array afterward; four-choice requires actual image records.
+  const order=[...items];
   for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
   return order;
 }
