@@ -235,7 +235,7 @@ export function startConstellationQuest(ctx){
   let points=[],target=0,disposed=false,roundStarted=0,completeAt=0;
   let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now(),exitStartedAt=0;
   const deck=randomizedOrder(ctx.CONSTELLATIONS),allCount=deck.length;
-  let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,keepAliveOsc=null,keepAliveGain=null;
+  let nextSlot=0,artReady=false,artForToken=0,audioContext=null,nextEntryScheduledFor=0,keepAliveOsc=null,keepAliveGain=null,needEntryCueOnTouch=false;
   const timers=new Set();
   function later(fn,ms){
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
@@ -254,7 +254,7 @@ export function startConstellationQuest(ctx){
         keepAliveOsc=audioContext.createOscillator();
         keepAliveGain=audioContext.createGain();
         keepAliveOsc.frequency.value=32;
-        keepAliveGain.gain.value=0; // silence: keeps graph alive, not audible.
+        keepAliveGain.gain.value=0.000002; // practically inaudible 32 Hz carrier; avoids iOS graph being idle.
         keepAliveOsc.connect(keepAliveGain);
         keepAliveGain.connect(audioContext.destination);
         keepAliveOsc.start();
@@ -388,8 +388,12 @@ export function startConstellationQuest(ctx){
     group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
     queueArt(current,token);
     later(()=>{if(token!==roundToken)return;stage='playing';},1150);
-    if(nextEntryScheduledFor===token){nextEntryScheduledFor=0;}
-    else sound('entry');
+    // If the device interrupted the scheduled chime while between rounds,
+    // deliver it at the next real touch when Safari allows audio resume.
+    if(nextEntryScheduledFor===token){
+      nextEntryScheduledFor=0;
+      needEntryCueOnTouch=!!audioContext&&audioContext.state!=='running';
+    }else{needEntryCueOnTouch=false;sound('entry')}
   }
   function award(){
     if(ctx.awardStar)ctx.awardStar();
@@ -460,6 +464,7 @@ export function startConstellationQuest(ctx){
     if(!rect.width||!rect.height)return;
     heldPointer=e.pointerId;
     lastDragPoint={x:e.clientX-rect.left,y:e.clientY-rect.top};
+    if(needEntryCueOnTouch){needEntryCueOnTouch=false;sound('entry')}
     try{renderer.domElement.setPointerCapture(e.pointerId)}catch{}
     // Regular tapping stays unchanged, including the wrong-star sound.
     scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);
