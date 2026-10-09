@@ -186,9 +186,13 @@ try{
       // The hero's cubic easing is already ~80% complete by 340ms.
       // All three losing choices must disappear before 450ms, while
       // the hero is still approaching, and genuinely begin fading early.
-      const early=reveal.samples.find(f=>f.ms>55&&f.ms<170&&
+      // WebKit's GPU+3D first rAF sample may occur around 60ms and the
+      // next around 230ms, skipping the former artificial 55-170ms window.
+      // Check real early FADE PROGRESS by 300ms instead of demanding a
+      // specific intermediate frame which the browser never produced.
+      const early=reveal.samples.find(f=>f.ms>55&&f.ms<300&&
         f.motion==='approaching'&&f.losers.length===3&&
-        f.losers.every(c=>c.opacity<.92));
+        f.losers.every(c=>c.opacity<.4));
       if(!early)throw Error('V270 WebKit first-fade diagnostic '+
         JSON.stringify({engine:reveal.fadeEngine,build:reveal.build,
           opening:reveal.samples.slice(0,12).map(f=>({
