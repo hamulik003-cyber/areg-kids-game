@@ -30,3 +30,15 @@ This is an **existing production PWA** for children. The active branch is `main`
 - Pre-performance-fix: commit `59151ab4ffb4ed825a2b68ce7fdc1e00ae944e1d`, branch `backup/v244-before-speed-fix-2026-10-09`.
 - V245 is a performance patch, **not** a replacement for user-approved visuals or game logic.
 - Read this file at the beginning of each new chat, then inspect the current `main` HEAD; later commits may supersede these notes.
+
+
+## V247 constellation quest (2026-10-09) — in user testing
+- The last user-approved full-game baseline is V245. Its backup branch is backup/v245-prefinal-before-constellation-quest, based on commit b785e1b99f53902fe574a68dbb1e01295b103aa2. Keep it intact.
+- Current experimental constellation quest is constellation-quest-v246.js?v=247, a separate lazy-loaded WebGL module. Do NOT edit space-3d-games.js Space Search gameplay as part of this quest.
+- 38 illustrations in CONSTELLATIONS are matched by ID with 38 hand-positioned gameplay star trails in TRAILS. The constellation artwork appears only after completion.
+- Stars appear smoothly; one blinks as a tap hint; touching lights it steadily and connects a growing light beam from the previous star. A wrong star plays the existing descending two-tone planets-style sound.
+- Completion triggers synthesized magic tones, a fading-in original illustration, Armenian speech if available, and +1 star reward.
+- Each game session shuffles all 38 once, with no repeats until all are used. Then it repeats from the same randomly selected first constellation.
+- Offline core includes the small quest module; the 3D Search engine and full-resolution texture set remain on-demand to protect launch performance.
+- Changing quest code after publication requires a NEW import query version, matching service worker precache entry/cache version, app.js and index.html script versions, and QA synchronization. Never reintroduce navigation redirects.
+- qa/full-audit.mjs verifies all 38 star trails; check CI and real DotKiosk/iPhone before promoting any new version to pre-final.
