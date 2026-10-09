@@ -307,7 +307,8 @@ export function startConstellationQuest(ctx){
     try{imageSources=await prepare(plan)}
     catch(err){
       if(disposed||seq!==sequence)return;
-      console.warn('Constellation image preparation:',err);
+      root.dataset.loadError=String(err?.message||err);
+      console.error('CONSTELLATION IMAGE FAIL',err);
       prompt.textContent='Նկարները չեն բեռնվել․ փորձիր նորից';
       progress.textContent='Կպի՛ր՝ կրկին փորձելու համար';
       stage.onclick=()=>{stage.onclick=null;queued=plan;buildRound()};
