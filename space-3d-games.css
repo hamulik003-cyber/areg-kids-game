@@ -66,9 +66,10 @@
   position:absolute;inset:17% 2.5% 9%;
   z-index:6;pointer-events:none;display:flex;
   justify-content:center;align-items:center;flex-direction:column;
-  opacity:0;transform:scale(.87) translateY(16px);
-  transition:opacity 1.2s cubic-bezier(.2,.75,.2,1),
-             transform 1.45s cubic-bezier(.17,.77,.18,1);
+  opacity:0;transform:scale(.76) translate3d(0,23px,0);
+  /* Slow magical reveal: finish the entire figure, then hold it in view. */
+  transition:opacity 2.85s cubic-bezier(.23,.08,.32,1),
+             transform 3.05s cubic-bezier(.18,.73,.26,1);
   will-change:opacity,transform;
 }
 .s3d-quest-reveal.is-visible{opacity:1;transform:scale(1) translateY(0)}
