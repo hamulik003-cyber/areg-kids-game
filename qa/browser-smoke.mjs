@@ -106,6 +106,8 @@ try{
         throw Error('Incorrect constellation must not advance level');
       await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),correctName);
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='winning',null,{timeout:3000});
+      // V263: both motions begin on the same winning tap. Do not check only
+      // hidden DOM at 920ms; the losing art should still be smoothly receding.
       await page.waitForTimeout(270);
       const early=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
@@ -114,18 +116,27 @@ try{
         return {hero:!!hero,originalCorrect:others.some(c=>c.getAttribute('aria-label')===
           root.querySelector('.s3d-prompt strong')?.textContent?.replace('Կեցցե՛ս։ ','')),
           losers:others.map(c=>({
-           fading:c.classList.contains('s3d-find-dismissing'),
-           opacity:Number(getComputedStyle(c).opacity),
-           transition:c.style.transition,
-           animation:getComputedStyle(c).animationName
+            fading:c.classList.contains('s3d-find-dismissing'),
+            opacity:Number(getComputedStyle(c).opacity),
+            transition:c.style.transition,
+            animation:getComputedStyle(c).animationName,
+            transform:c.style.transform
           }))};
       });
       if(!early.hero||early.originalCorrect||early.losers.length!==3||
         early.losers.some(v=>!v.fading||v.animation!=='none'||v.transition!=='none'||
-          v.opacity<=.02||v.opacity>=.99))
-        throw Error('V262 hero must replace original winner while 3 losers smoothly dim '+
+          v.opacity<=.2||v.opacity>=.99||
+          !/translate3d\(0px,0px,-[\d.]+px\) scale\(0\.[\d]+\)/.test(v.transform)))
+        throw Error('V263 all three must simultaneously FADE AND RECEDE from touch '+
           JSON.stringify(early));
-      await page.waitForTimeout(650);
+      await page.waitForTimeout(540);
+      const retreat=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')]
+        .map(c=>({opacity:Number(c.style.opacity),transform:c.style.transform})));
+      if(retreat.length!==3||retreat.some(v=>v.opacity>=.6||v.opacity<=0||
+          !/translate3d\(0px,0px,-[\d.]+px\) scale\(0\.[\d]+\)/.test(v.transform)))
+        throw Error('V263 losing images must keep moving backward through hero approach '+
+          JSON.stringify(retreat));
+      await page.waitForTimeout(560);
       const isolated=await page.evaluate(()=>({
         phase:document.querySelector('.s3d-find256')?.dataset.constellationPhase,
         hero:document.querySelectorAll('.s3d-find-hero').length,
@@ -134,7 +145,7 @@ try{
       }));
       if(isolated.phase!=='winning'||isolated.hero!==1||isolated.oldChoices!==0||
          isolated.removed!=='true')
-        throw Error('V262 independent hero must be the ONLY displayed art by 920ms '+
+        throw Error('V263 three old figures must vanish by the end of hero 1220ms approach '+
           JSON.stringify(isolated));
       await page.waitForTimeout(650);
       const centered=await page.evaluate(()=>{
