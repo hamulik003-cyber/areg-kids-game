@@ -1,0 +1,41 @@
+name: AREG V244 Classic Space Transition
+on:
+  push:
+    branches: [v244-classic-space-exit-lab]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - name: Verify unchanged assets and correct versioned cache
+        run: node qa/full-audit.mjs
+      - name: Verify historical V232 animation with V243 loading enhancements
+        run: |
+          node --check space-3d-games.js
+          node qa/v244-classic-exit.mjs
+      - name: Verify all twenty activities in Chrome
+        run: node qa/browser-smoke.mjs
+      - name: Verify Space section image predecode and 3D prewarm
+        run: node qa/v243-space-entry.mjs
+  apple-webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Verify all 20 games with Apple WebKit
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: Verify early Space loading in Apple WebKit
+        run: AREG_BROWSER=webkit node qa/v243-space-entry.mjs

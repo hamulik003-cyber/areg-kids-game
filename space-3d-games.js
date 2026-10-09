@@ -1729,7 +1729,7 @@ function gameSpaceSearch(ctx){
   const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
   const next=bag(pool);
 
-  let groups=[],retiringGroups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
+  let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
   let wrong=null,winStart=0,winGroup=null,transition=null,timer=0,recent=[];
 
   function decoys(t){
@@ -1737,33 +1737,16 @@ function gameSpaceSearch(ctx){
     if(p.length<2)p=shuffle(pool.filter(x=>x.id!==t.id));
     return p.slice(0,2);
   }
-  function disposeRetiringGroups(){
-    retiringGroups.forEach(g=>{scene.remove(g);disposeObject(g)});
-    retiringGroups=[];
-    root.dataset.spaceCrossfade='idle';
-  }
+  // V244: restore the approved V232 storybook rhythm: old planet leaves
+  // completely, starfield is briefly visible, then three new planets enter.
+  // Keep V243 preload, UV graphics and all current animation poses unchanged.
+  const STARFIELD_PAUSE_MS=160;
   function clear(){
     groups.forEach(g=>{scene.remove(g);disposeObject(g)});
-    groups=[];disposeRetiringGroups();pickables.length=0;wrong=null;winGroup=null;
-  }
-  function stagePriorRoundForCrossfade(){
-    // Keep the former winner visible only while the new real objects
-    // enter. Only the new three objects may receive pointer hits.
-    disposeRetiringGroups();
-    retiringGroups=groups;
     groups=[];pickables.length=0;wrong=null;winGroup=null;
-    for(const g of retiringGroups){
-      g.userData.crossfadeFromOpacity=g.userData.displayOpacity??0;
-      // Textures and materials are left alive until the new entrance ends.
-    }
-    root.dataset.spaceCrossfade=retiringGroups.length?'active':'initial';
   }
   // V231: bounded loading and a hard win-exit deadline.
   let queuedRound=null,roundSeq=0,prewarmTimer=0;
-  // V241: keep one recognizable 3D object on screen until the next
-  // approved round can render. Never show an empty intermediate stage.
-  // This does not change any geometry, UV artwork, or planet zoom pose.
-  const TRANSITION_VISIBLE_FLOOR=0.34;
   function createRoundPlan(){
     const chosen=next();
     return {target:chosen,opts:shuffle([chosen,...decoys(chosen)]),promise:null};
@@ -1842,9 +1825,9 @@ function gameSpaceSearch(ctx){
     }
     if(disposed||seq!==roundSeq){built.forEach(disposeObject);return;}
 
-    // Only retire the previous objects after the real UVs AND all three
-    // valid bodies are ready. Never display a question without its choices.
-    stagePriorRoundForCrossfade();
+    // All three next models have been constructed before we retire the
+    // old round. Never remove the old picture while textures are missing.
+    clear();
     target=roundTarget;
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
@@ -1865,7 +1848,7 @@ function gameSpaceSearch(ctx){
       ));
       g.userData.enterFromScale=g.userData.baseScale.clone().multiplyScalar(.64);
       g.position.copy(g.userData.enterFromPos);g.scale.copy(g.userData.enterFromScale);
-      setObjectOpacity(g,TRANSITION_VISIBLE_FLOOR);
+      setObjectOpacity(g,0);
       groups.push(g);
       g.traverse(x=>{if(x.isMesh||x.isPoints)pickables.push(x)});
     });
@@ -2026,20 +2009,16 @@ function gameSpaceSearch(ctx){
         const e=easeOutCubic(q);
         g.position.lerpVectors(g.userData.enterFromPos,g.userData.basePosition,e);
         g.scale.lerpVectors(g.userData.enterFromScale,g.userData.baseScale,e);
-        setObjectOpacity(g,TRANSITION_VISIBLE_FLOOR+(1-TRANSITION_VISIBLE_FLOOR)*e);
+        setObjectOpacity(g,e);
         if(i===groups.length-1&&q>=1)finishEnter=true;
       }else if(transition?.type==='exit'){
         const q=clamp((t-transition.start)/transition.duration,0,1);
         const e=easeInOutCubic(q);
         g.position.lerpVectors(g.userData.exitFromPos,g.userData.exitToPos,e);
         g.scale.lerpVectors(g.userData.exitFromScale,g.userData.exitToScale,e);
-        // V242: a correct-answer planet must stay BRIGHT while the
-        // next three objects finish preparation. Do not dim it to 34%
-        // before crossfade; that was the nearly-black 0.5 s frame.
-        // The hidden incorrect choices remain fully invisible.
-        const fromOpacity=g.userData.exitFromOpacity;
-        const floor=g.userData.win?fromOpacity:0;
-        setObjectOpacity(g,floor+(fromOpacity-floor)*(1-e));
+        // Approved V232 behaviour: after the win zoom, the selected
+        // planet gently travels away and fades completely to starfield.
+        setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));
         if(i===groups.length-1&&q>=1)finishExit=true;
       }else if(winStart){
         // Reach the consistent frame-filling size sooner, then hold it so
@@ -2066,24 +2045,12 @@ function gameSpaceSearch(ctx){
       }
     });
 
-    // V242 true overlapping 3D crossfade: former winner remains visible
-    // through the first part of the new three objects' entrance and
-    // then fades out gradually. No empty or abruptly replaced frame.
-    if(transition?.type==='enter'&&retiringGroups.length){
-      const elapsed=t-transition.start;
-      // Fade out over 520ms; it is always gone before the 780ms
-      // entrance finishes, with the new round visibly gaining opacity.
-      const fade=1-easeInOutCubic(clamp(elapsed/520,0,1));
-      for(const prior of retiringGroups)
-        setObjectOpacity(prior,(prior.userData.crossfadeFromOpacity||0)*fade);
-    }
     if(transition?.type==='enter'){
       if(!transition.voiceDone&&t-transition.start>210){
         transition.voiceDone=true;voice('Գտի՛ր '+findObjectName(target),ctx);
       }
       if(finishEnter){
         groups.forEach(g=>{g.position.copy(g.userData.basePosition);g.scale.copy(g.userData.baseScale);setObjectOpacity(g,1)});
-        disposeRetiringGroups();
         root.dataset.spaceRoundPhase='ready';
         transition=null;locked=false;
         // V240: the next round should prepare while the child is deciding,
@@ -2098,7 +2065,11 @@ function gameSpaceSearch(ctx){
         }
       }
     }else if(transition?.type==='exit'&&finishExit){
-      transition=null;buildRound();
+      // A deliberate 160ms beat of the approved starfield, not an
+      // asset-loading blank screen. Stage remains interactive only later.
+      transition=null;root.dataset.spaceRoundPhase='starfield-pause';
+      clearTimeout(timer);
+      timer=setTimeout(()=>{if(!disposed)buildRound()},STARFIELD_PAUSE_MS);
     }
 
     shooting.update(t);

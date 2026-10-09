@@ -18,10 +18,10 @@ try {
  await page.route(/space-game-[1-4]\.jpg(\?.*)?$/,async route=>{
    artRequests++; await pause(500);await route.continue();
  });
- await page.route(/space-3d-games\.js\?v=242/,async route=>{
+ await page.route(/space-3d-games\.js\?v=244/,async route=>{
    engineRequests++;await pause(1100);await route.continue();
  });
- await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=243',{waitUntil:'domcontentloaded',timeout:45000});
+ await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=244',{waitUntil:'domcontentloaded',timeout:45000});
  await page.waitForSelector('#homeScreen .section-card',{timeout:25000});
  const sectionTile=page.locator('.section-card[data-section="space"]');
  await sectionTile.click({force:true});
