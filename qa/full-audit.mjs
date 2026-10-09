@@ -180,6 +180,11 @@ check(quest.includes("hero._fadeReleaseAt=0")&&
   quest.includes("root.dataset.heroApproachProgress='1'")&&
   quest.includes("if(winningHero)winningHero._fadeReleaseAt=performance.now()"),
   'V273 every new answer must have a fresh actual fade-completion gate');
+check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
+  quest.includes("c._fadeAnimation?.playState==='finished'")&&
+  quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
+  quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
+  'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
 const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
     quest.includes("const eased=Math.sin(Math.PI*.5*p)")&&

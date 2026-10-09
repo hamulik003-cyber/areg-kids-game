@@ -644,8 +644,20 @@ export function startConstellationQuest(ctx){
     }
     showWinningHero(button,button._imageRecord,item);
     beginWinningHeroApproach();
-    // Fallback for frozen/inactive tabs only, never delays the visible fade.
-    delay(()=>finishLoserFade(),LOSER_FADE_MS+150);
+    // V273 critical fix: the old timeout blindly removed all 3 nodes
+    // after 490ms EVEN IF iPhone WebKit still had the fade paused/running.
+    // Never detach opaque art. The fallback may finalize ONLY when every
+    // compositor fade REALLY ended. RAF fallback still finalizes by time.
+    delay(()=>{
+      if(disposed||!losingCards.length)return;
+      if(root.dataset.decoyFadeEngine==='compositor'){
+        if(losingCards.every(c=>c._fadeFinished||
+          c._fadeAnimation?.playState==='finished'))
+          finishLoserFade();
+      }else if(performance.now()-loserFadeStart>=LOSER_FADE_MS){
+        finishLoserFade();
+      }
+    },LOSER_FADE_MS+150);
     // Same-touch motion, 850ms grow, ~1.9s closeup, 690ms quiet exit.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
