@@ -2,6 +2,8 @@ name: AREG Full Game Audit
 on:
   push:
     branches: [main, v238-smooth-loading-lab, v2381-3d-cache-version-fix]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -9,9 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Compare the entire push range and PR merge-base, not only HEAD^.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test project handoff enforcement
+        run: node --test qa/handoff-guard.test.mjs
+      - name: Require both project handoffs with code changes
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+        env:
+          AREG_EVENT_NAME: ${{ github.event_name }}
+          AREG_PUSH_BEFORE: ${{ github.event.before }}
+          AREG_PR_BASE: ${{ github.event.pull_request.base.sha }}
+          AREG_PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: node qa/handoff-guard.mjs
       - run: node qa/full-audit.mjs
 
   mobile-browser:

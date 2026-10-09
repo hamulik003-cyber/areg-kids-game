@@ -4,6 +4,9 @@ This is an **existing production PWA** for children. The active branch is `main`
 
 **New-chat recovery rule (V264+):** FIRST read CURRENT_STATUS.md (LAST chronological section), PROJECT_HANDOFF.md (full project decisions and recent conversation checkpoints), then AGENTS.md. Inspect live GitHub main SHA/Actions/Pages. Before modifications protect current HEAD; after each meaningful user request record decisions, versions, backups, CI and next unfinished action in both handoff documents. Do not infer the latest requirement from old V259/V263 summaries: V264 requires 280ms planet-style fading of THREE wrong constellation choices BEFORE the independent hero starts moving. These files preserve work decisions rather than a verbatim ChatGPT transcript.
 
+## Mandatory project-history CI rule (added 2026-10-09)
+The Full Game Audit runs qa/handoff-guard.mjs and qa/handoff-guard.test.mjs. For a main push or main pull request changing ANY non-documentation path (JS/CSS, art/audio, caches, configuration, QA or workflows), BOTH CURRENT_STATUS.md and PROJECT_HANDOFF.md MUST be updated with real non-whitespace content in the same push/PR. If not, assets-and-code fails and downstream Chrome/iOS-WebKit audits do not pass. A documentation-only edit is exempt. Write each entry with the latest user instruction, the actual change, protected baseline, test status, user approval and next task. The CI gate itself cannot stop pushes/pages without an admin-enforced required check. This guard records work decisions, not ChatGPT's literal full transcript.
+
 ## Before every modification
 1. Fetch the actual current `main` HEAD, read the relevant production files, and compare with the last known-good commit.
 2. For risky, destructive or structural edits, create a separate backup branch first. Do not force-push.
