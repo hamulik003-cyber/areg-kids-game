@@ -1,0 +1,6 @@
+{
+  "oldFadeOutFormula": "setObjectOpacity(g,g.userData.exitFromOpacity*(1-e));",
+  "newFadeInFormula": "setObjectOpacity(g,e);",
+  "exitDurationMs": 690,
+  "enterDurationMs": 780
+}
