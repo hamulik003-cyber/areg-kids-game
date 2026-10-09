@@ -140,6 +140,9 @@ try{
         button.click();
         const hero=root.querySelector('.s3d-find-hero');
         const startTransform=hero?getComputedStyle(hero).transform:null,start=performance.now(),samples=[];
+        const initialLayer=root.querySelector('.s3d-find-decoy-layer');
+        if(!initialLayer||initialLayer.querySelectorAll('.s3d-find-choice').length!==3)
+          return {error:'Shared decoy layer missing or did not receive three ORIGINAL buttons'};
         const sameTapNative={heroState:hero?._moveAnimation?.playState,
           heroDuration:hero?._moveAnimation?.effect?.getTiming()?.duration,
           decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({state:c._fadeAnimation?.playState,
@@ -151,7 +154,7 @@ try{
               isolated:root.dataset.winnerIsolated,heroTransform:hero?getComputedStyle(hero).transform:null,
               placeholder:!!root.querySelector('.s3d-find-choice[style*="visibility: hidden"]'),
               losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
-                opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
+                opacity:Number(getComputedStyle(c.closest('.s3d-find-decoy-layer')).opacity),transform:c.style.transform,
                 transition:c.style.transition,animation:getComputedStyle(c).animationName,
                 shellPaused:c.querySelector('.s3d-find-art-shell')?.style.animationPlayState==='paused',
                 fadeState:c._fadeAnimation?.playState||'none',
@@ -170,7 +173,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v280-safe-v278-restoration'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='lab-single-layer-synchronized-decoy-fade'||reveal.fadeEngine!=='shared-layer'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -218,8 +221,13 @@ try{
         f.motion==='approaching'&&f.losers.length===0);
       // WebKit may drop all intermediate frames; SAME-TAP 850/580ms WAAPI
       // plus the final zero-decoy holding state still proves the contract.
-      if(!goneWhileApproaching&&!(sparseFade&&firstNativeOk))
-        throw Error('V270 decoys did not finish before visual winner approach');
+      const zeroDecoysAfterFade=reveal.samples.some(f=>f.ms>=610&&
+        f.losers.length===0&&(f.motion==='approaching'||f.motion==='holding'));
+      // Native 580ms shared fade and 850ms hero may finish between WebKit
+      // RAF callbacks. Pixel screenshots in the 5th round below are the
+      // actual VISUAL validation; don't require a nonexistent mid-frame.
+      if(!goneWhileApproaching&&!zeroDecoysAfterFade)
+        throw Error('LAB no clean decoy state after shared layer completion '+JSON.stringify(reveal.samples));
       const heroReached=reveal.samples.find(f=>f.motion==='holding');
       if(!heroReached||heroReached.losers.length!==0)
         throw Error('V270 hero arrived while decoys were visible');
@@ -286,6 +294,9 @@ try{
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
         if(!target)return {error:'next target absent'};
         target.click();
+        const fadeGroup=root.querySelector('.s3d-find-decoy-layer');
+        if(root.dataset.decoyFadeEngine!=='shared-layer'||fadeGroup?.children.length!==3)
+          return {error:'Second round did not build one shared decoy group'};
         const score={count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
           stars:Number(localStorage.getItem('areg-stars-v35')||0),
           reward:root.querySelectorAll('.s3d-reward').length};
@@ -298,7 +309,7 @@ try{
               motion:root.dataset.heroMotion,
               engine:root.dataset.decoyFadeEngine,
               losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
-                opacity:Number(getComputedStyle(c).opacity),
+                opacity:Number(getComputedStyle(c.closest('.s3d-find-decoy-layer')).opacity),
                 animation:c._fadeAnimation?.playState||'none',
                 x:Math.round(c.getBoundingClientRect().x),
                 y:Math.round(c.getBoundingClientRect().y)
@@ -334,6 +345,9 @@ try{
         if(!target)return {error:'third target absent'};
         const id=root.dataset.targetId;
         target.click();
+        const layer=root.querySelector('.s3d-find-decoy-layer');
+        if(root.dataset.decoyFadeEngine!=='shared-layer'||layer?.children.length!==3)
+          return {error:'Third round did not build shared group'};
         const frames=[],start=performance.now();
         await new Promise(resolve=>{
           function tick(){
@@ -341,7 +355,7 @@ try{
             frames.push({ms:Math.round(ms),progress:Number(root.dataset.heroApproachProgress),phase:root.dataset.constellationPhase,
               hero:root.dataset.heroMotion,
               decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
-                alpha:Number(getComputedStyle(c).opacity),
+                alpha:Number(getComputedStyle(c.closest('.s3d-find-decoy-layer')).opacity),
                 x:Math.round(c.getBoundingClientRect().x),
                 y:Math.round(c.getBoundingClientRect().y)
               }))});
@@ -377,7 +391,7 @@ try{
         const hero=root.querySelector('.s3d-find-hero');
         const decoys=[...root.querySelectorAll('.s3d-find-dismissing')];
         const motion=hero?._moveAnimation;
-        if(!motion||decoys.length!==3)return {error:'missing coordinated native animations'};
+        if(root.dataset.decoyFadeEngine!=='shared-layer'||!motion||decoys.length!==3)return {error:'missing coordinated native animations'};
         const initial={animation:motion.playState,progress:Number(root.dataset.heroApproachProgress),
           decoys:decoys.map(c=>c._fadeAnimation?.playState)};
         const stallStart=performance.now();
@@ -401,12 +415,72 @@ try{
           JSON.stringify(gated));
       console.log('V275 FOURTH WIN SINGLE MOTION 420ms MAIN-THREAD STALL PASS '+
         JSON.stringify(gated));
+      // Lab-specific VISUAL regression: screenshot ACTUAL painted pixels,
+      // not merely computed opacity/WAAPI playState. Freeze the hero's
+      // visibility just during the test so its bright figure cannot mask
+      // whether the three alternatives really faded.
+      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
+        document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
+      await page.addStyleTag({content:'.s3d-find256 .s3d-find-hero{visibility:hidden !important}'});
+      const fadeRegions=await page.evaluate(()=>{
+        const root=document.querySelector('.s3d-find256');
+        return [...root.querySelectorAll('.s3d-find-choice')]
+          .filter(c=>c.dataset.id!==root.dataset.targetId)
+          .map(c=>{const r=c.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}});
+      });
+      if(fadeRegions.length!==3)throw Error('VISUAL LAB not exactly 3 decoys');
+      const beforePx=(await page.screenshot({type:'png'})).toString('base64');
+      const labStarted=await page.evaluate(()=>{
+        const root=document.querySelector('.s3d-find256');
+        const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
+        const at=performance.now();target.click();return at;
+      });
+      await page.waitForTimeout(260);
+      const atMid=await page.evaluate(()=>performance.now());
+      const midPx=(await page.screenshot({type:'png'})).toString('base64');
+      await page.waitForTimeout(520);
+      const afterPx=(await page.screenshot({type:'png'})).toString('base64');
+      const visual=await page.evaluate(async ({beforePx,midPx,afterPx,fadeRegions})=>{
+        async function pixels(b64){
+          const img=new Image();
+          img.src='data:image/png;base64,'+b64;await img.decode();
+          const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+          const ctx=cv.getContext('2d',{willReadFrequently:true});
+          ctx.drawImage(img,0,0);
+          return {data:ctx.getImageData(0,0,cv.width,cv.height).data,w:cv.width,h:cv.height};
+        }
+        const [a,m,z]=await Promise.all([pixels(beforePx),pixels(midPx),pixels(afterPx)]);
+        const scale=a.w/innerWidth,ratios=[];
+        for(const r of fadeRegions){
+          const left=Math.max(0,Math.floor(r.x*scale)),right=Math.min(a.w,Math.ceil((r.x+r.w)*scale));
+          const top=Math.max(0,Math.floor(r.y*scale)),bottom=Math.min(a.h,Math.ceil((r.y+r.h)*scale));
+          let reference=0,intermediate=0,pixelsUsed=0;
+          for(let y=top+8;y<bottom-8;y+=2)for(let x=left+8;x<right-8;x+=2){
+            const k=(y*a.w+x)*4;
+            const base=Math.abs(a.data[k]-z.data[k])+
+              Math.abs(a.data[k+1]-z.data[k+1])+
+              Math.abs(a.data[k+2]-z.data[k+2]);
+            if(base<75||a.data[k+2]<70)continue;
+            const now=Math.abs(m.data[k]-z.data[k])+
+              Math.abs(m.data[k+1]-z.data[k+1])+
+              Math.abs(m.data[k+2]-z.data[k+2]);
+            reference+=base;intermediate+=now;pixelsUsed++;
+          }
+          ratios.push({sampled:pixelsUsed,remaining:reference?intermediate/reference:null});
+        }
+        return {ratios,bitmap:[a.w,a.h],engine:document.querySelector('.s3d-find256')?.dataset.decoyFadeEngine};
+      },{beforePx,midPx,afterPx,fadeRegions});
+      console.log('LAB SCREENSHOT PHYSICAL PIXEL FADE fifth win '+JSON.stringify({...visual,elapsedMs:Math.round(atMid-labStarted)}));
+      if(visual.ratios.length!==3||visual.ratios.some(r=>r.sampled<50||
+        r.remaining===null||r.remaining>=.83||
+        ((atMid-labStarted)<450&&r.remaining<.08)))
+        throw Error('LAB visual pixel evidence: three decoys must DIM gradually together, not vanish late '+JSON.stringify(visual));
       if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
         throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=280');
+        const api=await import('./space-finding-session.js?v=281');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');
