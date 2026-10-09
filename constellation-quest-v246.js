@@ -185,12 +185,12 @@ export function startConstellationQuest(ctx){
   const reveal=document.createElement('div');reveal.className='s3d-quest-reveal';
   const photoStage=document.createElement('div');
   photoStage.className='s3d-quest-photo-stage';
-  const photoAtmosphere=document.createElement('div');
-  photoAtmosphere.className='s3d-quest-photo-atmosphere';
-  photoAtmosphere.setAttribute('aria-hidden','true');
+  // V252: a true alpha image, so the existing real-time 3D nebula is
+  // visible through all pixels outside the hand-drawn constellation.
+  // No extra blurred JPG layer, CSS masks, or rectangular image borders.
   const art=document.createElement('img');
   art.className='s3d-quest-art';art.alt='';art.decoding='async';art.draggable=false;
-  photoStage.append(photoAtmosphere,art);
+  photoStage.append(art);
   const caption=document.createElement('div');caption.className='s3d-quest-caption';
   reveal.append(photoStage,caption);root.appendChild(reveal);
 
@@ -359,9 +359,10 @@ export function startConstellationQuest(ctx){
     art.classList.remove('is-loaded');
     art.removeAttribute('src');
     art.alt=item.name;
-    // The same already-decoded JPEG supplies a blurred, borderless color
-    // halo behind the main art; no new image download or custom heavy asset.
-    photoAtmosphere.style.backgroundImage='url('+JSON.stringify(item.img)+')';
+    // Runtime artwork is transparent WebP generated from the same approved
+    // source JPEG. The original image is still kept for gallery previews.
+    const transparentSrc='assets/constellations-transparent/'+
+      item.img.split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=252';
     art.onload=()=>{
       if(disposed||token!==roundToken)return;
       const ready=()=>{if(disposed||token!==roundToken)return;artReady=true;art.classList.add('is-loaded')};
@@ -369,7 +370,7 @@ export function startConstellationQuest(ctx){
       else ready();
     };
     art.onerror=()=>{if(token===roundToken)artReady=false};
-    art.src=item.img;
+    art.src=transparentSrc;
     if(art.complete&&art.naturalWidth&&art.onload)art.onload();
   }
   function startRound(){
