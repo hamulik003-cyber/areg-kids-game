@@ -267,3 +267,7 @@ Investigation found actual Space Search code in space-3d-games.js: losers fade w
 
 ### V282 draft PR QA syntax guard (2026-10-10)
 - The next Chromium job failed at parser level before launching: extra `;` after an arrow callback inside the brand-new *qa/browser-smoke.mjs* magic purchased-collectible reload verification. Corrected the test property closure (not gameplay). Added `qa/browser-smoke.mjs` and `qa/star-economy.test.mjs` to `qa/full-audit.mjs` `node --check` JS syntax loop, guaranteeing invalid test source is caught within fast assets-and-code rather than running full browsers. No runtime change; replay PR checks before main promotion.
+
+
+### V282 test correction: third-round OLD persisted counter assertion (2026-10-10)
+- Browser regression reached 3rd real constellation correct answer (the approved one-layer opacity animation verified visually), but `qa/browser-smoke.mjs` still asserted that legacy localStorage answer counter grows from seeded 8 to 11, which is precisely the USER-REPORTED defect we deliberately removed. Changed only assertion from `third.count!==11` to `third.count!==8`, requiring legacy key to remain untouched while new per-visit score shows `3`. No runtime change. Recheck Chromium and WebKit 10-round milestone/bonus unlock flows.

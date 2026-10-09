@@ -442,7 +442,7 @@ try{
         third.frames[0].decoys.every(c=>c.alpha>.99)&&
         third.frames.some(f=>f.ms>=660&&f.decoys.length===0&&
           (f.hero==='approaching'||f.hero==='holding'));
-      if(third.error||third.count!==11||third.right!=='3'||
+      if(third.error||third.count!==8||third.right!=='3'||
         third.frames.some(f=>f.ms>=800&&f.decoys.some(c=>c.alpha>.015))||
         third.frames.some(f=>f.ms>=790&&f.decoys.some(c=>c.alpha>.015))||
         (!thirdSparse&&!third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.97))))
