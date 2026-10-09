@@ -65,6 +65,23 @@ const trailBody=quest.slice(quest.indexOf('const TRAILS='),quest.indexOf('const 
 const trails=[...trailBody.matchAll(/'([a-z0-9-]+)'\s*:\s*'([^']+)'/g)];
 check(ids.length===38&&trails.length===38,'Constellation paths must cover all 38 pictures');
 check(new Set(trails.map(m=>m[1])).size===38&&ids.every(id=>trails.some(m=>m[1]===id)),'Constellation picture/path ID mismatch');
+const skyCss=read('space-3d-games.css');
+check(quest.includes("photoStage.append(photoAtmosphere,art)")&&
+      quest.includes("photoAtmosphere.style.backgroundImage=")&&
+      skyCss.includes(".s3d-quest-photo-stage")&&
+      skyCss.includes(".s3d-quest-photo-atmosphere")&&
+      skyCss.includes("isolation:isolate;mix-blend-mode:screen"),
+      'V251 two-layer seamless constellation artwork regression');
+check(quest.includes("keepAliveOsc=audioContext.createOscillator()")&&
+      quest.includes("scheduleNextIntro();finish();")&&
+      quest.includes("needEntryCueOnTouch")&&
+      !/speechSynthesis\\.(?:speak|cancel|pause|resume)/.test(quest),
+      'V251 iPhone single WebAudio audio-session regression');
+check(quest.includes("meteor.tick(t)")&&
+      quest.includes("const deck=randomizedOrder(ctx.CONSTELLATIONS)")&&
+      quest.includes("renderer.domElement.addEventListener('pointermove',pointerMove"),
+      'V251 constellation meteor, nonrepeat and drag controls regression');
+
 check(!html.includes('__areg_build'),'Old forced reload redirect reintroduced');
 check(app.includes('gallery-hires-layer')&&app.includes('warmGalleryPreviews'),'Gallery predecode fix missing');
 const core=sw.match(/const CORE=\[([\s\S]*?)\];/);
