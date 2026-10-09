@@ -695,7 +695,7 @@
       b.className='magic-collect-card'+(unlocked?' is-unlocked':' is-locked')+(eligible&&!unlocked?' can-unlock':'');
       b.dataset.id=item.id;
       b.dataset.motion=item.motion;
-      b.setAttribute('aria-label',`${item.name}, ${item.cost} աստղ`);
+      b.setAttribute('aria-label',unlocked?`${item.name}, բացված է`:`${item.name}, ${item.cost} աստղ`);
       b.innerHTML=`
         <span class="magic-picture-wrap">
           <span class="magic-picture" aria-hidden="true">${item.icon}</span>
@@ -705,14 +705,21 @@
           <span class="magic-sparkle magic-sparkle--3" aria-hidden="true">✦</span>
         </span>
         <span class="section-card-sheen magic-card-sheen" aria-hidden="true"></span>
-        <span class="magic-cost">⭐ ${item.cost}</span>
-        <span class="magic-lock" aria-hidden="true">${unlocked?'':'🔒'}</span>
+        <span class="magic-cost">${unlocked?'✓ Բացված է':'⭐ '+item.cost}</span>
+        ${unlocked?'':'<span class="magic-lock" aria-hidden="true">🔒</span>'}
       `;
       b.addEventListener('click',()=>handleMagicItemTap(b,item));
       sectionGames.appendChild(b);
     });
   }
 
+  function updateMagicAvailability(){
+    for(const card of sectionGames.querySelectorAll('.magic-collect-card')){
+      const item=MAGIC_ITEMS.find(entry=>entry.id===card.dataset.id);
+      if(!item)continue;
+      card.classList.toggle('can-unlock',!magicUnlocked.has(item.id)&&stars>=item.cost);
+    }
+  }
   function handleMagicItemTap(card,item){
     if(!magicUnlocked.has(item.id)){
       if(stars<item.cost){
@@ -722,11 +729,29 @@
         showToast(`⭐ ${item.cost}`);
         return;
       }
+      // A reward costs actual earned stars, paid ONCE. Do not debit
+      // previously unlocked items again when they are tapped or revisited.
+      const priorStars=stars;
+      stars-=item.cost;
       magicUnlocked.add(item.id);
-      saveMagicUnlocked();
+      try{
+        saveStars();
+        saveMagicUnlocked();
+      }catch(error){
+        stars=priorStars;
+        magicUnlocked.delete(item.id);
+        try{saveStars();saveMagicUnlocked()}catch{}
+        showToast('Չհաջողվեց պահպանել։ Փորձիր նորից։');
+        return;
+      }
+      updateStars();
       card.classList.remove('is-locked','can-unlock');
       card.classList.add('is-unlocked','just-unlocked');
-      const lock=$('.magic-lock',card);if(lock)lock.textContent='';
+      card.setAttribute('aria-label',`${item.name}, բացված է`);
+      const price=$('.magic-cost',card);
+      if(price)price.textContent='✓ Բացված է';
+      $('.magic-lock',card)?.remove();
+      updateMagicAvailability();
       setTimeout(()=>card.classList.remove('just-unlocked'),900);
       animateMagicItem(card,item.motion);
       return;
@@ -847,34 +872,43 @@
     }else launch();
   }
   function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
-  function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
-  // Persistent ten-correct milestones, independently for the two finding games.
+  // Star milestones are PER GAME VISIT, just like the visible 0/0 score.
+  // Past visits' unfinished answers must NEVER silently earn a later star.
   const spaceCorrectCounts=Object.create(null);
+  // Remove obsolete saved *answer* counters, never the earned-star wallet.
+  for(const id of ['space-search','constellation-game']){
+    try{localStorage.removeItem('areg-correct-'+id+'-v1')}catch{}
+  }
+  function resetSpaceCorrectAnswers(){
+    spaceCorrectCounts['space-search']=0;
+    spaceCorrectCounts['constellation-game']=0;
+  }
+  function cleanupGame(){
+    gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});
+    resetSpaceCorrectAnswers();
+    currentGame=null;
+    activityContent.classList.remove('animal-gallery-mode');
+    activityContent.innerHTML='';
+  }
   function recordSpaceCorrectAnswer(gameId){
     if(gameId!=='space-search'&&gameId!=='constellation-game')return false;
-    const key='areg-correct-'+gameId+'-v1';
-    let count=spaceCorrectCounts[gameId]||0;
-    try{
-      const saved=Number.parseInt(localStorage.getItem(key),10);
-      if(Number.isSafeInteger(saved)&&saved>=0)count=Math.max(count,saved);
-    }catch{}
-    count++;
+    const count=(spaceCorrectCounts[gameId]||0)+1;
     spaceCorrectCounts[gameId]=count;
-    try{localStorage.setItem(key,String(count))}catch{}
     if(count%10!==0)return false;
     stars+=1;saveStars();updateStars();return true;
   }
   function space3DContext(){
     return {activityContent,PLANETS,CONSTELLATIONS,settings,menuMusic,applyAudio,pickArmenianSpeechVoice,gameCleanup,
       awardStar(){stars+=1;saveStars();updateStars();},
-      recordCorrectAnswer:recordSpaceCorrectAnswer
+      recordCorrectAnswer:recordSpaceCorrectAnswer,
+      resetCorrectAnswerStreak:resetSpaceCorrectAnswers
     };
   }
   let space3DLoadPromise=null;
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=281')
+      space3DLoadPromise=import('./space-3d-games.js?v=282')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -883,7 +917,7 @@
   let constellationQuestLoadPromise=null;
   function ensureConstellationQuestLoaded(){
     if(!constellationQuestLoadPromise){
-      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=281')
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=282')
         .catch(err=>{constellationQuestLoadPromise=null;throw err});
     }
     return constellationQuestLoadPromise;
@@ -2331,7 +2365,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=281',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=282',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

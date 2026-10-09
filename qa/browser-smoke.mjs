@@ -26,6 +26,19 @@ try{
    gamesCount:document.querySelectorAll('#sectionGames .toddler-game-card').length,
    historyLength:history.length
  }),stage);
+ // A real stored wallet and previously opened collectible must survive reload.
+ // Deliberately seed OLD answer counters too: they must be ignored/removed.
+ await page.addInitScript(()=>{
+   try{
+     if(localStorage.getItem('areg-qa-star-bootstrap-v282'))return;
+     localStorage.setItem('areg-stars-reset-v40','1');
+     localStorage.setItem('areg-stars-v35','80');
+     localStorage.setItem('areg-magic-unlocked-v1',JSON.stringify(['car']));
+     localStorage.setItem('areg-correct-space-search-v1','7');
+     localStorage.setItem('areg-correct-constellation-game-v1','7');
+     localStorage.setItem('areg-qa-star-bootstrap-v282','1');
+   }catch{}
+ });
  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=244',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
@@ -36,6 +49,59 @@ try{
   if(section==='magic'){
    const n=await page.locator('.magic-collect-card').count();
    if(n<35)throw Error('Magic rewards missing: '+n);
+   // V282 reward wallet and unlock artwork, tested with actual DOM taps.
+   const initial=await page.evaluate(()=>{
+     const card=document.querySelector('.magic-collect-card[data-id="car"]');
+     return {balance:Number(localStorage.getItem('areg-stars-v35')||0),
+       saved:JSON.parse(localStorage.getItem('areg-magic-unlocked-v1')||'[]'),
+       unlocked:card?.classList.contains('is-unlocked'),darkDisk:!!card?.querySelector('.magic-lock')};
+   });
+   if(!initial.unlocked||initial.darkDisk||initial.balance<80||!initial.saved.includes('car'))
+     throw Error('V282 already purchased collectible must be fully visible and not repurchased '+JSON.stringify(initial));
+   await page.locator('.magic-collect-card[data-id="car"]').evaluate(card=>card.click());
+   let afterCar=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
+   if(afterCar!==initial.balance)throw Error('V282 existing unlocked card charged twice');
+   for(const [id,cost] of [['racecar',25],['bus',30]]){
+     await page.locator('.magic-collect-card[data-id="'+id+'"]').evaluate(card=>card.click());
+     const balance=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
+     if(balance!==afterCar-cost)throw Error('V282 opening '+id+' must subtract '+cost+' stars; got '+balance);
+     afterCar=balance;
+     const state=await page.locator('.magic-collect-card[data-id="'+id+'"]').evaluate(card=>({
+       unlocked:card.classList.contains('is-unlocked'),lock:!!card.querySelector('.magic-lock'),
+       cost:card.querySelector('.magic-cost')?.textContent,
+       cover:!!card.querySelector('.magic-lock')&&getComputedStyle(card.querySelector('.magic-lock')).display!=='none',
+       saved:JSON.parse(localStorage.getItem('areg-magic-unlocked-v1')||'[]').includes(card.dataset.id),
+       homeBalance:document.querySelector('#homeStars')?.textContent,
+       sectionBalance:document.querySelector('#sectionStars')?.textContent
+     }));
+     if(!state.unlocked||state.lock||state.cover||!state.saved||
+        !state.cost?.includes('Բացված')||
+        state.homeBalance!==String(balance)||state.sectionBalance!==String(balance))
+       throw Error('V282 opened picture remains covered or star counters stale '+JSON.stringify(state));
+   }
+   const truck=page.locator('.magic-collect-card[data-id="truck"]');
+   if(await truck.evaluate(c=>c.classList.contains('can-unlock')))
+     throw Error('V282 locked expensive reward remained eligible after spending');
+   await truck.evaluate(c=>c.click());
+   if(await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0))!==afterCar||
+      await truck.evaluate(c=>c.classList.contains('is-unlocked')))
+     throw Error('V282 cannot buy with insufficient stars');
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForSelector('#homeScreen .section-card');
+   await page.locator('.section-card[data-section="magic"]').evaluate(card=>card.click());
+   await page.waitForSelector('#sectionScreen.is-visible',{timeout:15000});
+   const persisted=await page.evaluate(()=>({
+     stars:Number(localStorage.getItem('areg-stars-v35')||0),
+     ids:JSON.parse(localStorage.getItem('areg-magic-unlocked-v1')||'[]'),
+     visible:['car','racecar','bus'].every(id=>{
+       const card=document.querySelector('.magic-collect-card[data-id="'+id+'"]');
+       return card?.classList.contains('is-unlocked')&&!card.querySelector('.magic-lock');
+     })
+   }));
+   if(persisted.stars!==afterCar||!persisted.visible||
+      !['car','racecar','bus'].every(id=>persisted.ids.includes(id)))
+     throw Error('V282 unlocked pictures/wallet must survive reload '+JSON.stringify(persisted));
+   console.log('V282 MAGIC WALLET + RELOAD + BLACK LOCK REMOVAL PASS '+process.env.AREG_BROWSER);
    done.push('magic rewards '+n);
   }else{
    const games=page.locator('#sectionGames .toddler-game-card');
@@ -85,6 +151,8 @@ try{
         }));
         throw Error('Constellation loading diagnosis '+JSON.stringify(status)+' :: '+e.message);
       }
+      // Re-inject an old 8-correct legacy key AFTER opening the game:
+      // the new star economy may not trust it even if a stale copy appears.
       await page.evaluate(()=>localStorage.setItem('areg-correct-constellation-game-v1','8'));
       const starsBefore=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
       const initial=await page.evaluate(()=>{
@@ -175,8 +243,8 @@ try{
       },correctName);
       if(reveal.error||reveal.build!=='lab-single-layer-synchronized-decoy-fade'||reveal.fadeEngine!=='shared-layer'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
-      if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
-         throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
+      if(reveal.count!==8||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
+         throw Error('V282 FIRST correct must ignore old persisted eight answers '+JSON.stringify(reveal));
       const mid=reveal.samples.find(f=>f.ms>20&&f.ms<520&&f.motion==='approaching'&&
          f.placeholder&&f.losers.length===3&&
          f.heroTransform!==reveal.startTransform&&
@@ -374,7 +442,7 @@ try{
         third.frames[0].decoys.every(c=>c.alpha>.99)&&
         third.frames.some(f=>f.ms>=660&&f.decoys.length===0&&
           (f.hero==='approaching'||f.hero==='holding'));
-      if(third.error||third.count!==11||third.right!=='3'||
+      if(third.error||third.count!==8||third.right!=='3'||
         third.frames.some(f=>f.ms>=800&&f.decoys.some(c=>c.alpha>.015))||
         third.frames.some(f=>f.ms>=790&&f.decoys.some(c=>c.alpha>.015))||
         (!thirdSparse&&!third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.97))))
@@ -478,12 +546,35 @@ try{
         r.remaining===null||r.remaining>=.83||
         ((atMid-labStarted)<450&&r.remaining<.08)))
         throw Error('LAB visual pixel evidence: three decoys must DIM gradually together, not vanish late '+JSON.stringify(visual));
-      if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
-        throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
+      if(tenth.error||tenth.count!==8||tenth.stars!==starsBefore||tenth.reward!==0)
+        throw Error('V282 SECOND correct after legacy-eight seed MUST NOT award star '+JSON.stringify(tenth));
+      // V282: complete rounds 6–10 with real taps, not seeded saved
+      // progress. There must be NO star until this visit's tenth success.
+      for(let actual=6;actual<=10;actual++){
+        await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
+          document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
+        const earned=await page.evaluate(()=>{
+          const root=document.querySelector('.s3d-find256');
+          const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
+          target.click();
+          return {stars:Number(localStorage.getItem('areg-stars-v35')||0),
+            correct:root.querySelector('.s3d-session-right')?.textContent,
+            reward:root.querySelectorAll('.s3d-reward').length,
+            oldPartial:localStorage.getItem('areg-correct-constellation-game-v1')};
+        });
+        if(earned.stars!==starsBefore+(actual===10?1:0)||
+           earned.reward!==(actual===10?1:0)||
+           earned.correct!==String(actual)||
+           earned.oldPartial!=='8')
+          throw Error('V282 true '+actual+'-correct star milestone mismatch '+JSON.stringify(earned));
+      }
+      // The dedicated unit tests also cover 7 correct -> exit -> 3 correct,
+      // both games' independent counters, and score-cycle replay reset.
+      console.log('V282 REAL 10-CORRECT STAR PASS '+process.env.AREG_BROWSER);
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=281');
+        const api=await import('./space-finding-session.js?v=282');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

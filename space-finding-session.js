@@ -107,6 +107,9 @@ export function createFindingSession(root,ctx,existingScore=null){
     const finalWrong=wrong,finalCorrect=correct;
     const outcome=classifyFindingResult(finalCorrect,finalWrong);
     wrong=0;correct=0;update();
+    // The tenth-answer star tally follows the very same visit/cycle as
+    // this visible score; replay must never inherit hidden correct answers.
+    ctx?.resetCorrectAnswerStreak?.();
     root.dataset.sessionResult=outcome;
     const el=document.createElement('div');
     el.className='s3d-cycle-backdrop s3d-cycle-'+outcome;

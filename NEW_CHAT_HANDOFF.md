@@ -78,3 +78,7 @@ _Թարմացված է 2026-10-10․ համաստեղությունների հա
 
 ## Isolated V281 laboratory experiment — NOT ON MAIN
 - User is frustrated by V279 and no effective change in either DotKiosk or browser. Main V280 remains. Draft lab branch `lab/constellation-one-layer-fade-20261010` groups 3 original wrong images as single 580ms compositor opacity layer; hero remains 850ms. Must pass targeted checks/PR and real physical iPhone before merging. No promises of verified fix.
+
+## V282 — latest pending: reward/accounting fixes under test
+- User approved 850ms/580ms constellation animation as PRE-FINAL: DO NOT change. Requested 7 correct + leave + 3 correct must NOT give 1 star; per-game visit counts reset on exit/reentry and full 0/0 cycle. Planets and constellation finding separately earn exactly 1 star per 10 right answers per session.
+- Bonus field unlock must spend the displayed star cost from persistent common wallet; current bug didn't debit. Remove the 54px black disk left by empty `.magic-lock` and keep previously purchased images fully visible. Preserve old purchases without retroactive charge. Distinguish eligible/insufficient. Star-wallet tests added for 10th answer and persistent unlock. Protected backup `backup/user-approved-prefinal-before-stars-and-bonus-fix-2026-10-10` of d5203b6ea61bc21cb08dfc391120896acfe8eb68. Approved animation baseline 2a1747d9578becc7b096ddf8312bdb29f95f56ed. Branch fix/star-session-and-magic-wallet-20261010. Verify CI and Pages before declaring published.
