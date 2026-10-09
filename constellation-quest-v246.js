@@ -122,7 +122,7 @@ export function startConstellationQuest(ctx){
   const beamGeo=new THREE.CylinderGeometry(1,1,1,8,1,false);
   const nodes=[],segments=[],sparks=[];
   let points=[],target=0,disposed=false,roundStarted=0,completeAt=0;
-  let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now();
+  let stage='entering',roundToken=0,current=null,roundCount=0,raf=0,last=performance.now(),exitStartedAt=0;
   const deck=randomizedOrder(ctx.CONSTELLATIONS),allCount=deck.length;
   let nextSlot=0,artReady=false,artForToken=0,audioContext=null;
   const timers=new Set();
@@ -239,7 +239,7 @@ export function startConstellationQuest(ctx){
   }
   function startRound(){
     const token=++roundToken;
-    clearRound();reveal.classList.remove('is-visible');
+    clearRound();reveal.classList.remove('is-visible','is-exiting');
     root.classList.remove('s3d-quest-won');
     completeAt=0;stage='entering';target=0;roundStarted=performance.now();
     if(nextSlot>=allCount)nextSlot=0; // Same shuffled first constellation again after a full cycle.
@@ -250,7 +250,7 @@ export function startConstellationQuest(ctx){
     points=spatialPoints(current);
     points.forEach((p,i)=>nodes.push(createNode(p,i)));
     progress.textContent='Վառված աստղեր՝ 0 / '+nodes.length;
-    group.rotation.set(0,0,0);group.scale.setScalar(.94);
+    group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
     queueArt(current,token);
     later(()=>{if(token!==roundToken)return;stage='playing';if(position===1)speak('Դիպչի՛ր փայլող աստղին');},900);
     sound('entry');
@@ -260,6 +260,21 @@ export function startConstellationQuest(ctx){
     const d=document.createElement('div');d.className='s3d-reward';
     d.textContent='⭐ +1';root.appendChild(d);
     later(()=>d.remove(),1100);
+  }
+  function exitRound(token){
+    if(disposed||token!==roundToken||stage!=='revealed')return;
+    // Approved Space Search rhythm: completed figure drifts away, the star
+    // field breathes briefly, then the new constellation enters from depth.
+    stage='exiting';exitStartedAt=performance.now();
+    reveal.classList.remove('is-visible');
+    reveal.classList.add('is-exiting');
+    later(()=>{
+      if(token!==roundToken)return;
+      clearRound();stage='starfield-pause';
+      // Preserve the dark 3D sky; do not show a blank white DOM frame.
+      progress.textContent='✦ ✦ ✦';
+      later(()=>{if(token===roundToken)startRound()},420);
+    },1160);
   }
   function finish(){
     stage='finishing';
@@ -281,7 +296,7 @@ export function startConstellationQuest(ctx){
       }
       sound('reveal');award();
       speak('Կեցցե՛ս։ '+current.name);
-      later(()=>{if(token===roundToken)startRound()},3900);
+      later(()=>exitRound(token),3100);
     },660);
   }
   function tapAt(e){
@@ -329,16 +344,22 @@ export function startConstellationQuest(ctx){
     sky.rotation.z+=dt*.0022;
     mist.forEach((m,i)=>{m.material.opacity=.11+Math.sin(t*.00022+i)*.025});
     const elapsed=(t-roundStarted)/1000;
-    group.scale.setScalar(.94+clamp(elapsed/.82,0,1)*.06);
-    group.rotation.y=Math.sin(t*.00026)*.035;
+    const arrive=clamp(elapsed/1.25,0,1);
+    const enterEase=1-Math.pow(1-arrive,3);
+    const leaving=stage==='exiting'?clamp((t-exitStartedAt)/1050,0,1):0;
+    const exitFade=1-leaving*leaving*(3-2*leaving);
+    group.scale.setScalar((.83+.17*enterEase)*(1-leaving*.20));
+    group.position.z=-.95*(1-enterEase)-1.25*leaving;
+    group.position.y=.09*leaving;
+    group.rotation.y=Math.sin(t*.00026)*.035+.045*leaving;
     nodes.forEach((n,i)=>{
       const appear=clamp((t-n.arrival)/370,0,1);
       const hint=stage==='playing'&&i===target;
       const pulse=hint?.5+.5*Math.sin(t*.00335):0;
       const wrong=t<n.wrongUntil;
-      n.mesh.material.opacity=appear;
+      n.mesh.material.opacity=appear*exitFade;
       n.mesh.scale.setScalar(n.lit?1.33:hint?1.16+.23*pulse:1.00);
-      n.aura.material.opacity=appear*(wrong?.83:n.lit?.64:hint?.48+.34*pulse:.30);
+      n.aura.material.opacity=appear*exitFade*(wrong?.83:n.lit?.64:hint?.48+.34*pulse:.30);
       n.aura.scale.setScalar(n.lit?.87:hint?.84+.20*pulse:.58);
       if(wrong)n.aura.material.color.set(0xff6078);
       else if(n.lit)n.aura.material.color.set(0xffdc91);
@@ -351,7 +372,11 @@ export function startConstellationQuest(ctx){
       const len=Math.max(.0001,d.length());
       const middle=s.a.clone().addScaledVector(d,.5);
       const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());
-      [s.halo,s.core].forEach((m,i)=>{m.position.copy(middle);m.quaternion.copy(q);m.scale.set(i===0?.085:.018,len,i===0?.085:.018)});
+      [s.halo,s.core].forEach((m,i)=>{
+        m.position.copy(middle);m.quaternion.copy(q);
+        m.scale.set(i===0?.085:.018,len,i===0?.085:.018);
+        m.material.opacity=(i===0?.15:.97)*exitFade;
+      });
     });
     for(let i=sparks.length-1;i>=0;i--){
       const s=sparks[i],age=(t-s.born)/700;
