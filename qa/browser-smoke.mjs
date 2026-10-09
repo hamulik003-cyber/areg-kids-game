@@ -59,6 +59,39 @@ try{
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});
+
+     if(id==='constellation-game'){
+      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready',null,{timeout:30000});
+      const initial=await page.evaluate(()=>{
+        const root=document.querySelector('.s3d-find256');
+        const buttons=[...root.querySelectorAll('.s3d-find-choice')];
+        const names=buttons.map(x=>x.getAttribute('aria-label'));
+        const prompt=root.querySelector('.s3d-prompt strong')?.textContent||'';
+        const loaded=buttons.every(b=>b.querySelector('img')?.complete&&b.querySelector('img')?.naturalWidth>0);
+        return {count:buttons.length,names,prompt,loaded,mode:root.dataset.constellationMode,
+                grid:getComputedStyle(root.querySelector('.s3d-find-stage')).gridTemplateColumns};
+      });
+      if(initial.count!==4||new Set(initial.names).size!==4||!initial.loaded||
+         initial.mode!=='four-choice'||!initial.prompt.startsWith('Գտի՛ր՝ ')||
+         initial.grid.split(' ').length!==2)
+        throw Error('Invalid V256 constellation choices '+JSON.stringify(initial));
+      const correctName=initial.prompt.slice('Գտի՛ր՝ '.length);
+      const wrongName=initial.names.find(n=>n!==correctName);
+      if(!wrongName||!initial.names.includes(correctName))
+        throw Error('Constellation correct choice missing from round');
+      const wrong=page.locator('.s3d-find-choice').filter({has:page.locator('img[src]')}).first();
+      await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),wrongName);
+      if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='ready')
+        throw Error('Incorrect constellation must not advance level');
+      await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),correctName);
+      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='winning',null,{timeout:3000});
+      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
+        document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
+      if(await page.locator('.s3d-find-choice').count()!==4)
+        throw Error('Next constellation round must show 4 new objects');
+      console.log('CONSTELLATION FOUR CHOICE PASS correct/wrong/win/next-round '+process.env.AREG_BROWSER);
+     }
+
      if(id==='constellation-game'){
       // Wait for real alpha WebP decode + 38-image atlas, not just a blank WebGL canvas.
       await page.waitForFunction(()=>document.querySelector('.s3d-quest246')?.dataset.constellationReady==='true',null,{timeout:35000});
