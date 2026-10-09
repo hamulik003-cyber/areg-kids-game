@@ -64,6 +64,104 @@ function glowTexture(){
   texture.colorSpace=THREE.SRGBColorSpace;
   return texture;
 }
+
+// V250: lightweight illustrated starfield matching the blue/violet constellations.
+// One small, static GPU texture; no 4K image or network fetch on game startup.
+function nebulaBackdropTexture(){
+  const c=document.createElement('canvas');c.width=640;c.height=960;
+  const x=c.getContext('2d'),w=c.width,h=c.height;
+  let seed=0x41524547;
+  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  const bg=x.createLinearGradient(0,0,w,h);
+  bg.addColorStop(0,'#050c24');bg.addColorStop(.46,'#0b1040');
+  bg.addColorStop(.72,'#090d2d');bg.addColorStop(1,'#040920');
+  x.fillStyle=bg;x.fillRect(0,0,w,h);
+  function cloud(cx,cy,r,color,a){
+    const g=x.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,'rgba('+color+','+a+')');
+    g.addColorStop(.35,'rgba('+color+','+(a*.50)+')');
+    g.addColorStop(.72,'rgba('+color+','+(a*.15)+')');
+    g.addColorStop(1,'rgba('+color+',0)');
+    x.fillStyle=g;x.fillRect(cx-r,cy-r,r*2,r*2);
+  }
+  // Several layered diagonal nebula arcs, like the original constellation art.
+  for(let i=0;i<170;i++){
+    const u=rnd(),v=rnd(),cx=w*(u*.94+.03);
+    const cy=h*(.81-u*.63+(v-.5)*.44);
+    const radius=28+rnd()*132;
+    const color=i%4===0?'102,58,193':i%4===1?'45,77,188':i%4===2?'89,39,153':'46,104,198';
+    cloud(cx,cy,radius,color,.035+rnd()*.10);
+  }
+  [[.16,.68,.31,'86,51,181',.28],[.76,.28,.40,'40,91,200',.22],
+   [.89,.66,.27,'96,44,184',.17],[.29,.20,.27,'35,85,180',.15]]
+   .forEach(([cx,cy,r,col,a])=>cloud(cx*w,cy*h,r*w,col,a));
+  // Fine dust along the diagonal galactic band, not extra full-size 3D sprites.
+  for(let i=0;i<2300;i++){
+    const u=rnd(),mid=h*(.77-.58*u),dy=(rnd()+rnd()+rnd()-1.5)*h*.16;
+    const xx=u*w,yy=mid+dy;if(yy<0||yy>h)continue;
+    const alpha=.06+rnd()*.21;
+    x.fillStyle=rnd()<.20?'rgba(255,192,246,'+alpha+')':'rgba(141,183,255,'+alpha+')';
+    const size=.35+rnd()*1.15;
+    x.fillRect(xx,yy,size,size);
+  }
+  for(let i=0;i<430;i++){
+    const xx=rnd()*w,yy=rnd()*h,alpha=.2+rnd()*.48,size=.42+rnd()*.95;
+    x.fillStyle='rgba(220,235,255,'+alpha+')';
+    x.fillRect(xx,yy,size,size);
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.minFilter=THREE.LinearFilter;t.magFilter=THREE.LinearFilter;
+  return t;
+}
+function shootingStreakTexture(){
+  const c=document.createElement('canvas');c.width=256;c.height=36;
+  const x=c.getContext('2d'),g=x.createLinearGradient(0,0,256,0);
+  g.addColorStop(0,'rgba(150,195,255,0)');
+  g.addColorStop(.58,'rgba(176,212,255,.07)');
+  g.addColorStop(.86,'rgba(210,232,255,.50)');
+  g.addColorStop(.97,'rgba(255,255,255,.95)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g;x.fillRect(0,14,256,8);
+  const h=x.createRadialGradient(248,18,0,248,18,14);
+  h.addColorStop(0,'rgba(255,255,255,.98)');
+  h.addColorStop(.36,'rgba(211,233,255,.74)');
+  h.addColorStop(1,'rgba(220,238,255,0)');
+  x.fillStyle=h;x.fillRect(233,3,23,30);
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+function occasionalShootingStar(scene){
+  const texture=shootingStreakTexture();
+  const material=new THREE.SpriteMaterial({
+    map:texture,color:0xddedff,transparent:true,opacity:0,
+    depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending
+  });
+  material.rotation=-.33;material.toneMapped=false;
+  const sprite=new THREE.Sprite(material);
+  sprite.visible=false;sprite.renderOrder=-1;
+  sprite.position.z=-4;sprite.scale.set(2.1,.19,1);
+  scene.add(sprite);
+  let start=0,duration=0,active=false,y=2.5;
+  let nextAt=performance.now()+4300+Math.random()*5400;
+  return {
+    tick(t){
+      if(!active&&t>=nextAt){
+        active=true;start=t;duration=870+Math.random()*510;
+        y=1.7+Math.random()*3;sprite.position.set(-5.4,y,-4);
+        sprite.visible=true;
+      }
+      if(!active)return;
+      const p=(t-start)/duration;
+      if(p>=1){sprite.visible=false;active=false;material.opacity=0;
+        nextAt=t+9500+Math.random()*8500;return}
+      sprite.position.x=-5.4+p*11.5;
+      sprite.position.y=y-p*2.75;
+      material.opacity=(p<.14?p/.14:(1-p))*.68;
+    },
+    dispose(){scene.remove(sprite);material.dispose();texture.dispose()}
+  };
+}
+
 function spatialPoints(item){
   const raw=TRAILS[item.id]||'0.18,.25 .35,.55 .50,.35 .65,.64 .82,.39';
   const pairs=raw.trim().split(/\s+/).map(v=>v.split(',').map(Number));
@@ -101,6 +199,13 @@ export function startConstellationQuest(ctx){
   const camera=new THREE.PerspectiveCamera(46,1,.1,80);
   camera.position.set(0,0,10.3);camera.lookAt(0,0,0);
   const sky=new THREE.Group();scene.add(sky);
+  const nebulaMap=nebulaBackdropTexture();
+  const nebulaPlane=new THREE.Mesh(
+    new THREE.PlaneGeometry(16,24),
+    new THREE.MeshBasicMaterial({map:nebulaMap,depthWrite:false,depthTest:false,toneMapped:false})
+  );
+  nebulaPlane.position.z=-12;nebulaPlane.renderOrder=-20;scene.add(nebulaPlane);
+  const meteor=occasionalShootingStar(scene);
   const rng=()=>Math.random(),starsPositions=[];
   for(let i=0;i<470;i++){
     const theta=rng()*Math.PI*2,r=1.7+Math.sqrt(rng())*9;
@@ -388,6 +493,7 @@ export function startConstellationQuest(ctx){
     if(disposed)return;
     const dt=clamp((t-last)/1000,0,.05);last=t;resize();
     sky.rotation.z+=dt*.0022;
+    meteor.tick(t);
     mist.forEach((m,i)=>{m.material.opacity=.11+Math.sin(t*.00022+i)*.025});
     const elapsed=(t-roundStarted)/1000;
     const arrive=clamp(elapsed/1.25,0,1);
@@ -454,6 +560,8 @@ export function startConstellationQuest(ctx){
     clearRound();
     dotGeo.dispose();beamGeo.dispose();glow.dispose();
     skyGeo.dispose();skyMat.dispose();
+    meteor.dispose();scene.remove(nebulaPlane);
+    nebulaPlane.geometry.dispose();nebulaPlane.material.dispose();nebulaMap.dispose();
     mist.forEach(s=>s.material.dispose());
     renderer.dispose();renderer.forceContextLoss?.();
     if(audioContext){audioContext.close().catch(()=>{});audioContext=null}
