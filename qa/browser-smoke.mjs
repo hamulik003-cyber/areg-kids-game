@@ -174,7 +174,7 @@ try{
          f.heroTransform!==reveal.startTransform&&
          f.losers.every(c=>c.opacity>.01&&c.opacity<1&&
            c.transition==='none'&&c.animation==='none'&&
-           c.shellPaused&&c.transform==='translate3d(0px,0px,0px) scale(1)'));
+           c.shellPaused&&/^translate3d\(0px,\s*0px,\s*0px\) scale\(1\)$/.test(c.transform)));
       if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
       const middle=reveal.samples.filter(f=>f.ms>40&&f.ms<590&&f.losers.length===3);
       if(middle.length<3||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
