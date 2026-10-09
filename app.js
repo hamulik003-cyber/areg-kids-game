@@ -624,27 +624,30 @@
     }
   }
 
-  // V243: these four existing files are decoded once in the background.
-  // Only the 2D section cards are warmed, not the 100+ MB 3D texture set.
-  let spaceSectionPicturesPromise=null;
-  function warmSpaceSectionPictures(){
-    if(spaceSectionPicturesPromise)return spaceSectionPicturesPromise;
-    spaceSectionPicturesPromise=Promise.all(SECTIONS.space.games.map(game=>
-      new Promise(resolve=>{
-        const image=new Image();image.decoding='async';
-        image.onload=()=>{
-          if(typeof image.decode==='function'){
-            image.decode().then(()=>resolve(true)).catch(()=>resolve(image.naturalWidth>0));
-          }else resolve(image.naturalWidth>0);
-        };
-        image.onerror=()=>resolve(false);
-        image.src=game.thumb;
-      })
-    ));
-    return spaceSectionPicturesPromise;
+  // V245: decode the small section illustrations in a bounded warm cache.
+  // Never download the heavy 3D engine or full-resolution gallery on startup.
+  const sectionImageCache=new Map();
+  function warmSectionImage(src){
+    if(sectionImageCache.has(src))return sectionImageCache.get(src);
+    const task=new Promise(resolve=>{
+      const img=new Image();
+      img.decoding='async';
+      const done=()=>{if(img.decode)img.decode().then(()=>resolve(img)).catch(()=>resolve(img));else resolve(img)};
+      img.onload=done;
+      img.onerror=()=>resolve(null);
+      img.src=src;
+    });
+    sectionImageCache.set(src,task);
+    return task;
   }
-  // Idle home-screen warmup: don't compete with the first paint.
-  setTimeout(()=>warmSpaceSectionPictures().catch(()=>{}),1000);
+  function warmSectionImages(id){
+    const data=SECTIONS[id];
+    if(!data)return Promise.resolve([]);
+    return Promise.all([data.hero,...data.games.map(g=>g.thumb)].map(warmSectionImage));
+  }
+  // Give the home menu its first paint before starting two common section menus.
+  setTimeout(()=>warmSectionImages('nature').catch(()=>{}),950);
+  setTimeout(()=>warmSectionImages('space').catch(()=>{}),1800);
 
   function openSection(id){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
@@ -665,18 +668,17 @@
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
     if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
+    const nav=++galleryNavigationId;
     const revealSection=()=>{
-      if(currentSection!==id)return;
+      if(nav!==galleryNavigationId||currentSection!==id)return;
       homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
       requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+      // Load the 3D engine only after the Space menu has become visible.
+      if(id==='space')setTimeout(()=>{if(nav===galleryNavigationId&&currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},900);
     };
-    if(id==='space'){
-      // Start downloading the 3D module from the section menu instead of
-      // delaying the game screen after a child taps Space Search.
-      setTimeout(()=>{if(currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},120);
-      const deadline=new Promise(resolve=>setTimeout(resolve,2600));
-      Promise.race([warmSpaceSectionPictures(),deadline]).then(revealSection,revealSection);
-    }else revealSection();
+    // Already-cached pictures resolve immediately; never stall a tap for seconds.
+    const deadline=new Promise(resolve=>setTimeout(resolve,1150));
+    Promise.race([warmSectionImages(id),deadline]).then(revealSection,revealSection);
   }
 
   function saveMagicUnlocked(){
@@ -761,19 +763,23 @@
     constellationGallery:CONSTELLATIONS.map(x=>x.img)
   };
   const galleryImagePromises=new Map();
+  const GALLERY_PREVIEW_CACHE_LIMIT=40;
   function preloadGalleryPreview(file){
     const url='assets/thumbs/'+String(file).split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=238';
     if(galleryImagePromises.has(url))return galleryImagePromises.get(url);
     const task=new Promise(resolve=>{
       const img=new Image();img.decoding='async';
       img.onload=()=>{
-        if(typeof img.decode==='function')img.decode().then(()=>resolve(true)).catch(()=>resolve(img.naturalWidth>0));
-        else resolve(img.naturalWidth>0);
+        if(typeof img.decode==='function')img.decode().then(()=>resolve(img)).catch(()=>resolve(img.naturalWidth?img:null));
+        else resolve(img);
       };
-      img.onerror=()=>resolve(false);
+      img.onerror=()=>resolve(null);
       img.src=url;
     });
     galleryImagePromises.set(url,task);
+    while(galleryImagePromises.size>GALLERY_PREVIEW_CACHE_LIMIT){
+      galleryImagePromises.delete(galleryImagePromises.keys().next().value);
+    }
     return task;
   }
   function warmGalleryPreviews(kind,count=8){
@@ -782,6 +788,17 @@
   }
   let galleryNavigationId=0;
   function observeGalleryUpcomingImages(wrap){
+    // Reveal only decoded images, so Safari never paints a white bitmap in a card.
+    wrap.querySelectorAll('img[data-full-src]').forEach(img=>{
+      const reveal=()=>{
+        if(!img.isConnected)return;
+        const ready=()=>{if(img.isConnected&&img.naturalWidth)img.classList.add('is-decoded')};
+        if(typeof img.decode==='function')img.decode().then(ready).catch(ready);
+        else ready();
+      };
+      img.addEventListener('load',reveal,{once:true});
+      if(img.complete&&img.naturalWidth)reveal();
+    });
     if(!('IntersectionObserver' in window))return;
     const obs=new IntersectionObserver(entries=>{
       for(const e of entries){
@@ -825,8 +842,8 @@
       const deadline=new Promise(resolve=>setTimeout(resolve,3200));
       Promise.race([spaceEngineReady,deadline]).then(launch,launch);
     }else if(GALLERY_WARM_ITEMS[game.kind]){
-      const timeout=new Promise(resolve=>setTimeout(resolve,7500));
-      Promise.race([warmGalleryPreviews(game.kind,8),timeout]).then(launch,launch);
+      const timeout=new Promise(resolve=>setTimeout(resolve,1250));
+      Promise.race([warmGalleryPreviews(game.kind,4),timeout]).then(launch,launch);
     }else launch();
   }
   function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
@@ -1159,6 +1176,7 @@
     if(originalImage&&(!originalImage.complete||originalImage.naturalWidth===0)){
       try{await originalImage.decode()}catch{return}
     }
+    if(originalImage?.naturalWidth)originalImage.classList.add('is-decoded');
     if(!card.isConnected)return;
     const clone=card.cloneNode(true);
     const cloneImage=clone.querySelector('.animal-image-wrap img');
@@ -2280,7 +2298,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=244',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=245',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
