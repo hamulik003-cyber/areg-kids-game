@@ -123,6 +123,48 @@ function occasionalShootingStar(scene){
 }
 
 
+// Explicit, reviewed Armenian object cases. Never guess endings from a title.
+export const CONSTELLATION_FIND_FORMS=Object.freeze({
+  "hayk-orion": "Հայկը",
+  "ursa-major": "Մեծ Արջը",
+  "ursa-minor": "Փոքր Արջը",
+  "cassiopeia": "Կասիոպեան",
+  "andromeda": "Անդրոմեդան",
+  "pegasus": "Պեգասը",
+  "cepheus": "Ցեֆեոսը",
+  "draco": "Վիշապը",
+  "cygnus": "Կարապը",
+  "lyra": "Քնարը",
+  "leo": "Առյուծը",
+  "cancer": "Խեցգետինը",
+  "taurus": "Ցուլը",
+  "scorpius": "Կարիճը",
+  "libra": "Կշեռքը",
+  "hayk-belt": "Հայկի գոտին",
+  "aquarius": "Ջրհոսը",
+  "virgo": "Կույսը",
+  "gemini": "Երկվորյակները",
+  "capricornus": "Այծեղջյուրը",
+  "aries": "Խոյը",
+  "pisces": "Ձկները",
+  "perseus": "Պերսեոսը",
+  "hercules": "Հերկուլեսը",
+  "aquila": "Արծիվը",
+  "delphinus": "Դելֆինը",
+  "phoenix": "Փյունիկը",
+  "hydra": "Հիդրան",
+  "canis-major": "Մեծ շունը",
+  "canis-minor": "Փոքր շունը",
+  "sagittarius": "Աղեղնավորը",
+  "ophiuchus": "Օձակիրը",
+  "corona-borealis": "Հյուսիսային թագը",
+  "cetus": "Կետը",
+  "monoceros": "Միաեղջյուրը",
+  "auriga": "Կառավարը",
+  "lupus": "Գայլը",
+  "piscis-austrinus": "Հարավային ձուկը"
+});
+export function constellationFindName(item){return CONSTELLATION_FIND_FORMS[item.id]||item.name}
 export function startConstellationQuest(ctx){
   ctx.activityContent.innerHTML='';
   ctx.menuMusic.pause();
@@ -132,18 +174,14 @@ export function startConstellationQuest(ctx){
   ctx.activityContent.appendChild(root);
   const hud=document.createElement('div');
   hud.className='s3d-hud';
-  hud.innerHTML='<div class="s3d-prompt"><small>ԳՏԻ՛Ր ՀԱՄԱՍՏԵՂՈՒԹՅՈՒՆԸ</small><strong>Պատրաստվում են համաստեղությունները…</strong></div><div class="s3d-score">✦ <b>1/38</b></div>';
+  hud.innerHTML='<div class="s3d-prompt"><small>ԳՏԻ՛Ր ՀԱՄԱՍՏԵՂՈՒԹՅՈՒՆԸ</small><strong>Պատրաստվում են համաստեղությունները…</strong></div>';
   root.appendChild(hud);
-  const prompt=hud.querySelector('strong'),roundLabel=hud.querySelector('b');
+  const prompt=hud.querySelector('strong');
   const stage=document.createElement('div');
   stage.className='s3d-find-stage';
   stage.setAttribute('role','group');
   stage.setAttribute('aria-label','Ընտրիր ճիշտ համաստեղությունը չորս նկարներից');
   root.appendChild(stage);
-  const progress=document.createElement('div');
-  progress.className='s3d-quest-progress s3d-find-progress';
-  progress.textContent='Տիեզերական որոնում';
-  root.appendChild(progress);
 
   // Same lightweight live sky and occasional shooting stars as approved V253.
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
@@ -185,10 +223,9 @@ export function startConstellationQuest(ctx){
   let cards=[],target=null,queued=null,prewarmTimer=0,mainTimer=0;
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
-  let losingCards=[],loserFadeStart=0,winningHero=null;
-  const deckSize=ctx.CONSTELLATIONS.length;
+  let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=3030,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=280;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=650;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -409,14 +446,16 @@ export function startConstellationQuest(ctx){
     // The source card is retired in the very same paint as its replacement,
     // removing the misplaced/oversized grid transform completely.
     button.style.visibility='hidden';
-    button.remove();
+    // Keep the invisible fourth 2x2 cell until every fading card is gone.
+    // Removing it early reflows the grid and creates a visible stop/jump.
+    selectedCard=button;
     root.dataset.heroMode='independent';
-    root.dataset.heroMotion='waiting'; // V264 hero stays still until decoys are gone.
+    root.dataset.heroMotion='approaching';
   }
   function beginWinningHeroApproach(){
     const hero=winningHero;
-    if(disposed||phase!=='winning'||!hero||root.dataset.heroMotion!=='waiting')return;
-    hero._approachStart=performance.now();
+    if(disposed||phase!=='winning'||!hero)return;
+    hero._approachStart=winAt;
     root.dataset.heroMotion='approaching';
   }
   // V265: identical 850ms RAF-evaluated easeOutCubic as Space Search.
@@ -454,7 +493,7 @@ export function startConstellationQuest(ctx){
   async function buildRound(){
     const seq=++sequence;
     phase='loading';locked=true;winAt=0;
-    losingCards=[];clearWinningHero();
+    losingCards=[];selectedCard=null;clearWinningHero();
     root.dataset.winnerIsolated='false';
     root.dataset.heroMode='none';
     root.dataset.heroMotion='none';
@@ -469,7 +508,6 @@ export function startConstellationQuest(ctx){
       root.dataset.loadError=String(err?.message||err);
       console.error('CONSTELLATION IMAGE FAIL',err);
       prompt.textContent='Նկարները չեն բեռնվել․ փորձիր նորից';
-      progress.textContent='Կպի՛ր՝ կրկին փորձելու համար';
       stage.onclick=()=>{stage.onclick=null;queued=plan;buildRound()};
       root.dataset.constellationPhase='load-error';
       return;
@@ -478,11 +516,10 @@ export function startConstellationQuest(ctx){
     stage.onclick=null;
     resetCards();
     target=plan.target;roundIndex=plan.position;
+    root.dataset.targetId=target.id;
     lastTargetId=target.id;
     recent=[...new Set([...plan.options.map(x=>x.id),...recent])].slice(0,10);
-    roundLabel.textContent=roundIndex+'/'+deckSize;
-    prompt.textContent='Գտի՛ր՝ '+target.name;
-    progress.textContent='Ընտրի՛ր ճիշտ համաստեղությունը';
+    prompt.textContent='Գտի՛ր՝ '+constellationFindName(target);
     root.classList.remove('s3d-find-won');
     plan.options.forEach((item,i)=>{
       const button=document.createElement('button');
@@ -519,7 +556,7 @@ export function startConstellationQuest(ctx){
     },ENTER_MS+3*65+90);
   }
   function award(){
-    ctx.awardStar?.();
+    // Counter credited the star already; this function only shows the effect.
     const reward=document.createElement('div');
     reward.className='s3d-reward';reward.textContent='⭐ +1';
     root.appendChild(reward);
@@ -538,14 +575,14 @@ export function startConstellationQuest(ctx){
     root.dataset.constellationPhase='winning';
     root.classList.add('s3d-find-won');
     prompt.textContent='Կեցցե՛ս։ '+item.name;
-    progress.textContent='Գտա՛ր '+item.name;
     sound('correct');
-    award();
+    if(ctx.recordCorrectAnswer('constellation-game'))award();
     // Independent, alpha-centered scene-space hero. The former grid-cell
     // zoom could drift left/top and crop the figure on real iPhones.
-    // V264: three decoys leave fast, THEN the selected hero starts advancing.
-    loserFadeStart=performance.now();
+    // V266: ALL FOUR figures move from the same touch, no wait/extra phase.
+    loserFadeStart=winAt;
     showWinningHero(button,button._imageRecord,item);
+    beginWinningHeroApproach();
     losingCards=[];
     cards.forEach(card=>{
       if(card===button)return;
@@ -560,10 +597,9 @@ export function startConstellationQuest(ctx){
       card.style.transform='translate3d(0px,0px,0px) scale(1)';
       losingCards.push(card);
     });
-    // iOS fallback removes decoys first, then allows the hero to move.
-    delay(()=>finishLoserFade(),LOSER_FADE_MS+100);
-    // Planet-matched beat: 280ms losers, 850ms growing hero, ~1.9s hold,
-    // 690ms retreat, 160ms empty sky, silent next round.
+    // Safari background-tab fallback, never used to drive visible animation.
+    delay(()=>finishLoserFade(),LOSER_FADE_MS+120);
+    // Same-touch motion, 850ms grow, ~1.9s closeup, 690ms quiet exit.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
   function finishLoserFade(){
@@ -575,20 +611,21 @@ export function startConstellationQuest(ctx){
       card.remove();
     }
     losingCards=[];
+    selectedCard?.remove();selectedCard=null;
     root.dataset.winnerIsolated='true';
-    beginWinningHeroApproach(); // Do not move winner until all 3 losers are removed.
+    // Winner has already been advancing smoothly since the same tap.
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
-    // 280ms easeOutCubic is the approved Space Search decoy fade rhythm.
+    // One smooth 650ms curve for position, depth, size and opacity.
+    // Never stop the retreat and trigger a second, later disappearance.
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const eased=1-(1-p)*(1-p)*(1-p);
-    const scale=1-.28*eased;
-    const depth=-78*eased;
-    const alpha=1-eased;
+    const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+    const scale=1-.38*e,depth=-165*e,alpha=1-e;
     for(const card of losingCards){
-      card.style.transform='translate3d(0px,0px,'+depth.toFixed(2)+
-        'px) scale('+scale.toFixed(4)+')';
+      const dir=cards.indexOf(card)%2===0?-1:1;
+      card.style.transform='translate3d('+(dir*42*e).toFixed(2)+'px,'+
+        (-8*e).toFixed(2)+'px,'+depth.toFixed(2)+'px) scale('+scale.toFixed(4)+')';
       card.style.opacity=alpha.toFixed(4);
     }
     if(p>=1)finishLoserFade();
@@ -609,7 +646,6 @@ export function startConstellationQuest(ctx){
       if(disposed)return;
       clearWinningHero();resetCards();phase='starfield-pause';
       root.dataset.constellationPhase='starfield-pause';
-      progress.textContent='✦ ✦ ✦';
       delay(buildRound,STARFIELD_PAUSE_MS);
     },EXIT_MS+30);
   }

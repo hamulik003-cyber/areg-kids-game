@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=3030,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=280")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=650")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -164,27 +164,47 @@ check(quest.includes("function animateWinningHero(t)")&&
        space.includes("const STARFIELD_PAUSE_MS=160"),
        'V265 hero must use actual planet 850ms RAF easing, 690ms retreat, 160ms sky pause');
 check(quest.includes("function animateLoserFade(t)")&&
-       quest.includes("const eased=1-(1-p)*(1-p)*(1-p)")&&
-       quest.includes("const scale=1-.28*eased")&&
-       quest.includes("const depth=-78*eased")&&
-       quest.includes("card.style.opacity=alpha.toFixed(4)")&&
-       quest.includes("LOSER_FADE_MS=280")&&
-       quest.includes("root.dataset.heroMotion='waiting'")&&
-       quest.includes("root.dataset.heroMotion='approaching'")&&
+       quest.includes("const scale=1-.38*e,depth=-165*e,alpha=1-e")&&
+       quest.includes("LOSER_FADE_MS=650")&&
+       quest.includes("selectedCard=button")&&quest.includes("selectedCard?.remove()")&&
+       quest.includes("loserFadeStart=winAt")&&
+       quest.includes("hero._approachStart=winAt")&&
        quest.includes("beginWinningHeroApproach();")&&
-       quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+100)")&&
-       quest.includes("card.remove()")&&
-       space.includes("const vanish=clamp((t-winStart)/280,0,1)")&&
-       !quest.includes("sound('entry'")&&
-       !quest.includes("kind==='entry'"),
-       'V264 all three decoys must fade 280ms BEFORE hero advances, like planets');
+       quest.includes("card.style.opacity=alpha.toFixed(4)")&&
+       !quest.includes("root.dataset.heroMotion='waiting'")&&
+       !quest.includes("sound('entry'"),
+       'V266 four pictures animate simultaneously at tap with no reflow or stop');
 for(const p of [0,.1,.25,.5,.75,.9,1]){
- const e=1-(1-p)*(1-p)*(1-p);
- check(1-.28*e>=.72-1e-8&&1-.28*e<=1&&
-       -78*e>=-78&&-78*e<=0&&1-e>=0&&1-e<=1,
-       'V264 retreat opacity, scale and depth curve must remain bounded');
+ const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+ check(1-.38*e>=.62-1e-8&&1-.38*e<=1&&
+       -165*e>=-165&&-165*e<=0&&1-e>=0&&1-e<=1,
+       'V266 coordinated retreat, opacity and scaling remain continuous');
 }
-
+check(quest.includes('export const CONSTELLATION_FIND_FORMS=Object.freeze(')&&
+      quest.includes("prompt.textContent='Գտի՛ր՝ '+constellationFindName(target)")&&
+      !quest.includes('s3d-find-progress')&&!quest.includes('roundLabel')&&
+      !quest.includes('<div class="s3d-score">'),
+      'V266 declensions applied and extraneous counter/footer removed');
+const formsMatch=quest.match(/export const CONSTELLATION_FIND_FORMS=Object.freeze\((\{[\s\S]*?\})\);/);
+check(!!formsMatch,'V266 explicit Armenian declensions missing');
+if(formsMatch){
+ const forms=JSON.parse(formsMatch[1]);
+ const allIds=[...app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={')).matchAll(/id:'([^']+)'/g)].map(x=>x[1]);
+ check(Object.keys(forms).length===38&&allIds.length===38&&
+       allIds.every(id=>typeof forms[id]==='string')&&
+       forms['hayk-orion']==='Հայկը'&&forms['hayk-belt']==='Հայկի գոտին'&&
+       forms.hercules==='Հերկուլեսը'&&
+       Object.values(forms).every(t=>t.endsWith('ը')||t.endsWith('ն')),
+       'V266 correct definite endings in all 38 named constellations');
+}
+check(space.includes("if(ctx.recordCorrectAnswer('space-search'))reward(root,ctx,true)")&&
+      space.includes("if(!starAlreadyCredited)ctx.awardStar()")&&
+      quest.includes("if(ctx.recordCorrectAnswer('constellation-game'))award()")&&
+      !quest.includes('ctx.awardStar?.()')&&
+      app.includes("function recordSpaceCorrectAnswer(gameId)")&&
+      app.includes("if(count%10!==0)return false")&&
+      app.includes("localStorage.setItem(key,String(count))"),
+      'V266 per-game persistent stars only at answers 10,20,30 without double reward');
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>

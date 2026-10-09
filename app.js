@@ -848,16 +848,33 @@
   }
   function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
   function cleanupGame(){gameCleanup.splice(0).forEach(fn=>{try{fn()}catch{}});activityContent.classList.remove('animal-gallery-mode');activityContent.innerHTML=''}
+  // Persistent ten-correct milestones, independently for the two finding games.
+  const spaceCorrectCounts=Object.create(null);
+  function recordSpaceCorrectAnswer(gameId){
+    if(gameId!=='space-search'&&gameId!=='constellation-game')return false;
+    const key='areg-correct-'+gameId+'-v1';
+    let count=spaceCorrectCounts[gameId]||0;
+    try{
+      const saved=Number.parseInt(localStorage.getItem(key),10);
+      if(Number.isSafeInteger(saved)&&saved>=0)count=Math.max(count,saved);
+    }catch{}
+    count++;
+    spaceCorrectCounts[gameId]=count;
+    try{localStorage.setItem(key,String(count))}catch{}
+    if(count%10!==0)return false;
+    stars+=1;saveStars();updateStars();return true;
+  }
   function space3DContext(){
     return {activityContent,PLANETS,CONSTELLATIONS,settings,menuMusic,applyAudio,pickArmenianSpeechVoice,gameCleanup,
-      awardStar(){stars+=1;saveStars();updateStars();}
+      awardStar(){stars+=1;saveStars();updateStars();},
+      recordCorrectAnswer:recordSpaceCorrectAnswer
     };
   }
   let space3DLoadPromise=null;
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=244')
+      space3DLoadPromise=import('./space-3d-games.js?v=266')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -866,7 +883,7 @@
   let constellationQuestLoadPromise=null;
   function ensureConstellationQuestLoaded(){
     if(!constellationQuestLoadPromise){
-      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=265')
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=266')
         .catch(err=>{constellationQuestLoadPromise=null;throw err});
     }
     return constellationQuestLoadPromise;
@@ -2314,7 +2331,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=265',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=266',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

@@ -73,6 +73,8 @@ try{
         }));
         throw Error('Constellation loading diagnosis '+JSON.stringify(status)+' :: '+e.message);
       }
+      await page.evaluate(()=>localStorage.setItem('areg-correct-constellation-game-v1','8'));
+      const starsBefore=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
       const initial=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
         const buttons=[...root.querySelectorAll('.s3d-find-choice')];
@@ -80,11 +82,14 @@ try{
         const prompt=root.querySelector('.s3d-prompt strong')?.textContent||'';
         const loaded=buttons.every(b=>b.querySelector('img')?.complete&&b.querySelector('img')?.naturalWidth>0);
         return {count:buttons.length,names,prompt,loaded,mode:root.dataset.constellationMode,
+                 targetId:root.dataset.targetId,
+                 noScore:root.querySelector('.s3d-score')===null,
+                 noFooter:root.querySelector('.s3d-find-progress')===null,
                 grid:getComputedStyle(root.querySelector('.s3d-find-stage')).gridTemplateColumns};
       });
       if(initial.count!==4||new Set(initial.names).size!==4||!initial.loaded||
          initial.mode!=='four-choice'||!initial.prompt.startsWith('Գտի՛ր՝ ')||
-         initial.grid.split(' ').length!==2)
+         (!/[ըն]$/.test(initial.prompt))||!initial.noScore||!initial.noFooter||initial.grid.split(' ').length!==2)
         throw Error('Invalid V256 constellation choices '+JSON.stringify(initial));
       const polish=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')].map(b=>{
         const shell=b.querySelector('.s3d-find-art-shell');
@@ -97,55 +102,56 @@ try{
          !x.placed.includes('scale(')))
         throw Error('V258 silhouette sizing not applied to four images '+JSON.stringify(polish));
       console.log('CONSTELLATION SILHOUETTES '+polish.map(x=>x.scale.toFixed(2)).join(', '));
-      const correctName=initial.prompt.slice('Գտի՛ր՝ '.length);
-      const wrongName=initial.names.find(n=>n!==correctName);
-      if(!wrongName||!initial.names.includes(correctName))
-        throw Error('Constellation correct choice missing from round');
-      // V264 samples real RAF frames of 280ms decoy fade BEFORE winner movement.
-       const reveal=await page.evaluate(async name=>{
-         const root=document.querySelector('.s3d-find256');
-         const button=[...root.querySelectorAll('.s3d-find-choice')]
-           .find(c=>c.getAttribute('aria-label')===name);
-         if(!button)return {error:'missing correct choice'};
-         button.click();
-         const hero=root.querySelector('.s3d-find-hero');
-         const startTransform=hero?.style.transform,samples=[],start=performance.now();
-         await new Promise(resolve=>{
-           function tick(){
-             const ms=performance.now()-start;
-             samples.push({ms,motion:root.dataset.heroMotion,
-               isolated:root.dataset.winnerIsolated,heroTransform:hero?.style.transform,
-               losers:[...root.querySelectorAll('.s3d-find-choice')].map(c=>({
-                 opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
-                 transition:c.style.transition,animation:getComputedStyle(c).animationName
-               }))});
-             if(ms>=470)resolve();else requestAnimationFrame(tick);
-           }
-           requestAnimationFrame(tick);
-         });
-         return {samples,startTransform,phase:root.dataset.constellationPhase,
-           heroCount:root.querySelectorAll('.s3d-find-hero').length};
-       },correctName);
-       if(reveal.error||reveal.phase!=='winning'||reveal.heroCount!==1||
-          reveal.samples.length<3)throw Error('V264 winner missing '+JSON.stringify(reveal));
-       const mid=reveal.samples.find(f=>f.ms>10&&f.ms<260&&f.motion==='waiting'&&
-         f.losers.length===3&&f.losers.every(c=>c.opacity>.025&&c.opacity<.985&&
+      const correctName=await page.evaluate(id=>
+        document.querySelector('.s3d-find-choice[data-id="'+id+'"]')?.getAttribute('aria-label'),initial.targetId);
+      if(!correctName||!initial.names.includes(correctName))
+        throw Error('V266 no target button');
+      const reveal=await page.evaluate(async name=>{
+        const root=document.querySelector('.s3d-find256');
+        const button=[...root.querySelectorAll('.s3d-find-choice')].find(c=>c.getAttribute('aria-label')===name);
+        if(!button)return {error:'missing chosen button'};
+        button.click();
+        const hero=root.querySelector('.s3d-find-hero');
+        const startTransform=hero?.style.transform,start=performance.now(),samples=[];
+        await new Promise(resolve=>{
+          function tick(){
+            const ms=performance.now()-start;
+            samples.push({ms,motion:root.dataset.heroMotion,
+              isolated:root.dataset.winnerIsolated,heroTransform:hero?.style.transform,
+              placeholder:!!root.querySelector('.s3d-find-choice[style*="visibility: hidden"]'),
+              losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
+                opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
+                transition:c.style.transition,animation:getComputedStyle(c).animationName
+              }))});
+            if(ms>=940)resolve();else requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+        return {samples,startTransform,
+          count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
+          stars:Number(localStorage.getItem('areg-stars-v35')||0),
+          phase:root.dataset.constellationPhase,
+          heroCount:root.querySelectorAll('.s3d-find-hero').length};
+      },correctName);
+      if(reveal.error||reveal.phase!=='winning'||reveal.heroCount!==1||
+         reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
+      if(reveal.count!==9||reveal.stars!==starsBefore)
+         throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
+      const mid=reveal.samples.find(f=>f.ms>30&&f.ms<590&&f.motion==='approaching'&&
+         f.placeholder&&f.losers.length===3&&
+         f.heroTransform!==reveal.startTransform&&
+         f.losers.every(c=>c.opacity>.01&&c.opacity<1&&
            c.transition==='none'&&c.animation==='none'&&
-           /translate3d\(\s*0px,\s*0px,\s*-[\d.]+px\)\s+scale\(0\.[\d]+\)/.test(c.transform)));
-        if(!mid)throw Error('V264 no smooth 3-figure fade '+JSON.stringify(reveal.samples.slice(0,12)));
-       if(reveal.samples.some(f=>f.losers.length>0&&
-         (f.motion!=='waiting'||f.heroTransform!==reveal.startTransform)))
-         throw Error('V264 winning image moved before 3 others disappeared');
-       const lastReveal=reveal.samples.at(-1);
-       if(lastReveal.losers.length!==0||lastReveal.isolated!=='true'||
-          lastReveal.motion!=='approaching'||
-          lastReveal.heroTransform===reveal.startTransform)
-         throw Error('V264 decoys not removed before zoom '+JSON.stringify(lastReveal));
-       // 280ms decoy-first exit plus 850ms winner approach on the RAF.
-       const frames=reveal.samples.filter(f=>f.motion==='approaching');
-       if(frames.length<2||frames.every(f=>f.heroTransform===reveal.startTransform))
-         throw Error('V265 selected hero did not move progressively');
-       await page.waitForTimeout(950);
+           c.transform.includes('translate3d(')));
+      if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
+      const middle=reveal.samples.filter(f=>f.ms>40&&f.ms<590&&f.losers.length===3);
+      if(middle.length<3||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
+        c.opacity>middle[i-1].losers[j].opacity+.008)))
+        throw Error('V266 losing figures paused or reappeared');
+      const last=reveal.samples.at(-1);
+      if(last.losers.length!==0||last.isolated!=='true'||last.motion!=='holding')
+        throw Error('V266 hero and losers did not finish '+JSON.stringify(last));
+      await page.waitForTimeout(130);
        const centered=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
         const hero=root.querySelector('.s3d-find-hero');
@@ -179,16 +185,27 @@ try{
         throw Error('V262 cropped/miscentered constellation artwork in independent hero '+
           JSON.stringify(centered));
       console.log('CONSTELLATION HERO PERFECTLY CENTERED '+JSON.stringify(centered));
-      await page.waitForTimeout(350);
+      await page.waitForTimeout(230);
       if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='winning'||
          await page.locator('.s3d-find-hero').count()!==1||
          await page.locator('.s3d-find-choice').count()!==0)
         throw Error('V265 alpha-centered hero must remain isolated before planet-timed exit');
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
-        document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
+        document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)
         throw Error('Next constellation round must show 4 new objects');
-      console.log('CONSTELLATION FOUR CHOICE PASS correct/wrong/win/next-round '+process.env.AREG_BROWSER);
+      const tenth=await page.evaluate(()=>{
+        const root=document.querySelector('.s3d-find256');
+        const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
+        if(!target)return {error:'next target absent'};
+        target.click();
+        return {count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
+          stars:Number(localStorage.getItem('areg-stars-v35')||0),
+          reward:root.querySelectorAll('.s3d-reward').length};
+      });
+      if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
+        throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
+      console.log('CONSTELLATION V266 PASS simultaneous 4-way motion, declensions, clean UI, tenth star '+process.env.AREG_BROWSER);
      }
 
 
