@@ -120,7 +120,8 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
 check(quest.includes("function showWinningHero(button,record,item)")&&
       quest.includes("function heroGeometry(record,w,h)")&&
       quest.includes("selectedCard?.remove()")&&
-      quest.includes("hero.style.transform='translate3d(0px,0px,0) scale(1)'")&&
+      quest.includes("const end='translate3d(0px,0px,0px) scale(1)'")&&
+      quest.includes("hero.style.transform=end")&&
       quest.includes("const marginX=Math.min(16,w*.04)")&&
       quest.includes("marginY=Math.min(16,h*.045)")&&
       quest.includes("clearWinningHero();resetCards();phase='starfield-pause'")&&
