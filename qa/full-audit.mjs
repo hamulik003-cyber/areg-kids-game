@@ -79,7 +79,7 @@ for(const id of ids){
  check(L.image.endsWith(id+'.webp')&&has(L.image),
        id+': star landmarks not matched to the actual final PNG/WebP image');
 }
-check(quest.includes("const atlasPromise=fetch('./constellation-star-layouts.json?v=254'")&&
+check(quest.includes("const atlasPromise=fetch('./constellation-star-layouts.json?v=255'")&&
       quest.includes('artworkAnchorsToWorld(activeLayout.points,ar,cr,camera)')&&
       quest.includes('activatedIllustrationEdges(activeLayout,target,')&&
       quest.includes('group.rotation.y=.045*leaving')&&
