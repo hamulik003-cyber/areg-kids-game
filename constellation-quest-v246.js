@@ -188,7 +188,7 @@ export function startConstellationQuest(ctx){
   let losingCards=[],loserFadeStart=0,winningHero=null;
   const deckSize=ctx.CONSTELLATIONS.length;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=280;
+  const ENTER_MS=780,WIN_HOLD_MS=3030,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=280;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -397,6 +397,7 @@ export function startConstellationQuest(ctx){
     const firstScale=oldW/Math.max(1,geometry.figureW);
     const dx=origin.left+origin.width*.5-(board.left+board.width*.5);
     const dy=origin.top+origin.height*.5-(board.top+board.height*.5);
+    hero._winStartPose={x:dx,y:dy,s:firstScale}; // Preserve original selected art's on-screen origin.
     hero.style.transition='none';
     hero.style.transform='translate3d('+dx.toFixed(3)+'px,'+
       dy.toFixed(3)+'px,0) scale('+firstScale.toFixed(5)+')';
@@ -415,13 +416,33 @@ export function startConstellationQuest(ctx){
   function beginWinningHeroApproach(){
     const hero=winningHero;
     if(disposed||phase!=='winning'||!hero||root.dataset.heroMotion!=='waiting')return;
+    hero._approachStart=performance.now();
     root.dataset.heroMotion='approaching';
-    requestAnimationFrame(()=>{
-      if(disposed||phase!=='winning'||hero!==winningHero)return;
-      hero.style.transition='transform '+WIN_ZOOM_MS+
-        'ms cubic-bezier(.18,.73,.26,1)';
-      hero.style.transform='translate3d(0px,0px,0) scale(1)';
-    });
+  }
+  // V265: identical 850ms RAF-evaluated easeOutCubic as Space Search.
+  // Unlike V264's CSS tween this cannot jump because a transition is applied
+  // in a different iPhone rendering frame from the initial hero pose.
+  function animateWinningHero(t){
+    const hero=winningHero;
+    if(!hero)return;
+    if(phase==='winning'&&root.dataset.heroMotion==='approaching'){
+      const p=clamp((t-hero._approachStart)/WIN_ZOOM_MS,0,1);
+      const e=1-(1-p)*(1-p)*(1-p);
+      const from=hero._winStartPose;
+      hero.style.transform='translate3d('+(from.x*(1-e)).toFixed(3)+'px,'+
+        (from.y*(1-e)).toFixed(3)+'px,0) scale('+
+        (from.s+(1-from.s)*e).toFixed(5)+')';
+      if(p>=1){
+        hero.style.transform='translate3d(0px,0px,0) scale(1)';
+        root.dataset.heroMotion='holding';
+      }
+    }else if(phase==='exit'&&root.dataset.heroMotion==='exiting'){
+      const p=clamp((t-hero._exitStart)/EXIT_MS,0,1);
+      const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+      hero.style.transform='translate3d(0px,'+(-8*e).toFixed(3)+
+        'px,0) scale('+(1-.32*e).toFixed(5)+')';
+      hero.style.opacity=(1-e).toFixed(4);
+    }
   }
   function pose(el,{x=0,y=0,z=0,s=1,opacity=1},ms,easing='cubic-bezier(.18,.73,.26,1)'){
     el.style.transition=ms
@@ -541,8 +562,8 @@ export function startConstellationQuest(ctx){
     });
     // iOS fallback removes decoys first, then allows the hero to move.
     delay(()=>finishLoserFade(),LOSER_FADE_MS+100);
-    // 1.22s gentle approach, then >3 seconds full-size viewing; only then
-    // a slow receding exit. Newly appearing choices have NO entry sound.
+    // Planet-matched beat: 280ms losers, 850ms growing hero, ~1.9s hold,
+    // 690ms retreat, 160ms empty sky, silent next round.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
   function finishLoserFade(){
@@ -576,18 +597,13 @@ export function startConstellationQuest(ctx){
     if(disposed||phase!=='winning')return;
     phase='exit';root.dataset.constellationPhase='exit';
     root.classList.remove('s3d-find-won');
-    // Fade/retreat only the independent centered artwork, without
-    // moving any underlying 2x2 cell back into view.
+    // Same 690ms easeInOutCubic shrinking/departure as planets; keep
+    // independent V262 center and do not restore an old 2x2 button.
     const hero=winningHero;
     if(hero){
-      hero.style.transition='transform '+EXIT_MS+
-        'ms cubic-bezier(.32,0,.68,.48), opacity '+
-        EXIT_MS+'ms cubic-bezier(.42,0,.78,.48)';
-      requestAnimationFrame(()=>{
-        if(disposed||phase!=='exit'||winningHero!==hero)return;
-        hero.style.transform='translate3d(0px,-8px,0) scale(.82)';
-        hero.style.opacity='0';
-      });
+      hero.style.transition='none';
+      hero._exitStart=performance.now();
+      root.dataset.heroMotion='exiting';
     }
     delay(()=>{
       if(disposed)return;
@@ -617,6 +633,7 @@ export function startConstellationQuest(ctx){
     if(disposed)return;
     const dt=clamp((t-last)/1000,0,.05);last=t;
     animateLoserFade(t);
+    animateWinningHero(t);
     resize();stars.rotation.z+=dt*.0022;meteor.tick(t);
     mist.forEach((m,i)=>{m.material.opacity=.11+Math.sin(t*.00022+i)*.025});
     renderer.render(scene,camera);

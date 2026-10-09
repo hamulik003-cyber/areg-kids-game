@@ -141,8 +141,11 @@ try{
           lastReveal.motion!=='approaching'||
           lastReveal.heroTransform===reveal.startTransform)
          throw Error('V264 decoys not removed before zoom '+JSON.stringify(lastReveal));
-       // 280ms retreat plus 1220ms hero approach (with RAF margin).
-       await page.waitForTimeout(1250);
+       // 280ms decoy-first exit plus 850ms winner approach on the RAF.
+       const frames=reveal.samples.filter(f=>f.motion==='approaching');
+       if(frames.length<2||frames.every(f=>f.heroTransform===reveal.startTransform))
+         throw Error('V265 selected hero did not move progressively');
+       await page.waitForTimeout(950);
        const centered=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
         const hero=root.querySelector('.s3d-find-hero');
@@ -176,11 +179,11 @@ try{
         throw Error('V262 cropped/miscentered constellation artwork in independent hero '+
           JSON.stringify(centered));
       console.log('CONSTELLATION HERO PERFECTLY CENTERED '+JSON.stringify(centered));
-      await page.waitForTimeout(1100);
+      await page.waitForTimeout(350);
       if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='winning'||
          await page.locator('.s3d-find-hero').count()!==1||
          await page.locator('.s3d-find-choice').count()!==0)
-        throw Error('V262 hero must remain FULLY isolated through extended winning hold');
+        throw Error('V265 alpha-centered hero must remain isolated before planet-timed exit');
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)

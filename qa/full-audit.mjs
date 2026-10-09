@@ -86,13 +86,13 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=280")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=3030,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=280")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
       quest.includes("delay(buildRound,STARFIELD_PAUSE_MS)")&&
       quest.includes("root.dataset.constellationPhase='ready'"),
-      'V259 must keep correct-answer approach leisurely and let the winner stay before exiting');
+      'V265 video reference requires the approved planet-like winning pacing');
 check(quest.includes("sound('wrong')")&&quest.includes("sound('correct')")&&
       quest.includes('keepAliveOsc=audioContext.createOscillator()')&&
       !/speechSynthesis\.(?:speak|cancel|pause|resume)/.test(quest),
@@ -150,6 +150,19 @@ if(heroSource){
   }
  }
 }
+check(quest.includes("function animateWinningHero(t)")&&
+       quest.includes("hero._winStartPose={x:dx,y:dy,s:firstScale}")&&
+       quest.includes("hero._approachStart=performance.now()")&&
+       quest.includes("const p=clamp((t-hero._approachStart)/WIN_ZOOM_MS,0,1)")&&
+       quest.includes("const e=1-(1-p)*(1-p)*(1-p)")&&
+       quest.includes("root.dataset.heroMotion='holding'")&&
+       quest.includes("root.dataset.heroMotion='exiting'")&&
+       quest.includes("animateWinningHero(t)")&&
+       quest.includes("const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2")&&
+       space.includes("const q=clamp((t-winStart)/850,0,1),e=easeOutCubic(q)")&&
+       space.includes("transition={type:'exit',start:now,duration:690}")&&
+       space.includes("const STARFIELD_PAUSE_MS=160"),
+       'V265 hero must use actual planet 850ms RAF easing, 690ms retreat, 160ms sky pause');
 check(quest.includes("function animateLoserFade(t)")&&
        quest.includes("const eased=1-(1-p)*(1-p)*(1-p)")&&
        quest.includes("const scale=1-.28*eased")&&
