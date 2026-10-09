@@ -182,6 +182,14 @@ try{
          Math.abs(c.x-middle[i-1].losers[j].x)>1||
          Math.abs(c.y-middle[i-1].losers[j].y)>1)))
         throw Error('V266 losing figures paused or reappeared');
+      // Assert the real frame chronology, not just source timings:
+      // after 810ms the three decoys must already be gone, while hero
+      // only finishes its approach at 850ms.
+      if(reveal.samples.some(f=>f.ms>=810&&f.losers.length>0))
+        throw Error('V269 decoys lingered past 810ms, after hero nearly arrived');
+      const heroReached=reveal.samples.find(f=>f.motion==='holding');
+      if(!heroReached||heroReached.losers.length!==0)
+        throw Error('V269 winner reached screen before the 3 vanished');
       const last=reveal.samples.at(-1);
       if(last.losers.length!==0||last.isolated!=='true'||last.motion!=='holding')
         throw Error('V266 hero and losers did not finish '+JSON.stringify(last));
@@ -242,7 +250,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=268');
+        const api=await import('./space-finding-session.js?v=269');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

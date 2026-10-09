@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=268';
+import {createFindingSession} from './space-finding-session.js?v=269';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -227,7 +227,7 @@ export function startConstellationQuest(ctx){
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=1000;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=760;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -624,11 +624,10 @@ export function startConstellationQuest(ctx){
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
-    // V268 user preference: stay in the SAME original grid positions.
-    // Like the reversed entrance, the art fades smoothly for one second.
-    // Do NOT translate, shrink, move backwards or stop then disappear.
+    // V269: all 3 start dissolving at the same tap as hero's 850ms approach.
+    // Complete after 760ms, in their original positions, with no abrupt ending.
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const eased=.5-.5*Math.cos(Math.PI*p);
+    const eased=Math.sin(Math.PI*.5*p);
     for(const card of losingCards){
       card.style.opacity=(1-eased).toFixed(4);
     }
