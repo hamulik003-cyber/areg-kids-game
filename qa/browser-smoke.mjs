@@ -131,9 +131,8 @@ try{
        const mid=reveal.samples.find(f=>f.ms>10&&f.ms<260&&f.motion==='waiting'&&
          f.losers.length===3&&f.losers.every(c=>c.opacity>.025&&c.opacity<.985&&
            c.transition==='none'&&c.animation==='none'&&
-           c.transform.includes('translate3d(0px,0px,-')&&
-           /scale\\(0\\.[\\d]+\\)/.test(c.transform)));
-       if(!mid)throw Error('V264 no smooth 3-figure fade '+JSON.stringify(reveal.samples.slice(0,12)));
+           /translate3d\(\s*0px,\s*0px,\s*-[\d.]+px\)\s+scale\(0\.[\d]+\)/.test(c.transform)));
+        if(!mid)throw Error('V264 no smooth 3-figure fade '+JSON.stringify(reveal.samples.slice(0,12)));
        if(reveal.samples.some(f=>f.losers.length>0&&
          (f.motion!=='waiting'||f.heroTransform!==reveal.startTransform)))
          throw Error('V264 winning image moved before 3 others disappeared');
