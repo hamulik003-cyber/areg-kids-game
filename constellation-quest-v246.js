@@ -602,7 +602,6 @@ export function startConstellationQuest(ctx){
     if(keepAliveOsc){try{keepAliveOsc.stop()}catch{}keepAliveOsc.disconnect();keepAliveOsc=null}
     if(keepAliveGain){keepAliveGain.disconnect();keepAliveGain=null}
     if(audioContext){audioContext.close().catch(()=>{});audioContext=null}
-    try{speechSynthesis.cancel()}catch{}
     if(ctx.settings.master&&ctx.settings.music)ctx.applyAudio();
   });
 }
