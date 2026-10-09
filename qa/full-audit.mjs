@@ -223,9 +223,10 @@ check(quest.includes("root.dataset.constellationBuild='v274-next-ready-before-ex
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
-  quest.includes("if(phase==='winning'&&!queued)prewarmTimer=delay(warmNext,130)")&&
+  quest.includes("if(phase==='winning'&&!queued&&roundIndex!==ctx.CONSTELLATIONS.length)")&&
+  quest.includes("prewarmTimer=delay(warmNext,130)")&&
   !quest.includes("prewarmTimer=delay(warmNext,650)")&&
-  quest.includes("if(disposed||queued)return;"),
+  quest.includes("if(disposed||queued||roundIndex===ctx.CONSTELLATIONS.length)return;"),
   'V272 MUST reserve WebKit GPU frames during EVERY answer and avoid prewarm while user decides');
 check(quest.includes("const useCompositor=losingCards.every(card=>typeof card.animate==='function')")&&
       quest.includes("const animation=card.animate(")&&
