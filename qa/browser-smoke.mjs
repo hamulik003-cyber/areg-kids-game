@@ -153,7 +153,7 @@ try{
                 fadeState:c._fadeAnimation?.playState||'none',
                 x:c.getBoundingClientRect().x,y:c.getBoundingClientRect().y
               }))});
-            if(ms>=1170)resolve();else requestAnimationFrame(tick);
+            if(ms>=1510)resolve();else requestAnimationFrame(tick);
           }
           requestAnimationFrame(tick);
         });
@@ -166,7 +166,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v275-uninterrupted-compositor-hero'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v276-soft-synchronized-constellation-motion'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -177,23 +177,19 @@ try{
            c.fadeState==='running'&&c.transition==='none'&&c.animation==='none'&&
            c.shellPaused&&/^translate3d\(0px,\s*0px,\s*0px\) scale\(1\)$/.test(c.transform)));
       if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
-      const middle=reveal.samples.filter(f=>f.ms>20&&f.ms<520&&f.losers.length===3);
+      const middle=reveal.samples.filter(f=>f.ms>20&&f.ms<580&&f.losers.length===3);
       if(middle.length<1||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
         c.opacity>middle[i-1].losers[j].opacity+.008||
          Math.abs(c.x-middle[i-1].losers[j].x)>1||
          Math.abs(c.y-middle[i-1].losers[j].y)>1)))
         throw Error('V275 constellation decoy opacity/position regression '+JSON.stringify(middle));
       // V270: actual perceived-entrance test, not merely "gone by 850ms".
-      // The hero's cubic easing is already ~80% complete by 340ms.
-      // All three losing choices must disappear before 450ms, while
-      // the hero is still approaching, and genuinely begin fading early.
-      // WebKit's GPU+3D first rAF sample may occur around 60ms and the
-      // next around 230ms, skipping the former artificial 55-170ms window.
-      // Check real early FADE PROGRESS by 300ms instead of demanding a
-      // specific intermediate frame which the browser never produced.
-      const early=reveal.samples.find(f=>f.ms>35&&f.ms<520&&
+      // V276: 580ms gentle fade and independent 1120ms winner approach
+      // start in the same user gesture. iOS WebKit RAF may sample sparsely.
+      // Assert visible intermediate opacity and stationary decoy positions.
+      const early=reveal.samples.find(f=>f.ms>80&&f.ms<600&&
         f.motion==='approaching'&&f.losers.length===3&&
-        f.losers.every(c=>c.opacity<.1));
+        f.losers.every(c=>c.opacity<.88));
       if(!early)throw Error('V270 WebKit first-fade diagnostic '+
         JSON.stringify({engine:reveal.fadeEngine,build:reveal.build,
           opening:reveal.samples.slice(0,12).map(f=>({
@@ -201,11 +197,11 @@ try{
             count:f.losers.length,alpha:f.losers.map(x=>x.opacity),
             transform:f.losers.map(x=>x.transform)
           }))}));
-      const lingering=reveal.samples.filter(f=>f.ms>=560&&f.losers.some(c=>c.opacity>.015));
+      const lingering=reveal.samples.filter(f=>f.ms>=790&&f.losers.some(c=>c.opacity>.015));
       if(lingering.length)
         throw Error('V270 decoys remained on screen after hero visually arrived '+
           JSON.stringify(lingering.slice(0,3)));
-      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=370&&f.ms<=850&&
+      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=660&&f.ms<=1120&&
         f.motion==='approaching'&&f.losers.length===0);
       if(!goneWhileApproaching)
         throw Error('V270 decoys did not finish before visual winner approach');
@@ -215,8 +211,8 @@ try{
       // No two-stage freeze: selected hero must animate independently on
       // the compositor from the child's tap, while the three alpha fades
       // run concurrently. Opaque decoys must vanish LONG before the hero.
-      if(reveal.samples.some(f=>f.ms>=580&&f.losers.some(c=>c.opacity>.015)))
-        throw Error('V275 first win still shows decoys after 580ms '+
+      if(reveal.samples.some(f=>f.ms>=800&&f.losers.some(c=>c.opacity>.015)))
+        throw Error('V276 first win still shows decoys after 800ms '+
           JSON.stringify(reveal.samples));
       const last=reveal.samples.at(-1);
       if(last.losers.length!==0||last.isolated!=='true'||last.motion!=='holding')
@@ -292,18 +288,18 @@ try{
                 x:Math.round(c.getBoundingClientRect().x),
                 y:Math.round(c.getBoundingClientRect().y)
               }))});
-            if(ms>=800)resolve();else requestAnimationFrame(tick);
+            if(ms>=1050)resolve();else requestAnimationFrame(tick);
           }
           requestAnimationFrame(tick);
         });
         return {...score,frames};
       });
       console.log('V271 SECOND WIN REAL FRAMES '+JSON.stringify(tenth.frames));
-      const secondLate=tenth.frames?.filter(f=>f.ms>=560&&f.losers.some(c=>c.opacity>.015));
+      const secondLate=tenth.frames?.filter(f=>f.ms>=800&&f.losers.some(c=>c.opacity>.015));
       if(secondLate?.length||
-        tenth.frames?.some(f=>f.ms>=580&&f.losers.some(c=>c.opacity>.015))||
-        !tenth.frames?.some(f=>f.ms<520&&(f.losers.length===0||f.losers.some(c=>c.opacity<.05)))||
-        !tenth.frames?.some(f=>f.ms>=470&&f.motion==='approaching'&&
+        tenth.frames?.some(f=>f.ms>=790&&f.losers.some(c=>c.opacity>.015))||
+        !tenth.frames?.some(f=>f.ms<610&&f.losers.length===3&&f.losers.some(c=>c.opacity<.88))||
+        !tenth.frames?.some(f=>f.ms>=670&&f.motion==='approaching'&&
           f.losers.every(c=>c.opacity<.015)))
         throw Error('V273 SECOND round winner outran 3-card fade '+JSON.stringify(tenth.frames));
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
@@ -328,7 +324,7 @@ try{
                 x:Math.round(c.getBoundingClientRect().x),
                 y:Math.round(c.getBoundingClientRect().y)
               }))});
-            if(ms>800)resolve();else requestAnimationFrame(tick);
+            if(ms>1050)resolve();else requestAnimationFrame(tick);
           }
           requestAnimationFrame(tick);
         });
@@ -337,12 +333,12 @@ try{
       });
       console.log('V272 THIRD WIN REAL FRAMES '+JSON.stringify(third));
       if(third.error||third.count!==11||third.right!=='3'||
-        third.frames.some(f=>f.ms>=580&&f.decoys.some(c=>c.alpha>.015))||
-        third.frames.some(f=>f.ms>=570&&f.decoys.some(c=>c.alpha>.015))||
-        !third.frames.some(f=>f.ms<520&&(f.decoys.length===0||f.decoys.some(c=>c.alpha<.05))))
+        third.frames.some(f=>f.ms>=800&&f.decoys.some(c=>c.alpha>.015))||
+        third.frames.some(f=>f.ms>=790&&f.decoys.some(c=>c.alpha>.015))||
+        !third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88))
         throw Error('V272 THREE consecutive rounds must share same fade '+JSON.stringify(third));
       // FOURTH win: deliberately stall JavaScript's main thread for
-      // ~420ms, simulating slow WebKit image/GPU work. The whole 850ms
+      // ~420ms, simulating slow WebKit image/GPU work. The whole 1120ms
       // hero motion is now ONE native compositor timeline — no 30%-hold.
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
@@ -365,7 +361,7 @@ try{
         }
         const afterStall={time:motion.currentTime,
           transform:getComputedStyle(hero).transform};
-        await new Promise(resolve=>setTimeout(resolve,1100));
+        await new Promise(resolve=>setTimeout(resolve,1400));
         return {initial,afterStall,
           after:{progress:Number(root.dataset.heroApproachProgress),
             motion:root.dataset.heroMotion,decoys:root.querySelectorAll('.s3d-find-dismissing').length,
@@ -385,7 +381,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=275');
+        const api=await import('./space-finding-session.js?v=276');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

@@ -86,13 +86,13 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=1120,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
       quest.includes("session.showCycleResult().then(()=>{if(!disposed)buildRound()})")&&
       quest.includes("root.dataset.constellationPhase='ready'"),
-      'V265 video reference requires the approved planet-like winning pacing');
+      'V276 preserve win/exit stage timing with softer native transitions');
 check(quest.includes("sound('wrong')")&&quest.includes("sound('correct')")&&
       quest.includes('keepAliveOsc=audioContext.createOscillator()')&&
       !/speechSynthesis\.(?:speak|cancel|pause|resume)/.test(quest),
@@ -157,7 +157,7 @@ check(quest.includes("function animateWinningHero(t)")&&
   quest.includes("hero._winStartPose={x:dx,y:dy,s:firstScale}")&&
   quest.includes("hero._approachStart=winAt")&&
   quest.includes("hero._moveAnimation=hero.animate(")&&
-  quest.includes("{duration:WIN_ZOOM_MS,easing:'cubic-bezier(.18,.70,.26,1)'")&&
+  quest.includes("{duration:WIN_ZOOM_MS,easing:'cubic-bezier(.42,0,.58,1)'")&&
   quest.includes("hero._moveAnimation.onfinish=()=>{")&&
   quest.includes("hero.style.transform=end")&&
   quest.includes("root.dataset.heroMotion='holding'")&&
@@ -185,7 +185,7 @@ check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
   quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
   quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
   'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
-check(quest.includes("root.dataset.constellationBuild='v275-uninterrupted-compositor-hero'")&&
+check(quest.includes("root.dataset.constellationBuild='v276-soft-synchronized-constellation-motion'")&&
   quest.includes("plan.ready=Promise.all(plan.options.map(preload))")&&
   quest.includes("plan.prepared=true;return records")&&
   quest.includes("const next=queued;")&&
@@ -199,27 +199,27 @@ check(quest.includes("root.dataset.constellationBuild='v275-uninterrupted-compos
   'V274 DO NOT clear winning art / empty the sky until all next quartet assets have decoded');
 const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
-    quest.includes("const eased=Math.sin(Math.PI*.5*p)")&&
+    quest.includes("const eased=p*p*(3-2*p)")&&
     quest.includes("card.style.opacity=(1-eased).toFixed(4)")&&
-    quest.includes("LOSER_FADE_MS=340")&&
+    quest.includes("LOSER_FADE_MS=580")&&
     quest.includes("shell.style.animationPlayState='paused'")&&
     quest.includes("selectedCard=button")&&
     quest.includes("hero._approachStart=winAt")&&
     quest.includes("loserFadeStart=winAt")&&
     quest.includes("selectedCard?.remove()"),
-    'V270 all three in-place decoys begin compositor fade at touch and vanish by 340ms');
+    'V276 three stationary decoys begin smooth 580ms opacity fade on same tap');
 for(const p of [0,.1,.25,.5,.75,.9,.98,1]){
-  const e=Math.sin(Math.PI*.5*p);
+  const e=p*p*(3-2*p);
   check(e>=0&&e<=1&&1-e>=0&&1-e<=1,
     'V269 760ms alpha-only decoy fade is continuous and bounded');
 }
-check(340<850&&
+check(580<1120&&
   quest.includes("loserFadeStart=winAt")&&
   quest.includes("hero._approachStart=winAt")&&
-  quest.includes("WIN_ZOOM_MS=850")&&
-  quest.includes("LOSER_FADE_MS=340"),
-  'V270 340ms decoy removal precedes perceptually early 850ms easeOutCubic hero');
-check(quest.includes("root.dataset.constellationBuild='v275-uninterrupted-compositor-hero'")&&
+  quest.includes("WIN_ZOOM_MS=1120")&&
+  quest.includes("LOSER_FADE_MS=580"),
+  'V276 580ms decoy fade completes before gentle 1120ms hero arrival');
+check(quest.includes("root.dataset.constellationBuild='v276-soft-synchronized-constellation-motion'")&&
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
@@ -292,13 +292,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=275')&&
-      app.includes('space-3d-games.js?v=275')&&
-      app.includes('constellation-quest-v246.js?v=275'),
+check(sw.includes('space-finding-session.js?v=276')&&
+      app.includes('space-3d-games.js?v=276')&&
+      app.includes('constellation-quest-v246.js?v=276'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=275")&&
+check(refresh.includes("service-worker.js?v=276")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

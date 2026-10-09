@@ -1,5 +1,5 @@
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
-_Թարմացված է 2026-10-09, V275-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
+_Թարմացված է 2026-10-10, V276-ի աշխատանքից հետո։ Կարդալ առաջին հերթին, հետո ստուգել main-ի իրական HEAD-ը։_
 
 ## Հանձնարարություն նոր զրույցի օգնականին
 Սա նախորդ երկա՜ր տեխնիկական աշխատանքի ուղիղ շարունակությունն է։ Մի խնդրիր օգտվողից ZIP, screenshot կամ repository URL կրկին։ Կա միացված GitHub connector. ԱՆՄԻՋԱՊԵՍ ստուգիր `hamulik003-cyber/areg-kids-game` repository-ի `main` ճյուղի վերջին commit, README/ `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, և հատկապես `constellation-quest-v246.js`։ Այս ֆայլը նոր զրույցի հրահանգների մեկ պատճենն է, բայց վերջին HEAD-ը միշտ աղբյուրն է։
@@ -48,3 +48,7 @@ _Թարմացված է 2026-10-09, V275-ի աշխատանքից հետո։ Կա�
 4. Անպայման առաջիկա պատասխանով հաղորդել user-ին վերջնական main SHA, backups, հաջող/անհաջող CI/Pages, առկա չստուգված հանգամանքները. առանց ֆայլ/ZIP կրկին խնդրելու։
 
 Ամբողջ նախագծի լրիվ պատմություն՝ `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`։ Նոր զրույցի օգնականը կարող է աշխատել անմիջապես GitHub-ից։
+
+## V276 newest — device approval pending
+- The user requested a softer, synchronized result in every round. Correct picture immediately approaches in ONE uninterrupted 1120ms WAAPI ease-in-out; all 3 other pictures begin stationary gentle 580ms opacity fade on the SAME tap. No old 30% mid-zoom stop. Preserve approved next-four 780ms entrance and V274 preloading.
+- Last green V275 `9b3869ad38887e87760be5dc65427d87e03c738e` backed up at `backup/v275-before-soft-synchronized-constellation-transition-v276-2026-10-10`. Verify V276 exact main SHA CI/Pages and real DotKiosk 3–5 consecutive right-answer video. Older V275 content earlier in this handoff is historical.

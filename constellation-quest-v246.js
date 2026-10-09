@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=275';
+import {createFindingSession} from './space-finding-session.js?v=276';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,9 +226,9 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v275-uninterrupted-compositor-hero';
+  root.dataset.constellationBuild='v276-soft-synchronized-constellation-motion';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=1120,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -474,7 +474,7 @@ export function startConstellationQuest(ctx){
     if(disposed||phase!=='winning'||!hero)return;
     hero._approachStart=winAt;
     root.dataset.heroMotion='approaching';
-    // V275: SINGLE uninterrupted, compositor-driven 850ms transform.
+    // V276: one gentle uninterrupted 1120ms compositor transform, soft start and finish.
     // The previous V273 code capped progress at 30% and WAITED for 3 other
     // pictures' fade-completion callback. On iPhone this visibly STOPPED
     // the selected hero and then restarted it. We NEVER gate its progress
@@ -485,7 +485,7 @@ export function startConstellationQuest(ctx){
     const end='translate3d(0px,0px,0px) scale(1)';
     hero._moveAnimation=hero.animate(
       [{transform:start},{transform:end}],
-      {duration:WIN_ZOOM_MS,easing:'cubic-bezier(.18,.70,.26,1)',
+      {duration:WIN_ZOOM_MS,easing:'cubic-bezier(.42,0,.58,1)',
        fill:'forwards',composite:'replace'}
     );
     hero._moveAnimation.onfinish=()=>{
@@ -615,8 +615,8 @@ export function startConstellationQuest(ctx){
     if(ctx.recordCorrectAnswer('constellation-game'))award();
     // V270: START all three GPU/compositor dissolves on the SAME user tap,
     // BEFORE constructing the giant hero. This avoids the perceived late
-    // fade when the winning picture's 850ms easeOutCubic is nearly full size
-    // after only ~450ms. The 3 decoys are invisible by 340ms.
+    // fade while the winner follows its 1120ms gentle ease-in-out path
+    // from the same tap. All three decoys fade in place over 580ms.
     loserFadeStart=winAt;
     losingCards=[];
     cards.forEach(card=>{
@@ -642,7 +642,7 @@ export function startConstellationQuest(ctx){
       losingCards.forEach(card=>{
         const animation=card.animate(
           [{opacity:1},{opacity:0}],
-          {duration:LOSER_FADE_MS,easing:'cubic-bezier(.16,.65,.32,1)',
+          {duration:LOSER_FADE_MS,easing:'cubic-bezier(.42,0,.58,1)',
            fill:'forwards',composite:'replace'}
         );
         card._fadeAnimation=animation;
@@ -669,7 +669,7 @@ export function startConstellationQuest(ctx){
         finishLoserFade();
       }
     },LOSER_FADE_MS+150);
-    // Same-touch motion, 850ms grow, ~1.9s closeup, 690ms quiet exit.
+    // Same-touch gentle motion, 1120ms grow, ~1.6s closeup, 690ms quiet exit.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
   function finishLoserFade(){
@@ -702,7 +702,7 @@ export function startConstellationQuest(ctx){
     // engines where element.animate is unavailable.
     if(root.dataset.decoyFadeEngine==='compositor')return;
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const eased=Math.sin(Math.PI*.5*p);
+    const eased=p*p*(3-2*p);
     for(const card of losingCards)card.style.opacity=(1-eased).toFixed(4);
     if(p>=1)finishLoserFade();
   }
@@ -787,7 +787,7 @@ export function startConstellationQuest(ctx){
     animateLoserFade(t);
     animateWinningHero(t);
     resize();
-    // V272: reserve the first ~440ms after EVERY correct tap for native
+    // V276: reserve the first ~680ms after EVERY correct tap for native
     // opacity compositing and the hero's lightweight DOM RAF transform.
     // A heavy WebGL render here starved WebKit frames on later answers.
     // The already-painted starfield stays visible, never blanks out.
