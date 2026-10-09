@@ -1,6 +1,16 @@
 # AREG Kids Game — CURRENT WORK / SAFE RESUME
 
-Last updated: 2026-10-09. **Read this FIRST in EVERY new conversation before editing GitHub.**
+Last updated: 2026-10-10. **Read this FIRST in EVERY new conversation before editing GitHub.**
+
+## ✅ USER-APPROVED PRE-FINAL BASELINE — 2026-10-10 — CURRENT (read this before older V259–V280 notes)
+- **Explicit user approval in this conversation** after testing on their actual iPhone/DotKiosk: “այ հիմա շաաատ լավա ընտիրա💋 ... սա ֆիքսում ենք նախնական վեռջնական տարբերակ”. THIS supersedes all historical “awaiting user confirmation” notices and abandoned V279 experiment notes below.
+- Scope: **Space / «Գտիր համաստեղությունը» four-choice mini-game** is **PRE-FINAL / LOCKED** for the accepted animation; not a claim every other AREG mini-game has been finalized. Works on FIRST and subsequent correct answers across a shared handler for all 38 illustrations.
+- **Frozen UX contract:** correct constellation's independent gentle, continuous native WAAPI hero move **850ms**, easing `cubic-bezier(.42,0,.58,1)`; other THREE original decoded wrong-option images stay in their spots and fade together in a **SINGLE common compositor layer over 580ms**, beginning on the SAME correct tap (NOT three independent opacity animations or an RAF-driven per-card fallback). Then selected art holds, exits gently, next four fade/move in with **780ms** entrance; existing 2750ms win stage, 690ms exit, 160ms sky pause and next-quartet predecode remain. No blinking, snapping, or stale opaque images in subsequent rounds. Preserve all images/3D textures/sound/score/stars/settings, iPhone full-screen layout and DotKiosk workflow.
+- **Verified release/game-content commit:** `2a1747d9578becc7b096ddf8312bdb29f95f56ed`; GitHub Pages deployment + assets-and-code + mobile-browser + ios-webkit all SUCCESS, including screenshot-derived *painted pixel* checks of each of THREE decoys after the 5th correct answer. The user subsequently confirmed the visual result was excellent on their own device.
+- **Immutable recovery branch:** `baseline/pre-final-constellation-shared-fade-user-approved-2026-10-10` points to approved game-content commit `2a1747d9578becc7b096ddf8312bdb29f95f56ed`. If future changes regress this mini-game, restore exactly this game state. The next docs-only commit will move `main` forward, but must NOT alter runtime files, audio, art or PWA cache: use this baseline SHA for the approved gameplay.
+- User requests that **BOTH `CURRENT_STATUS.md` and `PROJECT_HANDOFF.md` be updated whenever significant gameplay/design GitHub work is made** with user request, actual changes, commit/branch, checks, approval, rollback and next action. Update `NEW_CHAT_HANDOFF.md` as a short pointer too when a milestone materially changes. Read the newest CURRENT checkpoint (top and bottom), don't trust stale headings in historical sections.
+- **NEXT:** Wait for user's explicit request for the next game/change. Never change this approved constellation win/fade effect, its 850/580ms timing, or its art/transition without user explicitly requesting a new experiment; back up before modifying. User-facing canonical URL: https://hamulik003-cyber.github.io/areg-kids-game/ . Do not ask user to reinstall DotKiosk, clear app storage/stars, or switch to refresh.html.
+
 
 ## Source of truth and current state
 - Repository: `hamulik003-cyber/areg-kids-game`, default branch `main`, live PWA: https://hamulik003-cyber.github.io/areg-kids-game/
