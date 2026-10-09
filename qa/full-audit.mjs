@@ -124,12 +124,17 @@ check(quest.includes("const visibleW=Number(button.dataset.figureWidthPx)")&&
       skyCss.includes("filter:brightness(1.11) contrast(1.06) saturate(1.09)"),
       'V259 all finished constellations must enlarge to consistent safe screen edges without clipping');
 check(quest.includes("card.classList.add('s3d-find-dismissing')")&&
-      quest.includes("LOSER_FADE_MS+'ms'")&&
-      skyCss.includes("@keyframes s3dFindLoserFade")&&
-      skyCss.includes("to{opacity:0}")&&
+      quest.includes("card.style.transition='opacity '+LOSER_FADE_MS")&&
+      quest.includes("card.style.animation='none'")&&
+      quest.includes("card.style.opacity='0'")&&
+      quest.includes("card.classList.add('s3d-find-hidden')")&&
+      quest.includes("card.style.display='none'")&&
+      quest.includes("card.remove()")&&
+      skyCss.includes(".s3d-find-choice.s3d-find-hidden")&&
+      !skyCss.includes("@keyframes s3dFindLoserFade")&&
       !quest.includes("sound('entry'")&&
       !quest.includes("kind==='entry'"),
-      'V259 other three pictures fade smoothly with no jitter, and incoming four are silent');
+      'V260 losing cards must fade via one transition and then be removed: no iPhone WebKit ghost images');
 
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
