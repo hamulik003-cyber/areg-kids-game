@@ -185,6 +185,18 @@ check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
   quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
   quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
   'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
+check(quest.includes("root.dataset.constellationBuild='v274-next-ready-before-exit'")&&
+  quest.includes("plan.ready=Promise.all(plan.options.map(preload))")&&
+  quest.includes("plan.prepared=true;return records")&&
+  quest.includes("const next=queued;")&&
+  quest.includes("if(next&&!next.prepared&&!next.preloadFailed)")&&
+  quest.includes("root.dataset.nextQuartetReady='waiting'")&&
+  quest.includes("root.dataset.nextQuartetReady=roundIndex===ctx.CONSTELLATIONS.length")&&
+  quest.includes("prepare(next).then(()=>{")&&
+  quest.includes("beginExit();")&&
+  quest.includes("plan.ready=null;plan.prepared=false;plan.preloadFailed=false;queued=plan;buildRound()")&&
+  !quest.includes("prepare(queued).catch(()=>{if(!disposed)queued=null})"),
+  'V274 DO NOT clear winning art / empty the sky until all next quartet assets have decoded');
 const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
     quest.includes("const eased=Math.sin(Math.PI*.5*p)")&&
@@ -207,7 +219,7 @@ check(340<850&&
   quest.includes("WIN_ZOOM_MS=850")&&
   quest.includes("LOSER_FADE_MS=340"),
   'V270 340ms decoy removal precedes perceptually early 850ms easeOutCubic hero');
-check(quest.includes("root.dataset.constellationBuild='v273-win-fade-gated'")&&
+check(quest.includes("root.dataset.constellationBuild='v274-next-ready-before-exit'")&&
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
@@ -279,13 +291,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=273')&&
-      app.includes('space-3d-games.js?v=273')&&
-      app.includes('constellation-quest-v246.js?v=273'),
+check(sw.includes('space-finding-session.js?v=274')&&
+      app.includes('space-3d-games.js?v=274')&&
+      app.includes('constellation-quest-v246.js?v=274'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=273")&&
+check(refresh.includes("service-worker.js?v=274")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

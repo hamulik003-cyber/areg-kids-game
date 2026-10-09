@@ -20,7 +20,7 @@ small{display:block;margin-top:12px;color:#d0dffa}
 <body><article>
 <div aria-hidden="true" style="font-size:40px">✨</div>
 <h1>AREG խաղի թարմացում</h1>
-<p id="status" role="status">Ստուգում ենք V272 տարբերակը…</p>
+<p id="status" role="status">Ստուգում ենք V274 տարբերակը…</p>
 <button id="retry" hidden type="button">Կրկնել թարմացումը</button>
 <small>Խաղի աստղերն ու կարգավորումները պահպանվում են։</small>
 </article>
@@ -37,21 +37,21 @@ async function updateGame(){
   try{
     if(!('serviceWorker' in navigator)){
       status.textContent='Բացվում է թարմացված խաղը։';
-      location.replace('./index.html?v=273');
+      location.replace('./index.html?v=274');
       return;
     }
     const registration=await navigator.serviceWorker.register(
-      './service-worker.js?v=273',{updateViaCache:'none'});
+      './service-worker.js?v=274',{updateViaCache:'none'});
     await registration.update();
     // This dedicated /refresh.html path was not cached by the previous
-    // service worker. Wait for v270 to truly activate before returning to
+    // service worker. Wait for v274 to truly activate before returning to
     // the cache-first PWA home screen, otherwise old index.html may reappear.
     const deadline=Date.now()+14000;
     while(Date.now()<deadline){
       const active=registration.active;
-      if(active&&active.state==='activated'&&active.scriptURL.includes('v=273')){
+      if(active&&active.state==='activated'&&active.scriptURL.includes('v=274')){
         status.textContent='Թարմացումն ավարտված է։ Բացվում է խաղը։';
-        location.replace('./index.html?v=273');
+        location.replace('./index.html?v=274');
         return;
       }
       await sleep(150);

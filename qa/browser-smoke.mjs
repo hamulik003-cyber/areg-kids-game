@@ -166,7 +166,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v273-win-fade-gated'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v274-next-ready-before-exit'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -261,6 +261,8 @@ try{
         throw Error('V265 alpha-centered hero must remain isolated before planet-timed exit');
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:20000});
+      const exitReady1=await page.locator('.s3d-find256').getAttribute('data-next-quartet-ready');
+      if(exitReady1!=='ready')throw Error('V274 must PREPARE full quartet before prior hero exits; transition 1: '+exitReady1);
       if(await page.locator('.s3d-find-choice').count()!==4)
         throw Error('Next constellation round must show 4 new objects');
       // V271 regression: prior checks observed ONLY the first win.
@@ -305,6 +307,8 @@ try{
         throw Error('V273 SECOND round winner outran 3-card fade '+JSON.stringify(tenth.frames));
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
+      const exitReady2=await page.locator('.s3d-find256').getAttribute('data-next-quartet-ready');
+      if(exitReady2!=='ready')throw Error('V274 must PREPARE full quartet before prior hero exits; transition 2: '+exitReady2);
       // THIRD distinct target, independent of second round's star milestone.
       const third=await page.evaluate(async ()=>{
         const root=document.querySelector('.s3d-find256');
@@ -342,6 +346,8 @@ try{
       // until ALL three actual animations finish, then smoothly complete.
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
+      const exitReady3=await page.locator('.s3d-find256').getAttribute('data-next-quartet-ready');
+      if(exitReady3!=='ready')throw Error('V274 must PREPARE full quartet before prior hero exits; transition 3: '+exitReady3);
       const gated=await page.evaluate(async()=>{
         const root=document.querySelector('.s3d-find256');
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
@@ -384,7 +390,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=273');
+        const api=await import('./space-finding-session.js?v=274');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

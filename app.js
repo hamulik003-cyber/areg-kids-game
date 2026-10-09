@@ -874,7 +874,7 @@
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=273')
+      space3DLoadPromise=import('./space-3d-games.js?v=274')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -883,7 +883,7 @@
   let constellationQuestLoadPromise=null;
   function ensureConstellationQuestLoaded(){
     if(!constellationQuestLoadPromise){
-      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=273')
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=274')
         .catch(err=>{constellationQuestLoadPromise=null;throw err});
     }
     return constellationQuestLoadPromise;
@@ -2331,7 +2331,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=273',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=274',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

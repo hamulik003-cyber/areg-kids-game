@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=273';
+import {createFindingSession} from './space-finding-session.js?v=274';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,7 +226,7 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v273-win-fade-gated';
+  root.dataset.constellationBuild='v274-next-ready-before-exit';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340;
   const delay=(fn,ms)=>{
@@ -379,16 +379,23 @@ export function startConstellationQuest(ctx){
     cache.set(item.id,p);return p;
   }
   function prepare(plan){
-    if(!plan.ready)plan.ready=Promise.all(plan.options.map(preload));
+    if(!plan.ready){
+      plan.prepared=false;plan.preloadFailed=false;
+      plan.ready=Promise.all(plan.options.map(preload))
+        .then(records=>{plan.prepared=true;return records})
+        .catch(err=>{plan.preloadFailed=true;throw err});
+    }
     return plan.ready;
   }
   function warmNext(){
-    // Run only AFTER the three decoys have already dissolved. Preparing
-    // future high-resolution artwork while the child is about to tap was
-    // causing irregular iPhone WebKit frame spacing on later rounds.
-    if(disposed||queued)return;
-    queued=planRound();
-    prepare(queued).catch(()=>{if(!disposed)queued=null});
+    // Prepare the NEXT quartet while the current successful hero is still
+    // visible, after the three losing cards have completely faded.
+    if(disposed||queued||roundIndex===ctx.CONSTELLATIONS.length)return;
+    const plan=planRound();
+    queued=plan;
+    // Keep a failed plan (and its unplayed target) for a safe retry instead
+    // of silently skipping one of the 38 required names.
+    prepare(plan).catch(err=>{if(!disposed)console.warn('Next constellation preload:',err)});
   }
   function resetCards(){
     for(const el of cards){el.onclick=null;el.remove()}
@@ -531,7 +538,7 @@ export function startConstellationQuest(ctx){
       root.dataset.loadError=String(err?.message||err);
       console.error('CONSTELLATION IMAGE FAIL',err);
       prompt.textContent='Նկարները չեն բեռնվել․ փորձիր նորից';
-      stage.onclick=()=>{stage.onclick=null;queued=plan;buildRound()};
+      stage.onclick=()=>{stage.onclick=null;plan.ready=null;plan.prepared=false;plan.preloadFailed=false;queued=plan;buildRound()};
       root.dataset.constellationPhase='load-error';
       return;
     }
@@ -681,7 +688,9 @@ export function startConstellationQuest(ctx){
     // Safe background loading can start now: fade already reached zero.
     // Earlier preloading during selection competed with mobile WebKit
     // compositor + WebGL precisely at the next correct-answer tap.
-    if(phase==='winning'&&!queued)prewarmTimer=delay(warmNext,130);
+    // V274 also checks PREPARATION COMPLETION before retiring this hero.
+    if(phase==='winning'&&!queued&&roundIndex!==ctx.CONSTELLATIONS.length)
+      prewarmTimer=delay(warmNext,130);
     // Winner has already been advancing smoothly since the same tap.
   }
   function animateLoserFade(t){
@@ -696,6 +705,32 @@ export function startConstellationQuest(ctx){
   }
   function beginExit(){
     if(disposed||phase!=='winning')return;
+    // V274: don't retire the hero and show EMPTY SPACE while the next four
+    // artwork files are still loading/decoding. Prepare in the safe window
+    // AFTER the three decoys vanish, and begin the 690ms hero exit only
+    // once all four next silhouettes are decoded and calibrated.
+    if(roundIndex!==ctx.CONSTELLATIONS.length){
+      if(!queued)warmNext();
+      const next=queued;
+      if(next&&!next.prepared&&!next.preloadFailed){
+        root.dataset.nextQuartetReady='waiting';
+        if(!next.exitWaitAttached){
+          next.exitWaitAttached=true;
+          prepare(next).then(()=>{
+            if(disposed||phase!=='winning'||queued!==next)return;
+            beginExit();
+          },()=>{
+            if(disposed||phase!=='winning'||queued!==next)return;
+            // On network failure show existing retry UI rather than
+            // freezing forever with the last hero on screen.
+            beginExit();
+          });
+        }
+        return;
+      }
+    }
+    root.dataset.nextQuartetReady=roundIndex===ctx.CONSTELLATIONS.length
+      ?'final-result':queued?.prepared?'ready':'error';
     phase='exit';root.dataset.constellationPhase='exit';
     root.classList.remove('s3d-find-won');
     // Same 690ms easeInOutCubic shrinking/departure as planets; keep
