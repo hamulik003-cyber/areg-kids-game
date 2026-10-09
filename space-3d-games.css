@@ -88,7 +88,7 @@
 .s3d-quest-photo-stage{
   position:relative;width:100%;min-height:0;
   flex:1 1 auto;display:flex;align-items:center;justify-content:center;
-  isolation:isolate;pointer-events:none;overflow:visible;
+  isolation:isolate;mix-blend-mode:screen;pointer-events:none;overflow:visible;
 }
 .s3d-quest-photo-atmosphere{
   position:absolute;inset:-8% -9%;z-index:0;pointer-events:none;
