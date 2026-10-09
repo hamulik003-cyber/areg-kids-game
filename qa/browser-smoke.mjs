@@ -143,7 +143,7 @@ try{
         await new Promise(resolve=>{
           function tick(){
             const ms=performance.now()-start;
-            samples.push({ms,motion:root.dataset.heroMotion,
+            samples.push({ms,progress:Number(root.dataset.heroApproachProgress),motion:root.dataset.heroMotion,
               isolated:root.dataset.winnerIsolated,heroTransform:hero?.style.transform,
               placeholder:!!root.querySelector('.s3d-find-choice[style*="visibility: hidden"]'),
               losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
@@ -166,7 +166,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v272-repeat-stable'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v273-win-fade-gated'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -212,6 +212,11 @@ try{
       const heroReached=reveal.samples.find(f=>f.motion==='holding');
       if(!heroReached||heroReached.losers.length!==0)
         throw Error('V270 hero arrived while decoys were visible');
+      // No frame may ever present a nearly-full hero while the decoys
+      // are still visible, regardless of expensive WebKit frame intervals.
+      if(reveal.samples.some(f=>f.losers.length>0&&f.progress>.305))
+        throw Error('V273 FIRST winner outran unfinished loser fade '+
+          JSON.stringify(reveal.samples));
       const last=reveal.samples.at(-1);
       if(last.losers.length!==0||last.isolated!=='true'||last.motion!=='holding')
         throw Error('V266 hero and losers did not finish '+JSON.stringify(last));
@@ -274,7 +279,7 @@ try{
         await new Promise(resolve=>{
           function tick(){
             const ms=performance.now()-start;
-            frames.push({ms:Math.round(ms),
+            frames.push({ms:Math.round(ms),progress:Number(root.dataset.heroApproachProgress),
               phase:root.dataset.constellationPhase,
               motion:root.dataset.heroMotion,
               engine:root.dataset.decoyFadeEngine,
@@ -293,10 +298,11 @@ try{
       console.log('V271 SECOND WIN REAL FRAMES '+JSON.stringify(tenth.frames));
       const secondLate=tenth.frames?.filter(f=>f.ms>=560&&f.losers.some(c=>c.opacity>.015));
       if(secondLate?.length||
+        tenth.frames?.some(f=>f.losers.length>0&&f.progress>.305)||
         !tenth.frames?.some(f=>f.ms<520&&(f.losers.length===0||f.losers.some(c=>c.opacity<.05)))||
         !tenth.frames?.some(f=>f.ms>=470&&f.motion==='approaching'&&
           f.losers.every(c=>c.opacity<.015)))
-        throw Error('V272 SECOND round not identical early fade '+JSON.stringify(tenth.frames));
+        throw Error('V273 SECOND round winner outran 3-card fade '+JSON.stringify(tenth.frames));
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
       // THIRD distinct target, independent of second round's star milestone.
@@ -310,7 +316,7 @@ try{
         await new Promise(resolve=>{
           function tick(){
             const ms=performance.now()-start;
-            frames.push({ms:Math.round(ms),phase:root.dataset.constellationPhase,
+            frames.push({ms:Math.round(ms),progress:Number(root.dataset.heroApproachProgress),phase:root.dataset.constellationPhase,
               hero:root.dataset.heroMotion,
               decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
                 alpha:Number(getComputedStyle(c).opacity),
@@ -326,15 +332,59 @@ try{
       });
       console.log('V272 THIRD WIN REAL FRAMES '+JSON.stringify(third));
       if(third.error||third.count!==11||third.right!=='3'||
+        third.frames.some(f=>f.decoys.length>0&&f.progress>.305)||
         third.frames.some(f=>f.ms>=570&&f.decoys.some(c=>c.alpha>.015))||
         !third.frames.some(f=>f.ms<520&&(f.decoys.length===0||f.decoys.some(c=>c.alpha<.05))))
         throw Error('V272 THREE consecutive rounds must share same fade '+JSON.stringify(third));
+      // FOURTH consecutive correct answer, with simulated slow WebKit:
+      // freeze all three compositor fades beyond the normal 850ms hero
+      // duration. Winner MUST stay visibly away from the full screen
+      // until ALL three actual animations finish, then smoothly complete.
+      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
+        document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
+      const gated=await page.evaluate(async()=>{
+        const root=document.querySelector('.s3d-find256');
+        const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
+        if(!target)return {error:'fourth target absent'};
+        target.click();
+        const decoys=[...root.querySelectorAll('.s3d-find-dismissing')];
+        if(decoys.length!==3||decoys.some(c=>!c._fadeAnimation))
+          return {error:'no decoy compositor animations'};
+        decoys.forEach(c=>c._fadeAnimation.pause());
+        await new Promise(resolve=>setTimeout(resolve,1100));
+        const held={progress:Number(root.dataset.heroApproachProgress),
+          motion:root.dataset.heroMotion,
+          decoys:root.querySelectorAll('.s3d-find-dismissing').length,
+          isolated:root.dataset.winnerIsolated};
+        decoys.forEach(c=>c._fadeAnimation.finish());
+        const until=performance.now()+3500;
+        await new Promise(resolve=>{
+          function tick(){
+            if(root.dataset.heroMotion==='holding'||performance.now()>until)
+              resolve();
+            else requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+        return {held,after:{progress:Number(root.dataset.heroApproachProgress),
+          motion:root.dataset.heroMotion,
+          decoys:root.querySelectorAll('.s3d-find-dismissing').length},
+          right:root.querySelector('.s3d-session-right')?.textContent};
+      });
+      if(gated.error||gated.held.decoys!==3||
+        gated.held.motion!=='approaching'||
+        gated.held.progress>.305||gated.held.progress<.08||
+        gated.held.isolated==='true'||
+        gated.after.motion!=='holding'||
+        gated.after.progress!==1||gated.after.decoys!==0||gated.right!=='4')
+        throw Error('V273 STRESS: paused iPhone fade must block hero full zoom '+JSON.stringify(gated));
+      console.log('V273 FOURTH WIN 1100ms DECAY PAUSE GATE PASS '+JSON.stringify(gated));
       if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
         throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=272');
+        const api=await import('./space-finding-session.js?v=273');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

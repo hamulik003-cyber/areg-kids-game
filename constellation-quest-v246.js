@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=272';
+import {createFindingSession} from './space-finding-session.js?v=273';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,7 +226,7 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v272-repeat-stable';
+  root.dataset.constellationBuild='v273-win-fade-gated';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340;
   const delay=(fn,ms)=>{
@@ -441,6 +441,8 @@ export function startConstellationQuest(ctx){
     const dx=origin.left+origin.width*.5-(board.left+board.width*.5);
     const dy=origin.top+origin.height*.5-(board.top+board.height*.5);
     hero._winStartPose={x:dx,y:dy,s:firstScale}; // Preserve original selected art's on-screen origin.
+    hero._fadeReleaseAt=0; // Per-answer: must be set by THAT answer's 3-card fade.
+    root.dataset.heroApproachProgress='0';
     hero.style.transition='none';
     hero.style.transform='translate3d('+dx.toFixed(3)+'px,'+
       dy.toFixed(3)+'px,0) scale('+firstScale.toFixed(5)+')';
@@ -464,21 +466,36 @@ export function startConstellationQuest(ctx){
     hero._approachStart=winAt;
     root.dataset.heroMotion='approaching';
   }
-  // V265: identical 850ms RAF-evaluated easeOutCubic as Space Search.
-  // Unlike V264's CSS tween this cannot jump because a transition is applied
-  // in a different iPhone rendering frame from the initial hero pose.
+  // V273: CORRECT ART must never visually reach the foreground while any
+  // of the other three are still visible, even when DotKiosk drops RAF frames.
+  // The hero starts moving on touch, but its arrival is gated by completion
+  // of THIS round's actual compositor fades — not an assumed timeout.
+  // Both phases are continuous and have smooth zero-velocity joins.
   function animateWinningHero(t){
     const hero=winningHero;
     if(!hero)return;
     if(phase==='winning'&&root.dataset.heroMotion==='approaching'){
-      const p=clamp((t-hero._approachStart)/WIN_ZOOM_MS,0,1);
-      const e=1-(1-p)*(1-p)*(1-p);
+      const elapsed=Math.max(0,t-hero._approachStart);
+      const early=clamp(elapsed/LOSER_FADE_MS,0,1);
+      const earlyProgress=.30*Math.sin(Math.PI*.5*early);
+      const fadeCompleted=losingCards.length===0&&
+        root.dataset.winnerIsolated==='true'&&hero._fadeReleaseAt>0;
+      let e=earlyProgress,arrived=false;
+      if(fadeCompleted){
+        const afterStart=Math.max(hero._approachStart+LOSER_FADE_MS,
+          hero._fadeReleaseAt);
+        const q=clamp((t-afterStart)/(WIN_ZOOM_MS-LOSER_FADE_MS),0,1);
+        e=.30+.70*(.5-.5*Math.cos(Math.PI*q));
+        arrived=q>=1;
+      }
       const from=hero._winStartPose;
+      root.dataset.heroApproachProgress=e.toFixed(4);
       hero.style.transform='translate3d('+(from.x*(1-e)).toFixed(3)+'px,'+
         (from.y*(1-e)).toFixed(3)+'px,0) scale('+
         (from.s+(1-from.s)*e).toFixed(5)+')';
-      if(p>=1){
+      if(arrived){
         hero.style.transform='translate3d(0px,0px,0) scale(1)';
+        root.dataset.heroApproachProgress='1';
         root.dataset.heroMotion='holding';
       }
     }else if(phase==='exit'&&root.dataset.heroMotion==='exiting'){
@@ -646,6 +663,9 @@ export function startConstellationQuest(ctx){
     losingCards=[];
     selectedCard?.remove();selectedCard=null;
     root.dataset.winnerIsolated='true';
+    // The only release gate: 3 COMPLETED fades from the current answer.
+    // Never release from the 850ms clock alone or from a previous round.
+    if(winningHero)winningHero._fadeReleaseAt=performance.now();
     // Safe background loading can start now: fade already reached zero.
     // Earlier preloading during selection competed with mobile WebKit
     // compositor + WebGL precisely at the next correct-answer tap.
