@@ -246,13 +246,13 @@ export function startConstellationQuest(ctx){
     current=ctx.CONSTELLATIONS[deck[nextSlot++]];
     const position=nextSlot;
     number.textContent=position+'/'+allCount;
-    prompt.textContent='Դիպչի՛ր փայլող աստղին';
+    prompt.textContent='Դիպչի՛ր կամ սահեցրո՛ւ մատդ';
     points=spatialPoints(current);
     points.forEach((p,i)=>nodes.push(createNode(p,i)));
     progress.textContent='Վառված աստղեր՝ 0 / '+nodes.length;
     group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
     queueArt(current,token);
-    later(()=>{if(token!==roundToken)return;stage='playing';if(position===1)speak('Դիպչի՛ր փայլող աստղին');},900);
+    later(()=>{if(token!==roundToken)return;stage='playing';speak('Դիպչի՛ր կամ սահեցրո՛ւ մատդ փայլող աստղին');},1150);
     sound('entry');
   }
   function award(){
@@ -296,32 +296,19 @@ export function startConstellationQuest(ctx){
       }
       sound('reveal');award();
       speak('Կեցցե՛ս։ '+current.name);
-      later(()=>exitRound(token),3100);
+      later(()=>exitRound(token),6600);
     },660);
   }
-  function tapAt(e){
-    if(disposed||stage!=='playing')return;
-    const box=renderer.domElement.getBoundingClientRect();
-    if(!box.width||!box.height)return;
-    const px=e.clientX-box.left,py=e.clientY-box.top;
+  // Both ways of playing share the very same next-star validation:
+  // (a) release after each tap or (b) keep a finger down and trace the lights.
+  let heldPointer=null,lastDragPoint=null;
+  function activePosition(rect){
     scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);
-    let closest=-1,closestDistance=Infinity,activeDistance=Infinity;
-    for(let i=0;i<nodes.length;i++){
-      const projected=nodes[i].mesh.getWorldPosition(new THREE.Vector3()).project(camera);
-      const x=(projected.x+1)*box.width*.5,y=(1-projected.y)*box.height*.5;
-      const dist=Math.hypot(x-px,y-py);
-      if(dist<closestDistance){closest=i;closestDistance=dist}
-      if(i===target)activeDistance=dist;
-    }
-    const radius=clamp(Math.min(box.width,box.height)*.11,31,47);
-    // For closely spaced stars prioritize the blinking hint, avoiding false errors.
-    if(activeDistance<=radius*1.15)closest=target;
-    else if(closestDistance>radius)return;
-    if(closest!==target){
-      nodes[closest].wrongUntil=performance.now()+340;
-      sound('wrong');
-      return;
-    }
+    const projected=nodes[target].mesh.getWorldPosition(new THREE.Vector3()).project(camera);
+    return {x:(projected.x+1)*rect.width*.5,y:(1-projected.y)*rect.height*.5};
+  }
+  function lightTarget(){
+    if(disposed||stage!=='playing'||target>=nodes.length)return;
     const t=performance.now();
     const n=nodes[target];n.lit=true;n.mesh.material.color.set(0xfff7cb);
     n.aura.material.color.set(0xffd88f);burst(n.p);
@@ -331,7 +318,66 @@ export function startConstellationQuest(ctx){
     progress.textContent='Վառված աստղեր՝ '+target+' / '+nodes.length;
     if(target===nodes.length)finish();
   }
-  renderer.domElement.addEventListener('pointerdown',tapAt,{passive:true});
+  function pointerDown(e){
+    if(disposed||stage!=='playing'||heldPointer!==null)return;
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    const rect=renderer.domElement.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    heldPointer=e.pointerId;
+    lastDragPoint={x:e.clientX-rect.left,y:e.clientY-rect.top};
+    try{renderer.domElement.setPointerCapture(e.pointerId)}catch{}
+    // Regular tapping stays unchanged, including the wrong-star sound.
+    scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+    let closest=-1,closestDistance=Infinity,activeDistance=Infinity;
+    for(let i=0;i<nodes.length;i++){
+      const projected=nodes[i].mesh.getWorldPosition(new THREE.Vector3()).project(camera);
+      const x=(projected.x+1)*rect.width*.5,y=(1-projected.y)*rect.height*.5;
+      const d=Math.hypot(x-lastDragPoint.x,y-lastDragPoint.y);
+      if(d<closestDistance){closest=i;closestDistance=d}
+      if(i===target)activeDistance=d;
+    }
+    const radius=clamp(Math.min(rect.width,rect.height)*.11,31,47);
+    if(activeDistance<=radius*1.15)closest=target;
+    else if(closestDistance>radius)return;
+    if(closest!==target){
+      nodes[closest].wrongUntil=performance.now()+340;
+      sound('wrong');return;
+    }
+    lightTarget();
+  }
+  function pointerMove(e){
+    if(disposed||heldPointer!==e.pointerId||stage!=='playing'||!lastDragPoint)return;
+    const rect=renderer.domElement.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    const end={x:e.clientX-rect.left,y:e.clientY-rect.top};
+    const start=lastDragPoint;
+    const dx=end.x-start.x,dy=end.y-start.y;
+    const len2=dx*dx+dy*dy;
+    if(len2<9)return; // ignore tiny finger jitter
+    lastDragPoint=end;
+    if(target>=nodes.length)return;
+    // Distance from the continuous finger path to the active blinking star;
+    // this also recognizes fast swipes whose events skip right over its center.
+    const p=activePosition(rect);
+    const along=clamp(((p.x-start.x)*dx+(p.y-start.y)*dy)/len2,0,1);
+    const qx=start.x+along*dx,qy=start.y+along*dy;
+    const radius=clamp(Math.min(rect.width,rect.height)*.095,29,43);
+    if(Math.hypot(p.x-qx,p.y-qy)<=radius){
+      lightTarget();
+      // On the next move, a new target is evaluated; no accidental chain
+      // of multiple stars triggered by a single large touch event.
+    }
+  }
+  function pointerEnd(e){
+    if(heldPointer!==e.pointerId)return;
+    heldPointer=null;lastDragPoint=null;
+    try{if(renderer.domElement.hasPointerCapture(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId)}catch{}
+  }
+  renderer.domElement.addEventListener('pointerdown',pointerDown,{passive:true});
+  renderer.domElement.addEventListener('pointermove',pointerMove,{passive:true});
+  renderer.domElement.addEventListener('pointerup',pointerEnd,{passive:true});
+  renderer.domElement.addEventListener('pointercancel',pointerEnd,{passive:true});
+  renderer.domElement.addEventListener('lostpointercapture',pointerEnd);
   function resize(){
     const w=Math.max(2,root.clientWidth),h=Math.max(2,root.clientHeight);
     if(renderer.domElement._w===w&&renderer.domElement._h===h)return;
@@ -361,9 +407,10 @@ export function startConstellationQuest(ctx){
       n.mesh.scale.setScalar(n.lit?1.33:hint?1.16+.23*pulse:1.00);
       n.aura.material.opacity=appear*exitFade*(wrong?.83:n.lit?.64:hint?.48+.34*pulse:.30);
       n.aura.scale.setScalar(n.lit?.87:hint?.84+.20*pulse:.58);
-      if(wrong)n.aura.material.color.set(0xff6078);
-      else if(n.lit)n.aura.material.color.set(0xffdc91);
-      else n.aura.material.color.set(0x94caff);
+      if(wrong){n.mesh.material.color.set(0xff707d);n.aura.material.color.set(0xff6078);}
+      else if(n.lit){n.mesh.material.color.set(0xfff7cb);n.aura.material.color.set(0xffdc91);}
+      else if(hint){n.mesh.material.color.set(0xffc15a);n.aura.material.color.set(0xffac3e);}
+      else{n.mesh.material.color.set(0xc6dcff);n.aura.material.color.set(0x6daeff);}
     });
     segments.forEach(s=>{
       const fraction=clamp((t-s.start)/570,0,1);
@@ -397,7 +444,12 @@ export function startConstellationQuest(ctx){
   ctx.gameCleanup.push(()=>{
     disposed=true;roundToken++;cancelAnimationFrame(raf);
     for(const t of timers)clearTimeout(t);timers.clear();
-    renderer.domElement.removeEventListener('pointerdown',tapAt);
+    renderer.domElement.removeEventListener('pointerdown',pointerDown);
+    renderer.domElement.removeEventListener('pointermove',pointerMove);
+    renderer.domElement.removeEventListener('pointerup',pointerEnd);
+    renderer.domElement.removeEventListener('pointercancel',pointerEnd);
+    renderer.domElement.removeEventListener('lostpointercapture',pointerEnd);
+    heldPointer=null;lastDragPoint=null;
     art.onload=art.onerror=null;art.removeAttribute('src');
     clearRound();
     dotGeo.dispose();beamGeo.dispose();glow.dispose();
