@@ -2,6 +2,8 @@
 
 This is an **existing production PWA** for children. The active branch is `main`. Do NOT rebuild it from scratch or restore an older version just because another chat has partial context.
 
+**New-chat recovery rule (V264+):** FIRST read CURRENT_STATUS.md (LAST chronological section), PROJECT_HANDOFF.md (full project decisions and recent conversation checkpoints), then AGENTS.md. Inspect live GitHub main SHA/Actions/Pages. Before modifications protect current HEAD; after each meaningful user request record decisions, versions, backups, CI and next unfinished action in both handoff documents. Do not infer the latest requirement from old V259/V263 summaries: V264 requires 280ms planet-style fading of THREE wrong constellation choices BEFORE the independent hero starts moving. These files preserve work decisions rather than a verbatim ChatGPT transcript.
+
 ## Before every modification
 1. Fetch the actual current `main` HEAD, read the relevant production files, and compare with the last known-good commit.
 2. For risky, destructive or structural edits, create a separate backup branch first. Do not force-push.
