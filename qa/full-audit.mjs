@@ -257,9 +257,16 @@ if(formsMatch){
 }
 check(space.includes("if(ctx.recordCorrectAnswer('space-search'))reward(root,ctx,true)")&&
   quest.includes("if(ctx.recordCorrectAnswer('constellation-game'))award()")&&
+  app.includes("const count=(spaceCorrectCounts[gameId]||0)+1")&&
   app.includes("if(count%10!==0)return false")&&
-  app.includes("localStorage.setItem(key,String(count))"),
-  'V266 both games retain independent persistently-earned star per 10 correct answers');
+  app.includes("function resetSpaceCorrectAnswers()")&&
+  app.includes("function cleanupGame()")&&
+  app.includes("resetSpaceCorrectAnswers();")&&
+  app.includes("resetCorrectAnswerStreak:resetSpaceCorrectAnswers")&&
+  !app.includes("localStorage.setItem(key,String(count))")&&
+  !app.includes("Math.max(count,saved)")&&
+  finding.includes("ctx?.resetCorrectAnswerStreak?.()"),
+  'V282 both star-awarding games award every 10 CORRECT PER VISIT; leaving or replay resets progress');
 check(finding.includes('export function createFindingSession')&&
   finding.includes('export function classifyFindingResult')&&
   finding.includes("root.dataset.sessionWrong=String(wrong)")&&
@@ -294,13 +301,24 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=281')&&
-      app.includes('space-3d-games.js?v=281')&&
-      app.includes('constellation-quest-v246.js?v=281'),
+check(sw.includes('space-finding-session.js?v=282')&&
+      app.includes('space-3d-games.js?v=282')&&
+      app.includes('constellation-quest-v246.js?v=282'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
+check(app.includes("stars-=item.cost")&&
+  app.includes("saveStars();")&&
+  app.includes("updateMagicAvailability()")&&
+  app.includes("$('.magic-lock',card)?.remove()")&&
+  app.includes("magicUnlocked.add(item.id)")&&
+  app.includes("if(!magicUnlocked.has(item.id))")&&
+  app.includes("✓ Բացված է")&&
+  styles.includes(".magic-collect-card.is-unlocked .magic-lock{display:none !important}")&&
+  sw.includes("'./styles.css?v=282'")&&
+  html.includes('styles.css?v=282'),
+  'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=281")&&
+check(refresh.includes("service-worker.js?v=282")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

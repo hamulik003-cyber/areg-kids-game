@@ -29,6 +29,8 @@ jobs:
         run: node qa/handoff-guard.mjs
       - name: Unit test session results and ephemeral score rules
         run: node --test qa/finding-session.test.mjs
+      - name: Unit test per-visit ten-correct milestones and reward unlock wallet
+        run: node --test qa/star-economy.test.mjs
       - run: node qa/full-audit.mjs
 
   mobile-browser:

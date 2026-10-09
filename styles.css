@@ -1443,6 +1443,9 @@ html.ios-standalone .modal {
     0 12px 23px rgba(17,7,4,.22),
     inset 0 0 0 2px rgba(255,255,255,.14);
 }
+/* V282: the lock's old 54px dark disk was still painted after its
+   emoji disappeared. Open cards must reveal the ENTIRE illustration. */
+.magic-collect-card.is-unlocked .magic-lock{display:none !important}
 .magic-collect-card.is-unlocked .magic-picture{opacity:1;filter:drop-shadow(0 10px 8px rgba(4,5,25,.32))}
 .magic-collect-card.just-unlocked::after{
   content:"✨";
