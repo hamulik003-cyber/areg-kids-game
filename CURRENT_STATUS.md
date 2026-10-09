@@ -47,3 +47,12 @@ Await GitHub Pages + automated browsers for V259, then user DotKiosk visual/audi
 - QA `qa/browser-smoke.mjs` now verifies that 3 wrong images are MID-fade at 270ms, ALL 3 DOM nodes are gone by about 920ms, and winner is the ONLY remaining choice throughout the extended win hold. Must pass both Chromium and iOS WebKit; `qa/full-audit.mjs` protects the hard remove behavior.
 - `app.js`, `index.html` and `service-worker.js` switched together to v260. No audio, reward, images, starfield or unrelated games were touched.
 - Next: confirm latest GitHub Pages and three CI jobs; have user close and reopen DotKiosk (without uninstall), complete 2–3 rounds, and send a final screenshot of a close-up. Only after real iPhone approval consider V260 the new Pre-Final.
+
+
+## Update V261 — 2026-10-09 (latest; supersedes V260 animation implementation)
+- V260 first attempted an inline CSS opacity transition plus DOM detach. Chromium passed, but **iOS WebKit failed its smoke test**: 270ms after selecting the winner, all 3 losers still reported opacity 1. Never call V260 final.
+- V261 keeps the exact approved V259 winning SIZE, zoom and hold, correct/wrong sounds and lazy 38-image assets. ONLY loser fade was replaced.
+- `constellation-quest-v246.js?v=261`: on winner touch the 3 other cards are marked dismissing, prior CSS animation + transition cancelled, and are faded by the *already-running WebGL requestAnimationFrame loop* with smoothstep alpha from 1 to 0 over 720ms. When elapsed time reaches 720ms the three unwanted DOM buttons are removed. There is an 820ms timeout backup if the app is backgrounded mid-fade. `data-winner-isolated=true` confirms cleanup. No CSS compositor interpolation is relied on, so WebKit cannot keep them visible due to competing styles.
+- A V261-specific test in `qa/browser-smoke.mjs` requires a mid-fade alpha in (0.02, 0.99) at 270ms with CSS animation/transition both `none`, and **only one remaining image node by ~920ms**, throughout the longer hold. Test both Chromium and iOS WebKit before telling user to try.
+- Web assets/cache updated together to V261. V259 backup `backup/v259-before-definitive-loser-cleanup-v260` remains safe. Parent V258 and older backups retained.
+- Next: verify GitHub Pages deploy for V261 HEAD, Full Game Audit (assets-and-code, mobile-browser, ios-webkit); if all green ask user to close/reopen DotKiosk without deleting and send a screenshot of successful reveal, specifically whether 3 losing images disappear.
