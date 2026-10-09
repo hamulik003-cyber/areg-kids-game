@@ -258,23 +258,81 @@ export function startConstellationQuest(ctx){
     return './assets/constellations-transparent/'+item.img.split('/').pop()
       .replace(/\.[^.]+$/,'.'+extension)+'?v=252';
   }
+  // Calibrate V258 artwork by visible alpha, not the transparent image bounds.
+  // Sample only 128 x 128 pixels per unique picture; no re-encoding or network
+  // fetch. Percentile bounds discard stray nebula specks around silhouettes.
+  function visibleAlphaBounds(image){
+    try{
+      const n=128,c=document.createElement('canvas');c.width=n;c.height=n;
+      const g=c.getContext('2d',{willReadFrequently:true});
+      if(!g)return {x:.5,y:.5,w:.85,h:.85};
+      g.clearRect(0,0,n,n);g.drawImage(image,0,0,n,n);
+      const raw=g.getImageData(0,0,n,n).data;
+      const hx=new Float64Array(n),hy=new Float64Array(n);
+      let total=0;
+      for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+        const alpha=raw[(y*n+x)*4+3];
+        if(alpha<95)continue;
+        const weight=alpha/255;
+        hx[x]+=weight;hy[y]+=weight;total+=weight;
+      }
+      if(total<35)return {x:.5,y:.5,w:.85,h:.85};
+      function percentile(hist,at){
+        let acc=0;
+        for(let k=0;k<hist.length;k++){
+          acc+=hist[k];if(acc>=total*at)return k/n;
+        }
+        return 1;
+      }
+      const left=percentile(hx,.018),right=percentile(hx,.982);
+      const top=percentile(hy,.018),bottom=percentile(hy,.982);
+      const w=clamp(right-left+.045,.12,1),h=clamp(bottom-top+.045,.12,1);
+      return {x:clamp((left+right)/2,0,1),y:clamp((top+bottom)/2,0,1),w,h};
+    }catch(err){
+      console.warn('Constellation alpha bounds fallback:',err);
+      return {x:.5,y:.5,w:.85,h:.85};
+    }
+  }
+  function sizeVisibleIllustration(button,img,record){
+    const rect=button.getBoundingClientRect();
+    // clientWidth/Height are UNTRANSFORMED grid dimensions. The buttons have
+    // their initial entrance scale(.64) here and cannot use rect.width.
+    const w=button.clientWidth||rect.width,h=button.clientHeight||rect.height;
+    if(!w||!h)return;
+    const nativeW=record.width||560,nativeH=record.height||760;
+    const fit=Math.min(w/nativeW,h/nativeH);
+    const shownW=nativeW*fit,shownH=nativeH*fit;
+    const b=record.bounds;
+    const figureW=Math.max(1,b.w*shownW),figureH=Math.max(1,b.h*shownH);
+    const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02);
+    const moveX=-zoom*(b.x-.5)*shownW;
+    const moveY=-zoom*(b.y-.5)*shownH;
+    img.style.transform='translate3d('+moveX.toFixed(2)+'px,'+
+      moveY.toFixed(2)+'px,0) scale('+zoom.toFixed(4)+')';
+    button.dataset.figureScale=zoom.toFixed(3);
+    button.dataset.figureFit=(Math.min(w*.84/figureW,h*.84/figureH)).toFixed(3);
+  }
   function loadImage(src){
     return new Promise((resolve,reject)=>{
       const img=new Image();
       img.decoding='async';
       img.onload=()=>{
-        if(img.decode)img.decode().then(()=>resolve(src),()=>resolve(src));
-        else resolve(src);
+        if(img.decode)img.decode().then(()=>resolve({src,image:img}),()=>resolve({src,image:img}));
+        else resolve({src,image:img});
       };
       img.onerror=()=>reject(new Error('Cannot load '+src));
       img.src=src;
-      if(img.complete&&img.naturalWidth)resolve(src);
+      if(img.complete&&img.naturalWidth)resolve({src,image:img});
     });
   }
   function preload(item){
     if(cache.has(item.id))return cache.get(item.id);
     const p=loadImage(artworkPath(item))
       .catch(()=>loadImage(artworkPath(item,'png')))
+      .then(({src,image})=>({
+        src,width:image.naturalWidth,height:image.naturalHeight,
+        bounds:visibleAlphaBounds(image)
+      }))
       .catch(err=>{cache.delete(item.id);throw err});
     cache.set(item.id,p);return p;
   }
@@ -331,14 +389,20 @@ export function startConstellationQuest(ctx){
       const button=document.createElement('button');
       button.type='button';button.className='s3d-find-choice';
       button.dataset.id=item.id;button.setAttribute('aria-label',item.name);
+      const shell=document.createElement('span');
+      shell.className='s3d-find-art-shell';
       const img=document.createElement('img');
       img.alt='';img.draggable=false;img.decoding='async';
-      img.src=imageSources[i];
-      button.appendChild(img);
+      img.src=imageSources[i].src;
+      shell.appendChild(img);button.appendChild(shell);
       button.onclick=()=>choose(button,item);
       stage.appendChild(button);cards.push(button);
       pose(button,{x:i%2===0?-18:18,y:i<2?-16:16,z:-80,s:.64,opacity:0},0);
     });
+    // Every figure fills the same visual area, even if the source WebP has
+    // huge transparent margins or its figure is unusually narrow/tall.
+    cards.forEach((button,i)=>sizeVisibleIllustration(
+      button,button.querySelector('img'),imageSources[i]));
     root.dataset.constellationPhase='enter';
     // Double RAF commits entrance start pose on iOS WebKit before tween.
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -393,8 +457,10 @@ export function startConstellationQuest(ctx){
           WIN_ZOOM_MS,'cubic-bezier(.18,.73,.26,1)');
       }else{
         const r=card.getBoundingClientRect();
-        pose(card,{x:r.left<centerX?-26:26,y:r.top<centerY?-16:16,z:-65,s:.72,opacity:0},
-          280,'cubic-bezier(.18,.73,.26,1)');
+        // Other choices must disappear before the correct illustration
+        // finishes its 850-ms approach. No small distracting figures behind.
+        pose(card,{x:r.left<centerX?-30:30,y:r.top<centerY?-18:18,z:-65,s:.67,opacity:0},
+          185,'cubic-bezier(.18,.73,.26,1)');
       }
     });
     // Match Space Search: zoom 850ms, hold within 2750ms, exit 690ms,
