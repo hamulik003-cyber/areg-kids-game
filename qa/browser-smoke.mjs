@@ -59,6 +59,15 @@ try{
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});
+     if(id==='constellation-game'){
+      // Wait for real alpha WebP decode + 38-image atlas, not just a blank WebGL canvas.
+      await page.waitForFunction(()=>document.querySelector('.s3d-quest246')?.dataset.constellationReady==='true',null,{timeout:35000});
+      await page.waitForFunction(()=>!!document.querySelector('.s3d-quest246')?.dataset.alignmentMaxError,null,{timeout:10000});
+      const maxError=Number(await page.locator('.s3d-quest246').getAttribute('data-alignment-max-error'));
+      if(!Number.isFinite(maxError)||maxError>1.25)
+        throw Error('Constellation star-to-illustration mismatch '+maxError+' CSS pixels on '+process.env.AREG_BROWSER);
+      console.log('CONSTELLATION ALIGNED '+maxError+' CSS pixels, '+(process.env.AREG_BROWSER||'chromium'));
+     }
     }else{
      await page.waitForFunction(()=>document.querySelector('#activityContent')?.children.length>0,null,{timeout:16000});
      const first=page.locator('#activityContent .animal-card img').first();
