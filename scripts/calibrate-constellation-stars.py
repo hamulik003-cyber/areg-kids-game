@@ -105,8 +105,23 @@ def calibrate(path):
             if (i,j) not in edges: edges.append((i,j))
     reverse={k:i for i,k in enumerate(order)}
     edges=sorted([sorted([reverse[i],reverse[j]]) for i,j in edges])
-    # If the picture had no detected white illustrated lines, keep zero edges
-    # and do not create fake straight links.
+    # Only actual illustrated light-line vertices belong to the game. The
+    # unconstrained brightest-24 candidate list contains disconnected galactic
+    # dust stars; discard nodes that do not join any line from the art.
+    degree=[0]*len(reordered)
+    for i,j in edges:degree[i]+=1;degree[j]+=1
+    chosen=[i for i,n in enumerate(degree) if n>0]
+    if len(chosen)<3:
+        raise RuntimeError(f"{path}: only {len(chosen)} line-supported points")
+    # Avoid overwhelming young children with 24 touches while retaining the
+    # line-supported structure in the original design. Degree >1 gets priority.
+    if len(chosen)>16:
+        chosen=sorted(sorted(chosen,key=lambda i:(-degree[i],i))[:16])
+    chosen_set=set(chosen)
+    old_to_new={old:index for index,old in enumerate(chosen)}
+    edges=[[old_to_new[a],old_to_new[b]] for a,b in edges
+           if a in chosen_set and b in chosen_set]
+    reordered=reordered[chosen]
     points=np.round(reordered/np.array([w,h]),5).tolist()
     return points,edges,(w,h),core,rgba
 
