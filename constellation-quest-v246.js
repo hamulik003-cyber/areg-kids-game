@@ -400,6 +400,8 @@ export function startConstellationQuest(ctx){
     hero.style.transition='none';
     hero.style.transform='translate3d('+dx.toFixed(3)+'px,'+
       dy.toFixed(3)+'px,0) scale('+firstScale.toFixed(5)+')';
+    // Materialize the starting position before WebKit gets the target pose.
+    void hero.offsetWidth;
     hero.dataset.figureWidth=geometry.figureW.toFixed(2);
     hero.dataset.figureHeight=geometry.figureH.toFixed(2);
     hero.dataset.minMargin=Math.min(geometry.marginX,geometry.marginY).toFixed(2);
