@@ -380,6 +380,7 @@ export function startConstellationQuest(ctx){
     progress.textContent='Վառված աստղեր՝ 0 / '+nodes.length;
     group.rotation.set(0,0,0);group.position.set(0,0,-.95);group.scale.setScalar(.83);
     roundStarted=performance.now();stage='entering';
+    root.dataset.constellationReady='true';
     later(()=>{if(token===roundToken)stage='playing'},1250);
     if(nextEntryScheduledFor===token){
       nextEntryScheduledFor=0;
@@ -423,6 +424,8 @@ export function startConstellationQuest(ctx){
     root.classList.remove('s3d-quest-won');
     completeAt=0;revealStartedAt=0;stage='loading';target=0;roundStarted=performance.now();
     activeLayout=null;points=[];group.visible=true;
+    root.dataset.constellationReady='false';
+    delete root.dataset.alignmentMaxError;
     if(nextSlot>=allCount)nextSlot=0; // Same shuffled first constellation again after a full cycle.
     current=ctx.CONSTELLATIONS[deck[nextSlot++]];
     const position=nextSlot;
@@ -634,6 +637,23 @@ export function startConstellationQuest(ctx){
     }
     // The completed puzzle stays pixel-aligned with the revealed image.
     // No shrinking/rotation while the original artwork fades in.
+    // One small per-round diagnostic guards against CSS box/3D mismatches
+    // on real portrait iPhones. No DOM writes on subsequent frames.
+    if(stage==='playing'&&activeLayout&&!root.dataset.alignmentMaxError){
+      scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);
+      const cr=renderer.domElement.getBoundingClientRect();
+      const ar=art.getBoundingClientRect();
+      let maximum=0;
+      for(let i=0;i<nodes.length;i++){
+        const v=nodes[i].mesh.getWorldPosition(new THREE.Vector3()).project(camera);
+        const x=cr.left+(v.x+1)*cr.width*.5;
+        const y=cr.top+(1-v.y)*cr.height*.5;
+        const p=activeLayout.points[i];
+        maximum=Math.max(maximum,Math.hypot(x-(ar.left+p[0]*ar.width),
+                                           y-(ar.top+p[1]*ar.height)));
+      }
+      root.dataset.alignmentMaxError=maximum.toFixed(3);
+    }
     renderer.render(scene,camera);
     raf=requestAnimationFrame(animate);
   }
