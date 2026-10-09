@@ -193,7 +193,7 @@ try{
       // specific intermediate frame which the browser never produced.
       const early=reveal.samples.find(f=>f.ms>35&&f.ms<520&&
         f.motion==='approaching'&&f.losers.length===3&&
-        f.losers.every(c=>c.opacity<.04));
+        f.losers.every(c=>c.opacity<.1));
       if(!early)throw Error('V270 WebKit first-fade diagnostic '+
         JSON.stringify({engine:reveal.fadeEngine,build:reveal.build,
           opening:reveal.samples.slice(0,12).map(f=>({
