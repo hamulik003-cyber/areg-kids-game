@@ -335,7 +335,7 @@ try{
       if(third.error||third.count!==11||third.right!=='3'||
         third.frames.some(f=>f.ms>=800&&f.decoys.some(c=>c.alpha>.015))||
         third.frames.some(f=>f.ms>=790&&f.decoys.some(c=>c.alpha>.015))||
-        !third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88))
+        !third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88)))
         throw Error('V272 THREE consecutive rounds must share same fade '+JSON.stringify(third));
       // FOURTH win: deliberately stall JavaScript's main thread for
       // ~420ms, simulating slow WebKit image/GPU work. The whole 1120ms
