@@ -75,7 +75,7 @@ check(quest.includes("photoStage.append(photoAtmosphere,art)")&&
 check(quest.includes("keepAliveOsc=audioContext.createOscillator()")&&
       quest.includes("scheduleNextIntro();finish();")&&
       quest.includes("needEntryCueOnTouch")&&
-      !/speechSynthesis\\.(?:speak|cancel|pause|resume)/.test(quest),
+      !/speechSynthesis\.(?:speak|cancel|pause|resume)/.test(quest),
       'V251 iPhone single WebAudio audio-session regression');
 check(quest.includes("meteor.tick(t)")&&
       quest.includes("const deck=randomizedOrder(ctx.CONSTELLATIONS)")&&
