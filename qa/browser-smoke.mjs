@@ -60,6 +60,18 @@ try{
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});
 
+     if(id==='space-search'){
+       const initialPlanetScore=await page.locator('.s3d-session-score').evaluate(el=>({
+         text:el.textContent,wrong:el.querySelector('.s3d-session-wrong')?.textContent,
+         correct:el.querySelector('.s3d-session-right')?.textContent,
+         activeWrong:el.querySelector('.s3d-session-wrong')?.classList.contains('is-active'),
+         activeRight:el.querySelector('.s3d-session-right')?.classList.contains('is-active')
+       }));
+       if(initialPlanetScore.wrong!=='0'||initialPlanetScore.correct!=='0'||
+          initialPlanetScore.activeWrong||initialPlanetScore.activeRight)
+         throw Error('V267 planets must start 0/0 with both zeroes white '+
+           JSON.stringify(initialPlanetScore));
+     }
      if(id==='constellation-game'){
       try {
         await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready',null,{timeout:16000});
@@ -83,13 +95,16 @@ try{
         const loaded=buttons.every(b=>b.querySelector('img')?.complete&&b.querySelector('img')?.naturalWidth>0);
         return {count:buttons.length,names,prompt,loaded,mode:root.dataset.constellationMode,
                  targetId:root.dataset.targetId,
-                 noScore:root.querySelector('.s3d-score')===null,
+                 scoreWrong:root.querySelector('.s3d-session-wrong')?.textContent,
+                 scoreRight:root.querySelector('.s3d-session-right')?.textContent,
+                 hasScore:!!root.querySelector('.s3d-session-score'),
+                 whiteZero:![...root.querySelectorAll('.s3d-session-wrong,.s3d-session-right')].some(x=>x.classList.contains('is-active')),
                  noFooter:root.querySelector('.s3d-find-progress')===null,
                 grid:getComputedStyle(root.querySelector('.s3d-find-stage')).gridTemplateColumns};
       });
       if(initial.count!==4||new Set(initial.names).size!==4||!initial.loaded||
          initial.mode!=='four-choice'||!initial.prompt.startsWith('Գտի՛ր՝ ')||
-         (!/[ըն]$/.test(initial.prompt))||!initial.noScore||!initial.noFooter||initial.grid.split(' ').length!==2)
+         (!/[ըն]$/.test(initial.prompt))||!initial.hasScore||initial.scoreWrong!=='0'||initial.scoreRight!=='0'||!initial.whiteZero||!initial.noFooter||initial.grid.split(' ').length!==2)
         throw Error('Invalid V256 constellation choices '+JSON.stringify(initial));
       const polish=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')].map(b=>{
         const shell=b.querySelector('.s3d-find-art-shell');
@@ -106,6 +121,18 @@ try{
         document.querySelector('.s3d-find-choice[data-id="'+id+'"]')?.getAttribute('aria-label'),initial.targetId);
       if(!correctName||!initial.names.includes(correctName))
         throw Error('V266 no target button');
+      // A wrong tap must increment red LEFT, not the persistent ten-answer star.
+      const afterWrong=await page.evaluate(targetId=>{
+        const root=document.querySelector('.s3d-find256');
+        const wrong=root.querySelector('.s3d-find-choice:not([data-id="'+targetId+'"])');
+        wrong?.click();
+        return {bad:root.querySelector('.s3d-session-wrong')?.textContent,
+          good:root.querySelector('.s3d-session-right')?.textContent,
+          badActive:root.querySelector('.s3d-session-wrong')?.classList.contains('is-active'),
+          goodActive:root.querySelector('.s3d-session-right')?.classList.contains('is-active')};
+      },initial.targetId);
+      if(afterWrong.bad!=='1'||afterWrong.good!=='0'||!afterWrong.badActive||afterWrong.goodActive)
+        throw Error('V267 wrong tap must show red 1 / white 0 '+JSON.stringify(afterWrong));
       const reveal=await page.evaluate(async name=>{
         const root=document.querySelector('.s3d-find256');
         const button=[...root.querySelectorAll('.s3d-find-choice')].find(c=>c.getAttribute('aria-label')===name);
@@ -128,6 +155,9 @@ try{
           requestAnimationFrame(tick);
         });
         return {samples,startTransform,
+          sessionBad:root.querySelector('.s3d-session-wrong')?.textContent,
+          sessionGood:root.querySelector('.s3d-session-right')?.textContent,
+          sessionGoodActive:root.querySelector('.s3d-session-right')?.classList.contains('is-active'),
           count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
           stars:Number(localStorage.getItem('areg-stars-v35')||0),
           phase:root.dataset.constellationPhase,
@@ -135,7 +165,7 @@ try{
       },correctName);
       if(reveal.error||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
-      if(reveal.count!==9||reveal.stars!==starsBefore)
+      if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
       const mid=reveal.samples.find(f=>f.ms>30&&f.ms<590&&f.motion==='approaching'&&
          f.placeholder&&f.losers.length===3&&
@@ -205,7 +235,33 @@ try{
       });
       if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
         throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
-      console.log('CONSTELLATION V266 PASS simultaneous 4-way motion, declensions, clean UI, tenth star '+process.env.AREG_BROWSER);
+      // Lightweight real-browser overlay check for positive / negative / tie:
+      // This deliberately does not render 38 full GPU rounds in CI.
+      const outcomes=await page.evaluate(async ()=>{
+        const api=await import('./space-finding-session.js?v=267');
+        const result=[];
+        for(const kind of ['success','encourage','tie']){
+          const fake=document.createElement('div');
+          fake.className='s3d-root';fake.style.display='none';
+          fake.innerHTML='<div class="s3d-hud"></div>';
+          document.body.appendChild(fake);
+          const session=api.createFindingSession(fake,{settings:{master:false,effects:false}});
+          if(kind==='success'){session.rightAnswer();session.rightAnswer();session.wrongAnswer()}
+          if(kind==='encourage'){session.wrongAnswer();session.wrongAnswer();session.rightAnswer()}
+          const running=session.showCycleResult();
+          const overlay=fake.querySelector('.s3d-cycle-backdrop');
+          result.push({kind,actual:fake.dataset.sessionResult,
+            hasOverlay:!!overlay,hasStats:!!overlay?.querySelector('.s3d-cycle-stats'),
+            particles:overlay?.querySelectorAll('.s3d-cycle-particle').length||0,
+            hasTitle:!!overlay?.querySelector('.s3d-cycle-title')?.textContent});
+          session.dispose();await running;fake.remove();
+        }
+        return result;
+      });
+      if(outcomes.length!==3||outcomes.some(x=>x.kind!==x.actual||!x.hasOverlay||!x.hasStats||!x.hasTitle)||
+         outcomes[0].particles!==18||outcomes[1].particles!==0)
+        throw Error('V267 celebratory and gentle-result overlays invalid '+JSON.stringify(outcomes));
+      console.log('CONSTELLATION V267 PASS red/green session score, smooth retreat, results and 10th-star '+process.env.AREG_BROWSER);
      }
 
 

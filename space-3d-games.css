@@ -252,3 +252,56 @@
 @media (prefers-reduced-motion:reduce){
   .s3d-find-art-shell{animation:none}
 }
+
+
+/* V267 — child-friendly per-visit wrong/red vs correct/green score, identical
+   across planets and constellation picture game. Deliberately no +0 or footer. */
+.s3d-session-score{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  min-width:83px;min-height:45px;padding:9px 12px;
+  border-radius:17px;white-space:nowrap;font-size:clamp(16px,4.7vw,20px);
+  font-weight:1000;font-variant-numeric:tabular-nums;
+}
+.s3d-session-wrong.is-active{color:#ff6674;text-shadow:0 0 9px rgba(255,57,82,.18)}
+.s3d-session-right.is-active{color:#6af79b;text-shadow:0 0 9px rgba(72,255,142,.18)}
+.s3d-session-wrong:not(.is-active),.s3d-session-right:not(.is-active){color:#fff;text-shadow:none}
+.s3d-session-slash{color:rgba(240,246,255,.92)}
+.s3d-cycle-backdrop{
+  position:absolute;inset:0;z-index:90;display:grid;place-items:center;
+  background:rgba(1,8,30,.64);backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  pointer-events:auto;isolation:isolate;
+  animation:s3dCycleReveal 480ms cubic-bezier(.18,.73,.26,1) both;
+}
+.s3d-cycle-card{
+  position:relative;z-index:2;display:flex;align-items:center;flex-direction:column;
+  gap:11px;width:min(86%,360px);box-sizing:border-box;
+  padding:28px 17px 27px;border-radius:28px;text-align:center;
+  border:1px solid rgba(188,215,255,.48);
+  background:linear-gradient(152deg,rgba(43,68,132,.94),rgba(10,20,68,.94));
+  box-shadow:0 16px 48px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.17);
+  animation:s3dCycleCard 650ms cubic-bezier(.18,.73,.26,1) both;
+}
+.s3d-cycle-icon{font-size:49px;filter:drop-shadow(0 0 13px rgba(255,233,153,.35))}
+.s3d-cycle-title{font-size:clamp(20px,5.8vw,27px);font-weight:1000;line-height:1.25}
+.s3d-cycle-label{font-size:clamp(12px,3.7vw,16px);font-weight:850;color:#c9dcff}
+.s3d-cycle-stats{
+  border-radius:20px;background:rgba(2,10,42,.74);
+  padding:8px 23px;font-weight:1000;font-size:clamp(28px,8vw,40px);
+  display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;
+}
+.s3d-cycle-desc{font-size:clamp(12px,3.6vw,16px);color:#e2edff;line-height:1.4}
+.s3d-cycle-particle{
+  position:absolute;z-index:1;pointer-events:none;
+  font-size:clamp(13px,4vw,21px);color:#ffe394;
+  animation:s3dCycleFloat 2s ease-in-out infinite alternate;
+}
+.s3d-cycle-particle:nth-child(3n){color:#8dc5ff}
+@keyframes s3dCycleReveal{from{opacity:0}to{opacity:1}}
+@keyframes s3dCycleCard{from{opacity:0;transform:translateY(30px) scale(.88)}
+                       to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes s3dCycleFloat{from{opacity:.25;transform:translateY(11px) scale(.75)}
+                         to{opacity:1;transform:translateY(-17px) scale(1.25)}}
+@media (prefers-reduced-motion:reduce){
+  .s3d-cycle-backdrop,.s3d-cycle-card,.s3d-cycle-particle{animation:none}
+}

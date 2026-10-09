@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=650")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=900")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -163,48 +163,72 @@ check(quest.includes("function animateWinningHero(t)")&&
        space.includes("transition={type:'exit',start:now,duration:690}")&&
        space.includes("const STARFIELD_PAUSE_MS=160"),
        'V265 hero must use actual planet 850ms RAF easing, 690ms retreat, 160ms sky pause');
+const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
-       quest.includes("const scale=1-.38*e,depth=-165*e,alpha=1-e")&&
-       quest.includes("LOSER_FADE_MS=650")&&
-       quest.includes("selectedCard=button")&&quest.includes("selectedCard?.remove()")&&
-       quest.includes("loserFadeStart=winAt")&&
-       quest.includes("hero._approachStart=winAt")&&
-       quest.includes("beginWinningHeroApproach();")&&
-       quest.includes("card.style.opacity=alpha.toFixed(4)")&&
-       !quest.includes("root.dataset.heroMotion='waiting'")&&
-       !quest.includes("sound('entry'"),
-       'V266 four pictures animate simultaneously at tap with no reflow or stop');
-for(const p of [0,.1,.25,.5,.75,.9,1]){
- const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
- check(1-.38*e>=.62-1e-8&&1-.38*e<=1&&
-       -165*e>=-165&&-165*e<=0&&1-e>=0&&1-e<=1,
-       'V266 coordinated retreat, opacity and scaling remain continuous');
+    quest.includes("const e=.5-.5*Math.cos(Math.PI*p)")&&
+    quest.includes("const scale=1-.36*e,depth=-165*e,alpha=1-e")&&
+    quest.includes("LOSER_FADE_MS=900")&&
+    quest.includes("selectedCard=button")&&
+    quest.includes("hero._approachStart=winAt")&&
+    quest.includes("loserFadeStart=winAt")&&
+    quest.includes("selectedCard?.remove()")&&
+    quest.includes("card.style.opacity=alpha.toFixed(4)"),
+    'V267 three decoys dissolve softly over 900ms with uninterrupted reverse-entrance motion');
+for(const p of [0,.1,.25,.5,.75,.9,.98,1]){
+  const e=.5-.5*Math.cos(Math.PI*p);
+  check(e>=0&&e<=1&&1-e>=0&&1-e<=1&&
+      1-.36*e>=.64-1e-8&&-165*e>=-165-1e-8,
+      'V267 continuous sine easing stays within bounds until zero opacity');
 }
-check(quest.includes('export const CONSTELLATION_FIND_FORMS=Object.freeze(')&&
-      quest.includes("prompt.textContent='Գտի՛ր՝ '+constellationFindName(target)")&&
-      !quest.includes('s3d-find-progress')&&!quest.includes('roundLabel')&&
-      !quest.includes('<div class="s3d-score">'),
-      'V266 declensions applied and extraneous counter/footer removed');
+check(quest.includes("constellationFindName(target)")&&
+    !quest.includes('s3d-find-progress')&&
+    !quest.includes('roundLabel')&&
+    !quest.includes('<div class="s3d-score">'),
+    'V267 preserve declensions, clean header and hidden lower caption');
 const formsMatch=quest.match(/export const CONSTELLATION_FIND_FORMS=Object.freeze\((\{[\s\S]*?\})\);/);
-check(!!formsMatch,'V266 explicit Armenian declensions missing');
+check(!!formsMatch,'V266 explicit declensions required');
 if(formsMatch){
- const forms=JSON.parse(formsMatch[1]);
- const allIds=[...app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={')).matchAll(/id:'([^']+)'/g)].map(x=>x[1]);
- check(Object.keys(forms).length===38&&allIds.length===38&&
-       allIds.every(id=>typeof forms[id]==='string')&&
-       forms['hayk-orion']==='Հայկը'&&forms['hayk-belt']==='Հայկի գոտին'&&
-       forms.hercules==='Հերկուլեսը'&&
-       Object.values(forms).every(t=>t.endsWith('ը')||t.endsWith('ն')),
-       'V266 correct definite endings in all 38 named constellations');
+  const forms=JSON.parse(formsMatch[1]);
+  const allIds=[...app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={')).matchAll(/id:'([^']+)'/g)].map(x=>x[1]);
+  check(Object.keys(forms).length===38&&allIds.length===38&&
+    allIds.every(id=>typeof forms[id]==='string'&&forms[id].length>1)&&
+    forms['hayk-orion']==='Հայկը'&&forms['hayk-belt']==='Հայկի գոտին'&&
+    forms.hercules==='Հերկուլեսը'&&
+    Object.values(forms).every(x=>x.endsWith('ը')||x.endsWith('ն')),
+    'V266 all 38 correct definite forms');
 }
 check(space.includes("if(ctx.recordCorrectAnswer('space-search'))reward(root,ctx,true)")&&
-      space.includes("if(!starAlreadyCredited)ctx.awardStar()")&&
-      quest.includes("if(ctx.recordCorrectAnswer('constellation-game'))award()")&&
-      !quest.includes('ctx.awardStar?.()')&&
-      app.includes("function recordSpaceCorrectAnswer(gameId)")&&
-      app.includes("if(count%10!==0)return false")&&
-      app.includes("localStorage.setItem(key,String(count))"),
-      'V266 per-game persistent stars only at answers 10,20,30 without double reward');
+  quest.includes("if(ctx.recordCorrectAnswer('constellation-game'))award()")&&
+  app.includes("if(count%10!==0)return false")&&
+  app.includes("localStorage.setItem(key,String(count))"),
+  'V266 both games retain independent persistently-earned star per 10 correct answers');
+check(finding.includes('export function createFindingSession')&&
+  finding.includes('export function classifyFindingResult')&&
+  finding.includes("root.dataset.sessionWrong=String(wrong)")&&
+  finding.includes("root.dataset.sessionCorrect=String(correct)")&&
+  finding.includes("root.dataset.sessionResult=outcome")&&
+  finding.includes("function showCycleResult()")&&
+  finding.includes("playFindingResultsAudio(outcome,ctx,ac)")&&
+  finding.includes("let wrong=0,correct=0")&&
+  !finding.includes('localStorage.setItem(')&&
+  styles.includes('.s3d-session-wrong')&&styles.includes('.s3d-session-right')&&
+  styles.includes('.s3d-cycle-card'),
+  'V267 requires in-memory red/green wrong/right scoreboard and kind, centered celebration');
+check(space.includes("createFindingSession(root,ctx,hud.score)")&&
+  space.includes('seenTargets.add(target.id)')&&
+  space.includes("if(seenTargets.size===pool.length)")&&
+  space.includes('session.showCycleResult().then(')&&
+  space.includes('session.wrongAnswer()')&&
+  space.includes('session.rightAnswer()')&&
+  quest.includes("createFindingSession(root,ctx)")&&
+  quest.includes("if(roundIndex===ctx.CONSTELLATIONS.length)")&&
+  quest.includes("session.showCycleResult().then(")&&
+  quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
+  'V267 both games must show one session result after a complete nonrepeating target cycle');
+check(sw.includes('space-finding-session.js?v=267')&&
+      app.includes('space-3d-games.js?v=267')&&
+      app.includes('constellation-quest-v246.js?v=267'),
+      'V267 versioned module imports and PWA offline cache must be synchronized');
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>

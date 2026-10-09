@@ -27,6 +27,8 @@ jobs:
           AREG_PR_BASE: ${{ github.event.pull_request.base.sha }}
           AREG_PR_HEAD: ${{ github.event.pull_request.head.sha }}
         run: node qa/handoff-guard.mjs
+      - name: Unit test session results and ephemeral score rules
+        run: node --test qa/finding-session.test.mjs
       - run: node qa/full-audit.mjs
 
   mobile-browser:

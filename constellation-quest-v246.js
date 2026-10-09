@@ -1,6 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
+import {createFindingSession} from './space-finding-session.js?v=267';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -177,6 +178,7 @@ export function startConstellationQuest(ctx){
   hud.innerHTML='<div class="s3d-prompt"><small>ԳՏԻ՛Ր ՀԱՄԱՍՏԵՂՈՒԹՅՈՒՆԸ</small><strong>Պատրաստվում են համաստեղությունները…</strong></div>';
   root.appendChild(hud);
   const prompt=hud.querySelector('strong');
+  const session=createFindingSession(root,ctx);
   const stage=document.createElement('div');
   stage.className='s3d-find-stage';
   stage.setAttribute('role','group');
@@ -225,7 +227,7 @@ export function startConstellationQuest(ctx){
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=650;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=900;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -565,6 +567,7 @@ export function startConstellationQuest(ctx){
   function choose(button,item){
     if(disposed||locked||phase!=='ready')return;
     if(item.id!==target.id){
+      session.wrongAnswer();
       sound('wrong');
       button.classList.remove('s3d-find-wrong');
       void button.offsetWidth;button.classList.add('s3d-find-wrong');
@@ -575,6 +578,7 @@ export function startConstellationQuest(ctx){
     root.dataset.constellationPhase='winning';
     root.classList.add('s3d-find-won');
     prompt.textContent='Կեցցե՛ս։ '+item.name;
+    session.rightAnswer();
     sound('correct');
     if(ctx.recordCorrectAnswer('constellation-game'))award();
     // Independent, alpha-centered scene-space hero. The former grid-cell
@@ -617,11 +621,12 @@ export function startConstellationQuest(ctx){
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
-    // One smooth 650ms curve for position, depth, size and opacity.
-    // Never stop the retreat and trigger a second, later disappearance.
+    // V267: use the same gentle, unbroken entrance-style sweep in reverse.
+    // In the previous 650ms cubic, the moving art looked cut away suddenly.
+    // All properties progress across the same 900ms continuous sine curve.
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
-    const e=p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
-    const scale=1-.38*e,depth=-165*e,alpha=1-e;
+    const e=.5-.5*Math.cos(Math.PI*p);
+    const scale=1-.36*e,depth=-165*e,alpha=1-e;
     for(const card of losingCards){
       const dir=cards.indexOf(card)%2===0?-1:1;
       card.style.transform='translate3d('+(dir*42*e).toFixed(2)+'px,'+
@@ -646,7 +651,12 @@ export function startConstellationQuest(ctx){
       if(disposed)return;
       clearWinningHero();resetCards();phase='starfield-pause';
       root.dataset.constellationPhase='starfield-pause';
-      delay(buildRound,STARFIELD_PAUSE_MS);
+      delay(()=>{
+        if(disposed)return;
+        if(roundIndex===ctx.CONSTELLATIONS.length){
+          session.showCycleResult().then(()=>{if(!disposed)buildRound()});
+        }else buildRound();
+      },STARFIELD_PAUSE_MS);
     },EXIT_MS+30);
   }
 
@@ -680,7 +690,7 @@ export function startConstellationQuest(ctx){
     if(disposed)return;disposed=true;sequence++;
     cancelAnimationFrame(raf);
     for(const id of timers)clearTimeout(id);
-    timers.clear();clearWinningHero();resetCards();cache.clear();queued=null;
+    timers.clear();session.dispose();clearWinningHero();resetCards();cache.clear();queued=null;
     meteor.dispose();
     scene.remove(stars,backdrop);
     starsGeometry.dispose();starsMaterial.dispose();

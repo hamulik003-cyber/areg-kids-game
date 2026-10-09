@@ -1,4 +1,5 @@
 import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
+import {createFindingSession} from './space-finding-session.js?v=267';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1712,6 +1713,8 @@ function gameSpaceSearch(ctx){
   ctx.activityContent.innerHTML='';ctx.menuMusic.pause();
   const root=document.createElement('div');root.className='s3d-root';ctx.activityContent.appendChild(root);
   const hud=createHud(root,'ՏԻԵԶԵՐԱԿԱՆ ՈՐՈՆՈՒՄ');
+  const session=createFindingSession(root,ctx,hud.score);
+  const seenTargets=new Set();
   const renderer=rendererFor(root),scene=new THREE.Scene();
   // V223: composite the starfield first into the background. A foreground
   // sphere can never receive an accidental white star during its win zoom.
@@ -1829,6 +1832,8 @@ function gameSpaceSearch(ctx){
     // old round. Never remove the old picture while textures are missing.
     clear();
     target=roundTarget;
+    seenTargets.add(target.id);
+    root.dataset.cycleSeen=String(seenTargets.size);
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
     hud.prompt.textContent='Գտի՛ր՝ '+findObjectName(target);
     try{pruneUvTextureCaches(new Set(opts.map(x=>x.id)),9);}catch{}
@@ -1881,6 +1886,7 @@ function gameSpaceSearch(ctx){
     while(g&&!g.userData?.pickable)g=g.parent;if(!g)return;
 
     if(g.userData.item.id!==target.id){
+      session.wrongAnswer();
       answerSfx(false,ctx);
       if(wrong?.g)disposeFeedbackFx(wrong.g,'wrongFx');
       wrong={g,start:performance.now(),origin:g.position.clone(),fx:makePlanetWrongFx(g)};
@@ -1888,7 +1894,7 @@ function gameSpaceSearch(ctx){
     }
 
     locked=true;winStart=performance.now();winGroup=g;score++;
-    hud.score.textContent=String(score);hud.prompt.textContent='Ճիշտ է՝ '+g.userData.item.name;
+    session.rightAnswer();hud.prompt.textContent='Ճիշտ է՝ '+g.userData.item.name;
     answerSfx(true,ctx);
     setTimeout(()=>{if(!disposed)voice(g.userData.item.name,ctx)},430);
     if(ctx.recordCorrectAnswer('space-search'))reward(root,ctx,true);
@@ -2069,7 +2075,18 @@ function gameSpaceSearch(ctx){
       // asset-loading blank screen. Stage remains interactive only later.
       transition=null;root.dataset.spaceRoundPhase='starfield-pause';
       clearTimeout(timer);
-      timer=setTimeout(()=>{if(!disposed)buildRound()},STARFIELD_PAUSE_MS);
+      if(seenTargets.size===pool.length){
+        // A full no-repeat target tour has ended. Show the cumulative session
+        // result before the next shuffled target cycle; keep stars independent.
+        seenTargets.clear();
+        root.dataset.cycleSeen='0';
+        timer=setTimeout(()=>{
+          if(disposed)return;
+          session.showCycleResult().then(()=>{if(!disposed)buildRound()});
+        },STARFIELD_PAUSE_MS);
+      }else{
+        timer=setTimeout(()=>{if(!disposed)buildRound()},STARFIELD_PAUSE_MS);
+      }
     }
 
     shooting.update(t);
@@ -2085,7 +2102,7 @@ function gameSpaceSearch(ctx){
 
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
-    disposed=true;roundSeq++;clearTimeout(timer);clearTimeout(prewarmTimer);try{speechSynthesis.cancel()}catch{};
+    disposed=true;roundSeq++;session.dispose();clearTimeout(timer);clearTimeout(prewarmTimer);try{speechSynthesis.cancel()}catch{};
     renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
     stars.traverse(o=>{
       o.geometry?.dispose?.();
