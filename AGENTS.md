@@ -42,3 +42,12 @@ This is an **existing production PWA** for children. The active branch is `main`
 - Offline core includes the small quest module; the 3D Search engine and full-resolution texture set remain on-demand to protect launch performance.
 - Changing quest code after publication requires a NEW import query version, matching service worker precache entry/cache version, app.js and index.html script versions, and QA synchronization. Never reintroduce navigation redirects.
 - qa/full-audit.mjs verifies all 38 star trails; check CI and real DotKiosk/iPhone before promoting any new version to pre-final.
+
+
+## V249 constellation controls (2026-10-09) — awaiting user approval
+- The pre-change V248 is saved in branch `backup/v248-before-touch-drag-and-reveal` at commit `76d40c8f21847554714519329314b99bf1d2e7a2`.
+- Only the standalone `constellation-quest-v246.js` and `space-3d-games.css` gameplay/appearance were edited. `app.js`, `index.html`, and `service-worker.js` received *version updates only* to V249; never degrade the approved V245 startup speed.
+- All 38 constellations now support both single taps and finger-held slide tracing. Both use the shared `lightTarget()` and only the **currently blinking target** activates; the pointer move handler catches the active star via finger-path segment proximity. Pointer capture supports dragging on mobile; clean all handlers on exit.
+- The waiting target star glows gold while unlit future stars remain blue, and lit stars remain warm white. Every round gives the Armenian voice prompt, rather than only the first round.
+- The finished original illustration fades and scales in over about 3 seconds and stays visible before the existing graceful exit; the next round's starfield transition remains unchanged.
+- V249 is *not yet pre-final*: require real DotKiosk/iPhone user acceptance and monitor mobile-browser plus WebKit tests before approval.
