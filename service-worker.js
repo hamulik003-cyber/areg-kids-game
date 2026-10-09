@@ -1,17 +1,13 @@
-const CORE_CACHE='areg-v244-core';
-const RUNTIME_CACHE='areg-v244-runtime';
+const CORE_CACHE='areg-v245-core';
+const RUNTIME_CACHE='areg-v245-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
   './index.html',
   './launcher.html',
-  './styles.css?v=243',
+  './styles.css?v=245',
   './space-3d-games.css?v=232',
-  './app.js?v=244',
-  './space-3d-games.js?v=244',
-  './blackhole-interstellar.js?v=232',
-  './assets/space3d/black-hole-reference-v216.webp?v=232',
-  './vendor/three.module.min.js',
+  './app.js?v=245',
   './home-nature-art.jpg',
   './home-space-art.jpg',
   './space-game-1.jpg',
@@ -58,6 +54,7 @@ self.addEventListener('activate',event=>{
 });
 
 // First paint of installed game must not depend on GitHub roundtrip.
+// Heavy 3D modules/textures are stored only once requested, not on first launch.
 // New version deploys become visible on the next SW update & reload.
 async function networkNavigation(request){
   const url=new URL(request.url);
