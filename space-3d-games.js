@@ -1,5 +1,5 @@
 import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
-import {createFindingSession} from './space-finding-session.js?v=269';
+import {createFindingSession} from './space-finding-session.js?v=270';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 

@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=269';
+import {createFindingSession} from './space-finding-session.js?v=270';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,8 +226,9 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
+  root.dataset.constellationBuild='v270-compositor';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=760;
+  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -581,31 +582,50 @@ export function startConstellationQuest(ctx){
     session.rightAnswer();
     sound('correct');
     if(ctx.recordCorrectAnswer('constellation-game'))award();
-    // Independent, alpha-centered scene-space hero. The former grid-cell
-    // zoom could drift left/top and crop the figure on real iPhones.
-    // V266: ALL FOUR figures move from the same touch, no wait/extra phase.
+    // V270: START all three GPU/compositor dissolves on the SAME user tap,
+    // BEFORE constructing the giant hero. This avoids the perceived late
+    // fade when the winning picture's 850ms easeOutCubic is nearly full size
+    // after only ~450ms. The 3 decoys are invisible by 340ms.
     loserFadeStart=winAt;
-    showWinningHero(button,button._imageRecord,item);
-    beginWinningHeroApproach();
     losingCards=[];
     cards.forEach(card=>{
       if(card===button)return;
       card.classList.remove('s3d-find-wrong');
       card.classList.add('s3d-find-dismissing');
       card.style.animation='none';
-      // Pause existing gentle floating in its CURRENT pose; no snap on tap.
       const shell=card.querySelector('.s3d-find-art-shell');
       if(shell)shell.style.animationPlayState='paused';
       card.style.transition='none';
       card.style.opacity='1';
       card.style.pointerEvents='none';
-      // At t=0 this is exactly the already settled entry pose. Every next
-      // frame gradually reduces apparent size and sends it behind the stage.
       card.style.transform='translate3d(0px,0px,0px) scale(1)';
+      card._fadeFinished=false;
+      card._fadeAnimation=null;
       losingCards.push(card);
     });
-    // Safari background-tab fallback, never used to drive visible animation.
-    delay(()=>finishLoserFade(),LOSER_FADE_MS+120);
+    // The Web Animations API can run opacity on Safari's compositor while
+    // Three.js is drawing starfield frames on the JavaScript main thread.
+    const useCompositor=losingCards.every(card=>typeof card.animate==='function');
+    root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf';
+    if(useCompositor){
+      losingCards.forEach(card=>{
+        const animation=card.animate(
+          [{opacity:1},{opacity:0}],
+          {duration:LOSER_FADE_MS,easing:'cubic-bezier(.16,.65,.32,1)',
+           fill:'forwards',composite:'replace'}
+        );
+        card._fadeAnimation=animation;
+        animation.onfinish=()=>{
+          card._fadeFinished=true;
+          if(!disposed&&losingCards.length&&losingCards.every(c=>c._fadeFinished))
+            finishLoserFade();
+        };
+      });
+    }
+    showWinningHero(button,button._imageRecord,item);
+    beginWinningHeroApproach();
+    // Fallback for frozen/inactive tabs only, never delays the visible fade.
+    delay(()=>finishLoserFade(),LOSER_FADE_MS+150);
     // Same-touch motion, 850ms grow, ~1.9s closeup, 690ms quiet exit.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
@@ -615,6 +635,9 @@ export function startConstellationQuest(ctx){
       card.style.opacity='0';
       card.classList.add('s3d-find-hidden');
       card.style.display='none';
+      // No flash-back when removing the WAAPI forwards fill.
+      card._fadeAnimation?.cancel();
+      card._fadeAnimation=null;
       card.remove();
     }
     losingCards=[];
@@ -624,13 +647,12 @@ export function startConstellationQuest(ctx){
   }
   function animateLoserFade(t){
     if(!losingCards.length)return;
-    // V269: all 3 start dissolving at the same tap as hero's 850ms approach.
-    // Complete after 760ms, in their original positions, with no abrupt ending.
+    // The compositor owns the live fade; RAF is only for older browser
+    // engines where element.animate is unavailable.
+    if(root.dataset.decoyFadeEngine==='compositor')return;
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
     const eased=Math.sin(Math.PI*.5*p);
-    for(const card of losingCards){
-      card.style.opacity=(1-eased).toFixed(4);
-    }
+    for(const card of losingCards)card.style.opacity=(1-eased).toFixed(4);
     if(p>=1)finishLoserFade();
   }
   function beginExit(){

@@ -156,7 +156,7 @@ try{
           }
           requestAnimationFrame(tick);
         });
-        return {samples,startTransform,
+        return {samples,startTransform,fadeEngine:root.dataset.decoyFadeEngine,build:root.dataset.constellationBuild,
           sessionBad:root.querySelector('.s3d-session-wrong')?.textContent,
           sessionGood:root.querySelector('.s3d-session-right')?.textContent,
           sessionGoodActive:root.querySelector('.s3d-session-right')?.classList.contains('is-active'),
@@ -165,31 +165,42 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v270-compositor'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
-      const mid=reveal.samples.find(f=>f.ms>30&&f.ms<590&&f.motion==='approaching'&&
+      const mid=reveal.samples.find(f=>f.ms>30&&f.ms<265&&f.motion==='approaching'&&
          f.placeholder&&f.losers.length===3&&
          f.heroTransform!==reveal.startTransform&&
          f.losers.every(c=>c.opacity>.01&&c.opacity<1&&
            c.transition==='none'&&c.animation==='none'&&
            c.shellPaused&&/^translate3d\(0px,\s*0px,\s*0px\) scale\(1\)$/.test(c.transform)));
       if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
-      const middle=reveal.samples.filter(f=>f.ms>40&&f.ms<590&&f.losers.length===3);
-      if(middle.length<3||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
+      const middle=reveal.samples.filter(f=>f.ms>35&&f.ms<255&&f.losers.length===3);
+      if(middle.length<2||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
         c.opacity>middle[i-1].losers[j].opacity+.008||
          Math.abs(c.x-middle[i-1].losers[j].x)>1||
          Math.abs(c.y-middle[i-1].losers[j].y)>1)))
         throw Error('V266 losing figures paused or reappeared');
-      // Assert the real frame chronology, not just source timings:
-      // after 810ms the three decoys must already be gone, while hero
-      // only finishes its approach at 850ms.
-      if(reveal.samples.some(f=>f.ms>=810&&f.losers.length>0))
-        throw Error('V269 decoys lingered past 810ms, after hero nearly arrived');
+      // V270: actual perceived-entrance test, not merely "gone by 850ms".
+      // The hero's cubic easing is already ~80% complete by 340ms.
+      // All three losing choices must disappear before 450ms, while
+      // the hero is still approaching, and genuinely begin fading early.
+      const early=reveal.samples.find(f=>f.ms>55&&f.ms<170&&
+        f.motion==='approaching'&&f.losers.length===3&&
+        f.losers.every(c=>c.opacity<.92));
+      if(!early)throw Error('V270 decoys did not start fading immediately after tap');
+      const lingering=reveal.samples.filter(f=>f.ms>=470&&f.losers.length>0);
+      if(lingering.length)
+        throw Error('V270 decoys remained on screen after hero visually arrived '+
+          JSON.stringify(lingering.slice(0,3)));
+      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=370&&f.ms<=600&&
+        f.motion==='approaching'&&f.losers.length===0);
+      if(!goneWhileApproaching)
+        throw Error('V270 decoys did not finish before visual winner approach');
       const heroReached=reveal.samples.find(f=>f.motion==='holding');
       if(!heroReached||heroReached.losers.length!==0)
-        throw Error('V269 winner reached screen before the 3 vanished');
+        throw Error('V270 hero arrived while decoys were visible');
       const last=reveal.samples.at(-1);
       if(last.losers.length!==0||last.isolated!=='true'||last.motion!=='holding')
         throw Error('V266 hero and losers did not finish '+JSON.stringify(last));
@@ -250,7 +261,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=269');
+        const api=await import('./space-finding-session.js?v=270');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

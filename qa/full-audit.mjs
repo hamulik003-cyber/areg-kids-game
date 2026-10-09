@@ -86,7 +86,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=760")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340")&&
       quest.includes('showWinningHero(button,button._imageRecord,item)')&&
       quest.includes('function heroGeometry(record,w,h)')&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
@@ -167,24 +167,32 @@ const finding=read('space-finding-session.js'),styles=read('space-3d-games.css')
 check(quest.includes("function animateLoserFade(t)")&&
     quest.includes("const eased=Math.sin(Math.PI*.5*p)")&&
     quest.includes("card.style.opacity=(1-eased).toFixed(4)")&&
-    quest.includes("LOSER_FADE_MS=760")&&
+    quest.includes("LOSER_FADE_MS=340")&&
     quest.includes("shell.style.animationPlayState='paused'")&&
     quest.includes("selectedCard=button")&&
     quest.includes("hero._approachStart=winAt")&&
     quest.includes("loserFadeStart=winAt")&&
     quest.includes("selectedCard?.remove()"),
-    'V269 all three stationary decoys fade entirely before hero arrival');
+    'V270 all three in-place decoys begin compositor fade at touch and vanish by 340ms');
 for(const p of [0,.1,.25,.5,.75,.9,.98,1]){
   const e=Math.sin(Math.PI*.5*p);
   check(e>=0&&e<=1&&1-e>=0&&1-e<=1,
     'V269 760ms alpha-only decoy fade is continuous and bounded');
 }
-check(760<850&&
+check(340<850&&
   quest.includes("loserFadeStart=winAt")&&
   quest.includes("hero._approachStart=winAt")&&
   quest.includes("WIN_ZOOM_MS=850")&&
-  quest.includes("LOSER_FADE_MS=760"),
-  'V269 fade starts on tap and finishes before winner reaches the screen');
+  quest.includes("LOSER_FADE_MS=340"),
+  'V270 340ms decoy removal precedes perceptually early 850ms easeOutCubic hero');
+check(quest.includes("const useCompositor=losingCards.every(card=>typeof card.animate==='function')")&&
+      quest.includes("const animation=card.animate(")&&
+      quest.includes("animation.onfinish=()=>{")&&
+      quest.includes("root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf'")&&
+      quest.includes("card._fadeAnimation?.cancel()")&&
+      quest.indexOf("loserFadeStart=winAt;")<quest.indexOf("showWinningHero(button,button._imageRecord,item)")&&
+      quest.indexOf("const animation=card.animate(")<quest.indexOf("showWinningHero(button,button._imageRecord,item)"),
+      'V270 winning tap must start 3 compositor fades BEFORE hero creation');
 check(quest.includes("constellationFindName(target)")&&
     !quest.includes('s3d-find-progress')&&
     !quest.includes('roundLabel')&&
@@ -241,11 +249,18 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=269')&&
-      app.includes('space-3d-games.js?v=269')&&
-      app.includes('constellation-quest-v246.js?v=269'),
+check(sw.includes('space-finding-session.js?v=270')&&
+      app.includes('space-3d-games.js?v=270')&&
+      app.includes('constellation-quest-v246.js?v=270'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
+const refresh=read('refresh.html');
+check(refresh.includes("service-worker.js?v=270")&&
+      refresh.includes("navigator.serviceWorker.register(")&&
+      refresh.includes("registration.update()")&&
+      refresh.includes("index.html")&&
+      !refresh.includes("caches.delete("),
+      'V270 one-time cache-safe DotKiosk update route must be available');
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
     has(item.png)&&has(item.webp)&&
