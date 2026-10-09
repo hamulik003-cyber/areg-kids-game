@@ -126,14 +126,14 @@ try{
       if(!early.hero||early.originalCorrect||early.losers.length!==3||
         early.losers.some(v=>!v.fading||v.animation!=='none'||v.transition!=='none'||
           v.opacity<=.2||v.opacity>=.99||
-          !/translate3d\(0px,0px,-[\d.]+px\) scale\(0\.[\d]+\)/.test(v.transform)))
+          !/translate3d\(\s*0px,\s*0px,\s*-[\d.]+px\)\s+scale\(0\.[\d]+\)/.test(v.transform)))
         throw Error('V263 all three must simultaneously FADE AND RECEDE from touch '+
           JSON.stringify(early));
       await page.waitForTimeout(540);
       const retreat=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')]
         .map(c=>({opacity:Number(c.style.opacity),transform:c.style.transform})));
       if(retreat.length!==3||retreat.some(v=>v.opacity>=.6||v.opacity<=0||
-          !/translate3d\(0px,0px,-[\d.]+px\) scale\(0\.[\d]+\)/.test(v.transform)))
+          !/translate3d\(\s*0px,\s*0px,\s*-[\d.]+px\)\s+scale\(0\.[\d]+\)/.test(v.transform)))
         throw Error('V263 losing images must keep moving backward through hero approach '+
           JSON.stringify(retreat));
       await page.waitForTimeout(560);
