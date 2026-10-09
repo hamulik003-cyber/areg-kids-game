@@ -634,7 +634,7 @@
       img.decoding='async';
       const done=()=>{if(img.decode)img.decode().then(()=>resolve(img)).catch(()=>resolve(img));else resolve(img)};
       img.onload=done;
-      img.onerror=()=>resolve(null);
+      img.onerror=()=>{sectionImageCache.delete(src);resolve(null)};
       img.src=src;
     });
     sectionImageCache.set(src,task);
@@ -773,7 +773,7 @@
         if(typeof img.decode==='function')img.decode().then(()=>resolve(img)).catch(()=>resolve(img.naturalWidth?img:null));
         else resolve(img);
       };
-      img.onerror=()=>resolve(null);
+      img.onerror=()=>{galleryImagePromises.delete(url);resolve(null)};
       img.src=url;
     });
     galleryImagePromises.set(url,task);
