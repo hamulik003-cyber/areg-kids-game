@@ -124,8 +124,8 @@ try{
       });
       if(!earlyFade.chosen||earlyFade.losers.length!==3||
          earlyFade.losers.some(v=>!v.fading||v.name!=='none'||
-           !v.transition.startsWith('opacity')||v.opacity<=.02||v.opacity>=.99))
-        throw Error('V260 losers must be MID-opacity transition without competing keyframes '+JSON.stringify(earlyFade));
+           v.transition!=='none'||v.opacity<=.02||v.opacity>=.99))
+        throw Error('V261 losers must show JS-driven MID-fade with no CSS animations or transitions '+JSON.stringify(earlyFade));
       if(!Number.isFinite(earlyFade.scale)||earlyFade.scale<=1.1||
          earlyFade.actualWidth>earlyFade.stageWidth||earlyFade.margin<0)
         throw Error('V260 winner size must retain approved V259 bounds '+JSON.stringify(earlyFade));
