@@ -74,6 +74,14 @@ check(quest.includes("photoStage.append(art)")&&
       !skyCss.includes(".s3d-quest-photo-atmosphere")&&
       !skyCss.includes("mix-blend-mode:screen"),
       'V252 PNG/WebP transparent reveal must not reintroduce dark JPG rectangles');
+check(quest.includes("function revealArtwork(token)")&&
+      quest.includes("revealStartedAt=performance.now()")&&
+      quest.includes("revealArtwork(token); // If still decoding")&&
+      quest.includes("group.visible=false")&&
+      quest.includes("group.visible=true")&&
+      quest.includes("n.mesh.material.opacity=appear*exitFade*solvedOpacity")&&
+      quest.includes("m.material.opacity=(i===0?.15:.97)*exitFade*solvedOpacity"),
+      'V253 final art must dissolve puzzle-only 3D star overlays and reset next round');
 check(quest.includes("keepAliveOsc=audioContext.createOscillator()")&&
       quest.includes("scheduleNextIntro();finish();")&&
       quest.includes("needEntryCueOnTouch")&&
