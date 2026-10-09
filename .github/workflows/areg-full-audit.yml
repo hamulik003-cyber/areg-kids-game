@@ -44,6 +44,8 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: node qa/browser-smoke.mjs
+      - name: Verify latest PWA HTML replaces stale cached page, offline still works
+        run: node qa/pwa-update.test.mjs
 
   ios-webkit:
     needs: assets-and-code
@@ -58,3 +60,5 @@ jobs:
       - run: npm install --no-save playwright@1.55.1
       - run: npx playwright install --with-deps webkit
       - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: Verify latest PWA HTML replaces stale cached page, offline still works
+        run: AREG_BROWSER=webkit node qa/pwa-update.test.mjs

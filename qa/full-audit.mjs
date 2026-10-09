@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 const base=path.resolve(import.meta.dirname,'..'),read=p=>fs.readFileSync(path.join(base,p),'utf8'),has=p=>fs.existsSync(path.join(base,p)),fails=[];
 const check=(v,message)=>{if(!v)fails.push(message)};
 const app=read('app.js'),space=read('space-3d-games.js'),sw=read('service-worker.js');
-for(const p of ['app.js','space-3d-games.js','blackhole-interstellar.js','service-worker.js','space-30-preview-engine.js','space-v3-preview.js','constellation-quest-v246.js','qa/browser-smoke.mjs','qa/star-economy.test.mjs']){
+for(const p of ['app.js','space-3d-games.js','blackhole-interstellar.js','service-worker.js','space-30-preview-engine.js','space-v3-preview.js','constellation-quest-v246.js','qa/browser-smoke.mjs','qa/star-economy.test.mjs','qa/pwa-update.test.mjs']){
   try{execFileSync(process.execPath,['--check',path.join(base,p)],{stdio:'pipe'})}
   catch(e){fails.push('invalid JS '+p+': '+e.stderr?.toString()?.slice(0,130))}
 }
@@ -46,6 +46,12 @@ for(const section of ['nature','space','mind','create','magic']){
 }
 for(const n of ['launcher.html','index.html','app.js','styles.css','space-3d-games.js','blackhole-interstellar.js','vendor/three.module.min.js','manifest.webmanifest'])check(has(n),'missing core '+n);
 const launcher=read('launcher.html'),html=read('index.html'),quest=read('constellation-quest-v246.js');
+check(sw.includes("fetch(request,{cache:'no-store'})")&&
+  sw.includes("event.respondWith(networkNavigation(request,event))")&&
+  sw.includes("event.waitUntil(fresh.catch(()=>{}))")&&
+  sw.includes("1200")&&
+  !sw.includes("if(cached)return cached;\n  }\n  try{return await fetch(request)}"),
+  'V284 prevent old cache-first home HTML from trapping browsers on obsolete app.js after deployment');
 check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_build'),'DotKiosk launcher should use clean standalone entry');
 const coreV=sw.match(/areg-v(\d+)-core/),runV=sw.match(/areg-v(\d+)-runtime/);
 const appV=html.match(/app\.js\?v=(\d+)/),styleV=html.match(/styles\.css\?v=(\d+)/);
@@ -319,7 +325,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=282'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=283")&&
+check(refresh.includes("service-worker.js?v=284")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

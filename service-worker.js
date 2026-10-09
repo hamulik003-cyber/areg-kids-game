@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v283-core';
-const RUNTIME_CACHE='areg-v283-runtime';
+const CORE_CACHE='areg-v284-core';
+const RUNTIME_CACHE='areg-v284-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
@@ -9,7 +9,7 @@ const CORE=[
   './space-finding-session.js?v=282',
   './styles.css?v=282',
   './space-3d-games.css?v=282',
-  './app.js?v=283',
+  './app.js?v=284',
   './home-nature-art.jpg',
   './home-space-art.jpg',
   './space-game-1.jpg',
@@ -58,7 +58,11 @@ self.addEventListener('activate',event=>{
 // First paint of installed game must not depend on GitHub roundtrip.
 // Heavy 3D modules/textures are stored only once requested, not on first launch.
 // New version deploys become visible on the next SW update & reload.
-async function networkNavigation(request){
+// V284: the previous cache-FIRST homepage trapped browsers/DotKiosk on old
+// index.html (and thus old app.js and old SW registrations) after GitHub
+// Pages successfully deployed. Fresh HTML is network-preferred on navigation;
+// keep the previous offline-first assets/UV textures/audio and local user data.
+async function networkNavigation(request,event){
   const url=new URL(request.url);
   const scopePath=new URL(self.registration.scope).pathname;
   const isMain=url.pathname===scopePath||
@@ -67,7 +71,29 @@ async function networkNavigation(request){
   if(isMain){
     const source=url.pathname.endsWith('/launcher.html')?'./launcher.html':'./index.html';
     const cached=await caches.match(source,{cacheName:CORE_CACHE});
+    // For a slow connection, keep fast startup; finish revalidating in the
+    // background so the NEXT launch still sees the latest version. Under
+    // normal connectivity the fresh response always wins over stale HTML.
+    const fresh=fetch(request,{cache:'no-store'}).then(async response=>{
+      if(!response||!response.ok)throw Error('AREG navigation update unavailable');
+      const core=await caches.open(CORE_CACHE);
+      await core.put(source,response.clone()).catch(()=>{});
+      return response;
+    });
+    // Register background revalidation while the fetch event is active;
+    // Safari may reject waitUntil if it is first called after an await.
+    event.waitUntil(fresh.catch(()=>{}));
+    let handle;
+    try{
+      const response=await Promise.race([
+        fresh,
+        new Promise(resolve=>{handle=setTimeout(()=>resolve(null),1200)})
+      ]);
+      if(response)return response;
+    }catch{}
+    finally{clearTimeout(handle)}
     if(cached)return cached;
+    try{return await fresh}catch{return Response.error()}
   }
   try{return await fetch(request)}
   catch{
@@ -107,7 +133,7 @@ self.addEventListener('fetch',event=>{
   if(url.origin!==self.location.origin)return;
 
   if(request.mode==='navigate'){
-    event.respondWith(networkNavigation(request));
+    event.respondWith(networkNavigation(request,event));
     return;
   }
   if(url.pathname.includes('/assets/thumbs/')&&/\.webp$/i.test(url.pathname)){
