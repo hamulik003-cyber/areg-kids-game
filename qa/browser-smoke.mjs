@@ -106,15 +106,37 @@ try{
         throw Error('Incorrect constellation must not advance level');
       await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),correctName);
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='winning',null,{timeout:3000});
-      await page.waitForTimeout(260);
-      const focused=await page.evaluate(()=>{
-        const chosen=document.querySelector('.s3d-find-choice.s3d-find-selected');
-        const others=[...document.querySelectorAll('.s3d-find-choice')].filter(c=>c!==chosen);
-        return {selected:!!chosen,others:others.map(c=>Number(getComputedStyle(c).opacity))};
+      await page.waitForTimeout(270);
+      const earlyFade=await page.evaluate(()=>{
+        const root=document.querySelector('.s3d-find256');
+        const chosen=root.querySelector('.s3d-find-choice.s3d-find-selected');
+        const others=[...root.querySelectorAll('.s3d-find-choice')].filter(c=>c!==chosen);
+        return {chosen:!!chosen,losers:others.map(c=>({
+          opacity:Number(getComputedStyle(c).opacity),
+          fading:c.classList.contains('s3d-find-dismissing'),
+          name:getComputedStyle(c).animationName,
+          t:c.style.transform
+        })),scale:Number(chosen?.dataset.winningScale),
+        actualWidth:Number(chosen?.dataset.winVisibleWidth),
+        stageWidth:root.querySelector('.s3d-find-stage').getBoundingClientRect().width,
+        margin:Number(root.dataset.winSideMargin)};
       });
-      if(!focused.selected||focused.others.length!==3||
-         focused.others.some(alpha=>alpha>.08))
-        throw Error('V258 winning animation should clear all distractors within 260ms '+JSON.stringify(focused));
+      if(!earlyFade.chosen||earlyFade.losers.length!==3||
+         earlyFade.losers.some(v=>!v.fading||!v.name.includes('s3dFindLoserFade')||
+           v.opacity<=.02||v.opacity>=.99))
+        throw Error('V259 all 3 losers must be MID-way through a smooth opacity fade '+JSON.stringify(earlyFade));
+      if(!Number.isFinite(earlyFade.scale)||earlyFade.scale<=1.1||
+         earlyFade.actualWidth>earlyFade.stageWidth||
+         earlyFade.margin<0)
+        throw Error('V259 winning size exceeded safe screen bounds '+JSON.stringify(earlyFade));
+      await page.waitForTimeout(600);
+      const fullyFaded=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice.s3d-find-dismissing')]
+        .map(c=>Number(getComputedStyle(c).opacity)));
+      if(fullyFaded.length!==3||fullyFaded.some(n=>n>.035))
+        throw Error('V259 other choices did not disappear cleanly '+JSON.stringify(fullyFaded));
+      await page.waitForTimeout(1700);
+      if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='winning')
+        throw Error('V259 correct figure must remain on screen for an extended hold');
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)
