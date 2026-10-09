@@ -187,7 +187,7 @@ export function startConstellationQuest(ctx){
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   const deckSize=ctx.CONSTELLATIONS.length;
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
-  const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160;
+  const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720;
   const delay=(fn,ms)=>{
     const id=setTimeout(()=>{timers.delete(id);if(!disposed)fn()},ms);
     timers.add(id);return id;
@@ -231,9 +231,6 @@ export function startConstellationQuest(ctx){
         note(ac,659.25,offset,.16,.064);
         note(ac,783.99,offset+.080,.17,.060);
         note(ac,987.77,offset+.165,.23,.054);
-      }else if(kind==='entry'){
-        note(ac,523.25,offset,.35,.025);
-        note(ac,783.99,offset+.12,.41,.020);
       }
     };
     if(ac.state==='running')play();
@@ -311,6 +308,10 @@ export function startConstellationQuest(ctx){
       moveY.toFixed(2)+'px,0) scale('+zoom.toFixed(4)+')';
     button.dataset.figureScale=zoom.toFixed(3);
     button.dataset.figureFit=(Math.min(w*.84/figureW,h*.84/figureH)).toFixed(3);
+    // Real visible outline dimensions after its in-card alpha calibration.
+    // Required to zoom the winner to one consistent device-safe boundary.
+    button.dataset.figureWidthPx=(figureW*zoom).toFixed(3);
+    button.dataset.figureHeightPx=(figureH*zoom).toFixed(3);
   }
   function loadImage(src){
     return new Promise((resolve,reject)=>{
@@ -440,62 +441,61 @@ export function startConstellationQuest(ctx){
     prompt.textContent='Կեցցե՛ս։ '+item.name;
     progress.textContent='Գտա՛ր '+item.name;
     sound('correct');
-    // Pre-schedule the NEXT magical chime during a genuine user touch, before
-    // iOS restricts audio resumed from background timers. Avoid SpeechSynthesis.
-    sound('entry',(WIN_HOLD_MS+EXIT_MS+STARFIELD_PAUSE_MS+250)/1000);
     award();
     const stageRect=stage.getBoundingClientRect(),rect=button.getBoundingClientRect();
     const centerX=stageRect.left+stageRect.width*.5;
     const centerY=stageRect.top+stageRect.height*.5;
-    const scale=Math.min(2.08,stageRect.width*.82/rect.width,stageRect.height*.81/rect.height);
-    cards.forEach((card,i)=>{
+    // Use the V258 pixel-measured *visible alpha silhouette*, not the 2x2
+    // button's original dimensions. The largest of 38 illustrations now
+    // respects the same safe left/right margin without cutting off tall art.
+    const visibleW=Number(button.dataset.figureWidthPx)||rect.width*.72;
+    const visibleH=Number(button.dataset.figureHeightPx)||rect.height*.72;
+    const horizontalLimit=Math.max(1,stageRect.width-Math.min(36,stageRect.width*.06));
+    const verticalLimit=Math.max(1,stageRect.height*.92);
+    const scale=Math.min(horizontalLimit/visibleW,verticalLimit/visibleH);
+    button.dataset.winningScale=scale.toFixed(4);
+    button.dataset.winVisibleWidth=(visibleW*scale).toFixed(2);
+    button.dataset.winVisibleHeight=(visibleH*scale).toFixed(2);
+    root.dataset.winSideMargin=((stageRect.width-visibleW*scale)/2).toFixed(2);
+    cards.forEach(card=>{
       if(card===button){
+        card.classList.remove('s3d-find-wrong');
         card.classList.add('s3d-find-selected');
         card.style.zIndex='15';
         pose(card,{x:centerX-(rect.left+rect.width*.5),
-          y:centerY-(rect.top+rect.height*.5),z:110,s:scale,opacity:1},
+          y:centerY-(rect.top+rect.height*.5),z:0,s:scale,opacity:1},
           WIN_ZOOM_MS,'cubic-bezier(.18,.73,.26,1)');
       }else{
-        const r=card.getBoundingClientRect();
-        // Other choices must disappear before the correct illustration
-        // finishes its 850-ms approach. No small distracting figures behind.
-        pose(card,{x:r.left<centerX?-30:30,y:r.top<centerY?-18:18,z:-65,s:.67,opacity:0},
-          185,'cubic-bezier(.18,.73,.26,1)');
+        // Do not animate transform or change stacking/3D position on losers:
+        // that made iOS WebKit appear to blink. Fade composited opacity alone.
+        card.classList.remove('s3d-find-wrong');
+        card.classList.add('s3d-find-dismissing');
       }
     });
-    // Match Space Search: zoom 850ms, hold within 2750ms, exit 690ms,
-    // 160ms of pure sky, then 780ms staggered next-group entrance.
+    // 1.22s gentle approach, then >3 seconds full-size viewing; only then
+    // a slow receding exit. Newly appearing choices have NO entry sound.
     mainTimer=delay(beginExit,WIN_HOLD_MS);
   }
   function beginExit(){
     if(disposed||phase!=='winning')return;
     phase='exit';root.dataset.constellationPhase='exit';
     root.classList.remove('s3d-find-won');
-    cards.forEach((card,i)=>{
-      const chosen=card.classList.contains('s3d-find-selected');
-      const t=card.style.transform;
-      // Keep the existing win pose as starting point, then diminish without
-      // blinking out at the center of the screen.
-      card.style.transform=t;
-      card.style.transition='opacity '+EXIT_MS+'ms cubic-bezier(.42,0,.78,.48), transform '+
-        EXIT_MS+'ms cubic-bezier(.38,0,.72,.52)';
-      const scale=chosen?.68:.58;
-      const rect=card.getBoundingClientRect();
-      const stageRect=stage.getBoundingClientRect();
-      const dx=chosen?(stageRect.left+stageRect.width*.5-rect.left-rect.width*.5):0;
-      const dy=chosen?-22:0;
+    // Only the centered selected constellation exits; losers are already
+    // fully transparent from their single 720ms fade. No second flash.
+    const card=cards.find(el=>el.classList.contains('s3d-find-selected'));
+    if(card){
+      card.style.transition='transform '+EXIT_MS+'ms cubic-bezier(.32,0,.68,.48), opacity '+
+        EXIT_MS+'ms cubic-bezier(.42,0,.78,.48)';
+      const old=card.style.transform;
+      const found=old.match(/scale\\(([\\d.]+)\\)/);
+      const startScale=found?Number(found[1]):1;
       requestAnimationFrame(()=>{
         if(disposed||phase!=='exit')return;
-        const old=card.style.transform;
-        const s=old.match(/scale\(([\d.]+)\)/);
-        const lastScale=s?Number(s[1]):1;
-        // CSS transform translation remains stable; scale is applied to the
-        // winning position's existing transform.
-        card.style.transform=old.replace(/scale\([\d.]+\)/,
-          'scale('+(lastScale*scale).toFixed(4)+')');
+        card.style.transform=old.replace(/scale\\([\\d.]+\\)/,
+          'scale('+(startScale*.64).toFixed(4)+')');
         card.style.opacity='0';
       });
-    });
+    }
     delay(()=>{
       if(disposed)return;
       resetCards();phase='starfield-pause';
