@@ -140,6 +140,9 @@ try{
         button.click();
         const hero=root.querySelector('.s3d-find-hero');
         const startTransform=hero?getComputedStyle(hero).transform:null,start=performance.now(),samples=[];
+        const initialLayer=root.querySelector('.s3d-find-decoy-layer');
+        if(!initialLayer||initialLayer.querySelectorAll('.s3d-find-choice').length!==3)
+          return {error:'Shared decoy layer missing or did not receive three ORIGINAL buttons'};
         const sameTapNative={heroState:hero?._moveAnimation?.playState,
           heroDuration:hero?._moveAnimation?.effect?.getTiming()?.duration,
           decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({state:c._fadeAnimation?.playState,
@@ -151,7 +154,7 @@ try{
               isolated:root.dataset.winnerIsolated,heroTransform:hero?getComputedStyle(hero).transform:null,
               placeholder:!!root.querySelector('.s3d-find-choice[style*="visibility: hidden"]'),
               losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
-                opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
+                opacity:Number(getComputedStyle(c.closest('.s3d-find-decoy-layer')).opacity),transform:c.style.transform,
                 transition:c.style.transition,animation:getComputedStyle(c).animationName,
                 shellPaused:c.querySelector('.s3d-find-art-shell')?.style.animationPlayState==='paused',
                 fadeState:c._fadeAnimation?.playState||'none',
@@ -170,7 +173,7 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v280-safe-v278-restoration'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='lab-single-layer-synchronized-decoy-fade'||reveal.fadeEngine!=='shared-layer'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
@@ -286,6 +289,9 @@ try{
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
         if(!target)return {error:'next target absent'};
         target.click();
+        const fadeGroup=root.querySelector('.s3d-find-decoy-layer');
+        if(root.dataset.decoyFadeEngine!=='shared-layer'||fadeGroup?.children.length!==3)
+          return {error:'Second round did not build one shared decoy group'};
         const score={count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
           stars:Number(localStorage.getItem('areg-stars-v35')||0),
           reward:root.querySelectorAll('.s3d-reward').length};
@@ -298,7 +304,7 @@ try{
               motion:root.dataset.heroMotion,
               engine:root.dataset.decoyFadeEngine,
               losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
-                opacity:Number(getComputedStyle(c).opacity),
+                opacity:Number(getComputedStyle(c.closest('.s3d-find-decoy-layer')).opacity),
                 animation:c._fadeAnimation?.playState||'none',
                 x:Math.round(c.getBoundingClientRect().x),
                 y:Math.round(c.getBoundingClientRect().y)
@@ -334,6 +340,9 @@ try{
         if(!target)return {error:'third target absent'};
         const id=root.dataset.targetId;
         target.click();
+        const layer=root.querySelector('.s3d-find-decoy-layer');
+        if(root.dataset.decoyFadeEngine!=='shared-layer'||layer?.children.length!==3)
+          return {error:'Third round did not build shared group'};
         const frames=[],start=performance.now();
         await new Promise(resolve=>{
           function tick(){
@@ -341,7 +350,7 @@ try{
             frames.push({ms:Math.round(ms),progress:Number(root.dataset.heroApproachProgress),phase:root.dataset.constellationPhase,
               hero:root.dataset.heroMotion,
               decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
-                alpha:Number(getComputedStyle(c).opacity),
+                alpha:Number(getComputedStyle(c.closest('.s3d-find-decoy-layer')).opacity),
                 x:Math.round(c.getBoundingClientRect().x),
                 y:Math.round(c.getBoundingClientRect().y)
               }))});
@@ -377,7 +386,7 @@ try{
         const hero=root.querySelector('.s3d-find-hero');
         const decoys=[...root.querySelectorAll('.s3d-find-dismissing')];
         const motion=hero?._moveAnimation;
-        if(!motion||decoys.length!==3)return {error:'missing coordinated native animations'};
+        if(root.dataset.decoyFadeEngine!=='shared-layer'||!motion||decoys.length!==3)return {error:'missing coordinated native animations'};
         const initial={animation:motion.playState,progress:Number(root.dataset.heroApproachProgress),
           decoys:decoys.map(c=>c._fadeAnimation?.playState)};
         const stallStart=performance.now();
@@ -406,7 +415,7 @@ try{
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=280');
+        const api=await import('./space-finding-session.js?v=281');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

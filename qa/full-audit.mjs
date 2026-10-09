@@ -176,16 +176,16 @@ check(quest.includes("const animation=hero._moveAnimation;")&&
   quest.includes("root.dataset.heroApproachProgress=p.toFixed(4)")&&
   quest.includes("hero._moveAnimation.cancel();hero._moveAnimation=null")&&
   quest.includes("winningHero._moveAnimation?.cancel()")&&
-  quest.includes("losingCards.every(c=>c._fadeFinished)")&&
+  quest.includes("decoyLayerAnimation.onfinish=()=>{")&&
   quest.includes("if(winningHero){")&&
   quest.includes("function beginExit()"),
   'V275 compositor hero owns visual position; RAF is diagnostic, exit cancels only its own animation');
 check(!quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+150)")&&
-  quest.includes("c._fadeAnimation?.playState==='finished'")&&
-  quest.includes("if(losingCards.every(c=>c._fadeFinished||")&&
-  quest.includes("if(root.dataset.decoyFadeEngine==='compositor'){"),
+  quest.includes("if(decoyLayerAnimation.playState==='finished')finishLoserFade()")&&
+  quest.includes("decoyLayerAnimation.onfinish=()=>{")&&
+  quest.includes("if(!disposed&&decoyLayer===layer)finishLoserFade()"),
   'V273 no fallback timeout may abruptly remove still-visible/paused three artworks');
-check(quest.includes("root.dataset.constellationBuild='v280-safe-v278-restoration'")&&
+check(quest.includes("root.dataset.constellationBuild='lab-single-layer-synchronized-decoy-fade'")&&
   quest.includes("plan.ready=Promise.all(plan.options.map(preload))")&&
   quest.includes("plan.prepared=true;return records")&&
   quest.includes("const next=queued;")&&
@@ -200,7 +200,7 @@ check(quest.includes("root.dataset.constellationBuild='v280-safe-v278-restoratio
 const finding=read('space-finding-session.js'),styles=read('space-3d-games.css');
 check(quest.includes("function animateLoserFade(t)")&&
     quest.includes("const eased=p*p*(3-2*p)")&&
-    quest.includes("card.style.opacity=(1-eased).toFixed(4)")&&
+    quest.includes("decoyLayer.style.opacity=(1-eased).toFixed(4)")&&
     quest.includes("LOSER_FADE_MS=580")&&
     quest.includes("shell.style.animationPlayState='paused'")&&
     quest.includes("selectedCard=button")&&
@@ -219,7 +219,7 @@ check(580<850&&
   quest.includes("WIN_ZOOM_MS=850")&&
   quest.includes("LOSER_FADE_MS=580"),
   'V278 approved gentle hero now approaches in 850ms while all three decoys fade in place over 580ms');
-check(quest.includes("root.dataset.constellationBuild='v280-safe-v278-restoration'")&&
+check(quest.includes("root.dataset.constellationBuild='lab-single-layer-synchronized-decoy-fade'")&&
   quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
   quest.includes("if(!criticalFade){")&&
   quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
@@ -228,14 +228,16 @@ check(quest.includes("root.dataset.constellationBuild='v280-safe-v278-restoratio
   !quest.includes("prewarmTimer=delay(warmNext,650)")&&
   quest.includes("if(disposed||queued||roundIndex===ctx.CONSTELLATIONS.length)return;"),
   'V272 MUST reserve WebKit GPU frames during EVERY answer and avoid prewarm while user decides');
-check(quest.includes("const useCompositor=losingCards.every(card=>typeof card.animate==='function')")&&
-      quest.includes("const animation=card.animate(")&&
-      quest.includes("animation.onfinish=()=>{")&&
-      quest.includes("root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf'")&&
-      quest.includes("card._fadeAnimation?.cancel()")&&
-      quest.indexOf("loserFadeStart=winAt;")<quest.indexOf("showWinningHero(button,button._imageRecord,item)")&&
-      quest.indexOf("const animation=card.animate(")<quest.indexOf("showWinningHero(button,button._imageRecord,item)"),
-      'V270 winning tap must start 3 compositor fades BEFORE hero creation');
+check(quest.includes("const fixed=cards.filter(card=>card!==button).map(card=>({")&&
+  quest.includes("const layer=document.createElement('div')")&&
+  quest.includes("layer.className='s3d-find-decoy-layer'")&&
+  quest.includes("layer.appendChild(card)")&&
+  quest.includes("decoyLayerAnimation=layer.animate(")&&
+  quest.includes("root.dataset.decoyFadeEngine='shared-layer'")&&
+  quest.includes("beginWinningHeroApproach();")&&
+  !quest.includes("const animation=card.animate(")&&
+  quest.indexOf("showWinningHero(button,button._imageRecord,item)")<quest.indexOf("layer.appendChild(card)"),
+  'Lab: all three original decoded art choices grouped and faded by a SINGLE native layer, native 850ms hero independent');
 check(quest.includes("constellationFindName(target)")&&
     !quest.includes('s3d-find-progress')&&
     !quest.includes('roundLabel')&&
@@ -292,13 +294,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=280')&&
-      app.includes('space-3d-games.js?v=280')&&
-      app.includes('constellation-quest-v246.js?v=280'),
+check(sw.includes('space-finding-session.js?v=281')&&
+      app.includes('space-3d-games.js?v=281')&&
+      app.includes('constellation-quest-v246.js?v=281'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=280")&&
+check(refresh.includes("service-worker.js?v=281")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

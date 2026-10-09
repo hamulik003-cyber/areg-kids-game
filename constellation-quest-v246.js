@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=280';
+import {createFindingSession} from './space-finding-session.js?v=281';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,7 +226,8 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v280-safe-v278-restoration';
+  let decoyLayer=null,decoyLayerAnimation=null;
+  root.dataset.constellationBuild='lab-single-layer-synchronized-decoy-fade';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=580;
   const delay=(fn,ms)=>{
@@ -527,6 +528,8 @@ export function startConstellationQuest(ctx){
   async function buildRound(){
     const seq=++sequence;
     phase='loading';locked=true;winAt=0;
+    if(decoyLayer){decoyLayerAnimation?.cancel();decoyLayer.remove();}
+    decoyLayer=null;decoyLayerAnimation=null;
     losingCards=[];selectedCard=null;clearWinningHero();
     root.dataset.winnerIsolated='false';
     root.dataset.heroMode='none';
@@ -613,58 +616,65 @@ export function startConstellationQuest(ctx){
     session.rightAnswer();
     sound('correct');
     if(ctx.recordCorrectAnswer('constellation-game'))award();
-    // V270: START all three GPU/compositor dissolves on the SAME user tap,
-    // BEFORE constructing the giant hero. This avoids the perceived late
-    // fade while the winner follows its 850ms gentle ease-in-out path
-    // from the same tap. All three decoys fade in place over 580ms.
+    // One opacity compositor layer, rather than three independently composited
+    // cards. Reuse the ORIGINAL decoded artwork nodes: cloning or redrawing
+    // images can flash white on an iPhone, especially on rounds 2–38.
     loserFadeStart=winAt;
     losingCards=[];
-    cards.forEach(card=>{
-      if(card===button)return;
+    const board=stage.getBoundingClientRect();
+    const fixed=cards.filter(card=>card!==button).map(card=>({
+      card,rect:card.getBoundingClientRect()
+    }));
+    // Capture selected image's precise source position WHILE the 2x2 grid
+    // still contains all four cells; otherwise it would jump to cell 1.
+    showWinningHero(button,button._imageRecord,item);
+    const layer=document.createElement('div');
+    layer.className='s3d-find-decoy-layer';
+    Object.assign(layer.style,{
+      position:'absolute',inset:'0',zIndex:'20',opacity:'1',
+      pointerEvents:'none',willChange:'opacity',transform:'translateZ(0)'
+    });
+    stage.appendChild(layer);
+    decoyLayer=layer;
+    root.dataset.decoyFadeEngine='shared-layer';
+    for(const {card,rect} of fixed){
       card.classList.remove('s3d-find-wrong');
       card.classList.add('s3d-find-dismissing');
       card.style.animation='none';
       const shell=card.querySelector('.s3d-find-art-shell');
       if(shell)shell.style.animationPlayState='paused';
-      card.style.transition='none';
-      card.style.opacity='1';
-      card.style.pointerEvents='none';
-      card.style.transform='translate3d(0px,0px,0px) scale(1)';
-      card._fadeFinished=false;
-      card._fadeAnimation=null;
-      losingCards.push(card);
-    });
-    // The Web Animations API can run opacity on Safari's compositor while
-    // Three.js is drawing starfield frames on the JavaScript main thread.
-    const useCompositor=losingCards.every(card=>typeof card.animate==='function');
-    root.dataset.decoyFadeEngine=useCompositor?'compositor':'raf';
-    if(useCompositor){
-      losingCards.forEach(card=>{
-        const animation=card.animate(
-          [{opacity:1},{opacity:0}],
-          {duration:LOSER_FADE_MS,easing:'cubic-bezier(.42,0,.58,1)',
-           fill:'forwards',composite:'replace'}
-        );
-        card._fadeAnimation=animation;
-        animation.onfinish=()=>{
-          card._fadeFinished=true;
-          if(!disposed&&losingCards.length&&losingCards.every(c=>c._fadeFinished))
-            finishLoserFade();
-        };
+      Object.assign(card.style,{
+        position:'absolute',left:(rect.left-board.left)+'px',
+        top:(rect.top-board.top)+'px',
+        width:rect.width+'px',height:rect.height+'px',
+        transition:'none',opacity:'1',pointerEvents:'none',
+        transform:'translate3d(0px,0px,0px) scale(1)'
       });
+      layer.appendChild(card);
+      losingCards.push(card);
     }
-    showWinningHero(button,button._imageRecord,item);
+    // All three original illustrations are now in ONE GPU layer. One WAAPI
+    // opacity transition is identical on every tap, regardless of round.
+    if(typeof layer.animate==='function'){
+      decoyLayerAnimation=layer.animate(
+        [{opacity:1},{opacity:0}],
+        {duration:LOSER_FADE_MS,easing:'cubic-bezier(.42,0,.58,1)',
+         fill:'forwards',composite:'replace'}
+      );
+      for(const card of losingCards)card._fadeAnimation=decoyLayerAnimation;
+      decoyLayerAnimation.onfinish=()=>{
+        if(!disposed&&decoyLayer===layer)finishLoserFade();
+      };
+    }else{
+      decoyLayerAnimation=null;
+    }
     beginWinningHeroApproach();
-    // V273 critical fix: the old timeout blindly removed all 3 nodes
-    // after 490ms EVEN IF iPhone WebKit still had the fade paused/running.
-    // Never detach opaque art. The fallback may finalize ONLY when every
-    // compositor fade REALLY ended. RAF fallback still finalizes by time.
+    // A very slow JS thread may miss the onfinish callback. It may only
+    // remove the three fully transparent pictures after the 580ms clock.
     delay(()=>{
-      if(disposed||!losingCards.length)return;
-      if(root.dataset.decoyFadeEngine==='compositor'){
-        if(losingCards.every(c=>c._fadeFinished||
-          c._fadeAnimation?.playState==='finished'))
-          finishLoserFade();
+      if(disposed||decoyLayer!==layer)return;
+      if(decoyLayerAnimation){
+        if(decoyLayerAnimation.playState==='finished')finishLoserFade();
       }else if(performance.now()-loserFadeStart>=LOSER_FADE_MS){
         finishLoserFade();
       }
@@ -674,36 +684,29 @@ export function startConstellationQuest(ctx){
   }
   function finishLoserFade(){
     if(!losingCards.length)return;
+    // Retire ONE shared layer after opacity actually reached zero. Avoid
+    // cancelling the animation while pixels are still visibly opaque.
+    if(decoyLayer)decoyLayer.style.opacity='0';
     for(const card of losingCards){
-      card.style.opacity='0';
-      card.classList.add('s3d-find-hidden');
-      card.style.display='none';
-      // No flash-back when removing the WAAPI forwards fill.
-      card._fadeAnimation?.cancel();
       card._fadeAnimation=null;
       card.remove();
     }
     losingCards=[];
+    decoyLayerAnimation?.cancel();
+    decoyLayerAnimation=null;
+    decoyLayer?.remove();
+    decoyLayer=null;
     selectedCard?.remove();selectedCard=null;
     root.dataset.winnerIsolated='true';
-    // All THREE decoy fades are finished. Their removal NEVER interrupts or
-    // restarts the winner's already-running compositor transform.
-    // Safe background loading can start now: fade already reached zero.
-    // Earlier preloading during selection competed with mobile WebKit
-    // compositor + WebGL precisely at the next correct-answer tap.
-    // V274 also checks PREPARATION COMPLETION before retiring this hero.
+    // Keep predecode timing AFTER the three fully vanished alternatives.
     if(phase==='winning'&&!queued&&roundIndex!==ctx.CONSTELLATIONS.length)
       prewarmTimer=delay(warmNext,130);
-    // Winner has already been advancing smoothly since the same tap.
   }
   function animateLoserFade(t){
-    if(!losingCards.length)return;
-    // The compositor owns the live fade; RAF is only for older browser
-    // engines where element.animate is unavailable.
-    if(root.dataset.decoyFadeEngine==='compositor')return;
+    if(!decoyLayer||decoyLayerAnimation)return;
     const p=clamp((t-loserFadeStart)/LOSER_FADE_MS,0,1);
     const eased=p*p*(3-2*p);
-    for(const card of losingCards)card.style.opacity=(1-eased).toFixed(4);
+    decoyLayer.style.opacity=(1-eased).toFixed(4);
     if(p>=1)finishLoserFade();
   }
   function beginExit(){
@@ -805,7 +808,9 @@ export function startConstellationQuest(ctx){
     if(disposed)return;disposed=true;sequence++;
     cancelAnimationFrame(raf);
     for(const id of timers)clearTimeout(id);
-    timers.clear();session.dispose();clearWinningHero();resetCards();cache.clear();queued=null;
+    timers.clear();session.dispose();clearWinningHero();resetCards();
+    decoyLayerAnimation?.cancel();decoyLayer?.remove();
+    decoyLayer=null;decoyLayerAnimation=null;cache.clear();queued=null;
     meteor.dispose();
     scene.remove(stars,backdrop);
     starsGeometry.dispose();starsMaterial.dispose();

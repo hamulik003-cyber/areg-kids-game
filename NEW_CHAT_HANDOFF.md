@@ -69,3 +69,6 @@ _Թարմացված է 2026-10-10, V280-ի անվտանգության վերադ
 
 ## V280 CURRENT: V279 rejected on real iPhone, safe restore from V278
 - User: V279 broke even FIRST correct answer soft fade. Reverted gameplay/QA to V278 green SHA 5dea4eaf23a699184b3aaccde1ce79fb7bf7afad, with only v280 PWA cache/import bump and V280 build dataset. 850ms winner and 580ms three-fade V278 behavior restored. This is NOT yet an all-round fade fix: previous video proved second/third wrong artwork fades visually late. Keep original 38 art/images/audio/scores/stars. V279 saved branch backup/v279-rejected-by-user-before-safe-rollback-v280-2026-10-10. Check exact main SHA CI/Pages, ask real DotKiosk test; never claim resolved until user's device verifies.
+
+## Isolated V281 laboratory experiment — NOT ON MAIN
+- User is frustrated by V279 and no effective change in either DotKiosk or browser. Main V280 remains. Draft lab branch `lab/constellation-one-layer-fade-20261010` groups 3 original wrong images as single 580ms compositor opacity layer; hero remains 850ms. Must pass targeted checks/PR and real physical iPhone before merging. No promises of verified fix.
