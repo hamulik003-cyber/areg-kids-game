@@ -86,13 +86,12 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes('plan.options.map(preload)')&&
       quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
-check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160")&&
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=4600,WIN_ZOOM_MS=1220,EXIT_MS=880,STARFIELD_PAUSE_MS=260,LOSER_FADE_MS=720")&&
       quest.includes('pose(card,{x:centerX-')&&
-      quest.includes("pose(card,{x:r.left<centerX?-30:30")&&
       quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
       quest.includes("delay(buildRound,STARFIELD_PAUSE_MS)")&&
       quest.includes("root.dataset.constellationPhase='ready'"),
-      'V256 must preserve Space Search exact correct-answer zoom/hold/exit/pause/enter rhythm');
+      'V259 must keep correct-answer approach leisurely and let the winner stay before exiting');
 check(quest.includes("sound('wrong')")&&quest.includes("sound('correct')")&&
       quest.includes('keepAliveOsc=audioContext.createOscillator()')&&
       !/speechSynthesis\.(?:speak|cancel|pause|resume)/.test(quest),
@@ -117,10 +116,20 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
       skyCss.includes(".s3d-find-art-shell")&&
       skyCss.includes(".s3d-find-choice:nth-child(2) .s3d-find-art-shell"),
       'V258 artwork must be balanced by actual alpha silhouette, independently of float motion');
-check(quest.includes("z:-65,s:.67,opacity:0")&&
-      quest.includes("185,'cubic-bezier(.18,.73,.26,1)'")&&
+check(quest.includes("const visibleW=Number(button.dataset.figureWidthPx)")&&
+      quest.includes("const horizontalLimit=Math.max(1,stageRect.width-Math.min(36,stageRect.width*.06))")&&
+      quest.includes("const verticalLimit=Math.max(1,stageRect.height*.92)")&&
+      quest.includes("button.dataset.winningScale=scale.toFixed(4)")&&
+      quest.includes("root.dataset.winSideMargin=")&&
       skyCss.includes("filter:brightness(1.11) contrast(1.06) saturate(1.09)"),
-      'V258 other three options must fade quickly while finished star graphic is crisp');
+      'V259 all finished constellations must enlarge to consistent safe screen edges without clipping');
+check(quest.includes("card.classList.add('s3d-find-dismissing')")&&
+      quest.includes("LOSER_FADE_MS+'ms'")&&
+      skyCss.includes("@keyframes s3dFindLoserFade")&&
+      skyCss.includes("to{opacity:0}")&&
+      !quest.includes("sound('entry'")&&
+      !quest.includes("kind==='entry'"),
+      'V259 other three pictures fade smoothly with no jitter, and incoming four are silent');
 
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
