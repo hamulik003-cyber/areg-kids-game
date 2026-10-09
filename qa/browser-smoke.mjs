@@ -257,15 +257,44 @@ try{
         document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)
         throw Error('Next constellation round must show 4 new objects');
-      const tenth=await page.evaluate(()=>{
+      // V271 regression: prior checks observed ONLY the first win.
+      // User reports that the first Leo win fades correctly, but every
+      // subsequent win keeps 3 decoys on-screen until hero already arrives.
+      // Capture true opacity and hero timelines for the SECOND win too.
+      const tenth=await page.evaluate(async ()=>{
         const root=document.querySelector('.s3d-find256');
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
         if(!target)return {error:'next target absent'};
         target.click();
-        return {count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
+        const score={count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
           stars:Number(localStorage.getItem('areg-stars-v35')||0),
           reward:root.querySelectorAll('.s3d-reward').length};
+        const frames=[],start=performance.now();
+        await new Promise(resolve=>{
+          function tick(){
+            const ms=performance.now()-start;
+            frames.push({ms:Math.round(ms),
+              phase:root.dataset.constellationPhase,
+              motion:root.dataset.heroMotion,
+              engine:root.dataset.decoyFadeEngine,
+              losers:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
+                opacity:Number(getComputedStyle(c).opacity),
+                animation:c._fadeAnimation?.playState||'none',
+                x:Math.round(c.getBoundingClientRect().x),
+                y:Math.round(c.getBoundingClientRect().y)
+              }))});
+            if(ms>=800)resolve();else requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+        return {...score,frames};
       });
+      console.log('V271 SECOND WIN REAL FRAMES '+JSON.stringify(tenth.frames));
+      const secondLate=tenth.frames?.filter(f=>f.ms>=470&&f.losers.length>0);
+      if(secondLate?.length||
+        !tenth.frames?.some(f=>f.ms<400&&f.losers.some(c=>c.opacity<.45))||
+        !tenth.frames?.some(f=>f.ms>=470&&f.motion==='approaching'&&f.losers.length===0))
+        throw Error('V271 second round failed first-round matching fade '+JSON.stringify(tenth.frames));
       if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
         throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
       // Real browser contract: modal LASTS until tapped, header is reset
