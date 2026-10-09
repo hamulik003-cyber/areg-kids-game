@@ -61,91 +61,43 @@ check(/import\('\.\/constellation-quest-v246\.js\?v=\d+'\)/.test(app)&&app.inclu
 check(/\.\/constellation-quest-v246\.js\?v=\d+/.test(sw),'Constellation module not in offline core');
 const constellationSource=app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={'));
 const ids=[...constellationSource.matchAll(/\{id:'([^']+)',img:'([^']+)'/g)].map(m=>m[1]);
-const layouts=JSON.parse(read('constellation-star-layouts.json'));
-check(ids.length===38&&Object.keys(layouts).length===38,
-      'V254 missing 38 original-image star maps');
-check(ids.every(id=>Object.hasOwn(layouts,id))&&!quest.includes('const TRAILS='),
-      'V254 must use measured image nodes, not approximate hand-drawn stars');
-for(const id of ids){
- const L=layouts[id];
- if(!L){continue}
- check(Array.isArray(L.points)&&L.points.length>=3&&L.points.length<=16,
-       id+': invalid number of calibrated touch stars');
- check(L.points.every(p=>Array.isArray(p)&&p.length===2&&p.every(n=>Number.isFinite(n)&&n>=0&&n<=1)),
-       id+': star landmark is not a normalized image coordinate');
- check(Array.isArray(L.edges)&&L.edges.every(edge=>Array.isArray(edge)&&edge.length===2&&
-       edge.every(n=>Number.isInteger(n)&&n>=0&&n<L.points.length)&&edge[0]!==edge[1]),
-       id+': invalid final-image line graph');
- check(L.image.endsWith(id+'.webp')&&has(L.image),
-       id+': star landmarks not matched to the actual final PNG/WebP image');
-}
-check(quest.includes("const atlasPromise=fetch('./constellation-star-layouts.json?v=255'")&&
-      quest.includes('artworkAnchorsToWorld(activeLayout.points,ar,cr,camera)')&&
-      quest.includes('activatedIllustrationEdges(activeLayout,target,')&&
-      quest.includes('group.rotation.y=.045*leaving')&&
-      !quest.includes('group.scale.multiplyScalar(.9995)'),
-      'V254 scene must project calibrated stars into final artwork pixel positions');
 const skyCss=read('space-3d-games.css');
-check(quest.includes("photoStage.append(art)")&&
-      quest.includes("assets/constellations-transparent/")&&
-      quest.includes("art.src=transparentSrc")&&
-      !quest.includes("photoAtmosphere.style.backgroundImage=")&&
-      skyCss.includes(".s3d-quest-photo-stage")&&
-      !skyCss.includes(".s3d-quest-photo-atmosphere")&&
-      !skyCss.includes("mix-blend-mode:screen"),
-      'V252 PNG/WebP transparent reveal must not reintroduce dark JPG rectangles');
-check(quest.includes("function revealArtwork(token)")&&
-      quest.includes("revealStartedAt=performance.now()")&&
-      quest.includes("revealArtwork(token); // If still decoding")&&
-      quest.includes("group.visible=false")&&
-      quest.includes("group.visible=true")&&
-      quest.includes("n.mesh.material.opacity=appear*exitFade*solvedOpacity")&&
-      quest.includes("m.material.opacity=(i===0?.15:.97)*exitFade*solvedOpacity"),
-      'V253 final art must dissolve puzzle-only 3D star overlays and reset next round');
-check(quest.includes("keepAliveOsc=audioContext.createOscillator()")&&
-      quest.includes("scheduleNextIntro();finish();")&&
-      quest.includes("needEntryCueOnTouch")&&
+check(ids.length===38&&new Set(ids).size===38,
+      'Constellation four-choice search requires all 38 unique approved images');
+check(quest.includes("root.dataset.constellationMode='four-choice'")&&
+      quest.includes("plan.options.forEach((item,i)=>")&&
+      quest.includes("grid-template-columns:repeat(2,minmax(0,1fr))")===false&&
+      skyCss.includes("grid-template-columns:repeat(2,minmax(0,1fr))")&&
+      skyCss.includes(".s3d-find-choice")&&skyCss.includes(".s3d-find-selected"),
+      'V256 must show four child-sized illustrated picture choices in 2x2 grid');
+check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
+      quest.includes("const ignored=new Set([...recent,t.id])")&&
+      quest.includes("if(deckIndex>=deck.length)shuffleTargetCycle()")&&
+      quest.includes('plan.options.map(preload)')&&
+      quest.includes("img.src=imageSources[i]"),
+      'V256 four distinct nonrepeating answer choices must decode before screen entrance');
+check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160")&&
+      quest.includes('pose(card,{x:centerX-')&&
+      quest.includes("pose(card,{x:r.left<centerX?-26:26")&&
+      quest.includes("mainTimer=delay(beginExit,WIN_HOLD_MS)")&&
+      quest.includes("delay(buildRound,STARFIELD_PAUSE_MS)")&&
+      quest.includes("root.dataset.constellationPhase='ready'"),
+      'V256 must preserve Space Search exact correct-answer zoom/hold/exit/pause/enter rhythm');
+check(quest.includes("sound('wrong')")&&quest.includes("sound('correct')")&&
+      quest.includes('keepAliveOsc=audioContext.createOscillator()')&&
       !/speechSynthesis\.(?:speak|cancel|pause|resume)/.test(quest),
-      'V251 iPhone single WebAudio audio-session regression');
-check(quest.includes("meteor.tick(t)")&&
-      quest.includes("const deck=randomizedOrder(ctx.CONSTELLATIONS)")&&
-      quest.includes("renderer.domElement.addEventListener('pointermove',pointerMove"),
-      'V251 constellation meteor, nonrepeat and drag controls regression');
-
-// Mathematical regression: inverse-project actual world points back to
-// source image pixels, for both narrow phones and wide displays.
-const geomFn=quest.match(/function artworkAnchorsToWorld\([^\n]*\)\{[\s\S]*?\n\}/)?.[0];
-check(!!geomFn,'V254 geometry projection helper missing');
-if(geomFn){
- const Vector3=class {constructor(x,y,z){this.x=x;this.y=y;this.z=z}};
- const toWorld=new Function('THREE',geomFn+';return artworkAnchorsToWorld')({Vector3});
- for(const ratio of [.48,.9,1.6]){
-  const canvas={left:17,top:21,width:400*ratio,height:800};
-  const img={left:canvas.left+canvas.width*.12,top:canvas.top+160,width:canvas.width*.76,height:500};
-  const cam={position:{z:10.3},fov:46,aspect:ratio*.5};
-  const halfH=cam.position.z*Math.tan(cam.fov*Math.PI/360),halfW=halfH*cam.aspect;
-  for(const point of [[.25,.8],[.74,.15],[.5,.5]]){
-   const world=toWorld([point],img,canvas,cam)[0];
-   const px=canvas.left+canvas.width*(.5+world.x/(2*halfW));
-   const py=canvas.top+canvas.height*(.5-world.y/(2*halfH));
-   check(Math.abs(px-(img.left+point[0]*img.width))<.0001&&
-         Math.abs(py-(img.top+point[1]*img.height))<.0001,
-         'V254 artwork-to-world pixel projection shifted a landmark');
-  }
- }
-}
-const graphFn=quest.match(/function activatedIllustrationEdges\([^\n]*\)\{[\s\S]*?\n  \}/)?.[0];
-check(!!graphFn,'V254 actual-artwork edge activation missing');
-if(graphFn){
- const activate=new Function(graphFn+';return activatedIllustrationEdges')();
- const triangle={edges:[[0,1],[1,2],[0,2]]};
- check(activate(triangle,0,[true,false,false]).length===0,
-       'V254 triangle should not light an unjoined edge');
- check(activate(triangle,1,[true,true,false]).length===1,
-       'V254 second triangle star must draw one exact illustrated edge');
- check(activate(triangle,2,[true,true,true]).length===2,
-       'V254 closing triangle must draw its final two existing edges');
-}
+      'V256 must preserve correct/wrong SFX with a single reliable iPhone audio context');
+check(quest.includes("assets/constellations-transparent/")&&
+      quest.includes("loadImage(artworkPath(item,'png'))")&&
+      quest.includes("meteor.tick(t)")&&
+      !quest.includes("const TRAILS=")&&
+      !quest.includes("activatedIllustrationEdges"),
+      'V256 should use only original transparent artwork and shared live galactic sky, no star tracing');
+check(skyCss.includes('.s3d-find-stage')&&
+      skyCss.includes('pointer-events:auto')&&
+      skyCss.includes('touch-action:manipulation')&&
+      skyCss.includes('.s3d-find-choice img'),
+      'V256 constellation options must be touch-accessible');
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
