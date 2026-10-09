@@ -88,8 +88,11 @@
   opacity:0;filter:drop-shadow(0 0 18px rgba(101,158,252,.28));
   /* Feather the ORIGINAL photo's top/bottom rectangular edges into the 3D sky.
      Keep object-fit:contain so the figure itself is never cropped. */
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.13) 7%,rgba(0,0,0,.68) 14%,#000 24%,#000 76%,rgba(0,0,0,.68) 86%,rgba(0,0,0,.13) 94%,transparent 100%);
-  mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.13) 7%,rgba(0,0,0,.68) 14%,#000 24%,#000 76%,rgba(0,0,0,.68) 86%,rgba(0,0,0,.13) 94%,transparent 100%);
+  /* Screen-blend removes the original photo's near-black rectangular sky;
+     the broad oval mask softens both horizontal and vertical borders. */
+  mix-blend-mode:screen;
+  -webkit-mask-image:radial-gradient(ellipse 100% 99% at 50% 50%,#000 42%,rgba(0,0,0,.96) 59%,rgba(0,0,0,.72) 78%,transparent 100%);
+  mask-image:radial-gradient(ellipse 100% 99% at 50% 50%,#000 42%,rgba(0,0,0,.96) 59%,rgba(0,0,0,.72) 78%,transparent 100%);
 }
 .s3d-quest-art.is-loaded{opacity:1}
 .s3d-quest-caption{
