@@ -185,6 +185,14 @@ check(340<850&&
   quest.includes("WIN_ZOOM_MS=850")&&
   quest.includes("LOSER_FADE_MS=340"),
   'V270 340ms decoy removal precedes perceptually early 850ms easeOutCubic hero');
+check(quest.includes("root.dataset.constellationBuild='v272-repeat-stable'")&&
+  quest.includes("const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100")&&
+  quest.includes("if(!criticalFade){")&&
+  quest.includes("root.dataset.criticalFade=criticalFade?'true':'false'")&&
+  quest.includes("if(phase==='winning'&&!queued)prewarmTimer=delay(warmNext,130)")&&
+  !quest.includes("prewarmTimer=delay(warmNext,650)")&&
+  quest.includes("if(disposed||queued)return;"),
+  'V272 MUST reserve WebKit GPU frames during EVERY answer and avoid prewarm while user decides');
 check(quest.includes("const useCompositor=losingCards.every(card=>typeof card.animate==='function')")&&
       quest.includes("const animation=card.animate(")&&
       quest.includes("animation.onfinish=()=>{")&&
@@ -249,13 +257,13 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=270')&&
-      app.includes('space-3d-games.js?v=270')&&
-      app.includes('constellation-quest-v246.js?v=270'),
+check(sw.includes('space-finding-session.js?v=272')&&
+      app.includes('space-3d-games.js?v=272')&&
+      app.includes('constellation-quest-v246.js?v=272'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=270")&&
+check(refresh.includes("service-worker.js?v=272")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

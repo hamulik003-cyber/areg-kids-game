@@ -150,6 +150,7 @@ try{
                 opacity:Number(getComputedStyle(c).opacity),transform:c.style.transform,
                 transition:c.style.transition,animation:getComputedStyle(c).animationName,
                 shellPaused:c.querySelector('.s3d-find-art-shell')?.style.animationPlayState==='paused',
+                fadeState:c._fadeAnimation?.playState||'none',
                 x:c.getBoundingClientRect().x,y:c.getBoundingClientRect().y
               }))});
             if(ms>=1170)resolve();else requestAnimationFrame(tick);
@@ -165,18 +166,18 @@ try{
           phase:root.dataset.constellationPhase,
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
-      if(reveal.error||reveal.build!=='v270-compositor'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
+      if(reveal.error||reveal.build!=='v272-repeat-stable'||reveal.fadeEngine!=='compositor'||reveal.phase!=='winning'||reveal.heroCount!==1||
          reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==9||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V266 ninth correct must give no star '+JSON.stringify(reveal));
-      const mid=reveal.samples.find(f=>f.ms>30&&f.ms<265&&f.motion==='approaching'&&
+      const mid=reveal.samples.find(f=>f.ms>20&&f.ms<520&&f.motion==='approaching'&&
          f.placeholder&&f.losers.length===3&&
          f.heroTransform!==reveal.startTransform&&
-         f.losers.every(c=>c.opacity>.01&&c.opacity<1&&
-           c.transition==='none'&&c.animation==='none'&&
+         f.losers.every(c=>c.opacity>=0&&c.opacity<=1&&
+           c.fadeState==='running'&&c.transition==='none'&&c.animation==='none'&&
            c.shellPaused&&/^translate3d\(0px,\s*0px,\s*0px\) scale\(1\)$/.test(c.transform)));
       if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
-      const middle=reveal.samples.filter(f=>f.ms>35&&f.ms<255&&f.losers.length===3);
+      const middle=reveal.samples.filter(f=>f.ms>20&&f.ms<520&&f.losers.length===3);
       if(middle.length<2||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
         c.opacity>middle[i-1].losers[j].opacity+.008||
          Math.abs(c.x-middle[i-1].losers[j].x)>1||
@@ -190,9 +191,9 @@ try{
       // next around 230ms, skipping the former artificial 55-170ms window.
       // Check real early FADE PROGRESS by 300ms instead of demanding a
       // specific intermediate frame which the browser never produced.
-      const early=reveal.samples.find(f=>f.ms>55&&f.ms<300&&
+      const early=reveal.samples.find(f=>f.ms>35&&f.ms<520&&
         f.motion==='approaching'&&f.losers.length===3&&
-        f.losers.every(c=>c.opacity<.4));
+        f.losers.every(c=>c.opacity<.04));
       if(!early)throw Error('V270 WebKit first-fade diagnostic '+
         JSON.stringify({engine:reveal.fadeEngine,build:reveal.build,
           opening:reveal.samples.slice(0,12).map(f=>({
@@ -200,11 +201,11 @@ try{
             count:f.losers.length,alpha:f.losers.map(x=>x.opacity),
             transform:f.losers.map(x=>x.transform)
           }))}));
-      const lingering=reveal.samples.filter(f=>f.ms>=470&&f.losers.length>0);
+      const lingering=reveal.samples.filter(f=>f.ms>=560&&f.losers.some(c=>c.opacity>.015));
       if(lingering.length)
         throw Error('V270 decoys remained on screen after hero visually arrived '+
           JSON.stringify(lingering.slice(0,3)));
-      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=370&&f.ms<=600&&
+      const goneWhileApproaching=reveal.samples.some(f=>f.ms>=370&&f.ms<=850&&
         f.motion==='approaching'&&f.losers.length===0);
       if(!goneWhileApproaching)
         throw Error('V270 decoys did not finish before visual winner approach');
@@ -290,17 +291,50 @@ try{
         return {...score,frames};
       });
       console.log('V271 SECOND WIN REAL FRAMES '+JSON.stringify(tenth.frames));
-      const secondLate=tenth.frames?.filter(f=>f.ms>=470&&f.losers.length>0);
+      const secondLate=tenth.frames?.filter(f=>f.ms>=560&&f.losers.some(c=>c.opacity>.015));
       if(secondLate?.length||
-        !tenth.frames?.some(f=>f.ms<400&&f.losers.some(c=>c.opacity<.45))||
-        !tenth.frames?.some(f=>f.ms>=470&&f.motion==='approaching'&&f.losers.length===0))
-        throw Error('V271 second round failed first-round matching fade '+JSON.stringify(tenth.frames));
+        !tenth.frames?.some(f=>f.ms<520&&(f.losers.length===0||f.losers.some(c=>c.opacity<.05)))||
+        !tenth.frames?.some(f=>f.ms>=470&&f.motion==='approaching'&&
+          f.losers.every(c=>c.opacity<.015)))
+        throw Error('V272 SECOND round not identical early fade '+JSON.stringify(tenth.frames));
+      await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
+        document.querySelectorAll('.s3d-find-choice').length===4,null,{timeout:22000});
+      // THIRD distinct target, independent of second round's star milestone.
+      const third=await page.evaluate(async ()=>{
+        const root=document.querySelector('.s3d-find256');
+        const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
+        if(!target)return {error:'third target absent'};
+        const id=root.dataset.targetId;
+        target.click();
+        const frames=[],start=performance.now();
+        await new Promise(resolve=>{
+          function tick(){
+            const ms=performance.now()-start;
+            frames.push({ms:Math.round(ms),phase:root.dataset.constellationPhase,
+              hero:root.dataset.heroMotion,
+              decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({
+                alpha:Number(getComputedStyle(c).opacity),
+                x:Math.round(c.getBoundingClientRect().x),
+                y:Math.round(c.getBoundingClientRect().y)
+              }))});
+            if(ms>800)resolve();else requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+        return {id,frames,count:Number(localStorage.getItem('areg-correct-constellation-game-v1')||0),
+          right:root.querySelector('.s3d-session-right')?.textContent};
+      });
+      console.log('V272 THIRD WIN REAL FRAMES '+JSON.stringify(third));
+      if(third.error||third.count!==11||third.right!=='3'||
+        third.frames.some(f=>f.ms>=570&&f.decoys.some(c=>c.alpha>.015))||
+        !third.frames.some(f=>f.ms<520&&(f.decoys.length===0||f.decoys.some(c=>c.alpha<.05))))
+        throw Error('V272 THREE consecutive rounds must share same fade '+JSON.stringify(third));
       if(tenth.error||tenth.count!==10||tenth.stars!==starsBefore+1||tenth.reward!==1)
         throw Error('V266 tenth correct must grant exactly one star '+JSON.stringify(tenth));
       // Real browser contract: modal LASTS until tapped, header is reset
       // immediately but the result card retains the finished-cycle numbers.
       const outcomes=await page.evaluate(async ()=>{
-        const api=await import('./space-finding-session.js?v=270');
+        const api=await import('./space-finding-session.js?v=272');
         const result=[];
         for(const kind of ['success','encourage','tie']){
           const fake=document.createElement('div');

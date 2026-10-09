@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=270';
+import {createFindingSession} from './space-finding-session.js?v=272';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -226,7 +226,7 @@ export function startConstellationQuest(ctx){
   const timers=new Set(),cache=new Map();
   let recent=[],lastTargetId='',audioContext=null,keepAliveOsc=null,keepAliveGain=null;
   let losingCards=[],loserFadeStart=0,winningHero=null,selectedCard=null;
-  root.dataset.constellationBuild='v270-compositor';
+  root.dataset.constellationBuild='v272-repeat-stable';
   let deck=randomizedOrder(ctx.CONSTELLATIONS),deckIndex=0;
   const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160,LOSER_FADE_MS=340;
   const delay=(fn,ms)=>{
@@ -383,7 +383,10 @@ export function startConstellationQuest(ctx){
     return plan.ready;
   }
   function warmNext(){
-    if(disposed||queued||locked)return;
+    // Run only AFTER the three decoys have already dissolved. Preparing
+    // future high-resolution artwork while the child is about to tap was
+    // causing irregular iPhone WebKit frame spacing on later rounds.
+    if(disposed||queued)return;
     queued=planRound();
     prepare(queued).catch(()=>{if(!disposed)queued=null});
   }
@@ -554,8 +557,8 @@ export function startConstellationQuest(ctx){
       if(disposed||seq!==sequence)return;
       phase='ready';locked=false;
       root.dataset.constellationPhase='ready';
-      // Keep expensive upcoming image decoding out of entrance and win zoom.
-      prewarmTimer=delay(warmNext,650);
+      // V272: do NOT preload next artwork while the child is deciding.
+      // Start it only when the current 3-card fade has finished.
     },ENTER_MS+3*65+90);
   }
   function award(){
@@ -643,6 +646,10 @@ export function startConstellationQuest(ctx){
     losingCards=[];
     selectedCard?.remove();selectedCard=null;
     root.dataset.winnerIsolated='true';
+    // Safe background loading can start now: fade already reached zero.
+    // Earlier preloading during selection competed with mobile WebKit
+    // compositor + WebGL precisely at the next correct-answer tap.
+    if(phase==='winning'&&!queued)prewarmTimer=delay(warmNext,130);
     // Winner has already been advancing smoothly since the same tap.
   }
   function animateLoserFade(t){
@@ -704,9 +711,18 @@ export function startConstellationQuest(ctx){
     const dt=clamp((t-last)/1000,0,.05);last=t;
     animateLoserFade(t);
     animateWinningHero(t);
-    resize();stars.rotation.z+=dt*.0022;meteor.tick(t);
-    mist.forEach((m,i)=>{m.material.opacity=.11+Math.sin(t*.00022+i)*.025});
-    renderer.render(scene,camera);
+    resize();
+    // V272: reserve the first ~440ms after EVERY correct tap for native
+    // opacity compositing and the hero's lightweight DOM RAF transform.
+    // A heavy WebGL render here starved WebKit frames on later answers.
+    // The already-painted starfield stays visible, never blanks out.
+    const criticalFade=phase==='winning'&&t-winAt<LOSER_FADE_MS+100;
+    if(!criticalFade){
+      stars.rotation.z+=dt*.0022;meteor.tick(t);
+      mist.forEach((m,i)=>{m.material.opacity=.11+Math.sin(t*.00022+i)*.025});
+      renderer.render(scene,camera);
+    }
+    root.dataset.criticalFade=criticalFade?'true':'false';
     raf=requestAnimationFrame(loop);
   }
   resize();raf=requestAnimationFrame(loop);buildRound();
