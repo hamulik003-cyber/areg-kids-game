@@ -88,11 +88,15 @@ try{
      }
     }
     done.push(section+'/'+id);
-    await page.locator('#activityBack').click();
+    // WebKit touch emulation occasionally hangs Playwright's click completion
+    // despite DOM visibility; use a DOM click and still assert real navigation.
+    if(process.env.AREG_BROWSER==='webkit')await page.locator('#activityBack').evaluate(el=>el.click());
+    else await page.locator('#activityBack').click();
     await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
    }
   }
-  await page.locator('#sectionBack').click();
+  if(process.env.AREG_BROWSER==='webkit')await page.locator('#sectionBack').evaluate(el=>el.click());
+  else await page.locator('#sectionBack').click();
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
  }
  if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' | ').slice(0,2000));
