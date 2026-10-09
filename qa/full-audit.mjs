@@ -84,7 +84,7 @@ check(quest.includes('const opts=randomizedOrder([t,...possible.slice(0,3)])')&&
       quest.includes("const ignored=new Set([...recent,t.id])")&&
       quest.includes("if(deckIndex>=deck.length)shuffleTargetCycle()")&&
       quest.includes('plan.options.map(preload)')&&
-      quest.includes("img.src=imageSources[i]"),
+      quest.includes("img.src=imageSources[i].src"),
       'V256 four distinct nonrepeating answer choices must decode before screen entrance');
 check(quest.includes("const ENTER_MS=780,WIN_HOLD_MS=2750,WIN_ZOOM_MS=850,EXIT_MS=690,STARFIELD_PAUSE_MS=160")&&
       quest.includes('pose(card,{x:centerX-')&&
@@ -108,6 +108,20 @@ check(skyCss.includes('.s3d-find-stage')&&
       skyCss.includes('touch-action:manipulation')&&
       skyCss.includes('.s3d-find-choice img'),
       'V256 constellation options must be touch-accessible');
+check(quest.includes("function visibleAlphaBounds(image)")&&
+      quest.includes("getImageData(0,0,n,n).data")&&
+      quest.includes("function sizeVisibleIllustration(button,img,record)")&&
+      quest.includes("bounds:visibleAlphaBounds(image)")&&
+      quest.includes("const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02)")&&
+      quest.includes("sizeVisibleIllustration(")&&
+      skyCss.includes(".s3d-find-art-shell")&&
+      skyCss.includes(".s3d-find-choice:nth-child(2) .s3d-find-art-shell"),
+      'V258 artwork must be balanced by actual alpha silhouette, independently of float motion');
+check(quest.includes("z:-65,s:.67,opacity:0")&&
+      quest.includes("185,'cubic-bezier(.18,.73,.26,1)'")&&
+      skyCss.includes("filter:brightness(1.11) contrast(1.06) saturate(1.09)"),
+      'V258 other three options must fade quickly while finished star graphic is crisp');
+
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
