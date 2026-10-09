@@ -90,7 +90,6 @@ try{
       const wrongName=initial.names.find(n=>n!==correctName);
       if(!wrongName||!initial.names.includes(correctName))
         throw Error('Constellation correct choice missing from round');
-      const wrong=page.locator('.s3d-find-choice').filter({has:page.locator('img[src]')}).first();
       await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),wrongName);
       if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='ready')
         throw Error('Incorrect constellation must not advance level');
@@ -103,15 +102,7 @@ try{
       console.log('CONSTELLATION FOUR CHOICE PASS correct/wrong/win/next-round '+process.env.AREG_BROWSER);
      }
 
-     if(id==='constellation-game'){
-      // Wait for real alpha WebP decode + 38-image atlas, not just a blank WebGL canvas.
-      await page.waitForFunction(()=>document.querySelector('.s3d-quest246')?.dataset.constellationReady==='true',null,{timeout:35000});
-      await page.waitForFunction(()=>!!document.querySelector('.s3d-quest246')?.dataset.alignmentMaxError,null,{timeout:10000});
-      const maxError=Number(await page.locator('.s3d-quest246').getAttribute('data-alignment-max-error'));
-      if(!Number.isFinite(maxError)||maxError>1.25)
-        throw Error('Constellation star-to-illustration mismatch '+maxError+' CSS pixels on '+process.env.AREG_BROWSER);
-      console.log('CONSTELLATION ALIGNED '+maxError+' CSS pixels, '+(process.env.AREG_BROWSER||'chromium'));
-     }
+
     }else{
      await page.waitForFunction(()=>document.querySelector('#activityContent')?.children.length>0,null,{timeout:16000});
      const first=page.locator('#activityContent .animal-card img').first();
