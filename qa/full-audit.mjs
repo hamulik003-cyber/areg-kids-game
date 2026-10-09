@@ -47,6 +47,7 @@ for(const section of ['nature','space','mind','create','magic']){
 for(const n of ['launcher.html','index.html','app.js','styles.css','space-3d-games.js','blackhole-interstellar.js','vendor/three.module.min.js','manifest.webmanifest'])check(has(n),'missing core '+n);
 const launcher=read('launcher.html'),html=read('index.html'),quest=read('constellation-quest-v246.js');
 check(sw.includes("fetch(request,{cache:'no-store'})")&&
+  sw.includes("if(cached&&self.navigator?.onLine===false)return cached")&&
   sw.includes("event.respondWith(networkNavigation(request,event))")&&
   sw.includes("event.waitUntil(fresh.catch(()=>{}))")&&
   sw.includes("1200")&&

@@ -90,6 +90,8 @@ try{
      titles[1]!=='Գտիր ճիշտ աստղապատկերը')
     throw Error('V283 Space game title changes not in fresh navigation '+JSON.stringify(titles));
   await context.setOffline(true);
+  const offlineSignal=await page.evaluate(()=>navigator.onLine);
+  console.log('V284 offline navigator.onLine before reload '+JSON.stringify({engine:webkitMode?'webkit':'chromium',offlineSignal}));
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#homeScreen .section-card');
   const offline=await page.evaluate(()=>({wallet:localStorage.getItem('areg-stars-v35'),

@@ -71,6 +71,9 @@ async function networkNavigation(request,event){
   if(isMain){
     const source=url.pathname.endsWith('/launcher.html')?'./launcher.html':'./index.html';
     const cached=await caches.match(source,{cacheName:CORE_CACHE});
+    // On iOS/WKWebView airplane mode, do NOT try a network navigation at all.
+    // Safari can abort a wholly offline navigation before Promise fallback.
+    if(cached&&self.navigator?.onLine===false)return cached;
     // For a slow connection, keep fast startup; finish revalidating in the
     // background so the NEXT launch still sees the latest version. Under
     // normal connectivity the fresh response always wins over stale HTML.
