@@ -123,10 +123,13 @@ check(quest.includes("const visibleW=Number(button.dataset.figureWidthPx)")&&
       quest.includes("root.dataset.winSideMargin=")&&
       skyCss.includes("filter:brightness(1.11) contrast(1.06) saturate(1.09)"),
       'V259 all finished constellations must enlarge to consistent safe screen edges without clipping');
-check(quest.includes("card.classList.add('s3d-find-dismissing')")&&
-      quest.includes("card.style.transition='opacity '+LOSER_FADE_MS")&&
+check(quest.includes("function animateLoserFade(t)")&&
+      quest.includes("const smooth=p*p*(3-2*p)")&&
+      quest.includes("card.style.opacity=(1-smooth).toFixed(4)")&&
+      quest.includes("animateLoserFade(t)")&&
+      quest.includes("delay(()=>finishLoserFade(),LOSER_FADE_MS+100)")&&
+      quest.includes("card.style.transition='none'")&&
       quest.includes("card.style.animation='none'")&&
-      quest.includes("card.style.opacity='0'")&&
       quest.includes("card.classList.add('s3d-find-hidden')")&&
       quest.includes("card.style.display='none'")&&
       quest.includes("card.remove()")&&
@@ -134,7 +137,7 @@ check(quest.includes("card.classList.add('s3d-find-dismissing')")&&
       !skyCss.includes("@keyframes s3dFindLoserFade")&&
       !quest.includes("sound('entry'")&&
       !quest.includes("kind==='entry'"),
-      'V260 losing cards must fade via one transition and then be removed: no iPhone WebKit ghost images');
+      'V261 losing images fade from the game frame clock, then fully leave WebKit DOM');
 
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
