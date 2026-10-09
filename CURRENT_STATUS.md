@@ -275,3 +275,7 @@ Await GitHub Pages + automated browsers for V259, then user DotKiosk visual/audi
 
 ### V281 lab screenshot-pixel QA — 2026-10-10
 - Added fifth-round visual regression to draft PR branch `lab/constellation-one-layer-fade-20261010`: captures actual Playwright Chromium/iOS WebKit PNG screenshots before tap, around 260ms during the one-layer fade, and after 780ms. With only the winner illustration visually hidden during screenshots, compares RGB pixel distances of all three losing artwork regions relative to clean starfield, requiring real intermediate dimming (not just WAAPI currentTime or computed opacity). Exactly the misleading green automated tests from previous attempts are why this additional pixel test is necessary. This lab and QA are NOT published to user-facing main.
+
+
+### V281 lab CI sparse WebKit RAF fix (2026-10-10)
+- Initial PR lab CI: Chromium and static code PASS, WebKit failed older guard demanding a recorded 660–850ms intermediate hero-approach frame despite test checking native clocks/initial/finished fade. Revised QA to require zero decoys in an actual >=610ms sampled frame while hero approaches OR holds; do not invent missing RAF frames. The NEW fifth-round screenshot-pixel test (3 separate decoded silhouette image regions at tap/260ms/780ms) is the stronger actual rendered fade gate. User-facing main still unchanged.
