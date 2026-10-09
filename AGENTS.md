@@ -51,3 +51,12 @@ This is an **existing production PWA** for children. The active branch is `main`
 - The waiting target star glows gold while unlit future stars remain blue, and lit stars remain warm white. Every round gives the Armenian voice prompt, rather than only the first round.
 - The finished original illustration fades and scales in over about 3 seconds and stays visible before the existing graceful exit; the next round's starfield transition remains unchanged.
 - V249 is *not yet pre-final*: require real DotKiosk/iPhone user acceptance and monitor mobile-browser plus WebKit tests before approval.
+
+
+## V250 constellation sky, compositing and iOS audio (2026-10-09) — user testing
+- V249 baseline preserved in branch `backup/v249-before-nebula-audio-and-edge-fix` at commit `08cfc01e935aac85fddfa18511f46c3208be5d80`. The V245 game performance baseline is also separately protected.
+- `constellation-quest-v246.js`: a **lightweight procedural purple/blue nebula sky** is drawn into one small canvas-backed THREE texture, plus **a single rare, reusable shooting star** with 9.5–18-second quiet gaps. Do not introduce heavy background downloads or full 4K prerenders.
+- `space-3d-games.css`: the completed constellation's original image uses `mix-blend-mode:screen` with a feathered oval alpha mask, to merge the image's very dark rectangular top/bottom bands into the background instead of cropping the original artwork.
+- Audio: a single reused WebAudio context now waits for `resume()` before notes, spoken prompts no longer call `speechSynthesis.cancel()` unnecessarily, and the next-round entry chime is **scheduled during the final user's star touch** before timed transitions (iOS gesture requirement). Browser Armenian voice synthesis may still depend on system voice availability; always validate on DotKiosk/iPhone.
+- Only constellation quest JavaScript and shared 3D CSS artwork were changed. Existing Space Search / V245 game files are unchanged except version strings in `app.js`, `index.html`, and `service-worker.js`, now on V250.
+- Before promoting V250 to Pre-Final, verify: both tap and finger-drag activation, second/third constellation **audible entry chime**, rare shooting stars, no black horizontal image bands, successful Pages and mobile/WebKit CI, and stable loading speed.
