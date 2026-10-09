@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - scripts/build-constellation-alpha.py
+      - scripts/calibrate-constellation-stars.py
       - .github/workflows/build-constellation-alpha.yml
 permissions:
   contents: write
@@ -44,14 +45,16 @@ jobs:
                   assert image.getchannel('A').getextrema()[1] >= 150, path
           print('Verified 38 transparent source PNG and 38 compressed transparent WebP')
           PY
-      - name: Publish generated artwork to main
+      - name: Calibrate star landmarks to the generated transparent image pixels
+        run: python scripts/calibrate-constellation-stars.py
+      - name: Publish generated artwork and verified 38 constellation landmarks to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/constellations-transparent
+          git add assets/constellations-transparent constellation-star-layouts.json qa/constellation-calibration
           if git diff --cached --quiet; then
             echo "Images up to date"
           else
-            git commit -m "V252: generate 38 transparent constellation PNG originals and alpha WebP runtime assets"
+            git commit -m "V254: calibrate star anchors from final 38 transparent constellation illustrations"
             git push origin HEAD:main
           fi
