@@ -107,46 +107,74 @@ try{
       await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),correctName);
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='winning',null,{timeout:3000});
       await page.waitForTimeout(270);
-      const earlyFade=await page.evaluate(()=>{
+      const early=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
-        const chosen=root.querySelector('.s3d-find-choice.s3d-find-selected');
-        const others=[...root.querySelectorAll('.s3d-find-choice')].filter(c=>c!==chosen);
-        return {chosen:!!chosen,losers:others.map(c=>({
-          opacity:Number(getComputedStyle(c).opacity),
-          fading:c.classList.contains('s3d-find-dismissing'),
-          name:getComputedStyle(c).animationName,
-          transition:c.style.transition,
-          t:c.style.transform
-        })),scale:Number(chosen?.dataset.winningScale),
-        actualWidth:Number(chosen?.dataset.winVisibleWidth),
-        stageWidth:root.querySelector('.s3d-find-stage').getBoundingClientRect().width,
-        margin:Number(root.dataset.winSideMargin)};
+        const hero=root.querySelector('.s3d-find-hero');
+        const others=[...root.querySelectorAll('.s3d-find-choice')];
+        return {hero:!!hero,originalCorrect:others.some(c=>c.getAttribute('aria-label')===
+          root.querySelector('.s3d-prompt strong')?.textContent?.replace('Կեցցե՛ս։ ','')),
+          losers:others.map(c=>({
+           fading:c.classList.contains('s3d-find-dismissing'),
+           opacity:Number(getComputedStyle(c).opacity),
+           transition:c.style.transition,
+           animation:getComputedStyle(c).animationName
+          }))};
       });
-      if(!earlyFade.chosen||earlyFade.losers.length!==3||
-         earlyFade.losers.some(v=>!v.fading||v.name!=='none'||
-           v.transition!=='none'||v.opacity<=.02||v.opacity>=.99))
-        throw Error('V261 losers must show JS-driven MID-fade with no CSS animations or transitions '+JSON.stringify(earlyFade));
-      if(!Number.isFinite(earlyFade.scale)||earlyFade.scale<=1.1||
-         earlyFade.actualWidth>earlyFade.stageWidth||earlyFade.margin<0)
-        throw Error('V260 winner size must retain approved V259 bounds '+JSON.stringify(earlyFade));
-      // A zero computed opacity is not sufficient on iOS: old WebKit frames
-      // were still composited behind the larger winner. The other three
-      // choices must be COMPLETELY REMOVED before full-size viewing starts.
+      if(!early.hero||early.originalCorrect||early.losers.length!==3||
+        early.losers.some(v=>!v.fading||v.animation!=='none'||v.transition!=='none'||
+          v.opacity<=.02||v.opacity>=.99))
+        throw Error('V262 hero must replace original winner while 3 losers smoothly dim '+
+          JSON.stringify(early));
       await page.waitForTimeout(650);
       const isolated=await page.evaluate(()=>({
         phase:document.querySelector('.s3d-find256')?.dataset.constellationPhase,
-        cards:document.querySelectorAll('.s3d-find-choice').length,
-        winner:document.querySelectorAll('.s3d-find-choice.s3d-find-selected').length,
-        losers:document.querySelectorAll('.s3d-find-choice.s3d-find-dismissing').length
+        hero:document.querySelectorAll('.s3d-find-hero').length,
+        oldChoices:document.querySelectorAll('.s3d-find-choice').length,
+        removed:document.querySelector('.s3d-find256')?.dataset.winnerIsolated
       }));
-      if(isolated.phase!=='winning'||isolated.cards!==1||
-         isolated.winner!==1||isolated.losers!==0)
-        throw Error('V260 three loser DOM nodes must be gone by 920ms '+JSON.stringify(isolated));
-      await page.waitForTimeout(1600);
+      if(isolated.phase!=='winning'||isolated.hero!==1||isolated.oldChoices!==0||
+         isolated.removed!=='true')
+        throw Error('V262 independent hero must be the ONLY displayed art by 920ms '+
+          JSON.stringify(isolated));
+      await page.waitForTimeout(650);
+      const centered=await page.evaluate(()=>{
+        const root=document.querySelector('.s3d-find256');
+        const hero=root.querySelector('.s3d-find-hero');
+        const img=hero?.querySelector('img');
+        const stage=root.querySelector('.s3d-find-stage');
+        if(!hero||!img||!stage||!hero._imageRecord)return {missing:true};
+        const S=stage.getBoundingClientRect(),H=hero.getBoundingClientRect();
+        const r=hero._imageRecord,b=r.bounds;
+        const fit=Math.min(S.width/r.width,S.height/r.height);
+        const rawW=r.width*fit*b.w,rawH=r.height*fit*b.h;
+        const W=Number(hero.dataset.figureWidth),Y=Number(hero.dataset.figureHeight);
+        const matrix=new DOMMatrix(getComputedStyle(img).transform);
+        const x=S.width*.5+matrix.m41+matrix.m11*(b.x-.5)*r.width*fit;
+        const y=S.height*.5+matrix.m42+matrix.m22*(b.y-.5)*r.height*fit;
+        return {heroCount:root.querySelectorAll('.s3d-find-hero').length,
+          cards:root.querySelectorAll('.s3d-find-choice').length,
+          W,Y,stageW:S.width,stageH:S.height,
+          x,y,heroX:H.left-S.left,heroY:H.top-S.top,
+          heroW:H.width,heroH:H.height,
+          imgLoaded:img.complete&&img.naturalWidth>0,
+          phase:root.dataset.constellationPhase};
+      });
+      if(centered.heroCount!==1||centered.cards!==0||centered.phase!=='winning'||
+         !centered.imgLoaded||
+         centered.W>centered.stageW-12||centered.Y>centered.stageH-12||
+         Math.abs(centered.x-centered.stageW/2)>1.5||
+         Math.abs(centered.y-centered.stageH/2)>1.5||
+         Math.abs(centered.heroX)>1.5||Math.abs(centered.heroY)>1.5||
+         Math.abs(centered.heroW-centered.stageW)>1.5||
+         Math.abs(centered.heroH-centered.stageH)>1.5)
+        throw Error('V262 cropped/miscentered constellation artwork in independent hero '+
+          JSON.stringify(centered));
+      console.log('CONSTELLATION HERO PERFECTLY CENTERED '+JSON.stringify(centered));
+      await page.waitForTimeout(1100);
       if(await page.locator('.s3d-find256').getAttribute('data-constellation-phase')!=='winning'||
-         await page.locator('.s3d-find-choice').count()!==1)
-        throw Error('V260 enlarged winner must remain ALONE throughout long hold');
-      console.log('CONSTELLATION WINNER ISOLATED 1/1; no losing nodes or ghost layers');
+         await page.locator('.s3d-find-hero').count()!==1||
+         await page.locator('.s3d-find-choice').count()!==0)
+        throw Error('V262 hero must remain FULLY isolated through extended winning hold');
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)
