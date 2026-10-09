@@ -86,6 +86,17 @@ try{
          initial.mode!=='four-choice'||!initial.prompt.startsWith('Գտի՛ր՝ ')||
          initial.grid.split(' ').length!==2)
         throw Error('Invalid V256 constellation choices '+JSON.stringify(initial));
+      const polish=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')].map(b=>{
+        const shell=b.querySelector('.s3d-find-art-shell');
+        const img=b.querySelector('img');
+        return {scale:Number(b.dataset.figureScale),fit:Number(b.dataset.figureFit),
+                placed:img?.style.transform||'',hasShell:!!shell};
+      }));
+      if(polish.length!==4||polish.some(x=>!x.hasShell||
+         !Number.isFinite(x.scale)||x.scale<.87||x.scale>2.03||
+         !x.placed.includes('scale(')))
+        throw Error('V258 silhouette sizing not applied to four images '+JSON.stringify(polish));
+      console.log('CONSTELLATION SILHOUETTES '+polish.map(x=>x.scale.toFixed(2)).join(', '));
       const correctName=initial.prompt.slice('Գտի՛ր՝ '.length);
       const wrongName=initial.names.find(n=>n!==correctName);
       if(!wrongName||!initial.names.includes(correctName))
@@ -95,6 +106,15 @@ try{
         throw Error('Incorrect constellation must not advance level');
       await page.evaluate(name=>document.querySelector('.s3d-find-choice[aria-label="'+name+'"]')?.click(),correctName);
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='winning',null,{timeout:3000});
+      await page.waitForTimeout(260);
+      const focused=await page.evaluate(()=>{
+        const chosen=document.querySelector('.s3d-find-choice.s3d-find-selected');
+        const others=[...document.querySelectorAll('.s3d-find-choice')].filter(c=>c!==chosen);
+        return {selected:!!chosen,others:others.map(c=>Number(getComputedStyle(c).opacity))};
+      });
+      if(!focused.selected||focused.others.length!==3||
+         focused.others.some(alpha=>alpha>.08))
+        throw Error('V258 winning animation should clear all distractors within 260ms '+JSON.stringify(focused));
       await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready'&&
         document.querySelector('.s3d-score b')?.textContent==='2/38',null,{timeout:20000});
       if(await page.locator('.s3d-find-choice').count()!==4)
