@@ -140,6 +140,10 @@ try{
         button.click();
         const hero=root.querySelector('.s3d-find-hero');
         const startTransform=hero?getComputedStyle(hero).transform:null,start=performance.now(),samples=[];
+        const sameTapNative={heroState:hero?._moveAnimation?.playState,
+          heroDuration:hero?._moveAnimation?.effect?.getTiming()?.duration,
+          decoys:[...root.querySelectorAll('.s3d-find-dismissing')].map(c=>({state:c._fadeAnimation?.playState,
+            duration:c._fadeAnimation?.effect?.getTiming()?.duration}))};
         await new Promise(resolve=>{
           function tick(){
             const ms=performance.now()-start;
@@ -157,7 +161,7 @@ try{
           }
           requestAnimationFrame(tick);
         });
-        return {samples,startTransform,fadeEngine:root.dataset.decoyFadeEngine,build:root.dataset.constellationBuild,
+        return {samples,startTransform,sameTapNative,fadeEngine:root.dataset.decoyFadeEngine,build:root.dataset.constellationBuild,
           sessionBad:root.querySelector('.s3d-session-wrong')?.textContent,
           sessionGood:root.querySelector('.s3d-session-right')?.textContent,
           sessionGoodActive:root.querySelector('.s3d-session-right')?.classList.contains('is-active'),
@@ -176,7 +180,16 @@ try{
          f.losers.every(c=>c.opacity>=0&&c.opacity<=1&&
            c.fadeState==='running'&&c.transition==='none'&&c.animation==='none'&&
            c.shellPaused&&/^translate3d\(0px,\s*0px,\s*0px\) scale\(1\)$/.test(c.transform)));
-      if(!mid)throw Error('V266 four-way motion not simultaneous '+JSON.stringify(reveal.samples.slice(0,16)));
+      const firstNativeOk=reveal.sameTapNative?.heroState==='running'&&
+        reveal.sameTapNative.heroDuration===1000&&reveal.sameTapNative.decoys?.length===3&&
+        reveal.sameTapNative.decoys.every(c=>c.state==='running'&&c.duration===580);
+      const sparseFade=reveal.samples[0]?.ms<100&&
+        reveal.samples[0].losers.length===3&&
+        reveal.samples[0].losers.every(c=>c.fadeState==='running'&&c.shellPaused)&&
+        reveal.samples.some(f=>f.ms>=660&&f.ms<1000&&f.motion==='approaching'&&
+          f.losers.length===0&&f.heroTransform!==reveal.startTransform);
+      if(!firstNativeOk||(!mid&&!sparseFade))
+        throw Error('V277 four-way WAAPI native timing/sparse WebKit samples '+JSON.stringify({native:reveal.sameTapNative,samples:reveal.samples.slice(0,16)}));
       const middle=reveal.samples.filter(f=>f.ms>20&&f.ms<580&&f.losers.length===3);
       if(middle.length<1||middle.some((f,i)=>i>0&&f.losers.some((c,j)=>
         c.opacity>middle[i-1].losers[j].opacity+.008||
@@ -190,7 +203,7 @@ try{
       const early=reveal.samples.find(f=>f.ms>80&&f.ms<600&&
         f.motion==='approaching'&&f.losers.length===3&&
         f.losers.every(c=>c.opacity<.88));
-      if(!early)throw Error('V270 WebKit first-fade diagnostic '+
+      if(!early&&!sparseFade)throw Error('V277 WebKit first-fade diagnostic '+
         JSON.stringify({engine:reveal.fadeEngine,build:reveal.build,
           opening:reveal.samples.slice(0,12).map(f=>({
             ms:Math.round(f.ms),motion:f.motion,
@@ -296,9 +309,13 @@ try{
       });
       console.log('V271 SECOND WIN REAL FRAMES '+JSON.stringify(tenth.frames));
       const secondLate=tenth.frames?.filter(f=>f.ms>=800&&f.losers.some(c=>c.opacity>.015));
+      const secondSparse=tenth.frames?.[0]?.ms<100&&
+        tenth.frames[0].losers.length===3&&
+        tenth.frames[0].losers.every(c=>c.animation==='running')&&
+        tenth.frames.some(f=>f.ms>=660&&f.ms<1000&&f.motion==='approaching'&&f.losers.length===0);
       if(secondLate?.length||
         tenth.frames?.some(f=>f.ms>=790&&f.losers.some(c=>c.opacity>.015))||
-        !tenth.frames?.some(f=>f.ms<610&&f.losers.length===3&&f.losers.some(c=>c.opacity<.88))||
+        (!secondSparse&&!tenth.frames?.some(f=>f.ms<610&&f.losers.length===3&&f.losers.some(c=>c.opacity<.88)))||
         !tenth.frames?.some(f=>f.ms>=670&&f.motion==='approaching'&&
           f.losers.every(c=>c.opacity<.015)))
         throw Error('V273 SECOND round winner outran 3-card fade '+JSON.stringify(tenth.frames));
@@ -332,10 +349,13 @@ try{
           right:root.querySelector('.s3d-session-right')?.textContent};
       });
       console.log('V272 THIRD WIN REAL FRAMES '+JSON.stringify(third));
+      const thirdSparse=third.frames?.[0]?.ms<100&&third.frames[0].decoys.length===3&&
+        third.frames[0].decoys.every(c=>c.alpha>.99)&&
+        third.frames.some(f=>f.ms>=660&&f.ms<1000&&f.hero==='approaching'&&f.decoys.length===0);
       if(third.error||third.count!==11||third.right!=='3'||
         third.frames.some(f=>f.ms>=800&&f.decoys.some(c=>c.alpha>.015))||
         third.frames.some(f=>f.ms>=790&&f.decoys.some(c=>c.alpha>.015))||
-        !third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88)))
+        (!thirdSparse&&!third.frames.some(f=>f.ms<610&&f.decoys.length===3&&f.decoys.some(c=>c.alpha<.88))))
         throw Error('V272 THREE consecutive rounds must share same fade '+JSON.stringify(third));
       // FOURTH win: deliberately stall JavaScript's main thread for
       // ~420ms, simulating slow WebKit image/GPU work. The whole 1000ms
