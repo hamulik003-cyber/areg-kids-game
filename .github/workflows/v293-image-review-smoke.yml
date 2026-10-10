@@ -1,0 +1,49 @@
+name: V293 image review public Safari check
+on:
+  push:
+    branches: [feature/v293-original-source-quality-safe]
+    paths:
+      - .github/workflows/v293-image-review-smoke.yml
+permissions:
+  contents: read
+jobs:
+  preview-webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Validate all four real preview images, 150% zoom and switch
+        run: |
+          node --input-type=module <<'JS'
+          import {webkit} from 'playwright';
+          const url='https://rawcdn.githack.com/hamulik003-cyber/areg-kids-game/60553fc85f67ea4ed8992f40163b1bf818a09335/v293-image-quality-review.html';
+          const browser=await webkit.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+          const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+          if(response?.status()!==200)throw Error('HTML not served');
+          if((await page.title()).includes('External Content Notice')){
+            await page.getByText('Open the page',{exact:false}).first().click();
+            await page.waitForLoadState('domcontentloaded');
+          }
+          const n=await page.locator('button.tile').count();
+          if(n!==4)throw Error('Missing image tiles '+n);
+          await page.waitForFunction(()=>[...document.querySelectorAll('.tile img')].every(x=>x.complete&&x.naturalWidth>=480),null,{timeout:60000});
+          const images=await page.locator('.tile img').evaluateAll(a=>a.map(i=>({w:i.naturalWidth,h:i.naturalHeight})));
+          if(images[1].w!==960||images[3].w!==960)throw Error('Missing source-resolution artwork '+JSON.stringify(images));
+          await page.locator('button.tile[data-item="lyra-new"]').click();
+          await page.locator('#viewer:not([hidden])').waitFor();
+          await page.locator('#plus').click();
+          const zoom=await page.locator('#zoomPct').innerText();
+          if(zoom!=='150%')throw Error('Zoom did not work '+zoom);
+          await page.locator('#swap').click();
+          if(!(await page.locator('#vTitle').innerText()).includes('Հին'))throw Error('Old/new switch failed');
+          await page.locator('#close').click();
+          if(!(await page.locator('#viewer').isHidden()))throw Error('Close failed');
+          console.log('PASS V293 public iPhone gallery, all 4 images, 960x1148 new sources, tap/zoom/switch/close');
+          await browser.close();
+          JS
