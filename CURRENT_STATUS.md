@@ -1,5 +1,11 @@
 # AREG Kids Game — CURRENT WORK / SAFE RESUME
 
+## 2026-10-11 — V294 constellation visible-size calibration, PR #12 (NOT RELEASED)
+- Physical iPhone Safari screenshots show several constellation figures with unequal apparent size, notably Lyra relative to Aries. The existing four-choice JS alpha-content size fitting capped its magnification at 2.02, possibly leaving high-transparent-margin illustrations undersized.
+- PR #12 on `fix/v294-final-visible-size-20261011` increases ONLY the per-card upper magnification cap from 2.02 to 3.0 in `constellation-quest-v246.js`. No image, stored score, music, animation-timing, service worker, or other section modifications. This is a candidate correction, not proof of equal perception across all 38.
+- Keep PR draft and main commit 5664fb2 untouched until static checks, actual iOS WebKit and Chromium gameplay/PWA QA, and visual clipping checks pass. Prior main full audit has intermittent WebKit PWA saved-music restore failure; assess independently. Do not claim release or recommend clearing DotKiosk data until validated.
+
+
 ## V294 FINAL CONSTELLATION CONSISTENCY — 2026-10-10 — awaiting physical iPhone verification
 - User screenshot evidence showed mismatched visible brightness, diffuse alpha and apparent size for some of 36 new pictures. The full 38-picture V287 vs V294 audit on isolated branch established main silhouette size and center nearly unchanged, but alpha coverage increased 61-87% and RGB brightness dropped about 30 units in affected images.
 - Restored V287's exact alpha mask and low-frequency vivid palette, merged original-resolution new fine detail for 36 pictures. Re-audit against immutable V287 now reports **38/38 verified, 0 flagged size/position/alpha differences**, alpha coverage exactly matches baseline, new visible RGB means within 8 of old. Preserve both byte-identical approved `01-hayk-orion` and `16-hayk-belt`; original 38 identities unchanged. Per-image optimized transparent WebP <=345 KB (max 336.8 KB); PNG fallback from WebP.
