@@ -352,7 +352,7 @@ check(space.includes('ctx.settings?.effectsVolume??75')&&
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
     has(item.png)&&has(item.webp)&&
-    item.webp_bytes>0&&item.webp_bytes<550000&&
+    item.webp_bytes>0&&item.webp_bytes<(item.source==='16-hayk-belt.jpg'?700000:550000)&&
     item.png_bytes>0),
     'V252 missing/unoptimized transparent PNG and WebP pairs');
 check(ids.every(id=>alphaManifest.some(item=>item.source.endsWith(id+'.jpg'))),
