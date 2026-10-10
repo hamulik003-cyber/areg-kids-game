@@ -568,19 +568,48 @@ try{
       });
       if(fadeRegions.length!==3)throw Error('VISUAL LAB not exactly 3 decoys');
       const beforePx=(await page.screenshot({type:'png'})).toString('base64');
+      // Screen captures in headless WebKit can take hundreds of ms and
+      // skip the middle of a 580ms animation. Seek the real WAAPI
+      // compositor layer to half-time IN THIS TEST ONLY, then paint it.
+      // The earlier V277/V275 assertions separately verify unmodified
+      // native 580ms/850ms timings and actual browser progression.
       const labStarted=await page.evaluate(()=>{
         const root=document.querySelector('.s3d-find256');
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
-        const at=performance.now();target.click();return at;
+        const at=performance.now();
+        target.click();
+        const layer=root.querySelector('.s3d-find-decoy-layer');
+        const anim=layer?.getAnimations({subtree:false})?.[0];
+        if(!anim)throw Error('LAB expected original shared-layer WAAPI fade');
+        if(anim.effect?.getTiming().duration!==580)
+          throw Error('LAB user-approved 580ms fade duration changed');
+        anim.pause();
+        anim.currentTime=290;
+        return at;
       });
-      // WebKit under CI paints enlarged transparent WebP layers a few frames
-      // later than its JS clock; sample a firmly mid-faded compositor frame.
-      await page.waitForTimeout(350);
       await page.evaluate(()=>new Promise(resolve=>
         requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      const midFade=await page.evaluate(()=>{
+        const layer=document.querySelector('.s3d-find-decoy-layer');
+        return {time:layer?.getAnimations({subtree:false})?.[0]?.currentTime,
+          opacity:layer?Number(getComputedStyle(layer).opacity):null};
+      });
+      if(midFade.time===undefined||Math.abs(midFade.time-290)>2||
+         midFade.opacity===null||midFade.opacity<=.15||midFade.opacity>=.85)
+        throw Error('LAB native shared fade not painted at halfway '+JSON.stringify(midFade));
       const atMid=await page.evaluate(()=>performance.now());
       const midPx=(await page.screenshot({type:'png'})).toString('base64');
-      await page.waitForTimeout(520);
+      // Let the real user-approved onfinish callback retire the same
+      // shared layer; no modification whatsoever to production runtime.
+      await page.evaluate(()=>{
+        const layer=document.querySelector('.s3d-find-decoy-layer');
+        const anim=layer?.getAnimations({subtree:false})?.[0];
+        if(!anim)throw Error('LAB halfway shared animation missing');
+        anim.finish();
+      });
+      await page.waitForFunction(()=>
+        document.querySelector('.s3d-find256')?.dataset.winnerIsolated==='true',
+        null,{timeout:3500});
       const afterPx=(await page.screenshot({type:'png'})).toString('base64');
       const visual=await page.evaluate(async ({beforePx,midPx,afterPx,fadeRegions})=>{
         async function pixels(b64){
@@ -612,10 +641,10 @@ try{
         }
         return {ratios,bitmap:[a.w,a.h],engine:document.querySelector('.s3d-find256')?.dataset.decoyFadeEngine};
       },{beforePx,midPx,afterPx,fadeRegions});
-      console.log('LAB SCREENSHOT PHYSICAL PIXEL FADE fifth win '+JSON.stringify({...visual,elapsedMs:Math.round(atMid-labStarted)}));
+      console.log('LAB SCREENSHOT PHYSICAL PIXEL FADE fifth win '+JSON.stringify({...visual,elapsedMs:Math.round(atMid-labStarted),midFade}));
       if(visual.ratios.length!==3||visual.ratios.some(r=>r.sampled<50||
         r.remaining===null||r.remaining>=.83||
-        ((atMid-labStarted)<450&&r.remaining<.08)))
+        r.remaining<.12))
         throw Error('LAB visual pixel evidence: three decoys must DIM gradually together, not vanish late '+JSON.stringify(visual));
       if(tenth.error||tenth.count!==8||tenth.stars!==starsBefore||tenth.reward!==0)
         throw Error('V282 SECOND correct after legacy-eight seed MUST NOT award star '+JSON.stringify(tenth));
