@@ -1,0 +1,43 @@
+{
+  "method": "OpenCV FSRCNN x2 pretrained SR (NOT text-to-image)",
+  "model": "Saafke/FSRCNN_Tensorflow Apache-2.0",
+  "userApprovalRequired": true,
+  "candidates": [
+    {
+      "stem": "02-ursa-major",
+      "source": [
+        480,
+        574
+      ],
+      "fsrcnnOut": [
+        960,
+        1148
+      ],
+      "candidateWebPBytes": 306846
+    },
+    {
+      "stem": "10-lyra",
+      "source": [
+        480,
+        574
+      ],
+      "fsrcnnOut": [
+        960,
+        1148
+      ],
+      "candidateWebPBytes": 257688
+    },
+    {
+      "stem": "22-pisces",
+      "source": [
+        480,
+        574
+      ],
+      "fsrcnnOut": [
+        960,
+        1148
+      ],
+      "candidateWebPBytes": 434670
+    }
+  ]
+}
