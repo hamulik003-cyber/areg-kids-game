@@ -54,8 +54,8 @@ check(sw.includes("fetch(request,{cache:'no-store'})")&&
   !sw.includes("if(cached)return cached;\n  }\n  try{return await fetch(request)}"),
   'V284 prevent old cache-first home HTML from trapping browsers on obsolete app.js after deployment');
 check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_build'),'DotKiosk launcher should use clean standalone entry');
-const coreV=sw.match(/areg-v(\d+)-core/),runV=sw.match(/areg-v(\d+)-runtime/);
-const appV=html.match(/app\.js\?v=(\d+)/),styleV=html.match(/styles\.css\?v=(\d+)/);
+const coreV=sw.match(/areg-v(\d+[a-z]?)-core/),runV=sw.match(/areg-v(\d+[a-z]?)-runtime/);
+const appV=html.match(/app\.js\?v=(\d+[a-z]?)/),styleV=html.match(/styles\.css\?v=(\d+)/);
 const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+)/);
 check(!!coreV&&!!runV&&coreV[1]===runV[1],'SW cache version mismatch');
 check(!!appV&&app.includes("service-worker.js?v="+appV[1]),'SW registration version mismatch');

@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v294-final-core';
-const RUNTIME_CACHE='areg-v294-final-runtime';
+const CORE_CACHE='areg-v294f-core';
+const RUNTIME_CACHE='areg-v294f-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 // Keep the V287 runtime image cache for older gallery/nature/space entries.

@@ -51,7 +51,7 @@ try{
   }
   await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,null,{timeout:20000});
   const bootstrap=await page.evaluate(async()=>{
-    const core=await caches.open('areg-v294-final-core');
+    const core=await caches.open('areg-v294f-core');
     const original=await core.match('./index.html');
     if(!original)throw Error('Expected offline HTML core cache absent');
     const html=await original.text();
@@ -71,7 +71,7 @@ try{
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#homeScreen .section-card');
   const fresh=await page.evaluate(async()=>{
-    const cache=await caches.open('areg-v294-final-core');
+    const cache=await caches.open('areg-v294f-core');
     return {oldMarker:!!document.querySelector('meta[name="areg-qa-deliberately-stale"]'),
       revalidated:(await (await cache.match('./index.html')).text())
         .includes('app.js?v=294f'),
@@ -215,7 +215,7 @@ try{
     // Exercise the actual ServiceWorker CORE CacheStorage offline payload
     // and persisted wallet while WebKit reports navigator.onLine=false.
     offline=await page.evaluate(async()=>{
-      const core=await caches.open('areg-v294-final-core');
+      const core=await caches.open('areg-v294f-core');
       const entry=await core.match('./index.html');
       const app=await core.match('./app.js?v=294f');
       const css=await core.match('./styles.css?v=285');
