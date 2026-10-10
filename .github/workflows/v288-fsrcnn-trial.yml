@@ -1,0 +1,44 @@
+name: V288 FREE OpenCV FSRCNN 2x restored-art comparisons ONLY
+on:
+  push:
+    branches: [feature/v288-nongenerative-constellation-cleanup-pilot]
+    paths:
+      - scripts/v288-fsrcnn-trial.py
+      - .github/workflows/v288-fsrcnn-trial.yml
+permissions:
+  contents: write
+jobs:
+  sample-fsrcnn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check Pillow numpy opencv-contrib-python-headless
+      - name: Obtain free Apache-2.0 pretrained 2x model, no paid service
+        run: |
+          curl -fLsS --retry 2 --max-time 40 \
+          https://raw.githubusercontent.com/Saafke/FSRCNN_Tensorflow/master/models/FSRCNN_x2.pb \
+          -o /tmp/FSRCNN_x2.pb
+          test $(stat -c%s /tmp/FSRCNN_x2.pb) -gt 25000
+      - name: Process 3 exact original artworks and make fair previews
+        run: python scripts/v288-fsrcnn-trial.py /tmp/FSRCNN_x2.pb
+      - name: Prove no live assets touched
+        run: |
+          python - <<'PY'
+          import subprocess
+          changes=subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()
+          paths=[line[3:] for line in changes if line.strip()]
+          assert paths and all(p.startswith('qa/v288-previews/') for p in paths),paths
+          assert not any(p.startswith('assets/') for p in paths)
+          print('PASS only 3 preview images + 3 sample WebPs; zero live image changes')
+          PY
+      - name: Commit comparison pictures only, never gameplay
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qa/v288-previews
+          git commit -m "V288 QA: free FSRCNN x2 original-art comparisons [preview-only]"
+          git push origin HEAD:feature/v288-nongenerative-constellation-cleanup-pilot
