@@ -573,7 +573,11 @@ try{
         const target=root.querySelector('.s3d-find-choice[data-id="'+root.dataset.targetId+'"]');
         const at=performance.now();target.click();return at;
       });
-      await page.waitForTimeout(260);
+      // WebKit under CI paints enlarged transparent WebP layers a few frames
+      // later than its JS clock; sample a firmly mid-faded compositor frame.
+      await page.waitForTimeout(350);
+      await page.evaluate(()=>new Promise(resolve=>
+        requestAnimationFrame(()=>requestAnimationFrame(resolve))));
       const atMid=await page.evaluate(()=>performance.now());
       const midPx=(await page.screenshot({type:'png'})).toString('base64');
       await page.waitForTimeout(520);
