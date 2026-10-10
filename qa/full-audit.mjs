@@ -310,7 +310,7 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   'V268 BOTH games must pause at full-tour result until green replay tap');
 check(sw.includes('space-finding-session.js?v=285')&&
       app.includes('space-3d-games.js?v=285')&&
-      app.includes('constellation-quest-v246.js?v=287'),
+      app.includes('constellation-quest-v246.js?v=293'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 check(app.includes("stars-=item.cost")&&
