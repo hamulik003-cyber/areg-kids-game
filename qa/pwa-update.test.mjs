@@ -91,6 +91,70 @@ try{
     throw Error('V283 Space game title changes not in fresh navigation '+JSON.stringify(titles));
   console.log('V285 WEBKIT/CHROME ONLINE NEW TITLES + REFRESHED CORE PASS',
     JSON.stringify({engine:webkitMode?'webkit':'chromium',titles,fresh}));
+  // V285 real iPhone-sized browser check: Files picker -> IndexedDB Blob,
+  // source switches, slider settings survive refresh, existing star wallet safe.
+  await page.locator('#sectionBack').click();
+  await page.waitForFunction(()=>document.querySelector('#sectionScreen').hidden);
+  await page.locator('#settingsButton').click();
+  await page.waitForSelector('#settingsModal:not([hidden])');
+  const sampleBytes=8000;
+  const wav=Buffer.alloc(44+sampleBytes,128);
+  wav.write('RIFF',0);wav.writeUInt32LE(36+sampleBytes,4);
+  wav.write('WAVE',8);wav.write('fmt ',12);
+  wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);
+  wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);
+  wav.writeUInt32LE(8000,28);wav.writeUInt16LE(1,32);
+  wav.writeUInt16LE(8,34);wav.write('data',36);
+  wav.writeUInt32LE(sampleBytes,40);
+  await page.locator('#customMusicInput').setInputFiles({
+    name:'qa-local-song.wav',mimeType:'audio/wav',buffer:wav
+  });
+  await page.waitForFunction(()=>
+    document.querySelector('#selectedMusicLabel')?.textContent.includes('qa-local-song.wav'),
+    null,{timeout:15000});
+  await page.locator('#musicLevel').evaluate(el=>{
+    el.value='20';el.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  await page.locator('#effectsLevel').evaluate(el=>{
+    el.value='90';el.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  await page.reload({waitUntil:'domcontentloaded',timeout:30000});
+  await page.waitForFunction(()=>{
+    const name=document.querySelector('#selectedMusicLabel')?.textContent||'';
+    const src=document.querySelector('#menuMusic')?.getAttribute('src')||'';
+    return name.includes('qa-local-song.wav')&&src.startsWith('blob:');
+  },null,{timeout:15000});
+  const musicPersistence=await page.evaluate(async()=>{
+    const open=indexedDB.open('areg-menu-music-v1',1);
+    const db=await new Promise((resolve,reject)=>{
+      open.onsuccess=()=>resolve(open.result);open.onerror=()=>reject(open.error);
+    });
+    const request=db.transaction('tracks','readonly').objectStore('tracks').get('menu');
+    const stored=await new Promise((resolve,reject)=>{
+      request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);
+    });
+    db.close();
+    const values=JSON.parse(localStorage.getItem('areg-settings-v35')||'{}');
+    return {name:stored?.name,bytes:stored?.blob?.size,
+      musicVolume:values.musicVolume,effectsVolume:values.effectsVolume,
+      musicTrack:values.musicTrack,wallet:localStorage.getItem('areg-stars-v35')};
+  });
+  if(musicPersistence.name!=='qa-local-song.wav'||musicPersistence.bytes!==wav.length||
+     musicPersistence.musicVolume!==20||musicPersistence.effectsVolume!==90||
+     musicPersistence.musicTrack!=='custom'||musicPersistence.wallet!=='17'){
+    throw Error('V285 user audio/music mixer persistence fail '+JSON.stringify(musicPersistence));
+  }
+  await page.locator('#settingsButton').click();
+  await page.locator('#defaultMusicButton').click();
+  if(!await page.locator('#menuMusic').evaluate(a=>
+      !a.getAttribute('src').startsWith('blob:')))
+    throw Error('V285 default music restore failed');
+  await page.locator('#savedMusicButton').click();
+  await page.waitForFunction(()=>
+    document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
+    null,{timeout:12000});
+  console.log('V285 WAV PICKER + SAVED TRACK + DEFAULT + MIXER LEVELS + WALLET PASS',
+    JSON.stringify(musicPersistence));
   await context.setOffline(true);
   const offlineSignal=await page.evaluate(()=>navigator.onLine);
   console.log('V285 offline navigator.onLine before validation '+JSON.stringify({engine:webkitMode?'webkit':'chromium',offlineSignal}));
