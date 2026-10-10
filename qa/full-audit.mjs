@@ -310,7 +310,7 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   'V268 BOTH games must pause at full-tour result until green replay tap');
 check(sw.includes('space-finding-session.js?v=285')&&
       app.includes('space-3d-games.js?v=285')&&
-      app.includes('constellation-quest-v246.js?v=294f'),
+      app.includes('constellation-quest-v246.js?v=294g'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 check(app.includes("stars-=item.cost")&&
@@ -326,7 +326,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=294f")&&
+check(refresh.includes("service-worker.js?v=294g")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
@@ -349,6 +349,39 @@ check(space.includes('ctx.settings?.effectsVolume??75')&&
       read('space-finding-session.js').includes('const audioScale=')&&
       app.includes('voiceLevel()')&&app.includes("menuMusic.pause();\n    const map="),
       'V285 audio gain applies to both Space games and results without moving visuals');
+// V294 figure-only normalization: an audited 38/38 alpha histogram included
+// decorative nebula, so user-visible subjects (especially Lyra/Crown) remained
+// much smaller than adjacent constellation animals on a real iPhone.
+const subjectFramesSource=quest.match(/export const CONSTELLATION_CHOICE_FRAMES=Object\.freeze\((\{[\s\S]*?\})\);/);
+check(!!subjectFramesSource,'V294 curated subject frames missing');
+if(subjectFramesSource){
+ const subjects=Function('return ('+subjectFramesSource[1]+')')();
+ const stems=JSON.parse(read('assets/constellations-transparent/manifest.json'))
+   .map(x=>x.webp.split('/').pop().replace(/\.webp$/,''));
+ check(stems.length===38&&Object.keys(subjects).length===38&&
+   stems.every(x=>Object.hasOwn(subjects,x)),
+   'V294 all 38 originals require one subject framing record');
+ check(subjects['01-hayk-orion']===null&&subjects['16-hayk-belt']===null,
+   'Two V287 user-approved Orion visuals must keep unchanged framing');
+ check(stems.filter(x=>Array.isArray(subjects[x])).length===36&&
+   stems.every(x=>!subjects[x]||(Array.isArray(subjects[x])&&
+     subjects[x].length===4&&subjects[x].every(Number.isFinite)&&
+     subjects[x][0]>=0&&subjects[x][1]>=0&&subjects[x][2]<=1&&subjects[x][3]<=1&&
+     subjects[x][2]-subjects[x][0]>.3&&subjects[x][3]-subjects[x][1]>.3)),
+   '36 curated subject boxes must be valid, not geometrically cropped');
+ check(subjects['10-lyra'][2]-subjects['10-lyra'][0]<.5&&
+   subjects['33-corona-borealis'][3]-subjects['33-corona-borealis'][1]<.55,
+   'V294 narrow Lyra and Crown need nebula-independent visual bounds');
+ check(quest.includes('const b=record.choiceBounds||record.bounds;')&&
+   quest.includes('record.choiceBounds=visualChoiceBounds(item,record.bounds)')&&
+   quest.includes('const b=record.bounds;')&&
+   quest.includes('const ARTWORK_LRU_LIMIT=10'),
+   'Only four-choice visual sizes may change; hero geometry and image cache stay fixed');
+}
+check(sw.includes("const PRESERVED_V294F_RUNTIME='areg-v294f-runtime'") &&
+  quest.includes("+'?v=294f'"),
+  'V294 updated quest must retain unchanged image URLs and previous runtime cache');
+
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
     has(item.png)&&has(item.webp)&&
