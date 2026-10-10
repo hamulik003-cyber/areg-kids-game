@@ -1,0 +1,55 @@
+name: V293 public full-game iPhone preview check
+on:
+  push:
+    branches: [feature/v293-original-source-quality-safe]
+    paths:
+      - .github/workflows/v293-public-preview.yml
+permissions:
+  contents: read
+jobs:
+  public-preview-webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Open public V293 as an isolated iPhone game
+        run: |
+          node --input-type=module <<'JS'
+          import { webkit } from 'playwright';
+          const url='https://rawcdn.githack.com/hamulik003-cyber/areg-kids-game/a9147edeba561fd15761d5534f3d289850a95e3f/index.html';
+          const browser=await webkit.launch({headless:true});
+          const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
+          const page=await context.newPage();
+          let count=0;
+          const errors=[]; page.on('pageerror',e=>errors.push(e.message));
+          page.on('requestfailed',e=>{if(count++<6) console.log('NETWORK',e.url().slice(0,180),e.failure()?.errorText)});
+          const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
+          console.log('PREVIEW_ENTRY',response?.status(),await page.title());
+          if((await page.title()).includes('External Content Notice')){
+            await page.getByText('Open the page',{exact:false}).first().click();
+            await page.waitForLoadState('domcontentloaded',{timeout:30000});
+          }
+          console.log('AFTER_NOTICE',await page.title(),page.url());
+          await page.locator('#homeScreen .section-card[data-section="space"]').waitFor({timeout:45000});
+          await page.locator('#homeScreen .section-card[data-section="space"]').click({timeout:30000});
+          await page.locator('#sectionScreen.is-visible').waitFor({timeout:30000});
+          console.log('SPACE_VISIBLE',await page.locator('#sectionGames .toddler-game-card').count());
+          const game=page.locator('#sectionGames .toddler-game-card[data-game="constellation-game"]');
+          await game.waitFor({timeout:30000});
+          await game.click();
+          await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready',null,{timeout:60000});
+          const diag=await page.evaluate(()=>{
+            const r=document.querySelector('.s3d-find256');
+            return {round:r?.dataset.constellationPhase,choices:[...r.querySelectorAll('button.s3d-find-choice')].map(x=>({id:x.dataset.id,complete:x.querySelector('img')?.complete,width:x.querySelector('img')?.naturalWidth,height:x.querySelector('img')?.naturalHeight})),target:r?.dataset.targetId};
+          });
+          console.log('CONSTELLATION_DIAG',JSON.stringify(diag));
+          if(diag.choices.length!==4||diag.choices.some(x=>!x.complete||x.width<480))throw Error('Incomplete higher resolution pictures');
+          if(errors.length)console.log('PAGE_WARNINGS',JSON.stringify(errors.slice(0,8)));
+          console.log('V293_PREVIEW_GAME_PASS');
+          await browser.close();
+          JS
