@@ -166,6 +166,59 @@ export const CONSTELLATION_FIND_FORMS=Object.freeze({
   "piscis-austrinus": "Հարավային ձուկը"
 });
 export function constellationFindName(item){return CONSTELLATION_FIND_FORMS[item.id]||item.name}
+// V294: recognizable SUBJECT bounds of 38 approved original artworks.
+// The V258 alpha histogram includes nebula/mist, causing Lyra and Crown
+// to look tiny beside animals. Fractions are [left,top,right,bottom].
+// Reviewed from the real original transparent source art, not regenerated.
+// Null preserves both user-approved V287 Orion artworks. HERO is unchanged.
+export const CONSTELLATION_CHOICE_FRAMES=Object.freeze({
+  '01-hayk-orion':null,
+  '02-ursa-major':[.12,.25,.91,.75],
+  '03-ursa-minor':[.19,.27,.81,.74],
+  '04-cassiopeia':[.22,.17,.80,.79],
+  '05-andromeda':[.15,.15,.87,.85],
+  '06-pegasus':[.11,.16,.89,.78],
+  '07-cepheus':[.26,.19,.80,.78],
+  '08-draco':[.19,.15,.95,.86],
+  '09-cygnus':[.11,.16,.96,.79],
+  '10-lyra':[.28,.23,.72,.75],
+  '11-leo':[.08,.14,.86,.84],
+  '12-cancer':[.11,.13,.89,.81],
+  '13-taurus':[.07,.15,.93,.84],
+  '14-scorpius':[.14,.07,.90,.88],
+  '15-libra':[.13,.07,.92,.94],
+  '16-hayk-belt':null,
+  '17-aquarius':[.15,.07,.79,.80],
+  '18-virgo':[.14,.07,.77,.78],
+  '19-gemini':[.09,.11,.81,.76],
+  '20-capricornus':[.17,.06,.83,.84],
+  '21-aries':[.11,.11,.88,.87],
+  '22-pisces':[.10,.11,.89,.85],
+  '23-perseus':[.10,.05,.92,.89],
+  '24-hercules':[.12,.035,.73,.76],
+  '25-aquila':[.06,.045,.95,.84],
+  '26-delphinus':[.27,.15,.87,.84],
+  '27-phoenix':[.095,.03,.80,.79],
+  '28-hydra':[.13,.07,.96,.94],
+  '29-canis-major':[.10,.15,.86,.85],
+  '30-canis-minor':[.18,.21,.82,.79],
+  '31-sagittarius':[.09,.075,.88,.91],
+  '32-ophiuchus':[.13,.10,.88,.92],
+  '33-corona-borealis':[.15,.22,.87,.71],
+  '34-cetus':[.10,.10,.84,.83],
+  '35-monoceros':[.10,.13,.90,.87],
+  '36-auriga':[.16,.045,.73,.76],
+  '37-lupus':[.10,.12,.82,.85],
+  '38-piscis-austrinus':[.12,.18,.89,.83]
+});
+function visualChoiceBounds(item,baselineBounds){
+  const stem=item.img.split('/').pop().split('.')[0];
+  const rect=CONSTELLATION_CHOICE_FRAMES[stem];
+  if(!rect)return baselineBounds;
+  const [left,top,right,bottom]=rect;
+  return {x:(left+right)/2,y:(top+bottom)/2,w:right-left,h:bottom-top};
+}
+
 export function startConstellationQuest(ctx){
   ctx.activityContent.innerHTML='';
   ctx.menuMusic.pause();
@@ -341,7 +394,7 @@ export function startConstellationQuest(ctx){
     const nativeW=record.width||560,nativeH=record.height||760;
     const fit=Math.min(w/nativeW,h/nativeH);
     const shownW=nativeW*fit,shownH=nativeH*fit;
-    const b=record.bounds;
+    const b=record.choiceBounds||record.bounds;
     const figureW=Math.max(1,b.w*shownW),figureH=Math.max(1,b.h*shownH);
     const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02);
     const moveX=-zoom*(b.x-.5)*shownW;
@@ -349,6 +402,7 @@ export function startConstellationQuest(ctx){
     img.style.transform='translate3d('+moveX.toFixed(2)+'px,'+
       moveY.toFixed(2)+'px,0) scale('+zoom.toFixed(4)+')';
     button.dataset.figureScale=zoom.toFixed(3);
+    button.dataset.subjectFraming=record.choiceBounds===record.bounds?'v287-protected':'v294-subject';
     button.dataset.figureFit=(Math.min(w*.84/figureW,h*.84/figureH)).toFixed(3);
     // Real visible outline dimensions after its in-card alpha calibration.
     // Required to zoom the winner to one consistent device-safe boundary.
@@ -381,10 +435,14 @@ export function startConstellationQuest(ctx){
     }
     const p=loadImage(artworkPath(item))
       .catch(()=>loadImage(artworkPath(item,'png')))
-      .then(({src,image})=>({
-        src,width:image.naturalWidth,height:image.naturalHeight,
-        bounds:visibleAlphaBounds(image)
-      }))
+      .then(({src,image})=>{
+        const record={
+          src,width:image.naturalWidth,height:image.naturalHeight,
+          bounds:visibleAlphaBounds(image)
+        };
+        record.choiceBounds=visualChoiceBounds(item,record.bounds);
+        return record;
+      })
       .catch(err=>{cache.delete(item.id);throw err});
     cache.set(item.id,p);
     while(cache.size>ARTWORK_LRU_LIMIT)cache.delete(cache.keys().next().value);
