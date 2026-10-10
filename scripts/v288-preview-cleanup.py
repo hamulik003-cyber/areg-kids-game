@@ -56,7 +56,9 @@ def cleaned(src:Image.Image,lift:bool):
 def preview_panel(img,title):
     bg=Image.new('RGB',(810,1060),(9,16,44))
     layer=img.convert('RGBA').copy()
-    layer.thumbnail((768,925),Image.Resampling.LANCZOS)
+    layer=layer.resize((768,round(layer.height*768/layer.width)),Image.Resampling.LANCZOS)
+    if layer.height>925:
+        layer.thumbnail((768,925),Image.Resampling.LANCZOS)
     x=(810-layer.width)//2
     y=74+(925-layer.height)//2
     bg.paste(layer,(x,y),layer)
