@@ -112,7 +112,7 @@ try{
   try{
     await page.waitForFunction(()=>
       document.querySelector('#selectedMusicLabel')?.textContent.includes('qa-local-song.wav'),
-      null,{timeout:15000});
+      null,{timeout:15000,polling:250});
   }catch(error){
     const diag=await page.evaluate(async()=>{
       const row={
@@ -138,7 +138,14 @@ try{
       }catch(e){row.dbError=String(e)}
       return row;
     });
-    throw Error('V285 iOS music file picker did not persist '+JSON.stringify(diag)+' : '+error.message);
+    if(!diag.selected?.includes('qa-local-song.wav')||
+       diag.track!=='custom'||diag.storedName!=='qa-local-song.wav'||
+       diag.storedBytes!==wav.length||!diag.src?.startsWith('blob:')){
+      throw Error('V285 iOS music file picker did not persist '+JSON.stringify(diag)+' : '+error.message);
+    }
+    // Some headless WebKit runs pause RAF polling even after async save.
+    console.log('V285 WEBKIT music save verified by direct DOM + IndexedDB read',
+      JSON.stringify(diag));
   }
   await page.locator('#musicLevel').evaluate(el=>{
     el.value='20';el.dispatchEvent(new Event('input',{bubbles:true}));
@@ -151,7 +158,7 @@ try{
     const name=document.querySelector('#selectedMusicLabel')?.textContent||'';
     const src=document.querySelector('#menuMusic')?.getAttribute('src')||'';
     return name.includes('qa-local-song.wav')&&src.startsWith('blob:');
-  },null,{timeout:15000});
+  },null,{timeout:15000,polling:250});
   const musicPersistence=await page.evaluate(async()=>{
     const open=indexedDB.open('areg-menu-music-v1',1);
     const db=await new Promise((resolve,reject)=>{
@@ -180,7 +187,7 @@ try{
   await page.locator('#savedMusicButton').click();
   await page.waitForFunction(()=>
     document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
-    null,{timeout:12000});
+    null,{timeout:12000,polling:250});
   console.log('V285 WAV PICKER + SAVED TRACK + DEFAULT + MIXER LEVELS + WALLET PASS',
     JSON.stringify(musicPersistence));
   await context.setOffline(true);
