@@ -129,10 +129,10 @@
 }
 .s3d-find-stage{
   position:absolute;z-index:9;
-  top:19.5%;bottom:14.5%;left:5%;right:5%;
+  top:17%;bottom:9%;left:3.5%;right:3.5%;
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   grid-template-rows:repeat(2,minmax(0,1fr));
-  gap:clamp(10px,3.2vw,23px);
+  gap:clamp(9px,2.7vw,18px);
   perspective:950px;transform-style:preserve-3d;
   pointer-events:auto;touch-action:manipulation;
 }
@@ -246,7 +246,7 @@
   0%,100%{opacity:0}35%{opacity:1}
 }
 @media (max-height:620px){
-  .s3d-find-stage{top:23%;bottom:13%;gap:8px}
+  .s3d-find-stage{top:22%;bottom:10%;gap:8px}
   .s3d-find-choice{border-radius:18px}
 }
 @media (prefers-reduced-motion:reduce){
