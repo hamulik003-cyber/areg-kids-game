@@ -1,0 +1,83 @@
+{
+  "method": "PIL+OpenCV deterministic only; no new generation",
+  "variants": [
+    {
+      "stem": "02-ursa-major",
+      "pngDims": [
+        480,
+        574
+      ],
+      "originalWebP": [
+        480,
+        574
+      ],
+      "enhanced": [
+        768,
+        918
+      ],
+      "bytes": [
+        [
+          "clean",
+          246118
+        ],
+        [
+          "clean-light",
+          247796
+        ]
+      ],
+      "compare": "02-ursa-major-comparison.jpg"
+    },
+    {
+      "stem": "10-lyra",
+      "pngDims": [
+        480,
+        574
+      ],
+      "originalWebP": [
+        480,
+        574
+      ],
+      "enhanced": [
+        768,
+        918
+      ],
+      "bytes": [
+        [
+          "clean",
+          196128
+        ],
+        [
+          "clean-light",
+          197380
+        ]
+      ],
+      "compare": "10-lyra-comparison.jpg"
+    },
+    {
+      "stem": "22-pisces",
+      "pngDims": [
+        480,
+        574
+      ],
+      "originalWebP": [
+        480,
+        574
+      ],
+      "enhanced": [
+        768,
+        918
+      ],
+      "bytes": [
+        [
+          "clean",
+          347616
+        ],
+        [
+          "clean-light",
+          348028
+        ]
+      ],
+      "compare": "22-pisces-comparison.jpg"
+    }
+  ]
+}
