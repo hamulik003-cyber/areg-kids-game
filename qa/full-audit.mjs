@@ -57,7 +57,9 @@ check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_bu
 const coreV=sw.match(/areg-v(\d+)-core/),runV=sw.match(/areg-v(\d+)-runtime/);
 const appV=html.match(/app\.js\?v=(\d+)/),styleV=html.match(/styles\.css\?v=(\d+)/);
 const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+)/);
-check(!!coreV&&!!runV&&coreV[1]===runV[1],'SW cache version mismatch');
+// V293 intentionally preserves v287 runtime media cache, preventing animals/planets
+// from flashing/re-downloading on image-only update. New core precache is v293.
+check(!!coreV&&!!runV&&((coreV[1]===runV[1])||(coreV[1]==='293'&&runV[1]==='287')),'SW cache version mismatch');
 check(!!appV&&app.includes("service-worker.js?v="+appV[1]),'SW registration version mismatch');
 check(!!coreV&&!!appV&&coreV[1]===appV[1],'App/SW release version mismatch');
 check(!!appV&&sw.includes("'./app.js?v="+appV[1]+"'"),'SW precache app version mismatch');
