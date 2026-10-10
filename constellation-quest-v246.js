@@ -1,7 +1,7 @@
 // AREG V256 — "Գտի՛ր համաստեղությունը": four-choice visual recognition.
 // Original smooth Space Search timing; untouched approved transparent art.
 import * as THREE from './vendor/three.module.min.js';
-import {createFindingSession} from './space-finding-session.js?v=282';
+import {createFindingSession} from './space-finding-session.js?v=285';
 
 // V254: no approximate hand-drawn star positions remain.
  // The 38 measured star layouts are stored in constellation-star-layouts.json.
@@ -257,7 +257,7 @@ export function startConstellationQuest(ctx){
     const o=ac.createOscillator(),g=ac.createGain();
     o.type=type;o.frequency.setValueAtTime(f,when);
     g.gain.setValueAtTime(.0001,when);
-    g.gain.exponentialRampToValueAtTime(v,when+.017);
+    g.gain.exponentialRampToValueAtTime(v*Math.min(1.55,Math.max(0,Number(ctx.settings?.effectsVolume??75)/75*1.12)),when+.017);
     g.gain.exponentialRampToValueAtTime(.0001,when+d);
     o.connect(g);g.connect(ac.destination);o.start(when);o.stop(when+d+.03);
   }

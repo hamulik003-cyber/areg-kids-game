@@ -15,11 +15,12 @@ function playFindingResultsAudio(kind,ctx,ac){
   if(!ctx?.settings?.master||!ctx?.settings?.effects||!ac||ac.state!=='running')return false;
   try{
     const now=ac.currentTime+.04;
+    const audioScale=Math.min(1.55,Math.max(0,Number(ctx.settings?.effectsVolume??75)/75*1.12));
     const note=(frequency,offset,duration,volume,type='sine')=>{
       const oscillator=ac.createOscillator(),gain=ac.createGain();
       oscillator.type=type;oscillator.frequency.setValueAtTime(frequency,now+offset);
       gain.gain.setValueAtTime(.0001,now+offset);
-      gain.gain.exponentialRampToValueAtTime(volume,now+offset+.027);
+      gain.gain.exponentialRampToValueAtTime(volume*audioScale,now+offset+.027);
       gain.gain.exponentialRampToValueAtTime(.0001,now+offset+duration);
       oscillator.connect(gain);gain.connect(ac.destination);
       oscillator.start(now+offset);oscillator.stop(now+offset+duration+.045);
@@ -40,7 +41,7 @@ function playFindingResultsAudio(kind,ctx,ac){
         const source=ac.createBufferSource(),high=ac.createBiquadFilter(),gain=ac.createGain();
         source.buffer=buffer;high.type='bandpass';
         high.frequency.value=1250+(i%5)*170;high.Q.value=.85;
-        gain.gain.value=.095+(i%4)*.011;
+        gain.gain.value=(.095+(i%4)*.011)*audioScale;
         source.connect(high);high.connect(gain);gain.connect(ac.destination);
         source.start(now+.22+i*.075+((i%3)-1)*.012);
       }

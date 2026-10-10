@@ -308,9 +308,9 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.showCycleResult().then(")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
-check(sw.includes('space-finding-session.js?v=282')&&
-      app.includes('space-3d-games.js?v=282')&&
-      app.includes('constellation-quest-v246.js?v=282'),
+check(sw.includes('space-finding-session.js?v=285')&&
+      app.includes('space-3d-games.js?v=285')&&
+      app.includes('constellation-quest-v246.js?v=285'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 check(app.includes("stars-=item.cost")&&
@@ -322,16 +322,33 @@ check(app.includes("stars-=item.cost")&&
   app.includes("if(!magicUnlocked.has(item.id))")&&
   app.includes("✓ Բացված է")&&
   read("styles.css").includes(".magic-collect-card.is-unlocked .magic-lock{display:none !important}")&&
-  sw.includes("'./styles.css?v=282'")&&
-  html.includes('styles.css?v=282'),
+  sw.includes("'./styles.css?v=285'")&&
+  html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=284")&&
+check(refresh.includes("service-worker.js?v=285")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
       !refresh.includes("caches.delete("),
       'V270 one-time cache-safe DotKiosk update route must be available');
+
+check(html.includes('id="customMusicInput"')&&html.includes('id="savedMusicButton"')&&
+      html.includes('id="defaultMusicButton"')&&html.includes('id="musicLevel"')&&
+      html.includes('id="effectsLevel"')&&html.includes('id="voiceLevel"')&&
+      app.includes("const MUSIC_DB='areg-menu-music-v1'")&&
+      app.includes('indexedDB.open(MUSIC_DB,1)')&&app.includes('saveChosenMusic(file)')&&
+      app.includes('createMediaElementSource(menuMusic)')&&
+      app.includes("menuMusic.src=next||DEFAULT_MENU_MUSIC")&&
+      app.includes('function effectsLevel()')===false&&
+      app.includes('function wantsMenuMusic()')&&
+      !app.includes('localStorage.clear()'),
+      'V285 local on-device menu music, WebAudio gain, safe settings and user data');
+check(space.includes('ctx.settings?.effectsVolume??75')&&
+      quest.includes('ctx.settings?.effectsVolume??75')&&
+      read('space-finding-session.js').includes('const audioScale=')&&
+      app.includes('voiceLevel()')&&app.includes("menuMusic.pause();\n    const map="),
+      'V285 audio gain applies to both Space games and results without moving visuals');
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
     has(item.png)&&has(item.webp)&&

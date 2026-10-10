@@ -13,7 +13,7 @@
   const activitySectionTitle=$('#activitySectionTitle'), activityTitle=$('#activityTitle'), activityStars=$('#activityStars'), activityContent=$('#activityContent');
 
   const SETTINGS_KEY='areg-settings-v35', AVATAR_KEY='areg-avatar-v2', AVATAR_SOURCE_KEY='areg-avatar-source-v2', STARS_KEY='areg-stars-v35';
-  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'rounded',themeBlur:10,...loadJson(SETTINGS_KEY,{})};
+  let settings={master:true,music:true,voice:true,effects:true,theme:'day',font:'rounded',themeBlur:10,musicVolume:30,effectsVolume:75,voiceVolume:85,musicTrack:'default',...loadJson(SETTINGS_KEY,{})};
   if(!settings.font||settings.font==='system')settings.font='rounded';
   const STAR_RESET_V40='areg-stars-reset-v40';
   if(!localStorage.getItem(STAR_RESET_V40)){
@@ -526,12 +526,206 @@
     if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,input[type="range"],canvas'))e.preventDefault();
   },{passive:false});
 
-  /* audio/settings */
-  menuMusic.volume=.24;let audioUnlocked=false;
-  async function ensureAudio(){if(!settings.master||!settings.music)return;try{await menuMusic.play();audioUnlocked=true}catch{}}
-  function applyAudio(){if(settings.master&&settings.music)ensureAudio();else menuMusic.pause()}
-  ['pointerdown','touchend'].forEach(t=>document.addEventListener(t,()=>{if(!audioUnlocked)ensureAudio()},{once:true,passive:true}));
-  document.addEventListener('visibilitychange',()=>document.hidden?menuMusic.pause():applyAudio());applyAudio();
+  /* Menu music library + independent audio mixer. This only changes audio;
+     no approved Space gameplay, animation, UVs or wallet logic is modified. */
+  const MUSIC_DB='areg-menu-music-v1',MUSIC_STORE='tracks';
+  const DEFAULT_MENU_MUSIC=menuMusic.getAttribute('src');
+  const MAX_MENU_MUSIC_BYTES=25*1024*1024;
+  let customMusicUrl=null,savedMusicName='',musicContext=null,musicGain=null;
+  let musicSelectionEpoch=0,audioUnlocked=false;
+  const pct=(value,fallback)=>Math.max(0,Math.min(100,Number.isFinite(Number(value))?Number(value):fallback));
+  const musicLevel=()=>pct(settings.musicVolume,30)*.0036;
+  const effectsLevel=()=>Math.max(0,Math.min(1.55,pct(settings.effectsVolume,75)/75*1.12));
+  const voiceLevel=()=>pct(settings.voiceVolume,85)/100;
+  function ensureMenuMixer(){
+    if(musicContext)return;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    let ac;
+    try{
+      ac=new AC();
+      const source=ac.createMediaElementSource(menuMusic);
+      const gain=ac.createGain();
+      source.connect(gain);gain.connect(ac.destination);
+      musicContext=ac;musicGain=gain;
+    }catch(error){
+      try{ac?.close()}catch{}
+      console.warn('AREG menu mixer fallback:',error);
+    }
+  }
+  function updateMenuGain(){
+    const target=musicLevel();
+    if(musicGain&&musicContext){
+      menuMusic.volume=1;
+      musicGain.gain.setTargetAtTime(target,musicContext.currentTime,.045);
+    }else menuMusic.volume=target;
+  }
+  function wantsMenuMusic(){
+    return settings.master&&settings.music&&!document.hidden&&activityScreen.hidden;
+  }
+  async function ensureAudio(){
+    if(!wantsMenuMusic()){menuMusic.pause();return}
+    try{
+      ensureMenuMixer();updateMenuGain();
+      if(musicContext&&musicContext.state!=='running')await musicContext.resume();
+      await menuMusic.play();audioUnlocked=true;
+    }catch(error){console.warn('AREG menu music:',error)}
+  }
+  function applyAudio(){
+    updateMenuGain();
+    if(wantsMenuMusic())void ensureAudio();
+    else menuMusic.pause();
+  }
+  ['pointerdown','touchend'].forEach(t=>document.addEventListener(t,()=>{if(!audioUnlocked)void ensureAudio()},{once:true,passive:true}));
+  document.addEventListener('visibilitychange',()=>document.hidden?menuMusic.pause():applyAudio());
+  updateMenuGain();applyAudio();
+
+  // The selected music stays on THIS iPhone/DotKiosk in IndexedDB (Blob).
+  // Never put user-provided music, stars, unlocked art or preferences on GitHub.
+  function openMusicDb(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB){reject(Error('IndexedDB unavailable'));return}
+      const request=indexedDB.open(MUSIC_DB,1);
+      request.onupgradeneeded=()=>{
+        const db=request.result;
+        if(!db.objectStoreNames.contains(MUSIC_STORE))db.createObjectStore(MUSIC_STORE);
+      };
+      request.onsuccess=()=>resolve(request.result);
+      request.onerror=()=>reject(request.error||Error('Music storage blocked'));
+      request.onblocked=()=>reject(Error('Music storage locked'));
+    });
+  }
+  async function readSavedMusic(){
+    const db=await openMusicDb();
+    try{
+      return await new Promise((resolve,reject)=>{
+        const request=db.transaction(MUSIC_STORE,'readonly').objectStore(MUSIC_STORE).get('menu');
+        request.onsuccess=()=>resolve(request.result||null);
+        request.onerror=()=>reject(request.error||Error('Music read error'));
+      });
+    }finally{db.close()}
+  }
+  function storedMusicBlob(row){
+    if(!row)return null;
+    if(row.blob instanceof Blob)return row.blob; // Backwards-compatible.
+    if(row.bytes instanceof ArrayBuffer || ArrayBuffer.isView(row.bytes)){
+      return new Blob([row.bytes],{type:row.type||'audio/mpeg'});
+    }
+    return null;
+  }
+  async function saveChosenMusic(file){
+    // Safari/WKWebView can reject File/Blob structured cloning in IndexedDB.
+    // A plain Uint8Array round-trips more reliably and plays via a Blob URL.
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    const db=await openMusicDb();
+    try{
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(MUSIC_STORE,'readwrite');
+        tx.objectStore(MUSIC_STORE).put({bytes,name:file.name,type:file.type},'menu');
+        tx.oncomplete=resolve;
+        tx.onerror=()=>reject(tx.error||Error('Music write error'));
+        tx.onabort=()=>reject(tx.error||Error('Music storage limit'));
+      });
+    }finally{db.close()}
+  }
+  function swapMenuTrack(blob){
+    const next=blob?URL.createObjectURL(blob):null;
+    const previous=customMusicUrl;
+    menuMusic.pause();
+    menuMusic.src=next||DEFAULT_MENU_MUSIC;
+    menuMusic.load();
+    customMusicUrl=next;
+    if(previous)URL.revokeObjectURL(previous);
+    applyAudio();
+  }
+  const musicChoiceLabel=$('#selectedMusicLabel');
+  const savedMusicButton=$('#savedMusicButton');
+  function updateMusicChoice(){
+    if(musicChoiceLabel)musicChoiceLabel.textContent=
+      settings.musicTrack==='custom'&&savedMusicName
+        ? 'Ընտրված է՝ '+savedMusicName : 'Ընտրված է՝ հիմնական երաժշտությունը';
+    $('#defaultMusicButton')?.setAttribute('aria-pressed',String(settings.musicTrack!=='custom'));
+    savedMusicButton?.setAttribute('aria-pressed',String(settings.musicTrack==='custom'));
+    if(savedMusicButton)savedMusicButton.disabled=!savedMusicName;
+  }
+  function activateDefaultMusic(){
+    ++musicSelectionEpoch;
+    settings.musicTrack='default';saveSettings();
+    swapMenuTrack(null);updateMusicChoice();
+  }
+  $('#defaultMusicButton')?.addEventListener('click',activateDefaultMusic);
+  savedMusicButton?.addEventListener('click',async()=>{
+    const epoch=++musicSelectionEpoch;
+    try{
+      const row=await readSavedMusic();
+      if(epoch!==musicSelectionEpoch)return;
+      const blob=storedMusicBlob(row);
+      if(!blob)throw Error('Missing saved music');
+      savedMusicName=row.name||'Իմ երաժշտությունը';
+      settings.musicTrack='custom';saveSettings();
+      swapMenuTrack(blob);updateMusicChoice();
+    }catch{if(epoch===musicSelectionEpoch)showToast('Չհաջողվեց բացել պահված երաժշտությունը')}
+  });
+  const customMusicInput=$('#customMusicInput');
+  customMusicInput?.addEventListener('change',async()=>{
+    const file=customMusicInput.files?.[0];customMusicInput.value='';
+    if(!file)return;
+    if(file.size<=0||file.size>MAX_MENU_MUSIC_BYTES){
+      showToast('Ընտրիր մինչև 25 ՄԲ երաժշտություն');return;
+    }
+    if(!/\.(mp3|m4a|aac|wav)$/i.test(file.name) &&
+       !/^(audio\/mpeg|audio\/mp4|audio\/x-m4a|audio\/aac|audio\/wav|audio\/x-wav)$/i.test(file.type)){
+      showToast('Ընտրիր MP3, M4A, AAC կամ WAV');return;
+    }
+    const epoch=++musicSelectionEpoch;
+    try{
+      await saveChosenMusic(file);
+      if(epoch!==musicSelectionEpoch)return;
+      savedMusicName=file.name;
+      settings.musicTrack='custom';settings.music=true;
+      saveSettings();syncSettings();
+      swapMenuTrack(file);updateMusicChoice();
+      showToast('✓ Երաժշտությունը պահպանված է');
+    }catch(error){
+      console.warn('AREG save music:',error);
+      if(epoch===musicSelectionEpoch)showToast('Երաժշտությունը չի պահպանվել․ ստուգիր ազատ տեղը');
+    }
+  });
+  const volumeKeys=[
+    ['musicVolume','musicLevel','musicLevelValue'],
+    ['effectsVolume','effectsLevel','effectsLevelValue'],
+    ['voiceVolume','voiceLevel','voiceLevelValue']
+  ];
+  for(const [key,id,valueId] of volumeKeys){
+    const slider=$('#'+id),value=$('#'+valueId);
+    settings[key]=pct(settings[key],key==='musicVolume'?30:key==='voiceVolume'?85:75);
+    if(!slider)continue;
+    slider.value=String(settings[key]);
+    if(value)value.textContent=Math.round(settings[key])+'%';
+    slider.addEventListener('input',()=>{
+      settings[key]=pct(slider.value,75);
+      if(value)value.textContent=Math.round(settings[key])+'%';
+      saveSettings();applyAudio();
+    });
+  }
+  updateMusicChoice();
+  const initialMusicEpoch=musicSelectionEpoch;
+  readSavedMusic().then(row=>{
+    if(initialMusicEpoch!==musicSelectionEpoch)return; // Don't undo a new tap.
+    savedMusicName=row?.name||'';
+    const blob=storedMusicBlob(row);
+    if(settings.musicTrack==='custom'&&blob){
+      swapMenuTrack(blob);
+    }else if(settings.musicTrack==='custom'){
+      settings.musicTrack='default';saveSettings();
+    }
+    updateMusicChoice();
+  }).catch(error=>{
+    console.warn('AREG local music not available:',error);
+    if(initialMusicEpoch!==musicSelectionEpoch)return;
+    if(settings.musicTrack==='custom'){settings.musicTrack='default';saveSettings()}
+    updateMusicChoice();
+  });
   // Theme selector restored from the stable menu version.
   const themeGrid=$('#themeGrid');
   if(themeGrid){
@@ -871,7 +1065,7 @@
       Promise.race([warmGalleryPreviews(game.kind,4),timeout]).then(launch,launch);
     }else launch();
   }
-  function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'))},160)}
+  function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160)}
   // Star milestones are PER GAME VISIT, just like the visible 0/0 score.
   // Past visits' unfinished answers must NEVER silently earn a later star.
   const spaceCorrectCounts=Object.create(null);
@@ -908,7 +1102,7 @@
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=282')
+      space3DLoadPromise=import('./space-3d-games.js?v=285')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -917,7 +1111,7 @@
   let constellationQuestLoadPromise=null;
   function ensureConstellationQuestLoaded(){
     if(!constellationQuestLoadPromise){
-      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=282')
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=285')
         .catch(err=>{constellationQuestLoadPromise=null;throw err});
     }
     return constellationQuestLoadPromise;
@@ -950,6 +1144,7 @@
     gameCleanup.push(()=>{started=true;clearTimeout(run.timer)});
   }
   function renderGame(g){
+    menuMusic.pause();
     const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
@@ -1041,7 +1236,7 @@
       audio.preload='auto';
       audio.playsInline=true;
       audio.src=src;
-      audio.volume=kind==='voice'?1:.50;
+      audio.volume=kind==='voice'?voiceLevel():Math.min(1,.50*effectsLevel());
       if(kind==='voice')animalVoicePlayer=audio;else animalSoundPlayer=audio;
       let settled=false,started=false;
       const finish=(ok)=>{
@@ -1082,7 +1277,7 @@
           utter.lang='hy-AM';
           utter.rate=.88;
           utter.pitch=1.04;
-          utter.volume=1;
+          utter.volume=voiceLevel();
           const voice=pickArmenianSpeechVoice();
           if(voice)utter.voice=voice;
           utter.onend=()=>finish(true);
@@ -1482,7 +1677,7 @@
       audio.preload='auto';
       audio.playsInline=true;
       audio.src=src;
-      audio.volume=kind==='voice'?1:.50;
+      audio.volume=kind==='voice'?voiceLevel():Math.min(1,.50*effectsLevel());
       if(kind==='voice')birdVoicePlayer=audio;else birdSoundPlayer=audio;
       let settled=false,started=false;
       const finish=(ok)=>{
@@ -1523,7 +1718,7 @@
           utter.lang='hy-AM';
           utter.rate=.88;
           utter.pitch=1.04;
-          utter.volume=1;
+          utter.volume=voiceLevel();
           const voice=pickArmenianSpeechVoice();
           if(voice)utter.voice=voice;
           utter.onend=()=>finish(true);
@@ -1676,7 +1871,7 @@
         utter.lang='hy-AM';
         utter.rate=.9;
         utter.pitch=1.03;
-        utter.volume=.98;
+        utter.volume=.98*voiceLevel();
         let settled=false;
         const finish=(ok)=>{
           if(settled)return;
@@ -1815,7 +2010,7 @@
         utter.lang='hy-AM';
         utter.rate=.9;
         utter.pitch=1.04;
-        utter.volume=.98;
+        utter.volume=.98*voiceLevel();
         let settled=false;
         const finish=(ok)=>{
           if(settled)return;
@@ -2014,7 +2209,7 @@
       try{
         speechSynthesis.cancel();
         const utter=new SpeechSynthesisUtterance(`${planet.name}՝ ${planet.status} է։`);
-        utter.lang='hy-AM';utter.rate=.88;utter.pitch=1.04;utter.volume=1;
+        utter.lang='hy-AM';utter.rate=.88;utter.pitch=1.04;utter.volume=voiceLevel();
         const voice=pickArmenianSpeechVoice();if(voice)utter.voice=voice;
         utter.onend=()=>finish(true);utter.onerror=()=>finish(false);
         speechSynthesis.resume?.();speechSynthesis.speak(utter);
@@ -2365,7 +2560,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=284',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=285',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
