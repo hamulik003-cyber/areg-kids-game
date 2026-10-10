@@ -41,7 +41,7 @@ jobs:
           console.log('SPACE_VISIBLE',await page.locator('#sectionGames .toddler-game-card').count());
           const game=page.locator('#sectionGames .toddler-game-card[data-game="constellation-game"]');
           await game.waitFor({timeout:30000});
-          await game.click();
+          await game.evaluate(el=>el.click());
           await page.waitForFunction(()=>document.querySelector('.s3d-find256')?.dataset.constellationPhase==='ready',null,{timeout:60000});
           const diag=await page.evaluate(()=>{
             const r=document.querySelector('.s3d-find256');
