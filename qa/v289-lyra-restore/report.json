@@ -1,0 +1,39 @@
+{
+  "source": "10-lyra.jpg",
+  "dimensions": [
+    480,
+    574
+  ],
+  "original_jpg_bytes": 31041,
+  "live_png_bytes": 164870,
+  "live_webp_bytes": 63664,
+  "support_exactly_identical": true,
+  "pixel_data_from_original_jpg_RGB": true,
+  "no_generation": true,
+  "no_sharpening_or_color_shift": true,
+  "trials": [
+    {
+      "id": "gentle",
+      "opacity_exponent": 0.57,
+      "png_bytes": 158084,
+      "webp_bytes": 67866
+    },
+    {
+      "id": "vivid",
+      "opacity_exponent": 0.33,
+      "png_bytes": 155654,
+      "webp_bytes": 66078
+    },
+    {
+      "id": "full",
+      "opacity_exponent": 0.2,
+      "png_bytes": 151897,
+      "webp_bytes": 63338
+    }
+  ],
+  "live_file_hashes_unchanged": {
+    "jpg": "62c834b871dab02e728f5a3246b355b7deb4625e665fd7ce8872940cef18e857",
+    "png": "373725cdf440e6912ea8a6f9e9725b42c8f38e5c3ac4a7b1a2aa934f833098c6",
+    "webp": "67e9fc13352d4f37dffd503f0314a0410622965e0ed97e2a14d7213b74f6f4c2"
+  }
+}
