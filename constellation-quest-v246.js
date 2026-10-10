@@ -368,8 +368,17 @@ export function startConstellationQuest(ctx){
       if(img.complete&&img.naturalWidth)resolve({src,image:img});
     });
   }
+  // V293: bound retained decoded artwork. Previously 38 large decoded PNG/WebP
+  // promises stayed referenced until exit; a 2x resolution upgrade needs an
+  // 10-image LRU budget so iPhone WebKit does not accumulate ~160 MB bitmaps.
+  // Keep active cards and the next quartet alive through their DOM image nodes.
+  const ARTWORK_LRU_LIMIT=10;
   function preload(item){
-    if(cache.has(item.id))return cache.get(item.id);
+    if(cache.has(item.id)){
+      const old=cache.get(item.id);
+      cache.delete(item.id);cache.set(item.id,old);
+      return old;
+    }
     const p=loadImage(artworkPath(item))
       .catch(()=>loadImage(artworkPath(item,'png')))
       .then(({src,image})=>({
@@ -377,7 +386,9 @@ export function startConstellationQuest(ctx){
         bounds:visibleAlphaBounds(image)
       }))
       .catch(err=>{cache.delete(item.id);throw err});
-    cache.set(item.id,p);return p;
+    cache.set(item.id,p);
+    while(cache.size>ARTWORK_LRU_LIMIT)cache.delete(cache.keys().next().value);
+    return p;
   }
   function prepare(plan){
     if(!plan.ready){
