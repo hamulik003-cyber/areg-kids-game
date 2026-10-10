@@ -1,0 +1,2212 @@
+{
+  "baseline": "34548b66aeb1cadde0fb1e643830de091d2172a6",
+  "compared": 38,
+  "flagged": 0,
+  "flags": [],
+  "results": [
+    {
+      "stem": "01-hayk-orion",
+      "oldSize": [
+        560,
+        747
+      ],
+      "newSize": [
+        560,
+        747
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.47656,
+        "w": 0.90438,
+        "h": 0.81063,
+        "total": 1677.11765,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.47656,
+        "w": 0.90438,
+        "h": 0.81063,
+        "total": 1677.11765,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 175.7605,
+        "zoom": 0.9427,
+        "dx": -1.2699,
+        "dy": 5.0817
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 175.7605,
+        "zoom": 0.9427,
+        "dx": -1.2699,
+        "dy": 5.0817
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.14870434117422068,
+        "rgbMaxMean": 207.9185028076172,
+        "brightPct": 0.7234832652798765
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.14870434117422068,
+        "rgbMaxMean": 207.9185028076172,
+        "brightPct": 0.7234832652798765
+      },
+      "differenceInOpacityPct": 0.0
+    },
+    {
+      "stem": "02-ursa-major",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.50391,
+        "w": 0.89656,
+        "h": 0.64656,
+        "total": 1475.41961,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.50391,
+        "w": 0.89656,
+        "h": 0.64656,
+        "total": 1476.75294,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 126.7704,
+        "zoom": 0.9369,
+        "dx": -0.6405,
+        "dy": -0.7659
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 126.7704,
+        "zoom": 0.9369,
+        "dx": -0.6405,
+        "dy": -0.7659
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.11963922764227643,
+        "rgbMaxMean": 194.18788146972656,
+        "brightPct": 0.6085914510208416
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.12057473141695703,
+        "rgbMaxMean": 194.8424530029297,
+        "brightPct": 0.61193681659806
+      },
+      "differenceInOpacityPct": 0.8
+    },
+    {
+      "stem": "03-ursa-minor",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.50391,
+        "w": 0.90438,
+        "h": 0.64656,
+        "total": 1302.31373,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.50391,
+        "w": 0.90438,
+        "h": 0.64656,
+        "total": 1305.47843,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 125.6753,
+        "zoom": 0.9288,
+        "dx": -1.2699,
+        "dy": -0.7593
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 125.6753,
+        "zoom": 0.9288,
+        "dx": -1.2699,
+        "dy": -0.7593
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1045150987224158,
+        "rgbMaxMean": 196.93544006347656,
+        "brightPct": 0.6334907626059175
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.10539071573751452,
+        "rgbMaxMean": 197.19578552246094,
+        "brightPct": 0.6291143272865026
+      },
+      "differenceInOpacityPct": 0.8
+    },
+    {
+      "stem": "04-cassiopeia",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.50391,
+        "w": 0.89656,
+        "h": 0.64656,
+        "total": 1652.79608,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.50391,
+        "w": 0.89656,
+        "h": 0.64656,
+        "total": 1654.56471,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 126.7704,
+        "zoom": 0.9369,
+        "dx": -0.6405,
+        "dy": -0.7659
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 126.7704,
+        "zoom": 0.9369,
+        "dx": -0.6405,
+        "dy": -0.7659
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1368684668989547,
+        "rgbMaxMean": 197.59365844726562,
+        "brightPct": 0.6380270485282419
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.13850446428571428,
+        "rgbMaxMean": 198.50762939453125,
+        "brightPct": 0.6407434340257988
+      },
+      "differenceInOpacityPct": 1.2
+    },
+    {
+      "stem": "05-andromeda",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.48828,
+        "w": 0.90438,
+        "h": 0.64656,
+        "total": 1615.75294,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.48828,
+        "w": 0.90438,
+        "h": 0.64656,
+        "total": 1617.01569,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 125.6753,
+        "zoom": 0.9288,
+        "dx": -1.2699,
+        "dy": 2.2778
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 125.6753,
+        "zoom": 0.9288,
+        "dx": -1.2699,
+        "dy": 2.2778
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1319904181184669,
+        "rgbMaxMean": 190.82691955566406,
+        "brightPct": 0.5810647307924985
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1331536730545877,
+        "rgbMaxMean": 191.84500122070312,
+        "brightPct": 0.5907827129870661
+      },
+      "differenceInOpacityPct": 0.9
+    },
+    {
+      "stem": "06-pegasus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.48047,
+        "w": 0.89656,
+        "h": 0.63094,
+        "total": 1768.84706,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.48047,
+        "w": 0.89656,
+        "h": 0.63094,
+        "total": 1771.30588,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 123.7069,
+        "zoom": 0.9369,
+        "dx": -0.6405,
+        "dy": 3.8295
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 123.7069,
+        "zoom": 0.9369,
+        "dx": -0.6405,
+        "dy": 3.8295
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.14433797909407667,
+        "rgbMaxMean": 194.69895935058594,
+        "brightPct": 0.619216455441561
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.14583605545876888,
+        "rgbMaxMean": 195.28271484375,
+        "brightPct": 0.6256665194153918
+      },
+      "differenceInOpacityPct": 1.0
+    },
+    {
+      "stem": "07-cepheus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.48047,
+        "y": 0.49609,
+        "w": 0.84969,
+        "h": 0.59969,
+        "total": 1202.49804,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.48047,
+        "y": 0.49609,
+        "w": 0.84969,
+        "h": 0.59969,
+        "total": 1203.96078,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 124.0663,
+        "zoom": 0.9886,
+        "dx": 3.379,
+        "dy": 0.8081
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 124.0663,
+        "zoom": 0.9886,
+        "dx": 3.379,
+        "dy": 0.8081
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.10185830429732869,
+        "rgbMaxMean": 191.4598388671875,
+        "brightPct": 0.5776439566704675
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1026522575493612,
+        "rgbMaxMean": 193.2218475341797,
+        "brightPct": 0.5927553013762806
+      },
+      "differenceInOpacityPct": 0.8
+    },
+    {
+      "stem": "08-draco",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.5,
+        "w": 0.88875,
+        "h": 0.67,
+        "total": 1571.68235,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.5,
+        "w": 0.88875,
+        "h": 0.67,
+        "total": 1575.36863,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 132.5205,
+        "zoom": 0.9451,
+        "dx": -1.2922,
+        "dy": -0.0
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 132.5205,
+        "zoom": 0.9451,
+        "dx": -1.2922,
+        "dy": -0.0
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.13185249709639954,
+        "rgbMaxMean": 194.15640258789062,
+        "brightPct": 0.6417364016736402
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1337434668989547,
+        "rgbMaxMean": 194.26214599609375,
+        "brightPct": 0.6432196260414123
+      },
+      "differenceInOpacityPct": 1.4
+    },
+    {
+      "stem": "09-cygnus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.48828,
+        "w": 0.88094,
+        "h": 0.66219,
+        "total": 1949.13725,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.48828,
+        "w": 0.88094,
+        "h": 0.66219,
+        "total": 1949.6902,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 132.1368,
+        "zoom": 0.9535,
+        "dx": -0.6518,
+        "dy": 2.3384
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 132.1368,
+        "zoom": 0.9535,
+        "dx": -0.6518,
+        "dy": 2.3384
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1537020905923345,
+        "rgbMaxMean": 206.67807006835938,
+        "brightPct": 0.7410975724945688
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1555358957607433,
+        "rgbMaxMean": 206.57106018066406,
+        "brightPct": 0.7373303075029315
+      },
+      "differenceInOpacityPct": 1.2
+    },
+    {
+      "stem": "10-lyra",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.5,
+        "w": 0.90438,
+        "h": 0.63875,
+        "total": 1201.01569,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.5,
+        "w": 0.90438,
+        "h": 0.63875,
+        "total": 1201.25098,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 124.1568,
+        "zoom": 0.9288,
+        "dx": -1.2699,
+        "dy": -0.0
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 124.1568,
+        "zoom": 0.9288,
+        "dx": -1.2699,
+        "dy": -0.0
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.09769163763066202,
+        "rgbMaxMean": 198.10926818847656,
+        "brightPct": 0.6548521325605587
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.0998865781068525,
+        "rgbMaxMean": 198.79930114746094,
+        "brightPct": 0.6464485887920932
+      },
+      "differenceInOpacityPct": 2.2
+    },
+    {
+      "stem": "11-leo",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.49609,
+        "w": 0.86531,
+        "h": 0.70906,
+        "total": 2348.47059,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.49609,
+        "w": 0.86531,
+        "h": 0.70906,
+        "total": 2349.79216,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 144.0454,
+        "zoom": 0.9707,
+        "dx": -0.6636,
+        "dy": 0.7936
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 144.0454,
+        "zoom": 0.9707,
+        "dx": -0.6636,
+        "dy": 0.7936
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.17709059233449478,
+        "rgbMaxMean": 220.6083526611328,
+        "brightPct": 0.8535620593539924
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18030814459930314,
+        "rgbMaxMean": 220.7978057861328,
+        "brightPct": 0.8488782873879043
+      },
+      "differenceInOpacityPct": 1.8
+    },
+    {
+      "stem": "12-cancer",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.49609,
+        "w": 0.87313,
+        "h": 0.74031,
+        "total": 2249.98824,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.49609,
+        "w": 0.87313,
+        "h": 0.74031,
+        "total": 2251.53333,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 149.0482,
+        "zoom": 0.9621,
+        "dx": -1.3153,
+        "dy": 0.7865
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 149.0482,
+        "zoom": 0.9621,
+        "dx": -1.3153,
+        "dy": 0.7865
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.16942871660859465,
+        "rgbMaxMean": 212.4774932861328,
+        "brightPct": 0.7940275486814764
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.17260815911730545,
+        "rgbMaxMean": 211.3796844482422,
+        "brightPct": 0.7766522278528923
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "13-taurus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.51172,
+        "w": 0.87313,
+        "h": 0.74031,
+        "total": 2438.24706,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.51172,
+        "w": 0.87313,
+        "h": 0.74031,
+        "total": 2438.90196,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 149.0482,
+        "zoom": 0.9621,
+        "dx": -0.0,
+        "dy": -2.3594
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 149.0482,
+        "zoom": 0.9621,
+        "dx": -0.0,
+        "dy": -2.3594
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.18482142857142858,
+        "rgbMaxMean": 214.69851684570312,
+        "brightPct": 0.8016967126193001
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18739383710801394,
+        "rgbMaxMean": 214.74888610839844,
+        "brightPct": 0.7971896592631329
+      },
+      "differenceInOpacityPct": 1.4
+    },
+    {
+      "stem": "14-scorpius",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.49219,
+        "w": 0.8575,
+        "h": 0.81063,
+        "total": 2238.50196,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.49219,
+        "w": 0.8575,
+        "h": 0.81063,
+        "total": 2238.3451,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 166.1781,
+        "zoom": 0.9796,
+        "dx": -1.3393,
+        "dy": 1.6016
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 166.1781,
+        "zoom": 0.9796,
+        "dx": -1.3393,
+        "dy": 1.6016
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.16837979094076655,
+        "rgbMaxMean": 215.91696166992188,
+        "brightPct": 0.8139765476806345
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.17168626596980255,
+        "rgbMaxMean": 215.27520751953125,
+        "brightPct": 0.7995264570957444
+      },
+      "differenceInOpacityPct": 2.0
+    },
+    {
+      "stem": "15-libra",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.51562,
+        "w": 0.84188,
+        "h": 0.77938,
+        "total": 2102.82353,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.51562,
+        "w": 0.84188,
+        "h": 0.77938,
+        "total": 2104.33725,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 162.7372,
+        "zoom": 0.9978,
+        "dx": -0.0,
+        "dy": -3.2626
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 162.7372,
+        "zoom": 0.9978,
+        "dx": -0.0,
+        "dy": -3.2626
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.15926974448315911,
+        "rgbMaxMean": 214.31646728515625,
+        "brightPct": 0.8096030262977987
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1630135743321719,
+        "rgbMaxMean": 213.23179626464844,
+        "brightPct": 0.7968316875772318
+      },
+      "differenceInOpacityPct": 2.4
+    },
+    {
+      "stem": "16-hayk-belt",
+      "oldSize": [
+        720,
+        960
+      ],
+      "newSize": [
+        720,
+        960
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.46484,
+        "w": 0.95125,
+        "h": 0.91219,
+        "total": 2590.18824,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.46484,
+        "w": 0.95125,
+        "h": 0.91219,
+        "total": 2590.18824,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 187.9514,
+        "zoom": 0.8958,
+        "dx": -0.0,
+        "dy": 7.2438
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 187.9514,
+        "zoom": 0.8958,
+        "dx": -0.0,
+        "dy": 7.2438
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.22414930555555557,
+        "rgbMaxMean": 202.18670654296875,
+        "brightPct": 0.6668086644463378
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.22414930555555557,
+        "rgbMaxMean": 202.18670654296875,
+        "brightPct": 0.6668086644463378
+      },
+      "differenceInOpacityPct": 0.0
+    },
+    {
+      "stem": "17-aquarius",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        845,
+        1011
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.48828,
+        "w": 0.86531,
+        "h": 0.80281,
+        "total": 2823.45882,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.48828,
+        "w": 0.86531,
+        "h": 0.80281,
+        "total": 2827.95686,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 163.0907,
+        "zoom": 0.9707,
+        "dx": -0.6636,
+        "dy": 2.3807
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 163.1747,
+        "zoom": 0.9707,
+        "dx": -0.6636,
+        "dy": 2.3819
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0005,
+      "shiftDifference": [
+        0.0,
+        0.001
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.21186483739837397,
+        "rgbMaxMean": 218.5075225830078,
+        "brightPct": 0.8275058674387131
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.21521605534388005,
+        "rgbMaxMean": 216.65269470214844,
+        "brightPct": 0.8112184403180716
+      },
+      "differenceInOpacityPct": 1.6
+    },
+    {
+      "stem": "18-virgo",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        809,
+        968
+      ],
+      "originalBounds": {
+        "x": 0.51172,
+        "y": 0.48828,
+        "w": 0.86531,
+        "h": 0.81844,
+        "total": 2466.34118,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.51172,
+        "y": 0.48828,
+        "w": 0.86531,
+        "h": 0.81844,
+        "total": 2469.3098,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 166.2649,
+        "zoom": 0.9707,
+        "dx": -1.9908,
+        "dy": 2.3807
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 166.363,
+        "zoom": 0.9707,
+        "dx": -1.9908,
+        "dy": 2.3821
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0006,
+      "shiftDifference": [
+        0.0,
+        0.001
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.19166303716608596,
+        "rgbMaxMean": 206.57467651367188,
+        "brightPct": 0.755221845588653
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.194913371267456,
+        "rgbMaxMean": 204.07907104492188,
+        "brightPct": 0.7348318581751715
+      },
+      "differenceInOpacityPct": 1.7
+    },
+    {
+      "stem": "19-gemini",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        837,
+        1001
+      ],
+      "originalBounds": {
+        "x": 0.51953,
+        "y": 0.48438,
+        "w": 0.88094,
+        "h": 0.70125,
+        "total": 2376.03529,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.51953,
+        "y": 0.48438,
+        "w": 0.88094,
+        "h": 0.70125,
+        "total": 2378.39216,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 139.9316,
+        "zoom": 0.9535,
+        "dx": -3.2591,
+        "dy": 3.1179
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 139.9438,
+        "zoom": 0.9535,
+        "dx": -3.2591,
+        "dy": 3.1182
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0001,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.18577598722415795,
+        "rgbMaxMean": 204.27328491210938,
+        "brightPct": 0.7484614633193318
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18935544741996355,
+        "rgbMaxMean": 202.58775329589844,
+        "brightPct": 0.7322643067400362
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "20-capricornus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        846,
+        1011
+      ],
+      "originalBounds": {
+        "x": 0.50781,
+        "y": 0.48438,
+        "w": 0.8575,
+        "h": 0.82625,
+        "total": 2559.37255,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50781,
+        "y": 0.48438,
+        "w": 0.8575,
+        "h": 0.82625,
+        "total": 2562.63529,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 169.3812,
+        "zoom": 0.9796,
+        "dx": -1.3393,
+        "dy": 3.2031
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 169.2682,
+        "zoom": 0.9796,
+        "dx": -1.3393,
+        "dy": 3.201
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 0.9993,
+      "shiftDifference": [
+        0.0,
+        -0.002
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.19740490708478514,
+        "rgbMaxMean": 207.1288604736328,
+        "brightPct": 0.7579106069241942
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.20025347653354472,
+        "rgbMaxMean": 205.4456787109375,
+        "brightPct": 0.7465056808229895
+      },
+      "differenceInOpacityPct": 1.4
+    },
+    {
+      "stem": "21-aries",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.48438,
+        "w": 0.86531,
+        "h": 0.76375,
+        "total": 2469.48235,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.48438,
+        "w": 0.86531,
+        "h": 0.76375,
+        "total": 2473.93333,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 155.1552,
+        "zoom": 0.9707,
+        "dx": -0.6636,
+        "dy": 3.1742
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 155.1552,
+        "zoom": 0.9707,
+        "dx": -0.6636,
+        "dy": 3.1742
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1852605981416957,
+        "rgbMaxMean": 214.98890686035156,
+        "brightPct": 0.7879434986188116
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18843822590011614,
+        "rgbMaxMean": 214.6084747314453,
+        "brightPct": 0.7818504001463833
+      },
+      "differenceInOpacityPct": 1.7
+    },
+    {
+      "stem": "22-pisces",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.49609,
+        "y": 0.48828,
+        "w": 0.84969,
+        "h": 0.77156,
+        "total": 2537.3098,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.49609,
+        "y": 0.48828,
+        "w": 0.84969,
+        "h": 0.77156,
+        "total": 2540.56471,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 159.6246,
+        "zoom": 0.9886,
+        "dx": 0.6758,
+        "dy": 2.4244
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 159.6246,
+        "zoom": 0.9886,
+        "dx": 0.6758,
+        "dy": 2.4244
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1902801974448316,
+        "rgbMaxMean": 218.65467834472656,
+        "brightPct": 0.8316484187235341
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.19426901858304296,
+        "rgbMaxMean": 217.38328552246094,
+        "brightPct": 0.8192106492293321
+      },
+      "differenceInOpacityPct": 2.1
+    },
+    {
+      "stem": "23-perseus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.46094,
+        "w": 0.84969,
+        "h": 0.795,
+        "total": 2446.9098,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.46094,
+        "w": 0.84969,
+        "h": 0.795,
+        "total": 2449.18039,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 164.4735,
+        "zoom": 0.9886,
+        "dx": -0.6758,
+        "dy": 8.0814
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 164.4735,
+        "zoom": 0.9886,
+        "dx": -0.6758,
+        "dy": 8.0814
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1872096399535424,
+        "rgbMaxMean": 209.69654846191406,
+        "brightPct": 0.7812330360604886
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.19083914053426249,
+        "rgbMaxMean": 209.11114501953125,
+        "brightPct": 0.7729745150247243
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "24-hercules",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        785,
+        939
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.47656,
+        "w": 0.88094,
+        "h": 0.84188,
+        "total": 2614.96471,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.47656,
+        "w": 0.88094,
+        "h": 0.84188,
+        "total": 2617.03922,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 167.9927,
+        "zoom": 0.9535,
+        "dx": -0.6518,
+        "dy": 4.6769
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 168.0412,
+        "zoom": 0.9535,
+        "dx": -0.6518,
+        "dy": 4.6782
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0003,
+      "shiftDifference": [
+        0.0,
+        0.001
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.20082752613240418,
+        "rgbMaxMean": 211.93023681640625,
+        "brightPct": 0.7820067953444662
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.20432903956641774,
+        "rgbMaxMean": 209.75697326660156,
+        "brightPct": 0.7633885296187606
+      },
+      "differenceInOpacityPct": 1.7
+    },
+    {
+      "stem": "25-aquila",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.49609,
+        "y": 0.44141,
+        "w": 0.86531,
+        "h": 0.72469,
+        "total": 2201.32157,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.49609,
+        "y": 0.44141,
+        "w": 0.86531,
+        "h": 0.72469,
+        "total": 2202.72549,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 147.2197,
+        "zoom": 0.9707,
+        "dx": 0.6636,
+        "dy": 11.9033
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 147.2197,
+        "zoom": 0.9707,
+        "dx": 0.6636,
+        "dy": 11.9033
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.16972996515679442,
+        "rgbMaxMean": 210.9656982421875,
+        "brightPct": 0.7722607133692584
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.17259454849012776,
+        "rgbMaxMean": 210.23028564453125,
+        "brightPct": 0.7608417931476819
+      },
+      "differenceInOpacityPct": 1.7
+    },
+    {
+      "stem": "26-delphinus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.61719,
+        "y": 0.48047,
+        "w": 0.67,
+        "h": 0.69344,
+        "total": 1400.94118,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.61719,
+        "y": 0.48047,
+        "w": 0.67,
+        "h": 0.69344,
+        "total": 1400.43137,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 181.9368,
+        "zoom": 1.2537,
+        "dx": -25.7113,
+        "dy": 5.1244
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 181.9368,
+        "zoom": 1.2537,
+        "dx": -25.7113,
+        "dy": 5.1244
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.10415940766550523,
+        "rgbMaxMean": 221.53564453125,
+        "brightPct": 0.8313122865704927
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.10581173780487804,
+        "rgbMaxMean": 220.96495056152344,
+        "brightPct": 0.8263744179465411
+      },
+      "differenceInOpacityPct": 1.6
+    },
+    {
+      "stem": "27-phoenix",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        789,
+        943
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.47266,
+        "w": 0.84188,
+        "h": 0.83406,
+        "total": 2877.83529,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.47266,
+        "w": 0.84188,
+        "h": 0.83406,
+        "total": 2881.87451,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 174.1562,
+        "zoom": 0.9978,
+        "dx": -0.0,
+        "dy": 5.7095
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 174.0616,
+        "zoom": 0.9978,
+        "dx": -0.0,
+        "dy": 5.7064
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 0.9995,
+      "shiftDifference": [
+        0.0,
+        -0.003
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.2149027293844367,
+        "rgbMaxMean": 223.9181671142578,
+        "brightPct": 0.8396554636041209
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.21932671798200873,
+        "rgbMaxMean": 221.28872680664062,
+        "brightPct": 0.8217176823850232
+      },
+      "differenceInOpacityPct": 2.1
+    },
+    {
+      "stem": "28-hydra",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.48828,
+        "y": 0.51172,
+        "w": 0.81844,
+        "h": 0.80281,
+        "total": 2061.16863,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.48828,
+        "y": 0.51172,
+        "w": 0.81844,
+        "h": 0.80281,
+        "total": 2061.29804,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 172.4315,
+        "zoom": 1.0263,
+        "dx": 2.1048,
+        "dy": -2.517
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 172.4315,
+        "zoom": 1.0263,
+        "dx": 2.1048,
+        "dy": -2.517
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1570448606271777,
+        "rgbMaxMean": 217.3352508544922,
+        "brightPct": 0.8403938154336823
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.160246987514518,
+        "rgbMaxMean": 215.8642120361328,
+        "brightPct": 0.8255258911129356
+      },
+      "differenceInOpacityPct": 2.0
+    },
+    {
+      "stem": "29-canis-major",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.48438,
+        "y": 0.5,
+        "w": 0.81063,
+        "h": 0.76375,
+        "total": 2219.14902,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.48438,
+        "y": 0.5,
+        "w": 0.81063,
+        "h": 0.76375,
+        "total": 2220.25882,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 165.6225,
+        "zoom": 1.0362,
+        "dx": 2.8335,
+        "dy": -0.0
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 165.6225,
+        "zoom": 1.0362,
+        "dx": 2.8335,
+        "dy": -0.0
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.16955211962833913,
+        "rgbMaxMean": 213.42616271972656,
+        "brightPct": 0.7810339291448143
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.17247296022067363,
+        "rgbMaxMean": 213.15444946289062,
+        "brightPct": 0.7788814124653434
+      },
+      "differenceInOpacityPct": 1.7
+    },
+    {
+      "stem": "30-canis-minor",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.47266,
+        "w": 0.88094,
+        "h": 0.64656,
+        "total": 1818.84706,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.47266,
+        "w": 0.88094,
+        "h": 0.64656,
+        "total": 1818.78431,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 129.0189,
+        "zoom": 0.9535,
+        "dx": -0.6518,
+        "dy": 5.4563
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 129.0189,
+        "zoom": 0.9535,
+        "dx": -0.6518,
+        "dy": 5.4563
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.1379319105691057,
+        "rgbMaxMean": 216.1162872314453,
+        "brightPct": 0.7996473962581901
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.14058235336817654,
+        "rgbMaxMean": 215.74853515625,
+        "brightPct": 0.7881471345678455
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "31-sagittarius",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.50391,
+        "y": 0.49219,
+        "w": 0.80281,
+        "h": 0.795,
+        "total": 2196.71765,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.50391,
+        "y": 0.49219,
+        "w": 0.80281,
+        "h": 0.795,
+        "total": 2199.18824,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 174.0768,
+        "zoom": 1.0463,
+        "dx": -0.7153,
+        "dy": 1.7107
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 174.0768,
+        "zoom": 1.0463,
+        "dx": -0.7153,
+        "dy": 1.7107
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.17339576074332172,
+        "rgbMaxMean": 204.12454223632812,
+        "brightPct": 0.7362791476535354
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1765026132404181,
+        "rgbMaxMean": 204.111083984375,
+        "brightPct": 0.7326393172938516
+      },
+      "differenceInOpacityPct": 1.8
+    },
+    {
+      "stem": "32-ophiuchus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.51562,
+        "y": 0.48828,
+        "w": 0.81063,
+        "h": 0.80281,
+        "total": 2390.80784,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.51562,
+        "y": 0.48828,
+        "w": 0.81063,
+        "h": 0.80281,
+        "total": 2391.46667,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 174.0933,
+        "zoom": 1.0362,
+        "dx": -2.8335,
+        "dy": 2.5413
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 174.0933,
+        "zoom": 1.0362,
+        "dx": -2.8335,
+        "dy": 2.5413
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.18378702090592333,
+        "rgbMaxMean": 207.4152374267578,
+        "brightPct": 0.7659221517862432
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18716245644599303,
+        "rgbMaxMean": 206.95814514160156,
+        "brightPct": 0.7581738321019257
+      },
+      "differenceInOpacityPct": 1.8
+    },
+    {
+      "stem": "33-corona-borealis",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.51562,
+        "w": 0.82625,
+        "h": 0.74813,
+        "total": 1661.76471,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.51562,
+        "w": 0.82625,
+        "h": 0.74813,
+        "total": 1664.33333,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 159.1661,
+        "zoom": 1.0166,
+        "dx": -0.0,
+        "dy": -3.3243
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 159.1661,
+        "zoom": 1.0166,
+        "dx": -0.0,
+        "dy": -3.3243
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.12914488966318236,
+        "rgbMaxMean": 211.2021026611328,
+        "brightPct": 0.7632791861053342
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.13122005662020905,
+        "rgbMaxMean": 211.59828186035156,
+        "brightPct": 0.7580403139370051
+      },
+      "differenceInOpacityPct": 1.6
+    },
+    {
+      "stem": "34-cetus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        840,
+        1005
+      ],
+      "originalBounds": {
+        "x": 0.51172,
+        "y": 0.5,
+        "w": 0.81844,
+        "h": 0.77938,
+        "total": 2306.91373,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.51172,
+        "y": 0.5,
+        "w": 0.81844,
+        "h": 0.77938,
+        "total": 2307.15686,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 167.3975,
+        "zoom": 1.0263,
+        "dx": -2.1048,
+        "dy": -0.0
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 167.4808,
+        "zoom": 1.0263,
+        "dx": -2.1048,
+        "dy": -0.0
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0005,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.17762412891986062,
+        "rgbMaxMean": 213.91168212890625,
+        "brightPct": 0.8010993277345266
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18124733475479743,
+        "rgbMaxMean": 211.25389099121094,
+        "brightPct": 0.7802351495663654
+      },
+      "differenceInOpacityPct": 2.0
+    },
+    {
+      "stem": "35-monoceros",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.49609,
+        "w": 0.795,
+        "h": 0.78719,
+        "total": 2357.83529,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.49609,
+        "w": 0.795,
+        "h": 0.78719,
+        "total": 2359.55686,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 174.06,
+        "zoom": 1.0566,
+        "dx": -0.0,
+        "dy": 0.8637
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 174.06,
+        "zoom": 1.0566,
+        "dx": -0.0,
+        "dy": 0.8637
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.17938080720092917,
+        "rgbMaxMean": 216.7747344970703,
+        "brightPct": 0.8037958035732351
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18277529761904762,
+        "rgbMaxMean": 216.88064575195312,
+        "brightPct": 0.8013731612992906
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "36-auriga",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        804,
+        961
+      ],
+      "originalBounds": {
+        "x": 0.48438,
+        "y": 0.49219,
+        "w": 0.77938,
+        "h": 0.84188,
+        "total": 2314.77255,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.48438,
+        "y": 0.49219,
+        "w": 0.77938,
+        "h": 0.84188,
+        "total": 2315.40784,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 189.8843,
+        "zoom": 1.0778,
+        "dx": 2.9471,
+        "dy": 1.7621
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 189.7955,
+        "zoom": 1.0778,
+        "dx": 2.9471,
+        "dy": 1.7613
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 0.9995,
+      "shiftDifference": [
+        0.0,
+        -0.001
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.18232796167247386,
+        "rgbMaxMean": 207.80264282226562,
+        "brightPct": 0.7563650841047078
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18577119604889186,
+        "rgbMaxMean": 205.3087921142578,
+        "brightPct": 0.7370676141707597
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "37-lupus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.45703,
+        "y": 0.51172,
+        "w": 0.70906,
+        "h": 0.70906,
+        "total": 1875.03922,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.45703,
+        "y": 0.51172,
+        "w": 0.70906,
+        "h": 0.70906,
+        "total": 1876.12549,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 175.7875,
+        "zoom": 1.1847,
+        "dx": 8.9081,
+        "dy": -2.9053
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 175.7875,
+        "zoom": 1.1847,
+        "dx": 8.9081,
+        "dy": -2.9053
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.14201146922183508,
+        "rgbMaxMean": 219.3034210205078,
+        "brightPct": 0.8335164975592302
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.1447590011614402,
+        "rgbMaxMean": 218.78707885742188,
+        "brightPct": 0.8262335773743857
+      },
+      "differenceInOpacityPct": 1.9
+    },
+    {
+      "stem": "38-piscis-austrinus",
+      "oldSize": [
+        480,
+        574
+      ],
+      "newSize": [
+        960,
+        1148
+      ],
+      "originalBounds": {
+        "x": 0.5,
+        "y": 0.48047,
+        "w": 0.82625,
+        "h": 0.80281,
+        "total": 2401.49804,
+        "fallback": 0.0
+      },
+      "newBounds": {
+        "x": 0.5,
+        "y": 0.48047,
+        "w": 0.82625,
+        "h": 0.80281,
+        "total": 2404.0549,
+        "fallback": 0.0
+      },
+      "baselineGeometry": {
+        "figW": 147.0,
+        "figH": 170.8011,
+        "zoom": 1.0166,
+        "dx": -0.0,
+        "dy": 4.1553
+      },
+      "newGeometry": {
+        "figW": 147.0,
+        "figH": 170.8011,
+        "zoom": 1.0166,
+        "dx": -0.0,
+        "dy": 4.1553
+      },
+      "widthRatio": 1.0,
+      "heightRatio": 1.0,
+      "shiftDifference": [
+        0.0,
+        0.0
+      ],
+      "oldOpacity": {
+        "alphaAbove95": 0.18446210801393728,
+        "rgbMaxMean": 215.48434448242188,
+        "brightPct": 0.7742951026110225
+      },
+      "newOpacity": {
+        "alphaAbove95": 0.18707171893147503,
+        "rgbMaxMean": 215.46456909179688,
+        "brightPct": 0.7746692018159947
+      },
+      "differenceInOpacityPct": 1.4
+    }
+  ]
+}

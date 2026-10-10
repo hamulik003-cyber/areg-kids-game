@@ -1,5 +1,12 @@
 # AREG Kids Game — chat-to-chat continuity journal
 
+## 2026-10-10 — V294 exact-shape/brightness consistency repair (same version)
+- Full pixel audit of 38 against approved V287 revealed all 36 newly generated assets shifted alpha coverage +61 to +87% with ~30 lower RGB brightness; apparent size/quality mismatch user marked on screenshots. Absolute silhouette bounding box scale remained close; prior assumption of broad physical scale bugs was not supported. Corrected 36 high-resolution PNG/WebP with V287 exact old-alpha resampling and low-frequency old vivid palette plus V294 high-frequency fine detail.
+- Final regression audit: 38/38 objects, zero geometry outliers, exact alpha area for 36 repaired pieces, brightness mean difference <8 units. Source build report `qa/v294-geometry/reconstruction.json`, audit `qa/v294-geometry/audit.json`, source commit `a9f94c95ec39b65cb3831ad7563f249c9a4d1a77`. Both 01-hayk-orion and 16-hayk-belt remain SHA-identical to V287, no 39th extra artwork.
+- Keep product label V294. Cache URLs SW/app/constellation art bumped internally to `?v=294f`; core/runtime cache `areg-v294-final-*`. Explicitly preserve `areg-v287-runtime`, `areg-v294-runtime`, gallery, space and audio caches to avoid other sections flashing or reset. Existing game scoring/animations/music unchanged. Do not clear user storage.
+- Confirm release candidate QA before publishing; test physical iPhone DotKiosk afterward. Recovery: `backup/v287-before-v294-original-constellation-quality-2026-10-10` still immutable. See final smoke workflow for exact outcome.
+
+
 ## 2026-10-10 — V294 constellation original-source image quality release to main
 - User instructed: replace dull constellation-game art with maximal practical fidelity **only if no flicker or slowdown**; do not regenerate/draw new objects. Source ZIP contained 39 originals; the confirmed 38 game identities remain, unused 36th ZIP entry excluded.
 - Release candidate from V287: 36 newly rebuilt alpha PNG/WebP pairs (high-detail WebP ≤300KB), plus **two V287 immutable images** `01-hayk-orion` and `16-hayk-belt`; Orion Belt bright triple star centers unchanged. Bound 4-choice artwork promise cache to 10 records; retain existing winner and decoy compositor/WAAPI animation code, star accounting/music/magic game logic. Gallery photos untouched.

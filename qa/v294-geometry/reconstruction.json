@@ -1,0 +1,477 @@
+{
+  "count": 36,
+  "assets": [
+    {
+      "stem": "02-ursa-major",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 264036,
+      "quality": 85,
+      "oldMean": 196.97840881347656,
+      "newMean": 194.8424530029297,
+      "oldCoverage": 0.12057473141695703,
+      "newCoverage": 0.12057473141695703
+    },
+    {
+      "stem": "03-ursa-minor",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 239822,
+      "quality": 85,
+      "oldMean": 199.49798583984375,
+      "newMean": 197.19578552246094,
+      "oldCoverage": 0.10539071573751452,
+      "newCoverage": 0.10539071573751452
+    },
+    {
+      "stem": "04-cassiopeia",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 317514,
+      "quality": 85,
+      "oldMean": 200.66624450683594,
+      "newMean": 198.50762939453125,
+      "oldCoverage": 0.13850446428571428,
+      "newCoverage": 0.13850446428571428
+    },
+    {
+      "stem": "05-andromeda",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 281304,
+      "quality": 85,
+      "oldMean": 193.06320190429688,
+      "newMean": 191.84500122070312,
+      "oldCoverage": 0.1331536730545877,
+      "newCoverage": 0.1331536730545877
+    },
+    {
+      "stem": "06-pegasus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 324296,
+      "quality": 85,
+      "oldMean": 197.3715057373047,
+      "newMean": 195.28271484375,
+      "oldCoverage": 0.14583605545876888,
+      "newCoverage": 0.14583605545876888
+    },
+    {
+      "stem": "07-cepheus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 239872,
+      "quality": 85,
+      "oldMean": 195.15480041503906,
+      "newMean": 193.2218475341797,
+      "oldCoverage": 0.1026522575493612,
+      "newCoverage": 0.1026522575493612
+    },
+    {
+      "stem": "08-draco",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 311732,
+      "quality": 85,
+      "oldMean": 196.09945678710938,
+      "newMean": 194.26214599609375,
+      "oldCoverage": 0.1337434668989547,
+      "newCoverage": 0.1337434668989547
+    },
+    {
+      "stem": "09-cygnus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 334036,
+      "quality": 85,
+      "oldMean": 209.46994018554688,
+      "newMean": 206.57106018066406,
+      "oldCoverage": 0.1555358957607433,
+      "newCoverage": 0.1555358957607433
+    },
+    {
+      "stem": "10-lyra",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 206286,
+      "quality": 85,
+      "oldMean": 201.9234161376953,
+      "newMean": 198.79930114746094,
+      "oldCoverage": 0.0998865781068525,
+      "newCoverage": 0.0998865781068525
+    },
+    {
+      "stem": "11-leo",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 338558,
+      "quality": 82,
+      "oldMean": 224.76620483398438,
+      "newMean": 220.7978057861328,
+      "oldCoverage": 0.18030814459930314,
+      "newCoverage": 0.18030814459930314
+    },
+    {
+      "stem": "12-cancer",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 340008,
+      "quality": 85,
+      "oldMean": 215.87908935546875,
+      "newMean": 211.3796844482422,
+      "oldCoverage": 0.17260815911730545,
+      "newCoverage": 0.17260815911730545
+    },
+    {
+      "stem": "13-taurus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 336048,
+      "quality": 82,
+      "oldMean": 218.15391540527344,
+      "newMean": 214.74888610839844,
+      "oldCoverage": 0.18739383710801394,
+      "newCoverage": 0.18739383710801394
+    },
+    {
+      "stem": "14-scorpius",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 331042,
+      "quality": 85,
+      "oldMean": 220.04925537109375,
+      "newMean": 215.27520751953125,
+      "oldCoverage": 0.17168626596980255,
+      "newCoverage": 0.17168626596980255
+    },
+    {
+      "stem": "15-libra",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 326190,
+      "quality": 85,
+      "oldMean": 217.7223358154297,
+      "newMean": 213.23179626464844,
+      "oldCoverage": 0.1630135743321719,
+      "newCoverage": 0.1630135743321719
+    },
+    {
+      "stem": "17-aquarius",
+      "pixels": [
+        845,
+        1011
+      ],
+      "webpBytes": 323206,
+      "quality": 85,
+      "oldMean": 222.21749877929688,
+      "newMean": 216.65269470214844,
+      "oldCoverage": 0.21521605534388005,
+      "newCoverage": 0.21521605534388005
+    },
+    {
+      "stem": "18-virgo",
+      "pixels": [
+        809,
+        968
+      ],
+      "webpBytes": 305158,
+      "quality": 85,
+      "oldMean": 209.22535705566406,
+      "newMean": 204.07907104492188,
+      "oldCoverage": 0.194913371267456,
+      "newCoverage": 0.194913371267456
+    },
+    {
+      "stem": "19-gemini",
+      "pixels": [
+        837,
+        1001
+      ],
+      "webpBytes": 320158,
+      "quality": 85,
+      "oldMean": 207.41635131835938,
+      "newMean": 202.58775329589844,
+      "oldCoverage": 0.18935544741996355,
+      "newCoverage": 0.18935544741996355
+    },
+    {
+      "stem": "20-capricornus",
+      "pixels": [
+        846,
+        1011
+      ],
+      "webpBytes": 321690,
+      "quality": 85,
+      "oldMean": 210.20108032226562,
+      "newMean": 205.4456787109375,
+      "oldCoverage": 0.20025347653354472,
+      "newCoverage": 0.20025347653354472
+    },
+    {
+      "stem": "21-aries",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 338384,
+      "quality": 79,
+      "oldMean": 219.53292846679688,
+      "newMean": 214.6084747314453,
+      "oldCoverage": 0.18843822590011614,
+      "newCoverage": 0.18843822590011614
+    },
+    {
+      "stem": "22-pisces",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 343706,
+      "quality": 79,
+      "oldMean": 222.50222778320312,
+      "newMean": 217.38328552246094,
+      "oldCoverage": 0.19426901858304296,
+      "newCoverage": 0.19426901858304296
+    },
+    {
+      "stem": "23-perseus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 338862,
+      "quality": 79,
+      "oldMean": 213.1583709716797,
+      "newMean": 209.11114501953125,
+      "oldCoverage": 0.19083914053426249,
+      "newCoverage": 0.19083914053426249
+    },
+    {
+      "stem": "24-hercules",
+      "pixels": [
+        785,
+        939
+      ],
+      "webpBytes": 304600,
+      "quality": 85,
+      "oldMean": 216.1411895751953,
+      "newMean": 209.75697326660156,
+      "oldCoverage": 0.20432903956641774,
+      "newCoverage": 0.20432903956641774
+    },
+    {
+      "stem": "25-aquila",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 342774,
+      "quality": 82,
+      "oldMean": 214.32179260253906,
+      "newMean": 210.23028564453125,
+      "oldCoverage": 0.17259454849012776,
+      "newCoverage": 0.17259454849012776
+    },
+    {
+      "stem": "26-delphinus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 220308,
+      "quality": 85,
+      "oldMean": 226.0379180908203,
+      "newMean": 220.96495056152344,
+      "oldCoverage": 0.10581173780487804,
+      "newCoverage": 0.10581173780487804
+    },
+    {
+      "stem": "27-phoenix",
+      "pixels": [
+        789,
+        943
+      ],
+      "webpBytes": 322012,
+      "quality": 85,
+      "oldMean": 229.0677947998047,
+      "newMean": 221.28872680664062,
+      "oldCoverage": 0.21932671798200873,
+      "newCoverage": 0.21932671798200873
+    },
+    {
+      "stem": "28-hydra",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 315506,
+      "quality": 85,
+      "oldMean": 220.38555908203125,
+      "newMean": 215.8642120361328,
+      "oldCoverage": 0.160246987514518,
+      "newCoverage": 0.160246987514518
+    },
+    {
+      "stem": "29-canis-major",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 337878,
+      "quality": 82,
+      "oldMean": 217.7813262939453,
+      "newMean": 213.15444946289062,
+      "oldCoverage": 0.17247296022067363,
+      "newCoverage": 0.17247296022067363
+    },
+    {
+      "stem": "30-canis-minor",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 292942,
+      "quality": 85,
+      "oldMean": 220.41873168945312,
+      "newMean": 215.74853515625,
+      "oldCoverage": 0.14058235336817654,
+      "newCoverage": 0.14058235336817654
+    },
+    {
+      "stem": "31-sagittarius",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 338092,
+      "quality": 76,
+      "oldMean": 207.93272399902344,
+      "newMean": 204.111083984375,
+      "oldCoverage": 0.1765026132404181,
+      "newCoverage": 0.1765026132404181
+    },
+    {
+      "stem": "32-ophiuchus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 343914,
+      "quality": 79,
+      "oldMean": 210.83770751953125,
+      "newMean": 206.95814514160156,
+      "oldCoverage": 0.18716245644599303,
+      "newCoverage": 0.18716245644599303
+    },
+    {
+      "stem": "33-corona-borealis",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 258040,
+      "quality": 85,
+      "oldMean": 214.89028930664062,
+      "newMean": 211.59828186035156,
+      "oldCoverage": 0.13122005662020905,
+      "newCoverage": 0.13122005662020905
+    },
+    {
+      "stem": "34-cetus",
+      "pixels": [
+        840,
+        1005
+      ],
+      "webpBytes": 321546,
+      "quality": 85,
+      "oldMean": 218.26467895507812,
+      "newMean": 211.25389099121094,
+      "oldCoverage": 0.18124733475479743,
+      "newCoverage": 0.18124733475479743
+    },
+    {
+      "stem": "35-monoceros",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 344836,
+      "quality": 79,
+      "oldMean": 221.89694213867188,
+      "newMean": 216.88064575195312,
+      "oldCoverage": 0.18277529761904762,
+      "newCoverage": 0.18277529761904762
+    },
+    {
+      "stem": "36-auriga",
+      "pixels": [
+        804,
+        961
+      ],
+      "webpBytes": 303180,
+      "quality": 85,
+      "oldMean": 211.034423828125,
+      "newMean": 205.3087921142578,
+      "oldCoverage": 0.18577119604889186,
+      "newCoverage": 0.18577119604889186
+    },
+    {
+      "stem": "37-lupus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 307476,
+      "quality": 85,
+      "oldMean": 223.39541625976562,
+      "newMean": 218.78707885742188,
+      "oldCoverage": 0.1447590011614402,
+      "newCoverage": 0.1447590011614402
+    },
+    {
+      "stem": "38-piscis-austrinus",
+      "pixels": [
+        960,
+        1148
+      ],
+      "webpBytes": 342680,
+      "quality": 76,
+      "oldMean": 220.15936279296875,
+      "newMean": 215.46456909179688,
+      "oldCoverage": 0.18707171893147503,
+      "newCoverage": 0.18707171893147503
+    }
+  ],
+  "protected": [
+    "01-hayk-orion",
+    "16-hayk-belt"
+  ]
+}

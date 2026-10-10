@@ -1,5 +1,13 @@
 # AREG Kids Game — CURRENT WORK / SAFE RESUME
 
+## V294 FINAL CONSTELLATION CONSISTENCY — 2026-10-10 — awaiting physical iPhone verification
+- User screenshot evidence showed mismatched visible brightness, diffuse alpha and apparent size for some of 36 new pictures. The full 38-picture V287 vs V294 audit on isolated branch established main silhouette size and center nearly unchanged, but alpha coverage increased 61-87% and RGB brightness dropped about 30 units in affected images.
+- Restored V287's exact alpha mask and low-frequency vivid palette, merged original-resolution new fine detail for 36 pictures. Re-audit against immutable V287 now reports **38/38 verified, 0 flagged size/position/alpha differences**, alpha coverage exactly matches baseline, new visible RGB means within 8 of old. Preserve both byte-identical approved `01-hayk-orion` and `16-hayk-belt`; original 38 identities unchanged. Per-image optimized transparent WebP <=345 KB (max 336.8 KB); PNG fallback from WebP.
+- Feature QA: `fix/v294-constellation-geometry-final` reconstruction record `qa/v294-geometry/reconstruction.json` and geometry audit `qa/v294-geometry/audit.json`; commit `a9f94c95ec39b65cb3831ad7563f249c9a4d1a77`.
+- Release keeps **V294** name (not V295), uses query `?v=294f` and new SW caches `areg-v294-final-core/runtime` to update iPhone/DotKiosk image content without manually clearing local storage or star rewards; preserve previous v287 and v294 runtime caches and media caches. No gameplay mechanic, sound, stars, other art or zoom animation changed.
+- Only deploy after candidate iPhone WebKit game smoke, Chromium PWA cache/offline regression and static guard pass. Physical iPhone/DotKiosk QA follows deployment; automatic WebKit is not physical device verification.
+
+
 ## V294 PRODUCTION ART QUALITY RELEASE — 2026-10-10 — Device review still needed
 - User authorized publishing the highest-quality approved original-source constellation illustrations **only if** game/other sections remain smooth; 2x beyond V293 would enlarge decoded GPU memory disproportionately, so retain bounded V293 quality. Deployed to `main` in commit `80873295d719f22586f082546ca0f8c74d233d14`.
 - Exactly **36 source-aligned transparent WebP/PNG pairs** replaced from user's original 39-file ZIP. Retained **01-hayk-orion** and **16-hayk-belt** completely byte-identical to V287 (including the latter's three approved star centers). Gallery remains 38 approved entries; unused ZIP #36 excluded. All other game-image, audio, scoring, reward, animation and settings files unchanged.
