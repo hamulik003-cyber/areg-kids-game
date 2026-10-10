@@ -27,7 +27,8 @@ jobs:
           import subprocess
           tracked=subprocess.check_output(['git','status','--porcelain'],text=True)
           assert not any(line.endswith(('.png','.webp')) and '/constellations-transparent/' in line for line in tracked.splitlines()),tracked
-          assert '?? qa/v288-previews/' in tracked,tracked
+          paths=[line[3:] for line in tracked.splitlines() if line.strip()]
+          assert paths and all(x.startswith('qa/v288-previews/') for x in paths),tracked
           print('QA ONLY, NO production assets modified')
           PY
       - name: Commit shareable side-by-side samples to feature branch
