@@ -219,6 +219,26 @@ function visualChoiceBounds(item,baselineBounds){
   return {x:(left+right)/2,y:(top+bottom)/2,w:right-left,h:bottom-top};
 }
 
+// V294h: normalize recognizable subject inside a full 2x2 touch cell.
+// The original WebP content, nebula, and independent 850ms winner stay intact.
+export function computeConstellationChoiceFit(w,h,nativeW,nativeH,frame,isProtectedV287=false){
+  const cw=Math.max(1,w),ch=Math.max(1,h);
+  const nw=Math.max(1,nativeW),nh=Math.max(1,nativeH);
+  const aspectFit=Math.min(cw/nw,ch/nh);
+  const renderedW=nw*aspectFit,renderedH=nh*aspectFit;
+  const visibleW=Math.max(1,frame.w*renderedW);
+  const visibleH=Math.max(1,frame.h*renderedH);
+  const fraction=isProtectedV287?.84:.91;
+  const exactScale=Math.min(cw*fraction/visibleW,ch*fraction/visibleH);
+  // Old 2.02 max left narrow artwork undersized; the subject MUST stay in-cell.
+  const scale=clamp(exactScale,.72,isProtectedV287?2.02:3.2);
+  return {
+    scale,dx:-scale*(frame.x-.5)*renderedW,
+    dy:-scale*(frame.y-.5)*renderedH,
+    figureWidth:visibleW*scale,figureHeight:visibleH*scale,exactScale
+  };
+}
+
 export function startConstellationQuest(ctx){
   ctx.activityContent.innerHTML='';
   ctx.menuMusic.pause();
@@ -392,22 +412,17 @@ export function startConstellationQuest(ctx){
     const w=button.clientWidth||rect.width,h=button.clientHeight||rect.height;
     if(!w||!h)return;
     const nativeW=record.width||560,nativeH=record.height||760;
-    const fit=Math.min(w/nativeW,h/nativeH);
-    const shownW=nativeW*fit,shownH=nativeH*fit;
     const b=record.choiceBounds||record.bounds;
-    const figureW=Math.max(1,b.w*shownW),figureH=Math.max(1,b.h*shownH);
-    const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02);
-    const moveX=-zoom*(b.x-.5)*shownW;
-    const moveY=-zoom*(b.y-.5)*shownH;
-    img.style.transform='translate3d('+moveX.toFixed(2)+'px,'+
-      moveY.toFixed(2)+'px,0) scale('+zoom.toFixed(4)+')';
-    button.dataset.figureScale=zoom.toFixed(3);
-    button.dataset.subjectFraming=record.choiceBounds===record.bounds?'v287-protected':'v294-subject';
-    button.dataset.figureFit=(Math.min(w*.84/figureW,h*.84/figureH)).toFixed(3);
-    // Real visible outline dimensions after its in-card alpha calibration.
-    // Required to zoom the winner to one consistent device-safe boundary.
-    button.dataset.figureWidthPx=(figureW*zoom).toFixed(3);
-    button.dataset.figureHeightPx=(figureH*zoom).toFixed(3);
+    const protectedV287=record.choiceBounds===record.bounds;
+    const m=computeConstellationChoiceFit(w,h,nativeW,nativeH,b,protectedV287);
+    img.style.transform='translate3d('+m.dx.toFixed(2)+'px,'+
+      m.dy.toFixed(2)+'px,0) scale('+m.scale.toFixed(4)+')';
+    button.dataset.figureScale=m.scale.toFixed(3);
+    button.dataset.subjectFraming=protectedV287?'v287-protected':'v294-subject';
+    button.dataset.choiceFit='v294h';
+    button.dataset.figureFit=m.exactScale.toFixed(3);
+    button.dataset.figureWidthPx=m.figureWidth.toFixed(3);
+    button.dataset.figureHeightPx=m.figureHeight.toFixed(3);
   }
   function loadImage(src){
     return new Promise((resolve,reject)=>{

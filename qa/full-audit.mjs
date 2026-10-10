@@ -56,7 +56,7 @@ check(sw.includes("fetch(request,{cache:'no-store'})")&&
 check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_build'),'DotKiosk launcher should use clean standalone entry');
 const coreV=sw.match(/areg-v(\d+[a-z]?)-core/),runV=sw.match(/areg-v(\d+[a-z]?)-runtime/);
 const appV=html.match(/app\.js\?v=(\d+[a-z]?)/),styleV=html.match(/styles\.css\?v=(\d+)/);
-const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+)/);
+const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+[a-z]?)/);
 check(!!coreV&&!!runV&&coreV[1]===runV[1],'SW cache version mismatch');
 check(!!appV&&app.includes("service-worker.js?v="+appV[1]),'SW registration version mismatch');
 check(!!coreV&&!!appV&&coreV[1]===appV[1],'App/SW release version mismatch');
@@ -119,7 +119,7 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
       quest.includes("getImageData(0,0,n,n).data")&&
       quest.includes("function sizeVisibleIllustration(button,img,record)")&&
       quest.includes("bounds:visibleAlphaBounds(image)")&&
-      quest.includes("const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02)")&&
+      quest.includes("const m=computeConstellationChoiceFit(w,h,nativeW,nativeH,b,protectedV287)")&&
       quest.includes("sizeVisibleIllustration(")&&
       skyCss.includes(".s3d-find-art-shell")&&
       skyCss.includes(".s3d-find-choice:nth-child(2) .s3d-find-art-shell"),
@@ -310,7 +310,7 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   'V268 BOTH games must pause at full-tour result until green replay tap');
 check(sw.includes('space-finding-session.js?v=285')&&
       app.includes('space-3d-games.js?v=285')&&
-      app.includes('constellation-quest-v246.js?v=294g'),
+      app.includes('constellation-quest-v246.js?v=294h'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 check(app.includes("stars-=item.cost")&&
@@ -326,7 +326,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=294g")&&
+check(refresh.includes("service-worker.js?v=294h")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
@@ -381,6 +381,21 @@ if(subjectFramesSource){
 check(sw.includes("const PRESERVED_V294F_RUNTIME='areg-v294f-runtime'") &&
   quest.includes("+'?v=294f'"),
   'V294 updated quest must retain unchanged image URLs and previous runtime cache');
+
+// V294h 8-actual-screenshot regression: larger untouched subjects, not clouds.
+check(quest.includes('export function computeConstellationChoiceFit(')&&
+  quest.includes('const m=computeConstellationChoiceFit(w,h,nativeW,nativeH,b,protectedV287)')&&
+  quest.includes('const b=record.bounds;')&&
+  quest.includes("button.dataset.choiceFit='v294h'"),
+  'All constellation choice cards must use real subject fit; hero V287 bounds untouched');
+check(quest.includes('const fraction=isProtectedV287?.84:.91;')&&
+  !quest.includes('const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02)'),
+  'V294h must remove hard 2.02 ceiling for 36 small subjects');
+check(skyCss.includes('top:17%;bottom:9%;left:3.5%;right:3.5%')&&
+  html.includes('space-3d-games.css?v=294h')&&
+  sw.includes("'./space-3d-games.css?v=294h'")&&
+  sw.includes("const PRESERVED_V294G_RUNTIME='areg-v294g-runtime'"),
+  'V294h increased stage + correct PWA stylesheet version/cache preservation');
 
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>

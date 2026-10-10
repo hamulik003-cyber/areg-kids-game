@@ -1111,7 +1111,7 @@
   let constellationQuestLoadPromise=null;
   function ensureConstellationQuestLoaded(){
     if(!constellationQuestLoadPromise){
-      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=294g')
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=294h')
         .catch(err=>{constellationQuestLoadPromise=null;throw err});
     }
     return constellationQuestLoadPromise;
@@ -2560,7 +2560,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=294g',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=294h',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
