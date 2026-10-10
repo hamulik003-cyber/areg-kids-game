@@ -1,0 +1,58 @@
+name: V290 original-source Sagittarius and Wolf pilot (feature only)
+on:
+  push:
+    branches: [feature/v290-source-original-transparent-pilot]
+    paths:
+      - qa/v290-source-original/31-sagittarius-original-source-1080.webp
+      - qa/v290-source-original/37-lupus-original-source-1080.webp
+      - scripts/v290-source-build.py
+      - .github/workflows/v290-sag-wolf-pilot.yml
+permissions:
+  contents: write
+jobs:
+  source-fidelity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check Pillow numpy opencv-python-headless
+      - name: Safely register ZIP RGB sources and rebuild only two source figures
+        run: python scripts/v290-source-build.py
+      - name: Verify no forbidden assets or runtime code were touched
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          lines=subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()
+          changes=[line[3:] for line in lines if line.strip()]
+          required={'assets/constellations-transparent/31-sagittarius.png',
+                    'assets/constellations-transparent/31-sagittarius.webp',
+                    'assets/constellations-transparent/37-lupus.png',
+                    'assets/constellations-transparent/37-lupus.webp',
+                    'assets/constellations-transparent/manifest.json'}
+          assert required <= set(changes),(required-set(changes),changes)
+          assert all(p in required or p.startswith('qa/v290-source-original/') for p in changes),changes
+          original='34548b66aeb1cadde0fb1e643830de091d2172a6'
+          for ext in ('png','webp'):
+              name='assets/constellations-transparent/16-hayk-belt.'+ext
+              before=subprocess.check_output(['git','rev-parse',original+':'+name],text=True).strip()
+              now=subprocess.check_output(['git','rev-parse','HEAD:'+name],text=True).strip()
+              assert before==now,(name,before,now)
+          print('PASS: exactly 2 picture pairs and manifest; Orion Belt original star centers untouched')
+          PY
+      - name: Run existing game structure and scoring audit
+        run: node qa/full-audit.mjs
+      - name: Commit ONLY safe pilot picture pairs to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/constellations-transparent/31-sagittarius.png assets/constellations-transparent/31-sagittarius.webp
+          git add assets/constellations-transparent/37-lupus.png assets/constellations-transparent/37-lupus.webp
+          git add assets/constellations-transparent/manifest.json qa/v290-source-original/
+          git commit -m "V290 pilot: original-source Sagittarius and Wolf PNG/WebP with verified game alignment"
+          git push origin HEAD:feature/v290-source-original-transparent-pilot
