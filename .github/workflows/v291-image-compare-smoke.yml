@@ -1,0 +1,55 @@
+name: V291 standalone image comparison smoke
+on:
+  push:
+    branches: [v291-constellation-quality-compare]
+    paths:
+      - v291-constellation-quality-compare.html
+      - .github/workflows/v291-image-compare-smoke.yml
+permissions:
+  contents: read
+jobs:
+  public-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify main still V287 and HTML structure
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          s=pathlib.Path('v291-constellation-quality-compare.html').read_text()
+          assert s.count('class="tile"')==4
+          for token in ['10-lyra.webp','31-sagittarius.webp','function open(key)','id="swap"','id="plus"','id="minus"','pointermove']:
+              assert token in s,token
+          assert '34548b66aeb1cadde0fb1e643830de091d2172a6' in s
+          assert '2258e5ad24ec0975d7e98d172759b0a4fbf8bd2e' in s
+          print('PASS: four comparison cards, old and new commit-pinned assets, zoom/swap')
+          PY
+      - name: Verify mobile preview is served as HTML
+        run: |
+          url='https://raw.githack.com/hamulik003-cyber/areg-kids-game/v291-constellation-quality-compare/v291-constellation-quality-compare.html'
+          for i in 1 2 3 4 5; do
+            result=$(curl --connect-timeout 12 --max-time 35 -sSL -o /tmp/areg-preview.html -w '%{http_code}|%{content_type}' "$url" || true)
+            echo "Attempt $i => $result"
+            if [[ "$result" == 200\|text/html* ]] && grep -q 'Համեմատիր նկարների իրական որակը' /tmp/areg-preview.html; then
+              echo 'PASS: public mobile comparison URL returns real HTML'
+              exit 0
+            fi
+            sleep 8
+          done
+          echo 'ERROR: public preview URL not confirmed';exit 1
+      - name: Verify all four image URLs have WebP bytes
+        run: |
+          python3 - <<'PY'
+          import urllib.request
+          base='https://raw.githubusercontent.com/hamulik003-cyber/areg-kids-game/'
+          commits=['34548b66aeb1cadde0fb1e643830de091d2172a6','2258e5ad24ec0975d7e98d172759b0a4fbf8bd2e']
+          names=['10-lyra.webp','31-sagittarius.webp']
+          for stem in names:
+              for commit in commits:
+                  url=base+commit+'/assets/constellations-transparent/'+stem
+                  with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'AREG-QA'}),timeout=35) as r:
+                      data=r.read()
+                  assert data[:4]==b'RIFF' and data[8:12]==b'WEBP',url
+                  print('PASS',stem,'old' if commit==commits[0] else 'new',len(data),'bytes')
+          PY
