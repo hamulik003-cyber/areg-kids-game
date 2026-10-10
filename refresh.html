@@ -20,7 +20,7 @@ small{display:block;margin-top:12px;color:#d0dffa}
 <body><article>
 <div aria-hidden="true" style="font-size:40px">✨</div>
 <h1>AREG խաղի թարմացում</h1>
-<p id="status" role="status">Ստուգում ենք V284 տարբերակը…</p>
+<p id="status" role="status">Ստուգում ենք V285 տարբերակը…</p>
 <button id="retry" hidden type="button">Կրկնել թարմացումը</button>
 <small>Խաղի աստղերն ու կարգավորումները պահպանվում են։</small>
 </article>
@@ -41,7 +41,7 @@ async function updateGame(){
       return;
     }
     const registration=await navigator.serviceWorker.register(
-      './service-worker.js?v=284',{updateViaCache:'none'});
+      './service-worker.js?v=285',{updateViaCache:'none'});
     await registration.update();
     // This dedicated /refresh.html path was not cached by the previous
     // service worker. Wait for v284 to truly activate before returning to
@@ -49,14 +49,14 @@ async function updateGame(){
     const deadline=Date.now()+14000;
     while(Date.now()<deadline){
       const active=registration.active;
-      if(active&&active.state==='activated'&&active.scriptURL.includes('v=284')){
+      if(active&&active.state==='activated'&&active.scriptURL.includes('v=285')){
         status.textContent='Թարմացումն ավարտված է։ Բացվում է խաղը։';
         location.replace('./');
         return;
       }
       await sleep(150);
     }
-    throw Error('V284 service worker activation not confirmed');
+    throw Error('V285 service worker activation not confirmed');
   }catch(error){
     status.textContent='Չհաջողվեց հաստատել թարմացումը։ Ստուգեք կապը և սեղմեք «Կրկնել»։';
     retry.hidden=false;working=false;

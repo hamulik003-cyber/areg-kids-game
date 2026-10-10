@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// V284 regression: an OLD cache-first index.html must NOT trap browser,
+// V285 regression: an OLD cache-first index.html must NOT trap browser,
 // DotKiosk or offline PWA on obsolete game names after successful deployment.
 import {chromium,webkit} from 'playwright';
 import {spawn} from 'node:child_process';
@@ -22,7 +22,7 @@ try{
   const url='http://127.0.0.1:8767/';
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
   await page.evaluate(async ()=>{
-    await navigator.serviceWorker.register('./service-worker.js?v=284',
+    await navigator.serviceWorker.register('./service-worker.js?v=285',
       {updateViaCache:'none'});
   });
   // Poll real SW lifecycle rather than waiting for 'updatefound' AFTER it
@@ -42,7 +42,7 @@ try{
       cacheNames:await caches.keys(),
       online:navigator.onLine
     }));
-    throw Error('V284 service worker activation '+error.message+
+    throw Error('V285 service worker activation '+error.message+
       ' '+JSON.stringify(swStates));
   }
   if(!await page.evaluate(()=>!!navigator.serviceWorker.controller)){
@@ -50,16 +50,16 @@ try{
   }
   await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,null,{timeout:20000});
   const bootstrap=await page.evaluate(async()=>{
-    const core=await caches.open('areg-v284-core');
+    const core=await caches.open('areg-v285-core');
     const original=await core.match('./index.html');
     if(!original)throw Error('Expected offline HTML core cache absent');
     const html=await original.text();
     const marker='<meta name="areg-qa-deliberately-stale" content="1">';
-    if(!html.includes('<script src="app.js?v=284"></script>'))
-      throw Error('Installed V284 HTML script query absent');
+    if(!html.includes('<script src="app.js?v=285"></script>'))
+      throw Error('Installed V285 HTML script query absent');
     if(html.includes(marker))throw Error('Unexpected old injected marker');
-    const old=html.replace('<script src="app.js?v=284"></script>',
-      marker+'<script src="app.js?v=284"></script>');
+    const old=html.replace('<script src="app.js?v=285"></script>',
+      marker+'<script src="app.js?v=285"></script>');
     await core.put('./index.html',new Response(old,
       {status:200,headers:{'Content-Type':'text/html; charset=utf-8'}}));
     localStorage.setItem('areg-stars-reset-v40','1');
@@ -70,18 +70,18 @@ try{
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#homeScreen .section-card');
   const fresh=await page.evaluate(async()=>{
-    const cache=await caches.open('areg-v284-core');
+    const cache=await caches.open('areg-v285-core');
     return {oldMarker:!!document.querySelector('meta[name="areg-qa-deliberately-stale"]'),
       revalidated:(await (await cache.match('./index.html')).text())
-        .includes('app.js?v=284'),
+        .includes('app.js?v=285'),
       cacheStillStale:(await (await cache.match('./index.html')).text())
         .includes('areg-qa-deliberately-stale'),
       wallet:localStorage.getItem('areg-stars-v35'),
       controller:navigator.serviceWorker.controller?.scriptURL||''};
   });
   if(fresh.oldMarker||fresh.cacheStillStale||!fresh.revalidated||
-     fresh.wallet!=='17'||!fresh.controller.includes('v=284'))
-    throw Error('V284 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
+     fresh.wallet!=='17'||!fresh.controller.includes('v=285'))
+    throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
   await page.waitForSelector('#sectionScreen.is-visible');
   const titles=await page.locator('.toddler-game-card[data-game="space-search"] .toddler-game-label, .toddler-game-card[data-game="constellation-game"] .toddler-game-label')
@@ -89,11 +89,11 @@ try{
   if(titles.length!==2||titles[0]!=='Գտիր ճիշտ մոլորակը'||
      titles[1]!=='Գտիր ճիշտ աստղապատկերը')
     throw Error('V283 Space game title changes not in fresh navigation '+JSON.stringify(titles));
-  console.log('V284 WEBKIT/CHROME ONLINE NEW TITLES + REFRESHED CORE PASS',
+  console.log('V285 WEBKIT/CHROME ONLINE NEW TITLES + REFRESHED CORE PASS',
     JSON.stringify({engine:webkitMode?'webkit':'chromium',titles,fresh}));
   await context.setOffline(true);
   const offlineSignal=await page.evaluate(()=>navigator.onLine);
-  console.log('V284 offline navigator.onLine before validation '+JSON.stringify({engine:webkitMode?'webkit':'chromium',offlineSignal}));
+  console.log('V285 offline navigator.onLine before validation '+JSON.stringify({engine:webkitMode?'webkit':'chromium',offlineSignal}));
   let offline;
   if(webkitMode){
     // Playwright's HEADLESS WebKit crashes on page.reload() immediately after
@@ -103,22 +103,22 @@ try{
     // Exercise the actual ServiceWorker CORE CacheStorage offline payload
     // and persisted wallet while WebKit reports navigator.onLine=false.
     offline=await page.evaluate(async()=>{
-      const core=await caches.open('areg-v284-core');
+      const core=await caches.open('areg-v285-core');
       const entry=await core.match('./index.html');
-      const app=await core.match('./app.js?v=284');
+      const app=await core.match('./app.js?v=285');
       const css=await core.match('./styles.css?v=282');
       const html=entry?await entry.text():'';
       return {wallet:localStorage.getItem('areg-stars-v35'),
         stale:html.includes('areg-qa-deliberately-stale'),
         offlineController:!!navigator.serviceWorker?.controller,
-        cachedHome:!!entry&&html.includes('app.js?v=284'),
+        cachedHome:!!entry&&html.includes('app.js?v=285'),
         cachedApp:!!app,cachedStyle:!!css,
         offlineFlag:navigator.onLine===false};
     });
     if(!offline.cachedHome||!offline.cachedApp||!offline.cachedStyle||
        !offline.offlineFlag)
-      throw Error('V284 WebKit offline CORE lacks required assets '+JSON.stringify(offline));
-    console.log('V284 WEBKIT OFFLINE CACHE CONTENTS VERIFIED (headless reload limitation)',
+      throw Error('V285 WebKit offline CORE lacks required assets '+JSON.stringify(offline));
+    console.log('V285 WEBKIT OFFLINE CACHE CONTENTS VERIFIED (headless reload limitation)',
       JSON.stringify(offline));
   }else{
     await page.reload({waitUntil:'domcontentloaded',timeout:30000});
@@ -128,12 +128,12 @@ try{
       offlineController:!!navigator.serviceWorker?.controller}));
   }
   if(offline.wallet!=='17'||offline.stale||!offline.offlineController)
-    throw Error('V284 OFFLINE cache or saved stars broken '+JSON.stringify(offline));
+    throw Error('V285 OFFLINE cache or saved stars broken '+JSON.stringify(offline));
   if(errors.length)throw Error('Page JS errors '+JSON.stringify(errors));
-  console.log('V284 SW ONLINE FRESH + TWO TITLES + OFFLINE RECOVERY + WALLET PASS',
+  console.log('V285 SW ONLINE FRESH + TWO TITLES + OFFLINE RECOVERY + WALLET PASS',
     JSON.stringify({engine:webkitMode?'webkit':'chromium',titles,offline,fresh}));
 }catch(e){
-  console.error('V284 SW BROWSER FAIL '+(e.stack||e));
+  console.error('V285 SW BROWSER FAIL '+(e.stack||e));
   process.exitCode=1;
 }finally{
   await browser?.close();

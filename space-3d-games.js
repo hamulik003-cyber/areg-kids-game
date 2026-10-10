@@ -1,5 +1,5 @@
 import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
-import {createFindingSession} from './space-finding-session.js?v=282';
+import {createFindingSession} from './space-finding-session.js?v=285';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -31,7 +31,7 @@ function answerSfx(ok,ctx){
         o.frequency.setValueAtTime(n.f,now+n.t);
         if(!ok)o.frequency.exponentialRampToValueAtTime(n.f*.93,now+n.t+n.d);
         g.gain.setValueAtTime(.0001,now+n.t);
-        g.gain.exponentialRampToValueAtTime(n.v,now+n.t+.016);
+        g.gain.exponentialRampToValueAtTime(n.v*Math.min(1.55,Math.max(0,Number(ctx.settings?.effectsVolume??75)/75*1.12)),now+n.t+.016);
         g.gain.exponentialRampToValueAtTime(.0001,now+n.t+n.d);
         o.connect(g);g.connect(ac.destination);
         o.start(now+n.t);o.stop(now+n.t+n.d+.025);

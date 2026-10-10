@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>Արեգ 3D աշխարհ</title>
-  <link rel="stylesheet" href="styles.css?v=282" />
+  <link rel="stylesheet" href="styles.css?v=285" />
   <link rel="stylesheet" href="space-3d-games.css?v=282" />
 </head>
 <body>
@@ -127,6 +127,27 @@
         <label class="setting-row"><span>Ձայնային հուշումներ</span><input id="voiceHints" type="checkbox" /><span class="switch"></span></label>
         <label class="setting-row"><span>Էֆեկտներ</span><input id="gameEffects" type="checkbox" /><span class="switch"></span></label>
       </div>
+      <section class="menu-music-settings" aria-label="Գլխավոր մենյուի երաժշտություն">
+        <h3 class="theme-heading">Մենյուի երաժշտություն</h3>
+        <div class="music-choice-actions">
+          <button id="defaultMusicButton" class="music-choice-button" type="button">Հիմնականը</button>
+          <button id="savedMusicButton" class="music-choice-button" type="button" disabled>Իմ երաժշտությունը</button>
+        </div>
+        <label class="music-upload-button file-button">
+          <span>＋ Ընտրել նոր երաժշտություն</span>
+          <input id="customMusicInput" type="file" accept=".mp3,.m4a,.aac,.wav,audio/mpeg,audio/mp4,audio/aac,audio/wav" aria-label="Ընտրել երաժշտություն iPhone-ի Ֆայլերից" />
+        </label>
+        <p id="selectedMusicLabel" class="music-file-label" aria-live="polite">Ընտրված է՝ հիմնական երաժշտությունը</p>
+        <p class="music-help">Ընտրիր MP3, M4A, AAC կամ WAV ֆայլ (մինչև 25 ՄԲ)։ Քո երաժշտությունը պահվում է միայն այս սարքում։</p>
+        <div class="volume-mixer">
+          <label class="volume-row" for="musicLevel"><span>Երաժշտության բարձրություն</span><output id="musicLevelValue">30%</output></label>
+          <input id="musicLevel" type="range" min="0" max="100" step="5" value="30" />
+          <label class="volume-row" for="effectsLevel"><span>Խաղերի ճիշտ/սխալ ձայներ</span><output id="effectsLevelValue">75%</output></label>
+          <input id="effectsLevel" type="range" min="0" max="100" step="5" value="75" />
+          <label class="volume-row" for="voiceLevel"><span>Ձայնային հուշումներ</span><output id="voiceLevelValue">85%</output></label>
+          <input id="voiceLevel" type="range" min="0" max="100" step="5" value="85" />
+        </div>
+      </section>
       <h3 class="theme-heading font-heading">Տառաձև</h3>
       <div id="fontGrid" class="font-grid" aria-label="Ընտրել տառաձև"></div>
       <p class="font-help">Բոլոր տարբերակները նախատեսված են հայերեն տեքստերի համար և աշխատում են նաև առանց ինտերնետի։</p>
@@ -168,6 +189,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="none"></audio>
-  <script src="app.js?v=284"></script>
+  <script src="app.js?v=285"></script>
 </body>
 </html>
