@@ -1,0 +1,78 @@
+name: V292 Source-detail and V287 Color Hybrid QA
+on:
+  push:
+    branches: [v292-constellation-hybrid-color-pilot]
+    paths:
+      - scripts/v292-color-hybrid-build.py
+      - v292-constellation-hybrid-compare.html
+      - .github/workflows/v292-color-hybrid.yml
+permissions:
+  contents: write
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install lightweight image tools
+        run: python -m pip install --disable-pip-version-check Pillow numpy opencv-python-headless
+      - name: Build two color levels for two ZIP-source images (QA ONLY)
+        run: python scripts/v292-color-hybrid-build.py
+      - name: Verify no runtime assets, audio, Orion Belt, or PWA code changed
+        run: |
+          python - <<'PY'
+          import subprocess
+          from PIL import Image
+          from pathlib import Path
+          root=Path('qa/v292-color-hybrid')
+          names=['10-lyra','31-sagittarius']
+          for stem in names:
+              for strength in ('balanced','vivid'):
+                  path=root/(stem+'-hybrid-'+strength+'.webp')
+                  assert path.is_file() and path.stat().st_size < 400_000,(path,path.stat().st_size)
+                  with Image.open(path) as img:
+                      assert img.size==(720,861) and img.mode=='RGB' or (img.size==(720,861) and img.mode=='RGBA'),path
+          changed=subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()
+          paths=[l[3:] for l in changed if l.strip()]
+          assert paths and all(p.startswith('qa/v292-color-hybrid/') for p in paths),paths
+          base='34548b66aeb1cadde0fb1e643830de091d2172a6'
+          for ext in ('png','webp'):
+              n='assets/constellations-transparent/16-hayk-belt.'+ext
+              original=subprocess.check_output(['git','rev-parse',base+':'+n],text=True).strip()
+              now=subprocess.check_output(['git','rev-parse','HEAD:'+n],text=True).strip()
+              assert original==now,n
+          print('PASS: QA files only, iPhone-sized WebP, Orion Belt untouched')
+          PY
+      - name: Run game static regression checks
+        run: node qa/full-audit.mjs
+      - name: Save examples on comparison branch, not on main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add qa/v292-color-hybrid/
+          git commit -m 'V292 QA: balanced/vivid old-palette high-detail constellation options'
+          git push origin HEAD:v292-constellation-hybrid-color-pilot
+      - name: Verify public preview and source files
+        run: |
+          python - <<'PY'
+          import time
+          import urllib.request
+          base='https://raw.githubusercontent.com/hamulik003-cyber/areg-kids-game/v292-constellation-hybrid-color-pilot/qa/v292-color-hybrid/'
+          for stem in ('10-lyra','31-sagittarius'):
+              for mode in ('balanced','vivid'):
+                  name=f'{stem}-hybrid-{mode}.webp'
+                  for i in range(6):
+                      try:
+                          with urllib.request.urlopen(base+name,timeout=25) as res: data=res.read()
+                          assert data[:4]==b'RIFF' and data[8:12]==b'WEBP'
+                          print('PASS public',name,len(data));break
+                      except Exception:
+                          if i==5: raise
+                          time.sleep(4)
+          PY
