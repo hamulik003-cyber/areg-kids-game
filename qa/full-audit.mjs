@@ -56,7 +56,7 @@ check(sw.includes("fetch(request,{cache:'no-store'})")&&
 check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_build'),'DotKiosk launcher should use clean standalone entry');
 const coreV=sw.match(/areg-v(\d+[a-z]?)-core/),runV=sw.match(/areg-v(\d+[a-z]?)-runtime/);
 const appV=html.match(/app\.js\?v=(\d+[a-z]?)/),styleV=html.match(/styles\.css\?v=(\d+)/);
-const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+)/);
+const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+[a-z]?)/);
 check(!!coreV&&!!runV&&coreV[1]===runV[1],'SW cache version mismatch');
 check(!!appV&&app.includes("service-worker.js?v="+appV[1]),'SW registration version mismatch');
 check(!!coreV&&!!appV&&coreV[1]===appV[1],'App/SW release version mismatch');
@@ -119,7 +119,7 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
       quest.includes("getImageData(0,0,n,n).data")&&
       quest.includes("function sizeVisibleIllustration(button,img,record)")&&
       quest.includes("bounds:visibleAlphaBounds(image)")&&
-      quest.includes("const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02)")&&
+      quest.includes("const m=computeConstellationChoiceFit(w,h,nativeW,nativeH,b,protectedV287)")&&
       quest.includes("sizeVisibleIllustration(")&&
       skyCss.includes(".s3d-find-art-shell")&&
       skyCss.includes(".s3d-find-choice:nth-child(2) .s3d-find-art-shell"),
