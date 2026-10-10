@@ -1,0 +1,39 @@
+name: V286 redraw safety audit — no automatic asset publishing
+on:
+  push:
+    branches: [feature/v286-verified-constellation-artwork]
+  pull_request:
+    branches: [main]
+    paths:
+      - artwork-redraws/**
+      - scripts/v286-package-redrawn-art.py
+      - assets/constellations-transparent/**
+permissions:
+  contents: read
+jobs:
+  redraw-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install Pillow
+      - name: Check available artist source files without modifying game assets
+        run: python scripts/v286-package-redrawn-art.py
+      - name: Ensure production runtime and other 34 art pairs untouched
+        run: |
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(['git','diff','--name-only','origin/main...HEAD'],text=True).splitlines())
+          prefix='assets/constellations-transparent/'
+          valid={prefix+f'{stem}.{ext}' for stem in ('10-lyra','16-hayk-belt','22-pisces','30-canis-minor') for ext in ('png','webp')}
+          valid.add(prefix+'manifest.json')
+          offenders=sorted(x for x in changed if x.startswith(prefix) and x not in valid)
+          assert not offenders, 'Unexpected constellation assets modified: '+repr(offenders)
+          forbidden={'constellation-quest-v246.js','app.js','space-finding-session.js','styles.css','service-worker.js','index.html'}
+          assert not(changed & forbidden),'User-approved game runtime changed: '+repr(changed&forbidden)
+          print('SAFE: existing gameplay, V285 sound and all other constellation files are untouched')
+          PY
