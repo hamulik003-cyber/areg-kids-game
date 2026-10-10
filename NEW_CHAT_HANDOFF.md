@@ -1,5 +1,15 @@
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
 
+## 2026-10-11 — V294 VERIFIED PRODUCTION / NEW CHAT ENTRY POINT
+
+**READ THIS FIRST**, then the top V294 sections in \`CURRENT_STATUS.md\` and \`PROJECT_HANDOFF.md\`, then \`AGENTS.md\`, before touching GitHub. Product is still **V294**; no V295/V296. Last functional production SHA \`5664fb212d19528549bf734a049f7451cf21e497\` (docs-only commits can make today's main HEAD different). Official site https://hamulik003-cyber.github.io/areg-kids-game/ . Pages run 38084422747 SUCCESS; V294 QA run 38083705332 SUCCESS; full audit run 38084423401 SUCCESS attempt 4 (all three jobs). **Automated verified, awaiting real iPhone/DotKiosk sign-off**; don't claim device approval.
+
+38/38 constellation silhouettes audited versus immutable V287 baseline \`34548b66\`, zero flagged. All 36 corrected PNG/WebP pairs are already on main with exactly the same Git blob SHA as \`fix/v294-constellation-geometry-final\` \`a9f94c95\`; both \`01-hayk-orion\` and \`16-hayk-belt\` remain byte-identical V287, including the 3 protected luminous Belt stars. Corrected WebP max 344,836 bytes; **no merge or regeneration needed**. Other 20 mini-games, approved animation (850ms hero, shared 580ms 3-choice fade, 780ms next), Space stars/wallet, menu-only saved music/audio separation, UV assets, PWA/cache must not change. New backup \`backup/v294-published-before-final-handoff-2026-10-11\` = \`5664fb2\`. Existing V282/V285/V287 approved baselines still immutable.
+
+Do NOT merge unapproved failing \`fix/v294-final-visible-size-20261011\` (\`3d3c3399\`, failed full audits). Next: actual iPhone/DotKiosk visual check of several constellation shapes, brightness, timing and PWA persistence. Older "LATEST" sections below are *historical*. After any future substantial code/art change, update both primary Markdown journals together and check exact-head CI/Pages.
+
+
+
 ## ❤️ V285 USER-APPROVED PRE-FINAL — MAIN MENU MUSIC / AUDIO ISOLATION — 2026-10-10 (LATEST; OVERRIDES OLDER NOTES)
 - On **2026-10-10**, following successful GitHub Pages deployment for `5a785bcb499a0c16d0852cd379812c733d807818` and actual iPhone/DotKiosk inspection, user enthusiastically approved the V285 controls (“տեսա շաաատ ընտիրա ստացվել”) and then explicitly confirmed **“հաստատում եմ և սա համարում ենք նախնական վեռջնական տարբերակ”**. This is now the **approved PRE-FINAL baseline** for the main-menu music feature and sound-separation contract; other explicitly frozen baselines (constellations, star wallet, visual assets, gameplay) remain in force.
 - **Immutable recovery point:** `baseline/v285-dotkiosk-menu-music-audio-user-approved-pre-final-2026-10-10` points to exact released user-approved V285 commit `5a785bcb499a0c16d0852cd379812c733d807818` (before this documentation-only note). Never move/rewrite this branch. Previous V284 recovery: `backup/v284-user-approved-before-menu-music-and-audio-mixer-2026-10-10`.

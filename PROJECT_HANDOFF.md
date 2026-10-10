@@ -1,5 +1,34 @@
 # AREG Kids Game — chat-to-chat continuity journal
 
+## 2026-10-11 — V294 VERIFIED RELEASE HANDOFF / SOURCE OF TRUTH (READ FIRST)
+
+**The running product remains V294.** This is a documentation-only freeze / continuity checkpoint on top of the last production-runtime commit \`5664fb212d19528549bf734a049f7451cf21e497\` (2026-10-10 UTC). Later \`main\` commits that change Markdown alone do not create a new game version. Check the *current* main SHA and Pages workflow before asserting that HEAD itself has deployed. Official game: https://hamulik003-cyber.github.io/areg-kids-game/ .
+
+**History reconstructed and verified directly in GitHub:** user-approved V282 star wallet + reward rules; V284 fresh navigation repair; user-approved V285 main-menu custom music, media isolation and sliders; V287 Orion Belt three bright cores/constellation-specific visibility adjustment; V294 original-source art release (\`80873295d719f22586f082546ca0f8c74d233d14\`), followed by 38-art V287 geometry/brightness correction (\`a9f94c95ec39b65cb3831ad7563f249c9a4d1a77\` on isolated fix branch) and exact production QA at \`5664fb2\`. Git trees on \`main\` and geometry fix contain the same **76 constellation PNG/WebP blob SHAs**, including two unchanged V287 objects. The release branch \`release/v294-final-picture-consistency\` also points to \`5664fb2\`. No gameplay merge remains outstanding for this art correction.
+
+**Measured asset checks** (from \`qa/v294-geometry/audit.json\` and \`reconstruction.json\`): 38/38 audit rows, zero flagged; visible width ratio exactly 1, height 0.9993–1.0006 relative to V287; max computed positional difference 0.003; max alpha coverage variance 2.4%; largest visible WebP RGB mean change 2.658. Exactly 36 corrected image identities with both PNG and WebP. Max repaired WebP 344,836 bytes (cap 345,000); separately protected V287 \`16-hayk-belt.webp\` is larger (604,312 bytes) and unchanged. Both \`01-hayk-orion\` and \`16-hayk-belt\` PNG and WebP files Git-SHA identical to V287; three approved Belt luminous centers unaltered. No added/removed 39th object or AI-redrawn character.
+
+**Published and tested runtime evidence:**
+- GitHub Pages [run 38084422747](https://github.com/hamulik003-cyber/areg-kids-game/actions/runs/38084422747): success at \`5664fb2\`.
+- V294 Final Quality Gate [run 38083705332](https://github.com/hamulik003-cyber/areg-kids-game/actions/runs/38083705332): success at same runtime SHA (geometry, WebKit gameplay, WebKit PWA, Chromium PWA).
+- AREG Full Game Audit [run 38084423401](https://github.com/hamulik003-cyber/areg-kids-game/actions/runs/38084423401): success **on attempt 4**; assets-and-code, mobile-browser and ios-webkit each passed. Earlier retries included an intermittent headless-WebKit saved-music UI timeout, not a reported physical iPhone production failure.
+- Preserve caveat: tests run in CI browsers; WebKit offline path checks actual CacheStorage and stored wallet while Playwright's hard-offline page.reload had a headless browser-internal error on earlier runs. Physical iPhone/DotKiosk audio/network/display smoothness still needs human sign-off.
+
+**Immutable recovery / approved baselines:**
+- \`backup/v294-published-before-final-handoff-2026-10-11\` → \`5664fb212d19528549bf734a049f7451cf21e497\` (immediately before these docs-only notes).
+- \`backup/v287-before-v294-original-constellation-quality-2026-10-10\` → \`34548b66aeb1cadde0fb1e643830de091d2172a6\`.
+- \`baseline/v285-dotkiosk-menu-music-audio-user-approved-pre-final-2026-10-10\` → \`5a785bcb499a0c16d0852cd379812c733d807818\`.
+- \`baseline/pre-final-constellation-shared-fade-user-approved-2026-10-10\` → \`2a1747d9578becc7b096ddf8312bdb29f95f56ed\`.
+- \`baseline/v282-user-approved-prefinal-before-space-game-renames-2026-10-10\` → \`56fa397eff57be329409eacb9d7954ebe81bfb4c\`.
+- \`backup/v284-pwa-fresh-navigation-published-2026-10-10\` → \`ff1ee5b2a8f7b612a2026c8eb13b986fad30691f\`.
+Never force-push, reset or delete approved backups. \`fix/v294-final-visible-size-20261011\` = \`3d3c339998fadb42af76f9c32cfc86982e24605b\` is an **unreleased failing experiment** (runs 38086732866/38086854085; structural alpha silhouette QA failed); do not merge. Corrected source branch \`fix/v294-constellation-geometry-final\` = \`a9f94c95ec39b65cb3831ad7563f249c9a4d1a77\` is retained for audit/reference only.
+
+**Frozen UX / regression guard for future chats:** no V295/V296; preserve 38 identities, no image redraw, Belt triple-core stars, original V287 visible silhouette, high-detail V294 content, unchanged four-choice layout and 850ms winner / 580ms shared single-layer fade / 780ms next entrance. Maintain 10-right→1-star per Space game, reward wallet and save state, V244 planet transition and all approved UV textures, V245 fast boot, 17 game routes, sound and locally selected menu-only music, PWA cache/offline history (core/runtime \`areg-v294f-*\`, art \`?v=294f\`, media and prior-runtime caches), iPhone full-screen/installed DotKiosk URL. Don't change unrelated content or clear user's data.
+
+**Pending / next operator action:** this is **automated-QA-verified published V294**, awaiting **physical iPhone/DotKiosk visual + interaction acceptance**. Compare a few tall/wide/small illustrations across repeated rounds, brightness, alpha halo, real onscreen size, all three Belt stars; verify fade/hero/score/music/reload and real offline behavior where relevant. Record user outcome; never claim an actual device test merely from Playwright. For any subsequent substantive work, re-read ALL of \`CURRENT_STATUS.md\`, \`PROJECT_HANDOFF.md\`, \`AGENTS.md\`, actual GitHub branch SHAs and Actions, protect current HEAD for risky changes, update both primary journals in the same commit and \`NEW_CHAT_HANDOFF.md\` for milestones; use single atomic documentation changes. The older "LATEST" and "pending" labels further down are **archival progress notes**, superseded by this section.
+
+
+
 ## 2026-10-10 — V294 exact-shape/brightness consistency repair (same version)
 - Full pixel audit of 38 against approved V287 revealed all 36 newly generated assets shifted alpha coverage +61 to +87% with ~30 lower RGB brightness; apparent size/quality mismatch user marked on screenshots. Absolute silhouette bounding box scale remained close; prior assumption of broad physical scale bugs was not supported. Corrected 36 high-resolution PNG/WebP with V287 exact old-alpha resampling and low-frequency old vivid palette plus V294 high-frequency fine detail.
 - Final regression audit: 38/38 objects, zero geometry outliers, exact alpha area for 36 repaired pieces, brightness mean difference <8 units. Source build report `qa/v294-geometry/reconstruction.json`, audit `qa/v294-geometry/audit.json`, source commit `a9f94c95ec39b65cb3831ad7563f249c9a4d1a77`. Both 01-hayk-orion and 16-hayk-belt remain SHA-identical to V287, no 39th extra artwork.
