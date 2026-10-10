@@ -64,8 +64,8 @@ check(!!appV&&sw.includes("'./app.js?v="+appV[1]+"'"),'SW precache app version m
 check(!!styleV&&sw.includes("'./styles.css?v="+styleV[1]+"'"),'SW precache CSS version mismatch');
 check(!!spaceCssV&&sw.includes("'./space-3d-games.css?v="+spaceCssV[1]+"'"),'SW precache 3D CSS version mismatch');
 check(/import\('\.\/space-3d-games\.js\?v=\d+'\)/.test(app),'Approved Space Search dynamic import missing');
-check(/import\('\.\/constellation-quest-v246\.js\?v=\d+'\)/.test(app)&&app.includes('constellationQuest:launchConstellationQuest'),'Standalone constellation game not wired');
-check(/\.\/constellation-quest-v246\.js\?v=\d+/.test(sw),'Constellation module not in offline core');
+check(/import\('\.\/constellation-quest-v246\.js\?v=\d+[a-z]?'\)/.test(app)&&app.includes('constellationQuest:launchConstellationQuest'),'Standalone constellation game not wired');
+check(/\.\/constellation-quest-v246\.js\?v=\d+[a-z]?/.test(sw),'Constellation module not in offline core');
 const constellationSource=app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={'));
 const ids=[...constellationSource.matchAll(/\{id:'([^']+)',img:'([^']+)'/g)].map(m=>m[1]);
 const shuffleDefinition=quest.match(/function randomizedOrder\(items\)\{[\s\S]*?\n\}/)?.[0];
