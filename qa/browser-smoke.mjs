@@ -185,6 +185,57 @@ try{
          !x.placed.includes('scale(')))
         throw Error('V258 silhouette sizing not applied to four images '+JSON.stringify(polish));
       console.log('CONSTELLATION SILHOUETTES '+polish.map(x=>x.scale.toFixed(2)).join(', '));
+      // User's iPhone showed different visible SUBJECT sizes even though
+      // V287-vs-V294 image alpha histograms were identical. Validate four
+      // real device-sized figure bounds and sample all 38 original WebPs.
+      const visualFrames=await page.evaluate(()=>[...document.querySelectorAll('.s3d-find-choice')].map(b=>({
+        id:b.dataset.id,mode:b.dataset.subjectFraming,
+        cardW:b.clientWidth,cardH:b.clientHeight,
+        figureW:Number(b.dataset.figureWidthPx),figureH:Number(b.dataset.figureHeightPx)
+      })));
+      if(visualFrames.length!==4||visualFrames.some(x=>
+        !['v287-protected','v294-subject'].includes(x.mode)||
+        x.figureW<15||x.figureH<15||
+        x.figureW>x.cardW*.89||x.figureH>x.cardH*.89))
+        throw Error('V294 original subject silhouettes exceed/squash their cards '+JSON.stringify(visualFrames));
+      console.log('V294 4 CARDS REAL SUBJECT BOXES '+JSON.stringify(visualFrames));
+      if(process.env.AREG_BROWSER!=='webkit'){
+        const atlasReport=await page.evaluate(async()=>{
+          const {CONSTELLATION_CHOICE_FRAMES:atlas}=await import('./constellation-quest-v246.js?v=294g');
+          const manifest=await (await fetch('./assets/constellations-transparent/manifest.json')).json();
+          const canvas=document.createElement('canvas');canvas.width=96;canvas.height=96;
+          const cx=canvas.getContext('2d',{willReadFrequently:true});
+          const output=[];
+          for(const art of manifest){
+            const stem=art.webp.split('/').pop().replace(/\.webp$/,'');
+            const bound=atlas[stem];
+            const image=new Image();image.decoding='async';
+            await new Promise((resolve,reject)=>{
+              image.onload=resolve;image.onerror=()=>reject(Error('Invalid '+stem));
+              image.src='./'+art.webp+'?v=294f';
+            });
+            cx.clearRect(0,0,96,96);cx.drawImage(image,0,0,96,96);
+            const p=cx.getImageData(0,0,96,96).data;
+            let inside=0,total=0;
+            for(let y=0;y<96;y++)for(let x=0;x<96;x++){
+              const k=(y*96+x)*4,R=p[k],G=p[k+1],B=p[k+2],A=p[k+3];
+              // Blue/white illuminated FIGURE, reject low-value purple mist.
+              if(A<112||B<110||G<65||G<R*.97||B<R*1.19)continue;
+              total++;
+              if(!bound||(x/96>=bound[0]-.025&&x/96<=bound[2]+.025&&
+                          y/96>=bound[1]-.025&&y/96<=bound[3]+.025))inside++;
+            }
+            output.push({stem,mode:bound?'subject':'protected',
+              pct:total?Math.round(inside/total*100):0,bright:total});
+          }
+          return output;
+        });
+        const failed=atlasReport.filter(x=>x.bright<55||x.pct<70);
+        console.log('V294 ALL 38 SUBJECT-TO-MIST IMAGE PIXEL EVIDENCE '+JSON.stringify(atlasReport));
+        if(atlasReport.length!==38||failed.length)
+          throw Error('V294 subject atlas misses actual illuminated figure pixels '+JSON.stringify(failed));
+      }
+
       const correctName=await page.evaluate(id=>
         document.querySelector('.s3d-find-choice[data-id="'+id+'"]')?.getAttribute('aria-label'),initial.targetId);
       if(!correctName||!initial.names.includes(correctName))
