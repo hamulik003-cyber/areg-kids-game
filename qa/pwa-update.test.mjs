@@ -217,16 +217,17 @@ try{
       const core=await caches.open('areg-v287-core');
       const entry=await core.match('./index.html');
       const app=await core.match('./app.js?v=287');
-      const css=await core.match('./styles.css?v=282');
+      const css=await core.match('./styles.css?v=285');
+      const constellationCss=await core.match('./space-3d-games.css?v=287');
       const html=entry?await entry.text():'';
       return {wallet:localStorage.getItem('areg-stars-v35'),
         stale:html.includes('areg-qa-deliberately-stale'),
         offlineController:!!navigator.serviceWorker?.controller,
         cachedHome:!!entry&&html.includes('app.js?v=287'),
-        cachedApp:!!app,cachedStyle:!!css,
+        cachedApp:!!app,cachedStyle:!!css,cachedConstellationStyle:!!constellationCss,
         offlineFlag:navigator.onLine===false};
     });
-    if(!offline.cachedHome||!offline.cachedApp||!offline.cachedStyle||
+    if(!offline.cachedHome||!offline.cachedApp||!offline.cachedStyle||!offline.cachedConstellationStyle||
        !offline.offlineFlag)
       throw Error('V285 WebKit offline CORE lacks required assets '+JSON.stringify(offline));
     console.log('V285 WEBKIT OFFLINE CACHE CONTENTS VERIFIED (headless reload limitation)',
