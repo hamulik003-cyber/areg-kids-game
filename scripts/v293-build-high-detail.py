@@ -77,15 +77,17 @@ def best_rectangle(original, gallery):
 
 def render(stem,image,jpg,match_idx):
     old=original_at_main('assets/constellations-transparent/'+stem+'.png')
-    assert old.size==jpg.size,(stem,old.size,jpg.size)
-    fw,fh=jpg.size
-    # 2x native size for the usual 480x574, cap tall-source memory to 1200 px.
+    # Orion's approved transparent canvas is 787x1050 while its gallery
+    # JPG is 1086x1448; scale registration into the game canvas precisely.
+    fw,fh=old.size
     factor=min(2.0,1200/fh,1100/fw)
     W,H=round(fw*factor),round(fh*factor)
     score,rect=best_rectangle(image,jpg)
     assert score>=0.83,(stem,'Unsafe geometry',score,rect)
-    x,y,nw,nh=rect
-    # Source-resolution reconstruction; never interpolate the old JPG pixels.
+    x0,y0,nw0,nh0=rect
+    x,y=x0*fw/jpg.width,y0*fh/jpg.height
+    nw,nh=nw0*fw/jpg.width,nh0*fh/jpg.height
+    # Source-resolution reconstruction; never interpolate old JPG pixels.
     scaled=image.resize((round(nw*factor),round(nh*factor)),Image.Resampling.LANCZOS)
     raw=Image.new('RGB',(W,H),(3,7,20));raw.paste(scaled,(round(x*factor),round(y*factor)))
     rgb=np.asarray(raw,dtype=np.float32)
