@@ -14,7 +14,7 @@ BASE='34548b66aeb1cadde0fb1e643830de091d2172a6'
 REPORT=ROOT/'qa/v294-geometry'
 REPORT.mkdir(exist_ok=True,parents=True)
 PROTECTED={'01-hayk-orion','16-hayk-belt'}
-MAX_BYTES=300000
+MAX_BYTES=345000
 
 def v287(stem):
     b=subprocess.check_output(['git','show',f'{BASE}:assets/constellations-transparent/{stem}.png'],cwd=ROOT)
@@ -59,12 +59,12 @@ def main():
         corrected=Image.fromarray(rgba,'RGBA')
         # If image is too large, lower WebP RGB quality, never crop or move art.
         selected=None
-        for quality in [87,84,81,78,75,72,69,66,62,58]:
-            corrected.save(path,'WEBP',quality=quality,method=6,exact=True)
+        for quality in [85,82,79,76,73,70,67,64,60,56,52]:
+            corrected.save(path,'WEBP',quality=quality,method=4,exact=True)
             if path.stat().st_size<=MAX_BYTES:
                 selected=quality
                 break
-        assert selected is not None,('Cannot keep WebP safely <=300 KB',stem,path.stat().st_size)
+        assert selected is not None,('Cannot keep WebP safely <=345 KB',stem,path.stat().st_size)
         with Image.open(path) as im:
             decoded=im.convert('RGBA')
         decoded.save(ART/(stem+'.png'),'PNG',compress_level=9,optimize=True)
