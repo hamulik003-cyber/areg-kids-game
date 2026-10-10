@@ -1,0 +1,30 @@
+name: V294 exact-scale audit against approved V287
+on:
+  push:
+    branches: [fix/v294-constellation-geometry-final]
+    paths:
+      - qa/v294-geometry-audit.py
+      - .github/workflows/v294-geometry-audit.yml
+permissions:
+  contents: write
+jobs:
+  geometry-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check pillow numpy
+      - name: Compare all 38 images against immutable V287 alpha geometry
+        run: python qa/v294-geometry-audit.py
+      - name: Commit audit evidence to isolated branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add qa/v294-geometry/audit.json
+          git commit -m "V294 QA: record 38-picture geometry comparison against V287"
+          git push origin HEAD:fix/v294-constellation-geometry-final
