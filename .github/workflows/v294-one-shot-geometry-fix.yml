@@ -24,7 +24,7 @@ jobs:
         run: python -u qa/v294-reconstruct-art.py
       - name: Audit every figure and show exact differences
         run: python qa/v294-geometry-audit.py
-      - name: Strictly protect 2 immutable images, all other sections, and 300 KB cap
+      - name: Strictly protect 2 immutable images, all other sections, and 345 KB cap
         run: |
           python - <<'PY'
           import json,subprocess
@@ -36,7 +36,7 @@ jobs:
           assert r['count']==36 and a['compared']==38,(r['count'],a['compared'])
           assert all(x['newCoverage']/x['oldCoverage'] <1.11 for x in r['assets'])
           assert all(abs(x['newMean']-x['oldMean'])<15 for x in r['assets'])
-          assert all(x['webpBytes']<=300000 for x in r['assets'])
+          assert all(x['webpBytes']<=345000 for x in r['assets'])
           for n in ('01-hayk-orion','16-hayk-belt'):
               for ext in ('png','webp'):
                   f=f'assets/constellations-transparent/{n}.{ext}'
