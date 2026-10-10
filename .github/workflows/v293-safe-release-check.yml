@@ -1,0 +1,63 @@
+name: V293 safe images + PWA cache + WebKit release validation
+on:
+  push:
+    branches: [feature/v293-safe-update-validation]
+    paths:
+      - .github/workflows/v293-safe-release-check.yml
+      - constellation-quest-v246.js
+      - app.js
+      - index.html
+      - service-worker.js
+      - qa/full-audit.mjs
+      - qa/pwa-update.test.mjs
+permissions: {contents: read}
+jobs:
+  ios-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source asset counts, Orion Belt and original runtime cache preservation
+        run: |
+          python3 - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('assets/constellations-transparent')
+          m=json.loads((p/'manifest.json').read_text())
+          assert len(m)==38 and len(set(i['source'] for i in m))==38
+          for i in m:
+              assert (pathlib.Path(i['png'])).is_file() and pathlib.Path(i['webp']).is_file()
+          sw=pathlib.Path('service-worker.js').read_text()
+          quest=pathlib.Path('constellation-quest-v246.js').read_text()
+          assert "const CORE_CACHE='areg-v293-core'" in sw
+          assert "const RUNTIME_CACHE='areg-v287-runtime'" in sw
+          assert 'areg-gallery-preview-v238' in sw and 'areg-space-visited-v1' in sw
+          assert "'?v=293'" in quest
+          assert 'service-worker.js?v=293' in pathlib.Path('app.js').read_text()
+          print('PASS V293 image list, cache keys preserved and versioned images')
+          PY
+      - name: Full gameplay invariants, all animals and stars
+        run: node qa/full-audit.mjs
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: Real WebKit game smoke across all 17 routes, animated wins, rewards
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: PWA/Offline fresh HTML update and wallet/audio retention on WebKit
+        run: AREG_BROWSER=webkit node qa/pwa-update.test.mjs
+      - name: Verify unchanged runtime games and gallery assets
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          baseline='34548b66aeb1cadde0fb1e643830de091d2172a6'
+          changed=subprocess.check_output(['git','diff','--name-only',baseline+'..HEAD'],text=True).splitlines()
+          forbidden=[f for f in changed if f.startswith(('assets/thumbs/','assets/space3d/','assets/audio/'))]
+          assert not forbidden,forbidden
+          for ext in ('png','webp'):
+              p='assets/constellations-transparent/16-hayk-belt.'+ext
+              a=subprocess.check_output(['git','rev-parse',baseline+':'+p],text=True).strip()
+              b=subprocess.check_output(['git','rev-parse','HEAD:'+p],text=True).strip()
+              assert a==b,p
+          print('PASS: gallery, animal/planet art, audio and approved Orion Belt byte-identical')
+          PY
