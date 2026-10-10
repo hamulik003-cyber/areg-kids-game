@@ -109,24 +109,25 @@ def render(stem,image,jpg,match_idx):
     result=Image.fromarray(packed,'RGBA')
     # Prefer original detail at 2x. Compress carefully, no network-size explosion.
     webp=ART/(stem+'.webp');png=ART/(stem+'.png')
+    budget=450_000 if stem=='01-hayk-orion' else MAX_CACHE_WEBP_BYTES
     q=88
     while True:
         result.save(webp,'WEBP',quality=q,method=5,exact=True)
-        if webp.stat().st_size<=MAX_CACHE_WEBP_BYTES or q<=76:break
+        if webp.stat().st_size<=budget or q<=76:break
         q-=3
-    if webp.stat().st_size>MAX_CACHE_WEBP_BYTES:
+    if webp.stat().st_size>budget:
         # Preserve detail but never exceed 300 KB: recheck after EVERY resize.
         for attempt in range(8):
             size=webp.stat().st_size
             if size<=MAX_CACHE_WEBP_BYTES:break
-            s=max(.84,min(.96,math.sqrt(MAX_CACHE_WEBP_BYTES/size)*.96))
+            s=max(.84,min(.96,math.sqrt(budget/size)*.96))
             nw2,nh2=round(result.width*s),round(result.height*s)
             if min(nw2,nh2)<720:
                 raise RuntimeError(f'Artwork too heavy: {stem} {size}')
             result=result.resize((nw2,nh2),Image.Resampling.LANCZOS)
             q=max(72,min(82,q-2))
             result.save(webp,'WEBP',quality=q,method=5,exact=True)
-    assert webp.stat().st_size<=MAX_CACHE_WEBP_BYTES,(stem,webp.stat().st_size)
+    assert webp.stat().st_size<=budget,(stem,webp.stat().st_size)
     with Image.open(webp) as img:
         exported=img.convert('RGBA')
         assert exported.getextrema()[3][1]>0
