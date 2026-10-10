@@ -116,7 +116,7 @@ def main():
         item['png_bytes']=(ART/(stem+'.png')).stat().st_size
         item['webp_bytes']=(ART/(stem+'.webp')).stat().st_size
     manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-    result={'source':'ZIP images 39 and 37 (1-based), excluding ZIP extra 36','pilot_assets':results,
+    result={'source':'ZIP images 39 and 29 (1-based), excluding ZIP extra 36','pilot_assets':results,
        'protected':'16-hayk-belt PNG and WebP never edited',
        'main':'NO changes to main; branch only'}
     (QA/'registration-report.json').write_text(json.dumps(result,indent=2)+'\n')

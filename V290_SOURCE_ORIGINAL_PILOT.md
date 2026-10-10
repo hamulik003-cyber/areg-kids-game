@@ -7,3 +7,5 @@
 - The PNG fallback is decoded from this WebP by the feature-only GitHub Actions workflow. This trial **is not approved**, and must not be merged or deployed until visual and iOS/DotKiosk checks pass.
 - Baseline WebP 63,664 bytes; experimental WebP 107,062 bytes at 720x861, i.e. 43,398 more bytes for this one artwork.
 - Main/PWA/service-worker, sound, animations, rewards and other 37 artwork files must remain untouched. Tests may reveal existing baseline WebKit offline cache failures.
+
+V290 pilot update: Sagittarius source ZIP #39; Wolf source ZIP #29. ZIP #37 is Phoenix and was rejected by the matching guard (no runtime file changed). Re-run both source masks in feature branch; 16-hayk-belt never changed.
