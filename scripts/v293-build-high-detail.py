@@ -170,13 +170,13 @@ def main():
     generated=[]
     belt_sha={ext:subprocess.check_output(['git','rev-parse',BASE+f':assets/constellations-transparent/16-hayk-belt.{ext}'],cwd=ROOT).decode().strip() for ext in ('png','webp')}
     for stem in stems:
-        if stem=='16-hayk-belt':continue  # V287-approved three star centers immutable.
+        if stem in ('16-hayk-belt','01-hayk-orion'):continue  # Both already high-resolution; V287 stars untouched.
         result=render(stem,archive[assignment[stem]],target[stem],assignment[stem])
         generated.append(result)
         print('V293_ART',stem,'match',result['match_score'],'bytes',result['webp_bytes'],'pixels',result['game_px'],flush=True)
     for item in manifest:
         stem=Path(item['source']).stem
-        if stem=='16-hayk-belt':continue
+        if stem in ('16-hayk-belt','01-hayk-orion'):continue
         webp=ART/(stem+'.webp');png=ART/(stem+'.png')
         with Image.open(webp) as i:item['size']=[i.width,i.height]
         item['webp_bytes']=webp.stat().st_size
@@ -188,7 +188,7 @@ def main():
         current=subprocess.check_output(['git','hash-object',path],cwd=ROOT).decode().strip()
         assert current==sha,('BELT CHANGED',ext,current,sha)
     report={'status':'FEATURE_ONLY_NOT_APPROVED','name':'V293','total_sources':39,
-      'pictures_in_game':38,'generated':len(generated),'protected':['16-hayk-belt'],
+      'pictures_in_game':38,'generated':len(generated),'protected':['16-hayk-belt','01-hayk-orion'],
       'max_webp_bytes':MAX_CACHE_WEBP_BYTES,'bytes_total':sum(x['webp_bytes'] for x in generated),
       'assets':generated,'source_mapping':matches}
     (QA/'report.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
