@@ -1,0 +1,49 @@
+name: V290 Lyra original-source pilot — feature branch only
+on:
+  push:
+    branches: [feature/v290-source-original-transparent-pilot]
+    paths:
+      - assets/constellations-transparent/10-lyra.webp
+      - .github/workflows/v290-lyra-pilot.yml
+permissions:
+  contents: write
+jobs:
+  png-fallback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check Pillow
+      - name: Export matching transparent PNG fallback
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          folder=Path('assets/constellations-transparent')
+          with Image.open(folder/'10-lyra.webp') as image:
+              assert image.size==(720,861), image.size
+              im=image.convert('RGBA')
+              assert im.getextrema()[3][0]==0 and im.getextrema()[3][1]>0
+              im.save(folder/'10-lyra.png', 'PNG', optimize=True, compress_level=9)
+          print('V290 PILOT: PNG and WebP match; 37 other assets unaffected')
+          PY
+      - name: Verify exactly one changed fallback (do not touch main)
+        run: |
+          python - <<'PY'
+          import subprocess
+          out=subprocess.check_output(['git','status','--porcelain'], text=True).splitlines()
+          paths=[line[3:] for line in out if line.strip()]
+          assert paths==['assets/constellations-transparent/10-lyra.png'],paths
+          PY
+      - name: Commit PNG fallback to feature ONLY
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/constellations-transparent/10-lyra.png
+          git commit -m "V290 pilot: Lyra matching transparent PNG fallback (feature only)"
+          git push origin HEAD:feature/v290-source-original-transparent-pilot
