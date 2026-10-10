@@ -327,3 +327,16 @@
   background:rgba(255,255,255,.28);border-radius:50%;
   font-size:27px;line-height:1;font-weight:1000;
 }
+
+/* V287: only the 38 constellation cards receive a subtle visibility upgrade.
+   Strictly scoped: planets and all other images retain their approved filters.
+   Original SVG/image geometry, pixel content and game transforms are untouched. */
+.s3d-constellation .s3d-find-choice img{
+  filter:brightness(1.16) contrast(1.10) saturate(1.09)
+    drop-shadow(0 0 10px rgba(137,169,255,.27));
+}
+.s3d-constellation .s3d-find-hero img,
+.s3d-constellation .s3d-find-choice.s3d-find-selected img{
+  filter:brightness(1.16) contrast(1.10) saturate(1.10)
+    drop-shadow(0 0 14px rgba(150,178,255,.33));
+}

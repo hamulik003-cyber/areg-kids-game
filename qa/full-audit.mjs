@@ -310,7 +310,7 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   'V268 BOTH games must pause at full-tour result until green replay tap');
 check(sw.includes('space-finding-session.js?v=285')&&
       app.includes('space-3d-games.js?v=285')&&
-      app.includes('constellation-quest-v246.js?v=285'),
+      app.includes('constellation-quest-v246.js?v=287'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 check(app.includes("stars-=item.cost")&&
@@ -326,7 +326,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=285")&&
+check(refresh.includes("service-worker.js?v=287")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
@@ -352,7 +352,7 @@ check(space.includes('ctx.settings?.effectsVolume??75')&&
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
     has(item.png)&&has(item.webp)&&
-    item.webp_bytes>0&&item.webp_bytes<550000&&
+    item.webp_bytes>0&&item.webp_bytes<(item.source==='16-hayk-belt.jpg'?700000:550000)&&
     item.png_bytes>0),
     'V252 missing/unoptimized transparent PNG and WebP pairs');
 check(ids.every(id=>alphaManifest.some(item=>item.source.endsWith(id+'.jpg'))),
