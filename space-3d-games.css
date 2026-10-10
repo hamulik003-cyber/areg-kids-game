@@ -167,7 +167,7 @@
   display:block;position:relative;width:100%;height:100%;
   object-fit:contain;object-position:center;pointer-events:none;
   user-select:none;-webkit-user-select:none;
-  filter:brightness(1.16) contrast(1.10) saturate(1.09)
+  filter:brightness(1.11) contrast(1.06) saturate(1.09)
          drop-shadow(0 0 10px rgba(137,169,255,.27));
   transform-origin:center center;
   backface-visibility:hidden;
@@ -193,7 +193,7 @@
   object-fit:contain;object-position:center;
   pointer-events:none;user-select:none;
   -webkit-user-select:none;
-  filter:brightness(1.16) contrast(1.10) saturate(1.10)
+  filter:brightness(1.12) contrast(1.07) saturate(1.10)
     drop-shadow(0 0 14px rgba(150,178,255,.33));
   transform-origin:center center;
   backface-visibility:hidden;
@@ -203,7 +203,7 @@
 .s3d-find-choice.s3d-find-selected{z-index:15}
 .s3d-find-choice.s3d-find-selected .s3d-find-art-shell{animation:none}
 .s3d-find-choice.s3d-find-selected img{
-  filter:brightness(1.16) contrast(1.10) saturate(1.10)
+  filter:brightness(1.12) contrast(1.07) saturate(1.10)
          drop-shadow(0 0 14px rgba(150,178,255,.33));
 }
 .s3d-find-won .s3d-find-choice:not(.s3d-find-selected){
@@ -326,4 +326,17 @@
   display:inline-grid;place-items:center;width:30px;height:30px;
   background:rgba(255,255,255,.28);border-radius:50%;
   font-size:27px;line-height:1;font-weight:1000;
+}
+
+/* V287: only the 38 constellation cards receive a subtle visibility upgrade.
+   Strictly scoped: planets and all other images retain their approved filters.
+   Original SVG/image geometry, pixel content and game transforms are untouched. */
+.s3d-constellation .s3d-find-choice img{
+  filter:brightness(1.16) contrast(1.10) saturate(1.09)
+    drop-shadow(0 0 10px rgba(137,169,255,.27));
+}
+.s3d-constellation .s3d-find-hero img,
+.s3d-constellation .s3d-find-choice.s3d-find-selected img{
+  filter:brightness(1.16) contrast(1.10) saturate(1.10)
+    drop-shadow(0 0 14px rgba(150,178,255,.33));
 }
