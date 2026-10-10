@@ -1,0 +1,47 @@
+name: V287 original-art enhanced runtime WebP + 3 belt cores (feature branch only)
+on:
+  push:
+    branches: [feature/v287-constellation-preserve-art-quality-belt-stars]
+    paths:
+      - scripts/v287-preserve-art-and-belt.py
+      - .github/workflows/v287-preserve-art.yml
+permissions:
+  contents: write
+jobs:
+  enhance-binaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check Pillow
+      - name: Enhance compression fidelity without editing any artwork content
+        run: python scripts/v287-preserve-art-and-belt.py
+      - name: Verify EXACT allowed binary changes
+        run: |
+          python - <<'PY'
+          import subprocess
+          changed=set(subprocess.check_output(['git','diff','--name-only'],text=True).splitlines())
+          allowed={f'assets/constellations-transparent/{i:02d}-{slug}.webp'
+            for i,slug in enumerate((
+             'hayk-orion','ursa-major','ursa-minor','cassiopeia','andromeda','pegasus',
+             'cepheus','draco','cygnus','lyra','leo','cancer','taurus','scorpius',
+             'libra','hayk-belt','aquarius','virgo','gemini','capricornus','aries',
+             'pisces','perseus','hercules','aquila','delphinus','phoenix','hydra',
+             'canis-major','canis-minor','sagittarius','ophiuchus','corona-borealis',
+             'cetus','monoceros','auriga','lupus','piscis-austrinus'),start=1)}
+          allowed.update({'assets/constellations-transparent/16-hayk-belt.png','assets/constellations-transparent/manifest.json'})
+          assert len(changed)>=39,changed
+          assert changed<=allowed,'ILLEGAL alteration to approved art: '+repr(changed-allowed)
+          print('PASS: 38 approved compositions intact; only belt source PNG and compressed WebPs affected')
+          PY
+      - name: Stage corrected PNG and higher-fidelity runtime WebPs to feature only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/constellations-transparent
+          git commit -m "V287: keep all 38 compositions, improve WebP detail and 3 Orion Belt centers"
+          git push origin HEAD:feature/v287-constellation-preserve-art-quality-belt-stars
