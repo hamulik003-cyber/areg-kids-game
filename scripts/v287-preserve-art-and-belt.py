@@ -57,6 +57,39 @@ orig_rgba=original.tobytes()
 new_rgba=result.tobytes()
 assert orig_rgba[::4]==new_rgba[::4] and orig_rgba[1::4]==new_rgba[1::4] and orig_rgba[2::4]==new_rgba[2::4]
 assert all(x>=y for x,y in zip(new_rgba[3::4],orig_rgba[3::4]))
+# Previous alpha extraction also zeroed RGB within each bright star's small
+# central void. Raising alpha alone exposes black, so restore ONLY those three
+# existing star cores with the original white-blue light (zero changes to shape).
+# Locations measured from ORIGINAL alpha PNG and 720px WebP visuals; no new nodes.
+HOLES=((.434,.448),(.539,.469),(.636,.479))
+for nx,ny in HOLES:
+    cx,cy=round(nx*w),round(ny*h)
+    radius=21.
+    repaired=0
+    for y in range(max(0,cy-22),min(h,cy+23)):
+        for x in range(max(0,cx-22),min(w,cx+23)):
+            dist=math.hypot(x-cx,y-cy)
+            if dist>radius:continue
+            r,g,b,a=p[x,y]
+            # Tiny full-white core and soft icy-blue flare, matching untouched
+            # neighbouring star-pixel material rather than painting new art.
+            if dist<=10:
+                weight=1.
+            else:
+                t=max(0.,min(1.,(radius-dist)/(radius-10.)))
+                weight=t*t*(3.-2.*t)
+            if weight<=0:continue
+            center=max(0.,1.-dist/13.)
+            desired=(round(226+29*center),round(240+15*center),255)
+            pixel=(round(r*(1-weight)+desired[0]*weight),
+                   round(g*(1-weight)+desired[1]*weight),
+                   round(b*(1-weight)+desired[2]*weight),
+                   max(a,round(weight*255)))
+            if pixel!=(r,g,b,a):
+                p[x,y]=pixel
+                repaired+=1
+    assert p[cx,cy][3]==255 and min(p[cx,cy][:3])>=254
+    print('V287 restored luminous center, NOT star geometry:',(cx,cy),'pixels',repaired)
 result.save(belt_path,format='PNG',compress_level=6)
 print('V287 ORION BELT restored 3 ACTUAL stars ONLY:',centers)
 
@@ -72,7 +105,7 @@ for item in items:
     target=DIR/(stem+'.webp')
     # Native source is untouched. Save a less downscaled, higher-quality
     # WebP to avoid soft/blurry 560px q80 images when enlarged on iPhone.
-    copy.save(target,format='WEBP',quality=93,method=6,exact=True)
+    copy.save(target,format='WEBP',quality=93,method=4,exact=True)
     decoded=Image.open(target).convert('RGBA')
     assert decoded.size==copy.size and decoded.getchannel('A').getextrema()[0]==0
     item['webp_bytes']=target.stat().st_size
