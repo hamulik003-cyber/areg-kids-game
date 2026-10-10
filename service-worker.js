@@ -1,23 +1,15 @@
-const CORE_CACHE='areg-v294h-core';
-const RUNTIME_CACHE='areg-v294h-runtime';
+const CORE_CACHE='areg-v287-core';
+const RUNTIME_CACHE='areg-v287-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
-// Keep the V287 runtime image cache for older gallery/nature/space entries.
-// Constellation image URLs remain ?v=294f; Only the quest & display CSS advance to V294h.
-// Do not redownload unchanged 38 pictures or clear saved child progress.
-const PRESERVED_LEGACY_RUNTIME='areg-v287-runtime';
-const PRESERVED_LAST_RUNTIME='areg-v294-runtime';
-// Keep prior V294f image caches while the same 38 graphics remain unchanged.
-const PRESERVED_V294F_RUNTIME='areg-v294f-runtime';
-const PRESERVED_V294G_RUNTIME='areg-v294g-runtime';
 const CORE=[
   './index.html',
   './launcher.html',
-  './constellation-quest-v246.js?v=294h',
+  './constellation-quest-v246.js?v=287',
   './space-finding-session.js?v=285',
   './styles.css?v=285',
-  './space-3d-games.css?v=294h',
-  './app.js?v=294h',
+  './space-3d-games.css?v=287',
+  './app.js?v=287',
   './home-nature-art.jpg',
   './home-space-art.jpg',
   './space-game-1.jpg',
@@ -56,7 +48,7 @@ self.addEventListener('activate',event=>{
     caches.keys()
       .then(keys=>Promise.all(
         keys
-          .filter(k=>k.startsWith('areg-')&&k!==CORE_CACHE&&k!==RUNTIME_CACHE&&!MEDIA_CACHES.includes(k)&&k!==PRESERVED_LEGACY_RUNTIME&&k!==PRESERVED_LAST_RUNTIME&&k!==PRESERVED_V294F_RUNTIME&&k!==PRESERVED_V294G_RUNTIME)
+          .filter(k=>k.startsWith('areg-')&&k!==CORE_CACHE&&k!==RUNTIME_CACHE&&!MEDIA_CACHES.includes(k))
           .map(k=>caches.delete(k))
       ))
       .then(()=>self.clients.claim())

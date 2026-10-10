@@ -54,9 +54,9 @@ check(sw.includes("fetch(request,{cache:'no-store'})")&&
   !sw.includes("if(cached)return cached;\n  }\n  try{return await fetch(request)}"),
   'V284 prevent old cache-first home HTML from trapping browsers on obsolete app.js after deployment');
 check(launcher.includes("location.replace('./')")&&!launcher.includes('__areg_build'),'DotKiosk launcher should use clean standalone entry');
-const coreV=sw.match(/areg-v(\d+[a-z]?)-core/),runV=sw.match(/areg-v(\d+[a-z]?)-runtime/);
-const appV=html.match(/app\.js\?v=(\d+[a-z]?)/),styleV=html.match(/styles\.css\?v=(\d+)/);
-const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+[a-z]?)/);
+const coreV=sw.match(/areg-v(\d+)-core/),runV=sw.match(/areg-v(\d+)-runtime/);
+const appV=html.match(/app\.js\?v=(\d+)/),styleV=html.match(/styles\.css\?v=(\d+)/);
+const spaceCssV=html.match(/space-3d-games\.css\?v=(\d+)/);
 check(!!coreV&&!!runV&&coreV[1]===runV[1],'SW cache version mismatch');
 check(!!appV&&app.includes("service-worker.js?v="+appV[1]),'SW registration version mismatch');
 check(!!coreV&&!!appV&&coreV[1]===appV[1],'App/SW release version mismatch');
@@ -64,8 +64,8 @@ check(!!appV&&sw.includes("'./app.js?v="+appV[1]+"'"),'SW precache app version m
 check(!!styleV&&sw.includes("'./styles.css?v="+styleV[1]+"'"),'SW precache CSS version mismatch');
 check(!!spaceCssV&&sw.includes("'./space-3d-games.css?v="+spaceCssV[1]+"'"),'SW precache 3D CSS version mismatch');
 check(/import\('\.\/space-3d-games\.js\?v=\d+'\)/.test(app),'Approved Space Search dynamic import missing');
-check(/import\('\.\/constellation-quest-v246\.js\?v=\d+[a-z]?'\)/.test(app)&&app.includes('constellationQuest:launchConstellationQuest'),'Standalone constellation game not wired');
-check(/\.\/constellation-quest-v246\.js\?v=\d+[a-z]?/.test(sw),'Constellation module not in offline core');
+check(/import\('\.\/constellation-quest-v246\.js\?v=\d+'\)/.test(app)&&app.includes('constellationQuest:launchConstellationQuest'),'Standalone constellation game not wired');
+check(/\.\/constellation-quest-v246\.js\?v=\d+/.test(sw),'Constellation module not in offline core');
 const constellationSource=app.slice(app.indexOf('const CONSTELLATIONS=['),app.indexOf('const SECTIONS={'));
 const ids=[...constellationSource.matchAll(/\{id:'([^']+)',img:'([^']+)'/g)].map(m=>m[1]);
 const shuffleDefinition=quest.match(/function randomizedOrder\(items\)\{[\s\S]*?\n\}/)?.[0];
@@ -119,7 +119,7 @@ check(quest.includes("function visibleAlphaBounds(image)")&&
       quest.includes("getImageData(0,0,n,n).data")&&
       quest.includes("function sizeVisibleIllustration(button,img,record)")&&
       quest.includes("bounds:visibleAlphaBounds(image)")&&
-      quest.includes("const m=computeConstellationChoiceFit(w,h,nativeW,nativeH,b,protectedV287)")&&
+      quest.includes("const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02)")&&
       quest.includes("sizeVisibleIllustration(")&&
       skyCss.includes(".s3d-find-art-shell")&&
       skyCss.includes(".s3d-find-choice:nth-child(2) .s3d-find-art-shell"),
@@ -310,7 +310,7 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   'V268 BOTH games must pause at full-tour result until green replay tap');
 check(sw.includes('space-finding-session.js?v=285')&&
       app.includes('space-3d-games.js?v=285')&&
-      app.includes('constellation-quest-v246.js?v=294h'),
+      app.includes('constellation-quest-v246.js?v=287'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
 check(app.includes("stars-=item.cost")&&
@@ -326,7 +326,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=294h")&&
+check(refresh.includes("service-worker.js?v=287")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&
@@ -349,54 +349,6 @@ check(space.includes('ctx.settings?.effectsVolume??75')&&
       read('space-finding-session.js').includes('const audioScale=')&&
       app.includes('voiceLevel()')&&app.includes("menuMusic.pause();\n    const map="),
       'V285 audio gain applies to both Space games and results without moving visuals');
-// V294 figure-only normalization: an audited 38/38 alpha histogram included
-// decorative nebula, so user-visible subjects (especially Lyra/Crown) remained
-// much smaller than adjacent constellation animals on a real iPhone.
-const subjectFramesSource=quest.match(/export const CONSTELLATION_CHOICE_FRAMES=Object\.freeze\((\{[\s\S]*?\})\);/);
-check(!!subjectFramesSource,'V294 curated subject frames missing');
-if(subjectFramesSource){
- const subjects=Function('return ('+subjectFramesSource[1]+')')();
- const stems=JSON.parse(read('assets/constellations-transparent/manifest.json'))
-   .map(x=>x.webp.split('/').pop().replace(/\.webp$/,''));
- check(stems.length===38&&Object.keys(subjects).length===38&&
-   stems.every(x=>Object.hasOwn(subjects,x)),
-   'V294 all 38 originals require one subject framing record');
- check(subjects['01-hayk-orion']===null&&subjects['16-hayk-belt']===null,
-   'Two V287 user-approved Orion visuals must keep unchanged framing');
- check(stems.filter(x=>Array.isArray(subjects[x])).length===36&&
-   stems.every(x=>!subjects[x]||(Array.isArray(subjects[x])&&
-     subjects[x].length===4&&subjects[x].every(Number.isFinite)&&
-     subjects[x][0]>=0&&subjects[x][1]>=0&&subjects[x][2]<=1&&subjects[x][3]<=1&&
-     subjects[x][2]-subjects[x][0]>.3&&subjects[x][3]-subjects[x][1]>.3)),
-   '36 curated subject boxes must be valid, not geometrically cropped');
- check(subjects['10-lyra'][2]-subjects['10-lyra'][0]<.5&&
-   subjects['33-corona-borealis'][3]-subjects['33-corona-borealis'][1]<.55,
-   'V294 narrow Lyra and Crown need nebula-independent visual bounds');
- check(quest.includes('const b=record.choiceBounds||record.bounds;')&&
-   quest.includes('record.choiceBounds=visualChoiceBounds(item,record.bounds)')&&
-   quest.includes('const b=record.bounds;')&&
-   quest.includes('const ARTWORK_LRU_LIMIT=10'),
-   'Only four-choice visual sizes may change; hero geometry and image cache stay fixed');
-}
-check(sw.includes("const PRESERVED_V294F_RUNTIME='areg-v294f-runtime'") &&
-  quest.includes("+'?v=294f'"),
-  'V294 updated quest must retain unchanged image URLs and previous runtime cache');
-
-// V294h 8-actual-screenshot regression: larger untouched subjects, not clouds.
-check(quest.includes('export function computeConstellationChoiceFit(')&&
-  quest.includes('const m=computeConstellationChoiceFit(w,h,nativeW,nativeH,b,protectedV287)')&&
-  quest.includes('const b=record.bounds;')&&
-  quest.includes("button.dataset.choiceFit='v294h'"),
-  'All constellation choice cards must use real subject fit; hero V287 bounds untouched');
-check(quest.includes('const fraction=isProtectedV287?.84:.91;')&&
-  !quest.includes('const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02)'),
-  'V294h must remove hard 2.02 ceiling for 36 small subjects');
-check(skyCss.includes('top:17%;bottom:9%;left:3.5%;right:3.5%')&&
-  html.includes('space-3d-games.css?v=294h')&&
-  sw.includes("'./space-3d-games.css?v=294h'")&&
-  sw.includes("const PRESERVED_V294G_RUNTIME='areg-v294g-runtime'"),
-  'V294h increased stage + correct PWA stylesheet version/cache preservation');
-
 const alphaManifest=JSON.parse(read('assets/constellations-transparent/manifest.json'));
 check(alphaManifest.length===38&&alphaManifest.every(item=>
     has(item.png)&&has(item.webp)&&
