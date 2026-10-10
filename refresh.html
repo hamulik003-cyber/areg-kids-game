@@ -41,7 +41,7 @@ async function updateGame(){
       return;
     }
     const registration=await navigator.serviceWorker.register(
-      './service-worker.js?v=294f',{updateViaCache:'none'});
+      './service-worker.js?v=294g',{updateViaCache:'none'});
     await registration.update();
     // This dedicated /refresh.html path was not cached by the previous
     // service worker. Wait for v284 to truly activate before returning to
@@ -49,7 +49,7 @@ async function updateGame(){
     const deadline=Date.now()+14000;
     while(Date.now()<deadline){
       const active=registration.active;
-      if(active&&active.state==='activated'&&active.scriptURL.includes('v=294f')){
+      if(active&&active.state==='activated'&&active.scriptURL.includes('v=294g')){
         status.textContent='Թարմացումն ավարտված է։ Բացվում է խաղը։';
         location.replace('./');
         return;
