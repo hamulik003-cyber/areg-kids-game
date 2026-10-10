@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>AREG • Նկարների որակի համեմատություն (V287 / V290)</title>
+<style>
+:root{font-family:system-ui,-apple-system,Arial,sans-serif;color:#eef2ff;background:#0b1230;font-synthesis:none}
+*{box-sizing:border-box}html{min-height:100%;}body{margin:0;background:radial-gradient(circle at 80% 15%,#252c56 0,transparent 58%),#0b1230}
+main{max-width:860px;margin:auto;padding:clamp(14px,4vw,26px) 14px 55px}
+h1{font-size:clamp(20px,4vw,27px);line-height:1.4;margin:4px 0 8px;font-weight:800}.note{font-size:13px;line-height:1.7;color:#c6d2ec;margin:0 0 17px}
+.status{color:#f7d38a;font-weight:700;font-size:12px;letter-spacing:.01em;margin-bottom:8px}.group-title{font-size:16px;margin:20px 0 9px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{appearance:none;border:1px solid #485781;color:inherit;min-width:0;background:linear-gradient(180deg,#172044,#10182f);border-radius:14px;padding:7px;cursor:pointer;box-shadow:0 8px 20px #02061555;text-align:center;-webkit-tap-highlight-color:transparent}
+.tile:active{transform:scale(.985)}.tile:focus-visible,.tool:focus-visible{outline:3px solid #91d8ff;outline-offset:3px}
+.flag{display:flex;align-items:center;justify-content:center;min-height:31px;font-size:12px;font-weight:800;color:#fff;border-radius:8px;margin:1px 1px 6px}.flag.old{background:#3c476d}.flag.new{background:#11666b}
+.tile img{display:block;width:100%;height:clamp(180px,42vw,305px);object-fit:contain;background:#080f2c;border-radius:7px}
+.meta{display:block;font-size:11px;color:#c1cee7;padding:8px 2px 3px;line-height:1.45}
+.legend{margin:18px 0;color:#c1cee7;font-size:12px;line-height:1.7}
+#viewer[hidden]{display:none}#viewer{position:fixed;inset:0;z-index:99;background:#060b1bf2;display:flex;flex-direction:column;overscroll-behavior:contain}
+.viewer-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 10px 8px;background:#101936;z-index:2}
+.viewer-heading{min-width:0;font-size:14px;font-weight:800;line-height:1.3}.viewer-heading small{display:block;font-size:11px;font-weight:500;color:#a6b5d8;margin-top:3px}
+.tool{appearance:none;background:#293758;color:#fff;border:1px solid #64739e;border-radius:9px;min-width:40px;min-height:40px;padding:8px;font-size:16px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}.tool:active{background:#446391}
+#pictureArea{position:relative;flex:1;min-height:100px;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#full{display:block;max-width:94%;max-height:94%;width:auto;height:auto;object-fit:contain;transform-origin:center center;will-change:transform;pointer-events:none;-webkit-user-drag:none}
+#viewerMsg{position:absolute;bottom:12px;left:12px;right:12px;text-align:center;color:#c9d8f1;font-size:12px;pointer-events:none;text-shadow:0 2px 2px #000}
+.bottom{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px));background:#101936;z-index:2}
+#swap{font-size:12px;background:#145d6f;min-width:137px}.pct{min-width:57px;text-align:center;font-variant-numeric:tabular-nums;color:#e4edff;font-size:13px;font-weight:700}
+@media(min-width:640px){.grid{gap:18px}.tile{padding:12px}.flag{font-size:13px}.meta{font-size:12px}}
+</style>
+</head>
+<body>
+<main>
+<div class="status">AREG • V291 ՓՈՐՁՆԱԿԱՆ ԷՋ • ՀԻՄՆԱԿԱՆ ԽԱՂԸ ՉԻ ՓՈԽՎԵԼ</div>
+<h1>Համեմատիր նկարների իրական որակը</h1>
+<p class="note">Նույն համաստեղության հին V287 և նոր V290 WebP տարբերակներն են։ Սեղմիր յուրաքանչյուր նկարի վրա, մեծացրու, հետո նույն մասշտաբով փոխիր «հին / նոր»։ Միայն քո աչքով տեսանելի տարբերությունն է կարևոր։</p>
+<section><h2 class="group-title">Քնար</h2><div class="grid">
+<button class="tile" data-item="lyra-old"><span class="flag old">ՀԻՆ • V287</span><img loading="eager" decoding="async" data-item="lyra-old" alt="Քնար, հին V287"><span class="meta">480×574 px · 63.7 KB · սեղմիր</span></button>
+<button class="tile" data-item="lyra-new"><span class="flag new">ՆՈՐ • V290</span><img loading="eager" decoding="async" data-item="lyra-new" alt="Քնար, նոր V290"><span class="meta">720×861 px · 107.1 KB · սեղմիր</span></button>
+</div></section>
+<section><h2 class="group-title">Աղեղնավոր</h2><div class="grid">
+<button class="tile" data-item="sag-old"><span class="flag old">ՀԻՆ • V287</span><img loading="eager" decoding="async" data-item="sag-old" alt="Աղեղնավոր, հին V287"><span class="meta">Հին խաղային WebP · 115 KB · սեղմիր</span></button>
+<button class="tile" data-item="sag-new"><span class="flag new">ՆՈՐ • V290</span><img loading="eager" decoding="async" data-item="sag-new" alt="Աղեղնավոր, նոր V290"><span class="meta">720×861 px · 210.8 KB · սեղմիր</span></button>
+</div></section>
+<p class="legend">Մեծացման ժամանակ կարելի է օգտագործել +/−, երկու մատով մոտեցնել կամ մեկ մատով տեղաշարժել։ «Փոխել հին/նոր» կոճակը պահում է նույն մեծացումը, որպեսզի մանրամասները համեմատվեն անմիջապես։ Նոր նկարներն այստեղ նույնպես փորձնական են․ դեռ հաստատված չեն։</p>
+</main>
+<div id="viewer" hidden role="dialog" aria-modal="true" aria-label="Նկարի մեծացում">
+  <div class="viewer-top"><div class="viewer-heading"><span id="vTitle"></span><small id="vInfo"></small></div><button id="close" class="tool" aria-label="Փակել մեծացումը">✕</button></div>
+  <div id="pictureArea"><img id="full" alt="Մեծացված պատկեր"><div id="viewerMsg">Երկու մատով մեծացրու · մեկ մատով տեղաշարժիր</div></div>
+  <div class="bottom"><button id="minus" class="tool" aria-label="Փոքրացնել">−</button><span class="pct" id="zoomPct">100%</span><button id="plus" class="tool" aria-label="Մեծացնել">+</button><button id="reset" class="tool" aria-label="Վերադարձնել սկզբնական չափը">↺</button><button id="swap" class="tool">Փոխել հին/նոր</button></div>
+</div>
+<script>
+(() => {
+ 'use strict';
+ const repo='https://raw.githubusercontent.com/hamulik003-cyber/areg-kids-game/';
+ const oldCommit='34548b66aeb1cadde0fb1e643830de091d2172a6';
+ const newCommit='2258e5ad24ec0975d7e98d172759b0a4fbf8bd2e';
+ const prefix='assets/constellations-transparent/';
+ const records={
+  'lyra-old':{label:'Քնար',version:'Հին · V287',size:'480×574 · 63.7 KB',src:repo+oldCommit+'/'+prefix+'10-lyra.webp',other:'lyra-new'},
+  'lyra-new':{label:'Քնար',version:'Նոր · V290',size:'720×861 · 107.1 KB',src:repo+newCommit+'/'+prefix+'10-lyra.webp',other:'lyra-old'},
+  'sag-old':{label:'Աղեղնավոր',version:'Հին · V287',size:'480×574 · 115 KB',src:repo+oldCommit+'/'+prefix+'31-sagittarius.webp',other:'sag-new'},
+  'sag-new':{label:'Աղեղնավոր',version:'Նոր · V290',size:'720×861 · 210.8 KB',src:repo+newCommit+'/'+prefix+'31-sagittarius.webp',other:'sag-old'}
+ };
+ const viewer=document.getElementById('viewer'),full=document.getElementById('full'),area=document.getElementById('pictureArea');
+ const zoomText=document.getElementById('zoomPct');
+ let selected=null,scale=1,dx=0,dy=0,lastFocus=null,lastTap=0;
+ const points=new Map();let gesture=null;
+ function apply(){scale=Math.max(1,Math.min(5,scale));const limX=Math.max(0,(area.clientWidth*scale-area.clientWidth)/2),limY=Math.max(0,(area.clientHeight*scale-area.clientHeight)/2);dx=Math.max(-limX,Math.min(limX,dx));dy=Math.max(-limY,Math.min(limY,dy));full.style.transform='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';zoomText.textContent=Math.round(scale*100)+'%';}
+ function choose(key,preserve=false){selected=key;const x=records[key];if(!preserve){scale=1;dx=dy=0;}document.getElementById('vTitle').textContent=x.label+' — '+x.version;document.getElementById('vInfo').textContent=x.size;full.alt=x.label+' '+x.version;full.src=x.src;apply();}
+ function open(key){lastFocus=document.activeElement;viewer.hidden=false;document.body.style.overflow='hidden';choose(key);document.getElementById('close').focus();}
+ function close(){viewer.hidden=true;document.body.style.overflow='';points.clear();gesture=null;full.removeAttribute('src');lastFocus?.focus?.();}
+ Object.entries(records).forEach(([key,data])=>{let preview=document.querySelector('img[data-item="'+key+'"]');preview.src=data.src;preview.addEventListener('error',()=>{preview.alt='Չհաջողվեց բեռնել '+data.label+', փորձիր թարմացնել էջը';});});
+ document.querySelectorAll('button.tile').forEach(btn=>btn.addEventListener('click',()=>open(btn.dataset.item)));
+ document.getElementById('close').addEventListener('click',close);
+ document.getElementById('swap').addEventListener('click',()=>{if(selected)choose(records[selected].other,true)});
+ document.getElementById('plus').addEventListener('click',()=>{scale*=1.5;apply()});
+ document.getElementById('minus').addEventListener('click',()=>{scale/=1.5;apply()});
+ document.getElementById('reset').addEventListener('click',()=>{scale=1;dx=dy=0;apply()});
+ document.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')close();if(e.key==='+'||e.key==='='){scale*=1.3;apply()}if(e.key==='-'){scale/=1.3;apply()}});
+ function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+ function centroid(a,b){return {x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+ area.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;area.setPointerCapture?.(e.pointerId);points.set(e.pointerId,{x:e.clientX,y:e.clientY});const a=[...points.values()];if(a.length===2){gesture={kind:'pinch',distance:dist(a[0],a[1]),center:centroid(a[0],a[1]),scale,dx,dy}}else if(a.length===1){gesture={kind:'pan',x:e.clientX,y:e.clientY,dx,dy};const now=Date.now();if(now-lastTap<300){scale=scale<1.3?2.5:1;dx=dy=0;apply();}lastTap=now;}e.preventDefault();});
+ area.addEventListener('pointermove',e=>{if(!points.has(e.pointerId))return;points.set(e.pointerId,{x:e.clientX,y:e.clientY});const a=[...points.values()];if(a.length===2){if(!gesture||gesture.kind!=='pinch'){gesture={kind:'pinch',distance:dist(a[0],a[1]),center:centroid(a[0],a[1]),scale,dx,dy}}const c=centroid(a[0],a[1]);scale=gesture.scale*dist(a[0],a[1])/Math.max(20,gesture.distance);dx=gesture.dx+(c.x-gesture.center.x);dy=gesture.dy+(c.y-gesture.center.y);apply();}else if(a.length===1&&gesture?.kind==='pan'){dx=gesture.dx+e.clientX-gesture.x;dy=gesture.dy+e.clientY-gesture.y;apply();}e.preventDefault();});
+ function up(e){points.delete(e.pointerId);if(points.size===1){const q=[...points.values()][0];gesture={kind:'pan',x:q.x,y:q.y,dx,dy}}else if(!points.size){gesture=null;}}
+ area.addEventListener('pointerup',up);area.addEventListener('pointercancel',up);
+ area.addEventListener('wheel',e=>{if(viewer.hidden)return;e.preventDefault();scale*=e.deltaY<0?1.18:1/1.18;apply()},{passive:false});
+ window.addEventListener('resize',apply);
+})();
+</script>
+</body>
+</html>
