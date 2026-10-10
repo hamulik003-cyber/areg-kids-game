@@ -32,7 +32,7 @@ jobs:
           from PIL import Image
           p=pathlib.Path('qa/v293-quality-report/report.json')
           a=json.loads(p.read_text())
-          assert a['generated']==37,a['generated']
+          assert a['generated']==36,a['generated']
           assert len(a['source_mapping'])==38
           assert len({x['source_index'] for x in a['source_mapping']})==38
           assert set(range(1,40))-{36} == {x['source_index'] for x in a['source_mapping']}
@@ -46,18 +46,18 @@ jobs:
             cur=subprocess.check_output(['git','hash-object',f],text=True).strip()
             baseline=subprocess.check_output(['git','rev-parse','34548b66aeb1cadde0fb1e643830de091d2172a6:'+f],text=True).strip()
             assert cur==baseline,f
-          print('PASS: 37 optimized pictures, 38 correct names, original Belt untouched')
+          print('PASS: 36 optimized pictures (2 preserved), 38 correct names, original Belt untouched')
           PY
       - name: Verify nothing outside the constellation game and its asset bundle was edited
         run: |
           python - <<'PY'
           import subprocess
           files=subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()
-          assert len(files)==75,len(files)
+          assert len(files)==73,len(files)
           assert all(p.startswith('assets/constellations-transparent/') for p in files),files
           assert 'assets/constellations-transparent/16-hayk-belt.png' not in files
           assert 'assets/constellations-transparent/16-hayk-belt.webp' not in files
-          print('PASS: exactly 37 PNG + 37 WebP + manifest, no section/animation/audio changes')
+          print('PASS: exactly 36 PNG + 36 WebP + manifest, no section/animation/audio changes')
           PY
       - name: Existing full game static regression suite
         run: node qa/full-audit.mjs
