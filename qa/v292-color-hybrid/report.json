@@ -1,0 +1,44 @@
+{
+  "status": "QA_ONLY",
+  "method": "Old low-frequency RGB palette guided recolor of new high-resolution RGB; unchanged V290 alpha and detail",
+  "pictures": [
+    {
+      "stem": "10-lyra",
+      "original_size": [
+        480,
+        574
+      ],
+      "new_size": [
+        720,
+        861
+      ],
+      "old_bytes": 63664,
+      "new_bytes": 107062,
+      "hybrid_webp_bytes": {
+        "balanced": 116158,
+        "vivid": 116626
+      },
+      "alpha_matches_V290": true
+    },
+    {
+      "stem": "31-sagittarius",
+      "original_size": [
+        480,
+        574
+      ],
+      "new_size": [
+        720,
+        861
+      ],
+      "old_bytes": 115010,
+      "new_bytes": 210834,
+      "hybrid_webp_bytes": {
+        "balanced": 215088,
+        "vivid": 215934
+      },
+      "alpha_matches_V290": true
+    }
+  ],
+  "protected": "16-hayk-belt 100% untouched",
+  "main": "untouched"
+}
