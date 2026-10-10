@@ -8,7 +8,7 @@
       1050
     ],
     "png_bytes": 837927,
-    "webp_bytes": 420620
+    "webp_bytes": 237924
   },
   {
     "source": "02-ursa-major.jpg",
@@ -19,7 +19,7 @@
       574
     ],
     "png_bytes": 199994,
-    "webp_bytes": 101468
+    "webp_bytes": 79020
   },
   {
     "source": "03-ursa-minor.jpg",
@@ -30,7 +30,7 @@
       574
     ],
     "png_bytes": 182036,
-    "webp_bytes": 92278
+    "webp_bytes": 71408
   },
   {
     "source": "04-cassiopeia.jpg",
@@ -41,7 +41,7 @@
       574
     ],
     "png_bytes": 247317,
-    "webp_bytes": 122704
+    "webp_bytes": 96478
   },
   {
     "source": "05-andromeda.jpg",
@@ -52,7 +52,7 @@
       574
     ],
     "png_bytes": 224846,
-    "webp_bytes": 110340
+    "webp_bytes": 86582
   },
   {
     "source": "06-pegasus.jpg",
@@ -63,7 +63,7 @@
       574
     ],
     "png_bytes": 251569,
-    "webp_bytes": 124426
+    "webp_bytes": 98208
   },
   {
     "source": "07-cepheus.jpg",
@@ -74,7 +74,7 @@
       574
     ],
     "png_bytes": 182967,
-    "webp_bytes": 93388
+    "webp_bytes": 72532
   },
   {
     "source": "08-draco.jpg",
@@ -85,7 +85,7 @@
       574
     ],
     "png_bytes": 233950,
-    "webp_bytes": 116460
+    "webp_bytes": 93260
   },
   {
     "source": "09-cygnus.jpg",
@@ -96,7 +96,7 @@
       574
     ],
     "png_bytes": 269470,
-    "webp_bytes": 129006
+    "webp_bytes": 101936
   },
   {
     "source": "10-lyra.jpg",
@@ -107,7 +107,7 @@
       574
     ],
     "png_bytes": 164870,
-    "webp_bytes": 82058
+    "webp_bytes": 63664
   },
   {
     "source": "11-leo.jpg",
@@ -118,7 +118,7 @@
       574
     ],
     "png_bytes": 305607,
-    "webp_bytes": 140864
+    "webp_bytes": 113644
   },
   {
     "source": "12-cancer.jpg",
@@ -129,7 +129,7 @@
       574
     ],
     "png_bytes": 276406,
-    "webp_bytes": 131706
+    "webp_bytes": 106590
   },
   {
     "source": "13-taurus.jpg",
@@ -140,7 +140,7 @@
       574
     ],
     "png_bytes": 309437,
-    "webp_bytes": 142268
+    "webp_bytes": 114764
   },
   {
     "source": "14-scorpius.jpg",
@@ -151,7 +151,7 @@
       574
     ],
     "png_bytes": 271690,
-    "webp_bytes": 129178
+    "webp_bytes": 104484
   },
   {
     "source": "15-libra.jpg",
@@ -162,7 +162,7 @@
       574
     ],
     "png_bytes": 267762,
-    "webp_bytes": 126480
+    "webp_bytes": 102614
   },
   {
     "source": "16-hayk-belt.jpg",
@@ -184,7 +184,7 @@
       574
     ],
     "png_bytes": 331430,
-    "webp_bytes": 155778
+    "webp_bytes": 126696
   },
   {
     "source": "18-virgo.jpg",
@@ -195,7 +195,7 @@
       574
     ],
     "png_bytes": 312859,
-    "webp_bytes": 151052
+    "webp_bytes": 121004
   },
   {
     "source": "19-gemini.jpg",
@@ -206,7 +206,7 @@
       574
     ],
     "png_bytes": 320591,
-    "webp_bytes": 152834
+    "webp_bytes": 122608
   },
   {
     "source": "20-capricornus.jpg",
@@ -217,7 +217,7 @@
       574
     ],
     "png_bytes": 321025,
-    "webp_bytes": 150916
+    "webp_bytes": 121082
   },
   {
     "source": "21-aries.jpg",
@@ -228,7 +228,7 @@
       574
     ],
     "png_bytes": 310584,
-    "webp_bytes": 146672
+    "webp_bytes": 118450
   },
   {
     "source": "22-pisces.jpg",
@@ -239,7 +239,7 @@
       574
     ],
     "png_bytes": 308158,
-    "webp_bytes": 143132
+    "webp_bytes": 117548
   },
   {
     "source": "23-perseus.jpg",
@@ -250,7 +250,7 @@
       574
     ],
     "png_bytes": 307082,
-    "webp_bytes": 147960
+    "webp_bytes": 120122
   },
   {
     "source": "24-hercules.jpg",
@@ -261,7 +261,7 @@
       574
     ],
     "png_bytes": 330491,
-    "webp_bytes": 158316
+    "webp_bytes": 128132
   },
   {
     "source": "25-aquila.jpg",
@@ -272,7 +272,7 @@
       574
     ],
     "png_bytes": 286660,
-    "webp_bytes": 136428
+    "webp_bytes": 109988
   },
   {
     "source": "26-delphinus.jpg",
@@ -283,7 +283,7 @@
       574
     ],
     "png_bytes": 182689,
-    "webp_bytes": 86430
+    "webp_bytes": 68216
   },
   {
     "source": "27-phoenix.jpg",
@@ -294,7 +294,7 @@
       574
     ],
     "png_bytes": 363270,
-    "webp_bytes": 169370
+    "webp_bytes": 137794
   },
   {
     "source": "28-hydra.jpg",
@@ -305,7 +305,7 @@
       574
     ],
     "png_bytes": 255726,
-    "webp_bytes": 120344
+    "webp_bytes": 98272
   },
   {
     "source": "29-canis-major.jpg",
@@ -316,7 +316,7 @@
       574
     ],
     "png_bytes": 287838,
-    "webp_bytes": 138944
+    "webp_bytes": 110754
   },
   {
     "source": "30-canis-minor.jpg",
@@ -327,7 +327,7 @@
       574
     ],
     "png_bytes": 241342,
-    "webp_bytes": 114368
+    "webp_bytes": 90586
   },
   {
     "source": "31-sagittarius.jpg",
@@ -338,7 +338,7 @@
       574
     ],
     "png_bytes": 294731,
-    "webp_bytes": 143524
+    "webp_bytes": 115010
   },
   {
     "source": "32-ophiuchus.jpg",
@@ -349,7 +349,7 @@
       574
     ],
     "png_bytes": 305335,
-    "webp_bytes": 145230
+    "webp_bytes": 117490
   },
   {
     "source": "33-corona-borealis.jpg",
@@ -360,7 +360,7 @@
       574
     ],
     "png_bytes": 207998,
-    "webp_bytes": 102204
+    "webp_bytes": 81138
   },
   {
     "source": "34-cetus.jpg",
@@ -371,7 +371,7 @@
       574
     ],
     "png_bytes": 322849,
-    "webp_bytes": 153194
+    "webp_bytes": 124836
   },
   {
     "source": "35-monoceros.jpg",
@@ -382,7 +382,7 @@
       574
     ],
     "png_bytes": 303135,
-    "webp_bytes": 146050
+    "webp_bytes": 117230
   },
   {
     "source": "36-auriga.jpg",
@@ -393,7 +393,7 @@
       574
     ],
     "png_bytes": 310787,
-    "webp_bytes": 150696
+    "webp_bytes": 120662
   },
   {
     "source": "37-lupus.jpg",
@@ -404,7 +404,7 @@
       574
     ],
     "png_bytes": 241285,
-    "webp_bytes": 118218
+    "webp_bytes": 93816
   },
   {
     "source": "38-piscis-austrinus.jpg",
@@ -415,6 +415,6 @@
       574
     ],
     "png_bytes": 314586,
-    "webp_bytes": 148420
+    "webp_bytes": 119414
   }
 ]

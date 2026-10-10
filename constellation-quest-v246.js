@@ -295,7 +295,7 @@ export function startConstellationQuest(ctx){
   }
   function artworkPath(item,extension='webp'){
     return './assets/constellations-transparent/'+item.img.split('/').pop()
-      .replace(/\.[^.]+$/,'.'+extension)+'?v=252';
+      .replace(/\.[^.]+$/,'.'+extension)+'?v=287';
   }
   // Calibrate V258 artwork by visible alpha, not the transparent image bounds.
   // Sample only 128 x 128 pixels per unique picture; no re-encoding or network
