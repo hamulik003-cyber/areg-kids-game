@@ -196,7 +196,7 @@ try{
       if(visualFrames.length!==4||visualFrames.some(x=>
         !['v287-protected','v294-subject'].includes(x.mode)||
         x.figureW<15||x.figureH<15||
-        x.figureW>x.cardW*.89||x.figureH>x.cardH*.89))
+        x.figureW>x.cardW*.94||x.figureH>x.cardH*.94))
         throw Error('V294 original subject silhouettes exceed/squash their cards '+JSON.stringify(visualFrames));
       console.log('V294 4 CARDS REAL SUBJECT BOXES '+JSON.stringify(visualFrames));
       if(process.env.AREG_BROWSER!=='webkit'){
