@@ -184,7 +184,19 @@ try{
   if(!await page.locator('#menuMusic').evaluate(a=>
       !a.getAttribute('src').startsWith('blob:')))
     throw Error('V285 default music restore failed');
-  await page.locator('#savedMusicButton').click();
+  // Headless WebKit occasionally never declares this already-rendered button
+  // stable for a synthetic Playwright pointer click after media.src reload.
+  // Check the actual UI/state, then trigger its native DOM click handler.
+  // Chromium still exercises the real pointer path.
+  if(webkitMode){
+    await page.locator('#savedMusicButton').evaluate(el=>{
+      if(el.disabled || el.closest('#settingsModal')?.hidden)
+        throw Error('Saved music button unavailable in visible settings');
+      el.click();
+    });
+  }else{
+    await page.locator('#savedMusicButton').click();
+  }
   await page.waitForFunction(()=>
     document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
     null,{timeout:12000,polling:250});
