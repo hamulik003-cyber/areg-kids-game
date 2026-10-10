@@ -1,5 +1,6 @@
 name: V294 FINAL — 38 shapes + iPhone/PWA no regression
 # Exact same product version V294; internal cache tag v294f maintains safe upgrades.
+# Re-run after correcting the dynamic import version guard; no product assets touched.
 on:
   push:
     branches: [release/v294-final-picture-consistency]
