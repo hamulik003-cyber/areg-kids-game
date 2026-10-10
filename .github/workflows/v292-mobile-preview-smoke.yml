@@ -29,6 +29,13 @@ jobs:
           const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});
           if(response.status()!==200)throw Error('Public HTML HTTP '+response.status());
           console.log('PUBLIC_PREVIEW_DIAGNOSTIC',response.url(),await page.title(),(await page.content()).slice(0,1100));
+          if((await page.title()).includes('External Content Notice')){
+            console.log('Notice screen shown:',(await page.locator('body').innerText()).slice(0,900));
+            const go=page.getByText('Open the page',{exact:false}).first();
+            await go.waitFor({timeout:15000});
+            await go.click();
+            await page.waitForLoadState('domcontentloaded');
+          }
           const count=await page.locator('button.tile').count();
           if(count!==8)throw Error('Expected 8 cards, saw '+count);
           await page.waitForFunction(()=>[...document.querySelectorAll('.tile img')].every(x=>x.complete && x.naturalWidth>0),null,{timeout:90000});
