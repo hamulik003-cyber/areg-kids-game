@@ -1,0 +1,26 @@
+name: V290 WebKit game smoke (feature pilot only)
+on:
+  push:
+    branches: [feature/v290-source-original-transparent-pilot]
+    paths:
+      - .github/workflows/v290-webkit-game-smoke.yml
+      - assets/constellations-transparent/10-lyra.webp
+      - assets/constellations-transparent/31-sagittarius.webp
+      - assets/constellations-transparent/37-lupus.webp
+jobs:
+  webkit-visual-gameplay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser harness
+        run: npm install --no-save playwright@1.55.1
+      - name: Install Safari-compatible WebKit
+        run: npx playwright install --with-deps webkit
+      - name: Run WebKit game smoke (4 choices, images, gestures, UI)
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: Confirm static game consistency
+        run: node qa/full-audit.mjs
