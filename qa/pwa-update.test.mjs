@@ -109,9 +109,37 @@ try{
   await page.locator('#customMusicInput').setInputFiles({
     name:'qa-local-song.wav',mimeType:'audio/wav',buffer:wav
   });
-  await page.waitForFunction(()=>
-    document.querySelector('#selectedMusicLabel')?.textContent.includes('qa-local-song.wav'),
-    null,{timeout:15000});
+  try{
+    await page.waitForFunction(()=>
+      document.querySelector('#selectedMusicLabel')?.textContent.includes('qa-local-song.wav'),
+      null,{timeout:15000});
+  }catch(error){
+    const diag=await page.evaluate(async()=>{
+      const row={
+        selected:document.querySelector('#selectedMusicLabel')?.textContent,
+        toast:document.querySelector('#toast')?.textContent,
+        src:document.querySelector('#menuMusic')?.getAttribute('src'),
+        track:JSON.parse(localStorage.getItem('areg-settings-v35')||'{}').musicTrack
+      };
+      try{
+        const request=indexedDB.open('areg-menu-music-v1',1);
+        const db=await new Promise((resolve,reject)=>{
+          request.onsuccess=()=>resolve(request.result);
+          request.onerror=()=>reject(request.error);
+        });
+        const tx=db.transaction('tracks','readonly');
+        const read=tx.objectStore('tracks').get('menu');
+        const result=await new Promise((resolve,reject)=>{
+          read.onsuccess=()=>resolve(read.result);
+          read.onerror=()=>reject(read.error);
+        });
+        row.storedName=result?.name;row.storedBytes=result?.bytes?.byteLength;
+        db.close();
+      }catch(e){row.dbError=String(e)}
+      return row;
+    });
+    throw Error('V285 iOS music file picker did not persist '+JSON.stringify(diag)+' : '+error.message);
+  }
   await page.locator('#musicLevel').evaluate(el=>{
     el.value='20';el.dispatchEvent(new Event('input',{bubbles:true}));
   });
@@ -135,7 +163,7 @@ try{
     });
     db.close();
     const values=JSON.parse(localStorage.getItem('areg-settings-v35')||'{}');
-    return {name:stored?.name,bytes:stored?.blob?.size,
+    return {name:stored?.name,bytes:stored?.bytes?.byteLength??stored?.blob?.size,
       musicVolume:values.musicVolume,effectsVolume:values.effectsVolume,
       musicTrack:values.musicTrack,wallet:localStorage.getItem('areg-stars-v35')};
   });

@@ -605,12 +605,23 @@
       });
     }finally{db.close()}
   }
+  function storedMusicBlob(row){
+    if(!row)return null;
+    if(row.blob instanceof Blob)return row.blob; // Backwards-compatible.
+    if(row.bytes instanceof ArrayBuffer || ArrayBuffer.isView(row.bytes)){
+      return new Blob([row.bytes],{type:row.type||'audio/mpeg'});
+    }
+    return null;
+  }
   async function saveChosenMusic(file){
+    // Safari/WKWebView can reject File/Blob structured cloning in IndexedDB.
+    // A plain Uint8Array round-trips more reliably and plays via a Blob URL.
+    const bytes=new Uint8Array(await file.arrayBuffer());
     const db=await openMusicDb();
     try{
       await new Promise((resolve,reject)=>{
         const tx=db.transaction(MUSIC_STORE,'readwrite');
-        tx.objectStore(MUSIC_STORE).put({blob:file,name:file.name,type:file.type},'menu');
+        tx.objectStore(MUSIC_STORE).put({bytes,name:file.name,type:file.type},'menu');
         tx.oncomplete=resolve;
         tx.onerror=()=>reject(tx.error||Error('Music write error'));
         tx.onabort=()=>reject(tx.error||Error('Music storage limit'));
@@ -648,10 +659,11 @@
     try{
       const row=await readSavedMusic();
       if(epoch!==musicSelectionEpoch)return;
-      if(!row?.blob)throw Error('Missing saved music');
+      const blob=storedMusicBlob(row);
+      if(!blob)throw Error('Missing saved music');
       savedMusicName=row.name||'Իմ երաժշտությունը';
       settings.musicTrack='custom';saveSettings();
-      swapMenuTrack(row.blob);updateMusicChoice();
+      swapMenuTrack(blob);updateMusicChoice();
     }catch{if(epoch===musicSelectionEpoch)showToast('Չհաջողվեց բացել պահված երաժշտությունը')}
   });
   const customMusicInput=$('#customMusicInput');
@@ -697,16 +709,20 @@
     });
   }
   updateMusicChoice();
+  const initialMusicEpoch=musicSelectionEpoch;
   readSavedMusic().then(row=>{
+    if(initialMusicEpoch!==musicSelectionEpoch)return; // Don't undo a new tap.
     savedMusicName=row?.name||'';
-    if(settings.musicTrack==='custom'&&row?.blob){
-      swapMenuTrack(row.blob);
+    const blob=storedMusicBlob(row);
+    if(settings.musicTrack==='custom'&&blob){
+      swapMenuTrack(blob);
     }else if(settings.musicTrack==='custom'){
       settings.musicTrack='default';saveSettings();
     }
     updateMusicChoice();
   }).catch(error=>{
     console.warn('AREG local music not available:',error);
+    if(initialMusicEpoch!==musicSelectionEpoch)return;
     if(settings.musicTrack==='custom'){settings.musicTrack='default';saveSettings()}
     updateMusicChoice();
   });
