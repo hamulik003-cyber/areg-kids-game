@@ -103,11 +103,11 @@
     "png": "assets/constellations-transparent/10-lyra.png",
     "webp": "assets/constellations-transparent/10-lyra.webp",
     "size": [
-      480,
-      574
+      720,
+      861
     ],
-    "png_bytes": 164870,
-    "webp_bytes": 63664
+    "png_bytes": 397813,
+    "webp_bytes": 107062
   },
   {
     "source": "11-leo.jpg",
@@ -334,11 +334,11 @@
     "png": "assets/constellations-transparent/31-sagittarius.png",
     "webp": "assets/constellations-transparent/31-sagittarius.webp",
     "size": [
-      480,
-      574
+      720,
+      861
     ],
-    "png_bytes": 294731,
-    "webp_bytes": 115010
+    "png_bytes": 731805,
+    "webp_bytes": 210834
   },
   {
     "source": "32-ophiuchus.jpg",
@@ -400,11 +400,11 @@
     "png": "assets/constellations-transparent/37-lupus.png",
     "webp": "assets/constellations-transparent/37-lupus.webp",
     "size": [
-      480,
-      574
+      720,
+      861
     ],
-    "png_bytes": 241285,
-    "webp_bytes": 93816
+    "png_bytes": 588038,
+    "webp_bytes": 167470
   },
   {
     "source": "38-piscis-austrinus.jpg",

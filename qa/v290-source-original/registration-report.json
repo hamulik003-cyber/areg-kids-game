@@ -1,0 +1,39 @@
+{
+  "source": "ZIP images 39 and 29 (1-based), excluding ZIP extra 36",
+  "pilot_assets": [
+    {
+      "stem": "31-sagittarius",
+      "registration_score": 0.99043,
+      "geometry_480x574": [
+        34,
+        12,
+        412,
+        550
+      ],
+      "output": [
+        720,
+        861
+      ],
+      "png_bytes": 731805,
+      "webp_bytes": 210834
+    },
+    {
+      "stem": "37-lupus",
+      "registration_score": 0.99169,
+      "geometry_480x574": [
+        34,
+        12,
+        412,
+        550
+      ],
+      "output": [
+        720,
+        861
+      ],
+      "png_bytes": 588038,
+      "webp_bytes": 167470
+    }
+  ],
+  "protected": "16-hayk-belt PNG and WebP never edited",
+  "main": "NO changes to main; branch only"
+}
