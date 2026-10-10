@@ -1,5 +1,11 @@
 # AREG Kids Game — chat-to-chat continuity journal
 
+## 2026-10-11 — V294 visible-size experiment for real iPhone screenshots; PR #12, not merged
+- User supplied four direct Safari screenshots of the four-choice constellation game. Lyra is perceptually smaller than neighboring images; current client-side alpha-percentile sizing hits a maximum zoom of 2.02 for some assets.
+- In `fix/v294-final-visible-size-20261011` changed only `sizeVisibleIllustration()` zoom clamp ceiling `2.02 -> 3.0`; original 38 transparent PNG/WebP artworks and the V287-protected 01-hayk-orion and 16-hayk-belt remain untouched, as do reward rules, animations, audio, PWA caches and service worker.
+- This PR is deliberately draft, not a released version. Require screenshot/visual cropping validation plus GitHub Actions WebKit gameplay and PWA and browser QA. Main remains 5664fb2 pending passing checks. Previous handoff-guard failure was caused only by absence of substantive edits to both `CURRENT_STATUS.md` and `PROJECT_HANDOFF.md` in the PR; this entry records the change and release gate.
+
+
 ## 2026-10-10 — V294 exact-shape/brightness consistency repair (same version)
 - Full pixel audit of 38 against approved V287 revealed all 36 newly generated assets shifted alpha coverage +61 to +87% with ~30 lower RGB brightness; apparent size/quality mismatch user marked on screenshots. Absolute silhouette bounding box scale remained close; prior assumption of broad physical scale bugs was not supported. Corrected 36 high-resolution PNG/WebP with V287 exact old-alpha resampling and low-frequency old vivid palette plus V294 high-frequency fine detail.
 - Final regression audit: 38/38 objects, zero geometry outliers, exact alpha area for 36 repaired pieces, brightness mean difference <8 units. Source build report `qa/v294-geometry/reconstruction.json`, audit `qa/v294-geometry/audit.json`, source commit `a9f94c95ec39b65cb3831ad7563f249c9a4d1a77`. Both 01-hayk-orion and 16-hayk-belt remain SHA-identical to V287, no 39th extra artwork.

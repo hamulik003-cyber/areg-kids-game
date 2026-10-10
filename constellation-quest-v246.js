@@ -343,7 +343,7 @@ export function startConstellationQuest(ctx){
     const shownW=nativeW*fit,shownH=nativeH*fit;
     const b=record.bounds;
     const figureW=Math.max(1,b.w*shownW),figureH=Math.max(1,b.h*shownH);
-    const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,2.02);
+    const zoom=clamp(Math.min(w*.84/figureW,h*.84/figureH),.88,3.0);
     const moveX=-zoom*(b.x-.5)*shownW;
     const moveY=-zoom*(b.y-.5)*shownH;
     img.style.transform='translate3d('+moveX.toFixed(2)+'px,'+
