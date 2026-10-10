@@ -21,7 +21,7 @@ jobs:
         run: |
           node --input-type=module <<'JS'
           import { webkit } from 'playwright';
-          const url='https://raw.githack.com/hamulik003-cyber/areg-kids-game/v292-constellation-hybrid-color-pilot/v292-constellation-hybrid-compare.html';
+          const url='https://rawcdn.githack.com/hamulik003-cyber/areg-kids-game/607b21c5544eceda5f1aa48a0c8e3d7a9c56f5fe/v292-constellation-hybrid-compare.html';
           const browser=await webkit.launch({headless:true});
           const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
           const errors=[];
