@@ -201,7 +201,7 @@ try{
       console.log('V294 4 CARDS REAL SUBJECT BOXES '+JSON.stringify(visualFrames));
       if(process.env.AREG_BROWSER!=='webkit'){
         const atlasReport=await page.evaluate(async()=>{
-          const {CONSTELLATION_CHOICE_FRAMES:atlas}=await import('./constellation-quest-v246.js?v=294g');
+          const {CONSTELLATION_CHOICE_FRAMES:atlas,computeConstellationChoiceFit:fit}=await import('./constellation-quest-v246.js?v=294h');
           const manifest=await (await fetch('./assets/constellations-transparent/manifest.json')).json();
           const canvas=document.createElement('canvas');canvas.width=96;canvas.height=96;
           const cx=canvas.getContext('2d',{willReadFrequently:true});
@@ -225,11 +225,27 @@ try{
               if(!bound||(x/96>=bound[0]-.025&&x/96<=bound[2]+.025&&
                           y/96>=bound[1]-.025&&y/96<=bound[3]+.025))inside++;
             }
+            const boxes=[];
+            for(const [cw,ch] of [[155,237],[132,178],[176,272]]){
+              const frame=bound?
+                {x:(bound[0]+bound[2])*.5,y:(bound[1]+bound[3])*.5,
+                  w:bound[2]-bound[0],h:bound[3]-bound[1]}:
+                {x:.5,y:.5,w:.85,h:.85};
+              const m=fit(cw,ch,image.naturalWidth,image.naturalHeight,frame,!bound);
+              boxes.push({cw,ch,w:m.figureWidth,h:m.figureHeight,
+                scale:m.scale,exact:m.exactScale,
+                offsetX:m.dx,offsetY:m.dy});
+            }
             output.push({stem,mode:bound?'subject':'protected',
-              pct:total?Math.round(inside/total*100):0,bright:total});
+              pct:total?Math.round(inside/total*100):0,bright:total,boxes});
           }
           return output;
         });
+        const badBoxes=atlasReport.filter(x=>x.boxes.length!==3||x.boxes.some(b=>
+          !(b.w>24&&b.h>20&&b.w<=b.cw*.94&&b.h<=b.ch*.94)||
+          ![b.w,b.h,b.scale,b.offsetX,b.offsetY].every(Number.isFinite)));
+        if(badBoxes.length)throw Error('V294h visual subjects clipped at iPhone sizes '+JSON.stringify(badBoxes));
+        console.log('V294h ALL 38 SUBJECTS AT 3 iPHONE CARD SIZES PASS');
         const failed=atlasReport.filter(x=>x.bright<55||x.pct<70);
         console.log('V294 ALL 38 SUBJECT-TO-MIST IMAGE PIXEL EVIDENCE '+JSON.stringify(atlasReport));
         if(atlasReport.length!==38||failed.length)
