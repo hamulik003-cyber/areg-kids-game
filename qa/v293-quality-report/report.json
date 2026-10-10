@@ -1,0 +1,1037 @@
+{
+  "status": "FEATURE_ONLY_NOT_APPROVED",
+  "name": "V293",
+  "total_sources": 39,
+  "pictures_in_game": 38,
+  "generated": 36,
+  "protected": [
+    "16-hayk-belt",
+    "01-hayk-orion"
+  ],
+  "max_webp_bytes": 300000,
+  "bytes_total": 9970078,
+  "assets": [
+    {
+      "stem": "02-ursa-major",
+      "original_source_zip_index": 28,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.99168,
+      "webp_quality": 88,
+      "webp_bytes": 232000,
+      "png_bytes": 746062,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "03-ursa-minor",
+      "original_source_zip_index": 25,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.98998,
+      "webp_quality": 88,
+      "webp_bytes": 210482,
+      "png_bytes": 683015,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "04-cassiopeia",
+      "original_source_zip_index": 26,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.9904,
+      "webp_quality": 88,
+      "webp_bytes": 286012,
+      "png_bytes": 915497,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "05-andromeda",
+      "original_source_zip_index": 27,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.9903,
+      "webp_quality": 88,
+      "webp_bytes": 252386,
+      "png_bytes": 822518,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "06-pegasus",
+      "original_source_zip_index": 15,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.99102,
+      "webp_quality": 88,
+      "webp_bytes": 289564,
+      "png_bytes": 928300,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "07-cepheus",
+      "original_source_zip_index": 32,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.99051,
+      "webp_quality": 88,
+      "webp_bytes": 214864,
+      "png_bytes": 679089,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "08-draco",
+      "original_source_zip_index": 31,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.99112,
+      "webp_quality": 88,
+      "webp_bytes": 275472,
+      "png_bytes": 862207,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "09-cygnus",
+      "original_source_zip_index": 17,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.99188,
+      "webp_quality": 88,
+      "webp_bytes": 299214,
+      "png_bytes": 978699,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "10-lyra",
+      "original_source_zip_index": 18,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.99249,
+      "webp_quality": 88,
+      "webp_bytes": 184632,
+      "png_bytes": 600260,
+      "registration": [
+        12.0,
+        59.0,
+        456.0,
+        456.0
+      ]
+    },
+    {
+      "stem": "11-leo",
+      "original_source_zip_index": 2,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.9806,
+      "webp_quality": 79,
+      "webp_bytes": 291868,
+      "png_bytes": 1100908,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "12-cancer",
+      "original_source_zip_index": 12,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97068,
+      "webp_quality": 85,
+      "webp_bytes": 293462,
+      "png_bytes": 1022471,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "13-taurus",
+      "original_source_zip_index": 30,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97992,
+      "webp_quality": 79,
+      "webp_bytes": 290658,
+      "png_bytes": 1102988,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "14-scorpius",
+      "original_source_zip_index": 14,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97538,
+      "webp_quality": 85,
+      "webp_bytes": 287930,
+      "png_bytes": 996026,
+      "registration": [
+        20.0,
+        13.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "15-libra",
+      "original_source_zip_index": 33,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97333,
+      "webp_quality": 88,
+      "webp_bytes": 297614,
+      "png_bytes": 963142,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "17-aquarius",
+      "original_source_zip_index": 22,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        845,
+        1011
+      ],
+      "match_score": 0.9787,
+      "webp_quality": 72,
+      "webp_bytes": 298254,
+      "png_bytes": 1119937,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "18-virgo",
+      "original_source_zip_index": 3,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        809,
+        968
+      ],
+      "match_score": 0.97722,
+      "webp_quality": 72,
+      "webp_bytes": 290402,
+      "png_bytes": 1056965,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "19-gemini",
+      "original_source_zip_index": 8,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        837,
+        1001
+      ],
+      "match_score": 0.97995,
+      "webp_quality": 72,
+      "webp_bytes": 299758,
+      "png_bytes": 1088999,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "20-capricornus",
+      "original_source_zip_index": 19,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        846,
+        1011
+      ],
+      "match_score": 0.97449,
+      "webp_quality": 72,
+      "webp_bytes": 299578,
+      "png_bytes": 1124066,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "21-aries",
+      "original_source_zip_index": 35,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97968,
+      "webp_quality": 76,
+      "webp_bytes": 290520,
+      "png_bytes": 1124828,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "22-pisces",
+      "original_source_zip_index": 13,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97377,
+      "webp_quality": 79,
+      "webp_bytes": 296828,
+      "png_bytes": 1135859,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "23-perseus",
+      "original_source_zip_index": 5,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97756,
+      "webp_quality": 76,
+      "webp_bytes": 292908,
+      "png_bytes": 1118951,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "24-hercules",
+      "original_source_zip_index": 20,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        785,
+        939
+      ],
+      "match_score": 0.97892,
+      "webp_quality": 72,
+      "webp_bytes": 289924,
+      "png_bytes": 1051674,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "25-aquila",
+      "original_source_zip_index": 34,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97139,
+      "webp_quality": 82,
+      "webp_bytes": 295226,
+      "png_bytes": 1067564,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "26-delphinus",
+      "original_source_zip_index": 24,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.98175,
+      "webp_quality": 88,
+      "webp_bytes": 201916,
+      "png_bytes": 675852,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "27-phoenix",
+      "original_source_zip_index": 37,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        789,
+        943
+      ],
+      "match_score": 0.9747,
+      "webp_quality": 72,
+      "webp_bytes": 297194,
+      "png_bytes": 1097136,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "28-hydra",
+      "original_source_zip_index": 7,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97139,
+      "webp_quality": 88,
+      "webp_bytes": 285360,
+      "png_bytes": 928148,
+      "registration": [
+        20.0,
+        13.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "29-canis-major",
+      "original_source_zip_index": 10,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97771,
+      "webp_quality": 82,
+      "webp_bytes": 294010,
+      "png_bytes": 1056640,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "30-canis-minor",
+      "original_source_zip_index": 4,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.9772,
+      "webp_quality": 88,
+      "webp_bytes": 268560,
+      "png_bytes": 879331,
+      "registration": [
+        20.0,
+        12.0,
+        440.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "31-sagittarius",
+      "original_source_zip_index": 39,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.9696,
+      "webp_quality": 76,
+      "webp_bytes": 290246,
+      "png_bytes": 1107565,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "32-ophiuchus",
+      "original_source_zip_index": 1,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97572,
+      "webp_quality": 76,
+      "webp_bytes": 292540,
+      "png_bytes": 1118563,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "33-corona-borealis",
+      "original_source_zip_index": 16,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.98005,
+      "webp_quality": 88,
+      "webp_bytes": 233030,
+      "png_bytes": 760509,
+      "registration": [
+        34.0,
+        13.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "34-cetus",
+      "original_source_zip_index": 9,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        840,
+        1005
+      ],
+      "match_score": 0.97124,
+      "webp_quality": 72,
+      "webp_bytes": 298792,
+      "png_bytes": 1127325,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "35-monoceros",
+      "original_source_zip_index": 38,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97629,
+      "webp_quality": 76,
+      "webp_bytes": 290070,
+      "png_bytes": 1115755,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "36-auriga",
+      "original_source_zip_index": 23,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        804,
+        961
+      ],
+      "match_score": 0.97365,
+      "webp_quality": 72,
+      "webp_bytes": 289832,
+      "png_bytes": 1045244,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "37-lupus",
+      "original_source_zip_index": 29,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97519,
+      "webp_quality": 88,
+      "webp_bytes": 272410,
+      "png_bytes": 888461,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    },
+    {
+      "stem": "38-piscis-austrinus",
+      "original_source_zip_index": 21,
+      "gallery_px": [
+        480,
+        574
+      ],
+      "game_px": [
+        960,
+        1148
+      ],
+      "match_score": 0.97376,
+      "webp_quality": 76,
+      "webp_bytes": 296562,
+      "png_bytes": 1154242,
+      "registration": [
+        34.0,
+        12.0,
+        412.0,
+        549.0
+      ]
+    }
+  ],
+  "source_mapping": [
+    {
+      "stem": "01-hayk-orion",
+      "source_index": 11,
+      "score": 0.99982,
+      "next_best_score": 0.43948
+    },
+    {
+      "stem": "02-ursa-major",
+      "source_index": 28,
+      "score": 0.64421,
+      "next_best_score": 0.43061
+    },
+    {
+      "stem": "03-ursa-minor",
+      "source_index": 25,
+      "score": 0.64169,
+      "next_best_score": 0.45108
+    },
+    {
+      "stem": "04-cassiopeia",
+      "source_index": 26,
+      "score": 0.74385,
+      "next_best_score": 0.48795
+    },
+    {
+      "stem": "05-andromeda",
+      "source_index": 27,
+      "score": 0.61341,
+      "next_best_score": 0.47827
+    },
+    {
+      "stem": "06-pegasus",
+      "source_index": 15,
+      "score": 0.61876,
+      "next_best_score": 0.46455
+    },
+    {
+      "stem": "07-cepheus",
+      "source_index": 32,
+      "score": 0.69102,
+      "next_best_score": 0.4544
+    },
+    {
+      "stem": "08-draco",
+      "source_index": 31,
+      "score": 0.63522,
+      "next_best_score": 0.44357
+    },
+    {
+      "stem": "09-cygnus",
+      "source_index": 17,
+      "score": 0.64034,
+      "next_best_score": 0.47918
+    },
+    {
+      "stem": "10-lyra",
+      "source_index": 18,
+      "score": 0.74562,
+      "next_best_score": 0.45307
+    },
+    {
+      "stem": "11-leo",
+      "source_index": 2,
+      "score": 0.92369,
+      "next_best_score": 0.49642
+    },
+    {
+      "stem": "12-cancer",
+      "source_index": 12,
+      "score": 0.89986,
+      "next_best_score": 0.4199
+    },
+    {
+      "stem": "13-taurus",
+      "source_index": 30,
+      "score": 0.91865,
+      "next_best_score": 0.42385
+    },
+    {
+      "stem": "14-scorpius",
+      "source_index": 14,
+      "score": 0.90714,
+      "next_best_score": 0.41939
+    },
+    {
+      "stem": "15-libra",
+      "source_index": 33,
+      "score": 0.91757,
+      "next_best_score": 0.39812
+    },
+    {
+      "stem": "16-hayk-belt",
+      "source_index": 6,
+      "score": 0.99981,
+      "next_best_score": 0.36461
+    },
+    {
+      "stem": "17-aquarius",
+      "source_index": 22,
+      "score": 0.91663,
+      "next_best_score": 0.44933
+    },
+    {
+      "stem": "18-virgo",
+      "source_index": 3,
+      "score": 0.92146,
+      "next_best_score": 0.3906
+    },
+    {
+      "stem": "19-gemini",
+      "source_index": 8,
+      "score": 0.92395,
+      "next_best_score": 0.45181
+    },
+    {
+      "stem": "20-capricornus",
+      "source_index": 19,
+      "score": 0.9264,
+      "next_best_score": 0.4114
+    },
+    {
+      "stem": "21-aries",
+      "source_index": 35,
+      "score": 0.91054,
+      "next_best_score": 0.45553
+    },
+    {
+      "stem": "22-pisces",
+      "source_index": 13,
+      "score": 0.91305,
+      "next_best_score": 0.38783
+    },
+    {
+      "stem": "23-perseus",
+      "source_index": 5,
+      "score": 0.90072,
+      "next_best_score": 0.50913
+    },
+    {
+      "stem": "24-hercules",
+      "source_index": 20,
+      "score": 0.90588,
+      "next_best_score": 0.46882
+    },
+    {
+      "stem": "25-aquila",
+      "source_index": 34,
+      "score": 0.89438,
+      "next_best_score": 0.40479
+    },
+    {
+      "stem": "26-delphinus",
+      "source_index": 24,
+      "score": 0.92957,
+      "next_best_score": 0.41668
+    },
+    {
+      "stem": "27-phoenix",
+      "source_index": 37,
+      "score": 0.90921,
+      "next_best_score": 0.39857
+    },
+    {
+      "stem": "28-hydra",
+      "source_index": 7,
+      "score": 0.92471,
+      "next_best_score": 0.40384
+    },
+    {
+      "stem": "29-canis-major",
+      "source_index": 10,
+      "score": 0.90652,
+      "next_best_score": 0.4785
+    },
+    {
+      "stem": "30-canis-minor",
+      "source_index": 4,
+      "score": 0.92184,
+      "next_best_score": 0.53851
+    },
+    {
+      "stem": "31-sagittarius",
+      "source_index": 39,
+      "score": 0.67698,
+      "next_best_score": 0.41088
+    },
+    {
+      "stem": "32-ophiuchus",
+      "source_index": 1,
+      "score": 0.72106,
+      "next_best_score": 0.40947
+    },
+    {
+      "stem": "33-corona-borealis",
+      "source_index": 16,
+      "score": 0.82906,
+      "next_best_score": 0.41779
+    },
+    {
+      "stem": "34-cetus",
+      "source_index": 9,
+      "score": 0.69346,
+      "next_best_score": 0.40855
+    },
+    {
+      "stem": "35-monoceros",
+      "source_index": 38,
+      "score": 0.72057,
+      "next_best_score": 0.46163
+    },
+    {
+      "stem": "36-auriga",
+      "source_index": 23,
+      "score": 0.72926,
+      "next_best_score": 0.3833
+    },
+    {
+      "stem": "37-lupus",
+      "source_index": 29,
+      "score": 0.7436,
+      "next_best_score": 0.51486
+    },
+    {
+      "stem": "38-piscis-austrinus",
+      "source_index": 21,
+      "score": 0.78858,
+      "next_best_score": 0.44081
+    }
+  ]
+}
