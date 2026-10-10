@@ -1,0 +1,77 @@
+name: V293 original-quality 38 source art + iPhone no-flicker QA
+on:
+  push:
+    branches: [feature/v293-original-source-quality-safe]
+    paths:
+      - .github/workflows/v293-high-quality-constellations.yml
+      - scripts/v293-build-high-detail.py
+      - qa/v293-source-bundle/**
+      - constellation-quest-v246.js
+permissions:
+  contents: write
+jobs:
+  rebuild-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install non-generative image processing dependencies
+        run: python -m pip install --disable-pip-version-check Pillow numpy opencv-python-headless scipy
+      - name: Match all 38 against user originals and build the safest high-resolution transparent artwork
+        run: python scripts/v293-build-high-detail.py
+      - name: Enforce performance budget and immutable Orion Belt
+        run: |
+          python - <<'PY'
+          import json,pathlib,subprocess
+          from PIL import Image
+          p=pathlib.Path('qa/v293-quality-report/report.json')
+          a=json.loads(p.read_text())
+          assert a['generated']==37,a['generated']
+          assert len(a['source_mapping'])==38
+          assert len({x['source_index'] for x in a['source_mapping']})==38
+          assert set(range(1,40))-{36} == {x['source_index'] for x in a['source_mapping']}
+          assert all(x['match_score']>=.83 for x in a['assets'])
+          assert all(x['webp_bytes']<=300000 for x in a['assets'])
+          assert all(max(x['game_px'])<=1200 for x in a['assets'])
+          names=[x['stem'] for x in a['assets']]
+          assert '16-hayk-belt' not in names
+          for ext in ('png','webp'):
+            f=f'assets/constellations-transparent/16-hayk-belt.{ext}'
+            cur=subprocess.check_output(['git','hash-object',f],text=True).strip()
+            baseline=subprocess.check_output(['git','rev-parse','34548b66aeb1cadde0fb1e643830de091d2172a6:'+f],text=True).strip()
+            assert cur==baseline,f
+          print('PASS: 37 optimized pictures, 38 correct names, original Belt untouched')
+          PY
+      - name: Verify nothing outside the constellation game and its asset bundle was edited
+        run: |
+          python - <<'PY'
+          import subprocess
+          files=subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()
+          assert len(files)==75,len(files)
+          assert all(p.startswith('assets/constellations-transparent/') for p in files),files
+          assert 'assets/constellations-transparent/16-hayk-belt.png' not in files
+          assert 'assets/constellations-transparent/16-hayk-belt.webp' not in files
+          print('PASS: exactly 37 PNG + 37 WebP + manifest, no section/animation/audio changes')
+          PY
+      - name: Existing full game static regression suite
+        run: node qa/full-audit.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - name: iPhone-size WebKit smoke across all sections and constellation gameplay
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: Save verified pilot files on feature ONLY (never main)
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/constellations-transparent/ qa/v293-quality-report/
+          git commit -m 'V293: 37 verified vivid original-source constellation pairs, 10-entry iPhone LRU'
+          git push origin HEAD:feature/v293-original-source-quality-safe
