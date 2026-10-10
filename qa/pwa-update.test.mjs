@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// V294 release: keep cache-preservation and fresh-constellation-art checks in sync with the handoff journals.
 // V285 regression: an OLD cache-first index.html must NOT trap browser,
 // DotKiosk or offline PWA on obsolete game names after successful deployment.
 import {chromium,webkit} from 'playwright';
