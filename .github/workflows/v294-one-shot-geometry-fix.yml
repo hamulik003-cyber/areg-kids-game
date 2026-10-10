@@ -1,0 +1,60 @@
+name: V294 one-shot 38-picture consistency repair
+on:
+  push:
+    branches: [fix/v294-constellation-geometry-final]
+    paths:
+      - qa/v294-reconstruct-art.py
+      - .github/workflows/v294-one-shot-geometry-fix.yml
+permissions:
+  contents: write
+jobs:
+  correct-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check pillow numpy
+      - name: Restore approved V287 opacity and color while keeping V294 detail
+        run: python -u qa/v294-reconstruct-art.py
+      - name: Audit every figure and show exact differences
+        run: python qa/v294-geometry-audit.py
+      - name: Strictly protect 2 immutable images, all other sections, and 300 KB cap
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          base='34548b66aeb1cadde0fb1e643830de091d2172a6'
+          art=Path('assets/constellations-transparent')
+          r=json.loads(Path('qa/v294-geometry/reconstruction.json').read_text())
+          a=json.loads(Path('qa/v294-geometry/audit.json').read_text())
+          assert r['count']==36 and a['compared']==38,(r['count'],a['compared'])
+          assert all(x['newCoverage']/x['oldCoverage'] <1.11 for x in r['assets'])
+          assert all(abs(x['newMean']-x['oldMean'])<15 for x in r['assets'])
+          assert all(x['webpBytes']<=300000 for x in r['assets'])
+          for n in ('01-hayk-orion','16-hayk-belt'):
+              for ext in ('png','webp'):
+                  f=f'assets/constellations-transparent/{n}.{ext}'
+                  before=subprocess.check_output(['git','rev-parse',base+':'+f],text=True).strip()
+                  now=subprocess.check_output(['git','hash-object',f],text=True).strip()
+                  assert before==now,f
+          changed=subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()
+          files=[x[3:] for x in changed]
+          assert all(x.startswith(('assets/constellations-transparent/','qa/v294-geometry/')) for x in files),files
+          assert not a['flags'],a['flags']
+          print('PASS: 36 source-resolution upgrades with V287 outline, geometry, color; 2 immutable; gameplay/audio safe')
+          PY
+      - name: Existing structural full-game audit
+        run: node qa/full-audit.mjs
+      - name: Save final QA and picture pairs on isolated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/constellations-transparent qa/v294-geometry
+          git commit -m "V294 final: 36 high-detail art with V287 shape, bright palette and precise calibration"
+          git push origin HEAD:fix/v294-constellation-geometry-final
