@@ -109,7 +109,37 @@ try{
      fresh.wallet!=='17'||!fresh.controller.includes('v=290'))
     throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
-  await page.waitForSelector('#sectionScreen.is-visible');
+  try{
+    await page.waitForSelector('#sectionScreen.is-visible',{timeout:12000});
+  }catch(error){
+    const screen=await page.evaluate(()=>({
+      homeVisible:!document.querySelector('#homeScreen')?.hidden,
+      sectionHidden:document.querySelector('#sectionScreen')?.hidden,
+      sectionClass:document.querySelector('#sectionScreen')?.className||'',
+      cards:document.querySelectorAll('.toddler-game-card').length,
+      spaceTileDisabled:document.querySelector('.section-card[data-section="space"]')?.disabled,
+      url:location.href
+    }));
+    console.log('V290 WEBKIT SECTION NAVIGATION FIRST ATTEMPT',JSON.stringify(screen));
+    // Headless WebKit sometimes drops Playwright's pointer event while it
+    // is revalidating the new PWA shell. Retry once as a DOM click, but keep
+    // a strict requirement that the actual section and titles appear.
+    if(!webkitMode || screen.sectionHidden!==true || !screen.homeVisible)
+      throw Error('V290 refreshed Space section did not open '+
+        JSON.stringify(screen)+' : '+error.message);
+    await page.locator('.section-card[data-section="space"]').evaluate(el=>el.click());
+    try{
+      await page.waitForSelector('#sectionScreen.is-visible',{timeout:12000});
+    }catch(secondError){
+      const after=await page.evaluate(()=>({
+        hidden:document.querySelector('#sectionScreen')?.hidden,
+        className:document.querySelector('#sectionScreen')?.className,
+        games:document.querySelectorAll('.toddler-game-card').length
+      }));
+      throw Error('V290 refreshed Space section failed after retry '+
+        JSON.stringify({first:screen,after})+' : '+secondError.message);
+    }
+  }
   const titles=await page.locator('.toddler-game-card[data-game="space-search"] .toddler-game-label, .toddler-game-card[data-game="constellation-game"] .toddler-game-label')
     .allTextContents();
   if(titles.length!==2||titles[0]!=='Գտիր ճիշտ մոլորակը'||
@@ -120,7 +150,13 @@ try{
   // V285 real iPhone-sized browser check: Files picker -> IndexedDB Blob,
   // source switches, slider settings survive refresh, existing star wallet safe.
   await page.locator('#sectionBack').click();
-  await page.waitForFunction(()=>document.querySelector('#sectionScreen').hidden);
+  let backState=false;
+  for(let attempt=0;attempt<48;attempt++){
+    backState=await page.evaluate(()=>document.querySelector('#sectionScreen')?.hidden===true);
+    if(backState)break;
+    await sleep(250);
+  }
+  if(!backState)throw Error('V290 did not return to home before music settings');
   await page.locator('#settingsButton').evaluate(async btn=>{
     btn.dispatchEvent(new PointerEvent('pointerdown',{
       bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch',
@@ -189,11 +225,21 @@ try{
     el.value='90';el.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForFunction(()=>{
-    const name=document.querySelector('#selectedMusicLabel')?.textContent||'';
-    const src=document.querySelector('#menuMusic')?.getAttribute('src')||'';
-    return name.includes('qa-local-song.wav')&&src.startsWith('blob:');
-  },null,{timeout:15000,polling:250});
+  let musicAfterReload;
+  for(let attempt=0;attempt<60;attempt++){
+    musicAfterReload=await page.evaluate(()=>({
+      name:document.querySelector('#selectedMusicLabel')?.textContent||'',
+      src:document.querySelector('#menuMusic')?.getAttribute('src')||'',
+      track:JSON.parse(localStorage.getItem('areg-settings-v35')||'{}').musicTrack
+    }));
+    if(musicAfterReload.name.includes('qa-local-song.wav')&&
+       musicAfterReload.src.startsWith('blob:')&&
+       musicAfterReload.track==='custom')break;
+    await sleep(250);
+  }
+  if(!musicAfterReload.name.includes('qa-local-song.wav')||
+     !musicAfterReload.src.startsWith('blob:')||musicAfterReload.track!=='custom')
+    throw Error('V290 custom music did not survive reload '+JSON.stringify(musicAfterReload));
   const musicPersistence=await page.evaluate(async()=>{
     const open=indexedDB.open('areg-menu-music-v1',1);
     const db=await new Promise((resolve,reject)=>{
