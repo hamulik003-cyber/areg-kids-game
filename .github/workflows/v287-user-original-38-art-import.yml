@@ -1,4 +1,5 @@
 name: V287 import 38 original user constellation pictures (TRIAL)
+# Re-run with corrected source-bundle references and unchanged approved V287 gameplay.
 on:
   push:
     branches: [feature/new-constellation-images-v287]
