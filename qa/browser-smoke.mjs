@@ -65,9 +65,32 @@ try{
      throw Error('V288 Nature must use one uninterrupted 1040ms transform+opacity flight '+JSON.stringify(naturePilot));
   }else await page.locator('.section-card[data-section="'+section+'"]').click();
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
+  if(section==='nature'){
+   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.dataset.natureCrossfade==='running',null,{timeout:2500});
+   const fade=await page.evaluate(()=>{
+     const section=document.querySelector('#sectionScreen');
+     const home=document.querySelector('#homeScreen');
+     return {
+       visible:!section.hidden && home.style.visibility!=='hidden',
+       duration:section.style.transition,
+       homeDuration:home.style.transition,
+       sectionOpacity:section.style.opacity,homeOpacity:home.style.opacity,
+       flight:!!document.querySelector('[data-nature-section-flight]')
+     };
+   });
+   if(!fade.visible||!fade.flight||!fade.duration.includes('790ms')||
+      !fade.homeDuration.includes('790ms')||
+      fade.sectionOpacity!=='1'||fade.homeOpacity!=='0')
+     throw Error('V288 Nature must overlap both screens with continuous 790ms crossfade '+JSON.stringify(fade));
+  }
   await page.waitForSelector('#sectionScreen.is-visible');
   if(section==='nature'){
-   await page.waitForFunction(()=>!document.querySelector('[data-nature-section-flight]'),null,{timeout:3500});
+   await page.waitForFunction(()=>{
+     const section=document.querySelector('#sectionScreen');
+     return !document.querySelector('[data-nature-section-flight]') &&
+       !section.dataset.natureCrossfade &&
+       document.querySelector('#homeScreen').style.visibility==='hidden';
+   },null,{timeout:3500});
    const reset=await page.locator('.section-card[data-section="nature"]').evaluate(card=>card.style.opacity);
    if(reset!=='')throw Error('V288 Nature home card failed to restore after opening');
   }

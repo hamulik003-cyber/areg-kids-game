@@ -849,7 +849,7 @@
   setTimeout(()=>warmSectionImages('nature').catch(()=>{}),950);
   setTimeout(()=>warmSectionImages('space').catch(()=>{}),1800);
 
-  function openSection(id, beforeReveal){
+  function openSection(id, beforeReveal, cinematicNature=false){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
@@ -871,8 +871,48 @@
     const nav=++galleryNavigationId;
     const revealSection=()=>{
       if(nav!==galleryNavigationId||currentSection!==id)return;
-      homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
-      requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+      if(cinematicNature&&id==='nature'){
+        // V288 refinement: overlap BOTH screens instead of abruptly hiding
+        // home while the Nature page is still fading in. Inline !important
+        // wins the legacy section opacity/transform !important declarations.
+        // Never change the transition behavior of other four home sections.
+        sectionScreen.hidden=false;
+        sectionScreen.dataset.natureCrossfade='running';
+        sectionScreen.style.setProperty('transition','none','important');
+        sectionScreen.style.setProperty('opacity','0','important');
+        sectionScreen.style.setProperty('transform','translate3d(0,16px,0) scale(.985)','important');
+        homeScreen.style.setProperty('transition','none','important');
+        homeScreen.style.setProperty('opacity','1','important');
+        // Force the first rendered state before changing opacity, preventing
+        // the hard one-frame jump that occurred on entry.
+        void sectionScreen.offsetWidth;
+        requestAnimationFrame(()=>{
+          if(nav!==galleryNavigationId||currentSection!==id)return;
+          sectionScreen.style.setProperty('transition',
+            'opacity 790ms cubic-bezier(.22,.18,.48,1), transform 850ms cubic-bezier(.20,.23,.52,1)','important');
+          homeScreen.style.setProperty('transition',
+            'opacity 790ms cubic-bezier(.22,.18,.48,1)','important');
+          sectionScreen.classList.add('is-visible');
+          sectionScreen.style.setProperty('opacity','1','important');
+          sectionScreen.style.setProperty('transform','translate3d(0,0,0) scale(1)','important');
+          homeScreen.style.setProperty('opacity','0','important');
+        });
+        // Home becomes non-interactive/hidden only AFTER the crossfade is
+        // almost completely finished and Nature is fully painted beneath.
+        setTimeout(()=>{
+          if(nav!==galleryNavigationId||currentSection!==id)return;
+          homeScreen.style.visibility='hidden';
+          homeScreen.style.removeProperty('opacity');
+          homeScreen.style.removeProperty('transition');
+          sectionScreen.style.removeProperty('transition');
+          sectionScreen.style.removeProperty('opacity');
+          sectionScreen.style.removeProperty('transform');
+          delete sectionScreen.dataset.natureCrossfade;
+        },825);
+      }else{
+        homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
+        requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+      }
       // Load the 3D engine only after the Space menu has become visible.
       if(id==='space')setTimeout(()=>{if(nav===galleryNavigationId&&currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},900);
     };
@@ -950,8 +990,10 @@
       flightAnimation.finished.then(restore,restore);
       // Bring in the Nature page underneath the still-moving translucent tile.
       // Start warming right away, but never wait on a cold network fetch here.
-      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,575));
-      openSection('nature',revealDuringFlight);
+      // Start a gentle overlapping page crossfade early in the zoom, not at
+      // the end. 200ms lead + 790ms fade finishes just before 1040ms flight.
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,200));
+      openSection('nature',revealDuringFlight,true);
       safetyTimer=setTimeout(restore,1900);
     }catch(error){
       console.warn('Nature home transition fallback:',error);
