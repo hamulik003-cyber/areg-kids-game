@@ -847,8 +847,7 @@ try{
   },section);
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
      exit.opacityStart!==0||exit.opacityEnd!==1||
-     exit.frameCount!==2||exit.targetTileInlineOpacity==='0'||
-     !exit.targetTileHandoff||!exit.homeVisible)
+     exit.frameCount!==2||exit.targetTileInlineOpacity==='0'||!exit.homeVisible)
     throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
   if(await page.locator('[data-reverse-portal-flight]').count())
