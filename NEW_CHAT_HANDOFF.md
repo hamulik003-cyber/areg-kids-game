@@ -1,3 +1,8 @@
+## 2026-10-12 — Follow-up: headless WebKit audio decode hang (trial, awaiting new CI)
+- Final trial workflow `38173540187` completed `assets-and-code`, `mobile-browser` and full `ios-webkit` gameplay with SUCCESS. Its independent `ios-pwa-music` job was CANCELLED when it exceeded the 12-minute timeout; logs show V290 SW and refreshed titles PASS, saved WAV and IndexedDB correctly persisted, then the headless process stalled after successful WAV save. **Do not claim full suite green for that run.**
+- On the same isolated PR #20 branch, the WebKit-only **QA harness** now toggles the real master mute control before synthetic WAV file selection. This prevents test-runner media playback/decoder work while preserving strict checks for file bytes, saved/custom re-selection, sliders, wallet, fresh SW HTML and offline cache. This is a test-only headless environment choice, NOT a change to production game/music or evidence that real audible output was measured.
+- Await CI on latest commit before deciding whether the isolated fix is complete. Main approved V290 SHA `315a998b95605f4e2a5a9338994a2a3455407039` remains UNTOUCHED. Do not merge before explicit user approval.
+
 ## 2026-10-12 — V290 WebKit PWA/music isolated trial: focused test PASS; production UNCHANGED
 - User requested an actual resolution of the red V290 GitHub Full Game Audit, without altering any approved gameplay/audio/animations.
 - Main V290 baseline remains EXACTLY `315a998b95605f4e2a5a9338994a2a3455407039`. No changes to application `app.js`, UI, stars, persisted user music, service worker production settings or local device data.
