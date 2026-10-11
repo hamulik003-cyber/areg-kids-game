@@ -26,7 +26,7 @@ for path in ('qa/full-audit.mjs','qa/pwa-update.test.mjs'):
     p=Path(path)
     s=p.read_text(encoding='utf8')
     if path.endswith('full-audit.mjs'):
-        assert s.count('v=287')==3,(path,s.count('v=287'))
+        assert s.count('v=287')==2,(path,s.count('v=287'))
     else:
         assert s.count('v=287')>=5
     s=s.replace('v=287','v=28738')
