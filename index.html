@@ -13,6 +13,15 @@
   <title>Արեգ 3D աշխարհ</title>
   <link rel="stylesheet" href="styles.css?v=285" />
   <link rel="stylesheet" href="space-3d-games.css?v=287" />
+  <!-- V28738: original transparent constellation artwork needs the SPACE backdrop.
+       Scope to constellation cards only, including the cloned zoom card.
+       No resizing, recoloring, masking, filters, gameplay or photo changes. -->
+  <style id="areg-constellation-gallery-space-backdrop">
+    .animal-gallery .animal-card--constellation .animal-image-wrap {
+      background:radial-gradient(ellipse at 50% 42%,
+        #252a60 0%, #171e49 46%, #0c1535 100%) !important;
+    }
+  </style>
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
