@@ -1,5 +1,15 @@
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
 
+## ՀԱՍՏԱՏՎԱԾ ԳՈՐԾՈՂ ՏԱՐԲԵՐԱԿ — V287 (FINAL)
+
+- **Միակ պաշտոնական խաղային տարբերակը՝ V287**։ Կանոնական բնօրինակ commit՝ `34548b66aeb1cadde0fb1e643830de091d2172a6`, ամբողջական runtime Git tree՝ `99f1227e52a9f9ba978ba4708a33b229730cf01c`։
+- Գործող repository-ն՝ `hamulik003-cyber/areg-kids-game`, ճյուղը՝ `main`։ Խաղի հասցեն՝ https://hamulik003-cyber.github.io/areg-kids-game/։
+- Պահպանվում են V287-ի բոլոր հաստատված մենյուները, պատկերները, համաստեղությունների 38 պատկերներն ու դիրքերը, Հայկի գոտու երեք լուսավոր աստղերը, անիմացիաները, խաղային անցումները, 10 ճիշտ պատասխանի աստղային համակարգը, նվերները, ձայնային և տեղական երաժշտության կարգավորումները, DotKiosk/PWA-ի քեշի և օֆլայն աշխատանքի տրամաբանությունը։
+- Հետագա զրույցներում **այս V287 վիճակն է միակ ելակետը**։ Ստորև պահպանված ավելի հին բաժինների `LATEST`, `CURRENT` կամ `PRE-FINAL` վերնագրերը պատմական են և չեն փոխարինում այս հաստատված վիճակին։
+- Մի՛ փոփոխիր `main`-ը և մի՛ վերագրիր V287-ի հաստատված գրաֆիկան կամ անիմացիաները առանց օգտվողի նոր հստակ պահանջի։ Նոր աշխատանքը սկզբում փորձարկել առանձին ճյուղում։
+- Հրապարակման և իրական iPhone/DotKiosk ցուցադրման ստուգման մասին եզրակացություն անել միայն համապատասխան հաստատված արդյունքներից. սարքի տվյալներն ու պահված աստղերը մաքրել կամ հավելվածը հեռացնել չի պահանջվում։
+
+
 ## ❤️ V285 USER-APPROVED PRE-FINAL — MAIN MENU MUSIC / AUDIO ISOLATION — 2026-10-10 (LATEST; OVERRIDES OLDER NOTES)
 - On **2026-10-10**, following successful GitHub Pages deployment for `5a785bcb499a0c16d0852cd379812c733d807818` and actual iPhone/DotKiosk inspection, user enthusiastically approved the V285 controls (“տեսա շաաատ ընտիրա ստացվել”) and then explicitly confirmed **“հաստատում եմ և սա համարում ենք նախնական վեռջնական տարբերակ”**. This is now the **approved PRE-FINAL baseline** for the main-menu music feature and sound-separation contract; other explicitly frozen baselines (constellations, star wallet, visual assets, gameplay) remain in force.
 - **Immutable recovery point:** `baseline/v285-dotkiosk-menu-music-audio-user-approved-pre-final-2026-10-10` points to exact released user-approved V285 commit `5a785bcb499a0c16d0852cd379812c733d807818` (before this documentation-only note). Never move/rewrite this branch. Previous V284 recovery: `backup/v284-user-approved-before-menu-music-and-audio-mixer-2026-10-10`.
