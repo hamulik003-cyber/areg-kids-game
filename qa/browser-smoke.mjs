@@ -181,18 +181,64 @@ try{
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
     const card=page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]');
+    // Install evidence recorder BEFORE tap; WebKit can finish an animation
+    // before Playwright's click promise returns on a slow CI worker.
+    await card.evaluate(card=>{
+      const inner=document.querySelector('#activityScreen');
+      const outer=document.querySelector('#sectionScreen');
+      const proof={flight:false,oneContinuousFlight:false,
+        crossfade:false,stationary:false,overlap:false};
+      const record=()=>{
+        const flight=document.querySelector('[data-inner-game-flight]');
+        if(flight){
+          proof.flight=true;
+          const a=flight.getAnimations()[0];
+          const frames=a?.effect?.getKeyframes()||[];
+          if(flight.getAnimations().length===1 &&
+             a?.effect?.getTiming()?.duration===1040 &&
+             frames.length===2 && Number(frames[0].opacity)===1 &&
+             Number(frames[1].opacity)===0 &&
+             frames[1]?.transform?.includes('translate3d('))
+            proof.oneContinuousFlight=true;
+        }
+        if(inner.dataset.innerGameCrossfade==='running' &&
+           inner.style.transition.includes('1100ms') &&
+           outer.style.transition.includes('1100ms') &&
+           inner.style.opacity==='1' && outer.style.opacity==='0'){
+          proof.crossfade=true;
+          if(inner.style.transform==='none' &&
+             !inner.style.transition.includes('transform'))
+            proof.stationary=true;
+          if(!inner.hidden && !outer.hidden)proof.overlap=true;
+        }
+      };
+      const observer=new MutationObserver(record);
+      observer.observe(document.body,{childList:true});
+      observer.observe(inner,{attributes:true,attributeFilter:['style','class','hidden','data-inner-game-crossfade']});
+      observer.observe(outer,{attributes:true,attributeFilter:['style','class','hidden']});
+      window.__aregInnerGameProof=proof;
+      window.__aregInnerGameDisconnect=()=>observer.disconnect();
+    });
     await card.click({force:process.env.AREG_BROWSER==='webkit'});
     try{
       await page.waitForSelector('#activityScreen.is-visible',{timeout:7500});
     }catch(error){
-      // Animated WebKit tiles can miss a synthetic click while the previous
-      // 3D context is releasing. Retry an actual DOM click, and fail if the
-      // activity still does not appear rather than silently skipping it.
       if(process.env.AREG_BROWSER!=='webkit')throw error;
       console.log('WEBKIT ACTIVITY RETRY '+JSON.stringify({section,id,diag:await diag(section+'/'+id)}));
       await card.evaluate(element=>element.click());
       await page.waitForSelector('#activityScreen.is-visible',{timeout:30000});
     }
+    await page.waitForFunction(()=>window.__aregInnerGameProof?.crossfade===true,
+      null,{timeout:6500});
+    const proof=await page.evaluate(()=>window.__aregInnerGameProof);
+    if(!proof.flight||!proof.oneContinuousFlight||!proof.crossfade||
+       !proof.stationary||!proof.overlap)
+      throw Error('V288 inner game portal transition missing '+section+'/'+id+' '+JSON.stringify(proof));
+    await page.waitForFunction(()=>!document.querySelector('#activityScreen')?.dataset.innerGameCrossfade,
+      null,{timeout:5500});
+    const restored=await card.evaluate(el=>el.style.opacity);
+    if(restored!=='')throw Error('V288 inner tile not restored for '+section+'/'+id);
+    await page.evaluate(()=>window.__aregInnerGameDisconnect?.());
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});

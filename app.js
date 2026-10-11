@@ -864,7 +864,7 @@
       s.games.forEach(g=>{
         const b=document.createElement('button');b.className='toddler-game-card';b.dataset.game=g.id;b.setAttribute('aria-label',g.label);
         b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="section-card-sheen game-card-sheen" aria-hidden="true"></span><span class="toddler-game-label">${g.label}</span>`;
-        b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
+        b.addEventListener('click',()=>openGame(s,g,b));sectionGames.appendChild(b);
       });
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
@@ -1189,34 +1189,159 @@
     sectionScreen.classList.remove('is-visible');
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
-  function openGame(section,game){
-    // Warm and decode the first eight cards while the existing menu stays
-    // visible. No all-gallery download and no white cards on cold entry.
+  // V288 inner game-card pilot: same 1040ms continuously moving/fading
+  // card and 1100ms stationary two-screen dissolve as the five home tiles.
+  // On cold entry preserve current gallery/3D warmup before revealing a page.
+  let innerGameEntryActive=false;
+  function beginInnerGameFlight(card,game){
+    if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return null;
+    const rect=card.getBoundingClientRect();
+    if(!rect.width||!rect.height)return null;
+    const flight=document.createElement('div');
+    flight.dataset.innerGameFlight=game.id;
+    Object.assign(flight.style,{
+      position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',height:rect.height+'px',transformOrigin:'center center',
+      pointerEvents:'none',willChange:'transform, opacity',zIndex:'2147483000'
+    });
+    const copy=card.cloneNode(true);
+    copy.removeAttribute('data-game');
+    copy.setAttribute('aria-hidden','true');
+    copy.tabIndex=-1;
+    Object.assign(copy.style,{
+      position:'absolute',left:'0',top:'0',
+      width:card.offsetWidth+'px',height:card.offsetHeight+'px',
+      transformOrigin:'top left',
+      transform:'scale('+(rect.width/card.offsetWidth)+')',
+      pointerEvents:'none'
+    });
+    flight.appendChild(copy);
+    document.body.appendChild(flight);
+    const oldOpacity=card.style.opacity;
+    card.style.opacity='0';
+    let restored=false;
+    let flightFinished=false;
+    const restoreCard=()=>{
+      if(restored)return;
+      restored=true;
+      card.style.opacity=oldOpacity;
+      innerGameEntryActive=false;
+    };
+    const cleanup=()=>{
+      flight.remove();
+      flightFinished=true;
+      if(sectionScreen.hidden)restoreCard();
+    };
+    const dx=window.innerWidth/2-(rect.left+rect.width/2);
+    const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    const scale=Math.max(1.1,Math.min(2.75,
+      (window.innerWidth-22)/rect.width,(window.innerHeight-100)/rect.height));
+    const to='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    try{
+      const anim=flight.animate([
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1},
+        {transform:to,opacity:0}
+      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      anim.finished.then(cleanup,cleanup);
+      // Not coupled to gallery/3D network readiness; no long overlay stall.
+      const safety=setTimeout(cleanup,1900);
+      anim.finished.then(()=>clearTimeout(safety),()=>clearTimeout(safety));
+      return {restoreCard,finished:()=>flightFinished,cleanup};
+    }catch(error){
+      console.warn('Inner game flight fallback:',game.id,error);
+      cleanup();
+      restoreCard();
+      return null;
+    }
+  }
+  function openGame(section,game,card){
+    if(innerGameEntryActive)return;
     const nav=++galleryNavigationId;
+    const flight=card?beginInnerGameFlight(card,game):null;
+    if(flight)innerGameEntryActive=true;
     const needsSpaceEngine=game.kind==='spaceSearch'||game.kind==='constellationQuest';
     const spaceEngineReady=needsSpaceEngine?(game.kind==='constellationQuest'?ensureConstellationQuestLoaded():ensureSpace3DLoaded()).catch(()=>{}):null;
     const launch=()=>{
-      if(nav!==galleryNavigationId||sectionScreen.hidden)return;
-      cleanupGame();activityContent.classList.toggle('space-preparing',needsSpaceEngine);
+      if(nav!==galleryNavigationId||sectionScreen.hidden){
+        flight?.cleanup();flight?.restoreCard();
+        return;
+      }
+      cleanupGame();
+      activityContent.classList.toggle('space-preparing',needsSpaceEngine);
       currentGame=game;activityScreen.dataset.game=game.id;
       activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;
-      updateStars();sectionScreen.classList.remove('is-visible');
-      setTimeout(()=>{
-        if(nav!==galleryNavigationId)return;
-        sectionScreen.hidden=true;activityScreen.hidden=false;
-        requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));
-        renderGame(game);
-      },150);
+      updateStars();
+      if(!flight){
+        // Unmodified fallback for reduced motion / missing WAAPI.
+        sectionScreen.classList.remove('is-visible');
+        setTimeout(()=>{
+          if(nav!==galleryNavigationId)return;
+          sectionScreen.hidden=true;activityScreen.hidden=false;
+          requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));
+          renderGame(game);
+        },150);
+        return;
+      }
+      // The activity view is prepared INVISIBLY, at its final position.
+      // No default translateY(8px) movement or hard screen cut.
+      activityScreen.hidden=false;
+      activityScreen.dataset.innerGameCrossfade='running';
+      activityScreen.dataset.innerGameEntry=game.id;
+      activityScreen.style.setProperty('transition','none','important');
+      activityScreen.style.setProperty('opacity','0','important');
+      activityScreen.style.setProperty('transform','none','important');
+      sectionScreen.style.setProperty('transition','none','important');
+      sectionScreen.style.setProperty('opacity','1','important');
+      sectionScreen.style.setProperty('transform','none','important');
+      sectionScreen.style.pointerEvents='none';
+      activityScreen.style.pointerEvents='none';
+      renderGame(game);
+      void activityScreen.offsetWidth;
+      let started=false;
+      const start=()=>{
+        if(started||nav!==galleryNavigationId)return;
+        started=true;
+        // Same look, timing and easing as the user-liked Nature home entry.
+        activityScreen.style.setProperty('transition',
+          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        sectionScreen.style.setProperty('transition',
+          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        activityScreen.classList.add('is-visible');
+        activityScreen.style.setProperty('opacity','1','important');
+        sectionScreen.style.setProperty('opacity','0','important');
+        setTimeout(()=>{
+          if(nav!==galleryNavigationId)return;
+          sectionScreen.hidden=true;
+          sectionScreen.classList.remove('is-visible');
+          flight.restoreCard();
+          sectionScreen.style.removeProperty('opacity');
+          sectionScreen.style.removeProperty('transition');
+          sectionScreen.style.removeProperty('transform');
+          sectionScreen.style.removeProperty('pointer-events');
+          activityScreen.style.removeProperty('opacity');
+          activityScreen.style.removeProperty('transition');
+          activityScreen.style.removeProperty('transform');
+          activityScreen.style.removeProperty('pointer-events');
+          delete activityScreen.dataset.innerGameCrossfade;
+          delete activityScreen.dataset.innerGameEntry;
+        },1180);
+      };
+      const fallback=setTimeout(start,45);
+      requestAnimationFrame(()=>{clearTimeout(fallback);start()});
     };
+    // Warm while the already-started card motion is flying. The incoming
+    // page must not show an empty canvas on the FIRST cold Space/3D entry.
+    let prep=Promise.resolve();
     if(needsSpaceEngine){
-      // The old code revealed a cream empty stage while the 3D module
-      // was still downloading. Keep the space section painted instead.
-      const deadline=new Promise(resolve=>setTimeout(resolve,3200));
-      Promise.race([spaceEngineReady,deadline]).then(launch,launch);
+      prep=Promise.race([spaceEngineReady,new Promise(resolve=>setTimeout(resolve,3200))]);
     }else if(GALLERY_WARM_ITEMS[game.kind]){
-      const timeout=new Promise(resolve=>setTimeout(resolve,1250));
-      Promise.race([warmGalleryPreviews(game.kind,4),timeout]).then(launch,launch);
-    }else launch();
+      prep=Promise.race([warmGalleryPreviews(game.kind,4),
+        new Promise(resolve=>setTimeout(resolve,1250))]);
+    }
+    if(flight){
+      // 230ms minimum lead, without an artificial pause when resources are hot.
+      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,230))]).then(launch,launch);
+    }else prep.then(launch,launch);
   }
   function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160)}
   // Star milestones are PER GAME VISIT, just like the visible 0/0 score.
