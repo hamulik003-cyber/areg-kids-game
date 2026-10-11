@@ -796,7 +796,59 @@
   const toggles={master:$('#masterSound'),music:$('#musicSound'),voice:$('#voiceHints'),effects:$('#gameEffects')};
   function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
   syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));
-  $('#settingsButton').addEventListener('click',()=>{syncSettings();applyFont();settingsModal.hidden=false});
+  // V290 parent gate: opening sensitive home controls requires an uninterrupted
+  // 3-second touch/pen/mouse/keyboard hold. A normal tap is deliberately inert.
+  function requireParentHold(button,onAuthorized){
+    const HOLD_MS=3000;
+    let timer=0,frame=0,start=0,down=false,completed=false,pointerId=null,startX=0,startY=0;
+    const clear=()=>{
+      down=false;clearTimeout(timer);cancelAnimationFrame(frame);
+      timer=frame=0;pointerId=null;
+      button.classList.remove('parent-hold-active');
+      button.style.removeProperty('--parent-hold-angle');
+    };
+    function progress(){
+      if(!down)return;
+      const ratio=Math.min(1,(performance.now()-start)/HOLD_MS);
+      button.style.setProperty('--parent-hold-angle',(ratio*360)+'deg');
+      frame=requestAnimationFrame(progress);
+    }
+    const begin=()=>{
+      if(down||completed||!homeScreen||homeScreen.style.visibility==='hidden'||
+         !settingsModal.hidden||!avatarModal.hidden)return;
+      down=true;start=performance.now();
+      button.classList.add('parent-hold-active');
+      frame=requestAnimationFrame(progress);
+      timer=setTimeout(()=>{
+        if(!down)return;
+        completed=true;
+        clear();
+        try{onAuthorized()}finally{completed=false}
+      },HOLD_MS);
+    };
+    button.addEventListener('pointerdown',e=>{
+      if(e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return;
+      e.preventDefault();
+      pointerId=e.pointerId;startX=e.clientX;startY=e.clientY;
+      begin();
+    });
+    button.addEventListener('pointermove',e=>{
+      if(down&&e.pointerId===pointerId&&Math.hypot(e.clientX-startX,e.clientY-startY)>18)clear();
+    });
+    for(const type of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(type,clear);
+    button.addEventListener('keydown',e=>{
+      if((e.key==='Enter'||e.key===' ')&&!e.repeat){e.preventDefault();begin()}
+    });
+    button.addEventListener('keyup',e=>{
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();clear()}
+    });
+    button.addEventListener('contextmenu',e=>e.preventDefault());
+    // Prevent click synthesis at release and old synthetic click entry.
+    button.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);
+    window.addEventListener('blur',clear);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)clear()});
+  }
+  requireParentHold($('#settingsButton'),()=>{syncSettings();applyFont();settingsModal.hidden=false});
   $$('[data-close="settings"]').forEach(e=>e.addEventListener('click',()=>settingsModal.hidden=true));
   $('#starCounter').addEventListener('click',()=>showToast(`⭐ ${stars}`));
 
@@ -1183,8 +1235,115 @@
     gameCleanup.push(()=>obs.disconnect());
   }
 
+  // V290 test: reverse the APPROVED portal effect when returning to the
+  // previous screen. A cloned card travels smoothly from the center back to
+  // its exact origin while the prior screen fades in without rising/sliding.
+  let reversePortalActive=false;
+  function reversePortal(from,to,card,finishNavigation){
+    if(reversePortalActive)return true;
+    if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
+    const toWasHidden=to.hidden;
+    const oldVisibility=to.style.visibility;
+    to.hidden=false;
+    if(to===homeScreen)to.style.visibility='visible';
+    if(to===sectionScreen)to.classList.add('is-visible');
+    // Set the incoming screen at zero opacity at its FINAL fixed position.
+    to.style.setProperty('transition','none','important');
+    to.style.setProperty('opacity','0','important');
+    to.style.setProperty('transform','none','important');
+    const rect=card.getBoundingClientRect();
+    if(!rect.width||!rect.height){
+      to.hidden=toWasHidden;to.style.visibility=oldVisibility;
+      for(const k of ['opacity','transform','transition'])to.style.removeProperty(k);
+      return false;
+    }
+    reversePortalActive=true;
+    const previousCardOpacity=card.style.opacity;
+    card.style.opacity='0';
+    const flight=document.createElement('div');
+    flight.dataset.reversePortalFlight=to===homeScreen?'home':'activity';
+    Object.assign(flight.style,{
+      position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',height:rect.height+'px',
+      pointerEvents:'none',transformOrigin:'center center',
+      willChange:'transform, opacity',zIndex:'2147483000'
+    });
+    const copy=card.cloneNode(true);
+    copy.removeAttribute('data-section');copy.removeAttribute('data-game');
+    copy.setAttribute('aria-hidden','true');copy.tabIndex=-1;
+    Object.assign(copy.style,{
+      position:'absolute',left:'0',top:'0',
+      width:card.offsetWidth+'px',height:card.offsetHeight+'px',
+      transformOrigin:'top left',
+      transform:'scale('+(rect.width/card.offsetWidth)+')',
+      pointerEvents:'none'
+    });
+    flight.appendChild(copy);
+    document.body.appendChild(flight);
+    from.style.setProperty('transition','none','important');
+    from.style.setProperty('opacity','1','important');
+    from.style.setProperty('transform','none','important');
+    from.style.pointerEvents='none';to.style.pointerEvents='none';
+    void to.offsetWidth;
+    const dx=window.innerWidth/2-(rect.left+rect.width/2);
+    const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    const scale=Math.max(1.1,Math.min(2.75,
+      (window.innerWidth-22)/rect.width,
+      (window.innerHeight-100)/rect.height));
+    let done=false,cleanupTimer=0;
+    const complete=()=>{
+      if(done)return;
+      done=true;clearTimeout(cleanupTimer);
+      from.hidden=true;
+      if(from===sectionScreen)from.classList.remove('is-visible');
+      if(from===activityScreen)from.classList.remove('is-visible');
+      for(const screen of [from,to]){
+        for(const k of ['transition','opacity','transform','pointer-events'])
+          screen.style.removeProperty(k);
+      }
+      // The original card is revealed only once the previous screen is
+      // fully visible; no duplicated frame/ghost between the two layers.
+      card.style.opacity=previousCardOpacity;
+      flight.remove();
+      reversePortalActive=false;
+      finishNavigation();
+    };
+    try{
+      const fly=flight.animate([
+        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1}
+      ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
+      // Keep the completed hero clone through the end of the 1100ms fade
+      // rather than exposing the real card while parent opacity is mid-way.
+      fly.finished.catch(()=>{});
+      const fade=()=>{
+        if(done)return;
+        to.dataset.reversePortal='running';
+        to.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        from.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        to.style.setProperty('opacity','1','important');
+        from.style.setProperty('opacity','0','important');
+        cleanupTimer=setTimeout(()=>{
+          delete to.dataset.reversePortal;
+          complete();
+        },1180);
+      };
+      const fallback=setTimeout(fade,45);
+      requestAnimationFrame(()=>{clearTimeout(fallback);fade()});
+      return true;
+    }catch(error){
+      console.warn('Reverse portal fallback:',error);
+      complete();
+      return true;
+    }
+  }
   function closeSection(){
+    if(reversePortalActive)return;
     ++galleryNavigationId;
+    const card=$('.section-card[data-section="'+currentSection+'"]');
+    if(reversePortal(sectionScreen,homeScreen,card,()=>{
+      document.body.classList.remove('magic-scroll-active');
+    }))return;
     document.body.classList.remove('magic-scroll-active');
     sectionScreen.classList.remove('is-visible');
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
@@ -1343,7 +1502,18 @@
       Promise.all([prep,new Promise(resolve=>setTimeout(resolve,230))]).then(launch,launch);
     }else prep.then(launch,launch);
   }
-  function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160)}
+  function backToSection(){
+    if(reversePortalActive)return;
+    ++galleryNavigationId;
+    const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
+    if(reversePortal(activityScreen,sectionScreen,card,()=>{
+      // Dispose 3D and gallery resources only after they have faded away.
+      cleanupGame();applyAudio();
+    }))return;
+    cleanupGame();activityScreen.classList.remove('is-visible');
+    setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;
+      requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160);
+  }
   // Star milestones are PER GAME VISIT, just like the visible 0/0 score.
   // Past visits' unfinished answers must NEVER silently earn a later star.
   const spaceCorrectCounts=Object.create(null);
@@ -2809,7 +2979,7 @@
     markPresetSelection();
   }
 
-  avatarButton.addEventListener('click',()=>{markPresetSelection();avatarModal.hidden=false});
+  requireParentHold(avatarButton,()=>{markPresetSelection();avatarModal.hidden=false});
   $$('[data-close="avatar"]').forEach(e=>e.addEventListener('click',()=>avatarModal.hidden=true));
   renderPresetAvatars();
 
