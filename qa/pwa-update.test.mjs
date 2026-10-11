@@ -95,7 +95,16 @@ try{
   // source switches, slider settings survive refresh, existing star wallet safe.
   await page.locator('#sectionBack').click();
   await page.waitForFunction(()=>document.querySelector('#sectionScreen').hidden);
-  await page.locator('#settingsButton').click();
+  await page.locator('#settingsButton').evaluate(async btn=>{
+    btn.dispatchEvent(new PointerEvent('pointerdown',{
+      bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch',
+      clientX:40,clientY:40
+    }));
+    await new Promise(resolve=>setTimeout(resolve,3100));
+    btn.dispatchEvent(new PointerEvent('pointerup',{
+      bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch'
+    }));
+  });
   await page.waitForSelector('#settingsModal:not([hidden])');
   const sampleBytes=8000;
   const wav=Buffer.alloc(44+sampleBytes,128);
@@ -179,7 +188,16 @@ try{
      musicPersistence.musicTrack!=='custom'||musicPersistence.wallet!=='17'){
     throw Error('V285 user audio/music mixer persistence fail '+JSON.stringify(musicPersistence));
   }
-  await page.locator('#settingsButton').click();
+  await page.locator('#settingsButton').evaluate(async btn=>{
+    btn.dispatchEvent(new PointerEvent('pointerdown',{
+      bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch',
+      clientX:40,clientY:40
+    }));
+    await new Promise(resolve=>setTimeout(resolve,3100));
+    btn.dispatchEvent(new PointerEvent('pointerup',{
+      bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch'
+    }));
+  });
   await page.locator('#defaultMusicButton').click();
   if(!await page.locator('#menuMusic').evaluate(a=>
       !a.getAttribute('src').startsWith('blob:')))
