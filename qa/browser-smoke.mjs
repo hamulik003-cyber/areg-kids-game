@@ -66,7 +66,12 @@ try{
   }else await page.locator('.section-card[data-section="'+section+'"]').click();
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
   if(section==='nature'){
-   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.dataset.natureCrossfade==='running',null,{timeout:2500});
+   await page.waitForFunction(()=>{
+     const section=document.querySelector('#sectionScreen');
+     const home=document.querySelector('#homeScreen');
+     return section?.dataset.natureCrossfade==='running' &&
+       section.style.opacity==='1' && home?.style.opacity==='0';
+   },null,{timeout:2500});
    const fade=await page.evaluate(()=>{
      const section=document.querySelector('#sectionScreen');
      const home=document.querySelector('#homeScreen');
