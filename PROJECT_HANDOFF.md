@@ -1,3 +1,8 @@
+## 2026-10-11 — Additional real browser WebGL UV CORS probe (V288 trial only)
+- Alongside the trial `img.crossOrigin='anonymous'` fix, added `qa/preview-3d-cors.mjs`: open PR pinned GitHack URLs for Earth/Saturn/Uranus in a browser, load Image with anonymous CORS, verify origin-clean 2D pixel read and explicit WebGL `texImage2D` upload without error. Runs after existing browser smoke in Chromium and iOS WebKit on GitHub Actions, **continue-on-error** so external CDN network flakiness will not falsely fail established game audit.
+- This specifically tests GitHack's redirects, which asset-status curl showed lead to `raw.githubusercontent.com` whereas main GitHub Pages serves same-origin. User still needs to open the newest preview to confirm visible full-color planets.
+- Pilot PR remains draft and unmerged; production main and art unchanged.
+
 ## 2026-10-11 — V288 GitHack-preview BLACK PLANETS: Cross-Origin WebGL UV fix (TRIAL ONLY)
 - User confirms 3D planet spheres are BLACK exclusively on the `rawcdn.githack.com` preview, while identical original textures and `space-3d-games.js` show perfectly colored planets on V287 GitHub Pages (the user has 111 stars in approved main; preserve).
 - Verified through real nonblocking CI curl (run `38141764119`): `rawcdn.githack.com` redirects the canonical 04-earth, 08-saturn and 09-uranus images to **`raw.githubusercontent.com`**, while `hamulik003-cyber.github.io` serves them same-origin. ALL returned 200, valid image/png, and identical byte counts (e.g. Earth 4,148,858 bytes). Thus the files exist and were NOT missing.

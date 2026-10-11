@@ -64,6 +64,11 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: node qa/browser-smoke.mjs
+      - name: Verify GitHack preview's redirected 3D images work in WebGL (nonblocking)
+        continue-on-error: true
+        env:
+          AREG_PREVIEW_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: node qa/preview-3d-cors.mjs
       - name: Verify latest PWA HTML replaces stale cached page, offline still works
         run: node qa/pwa-update.test.mjs
 
@@ -80,5 +85,11 @@ jobs:
       - run: npm install --no-save playwright@1.55.1
       - run: npx playwright install --with-deps webkit
       - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: Verify GitHack preview's redirected 3D images work in WebKit WebGL (nonblocking)
+        continue-on-error: true
+        env:
+          AREG_BROWSER: webkit
+          AREG_PREVIEW_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: node qa/preview-3d-cors.mjs
       - name: Verify latest PWA HTML replaces stale cached page, offline still works
         run: AREG_BROWSER=webkit node qa/pwa-update.test.mjs
