@@ -100,7 +100,7 @@ try{
       bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch',
       clientX:40,clientY:40
     }));
-    await new Promise(resolve=>setTimeout(resolve,2120));
+    await new Promise(resolve=>setTimeout(resolve,1120));
     btn.dispatchEvent(new PointerEvent('pointerup',{
       bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch'
     }));
@@ -193,7 +193,7 @@ try{
       bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch',
       clientX:40,clientY:40
     }));
-    await new Promise(resolve=>setTimeout(resolve,2120));
+    await new Promise(resolve=>setTimeout(resolve,1120));
     btn.dispatchEvent(new PointerEvent('pointerup',{
       bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch'
     }));

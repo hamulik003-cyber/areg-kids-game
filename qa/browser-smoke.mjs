@@ -63,7 +63,7 @@ try{
      btn.dispatchEvent(new PointerEvent('pointerdown',{
        bubbles:true,pointerId:8,isPrimary:true,pointerType:'touch',clientX:40,clientY:40
      }));
-     await new Promise(resolve=>setTimeout(resolve,2120));
+     await new Promise(resolve=>setTimeout(resolve,1120));
      btn.dispatchEvent(new PointerEvent('pointerup',{
        bubbles:true,pointerId:8,isPrimary:true,pointerType:'touch'
      }));
@@ -76,7 +76,7 @@ try{
    await page.locator('[data-close="'+(button==='avatarButton'?'avatar':'settings')+'"]').last().evaluate(el=>el.click());
    await page.waitForFunction(id=>document.getElementById(id)?.hidden===true,modal);
  }
- console.log('V290 PARENT HOLD PASS settings + avatar taps ignored, short hold cancelled, full 2s authorized');
+ console.log('V290 PARENT HOLD PASS settings + avatar taps ignored, short hold cancelled, full 1s authorized');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
   // Every home tile must share the user-approved Nature-style portal trial.
@@ -742,7 +742,7 @@ try{
           const running=session.showCycleResult().then(()=>{resolved=true});
           const overlay=fake.querySelector('.s3d-cycle-backdrop');
           const replay=overlay?.querySelector('.s3d-cycle-replay');
-          // Timer regression: V267 auto-dismissed at 2120ms. V268 MUST not.
+          // Timer regression: V267 auto-dismissed at 1120ms. V268 MUST not.
           if(kind==='success')await new Promise(ok=>setTimeout(ok,3300));
           const stillOpen=!!fake.querySelector('.s3d-cycle-backdrop');
           const counts=session.counts();
@@ -803,7 +803,7 @@ try{
     done.push(section+'/'+id);
     // WebKit touch emulation occasionally hangs Playwright's click completion
     // despite DOM visibility; use a DOM click and still assert real navigation.
-    const exit=await page.locator('#activityBack').evaluate(el=>{
+    const exit=await page.locator('#activityBack').evaluate((el,gameId)=>{
       el.click();
       const flight=document.querySelector('[data-reverse-portal-flight]');
       const frames=flight?.getAnimations()[0]?.effect?.getKeyframes()||[];
@@ -811,15 +811,20 @@ try{
         animationCount:flight?.getAnimations().length||0,
         duration:flight?.getAnimations()[0]?.effect?.getTiming()?.duration,
         opacityStart:Number(frames[0]?.opacity),
-        hiddenUntil:Number(frames[1]?.opacity), hiddenOffset:frames[1]?.offset,
         frameCount:frames.length,
         opacityEnd:Number(frames.at(-1)?.opacity),
+        // Actual destination tile MUST no longer be hidden until the end.
+        targetTileInlineOpacity:document.querySelector('#sectionGames .toddler-game-card[data-game="'+gameId+'"]')?.style.opacity,
+        targetTileHandoff:(document.querySelector('#sectionGames .toddler-game-card[data-game="'+gameId+'"]')?.getAnimations()||[])
+          .some(a=>a.effect?.getTiming()?.duration===1040 &&
+            a.effect?.getKeyframes()?.[0]?.opacity===1 &&
+            a.effect?.getKeyframes()?.at(-1)?.opacity===0),
         incomingVisible:!document.querySelector('#sectionScreen').hidden,
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
-    });
+    },id);
     if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
-       exit.opacityStart!==0||exit.opacityEnd!==1||exit.frameCount!==4||
-       exit.hiddenUntil!==0||exit.hiddenOffset!==.60||
+       exit.opacityStart!==0||exit.opacityEnd!==1||exit.frameCount!==2||
+       exit.targetTileInlineOpacity==='0'||!exit.targetTileHandoff||
        !exit.incomingVisible||!exit.outgoingVisible)
        throw Error('V290 game reverse cinematic transition missing '+section+'/'+id+' '+JSON.stringify(exit));
     await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
@@ -827,20 +832,26 @@ try{
       throw Error('V290 back-to-section left a ghost card '+section+'/'+id);
    }
   }
-  const exit=await page.locator('#sectionBack').evaluate(el=>{
+  const exit=await page.locator('#sectionBack').evaluate((el,sectionId)=>{
     el.click();
     const flight=document.querySelector('[data-reverse-portal-flight]');
     const frames=flight?.getAnimations()[0]?.effect?.getKeyframes()||[];
     return {flight:flight?.dataset.reversePortalFlight||null,
       animationCount:flight?.getAnimations().length||0,
       duration:flight?.getAnimations()[0]?.effect?.getTiming()?.duration,
-      frameCount:frames.length,hiddenUntil:Number(frames[1]?.opacity),hiddenOffset:frames[1]?.offset,
+      frameCount:frames.length,
       opacityStart:Number(frames[0]?.opacity),opacityEnd:Number(frames.at(-1)?.opacity),
+      targetTileInlineOpacity:document.querySelector('.section-card[data-section="'+sectionId+'"]')?.style.opacity,
+      targetTileHandoff:(document.querySelector('.section-card[data-section="'+sectionId+'"]')?.getAnimations()||[])
+        .some(a=>a.effect?.getTiming()?.duration===1040 &&
+          a.effect?.getKeyframes()?.[0]?.opacity===1 &&
+          a.effect?.getKeyframes()?.at(-1)?.opacity===0),
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
-  });
+  },section);
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
      exit.opacityStart!==0||exit.opacityEnd!==1||
-     exit.frameCount!==4||exit.hiddenUntil!==0||exit.hiddenOffset!==.60||!exit.homeVisible)
+     exit.frameCount!==2||exit.targetTileInlineOpacity==='0'||
+     !exit.targetTileHandoff||!exit.homeVisible)
     throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
   if(await page.locator('[data-reverse-portal-flight]').count())

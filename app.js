@@ -797,9 +797,9 @@
   function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
   syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));
   // V290 parent gate: opening sensitive home controls requires an uninterrupted
-  // 2-second touch/pen/mouse/keyboard hold. A normal tap is deliberately inert.
+  // 1-second touch/pen/mouse/keyboard hold. A normal tap is deliberately inert.
   function requireParentHold(button,onAuthorized){
-    const HOLD_MS=2000;
+    const HOLD_MS=1000;
     let timer=0,frame=0,start=0,down=false,completed=false,pointerId=null,startX=0,startY=0;
     const clear=()=>{
       down=false;clearTimeout(timer);cancelAnimationFrame(frame);
@@ -1247,12 +1247,9 @@
     to.hidden=false;
     if(to===homeScreen)to.style.visibility='visible';
     if(to===sectionScreen)to.classList.add('is-visible');
-    // The incoming previous screen is ALREADY full opacity, underneath the
-    // outgoing page. Reveal it by fading only the top outgoing screen.
-    // Old logic faded both layers simultaneously, making a semi-transparent
-    // double-page/ghost effect on iOS during Back.
+    // Set the incoming screen at zero opacity at its FINAL fixed position.
     to.style.setProperty('transition','none','important');
-    to.style.setProperty('opacity','1','important');
+    to.style.setProperty('opacity','0','important');
     to.style.setProperty('transform','none','important');
     const rect=card.getBoundingClientRect();
     if(!rect.width||!rect.height){
@@ -1262,7 +1259,19 @@
     }
     reversePortalActive=true;
     const previousCardOpacity=card.style.opacity;
-    card.style.opacity='0';
+    // Do not blank the destination's actual tile during Back.
+    // Keep it visible while the unchanged flying clone travels home.
+    // An inverse 1040ms alpha handoff transfers its visibility to the clone
+    // without altering ANY keyframe of the user-approved reverse flight.
+    let sourceTileHandoff=null;
+    try{
+      sourceTileHandoff=card.animate([
+        {opacity:1},{opacity:0}
+      ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
+      sourceTileHandoff.finished.catch(()=>{});
+    }catch(error){
+      console.warn('Return tile visibility fallback:',error);
+    }
     const flight=document.createElement('div');
     flight.dataset.reversePortalFlight=to===homeScreen?'home':'activity';
     Object.assign(flight.style,{
@@ -1290,11 +1299,7 @@
     void to.offsetWidth;
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
-    // The previous reverse animation started with a HUGE (up to 2.75x)
-    // cloned image across the whole screen and slowly made it opaque.
-    // On an iPhone that visibly ghosted over both page layers.
-    // Keep the card near its true size and reveal it only near its home slot.
-    const scale=Math.max(1.04,Math.min(1.4,
+    const scale=Math.max(1.1,Math.min(2.75,
       (window.innerWidth-22)/rect.width,
       (window.innerHeight-100)/rect.height));
     let done=false,cleanupTimer=0;
@@ -1308,25 +1313,19 @@
         for(const k of ['transition','opacity','transform','pointer-events'])
           screen.style.removeProperty(k);
       }
-      // The original card is revealed only once the previous screen is
-      // fully visible; no duplicated frame/ghost between the two layers.
+      // The stationary source tile was visible from the very first frame,
+      // then smoothly handed off to the ORIGINAL moving clone. Restore its
+      // untouched inline opacity once both full-screen fades complete.
+      sourceTileHandoff?.cancel();
       card.style.opacity=previousCardOpacity;
       flight.remove();
       reversePortalActive=false;
       finishNavigation();
     };
     try{
-      const origin='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
-      const dest='translate3d(0,0,0) scale(1)';
       const fly=flight.animate([
-        {offset:0,transform:origin,opacity:0},
-        // Card remains hidden while far from its destination: no giant
-        // translucent lion/forest tile overlaying full screen on exit.
-        {offset:.60,transform:origin.replace(
-          dx+'px,'+dy+'px', (dx*.35)+'px,'+(dy*.35)+'px'
-        ).replace('scale('+scale+')','scale('+(1+(scale-1)*.35)+')'),opacity:0},
-        {offset:.85,transform:'translate3d('+(dx*.1)+'px,'+(dy*.1)+'px,0) scale('+(1+(scale-1)*.1)+')',opacity:.55},
-        {offset:1,transform:dest,opacity:1}
+        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1}
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
@@ -1334,9 +1333,9 @@
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
-        // Same user-liked 1100ms softness, but ONE opaque destination
-        // layer with only the foreground fading away. No double dimming.
+        to.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
         from.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        to.style.setProperty('opacity','1','important');
         from.style.setProperty('opacity','0','important');
         cleanupTimer=setTimeout(()=>{
           delete to.dataset.reversePortal;
