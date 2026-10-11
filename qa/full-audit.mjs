@@ -296,8 +296,12 @@ check(finding.includes('export function createFindingSession')&&
   styles.includes('.s3d-cycle-card'),
   'V268 child-controlled replay: reset header, keep final result, green manual button, live applause');
 check(space.includes("createFindingSession(root,ctx,hud.score)")&&
+  space.includes('questionCycle.commit(target.id)')&&
   space.includes('seenTargets.add(target.id)')&&
-  space.includes("if(seenTargets.size===pool.length)")&&
+  space.includes("if(questionCycle.completed)")&&
+  space.includes('questionCycle.replay()')&&
+  space.includes("createUniqueTargetCycle(pool,shuffle)")&&
+  space.includes('questionCycle.chooseReady(new Set(ready.keys()))')&&
   space.includes("root.dataset.spaceRoundPhase='result'")&&
   space.includes('session.showCycleResult().then(')&&
   space.includes('session.wrongAnswer()')&&
@@ -309,7 +313,7 @@ check(space.includes("createFindingSession(root,ctx,hud.score)")&&
   quest.includes("session.wrongAnswer()")&&quest.includes("session.rightAnswer()"),
   'V268 BOTH games must pause at full-tour result until green replay tap');
 check(sw.includes('space-finding-session.js?v=285')&&
-      app.includes('space-3d-games.js?v=285')&&
+      app.includes('space-3d-games.js?v=289')&&
       app.includes('constellation-quest-v246.js?v=287'),
       'V268 versioned module imports and PWA offline cache must be synchronized');
 
@@ -326,7 +330,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=288")&&
+check(refresh.includes("service-worker.js?v=289")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

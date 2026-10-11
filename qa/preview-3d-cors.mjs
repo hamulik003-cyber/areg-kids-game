@@ -12,9 +12,14 @@ const browser=await engine.launch(isWebKit?{headless:true}:{channel:'chrome',hea
 try{
   const page=await browser.newPage();
   await page.goto('about:blank');
-  const items=['04-earth.png','08-saturn.png','09-uranus.png'];
-  for(const name of items){
-    const src='https://rawcdn.githack.com/hamulik003-cyber/areg-kids-game/'+sha+'/assets/space3d/user-final/'+name+'?v=final27repo4';
+  const items=[
+    {name:'04-earth.png',path:'assets/space3d/user-final/04-earth.png?v=final27repo4'},
+    {name:'08-saturn.png',path:'assets/space3d/user-final/08-saturn.png?v=final27repo4'},
+    {name:'09-uranus.png',path:'assets/space3d/user-final/09-uranus.png?v=final27repo4'},
+    {name:'black-hole-reference-v216.webp',path:'assets/space3d/black-hole-reference-v216.webp?v=232'}
+  ];
+  for(const item of items){
+    const src='https://rawcdn.githack.com/hamulik003-cyber/areg-kids-game/'+sha+'/'+item.path;
     const outcome=await page.evaluate(async url=>{
       const img=new Image();
       img.crossOrigin='anonymous';
@@ -40,7 +45,7 @@ try{
       if(error!==gl.NO_ERROR)throw new Error('WebGL texImage2D error '+error);
       return {source:url,size:img.width+'x'+img.height,centerPixel:pixel,webgl:'uploaded'};
     },src);
-    console.log('CORS WEBGL UV PASS',isWebKit?'WebKit':'Chromium',name,JSON.stringify(outcome));
+    console.log('CORS WEBGL UV PASS',isWebKit?'WebKit':'Chromium',item.name,JSON.stringify(outcome));
   }
 }catch(e){
   console.error('CORS WEBGL UV FAIL',isWebKit?'WebKit':'Chromium',e.stack||String(e));

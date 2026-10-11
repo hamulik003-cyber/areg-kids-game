@@ -1380,7 +1380,7 @@
   function ensureSpace3DLoaded(){
     if(window.AregSpace3D)return Promise.resolve(window.AregSpace3D);
     if(!space3DLoadPromise){
-      space3DLoadPromise=import('./space-3d-games.js?v=285')
+      space3DLoadPromise=import('./space-3d-games.js?v=289')
         .then(()=>window.AregSpace3D)
         .catch(err=>{space3DLoadPromise=null;throw err});
     }
@@ -2838,7 +2838,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=288',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=289',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

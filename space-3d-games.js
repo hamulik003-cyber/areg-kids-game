@@ -1,5 +1,6 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=289';
 import {createFindingSession} from './space-finding-session.js?v=285';
+import {createUniqueTargetCycle} from './space-question-cycle.js?v=289';
 // V163 centered proportional feedback rings + one soft green flash
 import * as THREE from './vendor/three.module.min.js';
 
@@ -1735,7 +1736,9 @@ function gameSpaceSearch(ctx){
   const stars=starField(backgroundScene),shooting=createShootingStars(backgroundScene);
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),pickables=[];
   const pool=ctx.PLANETS.filter(x=>REALISTIC_IDS.has(x.id));
-  const next=bag(pool);
+  // One shuffled deck per entire 30-question visit, not a free-running
+  // bag that can be consumed by aborted texture-preload/fallback plans.
+  const questionCycle=createUniqueTargetCycle(pool,shuffle);
 
   let groups=[],target=null,score=0,locked=true,disposed=false,last=performance.now();
   let wrong=null,winStart=0,winGroup=null,transition=null,timer=0,recent=[];
@@ -1756,7 +1759,8 @@ function gameSpaceSearch(ctx){
   // V231: bounded loading and a hard win-exit deadline.
   let queuedRound=null,roundSeq=0,prewarmTimer=0;
   function createRoundPlan(){
-    const chosen=next();
+    const chosen=questionCycle.peek();
+    if(!chosen)return null; // Last question: wait for result + replay.
     return {target:chosen,opts:shuffle([chosen,...decoys(chosen)]),promise:null};
   }
   function isLoadedApproved(it){
@@ -1764,7 +1768,9 @@ function gameSpaceSearch(ctx){
   }
   function useLoadedPlan(plan){
     if(plan.opts.length===3&&plan.opts.every(isLoadedApproved))return plan;
-    // Previously displayed approved textures are known to be visible.
+    // A slow or missing UV may change the TARGET, but NEVER to a target
+    // already asked this cycle. The shuffled deck keeps unasked entries
+    // in reserve; it is consumed only after the actual round is displayed.
     const ready=new Map();
     for(const it of plan.opts)if(isLoadedApproved(it))ready.set(it.id,it);
     for(const g of groups){
@@ -1772,18 +1778,21 @@ function gameSpaceSearch(ctx){
       if(it&&isLoadedApproved(it))ready.set(it.id,it);
     }
     for(const it of pool)if(isLoadedApproved(it))ready.set(it.id,it);
-    // Cold-start/offline fail-safe: three built-in, texture-independent
-    // space objects instead of a black textureless placeholder sphere.
+    // These three are texture-independent native 3D objects.
     for(const id of ['solar-system','milky-way','black-hole']){
       const it=pool.find(x=>x.id===id);
       if(it)ready.set(it.id,it);
     }
-    const choices=shuffle([...ready.values()]);
-    if(choices.length>=3){
-      const wanted=choices.filter(x=>x.id===plan.target.id).slice(0,1);
-      plan.opts=shuffle([...wanted,...choices.filter(x=>x.id!==wanted[0]?.id)].slice(0,3));
-      plan.target=plan.opts.find(x=>x.id===plan.target.id)||plan.opts[0];
+    const target=questionCycle.chooseReady(new Set(ready.keys()));
+    if(!target)return plan;
+    // Decoys can recur: only the spoken question target must not recur.
+    const others=shuffle([...ready.values()].filter(it=>it.id!==target.id));
+    if(others.length<2){
+      const used=new Set([target.id,...others.map(it=>it.id)]);
+      others.push(...shuffle(pool.filter(it=>!used.has(it.id))));
     }
+    plan.target=target;
+    plan.opts=shuffle([target,...others.slice(0,2)]);
     return plan;
   }
   function withPreparationDeadline(opts,ms){
@@ -1800,7 +1809,7 @@ function gameSpaceSearch(ctx){
     });
   }
   function warmUpcomingRound(){
-    if(queuedRound||disposed)return queuedRound;
+    if(queuedRound||disposed||questionCycle.completed)return queuedRound;
     const plan=createRoundPlan();
     queuedRound=plan;
     plan.promise=withPreparationDeadline(plan.opts,1450)
@@ -1812,6 +1821,7 @@ function gameSpaceSearch(ctx){
     locked=true;winStart=0;root.classList.remove('s3d-win');
     const plan=queuedRound||createRoundPlan();
     queuedRound=null;
+    if(!plan)return; // Completed cycle waits on result/replay.
     await (plan.promise||withPreparationDeadline(plan.opts,3600));
     if(disposed||seq!==roundSeq)return;
     useLoadedPlan(plan);
@@ -1837,6 +1847,10 @@ function gameSpaceSearch(ctx){
     // old round. Never remove the old picture while textures are missing.
     clear();
     target=roundTarget;
+    // Commit only the question that the child REALLY sees. Previously
+    // the image-ready fallback could silently replace it with an old one,
+    // leaving the unique-target result gate stuck before 30.
+    questionCycle.commit(target.id);
     seenTargets.add(target.id);
     root.dataset.cycleSeen=String(seenTargets.size);
     recent=[...new Set(opts.map(x=>x.id).concat(recent))].slice(0,7);
@@ -2080,18 +2094,23 @@ function gameSpaceSearch(ctx){
       // asset-loading blank screen. Stage remains interactive only later.
       transition=null;root.dataset.spaceRoundPhase='starfield-pause';
       clearTimeout(timer);
-      if(seenTargets.size===pool.length){
-        // A full no-repeat target tour has ended. Show the cumulative session
-        // result before the next shuffled target cycle; keep stars independent.
-        seenTargets.clear();
-        root.dataset.cycleSeen='0';
+      if(questionCycle.completed){
+        // A full set of 30 DISTINCT target questions has finished.
+        // Show the existing celebration before preparing the new shuffle.
+        root.dataset.cycleSeen=String(seenTargets.size);
         timer=setTimeout(()=>{
           if(disposed)return;
           // No automatic restart: retain the result until the child taps
           // the green "Խաղալ նորից" control. The score is reset to 0/0
           // when that result appears, while the card retains final numbers.
           root.dataset.spaceRoundPhase='result';
-          session.showCycleResult().then(()=>{if(!disposed)buildRound()});
+          session.showCycleResult().then(()=>{
+            if(disposed)return;
+            questionCycle.replay();
+            seenTargets.clear();
+            root.dataset.cycleSeen='0';
+            buildRound();
+          });
         },STARFIELD_PAUSE_MS);
       }else{
         timer=setTimeout(()=>{if(!disposed)buildRound()},STARFIELD_PAUSE_MS);
