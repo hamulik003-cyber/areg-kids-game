@@ -31,6 +31,8 @@ jobs:
         run: node --test qa/finding-session.test.mjs
       - name: Unit test per-visit ten-correct milestones and reward unlock wallet
         run: node --test qa/star-economy.test.mjs
+      - name: Verify 30 unique Space Search questions and fresh shuffle each replay
+        run: node --test qa/space-question-cycle.test.mjs
       - run: node qa/full-audit.mjs
       - name: Diagnose large 3D texture retrieval on preview and main hosts (nonblocking)
         if: github.event_name == 'pull_request'
