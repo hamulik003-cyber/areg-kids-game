@@ -1,0 +1,111 @@
+name: V287 import 38 original user constellation pictures (TRIAL)
+on:
+  push:
+    branches: [feature/new-constellation-images-v287]
+    paths: [.github/workflows/v287-user-original-38-art-import.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: v287-38-user-art-import
+  cancel-in-progress: false
+
+jobs:
+  isolated-art-import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download exact user-uploaded archive from PRIVATE DRAFT RELEASE (not main)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail --location --retry 3 --retry-delay 3 --silent --show-error \
+            -H "Accept: application/octet-stream" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/hamulik003-cyber/areg-kids-game/releases/assets/629370683" \
+            -o /tmp/areg-original38.zip
+          echo '39cd877b6d71a27c1144ceb5c8b21bf9360afb3d7c0e733495dafbd56806bf97  /tmp/areg-original38.zip' | sha256sum -c -
+          unzip -tq /tmp/areg-original38.zip
+      - name: Restore EXACT package assets; keep animation/scoring/audio/CSS unchanged
+        run: |
+          unzip -p /tmp/areg-original38.zip AREG_apply_38_source_png_into_V287.py > /tmp/areg_install_art.py
+          python /tmp/areg_install_art.py /tmp/areg-original38.zip "$GITHUB_WORKSPACE"
+      - name: Verify original pixels, 38 mapped images, alpha, and scope
+        run: |
+          python -m pip install --disable-pip-version-check Pillow
+          python - <<'PY'
+          import io, json, hashlib, zipfile, pathlib
+          from PIL import Image, ImageChops
+          repo=pathlib.Path('.')
+          with zipfile.ZipFile('/tmp/areg-original38.zip') as z:
+              report=json.loads(z.read('qa/constellation-38-archive-mapping-and-verification.json'))
+              assert report['asset_count']==38
+              for record in report['files']:
+                  stem=record['name']
+                  pp=repo/f'assets/constellations-transparent/{stem}.png'
+                  wp=repo/f'assets/constellations-transparent/{stem}.webp'
+                  tp=repo/f'assets/thumbs/{stem}.webp'
+                  assert hashlib.sha256(pp.read_bytes()).hexdigest()==record['png_sha256']
+                  assert pp.read_bytes()==z.read(f'assets/constellations-transparent/{stem}.png')
+                  assert wp.read_bytes()==z.read(f'assets/constellations-transparent/{stem}.webp')
+                  assert tp.read_bytes()==z.read(f'assets/thumbs/{stem}.webp')
+                  png=Image.open(pp).convert('RGBA')
+                  webp=Image.open(wp).convert('RGBA')
+                  assert png.size==webp.size==tuple(record['size']),stem
+                  assert ImageChops.difference(png,webp).getbbox() is None,stem
+                  assert png.getchannel('A').getextrema()[0]==0,stem
+              print('PASSED: 38/38 exact user PNG bytes, 38/38 pixel-identical WebP, 38 thumbs, unchanged picture geometry.')
+          PY
+          node --check app.js
+          node --check constellation-quest-v246.js
+          git diff --check
+      - name: Record safe V287 baseline, trial-only import and device approval requirement
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text="""
+
+          ## 2026-10-11 — TRIAL ONLY: 38 user-uploaded transparent original PNGs (NOT DEPLOYED)
+          - User uploaded complete 38 original transparent constellation pictures and explicitly requested replacing previous game art ONLY. Input ZIP is draft GitHub release asset 629370683, sha256 39cd877b6d71a27c1144ceb5c8b21bf9360afb3d7c0e733495dafbd56806bf97.
+          - Safe V287 production main SHA: 66daa15fb170e1e003e11a74a772ba0880c3218e. Immutable recovery branch backup/v287-before-38-user-png-original-art-20261011. This candidate lives ONLY in feature/new-constellation-images-v287.
+          - Replaces exactly 38 original PNGs, 38 pixel-identical lossless WebPs, and 38 separate lightweight gallery thumbnails. Updates image manifest and ONLY constellation-art cache-busting URL strings in app.js / quest module / index.html so iPhone does not reuse stale pictures. No animation/effects/UI timing, star economy, audio, PWA service worker, CSS, unrelated game data, or DotKiosk settings changed.
+          - Critical: ZIP's new 16-hayk-belt image is NOT byte-identical to V287; visually verify its three approved bright cores on actual iPhone before user sign-off. Image decoded dimensions and full-resolution WebP files are larger; verify on-device smoothness and memory before main publication. No draft-release ZIP itself is committed.
+          - Run static image/pixel checks, original full-game tests, mobile WebKit checks on candidate and user DotKiosk review before considering main publication. DO NOT automatically merge. V287 remains live throughout this trial.
+          """
+          for filename in ('CURRENT_STATUS.md','PROJECT_HANDOFF.md'):
+              p=Path(filename)
+              p.write_text(text.strip()+"\n\n"+p.read_text(encoding='utf8'),encoding='utf8')
+          PY
+      - name: Verify existing AREG unit and static gate before creating trial commit
+        run: |
+          node --test qa/handoff-guard.test.mjs
+          node --test qa/finding-session.test.mjs
+          node --test qa/star-economy.test.mjs
+          node qa/full-audit.mjs
+      - name: Commit preview assets to trial branch ONLY; never touch main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/constellations-transparent/ assets/thumbs/ app.js constellation-quest-v246.js index.html CURRENT_STATUS.md PROJECT_HANDOFF.md
+          git diff --cached --check
+          git diff --cached --name-only | tee /tmp/areg-import-paths.txt
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/areg-import-paths.txt').read_text().splitlines()
+          allowed={'app.js','constellation-quest-v246.js','index.html','CURRENT_STATUS.md','PROJECT_HANDOFF.md','assets/constellations-transparent/manifest.json'}
+          assert p and all(x in allowed or x.startswith('assets/constellations-transparent/') or x.startswith('assets/thumbs/') for x in p),p
+          assert 'app.js' in p and 'constellation-quest-v246.js' in p and 'index.html' in p
+          assert 'CURRENT_STATUS.md' in p and 'PROJECT_HANDOFF.md' in p
+          print('SAFE: only constellation visual assets, image cache URL references, and handoff docs.')
+          PY
+          git commit -m "Trial V287: replace 38 constellation images with user original transparent PNGs"
+          git push origin HEAD:feature/new-constellation-images-v287
