@@ -52,8 +52,8 @@ try{
        if(section.dataset.natureCrossfade==='running')proof.started=true;
        if(section.dataset.natureCrossfade==='running' &&
           section.style.opacity==='1' && home.style.opacity==='0' &&
-          section.style.transition.includes('790ms') &&
-          home.style.transition.includes('790ms')){
+          section.style.transition.includes('1100ms') &&
+          home.style.transition.includes('1100ms')){
          proof.targeted=true;
          if(!section.hidden && home.style.visibility!=='hidden')
            proof.simultaneous=true;
@@ -117,12 +117,15 @@ try{
   }
   await page.waitForSelector('#sectionScreen.is-visible');
   if(section==='nature'){
+   // At card-flight completion, the slower full-screen crossfade may still
+   // be running. Its source card must remain hidden until home is concealed.
    await page.waitForFunction(()=>{
      const section=document.querySelector('#sectionScreen');
+     const home=document.querySelector('#homeScreen');
      return !document.querySelector('[data-nature-section-flight]') &&
        !section.dataset.natureCrossfade &&
-       document.querySelector('#homeScreen').style.visibility==='hidden';
-   },null,{timeout:3500});
+       home.style.visibility==='hidden';
+   },null,{timeout:4500});
    const reset=await page.locator('.section-card[data-section="nature"]').evaluate(card=>card.style.opacity);
    if(reset!=='')throw Error('V288 Nature home card failed to restore after opening');
   }

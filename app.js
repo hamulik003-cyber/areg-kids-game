@@ -803,6 +803,7 @@
   /* section navigation */
   // V288 pilot: only Nature uses the new cinematic home-card transition.
   let natureHomeTransitionActive=false;
+  let restoreNatureSourceCard=null;
   $$('.section-card').forEach(card=>card.addEventListener('click',()=>{
     if(natureHomeTransitionActive)return;
     if(card.dataset.section==='nature')openNatureHomeSection(card);
@@ -895,9 +896,9 @@
           if(crossfadeStarted||nav!==galleryNavigationId||currentSection!==id)return;
           crossfadeStarted=true;
           sectionScreen.style.setProperty('transition',
-            'opacity 790ms cubic-bezier(.22,.18,.48,1)','important');
+            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
           homeScreen.style.setProperty('transition',
-            'opacity 790ms cubic-bezier(.22,.18,.48,1)','important');
+            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
           sectionScreen.classList.add('is-visible');
           sectionScreen.style.setProperty('opacity','1','important');
           // Keep transform fixed throughout; only alpha changes.
@@ -908,6 +909,9 @@
           setTimeout(()=>{
             if(nav!==galleryNavigationId||currentSection!==id)return;
             homeScreen.style.visibility='hidden';
+            // The 1040ms flying card may finish before this longer fade.
+            // Restore the original source card ONLY after home is hidden.
+            restoreNatureSourceCard?.();
             homeScreen.style.removeProperty('opacity');
             homeScreen.style.removeProperty('transition');
             homeScreen.style.removeProperty('pointer-events');
@@ -916,7 +920,7 @@
             sectionScreen.style.removeProperty('transform');
             sectionScreen.style.removeProperty('pointer-events');
             delete sectionScreen.dataset.natureCrossfade;
-          },870);
+          },1180);
         };
         // WebKit can delay requestAnimationFrame when decoding pictures.
         // Start within a tiny guaranteed window even if a frame is throttled.
@@ -975,6 +979,10 @@
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
     card.style.opacity='0';
+    restoreNatureSourceCard=()=>{
+      card.style.opacity=previousOpacity;
+      restoreNatureSourceCard=null;
+    };
     let done=false;
     let safetyTimer=0;
     const restore=()=>{
@@ -982,7 +990,10 @@
       done=true;
       clearTimeout(safetyTimer);
       flight.remove();
-      card.style.opacity=previousOpacity;
+      // When the moving card disappears at 1040ms, the two full screens are
+      // still dissolving. Do not let the original tile flash back underneath.
+      if(sectionScreen.dataset.natureCrossfade!=='running')
+        restoreNatureSourceCard?.();
       natureHomeTransitionActive=false;
     };
     // Keep the entire artwork and Armenian title together, never move the
@@ -1003,9 +1014,9 @@
       flightAnimation.finished.then(restore,restore);
       // Bring in the Nature page underneath the still-moving translucent tile.
       // Start warming right away, but never wait on a cold network fetch here.
-      // Start a gentle overlapping page crossfade early in the zoom, not at
-      // the end. 200ms lead + 790ms fade finishes just before 1040ms flight.
-      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,200));
+      // 230ms lead + a gentle 1100ms crossfade: the destination is
+      // stationary and keeps dissolving smoothly after the 1040ms card flight.
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,230));
       openSection('nature',revealDuringFlight,true);
       safetyTimer=setTimeout(restore,1900);
     }catch(error){
