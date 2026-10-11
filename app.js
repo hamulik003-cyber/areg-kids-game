@@ -801,13 +801,13 @@
   $('#starCounter').addEventListener('click',()=>showToast(`⭐ ${stars}`));
 
   /* section navigation */
-  // V288 pilot: only Nature uses the new cinematic home-card transition.
-  let natureHomeTransitionActive=false;
-  let restoreNatureSourceCard=null;
+  // V288 five-section trial: reuse the user-liked Nature portal fade for
+  // all five home tiles. Preserve every tile's DOM, geometry and artwork.
+  let homeEntryTransitionActive=false;
+  let restoreHomeSourceCard=null;
   $$('.section-card').forEach(card=>card.addEventListener('click',()=>{
-    if(natureHomeTransitionActive)return;
-    if(card.dataset.section==='nature')openNatureHomeSection(card);
-    else openSection(card.dataset.section);
+    if(homeEntryTransitionActive)return;
+    openAnimatedHomeSection(card);
   }));
   $('#sectionBack').addEventListener('click',closeSection);
   $('#activityBack').addEventListener('click',backToSection);
@@ -850,7 +850,7 @@
   setTimeout(()=>warmSectionImages('nature').catch(()=>{}),950);
   setTimeout(()=>warmSectionImages('space').catch(()=>{}),1800);
 
-  function openSection(id, beforeReveal, cinematicNature=false){
+  function openSection(id, beforeReveal, cinematicEntry=false){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
@@ -872,13 +872,13 @@
     const nav=++galleryNavigationId;
     const revealSection=()=>{
       if(nav!==galleryNavigationId||currentSection!==id)return;
-      if(cinematicNature&&id==='nature'){
-        // V288 refinement: overlap BOTH screens instead of abruptly hiding
-        // home while the Nature page is still fading in. Inline !important
-        // wins the legacy section opacity/transform !important declarations.
-        // Never change the transition behavior of other four home sections.
+      if(cinematicEntry){
+        // V288: same approved Nature-look portal reveal for all 5 sections.
+        // Keep the incoming page stationary and crossfade both full screens.
+        // Inline important overrides legacy section transition !important.
         sectionScreen.hidden=false;
-        sectionScreen.dataset.natureCrossfade='running';
+        sectionScreen.dataset.entryCrossfade='running';
+        sectionScreen.dataset.entrySection=id;
         sectionScreen.style.setProperty('transition','none','important');
         sectionScreen.style.setProperty('opacity','0','important');
         // Cinematic Portal Fade: the incoming world stays perfectly fixed.
@@ -911,7 +911,7 @@
             homeScreen.style.visibility='hidden';
             // The 1040ms flying card may finish before this longer fade.
             // Restore the original source card ONLY after home is hidden.
-            restoreNatureSourceCard?.();
+            restoreHomeSourceCard?.();
             homeScreen.style.removeProperty('opacity');
             homeScreen.style.removeProperty('transition');
             homeScreen.style.removeProperty('pointer-events');
@@ -919,7 +919,8 @@
             sectionScreen.style.removeProperty('opacity');
             sectionScreen.style.removeProperty('transform');
             sectionScreen.style.removeProperty('pointer-events');
-            delete sectionScreen.dataset.natureCrossfade;
+            delete sectionScreen.dataset.entryCrossfade;
+            delete sectionScreen.dataset.entrySection;
           },1180);
         };
         // WebKit can delay requestAnimationFrame when decoding pictures.
@@ -933,9 +934,9 @@
       // Load the 3D engine only after the Space menu has become visible.
       if(id==='space')setTimeout(()=>{if(nav===galleryNavigationId&&currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},900);
     };
-    // For the Nature entrance, section reveal is synced to the ONE ongoing
-    // card flight, never held up at its destination by image-network readiness.
-    // The existing <=1150ms bounded image wait is preserved for other tiles.
+    // For home-card animated entry, section reveal is timed to the
+    // uninterrupted card flight, never stalled by a network image fetch.
+    // Existing <=1150ms bounded wait remains as the nonanimated fallback.
     const warming=warmSectionImages(id);
     if(beforeReveal){
       warming.catch(()=>{});
@@ -946,18 +947,20 @@
     }
   }
 
-  // Trial only: paint an exact, lightweight clone ABOVE the two screens, in
-  // viewport coordinates. The approved design-stage geometry never moves.
-  function openNatureHomeSection(card){
-    if(!card||natureHomeTransitionActive)return;
+  // Trial only: fly an exact visual clone of whichever of the 5 home cards
+  // was pressed. Original design-stage positions are never modified.
+  function openAnimatedHomeSection(card){
+    if(!card||homeEntryTransitionActive)return;
+    const id=card.dataset.section;
+    if(!SECTIONS[id])return;
     const rect=card.getBoundingClientRect();
     if(!card.animate||!rect.width||!rect.height||
         window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){
-      openSection('nature');return;
+      openSection(id);return;
     }
-    natureHomeTransitionActive=true;
+    homeEntryTransitionActive=true;
     const flight=document.createElement('div');
-    flight.dataset.natureSectionFlight='true';
+    flight.dataset.homeSectionFlight=id;
     Object.assign(flight.style,{
       position:'fixed',left:rect.left+'px',top:rect.top+'px',
       width:rect.width+'px',height:rect.height+'px',
@@ -979,9 +982,9 @@
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
     card.style.opacity='0';
-    restoreNatureSourceCard=()=>{
+    restoreHomeSourceCard=()=>{
       card.style.opacity=previousOpacity;
-      restoreNatureSourceCard=null;
+      restoreHomeSourceCard=null;
     };
     let done=false;
     let safetyTimer=0;
@@ -992,9 +995,9 @@
       flight.remove();
       // When the moving card disappears at 1040ms, the two full screens are
       // still dissolving. Do not let the original tile flash back underneath.
-      if(sectionScreen.dataset.natureCrossfade!=='running')
-        restoreNatureSourceCard?.();
-      natureHomeTransitionActive=false;
+      if(sectionScreen.dataset.entryCrossfade!=='running')
+        restoreHomeSourceCard?.();
+      homeEntryTransitionActive=false;
     };
     // Keep the entire artwork and Armenian title together, never move the
     // underlying menu card or its fixed positions in the 709px design stage.
@@ -1012,17 +1015,16 @@
         {transform:destination,opacity:0}
       ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
       flightAnimation.finished.then(restore,restore);
-      // Bring in the Nature page underneath the still-moving translucent tile.
-      // Start warming right away, but never wait on a cold network fetch here.
-      // 230ms lead + a gentle 1100ms crossfade: the destination is
-      // stationary and keeps dissolving smoothly after the 1040ms card flight.
+      // All five section pages have identical gentle stationary dissolve.
+      // Existing image warming/game initialization remain section-specific.
+      // 230ms lead, 1100ms crossfade, 1040ms uninterrupted tile flight.
       const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,230));
-      openSection('nature',revealDuringFlight,true);
+      openSection(id,revealDuringFlight,true);
       safetyTimer=setTimeout(restore,1900);
     }catch(error){
-      console.warn('Nature home transition fallback:',error);
+      console.warn('Home section transition fallback:',id,error);
       restore();
-      openSection('nature');
+      openSection(id);
     }
   }
 

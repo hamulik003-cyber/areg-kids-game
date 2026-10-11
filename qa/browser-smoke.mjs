@@ -43,92 +43,80 @@ try{
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
-  if(section==='nature'){
-   const naturePilot=await page.locator('.section-card[data-section="nature"]').evaluate(card=>{
-     const section=document.querySelector('#sectionScreen');
-     const home=document.querySelector('#homeScreen');
-     const proof={started:false,targeted:false,simultaneous:false,stationary:false};
-     const record=()=>{
-       if(section.dataset.natureCrossfade==='running')proof.started=true;
-       if(section.dataset.natureCrossfade==='running' &&
-          section.style.opacity==='1' && home.style.opacity==='0' &&
-          section.style.transition.includes('1100ms') &&
-          home.style.transition.includes('1100ms')){
-         proof.targeted=true;
-         if(!section.hidden && home.style.visibility!=='hidden')
-           proof.simultaneous=true;
-         // The page cannot rise from below or zoom as it fades into view.
-         if(section.style.transform==='none' &&
-            !section.style.transition.includes('transform') &&
-            getComputedStyle(section).transform==='none')
-           proof.stationary=true;
-       }
-     };
-     const tracker=new MutationObserver(record);
-     tracker.observe(section,{attributes:true,attributeFilter:['style','hidden','data-nature-crossfade','class']});
-     tracker.observe(home,{attributes:true,attributeFilter:['style']});
-     window.__aregNatureCrossfadeProof=proof;
-     card.click();
-     record();
-     const flight=document.querySelector('[data-nature-section-flight]');
-     const animations=flight?.getAnimations()||[];
-     const keyframes=animations[0]?.effect?.getKeyframes()||[];
-     const timing=animations[0]?.effect?.getTiming();
-     return {
-       flight:!!flight,animations:animations.length,originalHidden:card.style.opacity==='0',
-       keyframeCount:keyframes.length,initialOpacity:Number(keyframes[0]?.opacity),
-       finalOpacity:Number(keyframes.at(-1)?.opacity),
-       initialTransform:keyframes[0]?.transform,finalTransform:keyframes.at(-1)?.transform,
-       duration:timing?.duration
-     };
-   });
-   if(!naturePilot.flight||naturePilot.animations!==1||!naturePilot.originalHidden||
-      naturePilot.keyframeCount!==2||naturePilot.initialOpacity!==1||
-      naturePilot.finalOpacity!==0||naturePilot.duration!==1040||
-      !naturePilot.finalTransform?.includes('translate3d('))
-     throw Error('V288 Nature must use one uninterrupted 1040ms transform+opacity flight '+JSON.stringify(naturePilot));
-  }else await page.locator('.section-card[data-section="'+section+'"]').click();
+  // Every home tile must share the user-approved Nature-style portal trial.
+  const entryPilot=await page.locator('.section-card[data-section="'+section+'"]').evaluate((card,id)=>{
+    const incoming=document.querySelector('#sectionScreen');
+    const home=document.querySelector('#homeScreen');
+    const proof={started:false,targeted:false,simultaneous:false,stationary:false,correctSection:false};
+    const record=()=>{
+      if(incoming.dataset.entryCrossfade==='running')proof.started=true;
+      if(incoming.dataset.entryCrossfade==='running' &&
+         incoming.dataset.entrySection===id &&
+         incoming.style.opacity==='1' && home.style.opacity==='0' &&
+         incoming.style.transition.includes('1100ms') &&
+         home.style.transition.includes('1100ms')){
+        proof.targeted=true;
+        proof.correctSection=true;
+        if(!incoming.hidden && home.style.visibility!=='hidden')
+          proof.simultaneous=true;
+        if(incoming.style.transform==='none' &&
+           !incoming.style.transition.includes('transform') &&
+           getComputedStyle(incoming).transform==='none')
+          proof.stationary=true;
+      }
+    };
+    const observer=new MutationObserver(record);
+    observer.observe(incoming,{attributes:true,attributeFilter:['style','hidden','data-entry-crossfade','data-entry-section','class']});
+    observer.observe(home,{attributes:true,attributeFilter:['style']});
+    window.__aregHomeEntryProof=proof;
+    card.click();
+    record();
+    const flight=document.querySelector('[data-home-section-flight]');
+    const animations=flight?.getAnimations()||[];
+    const frames=animations[0]?.effect?.getKeyframes()||[];
+    return {flight:!!flight,flightSection:flight?.dataset.homeSectionFlight,
+      animationCount:animations.length,sourceHidden:card.style.opacity==='0',
+      frameCount:frames.length,firstOpacity:Number(frames[0]?.opacity),
+      lastOpacity:Number(frames.at(-1)?.opacity),
+      duration:animations[0]?.effect?.getTiming()?.duration,
+      finalTransform:frames.at(-1)?.transform};
+  },section);
+  if(!entryPilot.flight||entryPilot.flightSection!==section||
+     entryPilot.animationCount!==1||!entryPilot.sourceHidden||
+     entryPilot.frameCount!==2||entryPilot.firstOpacity!==1||
+     entryPilot.lastOpacity!==0||entryPilot.duration!==1040||
+     !entryPilot.finalTransform?.includes('translate3d('))
+    throw Error('V288 all-section flight missing or incorrect '+section+' '+JSON.stringify(entryPilot));
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
-  if(section==='nature'){
-   // WebKit can take >1s to return from clicking or logging. Record the
-   // overlap in a MutationObserver installed BEFORE clicking, rather than
-   // require the animation to remain mid-flight when assertions resume.
-   try{
-     await page.waitForFunction(()=>window.__aregNatureCrossfadeProof?.targeted===true,
-       null,{timeout:4500});
-   }catch(error){
-     const details=await page.evaluate(()=>{
-       const sec=document.querySelector('#sectionScreen'),home=document.querySelector('#homeScreen');
-       return {proof:window.__aregNatureCrossfadeProof,
-         section:{hidden:sec.hidden,classes:sec.className,
-           data:sec.dataset.natureCrossfade,opacity:sec.style.opacity,
-           cssOpacity:getComputedStyle(sec).opacity,
-           transition:sec.style.transition,transform:sec.style.transform},
-         home:{visibility:home.style.visibility,opacity:home.style.opacity,
-           cssOpacity:getComputedStyle(home).opacity,transition:home.style.transition},
-         flight:!!document.querySelector('[data-nature-section-flight]'),
-         errs:window.__aregNatureDebugErrors||null};
-     });
-     throw Error('V288 WebKit crossfade capture timed out '+JSON.stringify(details)+' / '+error.message);
-   }
-   const proof=await page.evaluate(()=>window.__aregNatureCrossfadeProof);
-   if(!proof.started||!proof.targeted||!proof.simultaneous||!proof.stationary)
-     throw Error('V288 Portal Fade: Nature must remain stationary throughout the two-screen dissolve '+JSON.stringify(proof));
+  try{
+    await page.waitForFunction(()=>window.__aregHomeEntryProof?.targeted===true,
+      null,{timeout:4500});
+  }catch(error){
+    const detail=await page.evaluate(()=>{
+      const page=document.querySelector('#sectionScreen'),home=document.querySelector('#homeScreen');
+      return {proof:window.__aregHomeEntryProof,
+        page:{hidden:page.hidden,section:page.dataset.section,entry:page.dataset.entrySection,
+          animationState:page.dataset.entryCrossfade,opacity:page.style.opacity,
+          transition:page.style.transition,transform:page.style.transform},
+        home:{visible:home.style.visibility,opacity:home.style.opacity},
+        flyingCard:document.querySelector('[data-home-section-flight]')?.dataset.homeSectionFlight};
+    });
+    throw Error('V288 all-section crossfade did not start '+section+' '+JSON.stringify(detail)+' / '+error.message);
   }
+  const proof=await page.evaluate(()=>window.__aregHomeEntryProof);
+  if(!proof.started||!proof.targeted||!proof.simultaneous||
+     !proof.stationary||!proof.correctSection)
+    throw Error('V288 portal fade not stationary/soft for '+section+' '+JSON.stringify(proof));
   await page.waitForSelector('#sectionScreen.is-visible');
-  if(section==='nature'){
-   // At card-flight completion, the slower full-screen crossfade may still
-   // be running. Its source card must remain hidden until home is concealed.
-   await page.waitForFunction(()=>{
-     const section=document.querySelector('#sectionScreen');
-     const home=document.querySelector('#homeScreen');
-     return !document.querySelector('[data-nature-section-flight]') &&
-       !section.dataset.natureCrossfade &&
-       home.style.visibility==='hidden';
-   },null,{timeout:4500});
-   const reset=await page.locator('.section-card[data-section="nature"]').evaluate(card=>card.style.opacity);
-   if(reset!=='')throw Error('V288 Nature home card failed to restore after opening');
-  }
+  await page.waitForFunction(()=>{
+    const sectionScreen=document.querySelector('#sectionScreen');
+    return !document.querySelector('[data-home-section-flight]') &&
+      !sectionScreen.dataset.entryCrossfade &&
+      document.querySelector('#homeScreen').style.visibility==='hidden';
+  },null,{timeout:4500});
+  const reset=await page.locator('.section-card[data-section="'+section+'"]').evaluate(card=>card.style.opacity);
+  if(reset!=='')throw Error('V288 source card not restored after '+section+' entry');
+
   if(section==='magic'){
    const n=await page.locator('.magic-collect-card').count();
    if(n<35)throw Error('Magic rewards missing: '+n);
