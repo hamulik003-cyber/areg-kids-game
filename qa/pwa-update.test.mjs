@@ -154,11 +154,34 @@ try{
     el.value='90';el.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForFunction(()=>{
-    const name=document.querySelector('#selectedMusicLabel')?.textContent||'';
-    const src=document.querySelector('#menuMusic')?.getAttribute('src')||'';
-    return name.includes('qa-local-song.wav')&&src.startsWith('blob:');
-  },null,{timeout:15000,polling:250});
+  if(webkitMode){
+    // Headless WebKit may stop Playwright waitForFunction polling after a reload
+    // with active persisted media. Verify the actual DOM and selected track.
+    let restored=null;
+    for(let attempt=0;attempt<60;attempt++){
+      restored=await page.evaluate(()=>{
+        const settings=JSON.parse(localStorage.getItem('areg-settings-v35')||'{}');
+        return {
+          label:document.querySelector('#selectedMusicLabel')?.textContent||'',
+          src:document.querySelector('#menuMusic')?.getAttribute('src')||'',
+          track:settings.musicTrack
+        };
+      });
+      if(restored.label.includes('qa-local-song.wav') &&
+         restored.src.startsWith('blob:') && restored.track==='custom')break;
+      await new Promise(resolve=>setTimeout(resolve,350));
+    }
+    if(!restored.label.includes('qa-local-song.wav') ||
+       !restored.src.startsWith('blob:') || restored.track!=='custom')
+      throw Error('V285 WebKit reload did not restore saved music '+JSON.stringify(restored));
+    console.log('V285 WEBKIT reloaded music and persistent selection verified',JSON.stringify(restored));
+  }else{
+    await page.waitForFunction(()=>{
+      const name=document.querySelector('#selectedMusicLabel')?.textContent||'';
+      const src=document.querySelector('#menuMusic')?.getAttribute('src')||'';
+      return name.includes('qa-local-song.wav')&&src.startsWith('blob:');
+    },null,{timeout:15000,polling:250});
+  }
   const musicPersistence=await page.evaluate(async()=>{
     const open=indexedDB.open('areg-menu-music-v1',1);
     const db=await new Promise((resolve,reject)=>{
