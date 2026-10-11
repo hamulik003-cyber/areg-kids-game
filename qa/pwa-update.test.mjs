@@ -45,10 +45,36 @@ try{
     throw Error('V285 service worker activation '+error.message+
       ' '+JSON.stringify(swStates));
   }
-  if(!await page.evaluate(()=>!!navigator.serviceWorker.controller)){
-    await page.reload({waitUntil:'domcontentloaded'});
+  // Headless WebKit can miss Playwright's browser-side waitForFunction
+  // wakeups. Read actual SW state over the automation protocol, and allow a
+  // bounded navigation after activation. Never pass without a real controller.
+  const swSnapshot=()=>page.evaluate(async()=>{
+    const reg=await navigator.serviceWorker.getRegistration('./');
+    return {
+      controlled:!!navigator.serviceWorker.controller,
+      controllerUrl:navigator.serviceWorker.controller?.scriptURL||'',
+      active:reg?.active?.state||null,
+      scope:reg?.scope||null,
+      online:navigator.onLine,
+      coreCache:(await caches.keys()).includes('areg-v290-core')
+    };
+  });
+  let sw=await swSnapshot();
+  for(let reload=0;reload<3&&!sw.controlled;reload++){
+    // The original test did one reload; CI WebKit sometimes needs more time
+    // before a claimed client becomes observable in a newly loaded page.
+    if(reload===0||sw.active==='activated')
+      await page.reload({waitUntil:'domcontentloaded',timeout:30000});
+    const deadline=Date.now()+7000;
+    do{
+      sw=await swSnapshot();
+      if(sw.controlled)break;
+      await sleep(250);
+    }while(Date.now()<deadline);
   }
-  await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,null,{timeout:20000});
+  if(!sw.controlled||!sw.controllerUrl.includes('service-worker.js?v=290'))
+    throw Error('V290 service worker did not control new page '+JSON.stringify(sw));
+  console.log('V290 SERVICE WORKER CONTROL VERIFIED',JSON.stringify(sw));
   const bootstrap=await page.evaluate(async()=>{
     const core=await caches.open('areg-v290-core');
     const original=await core.match('./index.html');
