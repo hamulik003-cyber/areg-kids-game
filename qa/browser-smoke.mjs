@@ -817,8 +817,8 @@ try{
         targetTileInlineOpacity:document.querySelector('#sectionGames .toddler-game-card[data-game="'+gameId+'"]')?.style.opacity,
         targetTileHandoff:(document.querySelector('#sectionGames .toddler-game-card[data-game="'+gameId+'"]')?.getAnimations()||[])
           .some(a=>a.effect?.getTiming()?.duration===1040 &&
-            a.effect?.getKeyframes()?.[0]?.opacity===1 &&
-            a.effect?.getKeyframes()?.at(-1)?.opacity===0),
+            Number(a.effect?.getKeyframes()?.[0]?.opacity)===1 &&
+            Number(a.effect?.getKeyframes()?.at(-1)?.opacity)===0),
         incomingVisible:!document.querySelector('#sectionScreen').hidden,
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
     },id);
@@ -844,8 +844,8 @@ try{
       targetTileInlineOpacity:document.querySelector('.section-card[data-section="'+sectionId+'"]')?.style.opacity,
       targetTileHandoff:(document.querySelector('.section-card[data-section="'+sectionId+'"]')?.getAnimations()||[])
         .some(a=>a.effect?.getTiming()?.duration===1040 &&
-          a.effect?.getKeyframes()?.[0]?.opacity===1 &&
-          a.effect?.getKeyframes()?.at(-1)?.opacity===0),
+          Number(a.effect?.getKeyframes()?.[0]?.opacity)===1 &&
+          Number(a.effect?.getKeyframes()?.at(-1)?.opacity)===0),
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   },section);
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
