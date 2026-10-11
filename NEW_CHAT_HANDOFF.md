@@ -1,3 +1,8 @@
+## 2026-10-11 — V288 Nature crossfade timing resilience (trial only)
+- Follow-up to professional smooth entering/exiting requirement: WebKit CI showed a time-sensitive missing-transition assertion. The Nature transition code now starts via requestAnimationFrame with a 45ms fallback in case animation frame scheduling is deferred during image decode; its 870ms cleanup is measured from actual crossfade start rather than from reveal request. The entire menu + Nature page still crossfade for 790ms beneath the original uninterrupted 1040ms Nature card flight; incoming page settles over 850ms. Home is only hidden after overlap finishes.
+- Nature-only pointer interactions are temporarily suppressed during the ~1s handoff to avoid accidental taps and cut transitions, then fully restored. The previously-approved main gameplay and other four home-section navigation paths are not changed. New WebKit/Chrome CI and real iPhone/DotKiosk visual review remain required.
+- Latest experimental commit `db8e2d3e89624bcb04e1e62fc1ed01328c8e48e8` on branch `feature/v288-nature-home-entry-zoom-fade-pilot-20261011`, DRAFT PR #17. Protected main remains `81949800e60682d25baf3aa1997d97c2b642a54f`. NEVER merge without explicit user approval.
+
 ## 2026-10-11 — V288 Nature refined cinematic TWO-SCREEN CROSSFADE (unapproved pilot)
 - User feedback: card travel/fade improved, but Nature destination page **appeared abruptly**; premium game-quality motion requires ALL reveal/exit operations to be soft, with no flashes or cuts.
 - Root cause: `openSection` previously set `homeScreen.style.visibility='hidden'` before revealing the new section, whose original CSS fade lasted only ~220ms. Thus the old page disappeared in a single frame.
