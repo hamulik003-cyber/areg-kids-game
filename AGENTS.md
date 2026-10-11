@@ -1,5 +1,15 @@
 # AREG Kids Game — coding continuity and regression rules
 
+## ՀԱՍՏԱՏՎԱԾ ՆԱԽՆԱԿԱՆ ՎԵՐՋՆԱԿԱՆ ՏԱՐԲԵՐԱԿ — V290 (USER APPROVED 2026-10-11)
+- User clearly approved V290 tested on iPhone: “շատ լավա💋քցի հիմնական խաղի մեջ ու ֆիքսի նախնական վեռջնական տարբերակ”. This authorizes merging PR #19 ONLY after verifying branch, CI and ensuring fresh v290 script/CSS/SW cache registration for DotKiosk. Confirm merge and Pages deployment live; do not assume they succeeded merely from this pre-merge note.
+- **Preserve the ORIGINAL V290 reverse portal cinematic exactly:** two keyframe 1040ms center-to-origin zoom/opacity and simultaneous gentle 1100ms page crossfade; no ad-hoc re-timing, shrinkage, delayed-opacity reveal or changed compositing. User's actual problem was **the Nature/Animals real destination card slot became EMPTY on Back and then popped in at end**. The reviewed fix keeps actual destination tile visible throughout return and clears any stale inline `opacity:0` state before restoring. Both back navigation levels covered; no delayed blank holes.
+- **Parental guard is now precisely 1000ms**, for main-menu Settings and avatar/photo change only; ordinary taps or early release are ignored, progress ring follows hold. Child's game/section Back arrows remain single-tap.
+- Main-origin localStorage, IndexedDB, persistent media caches, avatar, custom audio, earned stars, V289 30 unique Space questions/end modal/Black Hole and V288's approved 5 outer + 16 inner opening animations MUST be preserved. Do NOT clear cache/data or reinstall DotKiosk. Official URL remains `https://hamulik003-cyber.github.io/areg-kids-game/`.
+- **Safe release versioning:** page `app.js?v=290`, `styles.css?v=290`, `service-worker.js?v=290`, SW `areg-v290-core/runtime`; keep `space-3d-games.js?v=289`, `space-3d-games.css?v=287` and unmodified gameplay assets. Persistent media cache names stay `areg-gallery-preview-v238`, `areg-space-visited-v1`, `areg-local-audio-v1`.
+- Historical rollback main V289 `53c05d525bca687e44edd3e0e1835c894b161689`; prior V288 `2996a15773f8b4fc85199a2be9d8b2e165a9646a`. Do not erase backups or past releases. Future work: isolate into trial branches before touching user-approved main again.
+
+### Historical reference — V289 and before
+
 ## ՀԱՍՏԱՏՎԱԾ ԳՈՐԾՈՂ ՏԱՐԲԵՐԱԿ — V289 (FINAL; user approved 2026-10-11)
 
 - **Current approved release is V289.** The user explicitly confirmed on 2026-10-11 ("հա հաստատում եմ արևս💋") that tested V289 should be promoted to the official main/PWA. During this approval the user supplied real iPhone GitHack screenshots of restored APPROVED bright black-hole accretion disc (not a black circle) and the original celebration results modal showing **7 wrong / 30 correct** with green «Խաղալ նորից» button. Both were visually verified.
