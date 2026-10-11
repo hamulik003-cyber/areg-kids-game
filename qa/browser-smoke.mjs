@@ -45,7 +45,26 @@ try{
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
   if(section==='nature'){
    const naturePilot=await page.locator('.section-card[data-section="nature"]').evaluate(card=>{
+     const section=document.querySelector('#sectionScreen');
+     const home=document.querySelector('#homeScreen');
+     const proof={started:false,targeted:false,simultaneous:false};
+     const record=()=>{
+       if(section.dataset.natureCrossfade==='running')proof.started=true;
+       if(section.dataset.natureCrossfade==='running' &&
+          section.style.opacity==='1' && home.style.opacity==='0' &&
+          section.style.transition.includes('790ms') &&
+          home.style.transition.includes('790ms')){
+         proof.targeted=true;
+         if(!section.hidden && home.style.visibility!=='hidden')
+           proof.simultaneous=true;
+       }
+     };
+     const tracker=new MutationObserver(record);
+     tracker.observe(section,{attributes:true,attributeFilter:['style','hidden','data-nature-crossfade','class']});
+     tracker.observe(home,{attributes:true,attributeFilter:['style']});
+     window.__aregNatureCrossfadeProof=proof;
      card.click();
+     record();
      const flight=document.querySelector('[data-nature-section-flight]');
      const animations=flight?.getAnimations()||[];
      const keyframes=animations[0]?.effect?.getKeyframes()||[];
@@ -66,27 +85,14 @@ try{
   }else await page.locator('.section-card[data-section="'+section+'"]').click();
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
   if(section==='nature'){
-   await page.waitForFunction(()=>{
-     const section=document.querySelector('#sectionScreen');
-     const home=document.querySelector('#homeScreen');
-     return section?.dataset.natureCrossfade==='running' &&
-       section.style.opacity==='1' && home?.style.opacity==='0';
-   },null,{timeout:2500});
-   const fade=await page.evaluate(()=>{
-     const section=document.querySelector('#sectionScreen');
-     const home=document.querySelector('#homeScreen');
-     return {
-       visible:!section.hidden && home.style.visibility!=='hidden',
-       duration:section.style.transition,
-       homeDuration:home.style.transition,
-       sectionOpacity:section.style.opacity,homeOpacity:home.style.opacity,
-       flight:!!document.querySelector('[data-nature-section-flight]')
-     };
-   });
-   if(!fade.visible||!fade.flight||!fade.duration.includes('790ms')||
-      !fade.homeDuration.includes('790ms')||
-      fade.sectionOpacity!=='1'||fade.homeOpacity!=='0')
-     throw Error('V288 Nature must overlap both screens with continuous 790ms crossfade '+JSON.stringify(fade));
+   // WebKit can take >1s to return from clicking or logging. Record the
+   // overlap in a MutationObserver installed BEFORE clicking, rather than
+   // require the animation to remain mid-flight when assertions resume.
+   await page.waitForFunction(()=>window.__aregNatureCrossfadeProof?.targeted===true,
+     null,{timeout:4500});
+   const proof=await page.evaluate(()=>window.__aregNatureCrossfadeProof);
+   if(!proof.started||!proof.targeted||!proof.simultaneous)
+     throw Error('V288 Nature must continuously crossfade home and section together '+JSON.stringify(proof));
   }
   await page.waitForSelector('#sectionScreen.is-visible');
   if(section==='nature'){
