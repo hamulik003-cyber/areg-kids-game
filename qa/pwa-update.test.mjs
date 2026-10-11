@@ -45,10 +45,36 @@ try{
     throw Error('V285 service worker activation '+error.message+
       ' '+JSON.stringify(swStates));
   }
-  if(!await page.evaluate(()=>!!navigator.serviceWorker.controller)){
-    await page.reload({waitUntil:'domcontentloaded'});
+  // Headless WebKit can miss Playwright's browser-side waitForFunction
+  // wakeups. Read actual SW state over the automation protocol, and allow a
+  // bounded navigation after activation. Never pass without a real controller.
+  const swSnapshot=()=>page.evaluate(async()=>{
+    const reg=await navigator.serviceWorker.getRegistration('./');
+    return {
+      controlled:!!navigator.serviceWorker.controller,
+      controllerUrl:navigator.serviceWorker.controller?.scriptURL||'',
+      active:reg?.active?.state||null,
+      scope:reg?.scope||null,
+      online:navigator.onLine,
+      coreCache:(await caches.keys()).includes('areg-v290-core')
+    };
+  });
+  let sw=await swSnapshot();
+  for(let reload=0;reload<3&&!sw.controlled;reload++){
+    // The original test did one reload; CI WebKit sometimes needs more time
+    // before a claimed client becomes observable in a newly loaded page.
+    if(reload===0||sw.active==='activated')
+      await page.reload({waitUntil:'domcontentloaded',timeout:30000});
+    const deadline=Date.now()+7000;
+    do{
+      sw=await swSnapshot();
+      if(sw.controlled)break;
+      await sleep(250);
+    }while(Date.now()<deadline);
   }
-  await page.waitForFunction(()=>!!navigator.serviceWorker?.controller,null,{timeout:20000});
+  if(!sw.controlled||!sw.controllerUrl.includes('service-worker.js?v=290'))
+    throw Error('V290 service worker did not control new page '+JSON.stringify(sw));
+  console.log('V290 SERVICE WORKER CONTROL VERIFIED',JSON.stringify(sw));
   const bootstrap=await page.evaluate(async()=>{
     const core=await caches.open('areg-v290-core');
     const original=await core.match('./index.html');
@@ -83,7 +109,37 @@ try{
      fresh.wallet!=='17'||!fresh.controller.includes('v=290'))
     throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
-  await page.waitForSelector('#sectionScreen.is-visible');
+  try{
+    await page.waitForSelector('#sectionScreen.is-visible',{timeout:12000});
+  }catch(error){
+    const screen=await page.evaluate(()=>({
+      homeVisible:!document.querySelector('#homeScreen')?.hidden,
+      sectionHidden:document.querySelector('#sectionScreen')?.hidden,
+      sectionClass:document.querySelector('#sectionScreen')?.className||'',
+      cards:document.querySelectorAll('.toddler-game-card').length,
+      spaceTileDisabled:document.querySelector('.section-card[data-section="space"]')?.disabled,
+      url:location.href
+    }));
+    console.log('V290 WEBKIT SECTION NAVIGATION FIRST ATTEMPT',JSON.stringify(screen));
+    // Headless WebKit sometimes drops Playwright's pointer event while it
+    // is revalidating the new PWA shell. Retry once as a DOM click, but keep
+    // a strict requirement that the actual section and titles appear.
+    if(!webkitMode || screen.sectionHidden!==true || !screen.homeVisible)
+      throw Error('V290 refreshed Space section did not open '+
+        JSON.stringify(screen)+' : '+error.message);
+    await page.locator('.section-card[data-section="space"]').evaluate(el=>el.click());
+    try{
+      await page.waitForSelector('#sectionScreen.is-visible',{timeout:12000});
+    }catch(secondError){
+      const after=await page.evaluate(()=>({
+        hidden:document.querySelector('#sectionScreen')?.hidden,
+        className:document.querySelector('#sectionScreen')?.className,
+        games:document.querySelectorAll('.toddler-game-card').length
+      }));
+      throw Error('V290 refreshed Space section failed after retry '+
+        JSON.stringify({first:screen,after})+' : '+secondError.message);
+    }
+  }
   const titles=await page.locator('.toddler-game-card[data-game="space-search"] .toddler-game-label, .toddler-game-card[data-game="constellation-game"] .toddler-game-label')
     .allTextContents();
   if(titles.length!==2||titles[0]!=='Գտիր ճիշտ մոլորակը'||
@@ -94,7 +150,13 @@ try{
   // V285 real iPhone-sized browser check: Files picker -> IndexedDB Blob,
   // source switches, slider settings survive refresh, existing star wallet safe.
   await page.locator('#sectionBack').click();
-  await page.waitForFunction(()=>document.querySelector('#sectionScreen').hidden);
+  let backState=false;
+  for(let attempt=0;attempt<48;attempt++){
+    backState=await page.evaluate(()=>document.querySelector('#sectionScreen')?.hidden===true);
+    if(backState)break;
+    await sleep(250);
+  }
+  if(!backState)throw Error('V290 did not return to home before music settings');
   await page.locator('#settingsButton').evaluate(async btn=>{
     btn.dispatchEvent(new PointerEvent('pointerdown',{
       bubbles:true,pointerId:56,isPrimary:true,pointerType:'touch',
@@ -106,6 +168,19 @@ try{
     }));
   });
   await page.waitForSelector('#settingsModal:not([hidden])');
+  if(webkitMode){
+    // This test validates file persistence / selection, NOT audible output.
+    // Headless WPE media decoding can stall the browser after changing Blob
+    // audio sources. Toggle the actual global mute UI, preserving every
+    // IndexedDB, re-selection, volume, wallet and offline assertion below.
+    await page.locator('#masterSound').evaluate(el=>{
+      if(el.checked)el.click();
+    });
+    const muted=await page.evaluate(()=>
+      JSON.parse(localStorage.getItem('areg-settings-v35')||'{}').master===false);
+    if(!muted)throw Error('V290 WebKit test-only master mute did not persist');
+    console.log('V290 HEADLESS WEBKIT AUDIO PLAYBACK MUTED; file persistence remains under test');
+  }
   const sampleBytes=8000;
   const wav=Buffer.alloc(44+sampleBytes,128);
   wav.write('RIFF',0);wav.writeUInt32LE(36+sampleBytes,4);
@@ -163,11 +238,21 @@ try{
     el.value='90';el.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForFunction(()=>{
-    const name=document.querySelector('#selectedMusicLabel')?.textContent||'';
-    const src=document.querySelector('#menuMusic')?.getAttribute('src')||'';
-    return name.includes('qa-local-song.wav')&&src.startsWith('blob:');
-  },null,{timeout:15000,polling:250});
+  let musicAfterReload;
+  for(let attempt=0;attempt<60;attempt++){
+    musicAfterReload=await page.evaluate(()=>({
+      name:document.querySelector('#selectedMusicLabel')?.textContent||'',
+      src:document.querySelector('#menuMusic')?.getAttribute('src')||'',
+      track:JSON.parse(localStorage.getItem('areg-settings-v35')||'{}').musicTrack
+    }));
+    if(musicAfterReload.name.includes('qa-local-song.wav')&&
+       musicAfterReload.src.startsWith('blob:')&&
+       musicAfterReload.track==='custom')break;
+    await sleep(250);
+  }
+  if(!musicAfterReload.name.includes('qa-local-song.wav')||
+     !musicAfterReload.src.startsWith('blob:')||musicAfterReload.track!=='custom')
+    throw Error('V290 custom music did not survive reload '+JSON.stringify(musicAfterReload));
   const musicPersistence=await page.evaluate(async()=>{
     const open=indexedDB.open('areg-menu-music-v1',1);
     const db=await new Promise((resolve,reject)=>{
@@ -215,9 +300,44 @@ try{
   }else{
     await page.locator('#savedMusicButton').click();
   }
-  await page.waitForFunction(()=>
-    document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
-    null,{timeout:12000,polling:250});
+  // The first custom-song save already proved that headless WebKit can skip
+  // Playwright waitForFunction polling even when the page and IndexedDB state
+  // changed correctly. Check the real DOM + localStorage via Node-driven
+  // snapshots; NEVER count a timeout as success without the expected state.
+  let savedMusicState;
+  for(let attempt=0;attempt<48;attempt++){
+    savedMusicState=await page.evaluate(()=>{
+      const settings=JSON.parse(localStorage.getItem('areg-settings-v35')||'{}');
+      const button=document.querySelector('#savedMusicButton');
+      return {
+        src:document.querySelector('#menuMusic')?.getAttribute('src')||'',
+        selected:document.querySelector('#selectedMusicLabel')?.textContent||'',
+        musicTrack:settings.musicTrack,
+        pressed:button?.getAttribute('aria-pressed'),
+        disabled:button?.disabled,
+        modalHidden:document.querySelector('#settingsModal')?.hidden,
+        toast:document.querySelector('#toast')?.textContent||''
+      };
+    });
+    if(savedMusicState.src.startsWith('blob:')&&
+       savedMusicState.musicTrack==='custom'&&
+       savedMusicState.selected.includes('qa-local-song.wav')&&
+       savedMusicState.pressed==='true'&&
+       savedMusicState.disabled===false&&
+       savedMusicState.modalHidden===false)break;
+    await sleep(250);
+  }
+  if(!savedMusicState.src.startsWith('blob:')||
+     savedMusicState.musicTrack!=='custom'||
+     !savedMusicState.selected.includes('qa-local-song.wav')||
+     savedMusicState.pressed!=='true'||
+     savedMusicState.disabled!==false||
+     savedMusicState.modalHidden!==false){
+    throw Error('V290 saved music did not restore after default selection '+
+      JSON.stringify({engine:webkitMode?'webkit':'chromium',...savedMusicState}));
+  }
+  console.log('V290 SAVED MUSIC RESTORE VERIFIED',
+    JSON.stringify({engine:webkitMode?'webkit':'chromium',...savedMusicState}));
   console.log('V285 WAV PICKER + SAVED TRACK + DEFAULT + MIXER LEVELS + WALLET PASS',
     JSON.stringify(musicPersistence));
   await context.setOffline(true);
