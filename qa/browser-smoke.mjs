@@ -47,7 +47,7 @@ try{
    const naturePilot=await page.locator('.section-card[data-section="nature"]').evaluate(card=>{
      const section=document.querySelector('#sectionScreen');
      const home=document.querySelector('#homeScreen');
-     const proof={started:false,targeted:false,simultaneous:false};
+     const proof={started:false,targeted:false,simultaneous:false,stationary:false};
      const record=()=>{
        if(section.dataset.natureCrossfade==='running')proof.started=true;
        if(section.dataset.natureCrossfade==='running' &&
@@ -57,6 +57,11 @@ try{
          proof.targeted=true;
          if(!section.hidden && home.style.visibility!=='hidden')
            proof.simultaneous=true;
+         // The page cannot rise from below or zoom as it fades into view.
+         if(section.style.transform==='none' &&
+            !section.style.transition.includes('transform') &&
+            getComputedStyle(section).transform==='none')
+           proof.stationary=true;
        }
      };
      const tracker=new MutationObserver(record);
@@ -107,8 +112,8 @@ try{
      throw Error('V288 WebKit crossfade capture timed out '+JSON.stringify(details)+' / '+error.message);
    }
    const proof=await page.evaluate(()=>window.__aregNatureCrossfadeProof);
-   if(!proof.started||!proof.targeted||!proof.simultaneous)
-     throw Error('V288 Nature must continuously crossfade home and section together '+JSON.stringify(proof));
+   if(!proof.started||!proof.targeted||!proof.simultaneous||!proof.stationary)
+     throw Error('V288 Portal Fade: Nature must remain stationary throughout the two-screen dissolve '+JSON.stringify(proof));
   }
   await page.waitForSelector('#sectionScreen.is-visible');
   if(section==='nature'){

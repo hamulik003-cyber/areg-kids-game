@@ -880,7 +880,9 @@
         sectionScreen.dataset.natureCrossfade='running';
         sectionScreen.style.setProperty('transition','none','important');
         sectionScreen.style.setProperty('opacity','0','important');
-        sectionScreen.style.setProperty('transform','translate3d(0,16px,0) scale(.985)','important');
+        // Cinematic Portal Fade: the incoming world stays perfectly fixed.
+        // No rising from below, sliding sideways, or full-screen scale motion.
+        sectionScreen.style.setProperty('transform','none','important');
         homeScreen.style.setProperty('transition','none','important');
         homeScreen.style.setProperty('opacity','1','important');
         // Prevent extra taps from interrupting the compositing handoff.
@@ -893,12 +895,13 @@
           if(crossfadeStarted||nav!==galleryNavigationId||currentSection!==id)return;
           crossfadeStarted=true;
           sectionScreen.style.setProperty('transition',
-            'opacity 790ms cubic-bezier(.22,.18,.48,1), transform 850ms cubic-bezier(.20,.23,.52,1)','important');
+            'opacity 790ms cubic-bezier(.22,.18,.48,1)','important');
           homeScreen.style.setProperty('transition',
             'opacity 790ms cubic-bezier(.22,.18,.48,1)','important');
           sectionScreen.classList.add('is-visible');
           sectionScreen.style.setProperty('opacity','1','important');
-          sectionScreen.style.setProperty('transform','translate3d(0,0,0) scale(1)','important');
+          // Keep transform fixed throughout; only alpha changes.
+          sectionScreen.style.setProperty('transform','none','important');
           homeScreen.style.setProperty('opacity','0','important');
           // Count the finishing window from the ACTUAL transition start,
           // not from image-ready or initial request time.
