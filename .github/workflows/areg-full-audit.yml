@@ -65,6 +65,8 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
+      - name: Verify exact 29/29 to 29/30 Space result dialog and manual replay
+        run: node qa/space-results-dialog.browser.mjs
       - run: node qa/browser-smoke.mjs
       - name: Verify GitHack preview's redirected 3D images work in WebGL (nonblocking)
         continue-on-error: true
@@ -86,6 +88,8 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: npx playwright install --with-deps webkit
+      - name: Verify 30th correct answer opens existing result dialog on mobile WebKit
+        run: AREG_BROWSER=webkit node qa/space-results-dialog.browser.mjs
       - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
       - name: Verify GitHack preview's redirected 3D images work in WebKit WebGL (nonblocking)
         continue-on-error: true
