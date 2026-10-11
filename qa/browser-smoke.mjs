@@ -47,10 +47,22 @@ try{
    const naturePilot=await page.locator('.section-card[data-section="nature"]').evaluate(card=>{
      card.click();
      const flight=document.querySelector('[data-nature-section-flight]');
-     return {flight:!!flight,animations:flight?.getAnimations().length??0,originalHidden:card.style.opacity==='0'};
+     const animations=flight?.getAnimations()||[];
+     const keyframes=animations[0]?.effect?.getKeyframes()||[];
+     const timing=animations[0]?.effect?.getTiming();
+     return {
+       flight:!!flight,animations:animations.length,originalHidden:card.style.opacity==='0',
+       keyframeCount:keyframes.length,initialOpacity:Number(keyframes[0]?.opacity),
+       finalOpacity:Number(keyframes.at(-1)?.opacity),
+       initialTransform:keyframes[0]?.transform,finalTransform:keyframes.at(-1)?.transform,
+       duration:timing?.duration
+     };
    });
-   if(!naturePilot.flight||!naturePilot.animations||!naturePilot.originalHidden)
-     throw Error('V288 Nature home transition did not begin '+JSON.stringify(naturePilot));
+   if(!naturePilot.flight||naturePilot.animations!==1||!naturePilot.originalHidden||
+      naturePilot.keyframeCount!==2||naturePilot.initialOpacity!==1||
+      naturePilot.finalOpacity!==0||naturePilot.duration!==1040||
+      !naturePilot.finalTransform?.includes('translate3d('))
+     throw Error('V288 Nature must use one uninterrupted 1040ms transform+opacity flight '+JSON.stringify(naturePilot));
   }else await page.locator('.section-card[data-section="'+section+'"]').click();
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
   await page.waitForSelector('#sectionScreen.is-visible');

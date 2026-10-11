@@ -849,7 +849,7 @@
   setTimeout(()=>warmSectionImages('nature').catch(()=>{}),950);
   setTimeout(()=>warmSectionImages('space').catch(()=>{}),1800);
 
-  function openSection(id, beforeReveal, afterReveal){
+  function openSection(id, beforeReveal){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
@@ -873,17 +873,20 @@
       if(nav!==galleryNavigationId||currentSection!==id)return;
       homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
       requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
-      if(typeof afterReveal==='function')afterReveal();
       // Load the 3D engine only after the Space menu has become visible.
       if(id==='space')setTimeout(()=>{if(nav===galleryNavigationId&&currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},900);
     };
-    // Already-cached pictures resolve immediately; never stall a tap for seconds.
-    const deadline=new Promise(resolve=>setTimeout(resolve,1150));
-    const ready=()=>{
-      if(beforeReveal)Promise.resolve(beforeReveal).then(revealSection,revealSection);
-      else revealSection();
-    };
-    Promise.race([warmSectionImages(id),deadline]).then(ready,ready);
+    // For the Nature entrance, section reveal is synced to the ONE ongoing
+    // card flight, never held up at its destination by image-network readiness.
+    // The existing <=1150ms bounded image wait is preserved for other tiles.
+    const warming=warmSectionImages(id);
+    if(beforeReveal){
+      warming.catch(()=>{});
+      Promise.resolve(beforeReveal).then(revealSection,revealSection);
+    }else{
+      const deadline=new Promise(resolve=>setTimeout(resolve,1150));
+      Promise.race([warming,deadline]).then(revealSection,revealSection);
+    }
   }
 
   // Trial only: paint an exact, lightweight clone ABOVE the two screens, in
@@ -936,29 +939,20 @@
       (window.innerHeight-100)/rect.height));
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
-    const toward='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
-    const beyond='translate3d('+dx+'px,'+dy+'px,0) scale('+(scale*1.12)+')';
+    const destination='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
     try{
-      const approach=flight.animate([
+      // Single uninterrupted composite animation. Opacity fades WHILE the
+      // card travels, never after a mid-flight pause or a second animation.
+      const flightAnimation=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
-        {transform:toward,opacity:1}
-      ],{duration:460,easing:'cubic-bezier(.28,.7,.2,1)',fill:'forwards'});
-      const approached=approach.finished.then(()=>{
-        flight.style.transform=toward;
-        approach.cancel();
-      }).catch(()=>{});
-      const dissolve=()=>{
-        if(done)return;
-        const exit=flight.animate([
-          {transform:toward,opacity:1},
-          {transform:beyond,opacity:0}
-        ],{duration:360,easing:'cubic-bezier(.32,0,.42,1)',fill:'forwards'});
-        exit.finished.then(restore,restore);
-      };
-      // Nature's existing <=1150ms image-preparation limit remains intact.
-      // The section begins its standard fade only once the card has approached.
-      openSection('nature',approached,dissolve);
-      safetyTimer=setTimeout(restore,1950);
+        {transform:destination,opacity:0}
+      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      flightAnimation.finished.then(restore,restore);
+      // Bring in the Nature page underneath the still-moving translucent tile.
+      // Start warming right away, but never wait on a cold network fetch here.
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,575));
+      openSection('nature',revealDuringFlight);
+      safetyTimer=setTimeout(restore,1900);
     }catch(error){
       console.warn('Nature home transition fallback:',error);
       restore();
