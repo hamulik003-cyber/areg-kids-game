@@ -1259,19 +1259,13 @@
     }
     reversePortalActive=true;
     const previousCardOpacity=card.style.opacity;
-    // Do not blank the destination's actual tile during Back.
-    // Keep it visible while the unchanged flying clone travels home.
-    // An inverse 1040ms alpha handoff transfers its visibility to the clone
-    // without altering ANY keyframe of the user-approved reverse flight.
-    let sourceTileHandoff=null;
-    try{
-      sourceTileHandoff=card.animate([
-        {opacity:1},{opacity:0}
-      ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
-      sourceTileHandoff.finished.catch(()=>{});
-    }catch(error){
-      console.warn('Return tile visibility fallback:',error);
-    }
+    // The actual destination tile MUST stay visible for the entire back fade.
+    // Its original V288 forward entrance can transiently leave opacity:'0'
+    // (particularly on a quick back from Magic). Remove that stale inline
+    // state before the previous screen begins to fade into view.
+    // IMPORTANT: preserve the user's original 2-keyframe reverse-flight
+    // transform, speed and opacity unchanged. Only fix the EMPTY SOURCE SLOT.
+    if(previousCardOpacity==='0')card.style.removeProperty('opacity');
     const flight=document.createElement('div');
     flight.dataset.reversePortalFlight=to===homeScreen?'home':'activity';
     Object.assign(flight.style,{
@@ -1313,11 +1307,10 @@
         for(const k of ['transition','opacity','transform','pointer-events'])
           screen.style.removeProperty(k);
       }
-      // The stationary source tile was visible from the very first frame,
-      // then smoothly handed off to the ORIGINAL moving clone. Restore its
-      // untouched inline opacity once both full-screen fades complete.
-      sourceTileHandoff?.cancel();
-      card.style.opacity=previousCardOpacity;
+      // Never put a stale "opacity:0" back on the destination tile:
+      // it would make the slot EMPTY until the next unrelated render.
+      if(previousCardOpacity==='0')card.style.removeProperty('opacity');
+      else card.style.opacity=previousCardOpacity;
       flight.remove();
       reversePortalActive=false;
       finishNavigation();

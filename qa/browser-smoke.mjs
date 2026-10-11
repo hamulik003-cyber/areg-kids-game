@@ -815,21 +815,22 @@ try{
         opacityEnd:Number(frames.at(-1)?.opacity),
         // Actual destination tile MUST no longer be hidden until the end.
         targetTileInlineOpacity:document.querySelector('#sectionGames .toddler-game-card[data-game="'+gameId+'"]')?.style.opacity,
-        targetTileHandoff:(document.querySelector('#sectionGames .toddler-game-card[data-game="'+gameId+'"]')?.getAnimations()||[])
-          .some(a=>a.effect?.getTiming()?.duration===1040 &&
-            Number(a.effect?.getKeyframes()?.[0]?.opacity)===1 &&
-            Number(a.effect?.getKeyframes()?.at(-1)?.opacity)===0),
         incomingVisible:!document.querySelector('#sectionScreen').hidden,
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
     },id);
     if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
        exit.opacityStart!==0||exit.opacityEnd!==1||exit.frameCount!==2||
-       exit.targetTileInlineOpacity==='0'||!exit.targetTileHandoff||
+       exit.targetTileInlineOpacity==='0'||
        !exit.incomingVisible||!exit.outgoingVisible)
        throw Error('V290 game reverse cinematic transition missing '+section+'/'+id+' '+JSON.stringify(exit));
     await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
     if(await page.locator('[data-reverse-portal-flight]').count())
       throw Error('V290 back-to-section left a ghost card '+section+'/'+id);
+    const tileOpacity=await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').evaluate(el=>({
+      inline:el.style.opacity,computed:getComputedStyle(el).opacity
+    }));
+    if(tileOpacity.inline==='0'||Number(tileOpacity.computed)<.95)
+      throw Error('V290 RETURN EMPTY GAME TILE '+section+'/'+id+' '+JSON.stringify(tileOpacity));
    }
   }
   const exit=await page.locator('#sectionBack').evaluate((el,sectionId)=>{
@@ -842,10 +843,6 @@ try{
       frameCount:frames.length,
       opacityStart:Number(frames[0]?.opacity),opacityEnd:Number(frames.at(-1)?.opacity),
       targetTileInlineOpacity:document.querySelector('.section-card[data-section="'+sectionId+'"]')?.style.opacity,
-      targetTileHandoff:(document.querySelector('.section-card[data-section="'+sectionId+'"]')?.getAnimations()||[])
-        .some(a=>a.effect?.getTiming()?.duration===1040 &&
-          Number(a.effect?.getKeyframes()?.[0]?.opacity)===1 &&
-          Number(a.effect?.getKeyframes()?.at(-1)?.opacity)===0),
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   },section);
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
@@ -856,6 +853,11 @@ try{
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
   if(await page.locator('[data-reverse-portal-flight]').count())
     throw Error('V290 back-to-home left a ghost card '+section);
+  const sourceCardState=await page.locator('.section-card[data-section="'+section+'"]').evaluate(el=>({
+    inline:el.style.opacity,computed:getComputedStyle(el).opacity
+  }));
+  if(sourceCardState.inline==='0'||Number(sourceCardState.computed)<.95)
+    throw Error('V290 RETURN EMPTY HOME TILE '+section+' '+JSON.stringify(sourceCardState));
  }
  if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' | ').slice(0,2000));
  console.log('BROWSER PASS '+done.length+' routes; fully decoded '+decodedImages+' gallery images: '+JSON.stringify(done));
