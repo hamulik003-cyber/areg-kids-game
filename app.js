@@ -1111,7 +1111,7 @@
   let constellationQuestLoadPromise=null;
   function ensureConstellationQuestLoaded(){
     if(!constellationQuestLoadPromise){
-      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=287')
+      constellationQuestLoadPromise=import('./constellation-quest-v246.js?v=28738')
         .catch(err=>{constellationQuestLoadPromise=null;throw err});
     }
     return constellationQuestLoadPromise;
@@ -2327,7 +2327,7 @@
       card.setAttribute('aria-label',`${item.name}, ${item.status}`);
       card.innerHTML=`
         <span class="animal-image-wrap">
-          <img src="${galleryThumbnail(item.img)}?v=238" data-full-src="${item.img}?v=137" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${item.name}" draggable="false">
+          <img src="${galleryThumbnail(item.img)}?v=28738" data-full-src="assets/constellations-transparent/${item.img.replace(/\.[^.]+$/,'.png')}?v=28738" loading="${cardIndex<8?'eager':'lazy'}" fetchpriority="${cardIndex<4?'high':'auto'}" decoding="async" alt="${item.name}" draggable="false">
           <span class="animal-card-sheen" aria-hidden="true"></span>
         </span>
         <span class="animal-meta animal-meta--constellation">
@@ -2560,7 +2560,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=287',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=28738',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
