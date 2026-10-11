@@ -803,7 +803,7 @@
   /* section navigation */
   // V288 pilot: only Nature uses the new cinematic home-card transition.
   let natureHomeTransitionActive=false;
-  $('.section-card').forEach(card=>card.addEventListener('click',()=>{
+  $$('.section-card').forEach(card=>card.addEventListener('click',()=>{
     if(natureHomeTransitionActive)return;
     if(card.dataset.section==='nature')openNatureHomeSection(card);
     else openSection(card.dataset.section);
