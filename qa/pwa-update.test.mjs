@@ -197,9 +197,34 @@ try{
   }else{
     await page.locator('#savedMusicButton').click();
   }
-  await page.waitForFunction(()=>
-    document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
-    null,{timeout:12000,polling:250});
+  if(webkitMode){
+    // Headless WebKit may pause waitForFunction polling after media changes.
+    // Recheck the real DOM source and persisted settings, not just a timer.
+    let saved=null;
+    for(let attempt=0;attempt<30;attempt++){
+      saved=await page.evaluate(()=>{
+        const data=JSON.parse(localStorage.getItem('areg-settings-v35')||'{}');
+        return {
+          src:document.querySelector('#menuMusic')?.getAttribute('src')||'',
+          selection:document.querySelector('#selectedMusicLabel')?.textContent||'',
+          track:data.musicTrack
+        };
+      });
+      if(saved.src.startsWith('blob:') &&
+         saved.selection.includes('qa-local-song.wav') &&
+         saved.track==='custom')break;
+      await new Promise(resolve=>setTimeout(resolve,300));
+    }
+    if(!saved?.src?.startsWith('blob:') ||
+       !saved.selection.includes('qa-local-song.wav') ||
+       saved.track!=='custom')
+      throw Error('V285 saved music did not restore on WebKit '+JSON.stringify(saved));
+    console.log('V285 WEBKIT saved music UI and stored track verified',JSON.stringify(saved));
+  }else{
+    await page.waitForFunction(()=>
+      document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
+      null,{timeout:12000,polling:250});
+  }
   console.log('V285 WAV PICKER + SAVED TRACK + DEFAULT + MIXER LEVELS + WALLET PASS',
     JSON.stringify(musicPersistence));
   await context.setOffline(true);
