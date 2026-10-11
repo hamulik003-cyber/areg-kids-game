@@ -1,15 +1,15 @@
-const CORE_CACHE='areg-v287-core';
-const RUNTIME_CACHE='areg-v287-runtime';
+const CORE_CACHE='areg-v28738-core';
+const RUNTIME_CACHE='areg-v28738-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
   './index.html',
   './launcher.html',
-  './constellation-quest-v246.js?v=287',
+  './constellation-quest-v246.js?v=28738',
   './space-finding-session.js?v=285',
   './styles.css?v=285',
   './space-3d-games.css?v=287',
-  './app.js?v=287',
+  './app.js?v=28738',
   './home-nature-art.jpg',
   './home-space-art.jpg',
   './space-game-1.jpg',
@@ -48,7 +48,7 @@ self.addEventListener('activate',event=>{
     caches.keys()
       .then(keys=>Promise.all(
         keys
-          .filter(k=>k.startsWith('areg-')&&k!==CORE_CACHE&&k!==RUNTIME_CACHE&&!MEDIA_CACHES.includes(k))
+          .filter(k=>k.startsWith('areg-')&&k!==CORE_CACHE&&k!==RUNTIME_CACHE&&!MEDIA_CACHES.includes(k)&&k!=='areg-v287-core'&&k!=='areg-v287-runtime')
           .map(k=>caches.delete(k))
       ))
       .then(()=>self.clients.claim())

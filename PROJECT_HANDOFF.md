@@ -1,3 +1,10 @@
+## 2026-10-11 — TRIAL ONLY: 38 user-uploaded transparent original PNGs (NOT DEPLOYED)
+- User uploaded complete 38 original transparent constellation pictures and explicitly requested replacing previous game art ONLY. Input ZIP is draft GitHub release asset 629370683, sha256 39cd877b6d71a27c1144ceb5c8b21bf9360afb3d7c0e733495dafbd56806bf97.
+- Safe V287 production main SHA: 66daa15fb170e1e003e11a74a772ba0880c3218e. Immutable recovery branch backup/v287-before-38-user-png-original-art-20261011. This candidate lives ONLY in feature/new-constellation-images-v287.
+- Replaces exactly 38 original PNGs, 38 pixel-identical lossless WebPs, and 38 separate lightweight gallery thumbnails. Updates image manifest and ONLY constellation-art cache-busting URL strings in app.js / quest module / index.html so iPhone does not reuse stale pictures. No animation/effects/UI timing, star economy, audio, PWA service worker, CSS, unrelated game data, or DotKiosk settings changed. QA's obsolete 550KB JPG-era WebP budget was raised to 2.5MB solely for pixel-exact lossless user art (maximum measured 2,023,192 bytes); all other QA assertions retained.
+- Critical: ZIP's new 16-hayk-belt image is NOT byte-identical to V287; visually verify its three approved bright cores on actual iPhone before user sign-off. Image decoded dimensions and full-resolution WebP files are larger; verify on-device smoothness and memory before main publication. No draft-release ZIP itself is committed.
+- Run static image/pixel checks, original full-game tests, mobile WebKit checks on candidate and user DotKiosk review before considering main publication. DO NOT automatically merge. V287 remains live throughout this trial.
+
 # AREG Kids Game — chat-to-chat continuity journal
 
 ## 2026-10-11 — USER-REQUESTED V287 RESTORE — CURRENT PRODUCTION (SUPERSEDES ALL V294 LABELS BELOW)
