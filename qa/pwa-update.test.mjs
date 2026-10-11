@@ -215,9 +215,44 @@ try{
   }else{
     await page.locator('#savedMusicButton').click();
   }
-  await page.waitForFunction(()=>
-    document.querySelector('#menuMusic')?.getAttribute('src')?.startsWith('blob:'),
-    null,{timeout:12000,polling:250});
+  // The first custom-song save already proved that headless WebKit can skip
+  // Playwright waitForFunction polling even when the page and IndexedDB state
+  // changed correctly. Check the real DOM + localStorage via Node-driven
+  // snapshots; NEVER count a timeout as success without the expected state.
+  let savedMusicState;
+  for(let attempt=0;attempt<48;attempt++){
+    savedMusicState=await page.evaluate(()=>{
+      const settings=JSON.parse(localStorage.getItem('areg-settings-v35')||'{}');
+      const button=document.querySelector('#savedMusicButton');
+      return {
+        src:document.querySelector('#menuMusic')?.getAttribute('src')||'',
+        selected:document.querySelector('#selectedMusicLabel')?.textContent||'',
+        musicTrack:settings.musicTrack,
+        pressed:button?.getAttribute('aria-pressed'),
+        disabled:button?.disabled,
+        modalHidden:document.querySelector('#settingsModal')?.hidden,
+        toast:document.querySelector('#toast')?.textContent||''
+      };
+    });
+    if(savedMusicState.src.startsWith('blob:')&&
+       savedMusicState.musicTrack==='custom'&&
+       savedMusicState.selected.includes('qa-local-song.wav')&&
+       savedMusicState.pressed==='true'&&
+       savedMusicState.disabled===false&&
+       savedMusicState.modalHidden===false)break;
+    await sleep(250);
+  }
+  if(!savedMusicState.src.startsWith('blob:')||
+     savedMusicState.musicTrack!=='custom'||
+     !savedMusicState.selected.includes('qa-local-song.wav')||
+     savedMusicState.pressed!=='true'||
+     savedMusicState.disabled!==false||
+     savedMusicState.modalHidden!==false){
+    throw Error('V290 saved music did not restore after default selection '+
+      JSON.stringify({engine:webkitMode?'webkit':'chromium',...savedMusicState}));
+  }
+  console.log('V290 SAVED MUSIC RESTORE VERIFIED',
+    JSON.stringify({engine:webkitMode?'webkit':'chromium',...savedMusicState}));
   console.log('V285 WAV PICKER + SAVED TRACK + DEFAULT + MIXER LEVELS + WALLET PASS',
     JSON.stringify(musicPersistence));
   await context.setOffline(true);
