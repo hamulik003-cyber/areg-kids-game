@@ -1247,9 +1247,12 @@
     to.hidden=false;
     if(to===homeScreen)to.style.visibility='visible';
     if(to===sectionScreen)to.classList.add('is-visible');
-    // Set the incoming screen at zero opacity at its FINAL fixed position.
+    // The incoming previous screen is ALREADY full opacity, underneath the
+    // outgoing page. Reveal it by fading only the top outgoing screen.
+    // Old logic faded both layers simultaneously, making a semi-transparent
+    // double-page/ghost effect on iOS during Back.
     to.style.setProperty('transition','none','important');
-    to.style.setProperty('opacity','0','important');
+    to.style.setProperty('opacity','1','important');
     to.style.setProperty('transform','none','important');
     const rect=card.getBoundingClientRect();
     if(!rect.width||!rect.height){
@@ -1331,9 +1334,9 @@
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
-        to.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        // Same user-liked 1100ms softness, but ONE opaque destination
+        // layer with only the foreground fading away. No double dimming.
         from.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
-        to.style.setProperty('opacity','1','important');
         from.style.setProperty('opacity','0','important');
         cleanupTimer=setTimeout(()=>{
           delete to.dataset.reversePortal;
