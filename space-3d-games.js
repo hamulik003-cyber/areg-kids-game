@@ -1,4 +1,4 @@
-import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=232';
+import {renderInterstellarBlackHole,makeBlackHoleAnimatedFlow} from './blackhole-interstellar.js?v=289';
 import {createFindingSession} from './space-finding-session.js?v=285';
 import {createUniqueTargetCycle} from './space-question-cycle.js?v=289';
 // V163 centered proportional feedback rings + one soft green flash

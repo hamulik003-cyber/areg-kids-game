@@ -23,6 +23,10 @@ export function renderInterstellarBlackHole(){
     ctx.restore();signal();
   }
   const im=new Image();
+  // Raw GitHack preview redirects this approved WebP photograph to a
+  // different origin; without anonymous CORS the alpha-key getImageData()
+  // fails, leaving only a black event-horizon circle visible on iPhone.
+  im.crossOrigin='anonymous';
   im.decoding='async';
   im.onload=()=>{
     try{
