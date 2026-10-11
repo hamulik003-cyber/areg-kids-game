@@ -801,7 +801,13 @@
   $('#starCounter').addEventListener('click',()=>showToast(`⭐ ${stars}`));
 
   /* section navigation */
-  $$('.section-card').forEach(card=>card.addEventListener('click',()=>openSection(card.dataset.section)));
+  // V288 pilot: only Nature uses the new cinematic home-card transition.
+  let natureHomeTransitionActive=false;
+  $('.section-card').forEach(card=>card.addEventListener('click',()=>{
+    if(natureHomeTransitionActive)return;
+    if(card.dataset.section==='nature')openNatureHomeSection(card);
+    else openSection(card.dataset.section);
+  }));
   $('#sectionBack').addEventListener('click',closeSection);
   $('#activityBack').addEventListener('click',backToSection);
 
@@ -843,7 +849,7 @@
   setTimeout(()=>warmSectionImages('nature').catch(()=>{}),950);
   setTimeout(()=>warmSectionImages('space').catch(()=>{}),1800);
 
-  function openSection(id){
+  function openSection(id, beforeReveal, afterReveal){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
@@ -867,12 +873,97 @@
       if(nav!==galleryNavigationId||currentSection!==id)return;
       homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
       requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+      if(typeof afterReveal==='function')afterReveal();
       // Load the 3D engine only after the Space menu has become visible.
       if(id==='space')setTimeout(()=>{if(nav===galleryNavigationId&&currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},900);
     };
     // Already-cached pictures resolve immediately; never stall a tap for seconds.
     const deadline=new Promise(resolve=>setTimeout(resolve,1150));
-    Promise.race([warmSectionImages(id),deadline]).then(revealSection,revealSection);
+    const ready=()=>{
+      if(beforeReveal)Promise.resolve(beforeReveal).then(revealSection,revealSection);
+      else revealSection();
+    };
+    Promise.race([warmSectionImages(id),deadline]).then(ready,ready);
+  }
+
+  // Trial only: paint an exact, lightweight clone ABOVE the two screens, in
+  // viewport coordinates. The approved design-stage geometry never moves.
+  function openNatureHomeSection(card){
+    if(!card||natureHomeTransitionActive)return;
+    const rect=card.getBoundingClientRect();
+    if(!card.animate||!rect.width||!rect.height||
+        window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){
+      openSection('nature');return;
+    }
+    natureHomeTransitionActive=true;
+    const flight=document.createElement('div');
+    flight.dataset.natureSectionFlight='true';
+    Object.assign(flight.style,{
+      position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',height:rect.height+'px',
+      transformOrigin:'center center',pointerEvents:'none',
+      willChange:'transform, opacity',zIndex:'2147483000'
+    });
+    const copy=card.cloneNode(true);
+    copy.removeAttribute('data-section');
+    copy.setAttribute('aria-hidden','true');
+    copy.tabIndex=-1;
+    Object.assign(copy.style,{
+      position:'absolute',left:'0',top:'0',
+      width:card.offsetWidth+'px',height:card.offsetHeight+'px',
+      transformOrigin:'top left',
+      transform:'scale('+(rect.width/card.offsetWidth)+')',
+      pointerEvents:'none'
+    });
+    flight.appendChild(copy);
+    document.body.appendChild(flight);
+    const previousOpacity=card.style.opacity;
+    card.style.opacity='0';
+    let done=false;
+    let safetyTimer=0;
+    const restore=()=>{
+      if(done)return;
+      done=true;
+      clearTimeout(safetyTimer);
+      flight.remove();
+      card.style.opacity=previousOpacity;
+      natureHomeTransitionActive=false;
+    };
+    // Keep the entire artwork and Armenian title together, never move the
+    // underlying menu card or its fixed positions in the 709px design stage.
+    const scale=Math.max(1.1,Math.min(2.75,
+      (window.innerWidth-22)/rect.width,
+      (window.innerHeight-100)/rect.height));
+    const dx=window.innerWidth/2-(rect.left+rect.width/2);
+    const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    const toward='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    const beyond='translate3d('+dx+'px,'+dy+'px,0) scale('+(scale*1.12)+')';
+    try{
+      const approach=flight.animate([
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1},
+        {transform:toward,opacity:1}
+      ],{duration:460,easing:'cubic-bezier(.28,.7,.2,1)',fill:'forwards'});
+      const approached=approach.finished.then(()=>{
+        flight.style.transform=toward;
+        approach.cancel();
+      }).catch(()=>{});
+      const dissolve=()=>{
+        if(done)return;
+        const exit=flight.animate([
+          {transform:toward,opacity:1},
+          {transform:beyond,opacity:0}
+        ],{duration:360,easing:'cubic-bezier(.32,0,.42,1)',fill:'forwards'});
+        exit.finished.then(restore,restore);
+      };
+      // Nature's existing <=1150ms image-preparation limit remains intact.
+      // The section begins its standard fade only once the card has approached.
+      openSection('nature',approached,dissolve);
+      safetyTimer=setTimeout(restore,1950);
+    }catch(error){
+      console.warn('Nature home transition fallback:',error);
+      restore();
+      openSection('nature');
+    }
   }
 
   function saveMagicUnlocked(){
@@ -2560,7 +2651,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=287',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=288',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

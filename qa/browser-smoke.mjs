@@ -43,9 +43,22 @@ try{
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
-  await page.locator('.section-card[data-section="'+section+'"]').click();
+  if(section==='nature'){
+   const naturePilot=await page.locator('.section-card[data-section="nature"]').evaluate(card=>{
+     card.click();
+     const flight=document.querySelector('[data-nature-section-flight]');
+     return {flight:!!flight,animations:flight?.getAnimations().length??0,originalHidden:card.style.opacity==='0'};
+   });
+   if(!naturePilot.flight||!naturePilot.animations||!naturePilot.originalHidden)
+     throw Error('V288 Nature home transition did not begin '+JSON.stringify(naturePilot));
+  }else await page.locator('.section-card[data-section="'+section+'"]').click();
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
   await page.waitForSelector('#sectionScreen.is-visible');
+  if(section==='nature'){
+   await page.waitForFunction(()=>!document.querySelector('[data-nature-section-flight]'),null,{timeout:3500});
+   const reset=await page.locator('.section-card[data-section="nature"]').evaluate(card=>card.style.opacity);
+   if(reset!=='')throw Error('V288 Nature home card failed to restore after opening');
+  }
   if(section==='magic'){
    const n=await page.locator('.magic-collect-card').count();
    if(n<35)throw Error('Magic rewards missing: '+n);

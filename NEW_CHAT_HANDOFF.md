@@ -1,3 +1,10 @@
+## 2026-10-11 — V288 NATURE HOME ENTRY PILOT (EXPERIMENTAL BRANCH ONLY; NOT APPROVED)
+- User request: tap only the main-menu Բնություն card; its complete original image/title flies smoothly toward screen center, then fades away while the Nature section appears. Do NOT animate or alter the other four main menu cards, other game transitions, visual designs, geometry, audio, star/wallet logic, or approved V287 gameplay.
+- Protected released main baseline: `81949800e60682d25baf3aa1997d97c2b642a54f` (identical game content to approved V287 `34548b66aeb1cadde0fb1e643830de091d2172a6`).
+- Isolated test branch: `feature/v288-nature-home-entry-zoom-fade-pilot-20261011`; V288 is a branch-local cache/version label, NOT a claim of user acceptance or publication.
+- Changes: `app.js` only Nature home navigation and a 460ms screen-centered clone zoom + 360ms transparent fade after bounded original asset-preparation, no original menu geometry changes; `index.html`, `service-worker.js`, `refresh.html` synchronized test-only app/SW version to v288; QA browser-smoke added start and cleanup assertions, PWA QA static versions synchronized. No images, audio, 3D, 38 constellations, or approved fades changed.
+- Acceptance: needs Chrome/WebKit CI and real DotKiosk/iPhone visual test; test branch should NOT be merged/deployed as production until user explicitly approves. Next: inspect test results, provide an isolated preview strategy, ask user for review and iterate only this pilot.
+
 # AREG Kids Game — ՆՈՐ ՉԱԹԻ ԱՄԲՈՂՋԱԿԱՆ ՓՈԽԱՆՑՈՒՄ
 
 ## ՀԱՍՏԱՏՎԱԾ ԳՈՐԾՈՂ ՏԱՐԲԵՐԱԿ — V287 (FINAL)
