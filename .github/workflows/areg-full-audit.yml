@@ -32,6 +32,26 @@ jobs:
       - name: Unit test per-visit ten-correct milestones and reward unlock wallet
         run: node --test qa/star-economy.test.mjs
       - run: node qa/full-audit.mjs
+      - name: Diagnose large 3D texture retrieval on preview and main hosts (nonblocking)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          AREG_PREVIEW_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          for texture in 04-earth.png 08-saturn.png 09-uranus.png; do
+            echo "::group::3D UV texture $texture"
+            for host in preview main; do
+              if [ "$host" = preview ]; then
+                url="https://rawcdn.githack.com/hamulik003-cyber/areg-kids-game/${AREG_PREVIEW_HEAD}/assets/space3d/user-final/${texture}?v=final27repo4"
+              else
+                url="https://hamulik003-cyber.github.io/areg-kids-game/assets/space3d/user-final/${texture}?v=final27repo4"
+              fi
+              echo "$host: $url"
+              curl -L --retry 1 --connect-timeout 8 --max-time 25 -sS -o /tmp/areg-probe-texture -w "status=%{http_code}; content-type=%{content_type}; received=%{size_download}; target=%{url_effective}\n" "$url" || true
+              file /tmp/areg-probe-texture || true
+            done
+            echo "::endgroup::"
+          done
 
   mobile-browser:
     needs: assets-and-code
