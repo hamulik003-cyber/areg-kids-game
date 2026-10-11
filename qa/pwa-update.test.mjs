@@ -243,7 +243,7 @@ try{
       const entry=await core.match('./index.html');
       const app=await core.match('./app.js?v=28738');
       const css=await core.match('./styles.css?v=285');
-      const constellationCss=await core.match('./space-3d-games.css?v=28738');
+      const constellationCss=await core.match('./space-3d-games.css?v=287');
       const html=entry?await entry.text():'';
       return {wallet:localStorage.getItem('areg-stars-v35'),
         stale:html.includes('areg-qa-deliberately-stale'),
