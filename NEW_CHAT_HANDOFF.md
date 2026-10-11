@@ -1,3 +1,10 @@
+## 2026-10-11 — V288 GitHack-preview BLACK PLANETS: Cross-Origin WebGL UV fix (TRIAL ONLY)
+- User confirms 3D planet spheres are BLACK exclusively on the `rawcdn.githack.com` preview, while identical original textures and `space-3d-games.js` show perfectly colored planets on V287 GitHub Pages (the user has 111 stars in approved main; preserve).
+- Verified through real nonblocking CI curl (run `38141764119`): `rawcdn.githack.com` redirects the canonical 04-earth, 08-saturn and 09-uranus images to **`raw.githubusercontent.com`**, while `hamulik003-cyber.github.io` serves them same-origin. ALL returned 200, valid image/png, and identical byte counts (e.g. Earth 4,148,858 bytes). Thus the files exist and were NOT missing.
+- Identified cause in `space-3d-games.js`: `loadTrue360Image` created `new Image()` without setting `crossOrigin` before `src`; after CDN redirect, the external image may be usable as a plain <img> but not legally uploaded as a readable WebGL texture. Correct trial-only fix: insert `img.crossOrigin='anonymous'` BEFORE `img.src=path`. It is also compatible with same-origin GitHub Pages and blob: IndexedDB fallback.
+- Do NOT alter any planet artwork, texture transforms, 3D animations, materials, scoring, music or main version. Must run CI and real iPhone preview to verify black spheres are gone before merging anything.
+- The work stays isolated in DRAFT PR #17. No production main edits. Canonical production main SHA `81949800e60682d25baf3aa1997d97c2b642a54f`, V287 game `34548b66aeb1cadde0fb1e643830de091d2172a6`.
+
 ## 2026-10-11 — READ-ONLY DIAGNOSTIC of BLACK spheres in V288 preview (not production)
 - The user reports all spheres in `rawcdn.githack.com` V288 preview appear black despite 3D background/ring rendering, but submitted screenshot of the SAME `space-search` working perfectly with full-color spherical UVs on actual GitHub Pages V287 (111 stored stars remain protected).
 - Verified `space-3d-games.js` blob SHA `581eed641203ef72915f0a91bdb8aeabb462afe9` and canonical UV assets are IDENTICAL between production and experimental branch. Main code unmodified.
