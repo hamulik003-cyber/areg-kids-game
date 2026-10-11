@@ -168,6 +168,19 @@ try{
     }));
   });
   await page.waitForSelector('#settingsModal:not([hidden])');
+  if(webkitMode){
+    // This test validates file persistence / selection, NOT audible output.
+    // Headless WPE media decoding can stall the browser after changing Blob
+    // audio sources. Toggle the actual global mute UI, preserving every
+    // IndexedDB, re-selection, volume, wallet and offline assertion below.
+    await page.locator('#masterSound').evaluate(el=>{
+      if(el.checked)el.click();
+    });
+    const muted=await page.evaluate(()=>
+      JSON.parse(localStorage.getItem('areg-settings-v35')||'{}').master===false);
+    if(!muted)throw Error('V290 WebKit test-only master mute did not persist');
+    console.log('V290 HEADLESS WEBKIT AUDIO PLAYBACK MUTED; file persistence remains under test');
+  }
   const sampleBytes=8000;
   const wav=Buffer.alloc(44+sampleBytes,128);
   wav.write('RIFF',0);wav.writeUInt32LE(36+sampleBytes,4);
