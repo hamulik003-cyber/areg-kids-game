@@ -797,9 +797,9 @@
   function syncSettings(){Object.entries(toggles).forEach(([k,e])=>e.checked=!!settings[k])}
   syncSettings();Object.entries(toggles).forEach(([k,e])=>e.addEventListener('change',()=>{settings[k]=e.checked;saveSettings();applyAudio();root.classList.toggle('effects-off',!settings.effects)}));
   // V290 parent gate: opening sensitive home controls requires an uninterrupted
-  // 3-second touch/pen/mouse/keyboard hold. A normal tap is deliberately inert.
+  // 2-second touch/pen/mouse/keyboard hold. A normal tap is deliberately inert.
   function requireParentHold(button,onAuthorized){
-    const HOLD_MS=3000;
+    const HOLD_MS=2000;
     let timer=0,frame=0,start=0,down=false,completed=false,pointerId=null,startX=0,startY=0;
     const clear=()=>{
       down=false;clearTimeout(timer);cancelAnimationFrame(frame);
@@ -1287,7 +1287,11 @@
     void to.offsetWidth;
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
-    const scale=Math.max(1.1,Math.min(2.75,
+    // The previous reverse animation started with a HUGE (up to 2.75x)
+    // cloned image across the whole screen and slowly made it opaque.
+    // On an iPhone that visibly ghosted over both page layers.
+    // Keep the card near its true size and reveal it only near its home slot.
+    const scale=Math.max(1.04,Math.min(1.4,
       (window.innerWidth-22)/rect.width,
       (window.innerHeight-100)/rect.height));
     let done=false,cleanupTimer=0;
@@ -1309,9 +1313,17 @@
       finishNavigation();
     };
     try{
+      const origin='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+      const dest='translate3d(0,0,0) scale(1)';
       const fly=flight.animate([
-        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
-        {transform:'translate3d(0,0,0) scale(1)',opacity:1}
+        {offset:0,transform:origin,opacity:0},
+        // Card remains hidden while far from its destination: no giant
+        // translucent lion/forest tile overlaying full screen on exit.
+        {offset:.60,transform:origin.replace(
+          dx+'px,'+dy+'px', (dx*.35)+'px,'+(dy*.35)+'px'
+        ).replace('scale('+scale+')','scale('+(1+(scale-1)*.35)+')'),opacity:0},
+        {offset:.85,transform:'translate3d('+(dx*.1)+'px,'+(dy*.1)+'px,0) scale('+(1+(scale-1)*.1)+')',opacity:.55},
+        {offset:1,transform:dest,opacity:1}
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.

@@ -63,7 +63,7 @@ try{
      btn.dispatchEvent(new PointerEvent('pointerdown',{
        bubbles:true,pointerId:8,isPrimary:true,pointerType:'touch',clientX:40,clientY:40
      }));
-     await new Promise(resolve=>setTimeout(resolve,3100));
+     await new Promise(resolve=>setTimeout(resolve,2120));
      btn.dispatchEvent(new PointerEvent('pointerup',{
        bubbles:true,pointerId:8,isPrimary:true,pointerType:'touch'
      }));
@@ -76,7 +76,7 @@ try{
    await page.locator('[data-close="'+(button==='avatarButton'?'avatar':'settings')+'"]').last().evaluate(el=>el.click());
    await page.waitForFunction(id=>document.getElementById(id)?.hidden===true,modal);
  }
- console.log('V290 PARENT HOLD PASS settings + avatar taps ignored, short hold cancelled, full 3s authorized');
+ console.log('V290 PARENT HOLD PASS settings + avatar taps ignored, short hold cancelled, full 2s authorized');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
   // Every home tile must share the user-approved Nature-style portal trial.
@@ -742,7 +742,7 @@ try{
           const running=session.showCycleResult().then(()=>{resolved=true});
           const overlay=fake.querySelector('.s3d-cycle-backdrop');
           const replay=overlay?.querySelector('.s3d-cycle-replay');
-          // Timer regression: V267 auto-dismissed at 3100ms. V268 MUST not.
+          // Timer regression: V267 auto-dismissed at 2120ms. V268 MUST not.
           if(kind==='success')await new Promise(ok=>setTimeout(ok,3300));
           const stillOpen=!!fake.querySelector('.s3d-cycle-backdrop');
           const counts=session.counts();
@@ -811,12 +811,15 @@ try{
         animationCount:flight?.getAnimations().length||0,
         duration:flight?.getAnimations()[0]?.effect?.getTiming()?.duration,
         opacityStart:Number(frames[0]?.opacity),
+        hiddenUntil:Number(frames[1]?.opacity), hiddenOffset:frames[1]?.offset,
+        frameCount:frames.length,
         opacityEnd:Number(frames.at(-1)?.opacity),
         incomingVisible:!document.querySelector('#sectionScreen').hidden,
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
     });
     if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
-       exit.opacityStart!==0||exit.opacityEnd!==1||
+       exit.opacityStart!==0||exit.opacityEnd!==1||exit.frameCount!==4||
+       exit.hiddenUntil!==0||exit.hiddenOffset!==.60||
        !exit.incomingVisible||!exit.outgoingVisible)
        throw Error('V290 game reverse cinematic transition missing '+section+'/'+id+' '+JSON.stringify(exit));
     await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
@@ -831,11 +834,13 @@ try{
     return {flight:flight?.dataset.reversePortalFlight||null,
       animationCount:flight?.getAnimations().length||0,
       duration:flight?.getAnimations()[0]?.effect?.getTiming()?.duration,
+      frameCount:frames.length,hiddenUntil:Number(frames[1]?.opacity),hiddenOffset:frames[1]?.offset,
       opacityStart:Number(frames[0]?.opacity),opacityEnd:Number(frames.at(-1)?.opacity),
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   });
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
-     exit.opacityStart!==0||exit.opacityEnd!==1||!exit.homeVisible)
+     exit.opacityStart!==0||exit.opacityEnd!==1||
+     exit.frameCount!==4||exit.hiddenUntil!==0||exit.hiddenOffset!==.60||!exit.homeVisible)
     throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
   if(await page.locator('[data-reverse-portal-flight]').count())
