@@ -49,7 +49,7 @@ jobs:
               text=p.read_text()
               assert '287-art38' in text,rel
               p.write_text(text.replace('287-art38','28738'))
-          p=Path('qa/full-audit.mjs','qa/pwa-update.test.mjs','service-worker.js','refresh.html')
+          p=Path('qa/full-audit.mjs')
           text=p.read_text()
           old="item.webp_bytes>0&&item.webp_bytes<(item.source==='16-hayk-belt.jpg'?700000:550000)&&"
           assert text.count(old)==1
@@ -121,7 +121,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           p=Path('/tmp/areg-import-paths.txt').read_text().splitlines()
-          allowed={'app.js','constellation-quest-v246.js','index.html','CURRENT_STATUS.md','PROJECT_HANDOFF.md','assets/constellations-transparent/manifest.json','qa/full-audit.mjs'}
+          allowed={'app.js','constellation-quest-v246.js','index.html','CURRENT_STATUS.md','PROJECT_HANDOFF.md','assets/constellations-transparent/manifest.json','qa/full-audit.mjs','qa/pwa-update.test.mjs','service-worker.js','refresh.html'}
           assert p and all(x in allowed or x.startswith('assets/constellations-transparent/') or x.startswith('assets/thumbs/') for x in p),p
           assert 'app.js' in p and 'constellation-quest-v246.js' in p and 'index.html' in p
           assert 'CURRENT_STATUS.md' in p and 'PROJECT_HANDOFF.md' in p and 'qa/full-audit.mjs' in p
