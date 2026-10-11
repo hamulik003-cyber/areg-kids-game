@@ -883,11 +883,15 @@
         sectionScreen.style.setProperty('transform','translate3d(0,16px,0) scale(.985)','important');
         homeScreen.style.setProperty('transition','none','important');
         homeScreen.style.setProperty('opacity','1','important');
-        // Force the first rendered state before changing opacity, preventing
-        // the hard one-frame jump that occurred on entry.
+        // Prevent extra taps from interrupting the compositing handoff.
+        homeScreen.style.pointerEvents='none';
+        sectionScreen.style.pointerEvents='none';
+        // Force a real 0-opacity rendered state before transition start.
         void sectionScreen.offsetWidth;
-        requestAnimationFrame(()=>{
-          if(nav!==galleryNavigationId||currentSection!==id)return;
+        let crossfadeStarted=false;
+        const startCrossfade=()=>{
+          if(crossfadeStarted||nav!==galleryNavigationId||currentSection!==id)return;
+          crossfadeStarted=true;
           sectionScreen.style.setProperty('transition',
             'opacity 790ms cubic-bezier(.22,.18,.48,1), transform 850ms cubic-bezier(.20,.23,.52,1)','important');
           homeScreen.style.setProperty('transition',
@@ -896,19 +900,25 @@
           sectionScreen.style.setProperty('opacity','1','important');
           sectionScreen.style.setProperty('transform','translate3d(0,0,0) scale(1)','important');
           homeScreen.style.setProperty('opacity','0','important');
-        });
-        // Home becomes non-interactive/hidden only AFTER the crossfade is
-        // almost completely finished and Nature is fully painted beneath.
-        setTimeout(()=>{
-          if(nav!==galleryNavigationId||currentSection!==id)return;
-          homeScreen.style.visibility='hidden';
-          homeScreen.style.removeProperty('opacity');
-          homeScreen.style.removeProperty('transition');
-          sectionScreen.style.removeProperty('transition');
-          sectionScreen.style.removeProperty('opacity');
-          sectionScreen.style.removeProperty('transform');
-          delete sectionScreen.dataset.natureCrossfade;
-        },825);
+          // Count the finishing window from the ACTUAL transition start,
+          // not from image-ready or initial request time.
+          setTimeout(()=>{
+            if(nav!==galleryNavigationId||currentSection!==id)return;
+            homeScreen.style.visibility='hidden';
+            homeScreen.style.removeProperty('opacity');
+            homeScreen.style.removeProperty('transition');
+            homeScreen.style.removeProperty('pointer-events');
+            sectionScreen.style.removeProperty('transition');
+            sectionScreen.style.removeProperty('opacity');
+            sectionScreen.style.removeProperty('transform');
+            sectionScreen.style.removeProperty('pointer-events');
+            delete sectionScreen.dataset.natureCrossfade;
+          },870);
+        };
+        // WebKit can delay requestAnimationFrame when decoding pictures.
+        // Start within a tiny guaranteed window even if a frame is throttled.
+        const fallback=setTimeout(startCrossfade,45);
+        requestAnimationFrame(()=>{clearTimeout(fallback);startCrossfade()});
       }else{
         homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
         requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
