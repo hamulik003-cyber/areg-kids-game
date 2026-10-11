@@ -41,6 +41,42 @@ try{
  });
  await page.goto('http://127.0.0.1:8765/?kiosk=v232&__areg_build=244',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForSelector('#homeScreen .section-card');
+ // V290 parent gate: ordinary taps must be harmless; a real uninterrupted
+ // 3000ms pointer hold on settings/avatar authorizes opening exactly once.
+ for(const [button,modal] of [['settingsButton','settingsModal'],['avatarButton','avatarModal']]){
+   const el=page.locator('#'+button);
+   await el.evaluate(btn=>btn.click());
+   if(await page.locator('#'+modal).isVisible())
+     throw Error('V290 '+button+' opened on a normal tap');
+   const started=await el.evaluate(btn=>{
+     const press=new PointerEvent('pointerdown',{bubbles:true,pointerId:7,isPrimary:true,pointerType:'touch',clientX:40,clientY:40});
+     btn.dispatchEvent(press);
+     return btn.classList.contains('parent-hold-active');
+   });
+   if(!started)throw Error('V290 '+button+' did not begin hold progress');
+   await el.evaluate(btn=>btn.dispatchEvent(
+     new PointerEvent('pointerup',{bubbles:true,pointerId:7,isPrimary:true,pointerType:'touch'})));
+   await page.waitForTimeout(100);
+   if(await page.locator('#'+modal).isVisible())
+     throw Error('V290 '+button+' opened after a cancelled short hold');
+   await el.evaluate(async btn=>{
+     btn.dispatchEvent(new PointerEvent('pointerdown',{
+       bubbles:true,pointerId:8,isPrimary:true,pointerType:'touch',clientX:40,clientY:40
+     }));
+     await new Promise(resolve=>setTimeout(resolve,3100));
+     btn.dispatchEvent(new PointerEvent('pointerup',{
+       bubbles:true,pointerId:8,isPrimary:true,pointerType:'touch'
+     }));
+   });
+   await page.waitForFunction(id=>document.getElementById(id)?.hidden===false,modal,{timeout:2500});
+   if(button==='avatarButton'){
+     if(await page.locator('#presetAvatarGrid .preset-avatar-option').count()<10)
+       throw Error('V290 protected avatar gallery missing originals');
+   }
+   await page.locator('[data-close="'+(button==='avatarButton'?'avatar':'settings')+'"]').last().evaluate(el=>el.click());
+   await page.waitForFunction(id=>document.getElementById(id)?.hidden===true,modal);
+ }
+ console.log('V290 PARENT HOLD PASS settings + avatar taps ignored, short hold cancelled, full 3s authorized');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
   // Every home tile must share the user-approved Nature-style portal trial.
@@ -767,14 +803,43 @@ try{
     done.push(section+'/'+id);
     // WebKit touch emulation occasionally hangs Playwright's click completion
     // despite DOM visibility; use a DOM click and still assert real navigation.
-    if(process.env.AREG_BROWSER==='webkit')await page.locator('#activityBack').evaluate(el=>el.click());
-    else await page.locator('#activityBack').click();
+    const exit=await page.locator('#activityBack').evaluate(el=>{
+      el.click();
+      const flight=document.querySelector('[data-reverse-portal-flight]');
+      const frames=flight?.getAnimations()[0]?.effect?.getKeyframes()||[];
+      return {flight:flight?.dataset.reversePortalFlight||null,
+        animationCount:flight?.getAnimations().length||0,
+        duration:flight?.getAnimations()[0]?.effect?.getTiming()?.duration,
+        opacityStart:Number(frames[0]?.opacity),
+        opacityEnd:Number(frames.at(-1)?.opacity),
+        incomingVisible:!document.querySelector('#sectionScreen').hidden,
+        outgoingVisible:!document.querySelector('#activityScreen').hidden};
+    });
+    if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
+       exit.opacityStart!==0||exit.opacityEnd!==1||
+       !exit.incomingVisible||!exit.outgoingVisible)
+       throw Error('V290 game reverse cinematic transition missing '+section+'/'+id+' '+JSON.stringify(exit));
     await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
+    if(await page.locator('[data-reverse-portal-flight]').count())
+      throw Error('V290 back-to-section left a ghost card '+section+'/'+id);
    }
   }
-  if(process.env.AREG_BROWSER==='webkit')await page.locator('#sectionBack').evaluate(el=>el.click());
-  else await page.locator('#sectionBack').click();
+  const exit=await page.locator('#sectionBack').evaluate(el=>{
+    el.click();
+    const flight=document.querySelector('[data-reverse-portal-flight]');
+    const frames=flight?.getAnimations()[0]?.effect?.getKeyframes()||[];
+    return {flight:flight?.dataset.reversePortalFlight||null,
+      animationCount:flight?.getAnimations().length||0,
+      duration:flight?.getAnimations()[0]?.effect?.getTiming()?.duration,
+      opacityStart:Number(frames[0]?.opacity),opacityEnd:Number(frames.at(-1)?.opacity),
+      homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
+  });
+  if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
+     exit.opacityStart!==0||exit.opacityEnd!==1||!exit.homeVisible)
+    throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
+  if(await page.locator('[data-reverse-portal-flight]').count())
+    throw Error('V290 back-to-home left a ghost card '+section);
  }
  if(errors.length)throw Error('Browser JavaScript errors: '+errors.join(' | ').slice(0,2000));
  console.log('BROWSER PASS '+done.length+' routes; fully decoded '+decodedImages+' gallery images: '+JSON.stringify(done));
