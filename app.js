@@ -801,7 +801,14 @@
   $('#starCounter').addEventListener('click',()=>showToast(`⭐ ${stars}`));
 
   /* section navigation */
-  $$('.section-card').forEach(card=>card.addEventListener('click',()=>openSection(card.dataset.section)));
+  // V288 five-section trial: reuse the user-liked Nature portal fade for
+  // all five home tiles. Preserve every tile's DOM, geometry and artwork.
+  let homeEntryTransitionActive=false;
+  let restoreHomeSourceCard=null;
+  $$('.section-card').forEach(card=>card.addEventListener('click',()=>{
+    if(homeEntryTransitionActive)return;
+    openAnimatedHomeSection(card);
+  }));
   $('#sectionBack').addEventListener('click',closeSection);
   $('#activityBack').addEventListener('click',backToSection);
 
@@ -843,7 +850,7 @@
   setTimeout(()=>warmSectionImages('nature').catch(()=>{}),950);
   setTimeout(()=>warmSectionImages('space').catch(()=>{}),1800);
 
-  function openSection(id){
+  function openSection(id, beforeReveal, cinematicEntry=false){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
@@ -857,7 +864,7 @@
       s.games.forEach(g=>{
         const b=document.createElement('button');b.className='toddler-game-card';b.dataset.game=g.id;b.setAttribute('aria-label',g.label);
         b.innerHTML=`<img src="${g.thumb}" alt="" draggable="false"><span class="section-card-sheen game-card-sheen" aria-hidden="true"></span><span class="toddler-game-label">${g.label}</span>`;
-        b.addEventListener('click',()=>openGame(s,g));sectionGames.appendChild(b);
+        b.addEventListener('click',()=>openGame(s,g,b));sectionGames.appendChild(b);
       });
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
@@ -865,14 +872,160 @@
     const nav=++galleryNavigationId;
     const revealSection=()=>{
       if(nav!==galleryNavigationId||currentSection!==id)return;
-      homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
-      requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+      if(cinematicEntry){
+        // V288: same approved Nature-look portal reveal for all 5 sections.
+        // Keep the incoming page stationary and crossfade both full screens.
+        // Inline important overrides legacy section transition !important.
+        sectionScreen.hidden=false;
+        sectionScreen.dataset.entryCrossfade='running';
+        sectionScreen.dataset.entrySection=id;
+        sectionScreen.style.setProperty('transition','none','important');
+        sectionScreen.style.setProperty('opacity','0','important');
+        // Cinematic Portal Fade: the incoming world stays perfectly fixed.
+        // No rising from below, sliding sideways, or full-screen scale motion.
+        sectionScreen.style.setProperty('transform','none','important');
+        homeScreen.style.setProperty('transition','none','important');
+        homeScreen.style.setProperty('opacity','1','important');
+        // Prevent extra taps from interrupting the compositing handoff.
+        homeScreen.style.pointerEvents='none';
+        sectionScreen.style.pointerEvents='none';
+        // Force a real 0-opacity rendered state before transition start.
+        void sectionScreen.offsetWidth;
+        let crossfadeStarted=false;
+        const startCrossfade=()=>{
+          if(crossfadeStarted||nav!==galleryNavigationId||currentSection!==id)return;
+          crossfadeStarted=true;
+          sectionScreen.style.setProperty('transition',
+            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+          homeScreen.style.setProperty('transition',
+            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+          sectionScreen.classList.add('is-visible');
+          sectionScreen.style.setProperty('opacity','1','important');
+          // Keep transform fixed throughout; only alpha changes.
+          sectionScreen.style.setProperty('transform','none','important');
+          homeScreen.style.setProperty('opacity','0','important');
+          // Count the finishing window from the ACTUAL transition start,
+          // not from image-ready or initial request time.
+          setTimeout(()=>{
+            if(nav!==galleryNavigationId||currentSection!==id)return;
+            homeScreen.style.visibility='hidden';
+            // The 1040ms flying card may finish before this longer fade.
+            // Restore the original source card ONLY after home is hidden.
+            restoreHomeSourceCard?.();
+            homeScreen.style.removeProperty('opacity');
+            homeScreen.style.removeProperty('transition');
+            homeScreen.style.removeProperty('pointer-events');
+            sectionScreen.style.removeProperty('transition');
+            sectionScreen.style.removeProperty('opacity');
+            sectionScreen.style.removeProperty('transform');
+            sectionScreen.style.removeProperty('pointer-events');
+            delete sectionScreen.dataset.entryCrossfade;
+            delete sectionScreen.dataset.entrySection;
+          },1180);
+        };
+        // WebKit can delay requestAnimationFrame when decoding pictures.
+        // Start within a tiny guaranteed window even if a frame is throttled.
+        const fallback=setTimeout(startCrossfade,45);
+        requestAnimationFrame(()=>{clearTimeout(fallback);startCrossfade()});
+      }else{
+        homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
+        requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
+      }
       // Load the 3D engine only after the Space menu has become visible.
       if(id==='space')setTimeout(()=>{if(nav===galleryNavigationId&&currentSection==='space')ensureSpace3DLoaded().catch(()=>{});},900);
     };
-    // Already-cached pictures resolve immediately; never stall a tap for seconds.
-    const deadline=new Promise(resolve=>setTimeout(resolve,1150));
-    Promise.race([warmSectionImages(id),deadline]).then(revealSection,revealSection);
+    // For home-card animated entry, section reveal is timed to the
+    // uninterrupted card flight, never stalled by a network image fetch.
+    // Existing <=1150ms bounded wait remains as the nonanimated fallback.
+    const warming=warmSectionImages(id);
+    if(beforeReveal){
+      warming.catch(()=>{});
+      Promise.resolve(beforeReveal).then(revealSection,revealSection);
+    }else{
+      const deadline=new Promise(resolve=>setTimeout(resolve,1150));
+      Promise.race([warming,deadline]).then(revealSection,revealSection);
+    }
+  }
+
+  // Trial only: fly an exact visual clone of whichever of the 5 home cards
+  // was pressed. Original design-stage positions are never modified.
+  function openAnimatedHomeSection(card){
+    if(!card||homeEntryTransitionActive)return;
+    const id=card.dataset.section;
+    if(!SECTIONS[id])return;
+    const rect=card.getBoundingClientRect();
+    if(!card.animate||!rect.width||!rect.height||
+        window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){
+      openSection(id);return;
+    }
+    homeEntryTransitionActive=true;
+    const flight=document.createElement('div');
+    flight.dataset.homeSectionFlight=id;
+    Object.assign(flight.style,{
+      position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',height:rect.height+'px',
+      transformOrigin:'center center',pointerEvents:'none',
+      willChange:'transform, opacity',zIndex:'2147483000'
+    });
+    const copy=card.cloneNode(true);
+    copy.removeAttribute('data-section');
+    copy.setAttribute('aria-hidden','true');
+    copy.tabIndex=-1;
+    Object.assign(copy.style,{
+      position:'absolute',left:'0',top:'0',
+      width:card.offsetWidth+'px',height:card.offsetHeight+'px',
+      transformOrigin:'top left',
+      transform:'scale('+(rect.width/card.offsetWidth)+')',
+      pointerEvents:'none'
+    });
+    flight.appendChild(copy);
+    document.body.appendChild(flight);
+    const previousOpacity=card.style.opacity;
+    card.style.opacity='0';
+    restoreHomeSourceCard=()=>{
+      card.style.opacity=previousOpacity;
+      restoreHomeSourceCard=null;
+    };
+    let done=false;
+    let safetyTimer=0;
+    const restore=()=>{
+      if(done)return;
+      done=true;
+      clearTimeout(safetyTimer);
+      flight.remove();
+      // When the moving card disappears at 1040ms, the two full screens are
+      // still dissolving. Do not let the original tile flash back underneath.
+      if(sectionScreen.dataset.entryCrossfade!=='running')
+        restoreHomeSourceCard?.();
+      homeEntryTransitionActive=false;
+    };
+    // Keep the entire artwork and Armenian title together, never move the
+    // underlying menu card or its fixed positions in the 709px design stage.
+    const scale=Math.max(1.1,Math.min(2.75,
+      (window.innerWidth-22)/rect.width,
+      (window.innerHeight-100)/rect.height));
+    const dx=window.innerWidth/2-(rect.left+rect.width/2);
+    const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    const destination='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    try{
+      // Single uninterrupted composite animation. Opacity fades WHILE the
+      // card travels, never after a mid-flight pause or a second animation.
+      const flightAnimation=flight.animate([
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1},
+        {transform:destination,opacity:0}
+      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      flightAnimation.finished.then(restore,restore);
+      // All five section pages have identical gentle stationary dissolve.
+      // Existing image warming/game initialization remain section-specific.
+      // 230ms lead, 1100ms crossfade, 1040ms uninterrupted tile flight.
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,230));
+      openSection(id,revealDuringFlight,true);
+      safetyTimer=setTimeout(restore,1900);
+    }catch(error){
+      console.warn('Home section transition fallback:',id,error);
+      restore();
+      openSection(id);
+    }
   }
 
   function saveMagicUnlocked(){
@@ -1036,34 +1189,159 @@
     sectionScreen.classList.remove('is-visible');
     setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
   }
-  function openGame(section,game){
-    // Warm and decode the first eight cards while the existing menu stays
-    // visible. No all-gallery download and no white cards on cold entry.
+  // V288 inner game-card pilot: same 1040ms continuously moving/fading
+  // card and 1100ms stationary two-screen dissolve as the five home tiles.
+  // On cold entry preserve current gallery/3D warmup before revealing a page.
+  let innerGameEntryActive=false;
+  function beginInnerGameFlight(card,game){
+    if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return null;
+    const rect=card.getBoundingClientRect();
+    if(!rect.width||!rect.height)return null;
+    const flight=document.createElement('div');
+    flight.dataset.innerGameFlight=game.id;
+    Object.assign(flight.style,{
+      position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',height:rect.height+'px',transformOrigin:'center center',
+      pointerEvents:'none',willChange:'transform, opacity',zIndex:'2147483000'
+    });
+    const copy=card.cloneNode(true);
+    copy.removeAttribute('data-game');
+    copy.setAttribute('aria-hidden','true');
+    copy.tabIndex=-1;
+    Object.assign(copy.style,{
+      position:'absolute',left:'0',top:'0',
+      width:card.offsetWidth+'px',height:card.offsetHeight+'px',
+      transformOrigin:'top left',
+      transform:'scale('+(rect.width/card.offsetWidth)+')',
+      pointerEvents:'none'
+    });
+    flight.appendChild(copy);
+    document.body.appendChild(flight);
+    const oldOpacity=card.style.opacity;
+    card.style.opacity='0';
+    let restored=false;
+    let flightFinished=false;
+    const restoreCard=()=>{
+      if(restored)return;
+      restored=true;
+      card.style.opacity=oldOpacity;
+      innerGameEntryActive=false;
+    };
+    const cleanup=()=>{
+      flight.remove();
+      flightFinished=true;
+      if(sectionScreen.hidden)restoreCard();
+    };
+    const dx=window.innerWidth/2-(rect.left+rect.width/2);
+    const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    const scale=Math.max(1.1,Math.min(2.75,
+      (window.innerWidth-22)/rect.width,(window.innerHeight-100)/rect.height));
+    const to='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    try{
+      const anim=flight.animate([
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1},
+        {transform:to,opacity:0}
+      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      anim.finished.then(cleanup,cleanup);
+      // Not coupled to gallery/3D network readiness; no long overlay stall.
+      const safety=setTimeout(cleanup,1900);
+      anim.finished.then(()=>clearTimeout(safety),()=>clearTimeout(safety));
+      return {restoreCard,finished:()=>flightFinished,cleanup};
+    }catch(error){
+      console.warn('Inner game flight fallback:',game.id,error);
+      cleanup();
+      restoreCard();
+      return null;
+    }
+  }
+  function openGame(section,game,card){
+    if(innerGameEntryActive)return;
     const nav=++galleryNavigationId;
+    const flight=card?beginInnerGameFlight(card,game):null;
+    if(flight)innerGameEntryActive=true;
     const needsSpaceEngine=game.kind==='spaceSearch'||game.kind==='constellationQuest';
     const spaceEngineReady=needsSpaceEngine?(game.kind==='constellationQuest'?ensureConstellationQuestLoaded():ensureSpace3DLoaded()).catch(()=>{}):null;
     const launch=()=>{
-      if(nav!==galleryNavigationId||sectionScreen.hidden)return;
-      cleanupGame();activityContent.classList.toggle('space-preparing',needsSpaceEngine);
+      if(nav!==galleryNavigationId||sectionScreen.hidden){
+        flight?.cleanup();flight?.restoreCard();
+        return;
+      }
+      cleanupGame();
+      activityContent.classList.toggle('space-preparing',needsSpaceEngine);
       currentGame=game;activityScreen.dataset.game=game.id;
       activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;
-      updateStars();sectionScreen.classList.remove('is-visible');
-      setTimeout(()=>{
-        if(nav!==galleryNavigationId)return;
-        sectionScreen.hidden=true;activityScreen.hidden=false;
-        requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));
-        renderGame(game);
-      },150);
+      updateStars();
+      if(!flight){
+        // Unmodified fallback for reduced motion / missing WAAPI.
+        sectionScreen.classList.remove('is-visible');
+        setTimeout(()=>{
+          if(nav!==galleryNavigationId)return;
+          sectionScreen.hidden=true;activityScreen.hidden=false;
+          requestAnimationFrame(()=>activityScreen.classList.add('is-visible'));
+          renderGame(game);
+        },150);
+        return;
+      }
+      // The activity view is prepared INVISIBLY, at its final position.
+      // No default translateY(8px) movement or hard screen cut.
+      activityScreen.hidden=false;
+      activityScreen.dataset.innerGameCrossfade='running';
+      activityScreen.dataset.innerGameEntry=game.id;
+      activityScreen.style.setProperty('transition','none','important');
+      activityScreen.style.setProperty('opacity','0','important');
+      activityScreen.style.setProperty('transform','none','important');
+      sectionScreen.style.setProperty('transition','none','important');
+      sectionScreen.style.setProperty('opacity','1','important');
+      sectionScreen.style.setProperty('transform','none','important');
+      sectionScreen.style.pointerEvents='none';
+      activityScreen.style.pointerEvents='none';
+      renderGame(game);
+      void activityScreen.offsetWidth;
+      let started=false;
+      const start=()=>{
+        if(started||nav!==galleryNavigationId)return;
+        started=true;
+        // Same look, timing and easing as the user-liked Nature home entry.
+        activityScreen.style.setProperty('transition',
+          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        sectionScreen.style.setProperty('transition',
+          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        activityScreen.classList.add('is-visible');
+        activityScreen.style.setProperty('opacity','1','important');
+        sectionScreen.style.setProperty('opacity','0','important');
+        setTimeout(()=>{
+          if(nav!==galleryNavigationId)return;
+          sectionScreen.hidden=true;
+          sectionScreen.classList.remove('is-visible');
+          flight.restoreCard();
+          sectionScreen.style.removeProperty('opacity');
+          sectionScreen.style.removeProperty('transition');
+          sectionScreen.style.removeProperty('transform');
+          sectionScreen.style.removeProperty('pointer-events');
+          activityScreen.style.removeProperty('opacity');
+          activityScreen.style.removeProperty('transition');
+          activityScreen.style.removeProperty('transform');
+          activityScreen.style.removeProperty('pointer-events');
+          delete activityScreen.dataset.innerGameCrossfade;
+          delete activityScreen.dataset.innerGameEntry;
+        },1180);
+      };
+      const fallback=setTimeout(start,45);
+      requestAnimationFrame(()=>{clearTimeout(fallback);start()});
     };
+    // Warm while the already-started card motion is flying. The incoming
+    // page must not show an empty canvas on the FIRST cold Space/3D entry.
+    let prep=Promise.resolve();
     if(needsSpaceEngine){
-      // The old code revealed a cream empty stage while the 3D module
-      // was still downloading. Keep the space section painted instead.
-      const deadline=new Promise(resolve=>setTimeout(resolve,3200));
-      Promise.race([spaceEngineReady,deadline]).then(launch,launch);
+      prep=Promise.race([spaceEngineReady,new Promise(resolve=>setTimeout(resolve,3200))]);
     }else if(GALLERY_WARM_ITEMS[game.kind]){
-      const timeout=new Promise(resolve=>setTimeout(resolve,1250));
-      Promise.race([warmGalleryPreviews(game.kind,4),timeout]).then(launch,launch);
-    }else launch();
+      prep=Promise.race([warmGalleryPreviews(game.kind,4),
+        new Promise(resolve=>setTimeout(resolve,1250))]);
+    }
+    if(flight){
+      // 230ms minimum lead, without an artificial pause when resources are hot.
+      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,230))]).then(launch,launch);
+    }else prep.then(launch,launch);
   }
   function backToSection(){++galleryNavigationId;cleanupGame();activityScreen.classList.remove('is-visible');setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160)}
   // Star milestones are PER GAME VISIT, just like the visible 0/0 score.
@@ -2560,7 +2838,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=287',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=288',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

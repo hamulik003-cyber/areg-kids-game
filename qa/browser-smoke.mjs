@@ -43,9 +43,80 @@ try{
  await page.waitForSelector('#homeScreen .section-card');
  for(const section of ['nature','space','mind','create','magic']){
   if(process.env.AREG_BROWSER==='webkit')console.log('WEBKIT BEFORE CLICK '+JSON.stringify(await diag(section+'-before')));
-  await page.locator('.section-card[data-section="'+section+'"]').click();
+  // Every home tile must share the user-approved Nature-style portal trial.
+  const entryPilot=await page.locator('.section-card[data-section="'+section+'"]').evaluate((card,id)=>{
+    const incoming=document.querySelector('#sectionScreen');
+    const home=document.querySelector('#homeScreen');
+    const proof={started:false,targeted:false,simultaneous:false,stationary:false,correctSection:false};
+    const record=()=>{
+      if(incoming.dataset.entryCrossfade==='running')proof.started=true;
+      if(incoming.dataset.entryCrossfade==='running' &&
+         incoming.dataset.entrySection===id &&
+         incoming.style.opacity==='1' && home.style.opacity==='0' &&
+         incoming.style.transition.includes('1100ms') &&
+         home.style.transition.includes('1100ms')){
+        proof.targeted=true;
+        proof.correctSection=true;
+        if(!incoming.hidden && home.style.visibility!=='hidden')
+          proof.simultaneous=true;
+        if(incoming.style.transform==='none' &&
+           !incoming.style.transition.includes('transform') &&
+           getComputedStyle(incoming).transform==='none')
+          proof.stationary=true;
+      }
+    };
+    const observer=new MutationObserver(record);
+    observer.observe(incoming,{attributes:true,attributeFilter:['style','hidden','data-entry-crossfade','data-entry-section','class']});
+    observer.observe(home,{attributes:true,attributeFilter:['style']});
+    window.__aregHomeEntryProof=proof;
+    card.click();
+    record();
+    const flight=document.querySelector('[data-home-section-flight]');
+    const animations=flight?.getAnimations()||[];
+    const frames=animations[0]?.effect?.getKeyframes()||[];
+    return {flight:!!flight,flightSection:flight?.dataset.homeSectionFlight,
+      animationCount:animations.length,sourceHidden:card.style.opacity==='0',
+      frameCount:frames.length,firstOpacity:Number(frames[0]?.opacity),
+      lastOpacity:Number(frames.at(-1)?.opacity),
+      duration:animations[0]?.effect?.getTiming()?.duration,
+      finalTransform:frames.at(-1)?.transform};
+  },section);
+  if(!entryPilot.flight||entryPilot.flightSection!==section||
+     entryPilot.animationCount!==1||!entryPilot.sourceHidden||
+     entryPilot.frameCount!==2||entryPilot.firstOpacity!==1||
+     entryPilot.lastOpacity!==0||entryPilot.duration!==1040||
+     !entryPilot.finalTransform?.includes('translate3d('))
+    throw Error('V288 all-section flight missing or incorrect '+section+' '+JSON.stringify(entryPilot));
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
+  try{
+    await page.waitForFunction(()=>window.__aregHomeEntryProof?.targeted===true,
+      null,{timeout:4500});
+  }catch(error){
+    const detail=await page.evaluate(()=>{
+      const page=document.querySelector('#sectionScreen'),home=document.querySelector('#homeScreen');
+      return {proof:window.__aregHomeEntryProof,
+        page:{hidden:page.hidden,section:page.dataset.section,entry:page.dataset.entrySection,
+          animationState:page.dataset.entryCrossfade,opacity:page.style.opacity,
+          transition:page.style.transition,transform:page.style.transform},
+        home:{visible:home.style.visibility,opacity:home.style.opacity},
+        flyingCard:document.querySelector('[data-home-section-flight]')?.dataset.homeSectionFlight};
+    });
+    throw Error('V288 all-section crossfade did not start '+section+' '+JSON.stringify(detail)+' / '+error.message);
+  }
+  const proof=await page.evaluate(()=>window.__aregHomeEntryProof);
+  if(!proof.started||!proof.targeted||!proof.simultaneous||
+     !proof.stationary||!proof.correctSection)
+    throw Error('V288 portal fade not stationary/soft for '+section+' '+JSON.stringify(proof));
   await page.waitForSelector('#sectionScreen.is-visible');
+  await page.waitForFunction(()=>{
+    const sectionScreen=document.querySelector('#sectionScreen');
+    return !document.querySelector('[data-home-section-flight]') &&
+      !sectionScreen.dataset.entryCrossfade &&
+      document.querySelector('#homeScreen').style.visibility==='hidden';
+  },null,{timeout:4500});
+  const reset=await page.locator('.section-card[data-section="'+section+'"]').evaluate(card=>card.style.opacity);
+  if(reset!=='')throw Error('V288 source card not restored after '+section+' entry');
+
   if(section==='magic'){
    const n=await page.locator('.magic-collect-card').count();
    if(n<35)throw Error('Magic rewards missing: '+n);
@@ -110,18 +181,64 @@ try{
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
     const card=page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]');
+    // Install evidence recorder BEFORE tap; WebKit can finish an animation
+    // before Playwright's click promise returns on a slow CI worker.
+    await card.evaluate(card=>{
+      const inner=document.querySelector('#activityScreen');
+      const outer=document.querySelector('#sectionScreen');
+      const proof={flight:false,oneContinuousFlight:false,
+        crossfade:false,stationary:false,overlap:false};
+      const record=()=>{
+        const flight=document.querySelector('[data-inner-game-flight]');
+        if(flight){
+          proof.flight=true;
+          const a=flight.getAnimations()[0];
+          const frames=a?.effect?.getKeyframes()||[];
+          if(flight.getAnimations().length===1 &&
+             a?.effect?.getTiming()?.duration===1040 &&
+             frames.length===2 && Number(frames[0].opacity)===1 &&
+             Number(frames[1].opacity)===0 &&
+             frames[1]?.transform?.includes('translate3d('))
+            proof.oneContinuousFlight=true;
+        }
+        if(inner.dataset.innerGameCrossfade==='running' &&
+           inner.style.transition.includes('1100ms') &&
+           outer.style.transition.includes('1100ms') &&
+           inner.style.opacity==='1' && outer.style.opacity==='0'){
+          proof.crossfade=true;
+          if(inner.style.transform==='none' &&
+             !inner.style.transition.includes('transform'))
+            proof.stationary=true;
+          if(!inner.hidden && !outer.hidden)proof.overlap=true;
+        }
+      };
+      const observer=new MutationObserver(record);
+      observer.observe(document.body,{childList:true});
+      observer.observe(inner,{attributes:true,attributeFilter:['style','class','hidden','data-inner-game-crossfade']});
+      observer.observe(outer,{attributes:true,attributeFilter:['style','class','hidden']});
+      window.__aregInnerGameProof=proof;
+      window.__aregInnerGameDisconnect=()=>observer.disconnect();
+    });
     await card.click({force:process.env.AREG_BROWSER==='webkit'});
     try{
       await page.waitForSelector('#activityScreen.is-visible',{timeout:7500});
     }catch(error){
-      // Animated WebKit tiles can miss a synthetic click while the previous
-      // 3D context is releasing. Retry an actual DOM click, and fail if the
-      // activity still does not appear rather than silently skipping it.
       if(process.env.AREG_BROWSER!=='webkit')throw error;
       console.log('WEBKIT ACTIVITY RETRY '+JSON.stringify({section,id,diag:await diag(section+'/'+id)}));
       await card.evaluate(element=>element.click());
       await page.waitForSelector('#activityScreen.is-visible',{timeout:30000});
     }
+    await page.waitForFunction(()=>window.__aregInnerGameProof?.crossfade===true,
+      null,{timeout:6500});
+    const proof=await page.evaluate(()=>window.__aregInnerGameProof);
+    if(!proof.flight||!proof.oneContinuousFlight||!proof.crossfade||
+       !proof.stationary||!proof.overlap)
+      throw Error('V288 inner game portal transition missing '+section+'/'+id+' '+JSON.stringify(proof));
+    await page.waitForFunction(()=>!document.querySelector('#activityScreen')?.dataset.innerGameCrossfade,
+      null,{timeout:5500});
+    const restored=await card.evaluate(el=>el.style.opacity);
+    if(restored!=='')throw Error('V288 inner tile not restored for '+section+'/'+id);
+    await page.evaluate(()=>window.__aregInnerGameDisconnect?.());
     if(id==='space-search'||id==='constellation-game'){
      await page.waitForSelector('#activityContent canvas.s3d-canvas',{timeout:30000});
      if(id==='space-search')await page.waitForFunction(()=>document.querySelector('.s3d-prompt strong')?.textContent?.includes('Գտի՛ր'),null,{timeout:30000});

@@ -326,7 +326,7 @@ check(app.includes("stars-=item.cost")&&
   html.includes('styles.css?v=285'),
   'V282 bonus-field purchases must debit stars once and remove visible black lock disk, including previously unlocked cards');
 const refresh=read('refresh.html');
-check(refresh.includes("service-worker.js?v=287")&&
+check(refresh.includes("service-worker.js?v=288")&&
       refresh.includes("navigator.serviceWorker.register(")&&
       refresh.includes("registration.update()")&&
       refresh.includes("index.html")&&

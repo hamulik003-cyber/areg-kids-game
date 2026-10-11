@@ -242,6 +242,11 @@ const true360Pending=new Map();
 function loadTrue360Image(path){
   return new Promise((resolve,reject)=>{
     const img=new Image();
+    // GitHack preview redirects .png/.jpg to raw.githubusercontent.com.
+    // Explicit anonymous CORS must precede src: without it those images
+    // taint WebGL textures and planet spheres can render black on iPhone.
+    // Safe for canonical same-origin GitHub Pages and IndexedDB blob UVs.
+    img.crossOrigin='anonymous';
     img.decoding='async';
     img.onload=()=>resolve(img);
     img.onerror=reject;
