@@ -1,3 +1,8 @@
+## 2026-10-11 — V289 test-cache safety for a FUTURE approved release (NOT deployed)
+- In the V289 preview branch only, updated HTML script URL to `app.js?v=289`, service worker registration/refresh to `service-worker.js?v=289`, cache keys to `areg-v289-core/runtime`, and **essential** lazy Space 3D import URL to `space-3d-games.js?v=289`, so if later approved and merged, installed DotKiosk cannot accidentally keep using the OLD buggy 3D module cached under `?v=285`.
+- The service-worker MEDIA_CACHES array remains EXACTLY `areg-gallery-preview-v238`, `areg-space-visited-v1`, `areg-local-audio-v1` — stored media and user settings/stars are not cleared. Other approved 3D textures, stars, music, and gameplay untouched.
+- PWA update test and full-audit expected import/refresh references updated accordingly. This is an isolated V289 pilot only, NOT authorization to merge to main.
+
 ## 2026-10-11 — V289 TRIAL FIX: "Գտիր ճիշտ մոլորակը" duplicate targets and missing 30-question result
 - User playing production V288 on real iPhone/DotKiosk reported that some prompts (e.g. Մակեմակե) recur twice before the game finishes and previously approved 30-question celebratory result modal (examples 7/30 or 30/30) no longer appears as expected.
 - Root cause proven in V288 code `space-3d-games.js`: `createRoundPlan()` immediately consumes the free-running random bag, while `useLoadedPlan()` may silently REPLACE the target with a different already-used item when a PNG/UV is not ready. `seenTargets.size===pool.length` then may never become true, so `session.showCycleResult()` is never reached. The actual UI/modal code remains in `space-finding-session.js`, untouched.
