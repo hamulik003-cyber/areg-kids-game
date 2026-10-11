@@ -88,8 +88,24 @@ try{
    // WebKit can take >1s to return from clicking or logging. Record the
    // overlap in a MutationObserver installed BEFORE clicking, rather than
    // require the animation to remain mid-flight when assertions resume.
-   await page.waitForFunction(()=>window.__aregNatureCrossfadeProof?.targeted===true,
-     null,{timeout:4500});
+   try{
+     await page.waitForFunction(()=>window.__aregNatureCrossfadeProof?.targeted===true,
+       null,{timeout:4500});
+   }catch(error){
+     const details=await page.evaluate(()=>{
+       const sec=document.querySelector('#sectionScreen'),home=document.querySelector('#homeScreen');
+       return {proof:window.__aregNatureCrossfadeProof,
+         section:{hidden:sec.hidden,classes:sec.className,
+           data:sec.dataset.natureCrossfade,opacity:sec.style.opacity,
+           cssOpacity:getComputedStyle(sec).opacity,
+           transition:sec.style.transition,transform:sec.style.transform},
+         home:{visibility:home.style.visibility,opacity:home.style.opacity,
+           cssOpacity:getComputedStyle(home).opacity,transition:home.style.transition},
+         flight:!!document.querySelector('[data-nature-section-flight]'),
+         errs:window.__aregNatureDebugErrors||null};
+     });
+     throw Error('V288 WebKit crossfade capture timed out '+JSON.stringify(details)+' / '+error.message);
+   }
    const proof=await page.evaluate(()=>window.__aregNatureCrossfadeProof);
    if(!proof.started||!proof.targeted||!proof.simultaneous)
      throw Error('V288 Nature must continuously crossfade home and section together '+JSON.stringify(proof));
