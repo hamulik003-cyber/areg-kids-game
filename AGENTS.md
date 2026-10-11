@@ -1,5 +1,15 @@
 # AREG Kids Game — coding continuity and regression rules
 
+## ՀԱՍՏԱՏՎԱԾ ԳՈՐԾՈՂ ՏԱՐԲԵՐԱԿ — V287 (FINAL)
+
+- **Միակ պաշտոնական խաղային տարբերակը՝ V287**։ Կանոնական բնօրինակ commit՝ `34548b66aeb1cadde0fb1e643830de091d2172a6`, ամբողջական runtime Git tree՝ `99f1227e52a9f9ba978ba4708a33b229730cf01c`։
+- Գործող repository-ն՝ `hamulik003-cyber/areg-kids-game`, ճյուղը՝ `main`։ Խաղի հասցեն՝ https://hamulik003-cyber.github.io/areg-kids-game/։
+- Պահպանվում են V287-ի բոլոր հաստատված մենյուները, պատկերները, համաստեղությունների 38 պատկերներն ու դիրքերը, Հայկի գոտու երեք լուսավոր աստղերը, անիմացիաները, խաղային անցումները, 10 ճիշտ պատասխանի աստղային համակարգը, նվերները, ձայնային և տեղական երաժշտության կարգավորումները, DotKiosk/PWA-ի քեշի և օֆլայն աշխատանքի տրամաբանությունը։
+- Հետագա զրույցներում **այս V287 վիճակն է միակ ելակետը**։ Ստորև պահպանված ավելի հին բաժինների `LATEST`, `CURRENT` կամ `PRE-FINAL` վերնագրերը պատմական են և չեն փոխարինում այս հաստատված վիճակին։
+- Մի՛ փոփոխիր `main`-ը և մի՛ վերագրիր V287-ի հաստատված գրաֆիկան կամ անիմացիաները առանց օգտվողի նոր հստակ պահանջի։ Նոր աշխատանքը սկզբում փորձարկել առանձին ճյուղում։
+- Հրապարակման և իրական iPhone/DotKiosk ցուցադրման ստուգման մասին եզրակացություն անել միայն համապատասխան հաստատված արդյունքներից. սարքի տվյալներն ու պահված աստղերը մաքրել կամ հավելվածը հեռացնել չի պահանջվում։
+
+
 This is an **existing production PWA** for children. The active branch is `main`. Do NOT rebuild it from scratch or restore an older version just because another chat has partial context.
 
 **New-chat recovery rule (V264+):** FIRST read CURRENT_STATUS.md (LAST chronological section), PROJECT_HANDOFF.md (full project decisions and recent conversation checkpoints), then AGENTS.md. Inspect live GitHub main SHA/Actions/Pages. Before modifications protect current HEAD; after each meaningful user request record decisions, versions, backups, CI and next unfinished action in both handoff documents. Do not infer the latest requirement from old V259/V263 summaries: V264 requires 280ms planet-style fading of THREE wrong constellation choices BEFORE the independent hero starts moving. These files preserve work decisions rather than a verbatim ChatGPT transcript.
