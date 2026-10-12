@@ -36,7 +36,9 @@ try{
   const svg=pic.querySelector('svg');
   const wheel=svg?.querySelector('.areg-car-wheel > g');
   const anim=pic.getAnimations().find(a=>a.effect?.getKeyframes()?.some(k=>String(k.transform||'').includes('translate3d')));
-  const xs=anim?.effect.getKeyframes().map(k=>Number(String(k.transform||'').match(/translate3d\(\s*(-?[\d.]+)px/)?.[1]));
+  const frames=anim?.effect.getKeyframes()||[];
+  const xs=frames.map(k=>Number(String(k.transform||'').match(/translate3d\(\s*(-?[\d.]+)px/)?.[1]));
+  const scales=frames.map(k=>Number(String(k.transform||'').match(/scale\(\s*([\d.]+)/)?.[1]));
   return {
    originalIdentity:card===window.__aregOriginalCard,
    onlyCard:document.querySelectorAll('.areg-car-pilot .magic-collect-card').length===1,
@@ -51,8 +53,10 @@ try{
    rear:svg?.querySelector('#areg-car-rear')?.dataset.end,
    actionStarted:!!stage.dataset.actionStartedAt,
    direction:stage.dataset.travelDirection,
-   positions:xs,
-   noReverse:xs?.length>2&&xs.every(Number.isFinite)&&xs.every((v,i)=>i===0||v<=xs[i-1])&&xs.at(-1)<xs[0],
+   motionStyle:stage.dataset.motionStyle,
+   positions:xs,scales,
+   centeredAndFixedSize:xs.length===6&&xs.every(Number.isFinite)&&xs.every(x=>Math.abs(x)<.01)&&
+     scales.length===xs.length&&scales.every(Number.isFinite)&&scales.every(n=>Math.abs(n-1)<.0001),
    unchangedStorage:!localStorage.getItem('areg-magic-unlocked-v1')&&!localStorage.getItem('areg-stars-v35')
   };
  });
@@ -60,8 +64,17 @@ try{
    driving.pictureCount!==1||driving.svgFacing!=='left'||driving.wheels!==2||
    !driving.wheelAnim?.includes('areg-wheel-turn')||driving.front!=='front'||
    driving.rear!=='rear'||!driving.actionStarted||driving.direction!=='left'||
-   !driving.noReverse||!driving.unchangedStorage)throw Error('Single-card left-moving 3D animation FAIL: '+JSON.stringify(driving));
+   !driving.centeredAndFixedSize||driving.motionStyle!=='center-locked-parallax'||!driving.unchangedStorage)throw Error('Single-card left-moving 3D animation FAIL: '+JSON.stringify(driving));
+ // Compare real painted car size and center at two different moments while
+ // scenery scrolls; this catches unexpected scale/translation on iPhone.
+ const carStart=await page.locator('#car .magic-picture').boundingBox();
  await page.waitForTimeout(1800);
+ const carLater=await page.locator('#car .magic-picture').boundingBox();
+ const xCenter=r=>r?.x+r?.width/2;
+ if(!carStart||!carLater||Math.abs(carStart.width-carLater.width)>1.1||
+    Math.abs(carStart.height-carLater.height)>1.1||
+    Math.abs(xCenter(carStart)-xCenter(carLater))>1.1)
+  throw Error('Car grew or drifted sideways during five-second drive: '+JSON.stringify({carStart,carLater}));
  if(await page.locator('#car .areg-car-pilot-stage[data-live="1"]').count()!==1)
   throw Error('Physical action stopped too early (must last 5000ms)');
  await page.waitForFunction(()=>Number(document.querySelector('#car .areg-car-pilot-stage')?.dataset.actionMs)>=4950,null,{timeout:8000});
@@ -97,7 +110,7 @@ try{
     ending.report?.cardCount!==1||ending.report?.errorPx>2)
    throw Error('Zero-frame-swap original-card return FAIL: '+JSON.stringify(ending));
  if(errors.length)throw Error('JS page error(s): '+errors.join('; '));
- console.log('V291 SINGLE ORIGINAL CARD, ZERO CLONE, 5s LEFT DRIVE PASS ('+
+ console.log('V291 CENTER-LOCKED 100%-SCALE ORIGINAL CAR, ZERO CLONE, 5s DRIVE PASS ('+
    (process.env.AREG_BROWSER||'chromium')+') '+JSON.stringify({actionDuration,driving,ending}));
 }finally{
  await browser?.close().catch(()=>{});
