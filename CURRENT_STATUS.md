@@ -1,3 +1,7 @@
+## 2026-10-13 — Deluxe 3D trial follow-up fix (UNAPPROVED)
+- After new live 24-shape trial, fixed geometry rendering: recess color brightness raised from 0.40 to 0.68 and shape well surfaces moved from z=1.520 to z=1.545 to prevent z-fighting against wood core. JS commit `2892af1c56ef0b3110744c7684033f6f1c165f41`. Updated HTML JS cache key to `20261013b` in commit `9ab07ff03ed2866485caf335e32643a2ab2df147`.
+- Render `dep-db6lqsd9fdbs73fsbt00` was started at preceding JS commit; check newest live deploy includes HTML cache fix before claiming updated version live. User Safari screenshot/video QA still pending. Main untouched.
+
 ## 2026-10-13 — New standalone premium 3D shape sorter trial (UNAPPROVED)
 - User explicitly asked to stop discussing and actually create the trial game, using assistant-built model rather than their OBJ. Protected main V290 at `5a730d3a10b03914dc9879da81f91f9626799ddb` was checked and left untouched.
 - New trial-only files: `mind-shapes-deluxe.html` (commit `b48f5b64311c5d17fdb397c093492b2ca63f5180`) and `mind-shapes-deluxe.js` (commit `3703ad0890ba1d1443a8669cb509478d4b4655f0`), crescent/semicircle polygon fix `bc55aee98efd8fc324b3e0445382ff1c64d46c9a`.
