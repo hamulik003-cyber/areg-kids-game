@@ -54,6 +54,13 @@ try{
    actionStarted:!!stage.dataset.actionStartedAt,
    direction:stage.dataset.travelDirection,
    motionStyle:stage.dataset.motionStyle,
+   cornerMask:{
+     sceneRadius:getComputedStyle(stage).borderTopLeftRadius,
+     parentRadius:getComputedStyle(card).borderTopLeftRadius,
+     parentClip:getComputedStyle(card).overflow,
+     sceneClip:getComputedStyle(stage).overflow,
+     sceneFullyVisible:parseFloat(getComputedStyle(stage).opacity)>.99
+   },
    positions:xs,scales,
    centeredAndFixedSize:xs.length===6&&xs.every(Number.isFinite)&&xs.every(x=>Math.abs(x)<.01)&&
      scales.length===xs.length&&scales.every(Number.isFinite)&&scales.every(n=>Math.abs(n-1)<.0001),
@@ -64,7 +71,10 @@ try{
    driving.pictureCount!==1||driving.svgFacing!=='left'||driving.wheels!==2||
    !driving.wheelAnim?.includes('areg-wheel-turn')||driving.front!=='front'||
    driving.rear!=='rear'||!driving.actionStarted||driving.direction!=='left'||
-   !driving.centeredAndFixedSize||driving.motionStyle!=='center-locked-parallax'||!driving.unchangedStorage)throw Error('Single-card left-moving 3D animation FAIL: '+JSON.stringify(driving));
+   !driving.centeredAndFixedSize||driving.motionStyle!=='center-locked-parallax'||
+   driving.cornerMask.sceneRadius!=='0px'||parseFloat(driving.cornerMask.parentRadius)<=0||
+   driving.cornerMask.parentClip!=='hidden'||driving.cornerMask.sceneClip!=='hidden'||
+   !driving.cornerMask.sceneFullyVisible||!driving.unchangedStorage)throw Error('Single-card left-moving 3D animation FAIL: '+JSON.stringify(driving));
  // Compare real painted car size and center at two different moments while
  // scenery scrolls; this catches unexpected scale/translation on iPhone.
  const carStart=await page.locator('#car .magic-picture').boundingBox();
