@@ -1,3 +1,9 @@
+## 2026-10-13 — USER REJECTED V5 FRAMING, RESTORE V4 AS ACTIVE BASELINE
+- User explicitly requested «չէ դիր նախորդ վիճակը» after trying the orientation-aware camera zoom-out in v5. Interpret as **reject V5 camera auto-fit** and restore the exact previously liked V4 look/behavior.
+- Active/user-selected trial baseline is **`mind-shapes-deluxe-v4.html` + `mind-shapes-deluxe-v4.js`**, URL https://areg-mind-games-trial-20261013.onrender.com/mind-shapes-deluxe-v4.html?v=20261013e . These V4 files are intact on the trial branch; no revert of their content needed. V5 files remain as an unapproved historical experiment, **not** the selected version.
+- V4 has a known issue: cube can intrude into the wooden frame at some tilted orientations, shown in user's screenshot. V5 attempted to fix by auto-zooming, but user disliked the result. **Do not reintroduce V5 auto-fit without explicit user approval.** Future solution should preserve V4 apparent size/composition and be discussed/tested separately.
+- Protected main `5a730d3a10b03914dc9879da81f91f9626799ddb` remains untouched. User has NOT approved merge. New chats must resume from V4, not newest v5 file or commit. No trial production code changed in this rollback; selection was by V4 entrypoint and documentation only.
+
 ## 2026-10-13 — Deluxe v5: portrait frame clipping fix from actual iPhone screenshot (PENDING USER QA)
 - User supplied an iPhone screenshot of v4 where the cube's corners intruded into/touched the wooden scene border at its initial tilted orientation; asked to calculate placement so the cube does not enter the frame.
 - Created **new reversible trial-only** `mind-shapes-deluxe-v5.js` commit `27ef47485af78bfb9c9ad0cd137713af00cb231a` and `mind-shapes-deluxe-v5.html` commit `ce6f2fea80c29eb8647d688becdca081a1cf61c5`. Preserved v4 and earlier approved-looking versions; protected main `5a730d3a10b03914dc9879da81f91f9626799ddb` untouched.
