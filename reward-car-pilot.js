@@ -17,7 +17,7 @@ async function flight(card,frames,duration,reduced){
 export async function playCarReward(sourceCard){
  if(active||!sourceCard?.isConnected||!sourceCard.classList.contains('is-unlocked'))return;
  active=true;
- let closing=false,completed=false,ride=null,entryAnimation=null;
+ let closing=false,completed=false,ride=null,entryAnimation=null,exitCardAnimation=null,exitCarAnimation=null;
  const controller=new AbortController();
  const oldFocus=document.activeElement;
  const originalStyle=sourceCard.getAttribute('style');
@@ -78,6 +78,11 @@ export async function playCarReward(sourceCard){
  function restore(){
    if(completed)return;
    completed=true;
+   // Cancel BOTH fill-forwards exit animations *before* re-parenting the
+   // original node. Otherwise their fixed-viewport transform leaks into the
+   // grid and causes precisely the final one-frame jump on iPhone WebKit.
+   exitCardAnimation?.cancel();
+   exitCarAnimation?.cancel();
    entryAnimation?.cancel();
    ride?.cancel();
    stage.remove();
@@ -117,6 +122,8 @@ export async function playCarReward(sourceCard){
        [{transform:movieTransform},{transform:'none'}],
        {duration:960,easing:'cubic-bezier(.2,.6,.23,1)',fill:'forwards'}
      );
+     exitCardAnimation=closingCard;
+     exitCarAnimation=closingCar;
      await Promise.all([closingCard.finished.catch(()=>{}),closingCar.finished.catch(()=>{})]);
    }else sourceCard.style.transform=start;
    // Check final coordinates BEFORE atomic restore; no extra visible frame.
