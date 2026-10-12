@@ -1159,6 +1159,17 @@
   }
 
   function animateMagicItem(card,motion){
+    // V291 isolated reward pilot: the existing first unlocked car card opens a
+    // true 3D road scene. Every other reward retains approved V290 behavior.
+    if(card?.dataset.id==='car'){
+      if(card.dataset.rewardPlaying==='1')return;
+      card.dataset.rewardPlaying='1';
+      import('./reward-car-pilot.js?v=291')
+        .then(scene=>scene.playCarReward(card))
+        .catch(error=>{console.warn('Car reward pilot unavailable:',error);showToast('Փորձիր նորից')})
+        .finally(()=>{delete card.dataset.rewardPlaying});
+      return;
+    }
     const pic=$('.magic-picture',card);
     if(!pic)return;
     const className=`magic-motion-${motion}`;
@@ -3015,7 +3026,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=290',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=291',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
