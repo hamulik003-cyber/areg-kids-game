@@ -102,7 +102,6 @@ function start3D(stage, reduced) {
     const undercar=new T.Mesh(new T.CircleGeometry(1.42,36),new T.MeshBasicMaterial({color:0x1c2630,transparent:true,opacity:.22,depthWrite:false}));
     undercar.rotation.x=-Math.PI/2;undercar.scale.y=1.22;undercar.position.set(-1.10,.03,2.5);scene.add(undercar);
     let raf=0,stopped=false,startedAt=0,lastFrame=0;
-    const frames=()=>{};
     const tick=now=>{
       if(stopped)return;
       if(!startedAt)startedAt=now;
@@ -156,7 +155,7 @@ export async function playCarReward(sourceCard) {
   let closed=false,dispose=()=>{},timer=0,flight=null;
   const close=async()=>{
     if(closed)return;
-    closed=true;clearTimeout(timer);dispose();
+    closed=true;document.removeEventListener('keydown',key);clearTimeout(timer);dispose();
     overlay.dataset.leave='1';
     if(!noMotion&&target.animate){
       try{const a=target.animate([{transform:'none',opacity:1},{transform:from,opacity:.1}],{duration:510,easing:'cubic-bezier(.45,0,.45,1)',fill:'forwards'});await a.finished;}catch{}
@@ -168,11 +167,6 @@ export async function playCarReward(sourceCard) {
   overlay.querySelector('.areg-car-pilot-shade').addEventListener('click',close);
   const key=e=>{if(e.key==='Escape'){e.preventDefault();close()}};
   document.addEventListener('keydown',key);
-  const fullClose=close;
-  // Use a short lifecycle and always remove the temporary key handler.
-  const exit=()=>{document.removeEventListener('keydown',key);return fullClose()};
-  overlay.querySelector('.areg-car-pilot-exit').onclick=exit;
-  overlay.querySelector('.areg-car-pilot-shade').onclick=exit;
   overlay.dataset.show='1';
   if(!noMotion&&target.animate){
     try{flight=target.animate([{transform:from,opacity:.88},{transform:'none',opacity:1}],{duration:740,easing:'cubic-bezier(.2,.18,.26,1)',fill:'forwards'});await flight.finished;}catch{}
@@ -185,5 +179,5 @@ export async function playCarReward(sourceCard) {
     console.warn('3D reward scene unavailable, showing the original car preview.',error);
     stage.innerHTML='<span class="areg-car-pilot-loading" aria-hidden="true">🚗</span>';
   }
-  timer=setTimeout(exit,noMotion?1200:3850);
+  timer=setTimeout(close,noMotion?1200:3850);
 }
