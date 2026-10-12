@@ -67,6 +67,7 @@ function start3D(stage, reduced) {
     renderer.setClearColor(0xb9dff2,1);
     renderer.domElement.setAttribute('aria-label','Եռաչափ մեքենան շարժվում է ճանապարհով');
     stage.replaceChildren(renderer.domElement);
+    stage.dataset.sceneMode='webgl';
     const scene=new T.Scene();
     scene.fog=new T.Fog(0xb9dff2,28,70);
     const camera=new T.PerspectiveCamera(39,stage.clientWidth/Math.max(1,stage.clientHeight),.1,120);
@@ -178,6 +179,7 @@ export async function playCarReward(sourceCard) {
   }catch(error){
     console.warn('3D reward scene unavailable, showing the original car preview.',error);
     stage.innerHTML='<span class="areg-car-pilot-loading" aria-hidden="true">🚗</span>';
+    stage.dataset.sceneMode='fallback';
   }
   timer=setTimeout(close,noMotion?1200:3850);
 }
