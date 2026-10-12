@@ -1,3 +1,12 @@
+## PERMANENT USER REQUIREMENT — EXACT CONTINUITY AFTER EVERY CHANGE (2026-10-12)
+**User explicitly confirmed:** “ամեն փոփոխությունից հետո պահանջում եմ որ գրանցվի այտեղ ամեն բան որպիսի հաջորդ չաթերում ամեն բան պառզ լինի թէ ինչեր ենք արել ու ներկա պահին ինչ կետի վրա ենք կանգնած”. This is a standing rule for all future AREG Kids Game work, including QA-only fixes, security/backup work, documentation, trials, releases, regressions, and external user-performed steps.
+
+1. Before any action, obtain fresh live GitHub main SHA and read `AGENTS.md`, latest entries of `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, `NEW_CHAT_HANDOFF.md`, and the relevant topical handoff (currently `SECURITY_BACKUP_HANDOFF_2026-10-12.md`). Do not infer current production from old headings or the latest commit alone.
+2. After **each concrete change/action that affects the project, its release process, or its security state**, append a **dated, chronological checkpoint** to `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, and `NEW_CHAT_HANDOFF.md` in the **same safe trial branch/PR** (and topical document if applicable). Include what the user requested; what was changed; exact paths/branch/PR/SHA where known; approved production/rollback baseline; test/CI/Pages/real device observations with evidence and failures; whether user approved it; what is pending; and the **exact next action**. For user-performed local-only steps, note they are reported by the user, not independently uploaded to GitHub.
+3. Do not falsely claim any user approval, live iPhone result, CI pass, deployment, external USB backup or account-setting change that hasn't been verified. An unmerged document on a trial branch is NOT yet in main; identify that honestly and merge document updates only with explicit user approval. No need to merge unapproved game changes just to store their history.
+4. Before ending a work session, make the most recent handoff entry an immediately usable **NEW CHAT START HERE** checkpoint, including the current branch and exact resume point. If a GitHub write is unavailable, tell the user and provide the handoff note to preserve manually; never silently pretend it was written.
+5. Never change protected approved gameplay, production main, live URL, service-worker caches, local stars/music or browser storage solely to update history. Documentation-only edits should not modify gameplay.
+
 # AREG Kids Game — coding continuity and regression rules
 
 ## ՀԱՍՏԱՏՎԱԾ ՆԱԽՆԱԿԱՆ ՎԵՐՋՆԱԿԱՆ ՏԱՐԲԵՐԱԿ — V290 (USER APPROVED 2026-10-11)
