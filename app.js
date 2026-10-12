@@ -1097,7 +1097,7 @@
       b.setAttribute('aria-label',unlocked?`${item.name}, բացված է`:`${item.name}, ${item.cost} աստղ`);
       b.innerHTML=`
         <span class="magic-picture-wrap">
-          <span class="magic-picture" aria-hidden="true">${item.icon}</span>
+          <span class="magic-picture" aria-hidden="true">${item.id==='car'?'<img src="./reward-car-art.svg" alt="" width="105" height="105" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain">':item.icon}</span>
           <span class="magic-aura" aria-hidden="true"></span>
           <span class="magic-sparkle magic-sparkle--1" aria-hidden="true">✦</span>
           <span class="magic-sparkle magic-sparkle--2" aria-hidden="true">✦</span>
@@ -1159,6 +1159,18 @@
   }
 
   function animateMagicItem(card,motion){
+    // V291 first-reward pilot: same red car asset, independent scene and wallet.
+    // All 50 cards share the NEW 5000ms active-action contract in this trial;
+    // legacy 49 animations stay experimental placeholders until each unique scene is approved.
+    if(card?.dataset.id==='car'){
+      if(card.dataset.rewardPlaying==='1')return;
+      card.dataset.rewardPlaying='1';
+      import('./reward-car-pilot.js?v=291')
+        .then(scene=>scene.playCarReward(card))
+        .catch(error=>{console.warn('Car reward pilot unavailable:',error);showToast('Փորձիր նորից')})
+        .finally(()=>{delete card.dataset.rewardPlaying});
+      return;
+    }
     const pic=$('.magic-picture',card);
     if(!pic)return;
     const className=`magic-motion-${motion}`;
@@ -1174,7 +1186,18 @@
     void pic.offsetWidth;
     pic.classList.add(className);
     card.classList.remove('magic-active');void card.offsetWidth;card.classList.add('magic-active');
-    setTimeout(()=>{pic.classList.remove(className);card.classList.remove('magic-active')},1900);
+    // Start at the same paint frame as the object's animation, NOT on card tap.
+    pic.style.animationDuration='var(--areg-legacy-action-cycle, 1500ms)';
+    pic.style.animationIterationCount='infinite';
+    const startedAt=performance.now();
+    card.dataset.rewardActionStart=String(startedAt);
+    setTimeout(()=>{
+      pic.classList.remove(className);
+      pic.style.removeProperty('animation-duration');
+      pic.style.removeProperty('animation-iteration-count');
+      card.classList.remove('magic-active');
+      card.dataset.rewardActionMs=String(Math.round(performance.now()-startedAt));
+    },5000);
   }
 
   /* V239 - decode the first gallery row before revealing its cards. */
@@ -3015,7 +3038,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=290',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=291',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
