@@ -53,37 +53,80 @@ export async function playCarReward(sourceCard){
  const onKey=e=>{if(e.key==='Escape'){e.preventDefault();void close()}};
  async function close(){
   if(closing)return;
-  closing=true;controller.abort();document.removeEventListener('keydown',onKey);window.removeEventListener('resize',placeCar);
-  // Reverse the entire opening as ONE coordinated move: both the overlay card
-  // and its *identical car image* finish at the original on-page rectangles.
+  closing=true;
+  controller.abort();
+  document.removeEventListener('keydown',onKey);
+  window.removeEventListener('resize',placeCar);
   if(movingRide?.playState==='running')movingRide.pause();
-  const currentTransform=getComputedStyle(movingCar).transform;
-  movingRide?.cancel();
-  const currentHero=movingCar.getBoundingClientRect();
-  const thumb=sourceCard.querySelector('.magic-picture img')?.getBoundingClientRect();
-  const sourceArt=thumb||{left:from.left+from.width*.25,top:from.top+from.height*.25,width:from.width*.5,height:from.height*.5};
-  const sx=from.width/to.width,sy=from.height/to.height;
-  const dx=(sourceArt.left-from.left)/sx-(currentHero.left-to.left);
-  const dy=(sourceArt.top-from.top)/sy-(currentHero.top-to.top);
-  const mx=sourceArt.width/(currentHero.width*sx),my=sourceArt.height/(currentHero.height*sy);
-  const finish='translateX(-50%) translate3d('+dx+'px,'+dy+'px,0) scale('+mx+','+my+')';
-  stage.dataset.live='0';stage.dataset.ending='1';stage.dataset.returnMatched='1';overlay.dataset.leaving='1';
-  await Promise.all([
-   flight(movingCar,[{transform:currentTransform},{transform:finish}],900,reduced),
-   flight(card,[{transform:'none',opacity:1},{transform:entry,opacity:1}],900,reduced)
-  ]);
-  // Verify the actual *rendered* last frame is indistinguishable in size and
-  // position from the initial in-grid car, across unequal card aspect ratios.
-  const originalRect=sourceCard.querySelector('.magic-picture img')?.getBoundingClientRect();
-  const finalRect=movingCar.getBoundingClientRect();
-  const errorPx=originalRect?Math.max(
-   Math.abs(finalRect.left-originalRect.left),
-   Math.abs(finalRect.top-originalRect.top),
-   Math.abs(finalRect.width-originalRect.width),
-   Math.abs(finalRect.height-originalRect.height)
-  ):null;
-  document.dispatchEvent(new CustomEvent('areg-car-return-check',{detail:{errorPx,referenceWidth:originalRect?.width,returnWidth:finalRect.width}}));
-  overlay.remove();active=false;
+  // The actual source card is our final frame, NOT a freshly displayed image.
+  // A visually identical clone flies toward that source while the cinematic
+  // card fades into it during the SAME 930ms reverse zoom. By the time we
+  // remove the overlay, the landing clone and real card are pixel-identical.
+  const destination=sourceCard.getBoundingClientRect();
+  const origin=card.getBoundingClientRect();
+  const landing=sourceCard.cloneNode(true);
+  landing.removeAttribute('id');
+  landing.setAttribute('aria-hidden','true');
+  landing.tabIndex=-1;
+  landing.classList.add('areg-car-pilot-landing');
+  Object.assign(landing.style,{
+    position:'fixed',left:destination.left+'px',top:destination.top+'px',
+    width:destination.width+'px',height:destination.height+'px',
+    margin:'0',transformOrigin:'0 0',opacity:'0',
+    pointerEvents:'none',zIndex:'7'
+  });
+  overlay.append(landing);
+  const sx=destination.width/origin.width,sy=destination.height/origin.height;
+  const back='translate3d('+
+    (destination.left+destination.width/2-origin.left-origin.width/2)+'px,'+
+    (destination.top+destination.height/2-origin.top-origin.height/2)+'px,0) scale('+sx+','+sy+')';
+  const grow='translate3d('+(origin.left-destination.left)+'px,'+
+    (origin.top-destination.top)+'px,0) scale('+
+    (origin.width/destination.width)+','+(origin.height/destination.height)+')';
+  stage.dataset.live='0';
+  stage.dataset.ending='1';
+  stage.dataset.returnMatched='1';
+  stage.dataset.returnMode='single-continuous-handoff';
+  overlay.dataset.leaving='1';
+  const duration=930;
+  const ease='cubic-bezier(.26,.54,.19,1)';
+  if(!reduced&&typeof card.animate==='function'){
+    const shrinking=card.animate([
+      {offset:0,transform:'none',opacity:1},
+      {offset:.61,transform:back,opacity:1},
+      {offset:.72,transform:back,opacity:.82},
+      {offset:1,transform:back,opacity:0}
+    ],{duration,easing:ease,fill:'forwards'});
+    // Important: only the LAST instant of the animated card is the original
+    // DOM clone, whose illustration / padding / object-fit match the real one.
+    const returning=landing.animate([
+      {offset:0,transform:grow,opacity:0},
+      {offset:.60,transform:grow,opacity:0},
+      {offset:.84,transform:grow,opacity:1},
+      {offset:1,transform:'none',opacity:1}
+    ],{duration,easing:ease,fill:'forwards'});
+    await Promise.all([shrinking.finished.catch(()=>{}),returning.finished.catch(()=>{})]);
+  }else{
+    landing.style.opacity='1';
+    card.style.opacity='0';
+  }
+  const rect=landing.getBoundingClientRect();
+  const originalRect=sourceCard.getBoundingClientRect();
+  const sourceArt=sourceCard.querySelector('.magic-picture img');
+  const cloneArt=landing.querySelector('.magic-picture img');
+  const errorPx=Math.max(
+    Math.abs(rect.left-originalRect.left),Math.abs(rect.top-originalRect.top),
+    Math.abs(rect.width-originalRect.width),Math.abs(rect.height-originalRect.height)
+  );
+  // Regression instrumentation only; no storage, stars, or gameplay writes.
+  document.dispatchEvent(new CustomEvent('areg-car-return-check',{detail:{
+    errorPx,referenceWidth:originalRect.width,returnWidth:rect.width,
+    sameImage:!!cloneArt&&cloneArt.getAttribute('src')===sourceArt?.getAttribute('src'),
+    mode:stage.dataset.returnMode,
+    phase:'landing-clone-before-overlay-removal'
+  }}));
+  overlay.remove();
+  active=false;
   if(oldFocus?.isConnected)oldFocus.focus({preventScroll:true});
  }
  get('.areg-car-pilot-exit').addEventListener('click',()=>void close());
