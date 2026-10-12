@@ -1,3 +1,8 @@
+## 2026-10-13 — Isolated Safari preview provisioned; deployment not yet verified
+- Render static service `srv-db6k0fg473hc739v92a0` created on trial branch `trial/mind-games-3d-2026-10-13`, URL `https://areg-mind-games-trial-20261013.onrender.com`, auto-deploy enabled, static publish path `.`.
+- Initial deploy `dep-db6k0g0473hc739v92tg` was `build_in_progress` when last checked; DO NOT claim live site is ready until deploy success and browser test.
+- Only four menu labels changed so far; actual 3D wooden cube gameplay still pending. Approved main untouched.
+
 ## 2026-10-13 — Mind games isolated trial: labels only (NOT APPROVED)
 - User explicitly requested beginning work in a separate trial branch, preserving approved V290 PRE-FINAL and all main runtime assets.
 - Created branch `trial/mind-games-3d-2026-10-13` from main `5a730d3a10b03914dc9879da81f91f9626799ddb`.
