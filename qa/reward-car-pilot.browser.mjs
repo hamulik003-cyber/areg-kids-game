@@ -20,6 +20,10 @@ try{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8776/reward-car-preview.html',{waitUntil:'domcontentloaded'});
  const before=await page.locator('#car .magic-picture img').getAttribute('src');
+ await page.evaluate(()=>{
+   window.__aregReturnMatch=null;
+   document.addEventListener('areg-car-return-check',e=>{window.__aregReturnMatch=e.detail},{once:true});
+ });
  await page.locator('#car').click();
  await page.locator('.areg-car-pilot-stage[data-live="1"]').waitFor({timeout:9000});
  const state=await page.evaluate(()=>{
@@ -32,7 +36,7 @@ try{
   const svg=stage.querySelector('.areg-car-pilot-hero svg');
   const ride=moving?.getAnimations().find(a=>a.effect?.getKeyframes()?.some(k=>String(k.transform||'').includes('translate3d')));
   const frameX=ride?.effect.getKeyframes().map(k=>Number(String(k.transform||'').match(/translate3d\(\s*(-?[\d.]+)px/)?.[1]));
-  const alwaysForward=!!frameX?.length&&frameX.every(Number.isFinite)&&frameX.every((x,i)=>i===0||x>=frameX[i-1])&&frameX.at(-1)>frameX[0];
+  const alwaysForward=!!frameX?.length&&frameX.every(Number.isFinite)&&frameX.every((x,i)=>i===0||x<=frameX[i-1])&&frameX.at(-1)<frameX[0];
   const front=svg?.querySelector('#areg-car-front');
   const rear=svg?.querySelector('#areg-car-rear');
   const groundY=stageRect.top+stageRect.height*.725;
@@ -55,8 +59,8 @@ try{
  });
  if(state.source!==before||state.mode!=='illustrated'||state.wheels!=='rotatable'||state.wheelCount!==2||
     !state.wheelRotation.includes('areg-wheel-turn')||!state.road||!state.trees||Math.abs(state.groundOffset)>18||
-    !state.started||!state.walletUnchanged||state.facing!=='right'||state.frontMarked!=='front'||
-    state.backMarked!=='rear'||!state.headlamp||!state.forwardOnly||state.travelDirection!=='right')
+    !state.started||!state.walletUnchanged||state.facing!=='left'||state.frontMarked!=='front'||
+    state.backMarked!=='rear'||!state.headlamp||!state.forwardOnly||state.travelDirection!=='left')
   throw Error('Same-art car/wheels/ground/wallet invariant FAIL: '+JSON.stringify(state));
  // Must NOT begin closing until at least five seconds of physical movement.
  await page.waitForTimeout(1800);
@@ -66,8 +70,10 @@ try{
  const duration=Number(await page.locator('.areg-car-pilot-stage').getAttribute('data-action-ms'));
  if(duration<4950||duration>5900)throw Error('Car action should be 5000ms from motion START; measured '+duration);
  await page.waitForFunction(()=>!document.querySelector('.areg-car-pilot'),null,{timeout:10000});
+ const match=await page.evaluate(()=>window.__aregReturnMatch);
+ if(!match||match.errorPx>4)throw Error('Card exit car-size/position mismatch: '+JSON.stringify(match));
  if(errors.length)throw Error('Page errors: '+errors.join('; '));
- console.log('V291 FIVE-SECOND ORIGINAL CAR PASS ('+(process.env.AREG_BROWSER||'chromium')+'): '+JSON.stringify({duration,state}));
+ console.log('V291 LEFT-FACING FIVE-SECOND ORIGINAL CAR PASS ('+(process.env.AREG_BROWSER||'chromium')+'): '+JSON.stringify({duration,state}));
 }finally{
  await browser?.close().catch(()=>{});
  server.kill('SIGTERM');
