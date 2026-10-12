@@ -1,16 +1,16 @@
 import * as THREE from './vendor/three.module.min.js';
 const $=id=>document.getElementById(id),stageEl=$('stage'),msg=$('message');
-const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(37,1,.1,50);camera.position.set(5,3.8,8.4);camera.lookAt(0,0,0);
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(37,1,.1,50);camera.position.set(4.2,3.15,7.3);camera.lookAt(0,0,0);
 const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.domElement.setAttribute('aria-label','Պտտվող 3D փայտե խորանարդ');stageEl.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xfff3d9,0x6b412b,2.25));
-const key=new THREE.DirectionalLight(0xffe7c1,3.0);key.position.set(-5,8,7);scene.add(key);
-const fill=new THREE.DirectionalLight(0xb8d8f9,1.3);fill.position.set(5,2,-5);scene.add(fill);
+scene.add(new THREE.HemisphereLight(0xfff3d9,0x6b412b,1.65));
+const key=new THREE.DirectionalLight(0xffe7c1,2.4);key.position.set(-5,8,7);scene.add(key);
+const fill=new THREE.DirectionalLight(0xb8d8f9,.95);fill.position.set(5,2,-5);scene.add(fill);
 const cube=new THREE.Group();scene.add(cube);
 function woodTexture(){const c=document.createElement('canvas');c.width=512;c.height=512;const x=c.getContext('2d');x.fillStyle='#dca66d';x.fillRect(0,0,512,512);let seed=717;function rand(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}for(let i=0;i<780;i++){const y=rand()*512,amp=rand()*6;x.beginPath();x.moveTo(0,y);for(let j=0;j<=512;j+=12)x.lineTo(j,y+Math.sin(j*.017+i)*amp);x.strokeStyle=rand()>.52?'#784422':'#fff1ce';x.globalAlpha=.025+rand()*.15;x.lineWidth=.5+rand()*2.5;x.stroke()}x.globalAlpha=1;const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
-const wood=new THREE.MeshStandardMaterial({map:woodTexture(),roughness:.66,metalness:0});
+const wood=new THREE.MeshStandardMaterial({map:woodTexture(),roughness:.85,metalness:0});
 const trim=new THREE.MeshStandardMaterial({color:0xb37a45,roughness:.66}),dark=new THREE.MeshStandardMaterial({color:0x3c2318,roughness:1}),cavityWall=new THREE.MeshStandardMaterial({color:0x8c522e,roughness:.9,side:THREE.DoubleSide});
 const body=new THREE.Mesh(new THREE.BoxGeometry(3.18,3.18,3.18),dark);cube.add(body);
-const borderGeo=new THREE.BoxGeometry(3.61,3.61,3.61);const borders=new THREE.LineSegments(new THREE.EdgesGeometry(borderGeo),new THREE.LineBasicMaterial({color:0xa76d39,transparent:true,opacity:.45}));cube.add(borders);
+
 const colors=['#e64c4b','#f2b92f','#3593ec','#48b66b','#9b66d8','#ef7d3d','#e955a1','#46c2c7','#7b99e6','#f2c24d','#70bb59','#df5d65','#7657cf','#ea8b4b','#49b2a5','#f083ba','#5a9ce4','#edaa38','#a37be5','#68c276','#ef7252','#47bdd1','#da679c','#a8b952'];
 function poly(n,r=.37,phase=-Math.PI/2){return Array.from({length:n},(_,i)=>[Math.cos(phase+i*2*Math.PI/n)*r,Math.sin(phase+i*2*Math.PI/n)*r])}
 function shapePoints(i){const p=[];const ellipse=(rx,ry,n=56)=>Array.from({length:n},(_,k)=>[Math.cos(k*2*Math.PI/n)*rx,Math.sin(k*2*Math.PI/n)*ry]);switch(i){
@@ -34,11 +34,11 @@ case 22:return [[-.42,-.3],[.42,-.3],[.42,.3],[.14,.3],[.14,.05],[-.14,.05],[-.1
 default:return [[-.4,-.35],[.4,-.35],[.4,-.12],[.15,-.12],[.15,.35],[-.15,.35],[-.15,-.12],[-.4,-.12]]}
 }
 function shape(i){let s=new THREE.Shape();shapePoints(i).forEach(([x,y],k)=>k?s.lineTo(x*1.27,y*1.27):s.moveTo(x*1.27,y*1.27));s.closePath();return s}
-function pieceMesh(i){const m=new THREE.Mesh(new THREE.ExtrudeGeometry(shape(i),{depth:.16,bevelEnabled:true,bevelThickness:.055,bevelSize:.032,bevelSegments:3,steps:1,curveSegments:28}),new THREE.MeshStandardMaterial({color:new THREE.Color(colors[i]),roughness:.38,metalness:0}));return m}
+function pieceMesh(i){const m=new THREE.Mesh(new THREE.ExtrudeGeometry(shape(i),{depth:.16,bevelEnabled:true,bevelThickness:.055,bevelSize:.032,bevelSegments:3,steps:1,curveSegments:28}),new THREE.MeshStandardMaterial({color:new THREE.Color(colors[i]),roughness:.67,metalness:0}));return m}
 const slots=[],ray=new THREE.Raycaster(),pt=new THREE.Vector2();
 function facePanel(ids){const outline=new THREE.Shape();const rr=1.77,corner=.18;outline.moveTo(-rr+corner,-rr);outline.lineTo(rr-corner,-rr);outline.quadraticCurveTo(rr,-rr,rr,-rr+corner);outline.lineTo(rr,rr-corner);outline.quadraticCurveTo(rr,rr,rr-corner,rr);outline.lineTo(-rr+corner,rr);outline.quadraticCurveTo(-rr,rr,-rr,rr-corner);outline.lineTo(-rr,-rr+corner);outline.quadraticCurveTo(-rr,-rr,-rr+corner,-rr);
 ids.forEach((id,j)=>{const x=j%2?.88:-.88,y=j<2?.88:-.88,pts=shapePoints(id).map(([a,b])=>[a*1.27+x,b*1.27+y]);const hole=new THREE.Path();pts.slice().reverse().forEach(([a,b],k)=>k?hole.lineTo(a,b):hole.moveTo(a,b));hole.closePath();outline.holes.push(hole)});
-return new THREE.ExtrudeGeometry(outline,{depth:.22,bevelEnabled:true,bevelThickness:.025,bevelSize:.025,bevelSegments:2,curveSegments:40,steps:1})}
+return new THREE.ExtrudeGeometry(outline,{depth:.22,bevelEnabled:true,bevelThickness:.065,bevelSize:.055,bevelSegments:4,curveSegments:40,steps:1})}
 for(let face=0;face<6;face++){const g=new THREE.Group();if(face<4)g.rotation.y=face*Math.PI/2;else g.rotation.x=face===4?-Math.PI/2:Math.PI/2;cube.add(g);
 const panel=new THREE.Mesh(facePanel([0,1,2,3].map(j=>face*4+j)),wood);panel.position.z=1.58;g.add(panel);
 for(let j=0;j<4;j++){const id=face*4+j,x=(j%2?.88:-.88),y=(j<2?.88:-.88),holder=new THREE.Group();holder.position.set(x,y,1.59);g.add(holder);
