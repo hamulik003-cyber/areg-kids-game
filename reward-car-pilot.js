@@ -72,6 +72,17 @@ export async function playCarReward(sourceCard){
    flight(movingCar,[{transform:currentTransform},{transform:finish}],900,reduced),
    flight(card,[{transform:'none',opacity:1},{transform:entry,opacity:1}],900,reduced)
   ]);
+  // Verify the actual *rendered* last frame is indistinguishable in size and
+  // position from the initial in-grid car, across unequal card aspect ratios.
+  const originalRect=sourceCard.querySelector('.magic-picture img')?.getBoundingClientRect();
+  const finalRect=movingCar.getBoundingClientRect();
+  const errorPx=originalRect?Math.max(
+   Math.abs(finalRect.left-originalRect.left),
+   Math.abs(finalRect.top-originalRect.top),
+   Math.abs(finalRect.width-originalRect.width),
+   Math.abs(finalRect.height-originalRect.height)
+  ):null;
+  document.dispatchEvent(new CustomEvent('areg-car-return-check',{detail:{errorPx,referenceWidth:originalRect?.width,returnWidth:finalRect.width}}));
   overlay.remove();active=false;
   if(oldFocus?.isConnected)oldFocus.focus({preventScroll:true});
  }
