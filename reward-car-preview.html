@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AREG · Մեքենայի 3D փորձարկում (V291)</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:light}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;background:radial-gradient(circle at 50% 0,#7386be,#27214e 70%);font-family:system-ui,-apple-system,sans-serif;color:#fff9e9}
+main{width:min(94vw,520px);display:flex;align-items:center;flex-direction:column;gap:20px;padding:25px}
+h1{font-size:clamp(19px,5vw,27px);text-align:center;margin:0;text-shadow:0 2px 5px #0006}
+p{font-size:15px;line-height:1.5;text-align:center;max-width:400px;margin:0}
+.magic-collect-card{position:relative;display:grid;place-items:center;border:5px solid #ffe5a0;border-radius:29px;width:min(64vw,220px);height:197px;background:radial-gradient(circle at 50% 35%,#ffebad 0 9%,#5a558e 65%,#29245a);box-shadow:0 8px 0 #804d2e,0 20px 30px #12103088;cursor:pointer;touch-action:manipulation}
+.magic-collect-card:focus-visible{outline:4px solid #9ff0e2;outline-offset:6px}
+.magic-picture{font-size:105px;filter:drop-shadow(0 8px 7px #142b46a1)}
+.magic-name{position:absolute;bottom:12px;color:#502b1d;background:linear-gradient(#ffe1a2,#efac60);border-radius:15px;font-size:19px;padding:5px 25px;font-weight:900}
+small{opacity:.8;line-height:1.5;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<h1>AREG — Մեքենայի իրական 3D փորձարկում</h1>
+<p>Սեղմիր բացված մեքենայի քարտի վրա։ Քարտը կմոտենա, հետո մեքենան ճանապարհով կշարժվի՝ պտտվող անիվներով։</p>
+<button class="magic-collect-card is-unlocked" id="car" data-id="car" type="button" aria-label="Մեքենայի եռաչափ անիմացիա">
+<span class="magic-picture" aria-hidden="true">🚗</span><span class="magic-name">Մեքենա</span>
+</button>
+<small>Միայն փորձնական էջ։ Այստեղ աստղեր չեն ծախսվում, խաղի տվյալները չեն փոխվում։ Վերադարձ՝ նախորդ էջ։</small>
+</main>
+<script type="module">
+import {playCarReward} from './reward-car-pilot.js?v=291';
+document.getElementById('car').addEventListener('click',event=>playCarReward(event.currentTarget));
+</script>
+</body>
+</html>
