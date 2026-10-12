@@ -10,12 +10,12 @@ case 3:return poly(6,.43);case 4:return Array.from({length:10},(_,i)=>{const a=(
 case 5:return Array.from({length:72},(_,i)=>{const t=i*2*Math.PI/72;return [.44*Math.sin(t)**3,.34*(Math.cos(t)-.5*Math.cos(2*t)-.2*Math.cos(3*t)-.1*Math.cos(4*t))]});
 case 6:return [[-.14,-.43],[.14,-.43],[.14,-.14],[.43,-.14],[.43,.14],[.14,.14],[.14,.43],[-.14,.43],[-.14,.14],[-.43,.14],[-.43,-.14],[-.14,-.14]];
 case 7:return [[0,.47],[.44,0],[0,-.47],[-.44,0]];
-case 8:return [...Array.from({length:32},(_,i)=>{let a=Math.PI/2+i*Math.PI/31;return [.42*Math.cos(a),.42*Math.sin(a)]}),...Array.from({length:32},(_,i)=>{let a=3*Math.PI/2-i*Math.PI/31;return [-.13+.3*Math.cos(a),.3*Math.sin(a)]})];
+case 8:return [...Array.from({length:36},(_,i)=>{const a=(60+i*240/35)*rad;return [.44*Math.cos(a),.44*Math.sin(a)]}),...Array.from({length:28},(_,i)=>{const a=(-60+i*120/27)*rad;return [-.08+.33*Math.cos(a),.33*Math.sin(a)]})];
 case 9:return poly(5,.44);case 10:return Array.from({length:80},(_,i)=>{let t=i*2*Math.PI/80,r=.31+.105*Math.cos(4*t);return [Math.cos(t)*r,Math.sin(t)*r]});
 case 11:return circle(.28,.43);case 12:return [[-.43,-.32],[.43,-.32],[.25,.32],[-.25,.32]];
 case 13:return [[-.42,-.34],[.18,-.34],[.42,.34],[-.18,.34]];
 case 14:return [[-.44,-.35],[.44,-.35],[.44,.35],[-.44,.35]];
-case 15:return Array.from({length:32},(_,i)=>{let a=Math.PI+i*Math.PI/31;return [.43*Math.cos(a),.43*Math.sin(a)]}).concat([[.43,0],[-.43,0]]);
+case 15:return Array.from({length:32},(_,i)=>{let a=Math.PI+i*Math.PI/31;return [.43*Math.cos(a),.43*Math.sin(a)]});
 case 16:return poly(8,.44);case 17:return [[-.44,-.15],[-.1,-.15],[-.1,-.43],[.45,0],[-.1,.43],[-.1,.15],[-.44,.15]];
 case 18:return [[-.08,.45],[.29,.06],[.08,.06],[.22,-.43],[-.32,.07],[-.08,.07]];
 case 19:return Array.from({length:12},(_,i)=>{let a=(-90+i*30)*rad,r=i%2?.28:.46;return [Math.cos(a)*r,Math.sin(a)*r]});
