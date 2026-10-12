@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#62c7eb"><link rel="icon" href="data:,"><title>AREG • Հրաշքների այգի • 3 նոր 3D մատուցում</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;--navy:#164561;--gold:#ffd45e;--shadow:0 14px 38px #12537837}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;color:#205071;background:#80d2ef}button{font:inherit;touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #e98172}
+#app{width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#56c4ed 0%,#95e4fc 40%,#eff7e1 100%);isolation:isolate}
+#render{position:absolute;inset:0;z-index:0;touch-action:pan-y}
+#render canvas{width:100%;height:100%;display:block;touch-action:manipulation}
+.skyglow{position:absolute;top:-25%;right:-33%;width:90vmax;height:90vmax;max-width:900px;max-height:900px;background:radial-gradient(circle,#fffbc75c,transparent 63%);pointer-events:none}
+#heading{position:absolute;z-index:3;top:calc(env(safe-area-inset-top) + 14px);left:15px;right:15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{display:flex;align-items:center;gap:9px;color:#19485a;font-weight:900;letter-spacing:.06em;text-shadow:0 1px 0 #fff6;font-size:12px}
+.logo em{font-size:13px;background:#ffcd67;color:#684726;box-shadow:inset 0 1px 2px #fff8,0 6px 18px #22607435;border:2px solid #fff4c4;border-radius:12px;width:34px;height:34px;display:grid;place-items:center;font-style:normal;font-weight:1000}
+.wallet{display:flex;align-items:center;gap:6px;border:2px solid #fff7d7;background:#fefbf2e9;box-shadow:0 5px 18px #26678926;border-radius:99px;padding:7px 13px;font-size:15px;font-weight:900;color:#3d5d63}
+.wallet i{font-size:20px;color:#ffc03c;font-style:normal}
+#titles{position:absolute;z-index:2;top:calc(env(safe-area-inset-top) + 66px);left:15px;right:15px;text-align:center;pointer-events:none;color:#17516e}
+#eyebrow{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.16em;color:#2e7995;background:#e7ffffa6;padding:6px 10px;border-radius:99px}
+h1{margin:9px 0 4px;font-size:clamp(27px,6.6vw,39px);line-height:1.1;letter-spacing:-.035em;color:#fffdf0;text-shadow:0 3px 0 #2497b7,0 6px 16px #24799761;font-weight:950}
+#description{max-width:420px;margin:0 auto;color:#23627b;font-size:12px;font-weight:750;text-shadow:0 1px #ffffffa0}
+#cloudLeft,#cloudRight{position:absolute;z-index:0;top:23%;width:150px;height:45px;background:#fff9e8b6;border-radius:60px;filter:blur(8px);pointer-events:none}
+#cloudLeft{left:-55px}#cloudRight{right:-55px;top:37%}
+#floorShine{position:absolute;z-index:1;inset:40% 0 20%;background:radial-gradient(ellipse,#fffdd333 0%,transparent 65%);pointer-events:none}
+#toast{position:absolute;z-index:6;left:50%;top:31%;transform:translate(-50%,-8px);background:#fff9e7f6;color:#23516d;border:2px solid #ffe49b;border-radius:18px;box-shadow:0 12px 35px #26658955;padding:13px 19px;font-weight:900;font-size:13px;max-width:90%;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.open{opacity:1;transform:translate(-50%,0)}
+#hint{position:absolute;left:50%;bottom:197px;transform:translateX(-50%);z-index:2;background:#ffffffdf;border:1px solid #fff;border-radius:99px;padding:8px 12px;color:#397089;font-size:11px;font-weight:750;white-space:nowrap;box-shadow:0 6px 15px #307d9930;pointer-events:none}
+#dock{position:absolute;left:0;right:0;bottom:0;z-index:5;min-height:184px;padding:13px 13px max(15px,env(safe-area-inset-bottom));border-radius:25px 25px 0 0;border-top:2px solid #fff8e9;box-shadow:0 -12px 35px #1b83a028;background:linear-gradient(180deg,#fffdf6f5,#e9f9ffeF);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+#dockInner{max-width:760px;margin:0 auto}
+#selection{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;gap:10px}
+#selName{font-size:14px;font-weight:950;color:#245b72;line-height:1.2}
+#selCaption{font-size:11px;color:#658695;font-weight:700;margin-top:3px}
+#selectRail{display:flex;gap:6px;justify-content:flex-end;max-width:56%;overflow-x:auto;scrollbar-width:none}
+#selectRail::-webkit-scrollbar{display:none}
+.choice{flex:none;display:grid;place-items:center;width:43px;height:43px;border:2px solid #d5e8eb;border-radius:13px;background:#fff;color:#315b65;font-size:21px;box-shadow:0 4px 11px #426e8222}
+.choice.active{background:#fff0bb;border-color:#efb952;transform:translateY(-2px)}
+.actionRow{display:flex;gap:9px;margin-bottom:10px}
+.actionRow button{flex:1;border-radius:15px;min-height:45px;font-size:13px;font-weight:950;padding:8px 4px}
+#action{background:linear-gradient(175deg,#ffda70,#ffad4f);color:#603d21;border:2px solid #fff1c0;box-shadow:0 5px 12px #df9d454c}
+#buy{background:#2d8eac;color:#fff;border:2px solid #d8f6ff;box-shadow:0 5px 12px #2d8eac40}
+#buy[disabled]{background:#7dc4b4;border-color:#f1ffec;color:#fff}
+#layouts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.layout{display:flex;align-items:center;justify-content:center;gap:4px;background:#e8f5f3;border:2px solid #d0e6e6;border-radius:12px;color:#477287;min-height:42px;padding:5px 2px;font-size:clamp(10px,2.5vw,12px);font-weight:900}
+.layout.active{background:#3f9dc0;color:white;border-color:#e1faff;box-shadow:0 5px 14px #2281a748}
+.layout span{font-size:18px}
+#fineprint{text-align:center;font-size:9px;font-weight:700;color:#81a0a6;margin-top:6px}
+#fallback{display:none;position:absolute;inset:20% 10% 30%;z-index:8;background:#eafff5;color:#175173;border-radius:24px;padding:20px;text-align:center;align-content:center}
+@media(max-height:740px){#titles{top:calc(env(safe-area-inset-top) + 55px)}h1{font-size:25px}#description{font-size:10px}#hint{bottom:170px}#dock{min-height:158px;padding:8px 12px max(8px,env(safe-area-inset-bottom))}#selection{margin-bottom:6px}#selName{font-size:12px}#selCaption{font-size:10px}.choice{height:34px;width:36px;font-size:18px}.actionRow{margin-bottom:6px}.actionRow button{min-height:36px;font-size:11px}.layout{min-height:34px}#fineprint{font-size:8px;margin-top:3px}}
+@media(min-width:780px){#dock{padding-left:60px;padding-right:60px}#hint{bottom:207px}#titles{top:80px}h1{font-size:43px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body>
+<div id="app">
+ <div class="skyglow"></div><div id="cloudLeft"></div><div id="cloudRight"></div><div id="render"></div><div id="floorShine"></div>
+ <header id="heading"><div class="logo"><em>A</em> AREG <span style="opacity:.65">WONDER PARK</span></div><div class="wallet"><i>★</i><span id="wallet">120</span></div></header>
+ <section id="titles"><div id="eyebrow">3 ՆՈՐ 3D ՄԱՏՈՒՑՄԱՆ ՓՈՐՁ</div><h1 id="title">Իմ հրաշքների այգին</h1><p id="description">Քո այգին մեծանում է յուրաքանչյուր բացված պարգևով</p></section>
+ <div id="hint">Հպի՛ր ատրակցիոնին՝ այն ընտրելու համար</div><div id="toast" role="status" aria-live="polite"></div>
+ <div id="fallback">Այս սարքում իրական 3D տեսարանը չի բացվել։ Փորձիր Safari-ով։</div>
+ <footer id="dock"><div id="dockInner">
+  <div id="selection"><div><div id="selName">Փոքրիկ գնացք</div><div id="selCaption">Բացված է · փորձիր շարժել</div></div><div id="selectRail" aria-label="Ատրակցիոնների ընտրություն"></div></div>
+  <div class="actionRow"><button id="action">▶ Խաղալ</button><button id="buy">★ Բացել · 20</button></div>
+  <nav id="layouts" aria-label="Այգու մատուցման տարբերակները"><button class="layout active" data-layout="0"><span>🏞️</span> Ամբողջ այգի</button><button class="layout" data-layout="1"><span>🎠</span> 3D ընտրություն</button><button class="layout" data-layout="2"><span>🗺️</span> Այգու ճանապարհ</button></nav>
+  <div id="fineprint">Առանձին 3D փորձ · աստղերը միայն ցուցադրական են · V290 անփոփոխ</div>
+ </div></footer>
+</div>
+<script type="module">
+import * as THREE from './vendor/three.module.min.js';
+const byId=id=>document.getElementById(id), el=byId('render');
+const defs=[
+ {name:'Փոքրիկ գնացք',icon:'🚂',cost:20,color:'#fa8851'},
+ {name:'Կախարդական կարուսել',icon:'🎠',cost:20,color:'#ffb85f'},
+ {name:'Մեծ անիվ',icon:'🎡',cost:20,color:'#b095ec'},
+ {name:'Օդապարիկ',icon:'🎈',cost:20,color:'#ef8fab'}
+];
+const modes=[
+ {title:'Իմ հրաշքների այգին',desc:'Բացի՛ր ատրակցիոնները և կառուցի՛ր քո գունավոր աշխարհը'},
+ {title:'Այգու 3D խաղալիքները',desc:'Յուրաքանչյուր ատրակցիոն առանձին մեծ ու գեղեցիկ 3D խաղալիք է'},
+ {title:'Արկածների ճանապարհը',desc:'Ամեն նոր պարգև՝ նոր կանգառ քո այգու ճանապարհին'}
+];
+let renderer,scene,camera,root,mode=0,selected=0,stars=120,unlocked=new Set(['0:0','1:0','2:0']);
+let rideGroups=[],riders=[],tickHandlers=[],selectedRotations=[],anim=0,duration=0,last=0,targetCam,camTarget=new THREE.Vector3(),controlsLocked=false;
+const mats=new Map();
+function makeMat(hex,rough=.24,metal=.06,clear=.72){const key=[hex,rough,metal,clear].join(',');if(mats.has(key))return mats.get(key);const m=new THREE.MeshPhysicalMaterial({color:hex,roughness:rough,metalness:metal,clearcoat:clear,clearcoatRoughness:.17,envMapIntensity:1.15});mats.set(key,m);return m;}
+const wood=()=>makeMat('#ffdfaa',.42,.0,.35),gold=()=>makeMat('#f7b542',.24,.43,1);
+function mesh(p,g,m,x=0,y=0,z=0){const o=new THREE.Mesh(g,typeof m==='string'?makeMat(m):m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o;}
+function group(p,x=0,y=0,z=0){const g=new THREE.Group();g.position.set(x,y,z);p.add(g);return g;}
+function cub(p,w,h,d,c,x=0,y=0,z=0){return mesh(p,new THREE.BoxGeometry(w,h,d),c,x,y,z);}
+function sph(p,x,y,z,r,c,sx=1,sy=1,sz=1){const s=mesh(p,new THREE.SphereGeometry(r,22,14),c,x,y,z);s.scale.set(sx,sy,sz);return s;}
+function cy(p,rt,rb,h,c,x=0,y=0,z=0,segments=24){return mesh(p,new THREE.CylinderGeometry(rt,rb,h,segments),c,x,y,z);}
+function tor(p,r,t,c,x=0,y=0,z=0,rot=[0,0,0]){const s=mesh(p,new THREE.TorusGeometry(r,t,10,56),c,x,y,z);s.rotation.set(...rot);return s;}
+function cone(p,r,h,c,x=0,y=0,z=0,segments=24){return mesh(p,new THREE.ConeGeometry(r,h,segments),c,x,y,z);}
+function path(p,points,rad,c,closed=false){const curve=new THREE.CatmullRomCurve3(points.map(a=>new THREE.Vector3(...a)),closed,'catmullrom',.46);return mesh(p,new THREE.TubeGeometry(curve,Math.max(42,points.length*13),rad,8,closed),c);}
+function rounded(p,w,h,d,c,x,y,z,rad=.18){const r=Math.min(rad,w*.44,h*.44);const s=new THREE.Shape();s.moveTo(-w/2+r,-h/2);s.lineTo(w/2-r,-h/2);s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);s.lineTo(w/2,h/2-r);s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);s.lineTo(-w/2+r,h/2);s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);s.lineTo(-w/2,-h/2+r);s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);const geo=new THREE.ExtrudeGeometry(s,{depth:Math.max(.03,d-.07),bevelEnabled:true,bevelSize:.035,bevelThickness:.035,bevelSegments:3,steps:1,curveSegments:5});geo.translate(0,0,-d/2+.035);return mesh(p,geo,c,x,y,z);}
+function setEnv(){
+ // Studio reflections for glossy cartoon materials. Six real cubemap faces (softbox stripes).
+ const faces=[];
+ for(let i=0;i<6;i++){const c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d');const grad=ctx.createLinearGradient(0,0,0,128);grad.addColorStop(0,'#bdeefe');grad.addColorStop(.42,'#ffffff');grad.addColorStop(.7,'#9edbe3');grad.addColorStop(1,'#5689b0');ctx.fillStyle=grad;ctx.fillRect(0,0,128,128);
+ ctx.shadowBlur=10;ctx.shadowColor='#fff';ctx.fillStyle='rgba(255,255,255,.97)';ctx.fillRect(12,12,29,88);ctx.fillRect(66,26,47,22);ctx.fillStyle='#fce6b5';ctx.fillRect(65,62,24,54);faces.push(c);}
+ const env=new THREE.CubeTexture(faces);env.needsUpdate=true;scene.environment=env;
+}
+function clouds(){for(const [x,y,z,s] of [[-5.5,6.2,-7,1.4],[5.1,6.0,-6,1.15]]){const p=group(root,x,y,z);for(const [dx,dy,r] of [[0,0,.63],[-.60,-.07,.46],[.61,-.08,.49],[.2,.33,.5]])sph(p,dx,dy,0,r,makeMat('#ffffff',.83,0,.15));p.scale.setScalar(s);}}
+function flower(p,x,y,z,color){const g=group(p,x,y,z);cy(g,.025,.03,.22,'#38ac79',0,.13,0,8);for(let j=0;j<5;j++){const a=j*Math.PI*2/5;sph(g,Math.cos(a)*.105,.26,Math.sin(a)*.105,.076,color);}sph(g,0,.27,0,.072,'#ffe16c');return g;}
+function shrub(p,x,z,c='#59ba79',size=1){const g=group(p,x,0,z);sph(g,0,.42,0,.47,c,1.15,.80,1.06);sph(g,-.25,.52,.15,.35,'#80cf81');sph(g,.28,.50,-.12,.34,'#49a976');g.scale.setScalar(size);return g;}
+function tree(p,x,z,s=1){const g=group(p,x,0,z);cy(g,.13,.18,1.26,'#ac794d',0,.66,0,10);sph(g,0,1.60,0,.78,'#48b68a',1,1.05,.92);sph(g,-.42,1.53,.18,.52,'#70d698');sph(g,.43,1.58,-.14,.53,'#36a68f');sph(g,0,2.03,-.10,.43,'#77d894');g.scale.setScalar(s);return g;}
+function island(p,r=6){cy(p,r,r-.2,.68,'#57bca6',0,-.37,0,72);cy(p,r-.10,r-.10,.11,'#75d589',0,.02,0,72);tor(p,r-.06,.105,'#f7de90',0,.057,0,[Math.PI/2,0,0]);const pts=[];for(let i=0;i<50;i++){const a=i*Math.PI*2/50;pts.push([Math.cos(a)*r*.78,.107,Math.sin(a)*r*.78]);}path(p,pts,.25,'#f6d9aa',true);return p;}
+function wheel(p,x,y,z,r=.24){const g=group(p,x,y,z);const t=cy(g,r,r,.16,'#3a5273');t.rotation.x=Math.PI/2;const disc=cy(g,r*.59,r*.59,.175,'#fff0c4');disc.rotation.x=Math.PI/2;const center=cy(g,r*.27,r*.27,.184,gold());center.rotation.x=Math.PI/2;return g;}
+function makeTrain(parent,size=1){const whole=group(parent);whole.scale.setScalar(size);
+ // charming locomotive with body, cab, stack and three wagon colors
+ const loco=group(whole);
+ rounded(loco,1.4,.55,.72,'#fa6154',0,.65,0,.21);
+ const boiler=cy(loco,.42,.42,1.25,'#4bbccc',.12,1.01,0,28);boiler.rotation.z=Math.PI/2;
+ rounded(loco,.65,1,.75,'#f8ce6d',-.63,1.22,0,.13);
+ rounded(loco,.42,.33,.035,makeMat('#a8e9f5',.12,.12,1),-.63,1.43,.4,.07);
+ rounded(loco,.42,.33,.035,makeMat('#a8e9f5',.12,.12,1),-.63,1.43,-.4,.07);
+ cy(loco,.13,.14,.45,'#6b75af',.5,1.55,0);
+ cy(loco,.31,.31,.10,gold(),.5,1.82,0);
+ sph(loco,0,1.9,0,.15,makeMat('#f9faff',.16,.0,1));
+ cub(loco,1.55,.15,.86,'#7a8fb0',-.02,.38,0);
+ cy(loco,.18,.22,.22,gold(),.84,.76,0);
+ for(const z of [-.44,.44]){sph(loco,.78,1.02,z*.63,.13,'#ffe8af');sph(loco,-.89,.68,z*.65,.12,'#fcfded');}
+ const wheels=[];for(const x of [-.54,.36])for(const z of [-.47,.47])wheels.push(wheel(loco,x,.31,z,.25));
+ const cart=group(whole,-1.60,0,0);
+ rounded(cart,.88,.69,.74,'#ffb45c',0,.7,0,.15);rounded(cart,.75,.25,.77,'#ff8e74',0,1.07,0,.10);
+ for(const x of [-.25,.25])for(const z of [-.46,.46])wheels.push(wheel(cart,x,.31,z,.21));
+ sph(cart,0,1.3,0,.28,'#d5b3e7');
+ return {node:whole,wheels,loco,cart};
+}
+function makeFerris(p,size=1){const g=group(p);g.scale.setScalar(size);
+ for(let v of [-.58,.58]){const support=cub(g,.17,3,.21,v<0?'#ffb468':'#f09a9d',v,1.50,0);support.rotation.z=v<0?-.16:.16;}
+ const wheelG=group(g,0,2.85,.05),radius=1.56;
+ tor(wheelG,radius,.103,'#9b7bdf');tor(wheelG,radius-.19,.07,'#ffbb6c');sph(wheelG,0,0,0,.24,gold());
+ for(let j=0;j<8;j++){const a=Math.PI*2*j/8;const spoke=cub(wheelG,radius*.96,.068,.07,j%2?'#ffdf88':'#fff2bb',Math.cos(a)*radius*.48,Math.sin(a)*radius*.48,0);spoke.rotation.z=a;}
+ const cabins=[];for(let i=0;i<8;i++){const a=i*Math.PI*2/8;const pivot=group(wheelG,Math.cos(a)*radius,Math.sin(a)*radius,0);
+ cy(pivot,.06,.06,.5,gold(),0,-.24,0,10);
+ rounded(pivot,.47,.33,.40,['#ff735f','#68d7e8','#ffd064','#a69de9'][i%4],0,-.54,0,.13);
+ rounded(pivot,.51,.06,.44,'#fff5cc',0,-.34,0,.08);cabins.push(pivot);}
+ return {node:g,wheel:wheelG,cabins};
+}
+function makeCarousel(p,size=1){const g=group(p);g.scale.setScalar(size);const spin=group(g);
+ cy(spin,1.59,1.65,.29,makeMat('#f9cf77',.24,.17,.85),0,.21,0);
+ cy(spin,1.65,1.65,.10,'#fc90a4',0,.09,0);tor(spin,1.54,.085,'#fff4c0',0,.39,0,[Math.PI/2,0,0]);
+ cy(spin,.16,.22,2.48,gold(),0,1.55,0);
+ const crown=group(spin,0,2.62,0);
+ // alternating roof gores, no single flat cone
+ const cols=['#ff6e72','#fff0ab','#62cdd7','#fff0ab','#af9be8','#fff0ab','#ffb959','#fff0ab'];
+ for(let i=0;i<16;i++){const a=i*Math.PI*2/16,b=(i+1)*Math.PI*2/16;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute([0,.68,0,Math.cos(a)*1.65,-.12,Math.sin(a)*1.65,Math.cos(b)*1.65,-.12,Math.sin(b)*1.65],3));geo.computeVertexNormals();const m=makeMat(cols[i%cols.length],.34,.0,.66).clone();m.side=THREE.DoubleSide;mesh(crown,geo,m);}
+ tor(crown,1.65,.085,gold(),0,-.12,0,[Math.PI/2,0,0]);sph(crown,0,.83,0,.21,'#ffe17a');
+ const mounts=[];for(let i=0;i<5;i++){const a=i*Math.PI*2/5;const x=Math.cos(a)*1.04,z=Math.sin(a)*1.04;
+ cy(spin,.047,.047,2.12,'#fff0cb',x,1.45,z,10);
+ const horse=group(spin,x,.77,z);horse.rotation.y=-a;
+ sph(horse,0,.0,0,.34,['#a7c5ed','#fff4e0','#f5bdac','#aeefbf','#dbbdf6'][i],1.15,.66,.55);
+ sph(horse,.27,.25,0,.25,'#f7f0de',.62,1.1,.52);
+ sph(horse,.43,.39,0,.23,'#fff8e7',.7,.7,.65);
+ sph(horse,.46,.43,.14,.049,'#365a7b');cone(horse,.14,.34,'#ffca9a',-.4,.18,0).rotation.z=-.7;
+ for(const px of [-.18,.20])for(const zz of [-.13,.13])cy(horse,.075,.08,.48,'#e7bd99',px,-.33,zz,10);
+ mounts.push(horse);}
+ return {node:g,spin,mounts};
+}
+function makeBalloon(p,size=1){const g=group(p);g.scale.setScalar(size);
+ const basket=rounded(g,.75,.54,.63,'#dfad71',0,.50,0,.12);
+ rounded(g,.79,.13,.69,'#ffe4a2',0,.79,0,.06);
+ for(const x of [-.29,.29])for(const z of [-.25,.25]){const s=cy(g,.03,.03,1.25,gold(),x,1.45,z,8);s.rotation.z=0;}
+ const canopy=group(g,0,2.55,0);
+ for(let i=0;i<8;i++){const a=i*Math.PI/4;sph(canopy,Math.cos(a)*.28,0,Math.sin(a)*.28,.69,['#ff789b','#fce077','#66d2e3','#ae9be8'][i%4],.65,1.27,.65);}
+ sph(canopy,0,.62,0,.48,'#fff0bd',1,.62,1);tor(canopy,.43,.065,'#ffe59a',0,-.92,0,[Math.PI/2,0,0]);return {node:g,balloon:canopy};
+}
+function createRide(parent,id,size=1){let made=[makeTrain,makeCarousel,makeFerris,makeBalloon][id](parent,size);made.id=id;made.node.userData.rideId=id;made.node.traverse(m=>m.userData.rideId=id);riders.push(made);return made;}
+function decorations(p,variant=0){
+ const coords=[[-4.55,-2.6,1],[-3.95,3.15,.69],[4.8,2.65,.90],[4.7,-2.6,.83],[-.3,-4.36,.73]];
+ for(const [x,z,s] of coords)tree(p,x,z,s);
+ for(let i=0;i<30;i++){const a=i*2.3999632,r=1.9+(i%5)*.66;const x=Math.cos(a)*r,z=Math.sin(a)*r;
+ if(Math.abs(x)<1.65&&Math.abs(z)<3.05)continue; if(Math.abs(x)>4.4||Math.abs(z)>4.4)continue;
+ flower(p,x,.04,z,['#f47398','#f9da5f','#ffffff','#9189d3'][i%4]);}
+ for(const x of [-2.5,2.5])shrub(p,x,3.75,'#4ebb93',.61);
+}
+function buildWhole(){
+ const base=group(root);island(base,5.55);decorations(base);
+ const rides=[
+ createRide(group(base,0,.20,2.1),0,.88),
+ createRide(group(base,2.2,.17,-.45),1,.83),
+ createRide(group(base,-2.1,.18,-.92),2,.88),
+ createRide(group(base,3.45,.12,2.42),3,.72)
+ ];
+ for(let i=0;i<4;i++)rideGroups.push(rides[i].node);
+ const pond=cy(base,.82,.91,.05,'#63cfe8',-1.95,.115,2.15,48);tor(base,.89,.06,'#fff2bd',-1.95,.12,2.15,[Math.PI/2,0,0]);
+ for(let i=0;i<5;i++)sph(base,-2.3+i*.20,.13,2.15,.11,'#ffffff',1,.19,1.25);
+ for(const [x,z] of [[-3.6,2.45],[4.1,.8]]){cy(base,.23,.26,.48,'#fff0b8',x,.28,z);sph(base,x,.64,z,.26,'#ffe88e');}
+ camera.position.set(7.7,10.9,12.6);camTarget.set(0,1,-.1);
+}
+function buildSelection(){
+ const stage=group(root);island(stage,5.85);
+ for(const [x,z,s] of [[-4.7,-2,.83],[-3.7,-3.6,.7],[4.1,-3.6,.75],[4.9,1,.64]])tree(stage,x,z,s);
+ const platform=group(stage,0,.05,.15);
+ cy(platform,2.65,2.85,.5,'#79c9ce',0,.25,0,60);
+ cy(platform,2.59,2.59,.14,'#fff0c0',0,.54,0,60);
+ tor(platform,2.55,.125,'#ffc266',0,.65,0,[Math.PI/2,0,0]);
+ // ferris kiosk on left, cotton candy right, cheerful glossy backdrop
+ rounded(stage,1.24,1.30,.90,'#ff91a4',-3.7,.84,-2.9,.22);
+ cone(stage,.93,.62,'#ffe19b',-3.7,1.86,-2.9,5);
+ rounded(stage,.7,.42,.13,'#fff7cc',-3.7,1.07,-2.38,.1);
+ rounded(stage,1.18,1.35,.87,'#6ad6d8',3.7,.83,-2.9,.18);
+ cone(stage,.89,.58,'#ffae78',3.7,1.81,-2.9,5);
+ for(const x of [-4.25,4.35]){sph(stage,x,2.93,-2.8,.36,x<0?'#eab2d5':'#ffe27d');cy(stage,.024,.024,.9,'#fff0e8',x,2.43,-2.8,8);}
+ const hero=createRide(group(platform,0,.69,0),selected,1.33);
+ hero.node.position.y=selected===0?0:selected===1?-.06:selected===2?.13:-.02;
+ rideGroups.push(hero.node);
+ camera.position.set(5.1,5.95,10.2);camTarget.set(0,1.66,0);
+}
+function buildPath(){
+ const park=group(root);cy(park,7.1,6.95,.65,'#4dbb9d',0,-.38,-.8,64);cy(park,7,7,.12,'#8bd58d',0,.01,-.8,64);
+ const road=[[-4.9,.105,2.7],[-2.5,.105,1.1],[-.1,.105,1.8],[2.2,.105,-.5],[4.0,.105,-2.6]];
+ path(park,road,.40,'#ffefc8');path(park,road,.10,'#ffe0a1');
+ for(let j=0;j<5;j++){const p=road[j];cy(park,.63,.70,.12,'#fddc99',p[0],.16,p[2],20);tor(park,.70,.065,'#ffd075',p[0],.23,p[2],[Math.PI/2,0,0]);}
+ for(let i=0;i<4;i++){
+ const coords=[[-4.6,2.2],[-1.25,1.15],[1.25,-.9],[4.25,-2.5]][i];
+ const pivot=group(park,coords[0],.24,coords[1]);const ride=createRide(pivot,i,[.72,.65,.66,.71][i]);rideGroups.push(ride.node);
+ cy(pivot,.14,.2,.78,'#fff0ba',.9,.4,.2);sph(pivot,.9,.88,.2,.25,'#ffce59');
+ // star milestone plaques, visible even before unlock
+ const marker=group(pivot,.9,1.16,.2);
+ const star=new THREE.Shape();for(let j=0;j<10;j++){let a=-Math.PI/2+j*Math.PI/5;let r=j%2?.12:.28;if(j===0)star.moveTo(Math.cos(a)*r,Math.sin(a)*r);else star.lineTo(Math.cos(a)*r,Math.sin(a)*r);}star.closePath();
+ mesh(marker,new THREE.ExtrudeGeometry(star,{depth:.06,bevelEnabled:true,bevelThickness:.018,bevelSize:.016,bevelSegments:2}),gold());
+ }
+ for(const [x,z,s] of [[-6,1.4,.7],[-5,-2.9,.8],[-3,-4.6,.84],[1,-5.2,.73],[5,1,.82],[2.7,3.8,.65],[-2.3,3.8,.55]])tree(park,x,z,s);
+ for(let i=0;i<24;i++){const a=i*2.4;const r=4.8+(i%3)*.4;flower(park,Math.cos(a)*r,.1,Math.sin(a)*r-.8,i%2?'#ff9db0':'#ffe38c');}
+ for(const p of [[-6,0,-4.4],[5,0,3.4]]){shrub(park,p[0],p[2],'#68d292',.9);}
+ camera.position.set(6.2,10.7,12.8);camTarget.set(-1,.9,0);
+}
+const builders=[buildWhole,buildSelection,buildPath];
+function clearScene(){
+ if(scene){scene.traverse(o=>{if(o.isMesh)o.geometry?.dispose();});}
+ riders=[];rideGroups=[];tickHandlers=[];selectedRotations=[];anim=duration=0;
+ scene=new THREE.Scene();scene.background=new THREE.Color(['#99e6f8','#97e7f7','#a3edfa'][mode]);scene.fog=new THREE.FogExp2('#c9f5ff',.009);
+ root=group(scene);setEnv();scene.add(new THREE.HemisphereLight(0xe9fbff,0x6cb2a5,2.45));
+ const key=new THREE.DirectionalLight(0xfff3db,3.8);key.position.set(-5,12,8);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-14;key.shadow.camera.right=14;key.shadow.camera.top=14;key.shadow.camera.bottom=-14;key.shadow.bias=-.00025;key.shadow.normalBias=.045;scene.add(key);
+ const fill=new THREE.DirectionalLight(0xb8e8ff,2.0);fill.position.set(5,7,-8);scene.add(fill);
+ const rim=new THREE.PointLight(0xffd0a0,37,22,2);rim.position.set(4,6,4);scene.add(rim);
+ // shadow catcher: ground under floating mini park
+ const ground=mesh(scene,new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#9adad0',roughness:1}),0,-.86,0);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;ground.castShadow=false;
+ clouds();builders[mode]();targetCam=camera.position.clone();
+}
+function updateUI(){
+ byId('title').textContent=modes[mode].title;byId('description').textContent=modes[mode].desc;
+ for(const b of document.querySelectorAll('.layout'))b.classList.toggle('active',Number(b.dataset.layout)===mode);
+ const c=defs[selected];byId('selName').textContent=c.icon+' '+c.name;
+ const bought=unlocked.has(mode+':'+selected);
+ byId('selCaption').textContent=bought?'✓ Արդեն քոնն է · հպիր ու խաղա':'★ Բացիր 20 աստղով · կարող ես նաև փորձել';
+ byId('buy').disabled=bought;byId('buy').textContent=bought?'✓ Բացված է':'★ Բացել · '+c.cost;
+ byId('wallet').textContent=stars;byId('action').textContent=['▶ Շարժել','▶ Պտտել','▶ Պտտել','▶ Թռչել'][selected];
+ const rail=byId('selectRail');rail.replaceChildren();
+ defs.forEach((d,i)=>{const b=document.createElement('button');b.className='choice'+(i===selected?' active':'');b.textContent=d.icon;b.setAttribute('aria-label',d.name);b.setAttribute('aria-pressed',String(i===selected));b.addEventListener('click',()=>selectRide(i));rail.appendChild(b);});
+ byId('hint').textContent=['Հպի՛ր այգու ատրակցիոնին','Ընտրի՛ր ներքևի խաղալիքը','Ընտրի՛ր ճանապարհի կանգառը'][mode];
+}
+function frameResize(){
+ const w=Math.max(1,el.clientWidth),h=Math.max(1,el.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;
+ const portrait=w/h<.83;camera.fov=portrait?48:40;
+ // anchored entire diorama above the controls; cinematic closeup in mode 2
+ let factor=portrait?1.1:1;
+ if(mode===0)camera.position.set(7.2*factor,10.25*factor,11.9*factor);
+ else if(mode===1)camera.position.set(4.4*factor,5.1*factor,9.3*factor);
+ else camera.position.set(5.6*factor,10.2*factor,12.1*factor);
+ camera.lookAt(mode===1?0:-.5,mode===1?1.65:mode===2?1.1:.95,mode===2?-.4:0);
+ // Shift focus upward to avoid obscuring islands by the dock.
+ const v=new THREE.Vector3();camera.getWorldDirection(v);const vertical=(h<760?.85:1.15);camera.position.y+=vertical;camera.lookAt(mode===1?0:0,mode===1?1.0:.6,0);
+ camera.updateProjectionMatrix();
+}
+function setMode(m){mode=m;selected=0;clearScene();frameResize();updateUI();toast(['Բացիր ու կառուցիր ամբողջ այգին','Ընտրիր մեծ 3D խաղալիքը','Անցիր մի կանգառից մյուսը'][m]);}
+function selectRide(i){selected=i;duration=0;if(mode===1){clearScene();frameResize();} else if(mode===2){const p=rideGroups[i]?.getWorldPosition(new THREE.Vector3());if(p){const shift=new THREE.Vector3(5.8,8.8,11);targetCam=p.clone().add(shift);camTarget.copy(p).add(new THREE.Vector3(0,.75,0));}}updateUI();}
+function animateRide(ride,id,t){const eased=t*t*(3-2*t);
+ if(id===0){ride.node.position.x=Math.sin(eased*Math.PI*2)*.6;ride.node.rotation.y=Math.sin(eased*Math.PI*2)*.17;ride.wheels.forEach(w=>w.rotation.z=t*18);}
+ else if(id===1){ride.spin.rotation.y=t*Math.PI*3.6;ride.mounts.forEach((m,j)=>m.position.y=.77+Math.sin(t*Math.PI*7+j*.9)*.21);}
+ else if(id===2){ride.wheel.rotation.z=t*Math.PI*3.25;ride.cabins.forEach(c=>c.rotation.z=-ride.wheel.rotation.z);}
+ else if(id===3){ride.node.position.y=Math.sin(t*Math.PI)*1.05;ride.node.rotation.z=Math.sin(t*Math.PI*2)*.06;ride.balloon.rotation.y=t*Math.PI*.40;}
+}
+function resetRide(ride){ride.node.position.x=0;ride.node.position.y=0;ride.node.rotation.y=0;ride.node.rotation.z=0;if(ride.wheels)ride.wheels.forEach(w=>w.rotation.z=0);if(ride.spin)ride.spin.rotation.y=0;if(ride.mounts)ride.mounts.forEach(m=>m.position.y=.77);if(ride.wheel){ride.wheel.rotation.z=0;ride.cabins.forEach(c=>c.rotation.z=0);}}
+function play(){if(controlsLocked)return;anim=0;duration=4.0;last=performance.now();toast(['Գնացքը ճամփա ընկավ։','Կարուսելը պտտվում է։','Մեծ անիվը բարձրանում է։','Օդապարիկը թռչում է։'][selected]);}
+function toast(text){const t=byId('toast');t.textContent=text;t.classList.add('open');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('open'),1300);}
+function buy(){if(unlocked.has(mode+':'+selected))return;if(stars<defs[selected].cost){toast('Հավաքիր նոր աստղեր');return;}stars-=defs[selected].cost;unlocked.add(mode+':'+selected);updateUI();toast('★ Բացվեց նոր ատրակցիոնը');play();}
+function tick(now){requestAnimationFrame(tick);const dt=Math.min(.05,(now-last)/1000||0);last=now;
+ if(duration>0){anim=Math.min(duration,anim+dt);const t=anim/duration;if(mode===1){const ride=riders[0];if(ride)animateRide(ride,selected,t);}else{const ride=riders[selected];if(ride)animateRide(ride,selected,t);}if(anim>=duration){duration=0;for(const r of riders)resetRide(r);}}
+ if(mode===2&&targetCam){camera.position.lerp(targetCam,.026);const look=camTarget.clone();const dir=new THREE.Vector3();camera.getWorldDirection(dir);const existing=camera.position.clone().add(dir);existing.lerp(look,.03);camera.lookAt(existing);}
+ renderer.render(scene,camera);
+}
+function init(){try{
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.55));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ el.appendChild(renderer.domElement);camera=new THREE.PerspectiveCamera(48,1,.1,120);
+ setMode(0);
+ const ray=new THREE.Raycaster(),uv=new THREE.Vector2();
+ renderer.domElement.addEventListener('pointerup',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;const b=renderer.domElement.getBoundingClientRect();uv.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height*2-1));ray.setFromCamera(uv,camera);const hits=ray.intersectObjects(rideGroups,true);if(hits.length){const id=hits[0].object.userData.rideId;if(Number.isInteger(id)){if(id===selected)play();else selectRide(id);}}});
+ byId('action').addEventListener('click',play);byId('buy').addEventListener('click',buy);
+ for(const b of document.querySelectorAll('.layout'))b.addEventListener('click',()=>setMode(Number(b.dataset.layout)));
+ window.addEventListener('resize',frameResize);document.addEventListener('visibilitychange',()=>{last=performance.now();});
+ window.__AREG_PARK_LAB__={getState:()=>({realWebGL:!!renderer.getContext(),mode,selected,stars,unlocked:[...unlocked],playing:duration>0}),setMode,selectRide,play};
+ last=performance.now();requestAnimationFrame(tick);
+ }catch(err){console.error(err);byId('fallback').style.display='block';}}
+init();
+</script></body></html>
