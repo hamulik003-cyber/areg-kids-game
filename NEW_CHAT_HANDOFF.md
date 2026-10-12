@@ -1,3 +1,9 @@
+## 2026-10-13 — Shape cube Safari trial implemented (UNAPPROVED / NOT YET DEVICE TESTED)
+- Corrected trial menu label to Armenian interrogative `Ո՞ւմ ստվերն է` in `app.js`, commit `07797ceec0279c03ea67ac9427cc217cc6bc39a7`.
+- Created trial-only `mind-shapes-3d-trial.html` with CSS 3D wooden cube (four rotatable faces), four distinct geometric holes per face, four rounds (one face per round), sixteen non-repeating colored shapes total, pointer/touch drag and tap placement, stage completion, wrong-answer two-note WebAudio matching `space-3d-games.js` `answerSfx(false)` frequencies/timing. Trial commits `919a65c9666b2f6cab3f2c9fd8e20004a93b20b7`, `e643019603ccd0c2654e748842c960852e0afc2c`.
+- Safari trial URL: `https://areg-mind-games-trial-20261013.onrender.com/mind-shapes-3d-trial.html`; static site initial deployment was live but the new gameplay commit's deploy status and iPhone functionality have NOT yet been verified. This is CSS 3D prototype, not a WebGL physically modeled mesh; no claim of production-ready rendering.
+- The new game is standalone on trial branch and NOT yet wired into the `Գտիր ճիշտ ձևը` menu tile. Main is unchanged. Next: verify Render latest deployment, user iPhone Safari test, improve 3D presentation and wire trial tile after user feedback. Never merge main without explicit approval.
+
 ## 2026-10-13 — Isolated Safari preview provisioned; deployment not yet verified
 - Render static service `srv-db6k0fg473hc739v92a0` created on trial branch `trial/mind-games-3d-2026-10-13`, URL `https://areg-mind-games-trial-20261013.onrender.com`, auto-deploy enabled, static publish path `.`.
 - Initial deploy `dep-db6k0g0473hc739v92tg` was `build_in_progress` when last checked; DO NOT claim live site is ready until deploy success and browser test.
