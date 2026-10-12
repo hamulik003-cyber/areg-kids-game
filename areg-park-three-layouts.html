@@ -44,6 +44,7 @@ h1{margin:9px 0 4px;font-size:clamp(27px,6.6vw,39px);line-height:1.1;letter-spac
 @media(max-height:740px){#titles{top:calc(env(safe-area-inset-top) + 55px)}h1{font-size:25px}#description{font-size:10px}#hint{bottom:170px}#dock{min-height:158px;padding:8px 12px max(8px,env(safe-area-inset-bottom))}#selection{margin-bottom:6px}#selName{font-size:12px}#selCaption{font-size:10px}.choice{height:34px;width:36px;font-size:18px}.actionRow{margin-bottom:6px}.actionRow button{min-height:36px;font-size:11px}.layout{min-height:34px}#fineprint{font-size:8px;margin-top:3px}}
 @media(min-width:780px){#dock{padding-left:60px;padding-right:60px}#hint{bottom:207px}#titles{top:80px}h1{font-size:43px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+h1{color:#194e72;text-shadow:0 2px 1px #fff9,0 4px 16px #f5ffffa1;font-size:clamp(26px,6.5vw,37px)}#titles{top:calc(env(safe-area-inset-top) + 64px)}#eyebrow{background:#d9f6ffdf;color:#2b6c81;border:1px solid #fff}#description{color:#25576c;text-shadow:0 1px 1px #fff9}#hint{bottom:196px}#app{background:linear-gradient(180deg,#34bce9 0%,#7cdbed 43%,#a6dfab 100%)}
 </style></head>
 <body>
 <div id="app">
@@ -76,7 +77,7 @@ const modes=[
 let renderer,scene,camera,root,mode=0,selected=0,stars=120,unlocked=new Set(['0:0','1:0','2:0']);
 let rideGroups=[],riders=[],tickHandlers=[],selectedRotations=[],anim=0,duration=0,last=0,targetCam,camTarget=new THREE.Vector3(),controlsLocked=false;
 const mats=new Map();
-function makeMat(hex,rough=.24,metal=.06,clear=.72){const key=[hex,rough,metal,clear].join(',');if(mats.has(key))return mats.get(key);const m=new THREE.MeshPhysicalMaterial({color:hex,roughness:rough,metalness:metal,clearcoat:clear,clearcoatRoughness:.17,envMapIntensity:1.15});mats.set(key,m);return m;}
+function makeMat(hex,rough=.24,metal=.06,clear=.72){const key=[hex,rough,metal,clear].join(',');if(mats.has(key))return mats.get(key);const m=new THREE.MeshPhysicalMaterial({color:hex,roughness:rough,metalness:metal,clearcoat:clear,clearcoatRoughness:.17,envMapIntensity:.66});mats.set(key,m);return m;}
 const wood=()=>makeMat('#ffdfaa',.42,.0,.35),gold=()=>makeMat('#f7b542',.24,.43,1);
 function mesh(p,g,m,x=0,y=0,z=0){const o=new THREE.Mesh(g,typeof m==='string'?makeMat(m):m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o;}
 function group(p,x=0,y=0,z=0){const g=new THREE.Group();g.position.set(x,y,z);p.add(g);return g;}
@@ -197,7 +198,7 @@ function buildSelection(){
  rounded(stage,1.18,1.35,.87,'#6ad6d8',3.7,.83,-2.9,.18);
  cone(stage,.89,.58,'#ffae78',3.7,1.81,-2.9,5);
  for(const x of [-4.25,4.35]){sph(stage,x,2.93,-2.8,.36,x<0?'#eab2d5':'#ffe27d');cy(stage,.024,.024,.9,'#fff0e8',x,2.43,-2.8,8);}
- const hero=createRide(group(platform,0,.69,0),selected,1.33);
+ const hero=createRide(group(platform,.42,.69,0),selected,1.13);
  hero.node.position.y=selected===0?0:selected===1?-.06:selected===2?.13:-.02;
  rideGroups.push(hero.node);
  camera.position.set(5.1,5.95,10.2);camTarget.set(0,1.66,0);
@@ -225,13 +226,13 @@ const builders=[buildWhole,buildSelection,buildPath];
 function clearScene(){
  if(scene){scene.traverse(o=>{if(o.isMesh)o.geometry?.dispose();});}
  riders=[];rideGroups=[];tickHandlers=[];selectedRotations=[];anim=duration=0;
- scene=new THREE.Scene();scene.background=new THREE.Color(['#99e6f8','#97e7f7','#a3edfa'][mode]);scene.fog=new THREE.FogExp2('#c9f5ff',.009);
- root=group(scene);setEnv();scene.add(new THREE.HemisphereLight(0xe9fbff,0x6cb2a5,2.45));
- const key=new THREE.DirectionalLight(0xfff3db,3.8);key.position.set(-5,12,8);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-14;key.shadow.camera.right=14;key.shadow.camera.top=14;key.shadow.camera.bottom=-14;key.shadow.bias=-.00025;key.shadow.normalBias=.045;scene.add(key);
- const fill=new THREE.DirectionalLight(0xb8e8ff,2.0);fill.position.set(5,7,-8);scene.add(fill);
- const rim=new THREE.PointLight(0xffd0a0,37,22,2);rim.position.set(4,6,4);scene.add(rim);
+ scene=new THREE.Scene();scene.background=new THREE.Color(['#55c1e9','#5bc9ef','#51c2e8'][mode]);scene.fog=new THREE.FogExp2('#95dcf2',.004);
+ root=group(scene);setEnv();scene.add(new THREE.HemisphereLight(0xeafaff,0x468c68,1.25));
+ const key=new THREE.DirectionalLight(0xffefd5,2.1);key.position.set(-5,12,8);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-14;key.shadow.camera.right=14;key.shadow.camera.top=14;key.shadow.camera.bottom=-14;key.shadow.bias=-.00025;key.shadow.normalBias=.045;scene.add(key);
+ const fill=new THREE.DirectionalLight(0xc4efff,.68);fill.position.set(5,7,-8);scene.add(fill);
+ const rim=new THREE.PointLight(0xffd0a0,10,22,2);rim.position.set(4,6,4);scene.add(rim);
  // shadow catcher: ground under floating mini park
- const ground=mesh(scene,new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#9adad0',roughness:1}),0,-.86,0);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;ground.castShadow=false;
+ const ground=mesh(scene,new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#5cb89a',roughness:1}),0,-.86,0);ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;ground.castShadow=false;
  clouds();builders[mode]();targetCam=camera.position.clone();
 }
 function updateUI(){
@@ -251,15 +252,15 @@ function frameResize(){
  const portrait=w/h<.83;camera.fov=portrait?48:40;
  // anchored entire diorama above the controls; cinematic closeup in mode 2
  let factor=portrait?1.1:1;
- if(mode===0)camera.position.set(7.2*factor,10.25*factor,11.9*factor);
- else if(mode===1)camera.position.set(4.4*factor,5.1*factor,9.3*factor);
- else camera.position.set(5.6*factor,10.2*factor,12.1*factor);
+ if(mode===0)camera.position.set(6.4*factor,9.0*factor,10.5*factor);
+ else if(mode===1)camera.position.set(3.2*factor,6.25*factor,14.1*factor);
+ else camera.position.set(5.2*factor,9.4*factor,11.2*factor);
  camera.lookAt(mode===1?0:-.5,mode===1?1.65:mode===2?1.1:.95,mode===2?-.4:0);
  // Shift focus upward to avoid obscuring islands by the dock.
  const v=new THREE.Vector3();camera.getWorldDirection(v);const vertical=(h<760?.85:1.15);camera.position.y+=vertical;camera.lookAt(mode===1?0:0,mode===1?1.0:.6,0);
  camera.updateProjectionMatrix();
 }
-function setMode(m){mode=m;selected=0;clearScene();frameResize();updateUI();toast(['Բացիր ու կառուցիր ամբողջ այգին','Ընտրիր մեծ 3D խաղալիքը','Անցիր մի կանգառից մյուսը'][m]);}
+function setMode(m){mode=m;selected=0;clearScene();frameResize();updateUI();}
 function selectRide(i){selected=i;duration=0;if(mode===1){clearScene();frameResize();} else if(mode===2){const p=rideGroups[i]?.getWorldPosition(new THREE.Vector3());if(p){const shift=new THREE.Vector3(5.8,8.8,11);targetCam=p.clone().add(shift);camTarget.copy(p).add(new THREE.Vector3(0,.75,0));}}updateUI();}
 function animateRide(ride,id,t){const eased=t*t*(3-2*t);
  if(id===0){ride.node.position.x=Math.sin(eased*Math.PI*2)*.6;ride.node.rotation.y=Math.sin(eased*Math.PI*2)*.17;ride.wheels.forEach(w=>w.rotation.z=t*18);}
@@ -277,7 +278,7 @@ function tick(now){requestAnimationFrame(tick);const dt=Math.min(.05,(now-last)/
  renderer.render(scene,camera);
 }
 function init(){try{
- renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.55));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.38;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.55));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.92;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
  el.appendChild(renderer.domElement);camera=new THREE.PerspectiveCamera(48,1,.1,120);
  setMode(0);
  const ray=new THREE.Raycaster(),uv=new THREE.Vector2();
