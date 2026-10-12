@@ -31,7 +31,7 @@ try{
   const heroRect=moving?.getBoundingClientRect(),stageRect=stage?.getBoundingClientRect();
   const svg=stage.querySelector('.areg-car-pilot-hero svg');
   const ride=moving?.getAnimations().find(a=>a.effect?.getKeyframes()?.some(k=>String(k.transform||'').includes('translate3d')));
-  const frameX=ride?.effect.getKeyframes().map(k=>Number(String(k.transform||'').match(/translate3d\\(\\s*(-?[\\d.]+)px/)?.[1]));
+  const frameX=ride?.effect.getKeyframes().map(k=>Number(String(k.transform||'').match(/translate3d\(\s*(-?[\d.]+)px/)?.[1]));
   const alwaysForward=!!frameX?.length&&frameX.every(Number.isFinite)&&frameX.every((x,i)=>i===0||x>=frameX[i-1])&&frameX.at(-1)>frameX[0];
   const front=svg?.querySelector('#areg-car-front');
   const rear=svg?.querySelector('#areg-car-rear');
