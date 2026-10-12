@@ -24,10 +24,21 @@ try{
   window.__aregStartRect=window.__aregOriginalCard.getBoundingClientRect().toJSON();
   window.__aregReturnMatch=null;
   document.addEventListener('areg-car-return-check',e=>window.__aregReturnMatch=e.detail,{once:true});
-  return {img:window.__aregOriginalCard.querySelector('.magic-picture img')?.getAttribute('src'),cardCount:document.querySelectorAll('.magic-collect-card').length};
+  const c=window.__aregOriginalCard;
+  const twinkle=c.querySelector('.areg-reward-starfield .areg-reward-star');
+  const sheen=c.querySelector('.areg-reward-sheen');
+  return {
+    img:c.querySelector('.magic-picture img')?.getAttribute('src'),
+    cardCount:document.querySelectorAll('.magic-collect-card').length,
+    stars:c.querySelectorAll('.areg-reward-starfield .areg-reward-star').length,
+    twinkling:!!twinkle&&getComputedStyle(twinkle).animationName.includes('areg-reward-twinkle'),
+    softSweep:!!sheen&&getComputedStyle(sheen).animationName.includes('areg-reward-light-sweep'),
+    vividCard:getComputedStyle(c).backgroundImage.includes('radial-gradient')
+  };
  });
- if(!starting.img?.includes('reward-car-art.svg')||starting.cardCount!==1)
-  throw Error('Initial original-card invariant FAIL: '+JSON.stringify(starting));
+ if(!starting.img?.includes('reward-car-art.svg')||starting.cardCount!==1||
+   starting.stars!==9||!starting.twinkling||!starting.softSweep||!starting.vividCard)
+  throw Error('Initial luminous card/stars/shimmer FAIL: '+JSON.stringify(starting));
  await page.locator('#car').click();
  await page.locator('#car .areg-car-pilot-stage[data-live="1"]').waitFor({timeout:10000});
  // The scenery fades in for .62s after motion begins. Read the clipping
@@ -61,6 +72,16 @@ try{
    actionStarted:!!stage.dataset.actionStartedAt,
    direction:stage.dataset.travelDirection,
    motionStyle:stage.dataset.motionStyle,
+   decorative:{
+     stars:card.querySelectorAll('.areg-reward-starfield .areg-reward-star').length,
+     stationary:!!card.querySelector('.areg-reward-starfield')&&
+       getComputedStyle(card.querySelector('.areg-reward-starfield')).position==='absolute',
+     twinkling:!!card.querySelector('.areg-reward-star')&&
+       getComputedStyle(card.querySelector('.areg-reward-star')).animationName.includes('areg-reward-twinkle'),
+     sheen:!!card.querySelector('.areg-reward-sheen')&&
+       getComputedStyle(card.querySelector('.areg-reward-sheen')).animationName.includes('areg-reward-light-sweep'),
+     vividScenery:getComputedStyle(stage.querySelector('.areg-car-pilot-world')).filter.includes('saturate')
+   },
    cornerMask:{
      sceneRadius:getComputedStyle(stage).borderTopLeftRadius,
      parentRadius:getComputedStyle(card).borderTopLeftRadius,
@@ -79,6 +100,8 @@ try{
    !driving.wheelAnim?.includes('areg-wheel-turn')||driving.front!=='front'||
    driving.rear!=='rear'||!driving.actionStarted||driving.direction!=='left'||
    !driving.centeredAndFixedSize||driving.motionStyle!=='center-locked-parallax'||
+   driving.decorative.stars!==9||!driving.decorative.stationary||
+   !driving.decorative.twinkling||!driving.decorative.sheen||!driving.decorative.vividScenery||
    driving.cornerMask.sceneRadius!=='0px'||parseFloat(driving.cornerMask.parentRadius)<=0||
    driving.cornerMask.parentClip!=='hidden'||driving.cornerMask.sceneClip!=='hidden'||
    !driving.cornerMask.sceneFullyVisible||!driving.unchangedStorage)throw Error('Single-card left-moving 3D animation FAIL: '+JSON.stringify(driving));
@@ -117,12 +140,15 @@ try{
    noStage:!el.querySelector('.areg-car-pilot-stage'),
    noPlaceholder:!document.querySelector('.areg-car-placeholder'),
    noOverlay:!document.querySelector('.areg-car-pilot'),
+   stars:el.querySelectorAll('.areg-reward-starfield .areg-reward-star').length,
+   sheen:el.querySelectorAll('.areg-reward-sheen').length,
    rectDelta:delta,report:window.__aregReturnMatch,
    unchangedStorage:!localStorage.getItem('areg-magic-unlocked-v1')&&!localStorage.getItem('areg-stars-v35')
   };
  });
  if(!ending.originalIdentity||!ending.restoredParent||!ending.sameSinglePicture||!ending.noStage||
-    !ending.noPlaceholder||!ending.noOverlay||ending.rectDelta>2||!ending.unchangedStorage||
+    !ending.noPlaceholder||!ending.noOverlay||ending.stars!==9||ending.sheen!==1||
+    ending.rectDelta>2||!ending.unchangedStorage||
     ending.report?.mode!=='single-original-dom-card'||!ending.report?.sameDOM||
     ending.report?.cardCount!==1||ending.report?.errorPx>2)
    throw Error('Zero-frame-swap original-card return FAIL: '+JSON.stringify(ending));
