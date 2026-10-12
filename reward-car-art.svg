@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" role="img" aria-label="Կարմիր մուլտային մեքենա" preserveAspectRatio="xMidYMid meet">
+<defs>
+ <linearGradient id="paint" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#ff7963"/><stop offset=".45" stop-color="#f53e39"/><stop offset="1" stop-color="#b91834"/></linearGradient>
+ <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff8e70"/><stop offset="1" stop-color="#e82b32"/></linearGradient>
+ <linearGradient id="glass" x1=".2" y1="0" x2=".85" y2="1"><stop stop-color="#c3f5f3"/><stop offset=".45" stop-color="#6cbbd4"/><stop offset="1" stop-color="#30789f"/></linearGradient>
+ <linearGradient id="tire" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3c4752"/><stop offset=".7" stop-color="#141e2a"/><stop offset="1" stop-color="#0e1620"/></linearGradient>
+ <radialGradient id="hub"><stop stop-color="#fafaf0"/><stop offset=".8" stop-color="#bfcbd4"/><stop offset="1" stop-color="#8493a0"/></radialGradient>
+</defs>
+<!-- Slightly angular but soft red compact; the exact artwork will be used in thumbnail and animation. -->
+<path d="M82 225Q65 216 74 192L91 174Q124 158 181 156L225 99Q239 78 281 76L367 76Q397 77 416 103L451 157L483 168Q513 182 518 209L518 247Q515 267 492 267L100 267Q78 264 78 243Z" fill="url(#paint)" stroke="#8b1f32" stroke-width="5" stroke-linejoin="round"/>
+<path d="M224 100Q238 83 282 83L362 83Q392 83 411 107L442 160L176 160Z" fill="url(#roof)"/>
+<path d="M243 105Q257 94 286 94L298 94L298 150L203 150Z" fill="url(#glass)" stroke="#4f596a" stroke-width="5" stroke-linejoin="round"/>
+<path d="M310 94L356 94Q385 95 400 116L420 151L310 151Z" fill="url(#glass)" stroke="#4f596a" stroke-width="5" stroke-linejoin="round"/>
+<path d="M251 106L264 99L288 99L235 148L219 148Z" fill="#f2ffff" opacity=".32"/>
+<path d="M323 98L339 98L329 145L315 145Z" fill="#f2ffff" opacity=".16"/>
+<path d="M303 94L303 167M191 167L445 167" fill="none" stroke="#a71e2d" stroke-width="6" opacity=".8"/>
+<path d="M118 190Q235 173 436 186" stroke="#ffaaa0" stroke-width="7" stroke-linecap="round" opacity=".46" fill="none"/>
+<path d="M100 230L492 230" stroke="#821a2c" stroke-width="4" opacity=".6"/>
+<path d="M105 251L493 251" stroke="#f7645b" stroke-width="5" opacity=".5"/>
+<path d="M185 174L179 230M422 174L423 229" stroke="#a21c30" stroke-width="3" opacity=".35"/>
+<rect x="322" y="181" width="27" height="7" rx="3.5" fill="#ffddbd" opacity=".93"/>
+<rect x="450" y="176" width="27" height="9" rx="4.5" fill="#e6a399" opacity=".9"/>
+<rect x="489" y="184" width="27" height="20" rx="8" fill="#fff0ba" stroke="#c57c52" stroke-width="3"/>
+<rect x="77" y="193" width="15" height="31" rx="6" fill="#a72b3a"/>
+<path d="M81 244L119 257M471 257L516 242" stroke="#e1cfba" stroke-width="9" stroke-linecap="round"/>
+<ellipse cx="163" cy="263" rx="62" ry="10" fill="#17202b" opacity=".12"/>
+<ellipse cx="422" cy="263" rx="62" ry="10" fill="#17202b" opacity=".12"/>
+<g class="areg-car-wheel" data-wheel="rear" transform="translate(165 249)">
+ <circle r="47" fill="url(#tire)" stroke="#1a2430" stroke-width="4"/>
+ <circle r="31" fill="#858e93"/><circle r="27" fill="url(#hub)"/>
+ <g fill="#5e707d"><rect x="-4" y="-25" width="8" height="19" rx="3"/><rect x="-4" y="6" width="8" height="19" rx="3"/><rect x="-25" y="-4" width="19" height="8" rx="3"/><rect x="6" y="-4" width="19" height="8" rx="3"/></g>
+ <circle r="8" fill="#e8eded" stroke="#909faa" stroke-width="2"/>
+</g>
+<g class="areg-car-wheel" data-wheel="front" transform="translate(420 249)">
+ <circle r="47" fill="url(#tire)" stroke="#1a2430" stroke-width="4"/>
+ <circle r="31" fill="#858e93"/><circle r="27" fill="url(#hub)"/>
+ <g fill="#5e707d"><rect x="-4" y="-25" width="8" height="19" rx="3"/><rect x="-4" y="6" width="8" height="19" rx="3"/><rect x="-25" y="-4" width="19" height="8" rx="3"/><rect x="6" y="-4" width="19" height="8" rx="3"/></g>
+ <circle r="8" fill="#e8eded" stroke="#909faa" stroke-width="2"/>
+</g>
+</svg>
