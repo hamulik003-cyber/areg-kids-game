@@ -69,9 +69,18 @@ try{
  await page.waitForFunction(()=>Number(document.querySelector('.areg-car-pilot-stage')?.dataset.actionMs)>=4950,null,{timeout:7000});
  const duration=Number(await page.locator('.areg-car-pilot-stage').getAttribute('data-action-ms'));
  if(duration<4950||duration>5900)throw Error('Car action should be 5000ms from motion START; measured '+duration);
+ // During reverse flight, the card must continue moving, not freeze and
+ // reveal the static original abruptly only after it stops.
+ await page.locator('.areg-car-pilot-stage[data-ending="1"]').waitFor({timeout:4500});
+ const leaving1=await page.locator('.areg-car-pilot-card').boundingBox();
+ await page.waitForTimeout(140);
+ const leaving2=await page.locator('.areg-car-pilot-card').boundingBox();
+ if(!leaving1||!leaving2||leaving2.width>=leaving1.width-1)
+   throw Error('Closing card stopped shrinking during continuous return: '+JSON.stringify({leaving1,leaving2}));
  await page.waitForFunction(()=>!document.querySelector('.areg-car-pilot'),null,{timeout:10000});
  const match=await page.evaluate(()=>window.__aregReturnMatch);
- if(!match||match.errorPx>4)throw Error('Card exit car-size/position mismatch: '+JSON.stringify(match));
+ if(!match||match.errorPx>2||match.imageErrorPx==null||match.imageErrorPx>2||!match.sameImage||match.mode!=='single-continuous-handoff')
+   throw Error('Car/thumbnail not visually identical at the last frame: '+JSON.stringify(match));
  if(errors.length)throw Error('Page errors: '+errors.join('; '));
  console.log('V291 LEFT-FACING FIVE-SECOND ORIGINAL CAR PASS ('+(process.env.AREG_BROWSER||'chromium')+'): '+JSON.stringify({duration,state}));
 }finally{
