@@ -33,6 +33,8 @@ jobs:
         run: node --test qa/star-economy.test.mjs
       - name: Verify 30 unique Space Search questions and fresh shuffle each replay
         run: node --test qa/space-question-cycle.test.mjs
+      - name: Syntax-check lazy 3D reward pilot
+        run: node --check reward-car-pilot.js && node --check app.js && node --check qa/reward-car-pilot.browser.mjs
       - run: node qa/full-audit.mjs
       - name: Diagnose large 3D texture retrieval on preview and main hosts (nonblocking)
         if: github.event_name == 'pull_request'
@@ -68,6 +70,8 @@ jobs:
       - name: Verify exact 29/29 to 29/30 Space result dialog and manual replay
         run: node qa/space-results-dialog.browser.mjs
       - run: node qa/browser-smoke.mjs
+      - name: Test real 3D reward car on simulated iPhone
+        run: node qa/reward-car-pilot.browser.mjs
       - name: Verify GitHack preview's redirected 3D images work in WebGL (nonblocking)
         continue-on-error: true
         env:
@@ -91,6 +95,8 @@ jobs:
       - name: Verify 30th correct answer opens existing result dialog on mobile WebKit
         run: AREG_BROWSER=webkit node qa/space-results-dialog.browser.mjs
       - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - name: Test reward car 3D in iOS WebKit
+        run: AREG_BROWSER=webkit node qa/reward-car-pilot.browser.mjs
       - name: Verify GitHack preview's redirected 3D images work in WebKit WebGL (nonblocking)
         continue-on-error: true
         env:
