@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#172c35"><title>AREG • Գտիր ճիշտ ձևը · 6 փուլ</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#653c25}*{box-sizing:border-box}html,body{margin:0;min-height:100%;overflow-x:hidden}body{background:#e9c9a2}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #347cc0}#app{min-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 10px);gap:10px;max-width:650px;margin:auto;background:radial-gradient(ellipse at 50% 25%,#fff1d8,#e5bf92 65%,#ba865b);box-shadow:0 0 60px #70402455}
+header{display:grid;grid-template-columns:55px 1fr 83px;gap:9px;height:64px}.wood{border:2px solid #b57d4b;border-bottom:5px solid #995c32;border-radius:17px;background:linear-gradient(165deg,#ffecbe 0%,#f1c88c 56%,#d59a61 100%);box-shadow:inset 0 2px #fff9,0 3px 7px #78472433;color:#70411f;font-weight:850}.wood:active{transform:translateY(2px);border-bottom-width:3px}.back{font-size:28px}.brand{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(15px,4.4vw,22px);line-height:1.18}.brand small{font-size:10px;letter-spacing:1.4px;color:#996c43}.stars{font-size:19px}
+.status{display:flex;justify-content:center;gap:12px}.chip{background:#fff5de;border:2px solid #dfb682;border-radius:50px;padding:8px 16px;font-size:14px;font-weight:850;box-shadow:0 3px 7px #7b4b2920}
+.scene-wrap{position:relative;flex:1;min-height:300px;max-height:650px;border:5px solid #cf9c68;border-radius:28px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#fff6df 5%,#eacda8 60%,#d4aa80);box-shadow:inset 0 2px 13px #84582b3d,0 6px 12px #794b2e30;isolation:isolate}
+.nursery{position:absolute;inset:0;pointer-events:none;opacity:.8;background:radial-gradient(ellipse 42% 11% at 52% 91%,#b89371 0%,#e6cba9 67%,transparent 69%),linear-gradient(0deg,#d3aa7d 0 22%,transparent 22%),radial-gradient(ellipse 15% 32% at 93% 58%,#e2b588 10%,transparent 70%),radial-gradient(ellipse 14% 28% at 7% 53%,#d5ac82 10%,transparent 75%)}.nursery:before{content:"";position:absolute;left:6%;top:14%;width:12%;height:34%;border-radius:40px 40px 12px 12px;background:#d1a67b55;filter:blur(8px)}.nursery:after{content:"";position:absolute;right:8%;top:17%;width:17%;height:28%;border-radius:60px;background:#c8a57f44;filter:blur(10px)}
+#view{position:absolute;inset:0;touch-action:none;z-index:2}#view canvas{display:block;width:100%;height:100%;touch-action:none}
+#tip{position:absolute;top:10px;left:50%;transform:translateX(-50%);white-space:nowrap;max-width:95%;overflow:hidden;text-overflow:ellipsis;z-index:4;font-size:11px;font-weight:750;color:#805637;background:#fff4dfd9;padding:7px 11px;border-radius:30px;pointer-events:none}
+#message{position:absolute;bottom:11px;left:9%;right:9%;z-index:4;text-align:center;font-size:12px;font-weight:850;color:#7a4a29;text-shadow:0 1px #fff;background:#fff0d9dc;border-radius:15px;padding:6px 8px;pointer-events:none}
+#help{position:absolute;right:10px;top:48px;z-index:5;border-radius:30px;padding:8px 12px;font-size:12px}
+.tray{border:5px solid #aa7546;border-radius:23px;padding:8px 8px 10px;background:linear-gradient(145deg,#bd8656,#a46d42 70%,#8b542e);box-shadow:inset 0 2px #eac394,0 5px 7px #764c2b4c}.traytitle{text-align:center;color:#ffedc9;font-size:13px;font-weight:850;margin-bottom:8px;text-shadow:0 1px #6a3a1c}
+#pieces{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.piece{height:clamp(76px,19vw,102px);display:grid;place-items:center;border:2px solid #ffe0ae;border-bottom:4px solid #b77c4a;border-radius:14px;background:linear-gradient(150deg,#ffedc9,#eec18d);box-shadow:0 2px 5px #60381944;touch-action:none;user-select:none;position:relative}.piece svg{width:78%;height:78%;filter:drop-shadow(1px 4px 2px #3d2b2b4f);pointer-events:none}.piece.selected{outline:3px solid #ffd948;transform:translateY(-3px)}.piece.used{opacity:.28;pointer-events:none}.ghost{position:fixed;z-index:1000;width:75px;height:75px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(0 10px 6px #0005)}.ghost svg{width:100%;height:100%}
+.controls{display:flex;gap:8px;justify-content:center}.controls button{padding:10px 15px;font-size:13px}.controls button:disabled{opacity:.45}.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#3b251cc7;z-index:100;padding:20px}.overlay.show{display:flex}.modal{max-width:370px;width:100%;background:linear-gradient(#fff0ce,#e8b67b);border:7px solid #ad7549;border-radius:28px;padding:25px 17px;text-align:center;box-shadow:0 12px 35px #2a150d66}.modal h2{margin:10px 0}.modal p{line-height:1.6}.modal button{padding:12px 24px}
+@media(min-height:780px){.scene-wrap{min-height:390px}}@media(max-height:680px){header{height:51px}.scene-wrap{min-height:245px}.traytitle{margin-bottom:4px}.piece{height:66px}.controls button{padding:6px 12px}}@media(min-width:600px){.scene-wrap{min-height:550px}}
+
+/* v2: larger tray shapes, visual-only guidance and animated stage celebrations */
+.scene-wrap{min-height:320px}#tip{display:none}#message:empty{display:none}#message{font-size:29px;bottom:14px;left:38%;right:38%;background:transparent;text-shadow:0 2px 3px #fff,0 4px 8px #51371c66}
+#feedback{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%) scale(.7);font-size:66px;z-index:6;opacity:0;pointer-events:none;text-shadow:0 4px 10px #0005}
+#feedback.ok{animation:feedback-pop .8s ease-out forwards}#feedback.wrong{animation:feedback-shake .72s ease-out forwards}
+@keyframes feedback-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}28%{opacity:1;transform:translate(-50%,-50%) scale(1.24)}65%{opacity:1}100%{opacity:0;transform:translate(-50%,-65%) scale(1.05)}}
+@keyframes feedback-shake{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}18%,40%,65%{opacity:1}25%{transform:translate(calc(-50% - 13px),-50%) scale(1.15)}42%{transform:translate(calc(-50% + 13px),-50%) scale(1.15)}58%{transform:translate(calc(-50% - 7px),-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
+.piece.wrong{animation:piece-error .5s ease-in-out;border-color:#e95448;box-shadow:0 0 12px #f43c39bb;background:#ffb4a1}
+@keyframes piece-error{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
+.overlay{background:#3b251cc4}.modal{position:relative;overflow:hidden;isolation:isolate;padding:29px 18px 24px}.modal h2,.modal p,.modal button,.modal .award,.modal .bonus{position:relative;z-index:2}.modal h2{font-size:clamp(23px,6vw,30px)}.modal p{font-weight:750;font-size:15px}.modal .award{font-size:68px;filter:drop-shadow(0 5px 4px #6b482855);animation:award-bounce 1s ease-out both}.modal .continue{min-width:190px;font-size:18px;margin-top:8px}
+@keyframes award-bounce{0%{transform:translateY(-28px) scale(.5);opacity:0}60%{transform:translateY(5px) scale(1.18);opacity:1}100%{transform:translateY(0) scale(1)}}
+.celebrate{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}.spark{position:absolute;left:var(--x);top:-25px;font-size:var(--size);opacity:0;animation:spark-fall var(--dur) ease-in var(--delay) infinite;filter:drop-shadow(0 2px 2px #99652255)}
+@keyframes spark-fall{0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0)}15%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate3d(var(--drift),420px,0) rotate(220deg)}}
+.bonus{display:none;justify-content:center;gap:7px;margin:9px 0 13px}.bonus.show{display:flex}.bonus span{font-size:30px;animation:star-rise .8s ease-out both;animation-delay:calc(var(--i)*.12s)}@keyframes star-rise{0%{transform:translateY(28px) scale(.25);opacity:0}65%{transform:translateY(-6px) scale(1.2);opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}
+.flying-star{position:fixed;z-index:150;font-size:30px;pointer-events:none;filter:drop-shadow(0 3px 4px #0004);transition:transform .8s cubic-bezier(.3,.1,.6,1),opacity .8s ease}
+@media(prefers-reduced-motion:reduce){.spark{animation-duration:5s}.award{animation:none}}
+
+/* v3: gentle storybook garden motion; all animation decorative, never blocks 3D touches */
+#help{top:10px;right:10px;width:45px;height:43px;display:grid;place-items:center;font-size:24px;padding:3px;z-index:6;border-radius:15px}
+.scene-wrap{background:radial-gradient(ellipse at 47% 22%,#fff7dc 0%,#f1d9b0 49%,#c4d5b0 100%)}
+.nursery{background:linear-gradient(0deg,#e1c29b 0 15%,transparent 15%),radial-gradient(ellipse 62% 16% at 48% 92%,#bd9d78 0%,transparent 75%);opacity:.85}
+.garden-motion{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none;isolation:isolate}
+.sunbeam{position:absolute;top:-20%;width:32%;height:90%;transform:rotate(25deg);transform-origin:top center;background:linear-gradient(90deg,transparent,#fff9d033,transparent);filter:blur(15px);animation:beam-sway 12s ease-in-out infinite alternate}
+.beam-one{left:10%}.beam-two{left:57%;animation-delay:-5s;opacity:.7}
+@keyframes beam-sway{0%{transform:rotate(16deg) translateX(-7%);opacity:.45}100%{transform:rotate(32deg) translateX(10%);opacity:.85}}
+.garden-hill{position:absolute;bottom:8%;height:27%;width:90%;border-radius:50% 50% 0 0;opacity:.78;filter:blur(2px)}
+.hill-one{left:-40%;background:linear-gradient(#bdd3a2,#95b58b);transform:rotate(-8deg)}.hill-two{right:-48%;bottom:9%;height:31%;background:linear-gradient(#b8ce99,#9ebd88);transform:rotate(9deg)}.hill-three{left:8%;bottom:5%;width:85%;height:16%;background:linear-gradient(#d9c4a3,#c7ad88)}
+.bush{position:absolute;bottom:14%;width:23%;height:23%;background:radial-gradient(ellipse at 35% 35%,#d4e0b5,#90b78d 75%);filter:blur(6px);opacity:.7;border-radius:50% 50% 35% 35%;animation:bush-sway 8s ease-in-out infinite alternate}
+.bush-one{left:-10%}.bush-two{right:-12%;animation-delay:-3s}
+@keyframes bush-sway{from{transform:rotate(-3deg)}to{transform:rotate(4deg)}}
+.garden-particle{position:absolute;left:var(--x);top:var(--y);z-index:1;pointer-events:none;animation:garden-float var(--dur) ease-in-out var(--delay) infinite alternate;opacity:.75;will-change:transform}
+.garden-particle.firefly{width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle,#fffef2 8%,#fff0a3 35%,#ffe8a500 72%);box-shadow:0 0 12px 3px #fff5b44f}
+.garden-particle.petal{width:var(--size);height:calc(var(--size)*.68);border-radius:100% 0 100% 10%;background:linear-gradient(135deg,#fff2d8,#e9b6a7);opacity:.42;filter:blur(.4px)}
+@keyframes garden-float{0%{transform:translate3d(0,0,0) rotate(0deg);opacity:.24}50%{opacity:.7}100%{transform:translate3d(var(--dx),var(--dy),0) rotate(110deg);opacity:.32}}
+@media(prefers-reduced-motion:reduce){.garden-particle,.sunbeam,.bush{animation:none!important}}
+#feedback.ok{color:#19b44c;-webkit-text-stroke:4px #f2ffec;text-shadow:0 3px 3px #136e31,0 0 17px #5ef982,0 3px 10px #183d2355;font-weight:1000;font-family:system-ui,sans-serif}
+#feedback.wrong{color:#ee3d39}
+.stars.spent{animation:star-debit .65s ease-out}
+@keyframes star-debit{0%{transform:scale(1);filter:none}25%{transform:scale(1.15);filter:drop-shadow(0 0 9px #ed5757)}55%{transform:scale(.87)}100%{transform:scale(1);filter:none}}
+
+/* v4: moonlit woodland contrast, stronger decorative movement, no flat table */
+body{background:#152932}
+#app{background:radial-gradient(ellipse at 50% 32%,#36545a 0%,#233b43 63%,#142731 100%);box-shadow:0 0 60px #080e16a8}
+.scene-wrap{background:radial-gradient(ellipse at 50% 38%,#466a67 0%,#264650 48%,#122a3c 83%,#0b1b2d 100%);border-color:#987044;box-shadow:inset 0 3px 20px #070f1d88,0 6px 14px #09131c66}
+.nursery{opacity:.46;background:radial-gradient(ellipse 90% 40% at 50% 100%,#305d54 0%,#183f42 60%,transparent 75%),radial-gradient(ellipse 52% 34% at 55% 30%,#5b7471 0%,transparent 85%)}
+.nursery:before,.nursery:after{opacity:.2}
+.sunbeam{opacity:.62;background:linear-gradient(90deg,transparent,#ffebac19,transparent)}
+.hill-one{background:linear-gradient(#315e5d,#153f46);opacity:.55}.hill-two{background:linear-gradient(#3a6961,#1a484d);opacity:.6}.hill-three{background:linear-gradient(#365f55,#163a43);opacity:.43}
+.bush{background:radial-gradient(ellipse at 35% 35%,#6a9578,#244f51 75%);opacity:.6}
+.garden-particle.firefly{background:radial-gradient(circle,#fff7c0 6%,#ffdc70 35%,#ffc55300 74%);box-shadow:0 0 14px 5px #ffdf6a88}
+.garden-particle.petal{background:linear-gradient(135deg,#ffd9b9,#e9a6a8);opacity:.66;filter:drop-shadow(0 0 4px #ffe7b744)}
+.tray{background:linear-gradient(145deg,#c78f5d,#a46c41 70%,#8d552f)}
+.piece{height:clamp(82px,21vw,110px);padding:1px}
+.piece svg{width:96%;height:96%;overflow:visible}
+.ghost{width:92px;height:92px}
+#feedback.ok{width:92px;height:92px;display:grid;place-items:center;font-size:0;-webkit-text-stroke:0;text-shadow:none;filter:drop-shadow(0 5px 7px #0007)}
+#feedback.ok svg.success-tick{width:100%;height:100%;filter:drop-shadow(0 0 8px #5dff86bb)}
+@media(max-height:680px){.piece{height:72px}}
+</style></head>
+<body><main id="app"><header><button class="wood back" id="back" aria-label="Հետ">←</button><div class="wood brand"><small>AREG · ՄՏՔԻ ԽԱՂԵՐ</small>Գտիր ճիշտ ձևը</div><button class="wood stars" id="stars" aria-label="Աստղերի քանակը">⭐ 10</button></header><div class="status"><span class="chip" id="level">Փուլ 1 / 6</span><span class="chip" id="score">✓ 0 / 4</span></div><div class="scene-wrap"><div class="nursery"></div><div class="garden-motion" id="garden-motion" aria-hidden="true"><span class="sunbeam beam-one"></span><span class="sunbeam beam-two"></span><span class="garden-hill hill-one"></span><span class="garden-hill hill-two"></span><span class="garden-hill hill-three"></span><span class="bush bush-one"></span><span class="bush bush-two"></span></div><div id="view"></div><button class="wood" id="help" aria-label="Հուշում" title="Հուշում">💡</button><div id="message" aria-live="polite"></div><div id="feedback" aria-hidden="true"></div></div><div class="tray"><div id="pieces"></div></div></main><div class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="modal"><div class="celebrate" id="celebrate" aria-hidden="true"></div><div class="award" id="award" aria-hidden="true">⭐</div><h2 id="congrats">Ապրե՜ս, շատ լավ էր։</h2><p id="congratsText">Հրաշալի՜ կատարեցիր առաջադրանքը։</p><div class="bonus" id="bonus" aria-hidden="true"></div><button class="wood continue" id="continue">Շարունակել ✨</button></div></div><script type="module" src="./mind-shapes-deluxe-v4.js?v=20261013e"></script></body></html>
