@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 const $=id=>document.getElementById(id),stageEl=$('stage'),msg=$('message');
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(37,1,.1,50);camera.position.set(5,3.8,8.4);camera.lookAt(0,0,0);
-const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.domElement.setAttribute('aria-label','Պտտվող 3D փայտե խորանարդ');stageEl.appendChild(renderer.domElement);
+const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.domElement.setAttribute('aria-label','Պտտվող 3D փայտե խորանարդ');stageEl.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xfff3d9,0x6b412b,2.25));
 const key=new THREE.DirectionalLight(0xffe7c1,3.0);key.position.set(-5,8,7);scene.add(key);
 const fill=new THREE.DirectionalLight(0xb8d8f9,1.3);fill.position.set(5,2,-5);scene.add(fill);
@@ -33,11 +33,11 @@ case 20:return poly(7,.4);case 21:return [[-.38,-.4],[.38,-.4],[.38,-.14],[.1,-.
 case 22:return [[-.42,-.3],[.42,-.3],[.42,.3],[.14,.3],[.14,.05],[-.14,.05],[-.14,.3],[-.42,.3]];
 default:return [[-.4,-.35],[.4,-.35],[.4,-.12],[.15,-.12],[.15,.35],[-.15,.35],[-.15,-.12],[-.4,-.12]]}
 }
-function shape(i){let s=new THREE.Shape();shapePoints(i).forEach(([x,y],k)=>k?s.lineTo(x,y):s.moveTo(x,y));s.closePath();return s}
+function shape(i){let s=new THREE.Shape();shapePoints(i).forEach(([x,y],k)=>k?s.lineTo(x*1.27,y*1.27):s.moveTo(x*1.27,y*1.27));s.closePath();return s}
 function pieceMesh(i){const m=new THREE.Mesh(new THREE.ExtrudeGeometry(shape(i),{depth:.16,bevelEnabled:true,bevelThickness:.055,bevelSize:.032,bevelSegments:3,steps:1,curveSegments:28}),new THREE.MeshStandardMaterial({color:new THREE.Color(colors[i]),roughness:.38,metalness:0}));return m}
 const slots=[],ray=new THREE.Raycaster(),pt=new THREE.Vector2();
 function facePanel(ids){const outline=new THREE.Shape();const rr=1.77,corner=.18;outline.moveTo(-rr+corner,-rr);outline.lineTo(rr-corner,-rr);outline.quadraticCurveTo(rr,-rr,rr,-rr+corner);outline.lineTo(rr,rr-corner);outline.quadraticCurveTo(rr,rr,rr-corner,rr);outline.lineTo(-rr+corner,rr);outline.quadraticCurveTo(-rr,rr,-rr,rr-corner);outline.lineTo(-rr,-rr+corner);outline.quadraticCurveTo(-rr,-rr,-rr+corner,-rr);
-ids.forEach((id,j)=>{const x=j%2?.88:-.88,y=j<2?.88:-.88,pts=shapePoints(id).map(([a,b])=>[a+x,b+y]);const hole=new THREE.Path();pts.slice().reverse().forEach(([a,b],k)=>k?hole.lineTo(a,b):hole.moveTo(a,b));hole.closePath();outline.holes.push(hole)});
+ids.forEach((id,j)=>{const x=j%2?.88:-.88,y=j<2?.88:-.88,pts=shapePoints(id).map(([a,b])=>[a*1.27+x,b*1.27+y]);const hole=new THREE.Path();pts.slice().reverse().forEach(([a,b],k)=>k?hole.lineTo(a,b):hole.moveTo(a,b));hole.closePath();outline.holes.push(hole)});
 return new THREE.ExtrudeGeometry(outline,{depth:.22,bevelEnabled:true,bevelThickness:.025,bevelSize:.025,bevelSegments:2,curveSegments:40,steps:1})}
 for(let face=0;face<6;face++){const g=new THREE.Group();if(face<4)g.rotation.y=face*Math.PI/2;else g.rotation.x=face===4?-Math.PI/2:Math.PI/2;cube.add(g);
 const panel=new THREE.Mesh(facePanel([0,1,2,3].map(j=>face*4+j)),wood);panel.position.z=1.58;g.add(panel);
@@ -58,5 +58,6 @@ renderer.domElement.addEventListener('pointermove',e=>{if(rotationPointer!==e.po
 function end(e){if(rotationPointer===e.pointerId){rotationPointer=null;if(renderer.domElement.hasPointerCapture(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId)}}renderer.domElement.addEventListener('pointerup',end);renderer.domElement.addEventListener('pointercancel',end);renderer.domElement.addEventListener('lostpointercapture',e=>{if(rotationPointer===e.pointerId)rotationPointer=null});
 renderer.domElement.addEventListener('click',e=>{if(selected===null)return;drop(e.clientX,e.clientY,selected)});
 $('reset').onclick=render;$('next').onclick=()=>{if(completed.size!==6)return;if(stage===3)$('overlay').classList.add('show');else{stage++;render()}};$('again').onclick=()=>{stage=0;starCount=0;$('star').textContent='⭐ 0';render()};$('back').onclick=()=>history.length>1?history.back():location.href='./';
+$('photo').onclick=()=>{renderer.render(scene,camera);const img=$('snapshot');img.src=renderer.domElement.toDataURL('image/png');$('photoView').classList.add('show')};$('closePhoto').onclick=()=>$('photoView').classList.remove('show');
 function resize(){const w=stageEl.clientWidth,h=stageEl.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();camera.position.set(5.1,3.7,9.1);camera.lookAt(0,0,0)}resize();window.addEventListener('resize',resize);
 function tick(){requestAnimationFrame(tick);cube.quaternion.slerp(qTarget,.23);renderer.render(scene,camera)}tick();render();
