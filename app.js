@@ -448,10 +448,10 @@
     mind:{
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
-        {id:'puzzle',label:'Գլուխկոտրուկ',thumb:'mind-game-1.jpg',kind:'sort'},
-        {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
-        {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Թվեր',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'sort'},
+        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Ում ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
