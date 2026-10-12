@@ -22,7 +22,7 @@ try{
   const url='http://127.0.0.1:8767/';
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
   await page.evaluate(async ()=>{
-    await navigator.serviceWorker.register('./service-worker.js?v=290',
+    await navigator.serviceWorker.register('./service-worker.js?v=291',
       {updateViaCache:'none'});
   });
   // Poll real SW lifecycle rather than waiting for 'updatefound' AFTER it
@@ -72,9 +72,9 @@ try{
       await sleep(250);
     }while(Date.now()<deadline);
   }
-  if(!sw.controlled||!sw.controllerUrl.includes('service-worker.js?v=290'))
-    throw Error('V290 service worker did not control new page '+JSON.stringify(sw));
-  console.log('V290 SERVICE WORKER CONTROL VERIFIED',JSON.stringify(sw));
+  if(!sw.controlled||!sw.controllerUrl.includes('service-worker.js?v=291'))
+    throw Error('V291 service worker did not control new page '+JSON.stringify(sw));
+  console.log('V291 SERVICE WORKER CONTROL VERIFIED',JSON.stringify(sw));
   const bootstrap=await page.evaluate(async()=>{
     const core=await caches.open('areg-v291-core');
     const original=await core.match('./index.html');
@@ -106,7 +106,7 @@ try{
       controller:navigator.serviceWorker.controller?.scriptURL||''};
   });
   if(fresh.oldMarker||fresh.cacheStillStale||!fresh.revalidated||
-     fresh.wallet!=='17'||!fresh.controller.includes('v=290'))
+     fresh.wallet!=='17'||!fresh.controller.includes('v=291'))
     throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
   try{
@@ -355,7 +355,7 @@ try{
       const core=await caches.open('areg-v291-core');
       const entry=await core.match('./index.html');
       const app=await core.match('./app.js?v=291');
-      const css=await core.match('./styles.css?v=290');
+      const css=await core.match('./styles.css?v=291');
       const constellationCss=await core.match('./space-3d-games.css?v=287');
       const html=entry?await entry.text():'';
       return {wallet:localStorage.getItem('areg-stars-v35'),
