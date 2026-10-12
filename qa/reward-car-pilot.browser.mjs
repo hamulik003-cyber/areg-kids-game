@@ -29,6 +29,12 @@ try{
   const wheels=[...stage?.querySelectorAll('svg .areg-car-wheel')||[]];
   const group=wheels[0]?.querySelector('g');
   const heroRect=moving?.getBoundingClientRect(),stageRect=stage?.getBoundingClientRect();
+  const svg=stage.querySelector('.areg-car-pilot-hero svg');
+  const ride=moving?.getAnimations().find(a=>a.effect?.getKeyframes()?.some(k=>String(k.transform||'').includes('translate3d')));
+  const frameX=ride?.effect.getKeyframes().map(k=>Number(String(k.transform||'').match(/translate3d\\(\\s*(-?[\\d.]+)px/)?.[1]));
+  const alwaysForward=!!frameX?.length&&frameX.every(Number.isFinite)&&frameX.every((x,i)=>i===0||x>=frameX[i-1])&&frameX.at(-1)>frameX[0];
+  const front=svg?.querySelector('#areg-car-front');
+  const rear=svg?.querySelector('#areg-car-rear');
   const groundY=stageRect.top+stageRect.height*.725;
   // The real rear/front wheel centers are at SVG y=249 /330.
   const wheelY=heroRect.top+heroRect.height*249/330;
@@ -41,12 +47,16 @@ try{
    road:!!road,trees:!!stage.querySelector('.areg-car-pilot-trees svg'),
    groundOffset:Math.round(wheelY-groundY),
    started:!!stage.dataset.actionStartedAt,
+   facing:svg?.dataset.facing,frontMarked:front?.dataset.end,backMarked:rear?.dataset.end,
+   headlamp:!!front?.querySelector('#areg-front-headlight'),
+   forwardOnly:alwaysForward,frameX,travelDirection:stage.dataset.travelDirection,
    walletUnchanged:!localStorage.getItem('areg-magic-unlocked-v1')&&!localStorage.getItem('areg-stars-v35')
   };
  });
  if(state.source!==before||state.mode!=='illustrated'||state.wheels!=='rotatable'||state.wheelCount!==2||
     !state.wheelRotation.includes('areg-wheel-turn')||!state.road||!state.trees||Math.abs(state.groundOffset)>18||
-    !state.started||!state.walletUnchanged)
+    !state.started||!state.walletUnchanged||state.facing!=='right'||state.frontMarked!=='front'||
+    state.backMarked!=='rear'||!state.headlamp||!state.forwardOnly||state.travelDirection!=='right')
   throw Error('Same-art car/wheels/ground/wallet invariant FAIL: '+JSON.stringify(state));
  // Must NOT begin closing until at least five seconds of physical movement.
  await page.waitForTimeout(1800);
