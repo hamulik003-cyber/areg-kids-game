@@ -1,3 +1,9 @@
+## 2026-10-13 — Premium wooden cube trial (UNAPPROVED)
+- User approved generated premium wooden sorter visual as visual target; requested 24 distinct hole shapes and 24 matching colorful pieces, natural wood, freely rotatable six faces.
+- Created trial-only `mind-shapes-premium.html` and `mind-shapes-premium.js` (commits `f5f2e58d11c4597c2566e687ee6140fdaea8b672`, `25d5f592bb1f0fd32dfb9a5a0b62143c952cb82e`). Standalone WebGL Three.js cube with procedural wood, 6x4 uniquely indexed recessed shapes, matching 24 colored extruded meshes, four stages of six non-repeating shapes, drag/tap and quaternion free rotation, wrong/correct tones.
+- Safari preview intended at `https://areg-mind-games-trial-20261013.onrender.com/mind-shapes-premium.html`. Render deployment of new commits and real-device functionality NOT YET VERIFIED; do not claim completed verification.
+- This is procedural approximation of approved image, not exact image texture/model. No changes to main or existing production game; new trial not yet wired into mind-game menu.
+
 ## 2026-10-13 — Shape cube Safari trial implemented (UNAPPROVED / NOT YET DEVICE TESTED)
 - Corrected trial menu label to Armenian interrogative `Ո՞ւմ ստվերն է` in `app.js`, commit `07797ceec0279c03ea67ac9427cc217cc6bc39a7`.
 - Created trial-only `mind-shapes-3d-trial.html` with CSS 3D wooden cube (four rotatable faces), four distinct geometric holes per face, four rounds (one face per round), sixteen non-repeating colored shapes total, pointer/touch drag and tap placement, stage completion, wrong-answer two-note WebAudio matching `space-3d-games.js` `answerSfx(false)` frequencies/timing. Trial commits `919a65c9666b2f6cab3f2c9fd8e20004a93b20b7`, `e643019603ccd0c2654e748842c960852e0afc2c`.
