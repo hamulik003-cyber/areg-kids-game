@@ -83,6 +83,19 @@ export async function playCarReward(sourceCard){
   const grow='translate3d('+(origin.left-destination.left)+'px,'+
     (origin.top-destination.top)+'px,0) scale('+
     (origin.width/destination.width)+','+(origin.height/destination.height)+')';
+  const blendAt=.82;
+  // Both animated rectangles use the very same intermediate screen position.
+  // The two visuals are crossfaded only while still MOVING, never after
+  // stopping: no frozen last portion and no second-card flash.
+  const middleBack='translate3d('+
+    ((destination.left+destination.width/2-origin.left-origin.width/2)*blendAt)+'px,'+
+    ((destination.top+destination.height/2-origin.top-origin.height/2)*blendAt)+'px,0) scale('+
+    (1+(sx-1)*blendAt)+','+(1+(sy-1)*blendAt)+')';
+  const middleGrow='translate3d('+
+    ((origin.left-destination.left)*(1-blendAt))+'px,'+
+    ((origin.top-destination.top)*(1-blendAt))+'px,0) scale('+
+    (1+(origin.width/destination.width-1)*(1-blendAt))+','+
+    (1+(origin.height/destination.height-1)*(1-blendAt))+')';
   stage.dataset.live='0';
   stage.dataset.ending='1';
   stage.dataset.returnMatched='1';
@@ -93,16 +106,14 @@ export async function playCarReward(sourceCard){
   if(!reduced&&typeof card.animate==='function'){
     const shrinking=card.animate([
       {offset:0,transform:'none',opacity:1},
-      {offset:.61,transform:back,opacity:1},
-      {offset:.72,transform:back,opacity:.82},
+      {offset:blendAt,transform:middleBack,opacity:1},
       {offset:1,transform:back,opacity:0}
     ],{duration,easing:ease,fill:'forwards'});
-    // Important: only the LAST instant of the animated card is the original
-    // DOM clone, whose illustration / padding / object-fit match the real one.
+    // Only the final 18% of the shrinking animation blends into the exact
+    // source-card DOM clone. Both images CONTINUE the same flight throughout.
     const returning=landing.animate([
       {offset:0,transform:grow,opacity:0},
-      {offset:.60,transform:grow,opacity:0},
-      {offset:.84,transform:grow,opacity:1},
+      {offset:blendAt,transform:middleGrow,opacity:0},
       {offset:1,transform:'none',opacity:1}
     ],{duration,easing:ease,fill:'forwards'});
     await Promise.all([shrinking.finished.catch(()=>{}),returning.finished.catch(()=>{})]);
@@ -114,13 +125,18 @@ export async function playCarReward(sourceCard){
   const originalRect=sourceCard.getBoundingClientRect();
   const sourceArt=sourceCard.querySelector('.magic-picture img');
   const cloneArt=landing.querySelector('.magic-picture img');
+  const aRect=sourceArt?.getBoundingClientRect(),bRect=cloneArt?.getBoundingClientRect();
+  const imageErrorPx=aRect&&bRect?Math.max(
+    Math.abs(aRect.left-bRect.left),Math.abs(aRect.top-bRect.top),
+    Math.abs(aRect.width-bRect.width),Math.abs(aRect.height-bRect.height)
+  ):null;
   const errorPx=Math.max(
     Math.abs(rect.left-originalRect.left),Math.abs(rect.top-originalRect.top),
     Math.abs(rect.width-originalRect.width),Math.abs(rect.height-originalRect.height)
   );
   // Regression instrumentation only; no storage, stars, or gameplay writes.
   document.dispatchEvent(new CustomEvent('areg-car-return-check',{detail:{
-    errorPx,referenceWidth:originalRect.width,returnWidth:rect.width,
+    errorPx,imageErrorPx,referenceWidth:originalRect.width,returnWidth:rect.width,
     sameImage:!!cloneArt&&cloneArt.getAttribute('src')===sourceArt?.getAttribute('src'),
     mode:stage.dataset.returnMode,
     phase:'landing-clone-before-overlay-removal'
