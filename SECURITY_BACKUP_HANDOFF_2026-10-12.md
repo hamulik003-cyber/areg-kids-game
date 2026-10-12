@@ -1,3 +1,6 @@
+## Standing continuity requirement (explicit user confirmation)
+Following each project modification/security or backup action, future assistants MUST update the three handoffs with the exact action, branch/commit/test/approval/result and the next resume step. This is a permanent requirement. See AGENTS.md, first section, and the latest chronological checkpoint. The user authorized the documentation-only PR #21 to be merged after safety checks; no gameplay or Pages configuration changes were authorized.
+
 # AREG Kids Game — Security & Backup Handoff (2026-10-12)
 
 > **Status:** documentation-only record, based on the user's actual Git Bash outputs and the live GitHub `main` SHA checked on 2026-10-12. Do not confuse a successful Git archive test with a test of all game runtime behavior. **Never change gameplay, live Pages URL, PWA cache, or `main` without explicit user approval.**
