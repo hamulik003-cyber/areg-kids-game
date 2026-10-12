@@ -30,6 +30,13 @@ try{
   throw Error('Initial original-card invariant FAIL: '+JSON.stringify(starting));
  await page.locator('#car').click();
  await page.locator('#car .areg-car-pilot-stage[data-live="1"]').waitFor({timeout:10000});
+ // The scenery fades in for .62s after motion begins. Read the clipping
+ // properties only after its opacity transition reaches the fully painted
+ // state; querying immediately after data-live=1 creates a false failure.
+ await page.waitForFunction(()=>{
+   const stage=document.querySelector('#car .areg-car-pilot-stage[data-live="1"]');
+   return stage&&parseFloat(getComputedStyle(stage).opacity)>=.99;
+ },null,{timeout:3500});
  const driving=await page.evaluate(()=>{
   const card=document.getElementById('car'),pic=card.querySelector('.magic-picture');
   const stage=card.querySelector('.areg-car-pilot-stage');
