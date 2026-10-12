@@ -185,16 +185,20 @@ export async function playCarReward(sourceCard){
    stage.dataset.actionMs='0';
    stage.dataset.live='1';
    stage.dataset.travelDirection='left';
+   stage.dataset.motionStyle='center-locked-parallax';
    sourceCard.dataset.driving='1';
-   // Motion is measured from this first animation frame, excluding
-   // the entry and return. The ONE visible car travels only leftward.
+   // Five seconds of forward motion are conveyed by the LEFT-facing car's
+   // rotating wheels and RIGHT-flowing scenery. Keep the original artwork
+   // locked at the same X position and 100% scale during the entire ride;
+   // only a sub-pixel road-bounce is permitted vertically.
+   // Entry and reverse return remain exactly as previously approved.
    ride=picture.animate([
-     {offset:0,transform:'translate3d(0px,0px,0) scale(1.0)'},
-     {offset:.17,transform:'translate3d(-3px,-1px,0) scale(1.06)'},
-     {offset:.36,transform:'translate3d(-7px,0px,0) scale(1.10)'},
-     {offset:.57,transform:'translate3d(-12px,-2px,0) scale(1.10)'},
-     {offset:.79,transform:'translate3d(-17px,-1px,0) scale(1.06)'},
-     {offset:1,transform:'translate3d(-22px,0px,0) scale(1.0)'}
+     {offset:0,transform:'translate3d(0px,0px,0) scale(1)'},
+     {offset:.17,transform:'translate3d(0px,-0.6px,0) scale(1)'},
+     {offset:.36,transform:'translate3d(0px,0px,0) scale(1)'},
+     {offset:.57,transform:'translate3d(0px,-0.8px,0) scale(1)'},
+     {offset:.79,transform:'translate3d(0px,-0.3px,0) scale(1)'},
+     {offset:1,transform:'translate3d(0px,0px,0) scale(1)'}
    ],{duration:5000,easing:'linear',fill:'forwards'});
    await Promise.race([
      ride.finished.catch(()=>{}),
