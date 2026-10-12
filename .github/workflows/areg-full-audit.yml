@@ -94,9 +94,9 @@ jobs:
       - run: npx playwright install --with-deps webkit
       - name: Verify 30th correct answer opens existing result dialog on mobile WebKit
         run: AREG_BROWSER=webkit node qa/space-results-dialog.browser.mjs
-      - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
       - name: Test reward car 3D in iOS WebKit
         run: AREG_BROWSER=webkit node qa/reward-car-pilot.browser.mjs
+      - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
       - name: Verify GitHack preview's redirected 3D images work in WebKit WebGL (nonblocking)
         continue-on-error: true
         env:
