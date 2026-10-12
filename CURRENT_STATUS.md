@@ -1,3 +1,8 @@
+## 2026-10-13 — 3D sorter visual refinement checkpoint (UNAPPROVED)
+- User requested the most professional, beautiful version at assistant's discretion, with matching real 3D model and game. Continued exclusively on trial/mind-games-3d-2026-10-13; protected V290 main unchanged.
+- Updated mind-shapes-premium.js commit fc7b1bae3928fb3486eb4dd53a1f82e1ee3c9df4: closer hero camera, thicker/softer rounded wooden face bevels, removed wireframe-like border edges, reduced overbright lights, matte wood and painted pieces. Prior trial also enlarged shape cutouts by 1.27x and added an in-game actual WebGL screenshot button (commit ae12b226b3ac75144e5cf1aa3511204a6e3d7df4).
+- This is a code-level visual iteration, NOT a final photorealistic GLB/OBJ asset. No real iPhone performance or image fidelity confirmation yet. Render deploy and on-device acceptance pending. Next: verify deployed trial on iPhone, inspect actual screenshots, then replace procedural mesh with professionally authored GLB geometry/materials if needed. Do not merge without explicit approval.
+
 ## 2026-10-13 — Premium wooden cube trial (UNAPPROVED)
 - User approved generated premium wooden sorter visual as visual target; requested 24 distinct hole shapes and 24 matching colorful pieces, natural wood, freely rotatable six faces.
 - Created trial-only `mind-shapes-premium.html` and `mind-shapes-premium.js` (commits `f5f2e58d11c4597c2566e687ee6140fdaea8b672`, `25d5f592bb1f0fd32dfb9a5a0b62143c952cb82e`). Standalone WebGL Three.js cube with procedural wood, 6x4 uniquely indexed recessed shapes, matching 24 colored extruded meshes, four stages of six non-repeating shapes, drag/tap and quaternion free rotation, wrong/correct tones.
