@@ -17,13 +17,16 @@ try{
   await page.goto('http://127.0.0.1:8776/reward-car-preview.html',{waitUntil:'domcontentloaded'});
   await page.locator('#car').click();
   await page.locator('.areg-car-pilot-card').waitFor({state:'visible',timeout:10000});
-  await page.waitForFunction(()=>['webgl','fallback'].includes(document.querySelector('.areg-car-pilot-stage')?.dataset.sceneMode),null,{timeout:5500}).catch(()=>{});
+  const original=await page.locator('#car .magic-picture').textContent();
+  await page.waitForFunction(()=>['webgl','fallback'].includes(document.querySelector('.areg-car-pilot-stage')?.dataset.sceneMode),null,{timeout:8500}).catch(()=>{});
   // Diagnostic when loading fails or WebKit WebGL context differs from Chromium.
   const state=await page.evaluate(()=>{
     const card=document.querySelector('.areg-car-pilot-card');
     const canvas=document.querySelector('.areg-car-pilot-stage canvas');
     return {
       title:card?.querySelector('.areg-car-pilot-title')?.textContent,
+      preservedOriginal:document.querySelector('.areg-car-pilot-original')?.textContent,
+      sourceOriginal:document.querySelector('#car .magic-picture')?.textContent,
       canvas:!!canvas,renderWidth:canvas?.width||0,renderHeight:canvas?.height||0,
       webglSupported:!!document.createElement('canvas').getContext('webgl'),
       webgl2Supported:!!document.createElement('canvas').getContext('webgl2'),
@@ -31,7 +34,16 @@ try{
       isolatedWallet:!localStorage.getItem('areg-magic-unlocked-v1')&&!localStorage.getItem('areg-stars-v35')
     };
   });
-  if(state.title!=='Մեքենա'||!state.isolatedWallet)throw Error('reward pilot changed wallet or lacks car title: '+JSON.stringify(state));
+  if(state.title!=='Մեքենա'||!state.isolatedWallet||state.preservedOriginal!==original||state.sourceOriginal!==original)
+    throw Error('reward pilot changed hero art/wallet/title: '+JSON.stringify(state));
+  // Single-take invariant: one and the SAME canvas during camera movement, never replaced.
+  const initialCanvas=await page.locator('.areg-car-pilot-stage canvas').evaluate(el=>el.isConnected).catch(()=>false);
+  if(state.webgl2Supported&&initialCanvas){
+    const continuity=await page.evaluate(()=>{const node=document.querySelector('.areg-car-pilot-stage canvas');window.__aregTakeCanvas=node;return node?.isConnected;});
+    await page.waitForTimeout(850);
+    const sameCanvas=await page.evaluate(()=>window.__aregTakeCanvas===document.querySelector('.areg-car-pilot-stage canvas')&&window.__aregTakeCanvas?.isConnected);
+    if(!continuity||!sameCanvas)throw Error('CAR SHOT CUT: 3D renderer changed during the scene');
+  }
   if(state.webgl2Supported&&(!state.canvas||state.renderWidth<50||state.renderHeight<50))
     throw Error('WebGL2 supported but no rendered 3D scene: '+JSON.stringify({state,errors,diagnostics}));
   if(!state.webgl2Supported&&state.sceneMode!=='fallback'&&!state.canvas)
