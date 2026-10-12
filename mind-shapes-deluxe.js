@@ -31,7 +31,7 @@ const stageIds=()=>Array.from({length:6},(_,face)=>face*4+stage);
 const wood=new THREE.MeshStandardMaterial({map:woodMap(),color:0xffe6bf,roughness:.78,metalness:0});
 const sideWood=new THREE.MeshStandardMaterial({color:0xb77c49,roughness:.82});
 const coreMat=new THREE.MeshStandardMaterial({color:0x8c5937,roughness:.95});
-const insetMat=id=>new THREE.MeshStandardMaterial({color:new THREE.Color(colors[id]).multiplyScalar(.40),roughness:1,side:THREE.DoubleSide});
+const insetMat=id=>new THREE.MeshStandardMaterial({color:new THREE.Color(colors[id]).multiplyScalar(.68),roughness:1,side:THREE.DoubleSide});
 const colorMat=id=>new THREE.MeshStandardMaterial({color:colors[id],roughness:.45,metalness:0});
 function outline(){const s=new THREE.Shape(),r=1.54,k=.17;s.moveTo(-r+k,-r);s.lineTo(r-k,-r);s.quadraticCurveTo(r,-r,r,-r+k);s.lineTo(r,r-k);s.quadraticCurveTo(r,r,r-k,r);s.lineTo(-r+k,r);s.quadraticCurveTo(-r,r,-r,r-k);s.lineTo(-r,-r+k);s.quadraticCurveTo(-r,-r,-r+k,-r);return s}
 function panelGeo(face){const o=outline();for(let j=0;j<4;j++){let id=face*4+j,x=j%2?.77:-.77,y=j<2?.77:-.77;const h=new THREE.Path();points(id).slice().reverse().forEach(([a,b],i)=>i?h.lineTo(a+x,b+y):h.moveTo(a+x,b+y));h.closePath();o.holes.push(h)}return new THREE.ExtrudeGeometry(o,{depth:.18,bevelEnabled:true,bevelThickness:.035,bevelSize:.035,bevelSegments:3,curveSegments:32,steps:1})}
@@ -47,7 +47,7 @@ cube=new THREE.Group();scene.add(cube);cube.add(new THREE.Mesh(new THREE.BoxGeom
 for(let face=0;face<6;face++){const g=new THREE.Group();if(face<4)g.rotation.y=face*Math.PI/2;else g.rotation.x=face===4?-Math.PI/2:Math.PI/2;cube.add(g);
 const panel=new THREE.Mesh(panelGeo(face),[wood,sideWood]);panel.position.z=1.50;g.add(panel);panels.push(panel);
 for(let j=0;j<4;j++){const id=face*4+j,x=j%2?.77:-.77,y=j<2?.77:-.77;
-const base=new THREE.Mesh(new THREE.ShapeGeometry(makeShape(id)),insetMat(id));base.position.set(x,y,1.52);g.add(base);
+const base=new THREE.Mesh(new THREE.ShapeGeometry(makeShape(id)),insetMat(id));base.position.set(x,y,1.545);g.add(base);
 const block=new THREE.Mesh(pieceGeo(id),colorMat(id));block.position.set(x,y,2.3);block.visible=false;g.add(block);
 slots.push({id,face,base,block,filled:false})}}
 ray=new THREE.Raycaster();goal=new THREE.Quaternion().setFromEuler(new THREE.Euler(-.38,-.52,0,'YXZ'));cube.quaternion.copy(goal);
