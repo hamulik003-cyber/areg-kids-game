@@ -1619,8 +1619,15 @@
     if(needsSpaceEngine){
       prep=Promise.race([spaceEngineReady,new Promise(resolve=>setTimeout(resolve,3200))]);
     }else if(GALLERY_WARM_ITEMS[game.kind]){
-      prep=Promise.race([warmGalleryPreviews(game.kind,4),
-        new Promise(resolve=>setTimeout(resolve,1250))]);
+      // Safari trial: the first Constellations gallery entry must not hold
+      // the flying card while its four thumbnail images decode. Begin the
+      // warmup in parallel; the gallery already reveals decoded images safely.
+      if(game.kind==='constellationGallery'){
+        warmGalleryPreviews(game.kind,4).catch(()=>{});
+      }else{
+        prep=Promise.race([warmGalleryPreviews(game.kind,4),
+          new Promise(resolve=>setTimeout(resolve,1250))]);
+      }
     }
     if(flight){
       // 230ms minimum lead, without an artificial pause when resources are hot.
