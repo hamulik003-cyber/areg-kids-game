@@ -2128,14 +2128,6 @@
       }
 
       if(activeGalleryPresentation===state){
-        if(card.classList.contains('animal-card--constellation')){
-          // Trial only: unveil the original constellation card under the final
-          // flight frame to avoid a visible clone/original handoff shrink.
-          card.style.removeProperty('opacity');
-          card.style.removeProperty('pointer-events');
-          await new Promise(resolve=>requestAnimationFrame(resolve));
-          if(state.cancelled)return;
-        }
         host.classList.remove('gallery-card-flight-host--visible');
         try{host.remove()}catch{}
         card.style.removeProperty('opacity');
