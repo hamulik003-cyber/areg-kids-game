@@ -3018,6 +3018,10 @@
 
   function showToast(t){toast.textContent=t;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),900)}
   addEventListener('pageshow',()=>{const saved=Number(localStorage.getItem(STARS_KEY));if(Number.isFinite(saved)){stars=saved;updateStars()}});
+  if(new URLSearchParams(location.search).get('section')==='mind'){
+    // Standalone Mind V4 returns to this section even after a full PWA navigation.
+    openSection('mind');
+  }
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
