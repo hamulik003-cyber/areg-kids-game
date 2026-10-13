@@ -1355,6 +1355,13 @@
         }
       }
     }
+    // On iPhone the long Constellations label on the detached flight clone
+    // can reflow as it shrinks. Render its text only on the real destination
+    // card, revealed by the original 1100ms screen fade, not on the clone.
+    if(to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations'){
+      const flyingLabel=copy.querySelector('.toddler-game-label');
+      if(flyingLabel)flyingLabel.style.setProperty('visibility','hidden','important');
+    }
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
