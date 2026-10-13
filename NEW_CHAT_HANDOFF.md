@@ -1,3 +1,9 @@
+## 2026-10-13 — Gallery final return seam: PR #40 isolated trial (NOT APPROVED)
+- Main baseline: 8d365c739466eff1e45575235cc3320098d5b6bd (restored PR #37 visuals, known correct).
+- User supplied 2026-10-13 video and explicitly asked to fix tiny end-of-return inner picture/name/status badge settling; prior PR #38 focus-transform removal was rejected and must never be repeated.
+- Created branch fix/gallery-return-seam-20261013, PR #40, experimental app.js-only change: restore the actual gallery card beneath the overlay clone, hold clone until one requestAnimationFrame paint boundary, then remove overlay. Approved reverse flight keyframes, speed, CSS, and art/audio unchanged.
+- Hypothesis only: clone/original handoff causes a one-frame visual seam. NOT visually confirmed; await CI and user review. Do not merge to main before explicit approval. Roll back by abandoning PR #40.
+
 ## 2026-10-13 — User rejected PR #38 gallery focus change; revert it exactly
 - User: «չե դա հետ դիր դրա մասին չեյ ասում» — the removal of the focused picture-card transform was NOT the issue they meant. Do not claim that the real issue was fixed or guess a replacement fix.
 - Restore precisely the original CSS selector `.gallery-card-flight-shell > .animal-card.animal-card--focus` with `transform:translateY(-1px) scale(1.012) !important;` and remove the PR #38 comment. No other animation, title, game logic, assets or audio touched.
