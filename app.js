@@ -1321,6 +1321,9 @@
         }
       }
     }
+    // Reverse-flight's approved duration, easing, path and keyframes remain
+    // untouched. The detached clone is an overlay; remove it only after
+    // the real card is painted behind it, so the final handoff cannot jump.
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1348,7 +1351,12 @@
       // it would make the slot EMPTY until the next unrelated render.
       if(previousCardOpacity==='0')card.style.removeProperty('opacity');
       else card.style.opacity=previousCardOpacity;
-      flight.remove();
+      // The source card and its fixed-position clone can render on different
+      // compositor frames on iOS. Handoff in one painted frame with exactly
+      // the same 1040ms animation as before; only delay overlay disposal.
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>flight.remove());
+      });
       reversePortalActive=false;
       finishNavigation();
     };
