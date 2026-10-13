@@ -3021,7 +3021,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=291-mind',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=291',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
