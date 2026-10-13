@@ -1,3 +1,10 @@
+
+
+## 2026-10-14 — Approved Constellations wooden label release V296
+- User approved final Safari trial `43d66e42699d201ebafac4bebee21109b69622c7` and explicitly authorized production promotion.
+- PR #53 branch `fix/space-label-symmetry-v295-try2`; remove two competing Constellations-specific CSS plaque overrides, inheriting sibling card geometry. Fit only the Armenian lettering inside the unchanged wooden plaque on both cinematic and regular Space entry paths; final text fitting adds 4px horizontal room. No game-card animation timings, assets, audio, game rules, or stars modified.
+- Baseline main V295 commit `1d9e21cad676f0b416de8d0caa2d486b55b3cdb3`; release cache bump V296 in index.html, app.js service-worker registration and service-worker.js core/runtime caches. iPhone visual approval applies to pinned trial; production cache/Pages confirmation still pending.
+- Rollback baseline: user-confirmed V295 `4cfcc66ca85752714ba678f8940b7d8d7b4079b3` (also restored main before PR).
 ## 2026-10-13 — User rejected PR #38 gallery focus change; revert it exactly
 - User: «չե դա հետ դիր դրա մասին չեյ ասում» — the removal of the focused picture-card transform was NOT the issue they meant. Do not claim that the real issue was fixed or guess a replacement fix.
 - Restore precisely the original CSS selector `.gallery-card-flight-shell > .animal-card.animal-card--focus` with `transform:translateY(-1px) scale(1.012) !important;` and remove the PR #38 comment. No other animation, title, game logic, assets or audio touched.
