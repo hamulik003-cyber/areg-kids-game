@@ -945,6 +945,10 @@
         // Keep the incoming page stationary and crossfade both full screens.
         // Inline important overrides legacy section transition !important.
         sectionScreen.hidden=false;
+        if(id==='space')requestAnimationFrame(()=>{
+          fitSpaceConstellationsLabel();
+          document.fonts?.ready?.then(()=>{if(currentSection==='space')fitSpaceConstellationsLabel()});
+        });
         sectionScreen.dataset.entryCrossfade='running';
         sectionScreen.dataset.entrySection=id;
         sectionScreen.style.setProperty('transition','none','important');
