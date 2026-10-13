@@ -1,3 +1,9 @@
+## 2026-10-13 — V294 Space label and inner-game reverse landing trial (UNAPPROVED)
+- User screenshot shows long «Համաստեղություններ» card label overflowing its cream pill in Space. User reports a one-frame snap when returning from inner games across sections, while top-level section return is smooth. Preserve all approved Nature/top-level animations, V294 theme background, V4 cube, game data, audio, stars and timing.
+- Approved production before this trial: main b96e652f886c0ae4a6f57492b5ffae6049745a2f (PR #32 merged, Pages successful); user has NOT approved this new fix.
+- Branch fix/v294-space-label-reverse-landing-20261013; app.js only. Space label now measures actual Armenian text with canvas and fits width, including cinematic reveal/font readiness. Reverse inner-game clone now copies computed image/label presentation before animation so the detached clone matches the source at landing. The 1040ms flight and 1100ms fade are unchanged. No production/main write.
+- Pending: CI and actual iPhone/DotKiosk visual verification, especially all four Space cards and return from inner games; inspect any remaining snap before merging. Rollback: production main b96e652f.
+
 ## 2026-10-13 — V294 theme-outside-V4 and reverse-card typography TEST BRANCH
 - User supplied two DotKiosk screenshots (approved Nature Animals normal theme and new Mind Deluxe V4 showing its own background). User requests: keep V4 cube/scene/tray untouched but show user's selected main background outside those panels, as other galleries do. User also reports reverse flight of cards/text from games to section has late snapping/reflow; Nature home-return is already perfect and must remain untouched.
 - GitHub main verified `c09a842d938591e1dbc425a5815104aedc6ce514` (PR #31, V293; previous approved V4 hint and animated navigation included). Main and persistent local storage UNCHANGED at this checkpoint.
