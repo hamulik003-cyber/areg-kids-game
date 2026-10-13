@@ -1525,10 +1525,10 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:game.kind==='constellationGallery'?680:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
-      const safety=setTimeout(cleanup,game.kind==='constellationGallery'?1050:1900);
+      const safety=setTimeout(cleanup,1900);
       anim.finished.then(()=>clearTimeout(safety),()=>clearTimeout(safety));
       return {restoreCard,finished:()=>flightFinished,cleanup};
     }catch(error){
@@ -1587,9 +1587,9 @@
         started=true;
         // Same look, timing and easing as the user-liked Nature home entry.
         activityScreen.style.setProperty('transition',
-          'opacity '+(game.kind==='constellationGallery'?700:1100)+'ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
         sectionScreen.style.setProperty('transition',
-          'opacity '+(game.kind==='constellationGallery'?700:1100)+'ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
         activityScreen.classList.add('is-visible');
         activityScreen.style.setProperty('opacity','1','important');
         sectionScreen.style.setProperty('opacity','0','important');
@@ -1608,7 +1608,7 @@
           activityScreen.style.removeProperty('pointer-events');
           delete activityScreen.dataset.innerGameCrossfade;
           delete activityScreen.dataset.innerGameEntry;
-        },game.kind==='constellationGallery'?780:1180);
+        },1180);
       };
       const fallback=setTimeout(start,45);
       requestAnimationFrame(()=>{clearTimeout(fallback);start()});
@@ -1623,6 +1623,9 @@
       // the flying card while its four thumbnail images decode. Begin the
       // warmup in parallel; the gallery already reveals decoded images safely.
       if(game.kind==='constellationGallery'){
+        // Start gallery preparation early, without changing the approved
+        // 1040ms flight or 1100ms dissolve. This trial is for origin-specific
+        // Safari loading behavior; never block the landing on image decode.
         warmGalleryPreviews(game.kind,4).catch(()=>{});
       }else{
         prep=Promise.race([warmGalleryPreviews(game.kind,4),
