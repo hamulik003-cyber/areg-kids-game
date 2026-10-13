@@ -3280,6 +3280,12 @@ html[data-theme^="photo-user-"] .section-dim{
   text-overflow:clip !important;
 }
 
+/* Long space card title: fit inside the wooden plaque on iPhone. */
+.toddler-section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
+  font-size:11px !important;
+  letter-spacing:-.045em !important;
+}
+
 /* V239: two decoded bitmap layers. The preview stays painted underneath
    until the original photograph is READY, so Safari/DotKiosk cannot display
    a white intermediate frame during an image URL replacement. */
