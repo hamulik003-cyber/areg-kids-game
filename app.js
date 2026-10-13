@@ -869,23 +869,12 @@
     if(!label)return;
     label.style.setProperty('font-size','16px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
-    // Measure the actual Armenian glyph run. scrollWidth on a flex label
-    // can equal clientWidth even when an unbreakable word paints outside.
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
-    if(!ctx)return;
-    const style=getComputedStyle(label);
-    const available=label.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-8;
-    if(available<=0)return;
-    const text=label.textContent.trim();
+    const min=10.5,step=.25;
     let size=16;
-    const weight=style.fontWeight, family=style.fontFamily;
-    while(size>8.5){
-      ctx.font=weight+' '+size+'px '+family;
-      if(ctx.measureText(text).width<=available)break;
-      size=Math.max(8.5,size-.25);
+    while(size>min && label.scrollWidth>label.clientWidth){
+      size=Math.max(min,size-step);
+      label.style.setProperty('font-size',size+'px','important');
     }
-    label.style.setProperty('font-size',size+'px','important');
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
@@ -932,11 +921,6 @@
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
     if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
-    // Run for both cinematic and fallback entry, including after font load.
-    if(id==='space'){
-      requestAnimationFrame(()=>fitSpaceConstellationsLabel());
-      document.fonts?.ready?.then(()=>{if(currentSection==='space')fitSpaceConstellationsLabel()});
-    }
     const nav=++galleryNavigationId;
     const revealSection=()=>{
       if(nav!==galleryNavigationId||currentSection!==id)return;
@@ -945,10 +929,6 @@
         // Keep the incoming page stationary and crossfade both full screens.
         // Inline important overrides legacy section transition !important.
         sectionScreen.hidden=false;
-        if(id==='space')requestAnimationFrame(()=>{
-          fitSpaceConstellationsLabel();
-          document.fonts?.ready?.then(()=>{if(currentSection==='space')fitSpaceConstellationsLabel()});
-        });
         sectionScreen.dataset.entryCrossfade='running';
         sectionScreen.dataset.entrySection=id;
         sectionScreen.style.setProperty('transition','none','important');
@@ -1021,32 +1001,6 @@
 
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
-  // Keep the detached card's title in the same local rectangle as the real
-  // source card. Only the parent portal transform is animated.
-  function freezePortalTitleWithCard(card,copy){
-    const original=card.querySelector('.home-card-label,.toddler-game-label');
-    const target=copy.querySelector('.home-card-label,.toddler-game-label');
-    if(!original||!target)return;
-    const sourceCard=card.getBoundingClientRect();
-    const sourceTitle=original.getBoundingClientRect();
-    const ratio=sourceCard.width/(card.offsetWidth||sourceCard.width)||1;
-    const computed=getComputedStyle(original);
-    for(const name of ['font-family','font-size','font-weight','line-height',
-      'letter-spacing','white-space','text-align','color','text-shadow',
-      'display','align-items','justify-content','padding','box-sizing',
-      'border','border-radius','background','overflow']){
-      const value=computed.getPropertyValue(name);
-      if(value)target.style.setProperty(name,value,'important');
-    }
-    for(const [name,value] of Object.entries({
-      position:'absolute',left:(sourceTitle.left-sourceCard.left)/ratio+'px',
-      top:(sourceTitle.top-sourceCard.top)/ratio+'px',
-      width:sourceTitle.width/ratio+'px',height:sourceTitle.height/ratio+'px',
-      right:'auto',bottom:'auto',margin:'0',transform:'none',
-      transition:'none',animation:'none'
-    }))target.style.setProperty(name,value,'important');
-  }
-
   function openAnimatedHomeSection(card){
     if(!card||homeEntryTransitionActive)return;
     const id=card.dataset.section;
@@ -1076,7 +1030,6 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    freezePortalTitleWithCard(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1331,64 +1284,23 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // Preserve the ROOT card's painted appearance too. Moving the clone to
-    // document.body removes .section-screen/.toddler-grid ancestor selectors,
-    // and stripping data-game can remove its own attribute-based rules.
-    // Never copy geometry or transform: those are the approved portal flight.
-    if(to===sectionScreen){
-      const rootStyle=getComputedStyle(card);
-      for(const key of ['box-sizing','background','background-color','background-image',
-        'background-size','background-position','border','border-radius',
-        'box-shadow','outline','overflow','filter','opacity']){
-        const value=rootStyle.getPropertyValue(key);
-        if(value)copy.style.setProperty(key,value,'important');
-      }
-    }
-    // Preserve the exact original landing appearance while the clone flies.
-    // Off-grid detached cards lose their grid-dependent styles (especially
-    // WebKit's Armenian title styling); snapshot presentation without
-    // changing the approved flight scale or easing.
-    if(to===sectionScreen){
-      const rootStyle=getComputedStyle(card);
-      for(const prop of ['box-sizing','background','background-color','background-image',
-        'background-size','background-position','border','border-radius',
-        'box-shadow','outline','overflow','filter','opacity']){
-        const value=rootStyle.getPropertyValue(prop);
-        if(value)copy.style.setProperty(prop,value,'important');
-      }
-      const children=card.querySelectorAll('*');
-      const copies=copy.querySelectorAll('*');
-      for(let i=0;i<children.length&&i<copies.length;i++){
-        const computed=getComputedStyle(children[i]);
-        for(const prop of ['display','position','box-sizing','width','height',
-          'min-width','max-width','min-height','max-height','margin','padding',
-          'background','background-color','border','border-radius','box-shadow',
-          'color','font-family','font-size','font-weight','line-height',
-          'letter-spacing','white-space','text-align','object-fit',
-          'object-position','overflow','transform','opacity','filter']){
-          const value=computed.getPropertyValue(prop);
-          if(value)copies[i].style.setProperty(prop,value,'important');
+    // The clone leaves the 709px design-stage typography context. On WebKit
+    // its title can briefly reflow as the shrinking card reaches its slot.
+    // Freeze only the clone's current label geometry, not the real card or
+    // the user's approved portal speed/keyframes (Nature remains untouched).
+    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
+      for(const selector of ['.home-card-label','.toddler-game-label']){
+        const original=card.querySelector(selector);
+        const cloned=copy.querySelector(selector);
+        if(!original||!cloned)continue;
+        const measured=getComputedStyle(original);
+        for(const property of ['font-family','font-size','font-weight','line-height',
+          'letter-spacing','white-space','text-align','padding-left','padding-right',
+          'width','height','box-sizing','display','align-items','justify-content']){
+          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
         }
       }
     }
-    // Use exactly the same title geometry on forward and reverse travel.
-    // The entire card, including text, is rigidly transformed as one layer.
-    freezePortalTitleWithCard(card,copy);
-    const originalLabel=card.querySelector('.toddler-game-label,.home-card-label');
-    const originalLabelVisibility=originalLabel?.style.visibility||'';
-    const originalLabelOpacity=originalLabel?.style.opacity||'';
-    const originalLabelTransition=originalLabel?.style.transition||'';
-    if(originalLabel){
-      // Keep destination text hidden only while its flying twin is visible.
-      originalLabel.style.setProperty('transition','none','important');
-      originalLabel.style.setProperty('opacity','0','important');
-    }
-    const restoreLandingLabel=()=>{
-      if(!originalLabel)return;
-      originalLabel.style.visibility=originalLabelVisibility;
-      originalLabel.style.opacity=originalLabelOpacity;
-      originalLabel.style.transition=originalLabelTransition;
-    };
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1416,7 +1328,6 @@
       // it would make the slot EMPTY until the next unrelated render.
       if(previousCardOpacity==='0')card.style.removeProperty('opacity');
       else card.style.opacity=previousCardOpacity;
-      restoreLandingLabel();
       flight.remove();
       reversePortalActive=false;
       finishNavigation();
@@ -1428,18 +1339,7 @@
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
-      // Blend the already-landed flight into its real tile, rather than
-      // abruptly swapping two different painted elements on the last frame.
-      // Do not change the approved position/scale keyframes or screen fade.
-      fly.finished.then(()=>{
-        if(done||!flight.isConnected)return;
-        // Let the actual destination title take over only as the clone fades,
-        // with no intermediate scale/translation on the title itself.
-        restoreLandingLabel();
-        flight.animate([{opacity:1},{opacity:0}],{
-          duration:100,easing:'ease-out',fill:'forwards'
-        });
-      }).catch(()=>{});
+      fly.finished.catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
@@ -1498,7 +1398,6 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    freezePortalTitleWithCard(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
