@@ -867,26 +867,21 @@
   function fitSpaceConstellationsLabel(){
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
-    // Measure the full text, not scrollWidth (which can hide flex-item overflow).
-    const value='Համաստեղություններ';
-    label.textContent=value;
-    label.style.setProperty('white-space','nowrap','important');
-    label.style.setProperty('letter-spacing','-.065em','important');
-    const css=getComputedStyle(label);
-    const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-4);
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
-    if(!ctx)return;
-    const family=css.fontFamily;
-    const weight=css.fontWeight;
-    let size=17;
-    while(size>8){
-      ctx.font=weight+' '+size+'px '+family;
-      const width=ctx.measureText(value).width+(value.length-1)*(-.065*size);
-      if(width<=available)break;
-      size-=.25;
+    // Enlarge actual font and compress only the text horizontally to fit the unchanged plaque.
+    let text=label.querySelector('.constellations-fit-text');
+    if(!text){
+      text=document.createElement('span');
+      text.className='constellations-fit-text';
+      text.textContent='Համաստեղություններ';
+      label.replaceChildren(text);
     }
-    label.style.setProperty('font-size',size+'px','important');
+    label.style.setProperty('font-size','17px','important');
+    label.style.setProperty('letter-spacing','-.035em','important');
+    text.style.cssText='display:inline-block;flex:0 0 auto;white-space:nowrap;max-width:none;transform-origin:center center;transform:none;';
+    const css=getComputedStyle(label);
+    const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-6);
+    const natural=text.getBoundingClientRect().width;
+    text.style.transform='scaleX('+Math.min(1,available/Math.max(1,natural))+')';
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
