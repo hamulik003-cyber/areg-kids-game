@@ -448,10 +448,10 @@
     mind:{
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
-        {id:'puzzle',label:'Գլուխկոտրուկ',thumb:'mind-game-1.jpg',kind:'sort'},
-        {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
-        {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Թվեր',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
+        {id:'sizes',label:'Գտիր գույնը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Ո՞վ ավելորդ է',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'numbers',label:'Հավաքիր պատկերները',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
@@ -1421,6 +1421,11 @@
     }
   }
   function openGame(section,game,card){
+    if(game.kind==='mindShapesV4'){
+      sessionStorage.setItem('areg-return-to-mind-v4','1');
+      location.href='./mind-shapes-deluxe-v4.html?from=areg';
+      return;
+    }
     if(innerGameEntryActive)return;
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
@@ -3012,10 +3017,15 @@
   async function downscaleImage(file,max){const raw=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)}),im=new Image();await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=raw});const sc=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));if(sc===1)return raw;const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.9)}
 
   function showToast(t){toast.textContent=t;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),900)}
+  addEventListener('pageshow',()=>{const saved=Number(localStorage.getItem(STARS_KEY));if(Number.isFinite(saved)){stars=saved;updateStars()}});
+  if(new URLSearchParams(location.search).get('section')==='mind'){
+    // Standalone Mind V4 returns to this section even after a full PWA navigation.
+    openSection('mind');
+  }
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=290',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=291',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

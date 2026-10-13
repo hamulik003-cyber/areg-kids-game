@@ -216,6 +216,29 @@ try{
    if(n!==4)throw Error(section+' has '+n+' games, expected 4');
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
+    if(section==='mind'&&id==='puzzle'){
+      const card=page.locator('#sectionGames .toddler-game-card[data-game="puzzle"]');
+      const wallet=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
+      await card.click();
+      await page.waitForURL(/mind-shapes-deluxe-v4\.html/, {timeout:15000});
+      await page.waitForSelector('#view canvas',{timeout:30000});
+      const evidence=await page.evaluate(()=>({
+        title:document.title,
+        stars:document.querySelector('#stars')?.textContent,
+        pieces:document.querySelectorAll('#pieces .piece').length,
+        back:!!document.querySelector('#back')
+      }));
+      if(!evidence.title.includes('Գտիր ճիշտ ձևը')||evidence.pieces!==4||
+         !evidence.back||!evidence.stars.includes(String(wallet)))
+        throw Error('Approved Mind V4 entry and shared stars failed '+JSON.stringify(evidence));
+      await page.locator('#back').click();
+      await page.waitForSelector('#sectionScreen.is-visible',{timeout:15000});
+      if(await page.locator('#sectionGames .toddler-game-card').count()!==4)
+        throw Error('Mind section not restored after V4');
+      done.push('mind/puzzle');
+      console.log('MIND V4 NAVIGATION + SHARED STARS + RETURN PASS');
+      continue;
+    }
     const card=page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]');
     // Install evidence recorder BEFORE tap; WebKit can finish an animation
     // before Playwright's click promise returns on a slow CI worker.
