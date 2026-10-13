@@ -1421,11 +1421,6 @@
     }
   }
   function openGame(section,game,card){
-    if(game.kind==='mindShapesV4'){
-      sessionStorage.setItem('areg-return-to-mind-v4','1');
-      location.href='./mind-shapes-deluxe-v4.html?from=areg';
-      return;
-    }
     if(innerGameEntryActive)return;
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
@@ -1605,7 +1600,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -2871,6 +2866,38 @@
   }
 
   /* MIND */
+  function gameMindShapesV4(){
+    // Keep the approved V4 game in its own browsing context, while the outer
+    // activity screen uses the same portal animation as every other card.
+    activityScreen.classList.add('mind-v4-mode');
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Գտիր ճիշտ ձևը';
+    frame.src='./mind-shapes-deluxe-v4.html?embed=1';
+    frame.setAttribute('loading','eager');
+    frame.setAttribute('allow','autoplay');
+    activityContent.append(frame);
+    const syncWallet=event=>{
+      if(event.key!==STARS_KEY)return;
+      const next=Number(event.newValue);
+      if(Number.isFinite(next)&&next>=0){stars=next;updateStars()}
+    };
+    const handleBack=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow||
+         event.data?.type!=='areg-mind-v4-back'||currentGame?.kind!=='mindShapesV4')return;
+      backToSection();
+    };
+    addEventListener('storage',syncWallet);
+    addEventListener('message',handleBack);
+    gameCleanup.push(()=>{
+      removeEventListener('storage',syncWallet);
+      removeEventListener('message',handleBack);
+      const next=Number(localStorage.getItem(STARS_KEY));
+      if(Number.isFinite(next)&&next>=0){stars=next;updateStars()}
+      activityScreen.classList.remove('mind-v4-mode');
+    });
+  }
   function gameSort(){
     const s=surface('☝️'),colors=[['#ef5350','r'],['#42a5f5','b'],['#66bb6a','g']],bins=[];let done=0;
     colors.forEach(([col,k],i)=>{const b=document.createElement('div');b.className='sort-bin';b.dataset.k=k;b.style.left=`${5+i*31}%`;b.style.background=col+'99';s.appendChild(b);bins.push(b)});
@@ -3025,7 +3052,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=291',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=292',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
