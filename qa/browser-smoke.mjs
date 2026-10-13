@@ -258,6 +258,35 @@ try{
           embedded:document.querySelector('#activityScreen')?.classList.contains('mind-v4-mode'),
           entry:window.__mindV4Proof};
       });
+      const backdropProof=await page.evaluate(()=>{
+        const iframe=document.querySelector('#activityContent .mind-v4-frame');
+        const doc=iframe.contentDocument;
+        const root=document.documentElement,priorTheme=root.dataset.theme;
+        const oldPhoto=root.style.getPropertyValue('--theme-photo');
+        root.dataset.theme='photo-user-01';
+        root.style.setProperty('--theme-photo','url("./theme-bg-ocean.svg")');
+        const result={
+          game:iframe.contentWindow.getComputedStyle(doc.querySelector('#app')).backgroundColor,
+          gameImage:iframe.contentWindow.getComputedStyle(doc.querySelector('#app')).backgroundImage,
+          body:iframe.contentWindow.getComputedStyle(doc.body).backgroundColor,
+          frame:getComputedStyle(iframe).backgroundColor,
+          parent:getComputedStyle(document.querySelector('#activityScreen')).backgroundColor,
+          scene:iframe.contentWindow.getComputedStyle(doc.querySelector('.scene-wrap')).backgroundImage,
+          themeBackground:getComputedStyle(document.querySelector('#appBackground')).backgroundImage
+        };
+        root.dataset.theme=priorTheme;
+        if(oldPhoto)root.style.setProperty('--theme-photo',oldPhoto);
+        else root.style.removeProperty('--theme-photo');
+        return result;
+      });
+      if(backdropProof.game!=='rgba(0, 0, 0, 0)'||
+         backdropProof.gameImage!=='none'||
+         backdropProof.body!=='rgba(0, 0, 0, 0)'||
+         backdropProof.frame!=='rgba(0, 0, 0, 0)'||
+         backdropProof.parent!=='rgba(0, 0, 0, 0)'||
+         !backdropProof.scene.includes('radial-gradient')||
+         !backdropProof.themeBackground.includes('theme-bg-ocean.svg'))
+        throw Error('V4 selected theme must show outside unchanged puzzle panels '+JSON.stringify(backdropProof));
       if(evidence.count!==4||!evidence.stars.includes(String(wallet))||
          !evidence.embedded||!evidence.src.includes('embed=1')||
          !evidence.entry.enterFlight||!evidence.entry.enterFade)
