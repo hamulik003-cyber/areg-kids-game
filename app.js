@@ -1277,6 +1277,32 @@
     const copy=card.cloneNode(true);
     copy.removeAttribute('data-section');copy.removeAttribute('data-game');
     copy.setAttribute('aria-hidden','true');copy.tabIndex=-1;
+    // Freeze the exact original home-card geometry on the return-flight clone.
+    // Without this, the text pill is laid out relative to the moving wrapper,
+    // briefly changing font metrics and wrapping for the four wider labels.
+    if(to===homeScreen){
+      const originalLabel=card.querySelector('.home-card-label');
+      const clonedLabel=copy.querySelector('.home-card-label');
+      if(originalLabel&&clonedLabel){
+        const originalBox=originalLabel.getBoundingClientRect();
+        const cardBox=card.getBoundingClientRect();
+        const live=getComputedStyle(originalLabel);
+        Object.assign(clonedLabel.style,{
+          position:'absolute',
+          left:(originalBox.left-cardBox.left)+'px',
+          top:(originalBox.top-cardBox.top)+'px',
+          width:originalBox.width+'px',
+          height:originalBox.height+'px',
+          right:'auto',bottom:'auto',
+          fontSize:live.fontSize,
+          lineHeight:live.lineHeight,
+          letterSpacing:live.letterSpacing,
+          whiteSpace:live.whiteSpace,
+          padding:live.padding,
+          boxSizing:'border-box'
+        });
+      }
+    }
     Object.assign(copy.style,{
       position:'absolute',left:'0',top:'0',
       width:card.offsetWidth+'px',height:card.offsetHeight+'px',
