@@ -106,7 +106,7 @@ try{
       controller:navigator.serviceWorker.controller?.scriptURL||''};
   });
   if(fresh.oldMarker||fresh.cacheStillStale||!fresh.revalidated||
-     fresh.wallet!=='17'||!fresh.controller.includes('v=290'))
+     fresh.wallet!=='17'||!fresh.controller.includes('v=291'))
     throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
   try{
