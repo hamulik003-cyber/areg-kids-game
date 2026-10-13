@@ -523,7 +523,7 @@ try{
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
       if(reveal.error||reveal.build!=='lab-single-layer-synchronized-decoy-fade'||reveal.fadeEngine!=='shared-layer'||reveal.phase!=='winning'||reveal.heroCount!==1||
-         reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
+         reveal.samples.length<2||!reveal.samples.some(f=>f.ms>20&&f.ms<580&&f.losers.length===3)||!reveal.samples.some(f=>f.ms>=660&&f.losers.length===0))throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==8||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V282 FIRST correct must ignore old persisted eight answers '+JSON.stringify(reveal));
       const mid=reveal.samples.find(f=>f.ms>20&&f.ms<520&&f.motion==='approaching'&&

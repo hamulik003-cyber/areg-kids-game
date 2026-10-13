@@ -869,12 +869,23 @@
     if(!label)return;
     label.style.setProperty('font-size','16px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
-    const min=10.5,step=.25;
+    // Measure the actual Armenian glyph run. scrollWidth on a flex label
+    // can equal clientWidth even when an unbreakable word paints outside.
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    if(!ctx)return;
+    const style=getComputedStyle(label);
+    const available=label.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-8;
+    if(available<=0)return;
+    const text=label.textContent.trim();
     let size=16;
-    while(size>min && label.scrollWidth>label.clientWidth){
-      size=Math.max(min,size-step);
-      label.style.setProperty('font-size',size+'px','important');
+    const weight=style.fontWeight, family=style.fontFamily;
+    while(size>8.5){
+      ctx.font=weight+' '+size+'px '+family;
+      if(ctx.measureText(text).width<=available)break;
+      size=Math.max(8.5,size-.25);
     }
+    label.style.setProperty('font-size',size+'px','important');
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
@@ -921,6 +932,11 @@
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
     if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
+    // Run for both cinematic and fallback entry, including after font load.
+    if(id==='space'){
+      requestAnimationFrame(()=>fitSpaceConstellationsLabel());
+      document.fonts?.ready?.then(()=>{if(currentSection==='space')fitSpaceConstellationsLabel()});
+    }
     const nav=++galleryNavigationId;
     const revealSection=()=>{
       if(nav!==galleryNavigationId||currentSection!==id)return;
@@ -929,6 +945,10 @@
         // Keep the incoming page stationary and crossfade both full screens.
         // Inline important overrides legacy section transition !important.
         sectionScreen.hidden=false;
+        if(id==='space')requestAnimationFrame(()=>{
+          fitSpaceConstellationsLabel();
+          document.fonts?.ready?.then(()=>{if(currentSection==='space')fitSpaceConstellationsLabel()});
+        });
         sectionScreen.dataset.entryCrossfade='running';
         sectionScreen.dataset.entrySection=id;
         sectionScreen.style.setProperty('transition','none','important');
@@ -1284,6 +1304,19 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    // Preserve the ROOT card's painted appearance too. Moving the clone to
+    // document.body removes .section-screen/.toddler-grid ancestor selectors,
+    // and stripping data-game can remove its own attribute-based rules.
+    // Never copy geometry or transform: those are the approved portal flight.
+    if(to===sectionScreen){
+      const rootStyle=getComputedStyle(card);
+      for(const key of ['box-sizing','background','background-color','background-image',
+        'background-size','background-position','border','border-radius',
+        'box-shadow','outline','overflow','filter','opacity']){
+        const value=rootStyle.getPropertyValue(key);
+        if(value)copy.style.setProperty(key,value,'important');
+      }
+    }
     // The clone leaves the 709px design-stage typography context. On WebKit
     // its title can briefly reflow as the shrinking card reaches its slot.
     // Freeze only the clone's current label geometry, not the real card or
@@ -1301,6 +1334,70 @@
         }
       }
     }
+    // Reverse-flight transform/keyframes/timing are unchanged. A card cloned
+    // outside its section grid loses descendant CSS selectors, which causes
+    // the visible one-frame "settle" when the overlay is removed. Snapshot
+    // the destination's computed child presentation into the detached clone.
+    // Restrict to inner-game reverse cards; leave top-level home portal alone.
+    if(to===sectionScreen){
+      const originals=card.querySelectorAll('*');
+      const clones=copy.querySelectorAll('*');
+      for(let i=0;i<originals.length&&i<clones.length;i++){
+        const computed=getComputedStyle(originals[i]);
+        for(const key of ['display','position','box-sizing','width','height',
+          'min-width','max-width','min-height','max-height','margin','padding',
+          'background','background-color','border','border-radius','box-shadow',
+          'color','font-family','font-size','font-weight','line-height',
+          'letter-spacing','white-space','text-align','object-fit',
+          'object-position','overflow','transform','opacity','filter']){
+          const value=computed.getPropertyValue(key);
+          if(value)clones[i].style.setProperty(key,value,'important');
+        }
+      }
+    }
+    // All sections use the same Nature reference portal handoff.
+    // Keep the real destination label and the flying title synchronized:
+    // show the moving title immediately, then crossfade to the stationary
+    // real title together with the existing 100ms landing dissolve.
+    const originalLabel=card.querySelector('.toddler-game-label,.home-card-label');
+    const flyingLabel=copy.querySelector('.toddler-game-label,.home-card-label');
+    const originalLabelVisibility=originalLabel?.style.visibility||'';
+    const originalLabelOpacity=originalLabel?.style.opacity||'';
+    const originalLabelTransition=originalLabel?.style.transition||'';
+    const isLongSpaceLabel=to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations';
+    if(isLongSpaceLabel&&flyingLabel&&originalLabel){
+      // Freeze the final destination label's exact box and typography.
+      // A detached clone loses ancestor alignment, so its last-frame
+      // text can drift left when the real card replaces the flight.
+      const measured=getComputedStyle(originalLabel);
+      const originalBox=originalLabel.getBoundingClientRect();
+      const cardBox=card.getBoundingClientRect();
+      const scaledWidth=card.offsetWidth||cardBox.width;
+      const factor=cardBox.width/scaledWidth||1;
+      for(const key of ['font-size','letter-spacing','line-height','white-space',
+        'text-align','padding-left','padding-right','box-sizing']){
+        flyingLabel.style.setProperty(key,measured.getPropertyValue(key),'important');
+      }
+      // Align both label boxes at the landing pose; preserve the flight
+      // animation and avoid changing the genuine destination card.
+      flyingLabel.style.setProperty('position','absolute','important');
+      flyingLabel.style.setProperty('left',((originalBox.left-cardBox.left)/factor)+'px','important');
+      flyingLabel.style.setProperty('top',((originalBox.top-cardBox.top)/factor)+'px','important');
+      flyingLabel.style.setProperty('width',(originalBox.width/factor)+'px','important');
+      flyingLabel.style.setProperty('height',(originalBox.height/factor)+'px','important');
+      flyingLabel.style.setProperty('margin','0','important');
+      flyingLabel.style.setProperty('transform','none','important');
+    }
+    if(originalLabel){
+      originalLabel.style.setProperty('transition','none','important');
+      originalLabel.style.setProperty('opacity','0','important');
+    }
+    const restoreLandingLabel=()=>{
+      if(!originalLabel)return;
+      originalLabel.style.visibility=originalLabelVisibility;
+      originalLabel.style.opacity=originalLabelOpacity;
+      originalLabel.style.transition=originalLabelTransition;
+    };
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1328,6 +1425,7 @@
       // it would make the slot EMPTY until the next unrelated render.
       if(previousCardOpacity==='0')card.style.removeProperty('opacity');
       else card.style.opacity=previousCardOpacity;
+      restoreLandingLabel();
       flight.remove();
       reversePortalActive=false;
       finishNavigation();
@@ -1339,7 +1437,16 @@
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
-      fly.finished.catch(()=>{});
+      // Blend the already-landed flight into its real tile, rather than
+      // abruptly swapping two different painted elements on the last frame.
+      // Do not change the approved position/scale keyframes or screen fade.
+      fly.finished.then(()=>{
+        if(done||!flight.isConnected)return;
+        restoreLandingLabel();
+        flight.animate([{opacity:1},{opacity:0}],{
+          duration:100,easing:'ease-out',fill:'forwards'
+        });
+      }).catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
