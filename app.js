@@ -883,6 +883,7 @@
     text.style.transformOrigin='center center';
     label.style.setProperty('font-size','16px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
+    text.style.transform='none';
     const available=Math.max(1,label.clientWidth-20);
     const natural=text.getBoundingClientRect().width;
     const ratio=natural>available?available/natural:1;
