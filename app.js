@@ -867,27 +867,26 @@
   function fitSpaceConstellationsLabel(){
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
-    // Fit only the lettering. Keep the wooden plaque and all sibling cards unchanged.
-    let text=label.querySelector('.constellations-fit-text');
-    if(!text){
-      text=document.createElement('span');
-      text.className='constellations-fit-text';
-      text.textContent=label.textContent.trim();
-      label.textContent='';
-      label.appendChild(text);
-    }
-    text.style.display='inline-block';
-    text.style.whiteSpace='nowrap';
-    text.style.maxWidth='none';
-    text.style.flex='0 0 auto';
-    text.style.transformOrigin='center center';
-    label.style.setProperty('font-size','16px','important');
+    // Measure the full text, not scrollWidth (which can hide flex-item overflow).
+    const value='Համաստեղություններ';
+    label.textContent=value;
+    label.style.setProperty('white-space','nowrap','important');
     label.style.setProperty('letter-spacing','-.035em','important');
-    text.style.transform='none';
-    const available=Math.max(1,label.clientWidth-20);
-    const natural=text.getBoundingClientRect().width;
-    const ratio=natural>available?available/natural:1;
-    text.style.transform='scaleX('+ratio+')';
+    const css=getComputedStyle(label);
+    const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-4);
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    if(!ctx)return;
+    const family=css.fontFamily;
+    const weight=css.fontWeight;
+    let size=16;
+    while(size>8){
+      ctx.font=weight+' '+size+'px '+family;
+      const width=ctx.measureText(value).width+(value.length-1)*(-.035*size);
+      if(width<=available)break;
+      size-=.25;
+    }
+    label.style.setProperty('font-size',size+'px','important');
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
