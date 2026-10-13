@@ -220,7 +220,7 @@ try{
       // Assert screenshot-approved four labels, not only the number of tiles.
       const labels=await page.locator('#sectionGames .toddler-game-label')
         .allTextContents();
-      const expected=['Գտիր ճիշտ ձևը','Գտիր գույնը','Ո՞վ ավելորդ է','Հավաքիր պատկերները'];
+      const expected=['Գտիր ճիշտ ձևը','Գտիր զույգը','Ո՞ւմ ստվերն է','Հավաքիր պատկերը'];
       if(JSON.stringify(labels.map(x=>x.trim()))!==JSON.stringify(expected))
         throw Error('Mind four screenshot-approved labels mismatch '+JSON.stringify(labels));
       const card=page.locator('#sectionGames .toddler-game-card[data-game="puzzle"]');
