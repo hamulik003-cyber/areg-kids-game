@@ -2692,8 +2692,13 @@ html[data-font="classic"]{
   filter:none !important;
 }
 
-.animal-card--speaking .animal-type{
-  transform:translateY(-1px) !important;
+/* Category/status badges are rigid parts of their cards across animal,
+   bird, sea, insect and planet galleries. Only the parent card flies.
+   Never nudge the badge during audio/glow or reverse navigation. */
+.animal-gallery .animal-card--speaking .animal-type,
+.animal-gallery .animal-card--focus .animal-type,
+.animal-gallery .animal-card--pressing .animal-type{
+  transform:none !important;
 }
 
 @media (max-width:380px){
