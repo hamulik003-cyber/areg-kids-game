@@ -226,7 +226,7 @@ try{
       const card=page.locator('#sectionGames .toddler-game-card[data-game="puzzle"]');
       const wallet=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
       await card.evaluate(el=>{
-        const proof={enterFlight:false,enterFade:false,exitFlight:false};
+        const proof={enterFlight:false,enterFade:false,exitFlight:false,labelFrozen:false};
         const observe=()=>{
           const enter=document.querySelector('[data-inner-game-flight]');
           const reverse=document.querySelector('[data-reverse-portal-flight]');
@@ -238,6 +238,13 @@ try{
           if(reverse?.dataset.reversePortalFlight==='activity'&&
              reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
             proof.exitFlight=true;
+          const returning=reverse?.querySelector('.toddler-game-label');
+          const source=document.querySelector('#sectionGames [data-game="puzzle"] .toddler-game-label');
+          if(returning&&source){
+            proof.labelFrozen=returning.style.getPropertyPriority('font-size')==='important'&&
+              getComputedStyle(returning).fontSize===getComputedStyle(source).fontSize&&
+              getComputedStyle(returning).lineHeight===getComputedStyle(source).lineHeight;
+          }
         };
         const observer=new MutationObserver(observe);
         observer.observe(document.body,{subtree:true,childList:true,attributes:true,
@@ -331,7 +338,7 @@ try{
       }));
       await page.evaluate(()=>window.__mindV4Stop?.());
       if(restored.section!=='mind'||!restored.shown||restored.tileCount!==4||
-         !restored.proof.exitFlight||restored.wallet!==second)
+         !restored.proof.exitFlight||!restored.proof.labelFrozen||restored.wallet!==second)
         throw Error('Mind V4 exit portal or star persistence failed '+JSON.stringify(restored));
       done.push('mind/puzzle');
       console.log('MIND V4 FOUR LABELS + ENTRY/EXIT PORTALS + SINGLE HINT CHARGE + SHARED STARS PASS');
