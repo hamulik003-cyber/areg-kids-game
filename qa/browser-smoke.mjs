@@ -263,7 +263,7 @@ try{
          !evidence.entry.enterFlight||!evidence.entry.enterFade)
         throw Error('Mind V4 integrated entry, stars or portal animation failed '+JSON.stringify(evidence));
       // A hint costs at most one star, even with repeated taps or a different selected piece.
-      await frame.locator('#pieces .piece').first().click({force:process.env.AREG_BROWSER==='webkit'});
+      await frame.locator('#pieces .piece').first().evaluate(el=>{el.click()});
       await frame.locator('#help').evaluate(el=>el.click());
       const first=await page.evaluate(()=>{
         const doc=document.querySelector('.mind-v4-frame').contentDocument;
@@ -272,7 +272,7 @@ try{
       if(first!==wallet-(wallet>0?1:0))
         throw Error('Mind first hint charge mismatch '+JSON.stringify({wallet,first}));
       await frame.locator('#help').evaluate(el=>el.click());
-      await frame.locator('#pieces .piece').nth(1).click({force:process.env.AREG_BROWSER==='webkit'});
+      await frame.locator('#pieces .piece').nth(1).evaluate(el=>{el.click()});
       await frame.locator('#help').evaluate(el=>el.click());
       const second=await page.evaluate(()=>{
         const doc=document.querySelector('.mind-v4-frame').contentDocument;
