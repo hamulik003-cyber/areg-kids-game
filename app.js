@@ -448,10 +448,10 @@
     mind:{
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
-        {id:'puzzle',label:'Գլուխկոտրուկ',thumb:'mind-game-1.jpg',kind:'sort'},
-        {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
-        {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Թվեր',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
+        {id:'sizes',label:'Գտիր գույնը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Ո՞վ ավելորդ է',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'numbers',label:'Հավաքիր պատկերները',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
@@ -1421,6 +1421,11 @@
     }
   }
   function openGame(section,game,card){
+    if(game.kind==='mindShapesV4'){
+      sessionStorage.setItem('areg-return-to-mind-v4','1');
+      location.href='./mind-shapes-deluxe-v4.html?from=areg';
+      return;
+    }
     if(innerGameEntryActive)return;
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
