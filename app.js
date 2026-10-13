@@ -1435,11 +1435,6 @@
         if(done||!flight.isConnected)return;
         // Let the actual destination title take over only as the clone fades,
         // with no intermediate scale/translation on the title itself.
-        // Inner game tiles keep their title and artwork in the same
-        // travelling layer until the reverse screen transition completes.
-        // Switching the label before the parent finishes can cause a
-        // separate last-frame adjustment in Safari/WebKit.
-        if(to===sectionScreen)return;
         restoreLandingLabel();
         flight.animate([{opacity:1},{opacity:0}],{
           duration:100,easing:'ease-out',fill:'forwards'
