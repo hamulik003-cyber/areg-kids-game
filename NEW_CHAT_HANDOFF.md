@@ -1,3 +1,7 @@
+## 2026-10-13 — NEW CHAT START HERE — USER WORKFLOW PRIORITY
+
+**Read [WORKFLOW_START_HERE.md](WORKFLOW_START_HERE.md) BEFORE using old entries.** This is the user's expressly requested, up-to-date GitHub collaboration agreement. We DO modify the game via GitHub tools on safe trial branches (not merely instruct the user); give direct clickable SHA-pinned Safari raw.githack links for every trial; refine promptly based on real iPhone screenshots/videos; deploy via protected-main PR and required checks after the user expressly accepts the change. Do not repeat lengthy three-handoff writes on each unapproved micro-experiment. Keep release/safety history, avoid touching unrelated assets/audio/state and never invent approval or CI status. Current production main at documentation start: 8d365c739466eff1e45575235cc3320098d5b6bd; V291 car trial PR #22 remains draft, and 9-concept bonus comparison page already exists on preview/reward-bonus-nine-concepts-20261012. **Recheck live main and all branches every new session.**
+
 ## 2026-10-13 — User rejected PR #38 gallery focus change; revert it exactly
 - User: «չե դա հետ դիր դրա մասին չեյ ասում» — the removal of the focused picture-card transform was NOT the issue they meant. Do not claim that the real issue was fixed or guess a replacement fix.
 - Restore precisely the original CSS selector `.gallery-card-flight-shell > .animal-card.animal-card--focus` with `transform:translateY(-1px) scale(1.012) !important;` and remove the PR #38 comment. No other animation, title, game logic, assets or audio touched.
