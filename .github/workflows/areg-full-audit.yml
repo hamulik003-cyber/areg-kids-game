@@ -97,21 +97,5 @@ jobs:
           AREG_BROWSER: webkit
           AREG_PREVIEW_HEAD: ${{ github.event.pull_request.head.sha }}
         run: node qa/preview-3d-cors.mjs
-      # Offline PWA and custom music checks run independently in ios-pwa-music.
-      # Do not duplicate this headless-WebKit PWA test after the long gameplay suite.
-
-  # Dedicated PWA/music diagnostic, independent of 3D constellation visual
-  # smoke timings in the larger iOS job. Never replaces full ios-webkit.
-  ios-pwa-music:
-    needs: assets-and-code
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: npm install --no-save playwright@1.55.1
-      - run: npx playwright install --with-deps webkit
-      - name: Verify offline PWA update and saved custom music on WebKit
+      - name: Verify latest PWA HTML replaces stale cached page, offline still works
         run: AREG_BROWSER=webkit node qa/pwa-update.test.mjs
