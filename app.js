@@ -448,10 +448,10 @@
     mind:{
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
-        {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
-        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'sizes'},
-        {id:'pattern',label:'Ո՞ւմ ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'puzzle',label:'Գլուխկոտրուկ',thumb:'mind-game-1.jpg',kind:'sort'},
+        {id:'sizes',label:'Մեծ ու փոքր',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Շարունակի՛ր շարքը',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'numbers',label:'Թվեր',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
@@ -1284,23 +1284,6 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // The clone leaves the 709px design-stage typography context. On WebKit
-    // its title can briefly reflow as the shrinking card reaches its slot.
-    // Freeze only the clone's current label geometry, not the real card or
-    // the user's approved portal speed/keyframes (Nature remains untouched).
-    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
-      for(const selector of ['.home-card-label','.toddler-game-label']){
-        const original=card.querySelector(selector);
-        const cloned=copy.querySelector(selector);
-        if(!original||!cloned)continue;
-        const measured=getComputedStyle(original);
-        for(const property of ['font-family','font-size','font-weight','line-height',
-          'letter-spacing','white-space','text-align','padding-left','padding-right',
-          'width','height','box-sizing','display','align-items','justify-content']){
-          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
-        }
-      }
-    }
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1529,19 +1512,12 @@
   function backToSection(){
     if(reversePortalActive)return;
     ++galleryNavigationId;
-    const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
     if(reversePortal(activityScreen,sectionScreen,card,()=>{
       // Dispose 3D and gallery resources only after they have faded away.
-      cleanupGame();
-      // WebKit can leave a V4 forward-flight latch set if Back interrupts its
-      // final callback; never lock the next Mind card after returning.
-      if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
-      applyAudio();
+      cleanupGame();applyAudio();
     }))return;
-    cleanupGame();
-    if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
-    activityScreen.classList.remove('is-visible');
+    cleanupGame();activityScreen.classList.remove('is-visible');
     setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;
       requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160);
   }
@@ -1624,7 +1600,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -2890,38 +2866,6 @@
   }
 
   /* MIND */
-  function gameMindShapesV4(){
-    // Keep the approved V4 game in its own browsing context, while the outer
-    // activity screen uses the same portal animation as every other card.
-    activityScreen.classList.add('mind-v4-mode');
-    activityContent.replaceChildren();
-    const frame=document.createElement('iframe');
-    frame.className='mind-v4-frame';
-    frame.title='Գտիր ճիշտ ձևը';
-    frame.src='./mind-shapes-deluxe-v4.html?embed=1&v=294';
-    frame.setAttribute('loading','eager');
-    frame.setAttribute('allow','autoplay');
-    activityContent.append(frame);
-    const syncWallet=event=>{
-      if(event.key!==STARS_KEY)return;
-      const next=Number(event.newValue);
-      if(Number.isFinite(next)&&next>=0){stars=next;updateStars()}
-    };
-    const handleBack=event=>{
-      if(event.origin!==location.origin||event.source!==frame.contentWindow||
-         event.data?.type!=='areg-mind-v4-back'||currentGame?.kind!=='mindShapesV4')return;
-      backToSection();
-    };
-    addEventListener('storage',syncWallet);
-    addEventListener('message',handleBack);
-    gameCleanup.push(()=>{
-      removeEventListener('storage',syncWallet);
-      removeEventListener('message',handleBack);
-      const next=Number(localStorage.getItem(STARS_KEY));
-      if(Number.isFinite(next)&&next>=0){stars=next;updateStars()}
-      activityScreen.classList.remove('mind-v4-mode');
-    });
-  }
   function gameSort(){
     const s=surface('☝️'),colors=[['#ef5350','r'],['#42a5f5','b'],['#66bb6a','g']],bins=[];let done=0;
     colors.forEach(([col,k],i)=>{const b=document.createElement('div');b.className='sort-bin';b.dataset.k=k;b.style.left=`${5+i*31}%`;b.style.background=col+'99';s.appendChild(b);bins.push(b)});
@@ -3068,15 +3012,10 @@
   async function downscaleImage(file,max){const raw=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)}),im=new Image();await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=raw});const sc=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));if(sc===1)return raw;const c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*sc);c.height=Math.round(im.naturalHeight*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.9)}
 
   function showToast(t){toast.textContent=t;toast.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove('show'),900)}
-  addEventListener('pageshow',()=>{const saved=Number(localStorage.getItem(STARS_KEY));if(Number.isFinite(saved)){stars=saved;updateStars()}});
-  if(new URLSearchParams(location.search).get('section')==='mind'){
-    // Standalone Mind V4 returns to this section even after a full PWA navigation.
-    openSection('mind');
-  }
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=295',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=290',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
