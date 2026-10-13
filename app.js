@@ -1367,6 +1367,12 @@
         flyingLabel.style.setProperty('text-overflow','clip','important');
       }
     }
+    // Prevent two copies of the long title from moving against each other
+    // while the destination screen fades in beneath the flying card.
+    const realLandingLabel=(to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations')
+      ?card.querySelector('.toddler-game-label'):null;
+    const originalLandingLabelVisibility=realLandingLabel?.style.visibility||'';
+    if(realLandingLabel)realLandingLabel.style.visibility='hidden';
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1394,6 +1400,7 @@
       // it would make the slot EMPTY until the next unrelated render.
       if(previousCardOpacity==='0')card.style.removeProperty('opacity');
       else card.style.opacity=previousCardOpacity;
+      if(realLandingLabel)realLandingLabel.style.visibility=originalLandingLabelVisibility;
       flight.remove();
       reversePortalActive=false;
       finishNavigation();
@@ -1410,6 +1417,7 @@
       // Do not change the approved position/scale keyframes or screen fade.
       fly.finished.then(()=>{
         if(done||!flight.isConnected)return;
+        if(realLandingLabel)realLandingLabel.style.visibility=originalLandingLabelVisibility;
         flight.animate([{opacity:1},{opacity:0}],{
           duration:100,easing:'ease-out',fill:'forwards'
         });
