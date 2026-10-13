@@ -1,3 +1,9 @@
+## 2026-10-13 — User rejected PR #38 gallery focus change; revert it exactly
+- User: «չե դա հետ դիր դրա մասին չեյ ասում» — the removal of the focused picture-card transform was NOT the issue they meant. Do not claim that the real issue was fixed or guess a replacement fix.
+- Restore precisely the original CSS selector `.gallery-card-flight-shell > .animal-card.animal-card--focus` with `transform:translateY(-1px) scale(1.012) !important;` and remove the PR #38 comment. No other animation, title, game logic, assets or audio touched.
+- Baseline before PR #38: main 42dc42b099fbd01634e3b591f0e832a546017e17. PR #38 merged as 56e6fab5d25409b7c387c58ec0caa0e566cbd89f. Revert branch: revert/pr38-gallery-focus-only-20261013; CSS restore commit 5ab410217c06d6c02822f100a83e7362031abd6d. This preserves PR #37's approved portal title changes.
+- Actual gallery-card return movement remains to be identified with user's precise visual description/video before attempting another fix. Four CI checks and Pages release pending.
+
 ## 2026-10-13 — Gallery cards final focus/return settle correction (pending tests and production release)
 - User asks whether previous PR #37 unified portal text landing also covered INNER gallery picture cards (dog, duck, bee, etc.) and requests matching no-settle/no-shrink return behavior. Verified PR #37 changes outer and inner SECTION GAME PORTAL titles, NOT gallery picture card movements. Previous PR #36 immobilized category/status badge translations but not the entire gallery clone.
 - Main at start: 42dc42b099fbd01634e3b591f0e832a546017e17. Branch fix/gallery-card-final-settle-20261013.
