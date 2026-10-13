@@ -1355,24 +1355,34 @@
         }
       }
     }
-    // Keep the long Space title visible throughout the reverse flight.
-    // Freeze its one-line text layout instead of hiding it until the screen
-    // crossfade completes (which caused the user-reported late appearance).
-    if(to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations'){
-      const flyingLabel=copy.querySelector('.toddler-game-label');
-      if(flyingLabel){
-        flyingLabel.style.setProperty('white-space','nowrap','important');
-        flyingLabel.style.setProperty('flex-wrap','nowrap','important');
-        flyingLabel.style.setProperty('overflow','hidden','important');
-        flyingLabel.style.setProperty('text-overflow','clip','important');
+    // All sections use the same Nature reference portal handoff.
+    // Keep the real destination label and the flying title synchronized:
+    // show the moving title immediately, then crossfade to the stationary
+    // real title together with the existing 100ms landing dissolve.
+    const originalLabel=card.querySelector('.toddler-game-label,.home-card-label');
+    const flyingLabel=copy.querySelector('.toddler-game-label,.home-card-label');
+    const originalLabelVisibility=originalLabel?.style.visibility||'';
+    const originalLabelOpacity=originalLabel?.style.opacity||'';
+    const originalLabelTransition=originalLabel?.style.transition||'';
+    const isLongSpaceLabel=to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations';
+    if(isLongSpaceLabel&&flyingLabel){
+      // Match the real card's already-fitted font, rather than restyling
+      // it mid-flight or hiding it until the end.
+      const measured=getComputedStyle(originalLabel);
+      for(const key of ['font-size','letter-spacing','line-height','white-space']){
+        flyingLabel.style.setProperty(key,measured.getPropertyValue(key),'important');
       }
     }
-    // Prevent two copies of the long title from moving against each other
-    // while the destination screen fades in beneath the flying card.
-    const realLandingLabel=(to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations')
-      ?card.querySelector('.toddler-game-label'):null;
-    const originalLandingLabelVisibility=realLandingLabel?.style.visibility||'';
-    if(realLandingLabel)realLandingLabel.style.visibility='hidden';
+    if(originalLabel){
+      originalLabel.style.setProperty('transition','none','important');
+      originalLabel.style.setProperty('opacity','0','important');
+    }
+    const restoreLandingLabel=()=>{
+      if(!originalLabel)return;
+      originalLabel.style.visibility=originalLabelVisibility;
+      originalLabel.style.opacity=originalLabelOpacity;
+      originalLabel.style.transition=originalLabelTransition;
+    };
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1400,7 +1410,7 @@
       // it would make the slot EMPTY until the next unrelated render.
       if(previousCardOpacity==='0')card.style.removeProperty('opacity');
       else card.style.opacity=previousCardOpacity;
-      if(realLandingLabel)realLandingLabel.style.visibility=originalLandingLabelVisibility;
+      restoreLandingLabel();
       flight.remove();
       reversePortalActive=false;
       finishNavigation();
@@ -1417,7 +1427,7 @@
       // Do not change the approved position/scale keyframes or screen fade.
       fly.finished.then(()=>{
         if(done||!flight.isConnected)return;
-        if(realLandingLabel)realLandingLabel.style.visibility=originalLandingLabelVisibility;
+        restoreLandingLabel();
         flight.animate([{opacity:1},{opacity:0}],{
           duration:100,easing:'ease-out',fill:'forwards'
         });
