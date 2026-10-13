@@ -1021,6 +1021,39 @@
 
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
+  // Portal titles stay fixed: only the card artwork flies.
+  function anchorPortalTitle(card,copy){
+    const original=card.querySelector('.home-card-label,.toddler-game-label');
+    const cloned=copy.querySelector('.home-card-label,.toddler-game-label');
+    if(!original||!cloned)return ()=>{};
+    cloned.style.setProperty('visibility','hidden','important');
+    const box=original.getBoundingClientRect();
+    const style=getComputedStyle(original);
+    const anchor=original.cloneNode(true);
+    for(const key of ['font-family','font-size','font-weight','line-height',
+      'letter-spacing','white-space','text-align','color','display','align-items',
+      'justify-content','padding','box-sizing','text-shadow']){
+      const value=style.getPropertyValue(key);
+      if(value)anchor.style.setProperty(key,value,'important');
+    }
+    for(const [key,value] of Object.entries({
+      position:'fixed',left:box.left+'px',top:box.top+'px',
+      width:box.width+'px',height:box.height+'px',
+      margin:'0',transform:'none',transition:'none',animation:'none',
+      pointerEvents:'none',zIndex:'2147483001'
+    }))anchor.style.setProperty(key,value,'important');
+    anchor.setAttribute('aria-hidden','true');
+    document.body.appendChild(anchor);
+    let fade=null;
+    try{
+      fade=anchor.animate([{opacity:Number(style.opacity)||1},{opacity:0}],{
+        duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'
+      });
+      fade.finished.catch(()=>{});
+    }catch{}
+    return ()=>{try{fade?.cancel()}catch{}anchor.remove()};
+  }
+
   function openAnimatedHomeSection(card){
     if(!card||homeEntryTransitionActive)return;
     const id=card.dataset.section;
@@ -1052,6 +1085,7 @@
     });
     flight.appendChild(copy);
     document.body.appendChild(flight);
+    const removeAnchoredTitle=anchorPortalTitle(card,copy);
     const previousOpacity=card.style.opacity;
     card.style.opacity='0';
     restoreHomeSourceCard=()=>{
@@ -1064,6 +1098,7 @@
       if(done)return;
       done=true;
       clearTimeout(safetyTimer);
+      removeAnchoredTitle();
       flight.remove();
       // When the moving card disappears at 1040ms, the two full screens are
       // still dissolving. Do not let the original tile flash back underneath.
@@ -1355,49 +1390,10 @@
         }
       }
     }
-    // All sections use the same Nature reference portal handoff.
-    // Keep the real destination label and the flying title synchronized:
-    // show the moving title immediately, then crossfade to the stationary
-    // real title together with the existing 100ms landing dissolve.
-    const originalLabel=card.querySelector('.toddler-game-label,.home-card-label');
+    // Title is rendered only by the real destination card and stays still.
     const flyingLabel=copy.querySelector('.toddler-game-label,.home-card-label');
-    const originalLabelVisibility=originalLabel?.style.visibility||'';
-    const originalLabelOpacity=originalLabel?.style.opacity||'';
-    const originalLabelTransition=originalLabel?.style.transition||'';
-    const isLongSpaceLabel=to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations';
-    if(isLongSpaceLabel&&flyingLabel&&originalLabel){
-      // Freeze the final destination label's exact box and typography.
-      // A detached clone loses ancestor alignment, so its last-frame
-      // text can drift left when the real card replaces the flight.
-      const measured=getComputedStyle(originalLabel);
-      const originalBox=originalLabel.getBoundingClientRect();
-      const cardBox=card.getBoundingClientRect();
-      const scaledWidth=card.offsetWidth||cardBox.width;
-      const factor=cardBox.width/scaledWidth||1;
-      for(const key of ['font-size','letter-spacing','line-height','white-space',
-        'text-align','padding-left','padding-right','box-sizing']){
-        flyingLabel.style.setProperty(key,measured.getPropertyValue(key),'important');
-      }
-      // Align both label boxes at the landing pose; preserve the flight
-      // animation and avoid changing the genuine destination card.
-      flyingLabel.style.setProperty('position','absolute','important');
-      flyingLabel.style.setProperty('left',((originalBox.left-cardBox.left)/factor)+'px','important');
-      flyingLabel.style.setProperty('top',((originalBox.top-cardBox.top)/factor)+'px','important');
-      flyingLabel.style.setProperty('width',(originalBox.width/factor)+'px','important');
-      flyingLabel.style.setProperty('height',(originalBox.height/factor)+'px','important');
-      flyingLabel.style.setProperty('margin','0','important');
-      flyingLabel.style.setProperty('transform','none','important');
-    }
-    if(originalLabel){
-      originalLabel.style.setProperty('transition','none','important');
-      originalLabel.style.setProperty('opacity','0','important');
-    }
-    const restoreLandingLabel=()=>{
-      if(!originalLabel)return;
-      originalLabel.style.visibility=originalLabelVisibility;
-      originalLabel.style.opacity=originalLabelOpacity;
-      originalLabel.style.transition=originalLabelTransition;
-    };
+    if(flyingLabel)flyingLabel.style.setProperty('visibility','hidden','important');
+    const restoreLandingLabel=()=>{};
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1507,6 +1503,7 @@
     });
     flight.appendChild(copy);
     document.body.appendChild(flight);
+    const removeAnchoredTitle=anchorPortalTitle(card,copy);
     const oldOpacity=card.style.opacity;
     card.style.opacity='0';
     let restored=false;
@@ -1518,6 +1515,7 @@
       innerGameEntryActive=false;
     };
     const cleanup=()=>{
+      removeAnchoredTitle();
       flight.remove();
       flightFinished=true;
       if(sectionScreen.hidden)restoreCard();
