@@ -1321,9 +1321,27 @@
         }
       }
     }
-    // Reverse-flight's approved duration, easing, path and keyframes remain
-    // untouched. The detached clone is an overlay; remove it only after
-    // the real card is painted behind it, so the final handoff cannot jump.
+    // Reverse-flight transform/keyframes/timing are unchanged. A card cloned
+    // outside its section grid loses descendant CSS selectors, which causes
+    // the visible one-frame "settle" when the overlay is removed. Snapshot
+    // the destination's computed child presentation into the detached clone.
+    // Restrict to inner-game reverse cards; leave top-level home portal alone.
+    if(to===sectionScreen){
+      const originals=card.querySelectorAll('*');
+      const clones=copy.querySelectorAll('*');
+      for(let i=0;i<originals.length&&i<clones.length;i++){
+        const computed=getComputedStyle(originals[i]);
+        for(const key of ['display','position','box-sizing','width','height',
+          'min-width','max-width','min-height','max-height','margin','padding',
+          'background','background-color','border','border-radius','box-shadow',
+          'color','font-family','font-size','font-weight','line-height',
+          'letter-spacing','white-space','text-align','object-fit',
+          'object-position','overflow','transform','opacity','filter']){
+          const value=computed.getPropertyValue(key);
+          if(value)clones[i].style.setProperty(key,value,'important');
+        }
+      }
+    }
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1351,12 +1369,7 @@
       // it would make the slot EMPTY until the next unrelated render.
       if(previousCardOpacity==='0')card.style.removeProperty('opacity');
       else card.style.opacity=previousCardOpacity;
-      // The source card and its fixed-position clone can render on different
-      // compositor frames on iOS. Handoff in one painted frame with exactly
-      // the same 1040ms animation as before; only delay overlay disposal.
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>flight.remove());
-      });
+      flight.remove();
       reversePortalActive=false;
       finishNavigation();
     };
