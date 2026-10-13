@@ -1,3 +1,10 @@
+## 2026-10-13 — Constellation-only return handoff trial (not approved)
+- User specifically reports that ONLY constellation gallery cards show an end-of-return image and Armenian label/status badge shrink; all other galleries return correctly.
+- Production/main untouched: V294 at 8d365c739466eff1e45575235cc3320098d5b6bd; approved visual rollback is PR #37 / 42dc42b099fbd01634e3b591f0e832a546017e17.
+- Isolated experimental branch: fix/constellation-only-return-handoff-20261013, code commit 665b5debeffe57def456719147778918ac310344. In app.js, at the shared return handoff, restore the real card one animation-frame early ONLY when it has .animal-card--constellation, then remove flight clone; all other galleries and existing keyframes/speeds/CSS/assets/audio remain identical.
+- Prior PR #40 explored the same timing technique for all galleries, was CLOSED UNMERGED, and is not evidence of a fix. PR #38 focus transform removal was user-rejected and is not repeated.
+- Hypothesis only; no real iPhone/DotKiosk confirmation. Must inspect CI, run device visual test, and obtain explicit user approval before any merge. Revert by dropping this branch/PR. Next step: verify trial build, send trial link if available, request user's video feedback.
+
 ## 2026-10-13 — User rejected PR #38 gallery focus change; revert it exactly
 - User: «չե դա հետ դիր դրա մասին չեյ ասում» — the removal of the focused picture-card transform was NOT the issue they meant. Do not claim that the real issue was fixed or guess a replacement fix.
 - Restore precisely the original CSS selector `.gallery-card-flight-shell > .animal-card.animal-card--focus` with `transform:translateY(-1px) scale(1.012) !important;` and remove the PR #38 comment. No other animation, title, game logic, assets or audio touched.
