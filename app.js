@@ -1284,6 +1284,23 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    // The clone leaves the 709px design-stage typography context. On WebKit
+    // its title can briefly reflow as the shrinking card reaches its slot.
+    // Freeze only the clone's current label geometry, not the real card or
+    // the user's approved portal speed/keyframes (Nature remains untouched).
+    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
+      for(const selector of ['.home-card-label','.toddler-game-label']){
+        const original=card.querySelector(selector);
+        const cloned=copy.querySelector(selector);
+        if(!original||!cloned)continue;
+        const measured=getComputedStyle(original);
+        for(const property of ['font-family','font-size','font-weight','line-height',
+          'letter-spacing','white-space','text-align','padding-left','padding-right',
+          'width','height','box-sizing','display','align-items','justify-content']){
+          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
+        }
+      }
+    }
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -2881,7 +2898,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Գտիր ճիշտ ձևը';
-    frame.src='./mind-shapes-deluxe-v4.html?embed=1';
+    frame.src='./mind-shapes-deluxe-v4.html?embed=1&v=294';
     frame.setAttribute('loading','eager');
     frame.setAttribute('allow','autoplay');
     activityContent.append(frame);
@@ -3059,7 +3076,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=293',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=294',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

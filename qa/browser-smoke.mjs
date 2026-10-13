@@ -226,7 +226,7 @@ try{
       const card=page.locator('#sectionGames .toddler-game-card[data-game="puzzle"]');
       const wallet=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
       await card.evaluate(el=>{
-        const proof={enterFlight:false,enterFade:false,exitFlight:false};
+        const proof={enterFlight:false,enterFade:false,exitFlight:false,labelFrozen:false};
         const observe=()=>{
           const enter=document.querySelector('[data-inner-game-flight]');
           const reverse=document.querySelector('[data-reverse-portal-flight]');
@@ -238,6 +238,13 @@ try{
           if(reverse?.dataset.reversePortalFlight==='activity'&&
              reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
             proof.exitFlight=true;
+          const returning=reverse?.querySelector('.toddler-game-label');
+          const source=document.querySelector('#sectionGames [data-game="puzzle"] .toddler-game-label');
+          if(returning&&source){
+            proof.labelFrozen=returning.style.getPropertyPriority('font-size')==='important'&&
+              getComputedStyle(returning).fontSize===getComputedStyle(source).fontSize&&
+              getComputedStyle(returning).lineHeight===getComputedStyle(source).lineHeight;
+          }
         };
         const observer=new MutationObserver(observe);
         observer.observe(document.body,{subtree:true,childList:true,attributes:true,
@@ -258,6 +265,35 @@ try{
           embedded:document.querySelector('#activityScreen')?.classList.contains('mind-v4-mode'),
           entry:window.__mindV4Proof};
       });
+      const backdropProof=await page.evaluate(()=>{
+        const iframe=document.querySelector('#activityContent .mind-v4-frame');
+        const doc=iframe.contentDocument;
+        const root=document.documentElement,priorTheme=root.dataset.theme;
+        const oldPhoto=root.style.getPropertyValue('--theme-photo');
+        root.dataset.theme='photo-user-01';
+        root.style.setProperty('--theme-photo','url("./theme-bg-ocean.svg")');
+        const result={
+          game:iframe.contentWindow.getComputedStyle(doc.querySelector('#app')).backgroundColor,
+          gameImage:iframe.contentWindow.getComputedStyle(doc.querySelector('#app')).backgroundImage,
+          body:iframe.contentWindow.getComputedStyle(doc.body).backgroundColor,
+          frame:getComputedStyle(iframe).backgroundColor,
+          parent:getComputedStyle(document.querySelector('#activityScreen')).backgroundColor,
+          scene:iframe.contentWindow.getComputedStyle(doc.querySelector('.scene-wrap')).backgroundImage,
+          themeBackground:getComputedStyle(document.querySelector('#appBackground')).backgroundImage
+        };
+        root.dataset.theme=priorTheme;
+        if(oldPhoto)root.style.setProperty('--theme-photo',oldPhoto);
+        else root.style.removeProperty('--theme-photo');
+        return result;
+      });
+      if(backdropProof.game!=='rgba(0, 0, 0, 0)'||
+         backdropProof.gameImage!=='none'||
+         backdropProof.body!=='rgba(0, 0, 0, 0)'||
+         backdropProof.frame!=='rgba(0, 0, 0, 0)'||
+         backdropProof.parent!=='rgba(0, 0, 0, 0)'||
+         !backdropProof.scene.includes('radial-gradient')||
+         !backdropProof.themeBackground.includes('theme-bg-ocean.svg'))
+        throw Error('V4 selected theme must show outside unchanged puzzle panels '+JSON.stringify(backdropProof));
       if(evidence.count!==4||!evidence.stars.includes(String(wallet))||
          !evidence.embedded||!evidence.src.includes('embed=1')||
          !evidence.entry.enterFlight||!evidence.entry.enterFade)
@@ -302,7 +338,7 @@ try{
       }));
       await page.evaluate(()=>window.__mindV4Stop?.());
       if(restored.section!=='mind'||!restored.shown||restored.tileCount!==4||
-         !restored.proof.exitFlight||restored.wallet!==second)
+         !restored.proof.exitFlight||!restored.proof.labelFrozen||restored.wallet!==second)
         throw Error('Mind V4 exit portal or star persistence failed '+JSON.stringify(restored));
       done.push('mind/puzzle');
       console.log('MIND V4 FOUR LABELS + ENTRY/EXIT PORTALS + SINGLE HINT CHARGE + SHARED STARS PASS');
