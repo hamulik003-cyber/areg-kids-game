@@ -2128,10 +2128,16 @@
       }
 
       if(activeGalleryPresentation===state){
-        host.classList.remove('gallery-card-flight-host--visible');
-        try{host.remove()}catch{}
+        // Restore the real card under the flight copy before removing the overlay.
+        // This prevents a one-frame empty/settling handoff on iOS WebKit.
         card.style.removeProperty('opacity');
         card.style.removeProperty('pointer-events');
+        // The clone stays visually above the original until the next paint.
+        // No changes to the approved 500ms reverse-flight keyframes.
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+        if(state.cancelled)return;
+        host.classList.remove('gallery-card-flight-host--visible');
+        try{host.remove()}catch{}
         activeGalleryPresentation=null;
       }
     }
