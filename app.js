@@ -1001,6 +1001,31 @@
 
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
+  function freezePortalTitleWithCard(card,copy){
+    const original=card.querySelector('.home-card-label,.toddler-game-label');
+    const target=copy.querySelector('.home-card-label,.toddler-game-label');
+    if(!original||!target)return;
+    const sourceCard=card.getBoundingClientRect();
+    const sourceTitle=original.getBoundingClientRect();
+    const ratio=sourceCard.width/(card.offsetWidth||sourceCard.width)||1;
+    const computed=getComputedStyle(original);
+    for(const name of ['font-family','font-size','font-weight','line-height',
+      'letter-spacing','white-space','text-align','color','text-shadow',
+      'display','align-items','justify-content','padding','box-sizing',
+      'border','border-radius','background','overflow']){
+      const value=computed.getPropertyValue(name);
+      if(value)target.style.setProperty(name,value,'important');
+    }
+    for(const [name,value] of Object.entries({
+      position:'absolute',left:(sourceTitle.left-sourceCard.left)/ratio+'px',
+      top:(sourceTitle.top-sourceCard.top)/ratio+'px',
+      width:sourceTitle.width/ratio+'px',height:sourceTitle.height/ratio+'px',
+      right:'auto',bottom:'auto',margin:'0',transform:'none',
+      transition:'none',animation:'none'
+    }))target.style.setProperty(name,value,'important');
+  }
+
+
   function openAnimatedHomeSection(card){
     if(!card||homeEntryTransitionActive)return;
     const id=card.dataset.section;
@@ -1030,6 +1055,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    freezePortalTitleWithCard(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1301,6 +1327,7 @@
         }
       }
     }
+    freezePortalTitleWithCard(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1398,6 +1425,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    freezePortalTitleWithCard(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
