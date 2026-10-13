@@ -1512,12 +1512,19 @@
   function backToSection(){
     if(reversePortalActive)return;
     ++galleryNavigationId;
+    const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
     if(reversePortal(activityScreen,sectionScreen,card,()=>{
       // Dispose 3D and gallery resources only after they have faded away.
-      cleanupGame();applyAudio();
+      cleanupGame();
+      // WebKit can leave a V4 forward-flight latch set if Back interrupts its
+      // final callback; never lock the next Mind card after returning.
+      if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
+      applyAudio();
     }))return;
-    cleanupGame();activityScreen.classList.remove('is-visible');
+    cleanupGame();
+    if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
+    activityScreen.classList.remove('is-visible');
     setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;
       requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160);
   }
