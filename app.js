@@ -1393,7 +1393,15 @@
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
-      fly.finished.catch(()=>{});
+      // Blend the already-landed flight into its real tile, rather than
+      // abruptly swapping two different painted elements on the last frame.
+      // Do not change the approved position/scale keyframes or screen fade.
+      fly.finished.then(()=>{
+        if(done||!flight.isConnected)return;
+        flight.animate([{opacity:1},{opacity:0}],{
+          duration:100,easing:'ease-out',fill:'forwards'
+        });
+      }).catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
