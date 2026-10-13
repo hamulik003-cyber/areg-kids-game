@@ -1355,12 +1355,17 @@
         }
       }
     }
-    // On iPhone the long Constellations label on the detached flight clone
-    // can reflow as it shrinks. Render its text only on the real destination
-    // card, revealed by the original 1100ms screen fade, not on the clone.
+    // Keep the long Space title visible throughout the reverse flight.
+    // Freeze its one-line text layout instead of hiding it until the screen
+    // crossfade completes (which caused the user-reported late appearance).
     if(to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations'){
       const flyingLabel=copy.querySelector('.toddler-game-label');
-      if(flyingLabel)flyingLabel.style.setProperty('visibility','hidden','important');
+      if(flyingLabel){
+        flyingLabel.style.setProperty('white-space','nowrap','important');
+        flyingLabel.style.setProperty('flex-wrap','nowrap','important');
+        flyingLabel.style.setProperty('overflow','hidden','important');
+        flyingLabel.style.setProperty('text-overflow','clip','important');
+      }
     }
     flight.appendChild(copy);
     document.body.appendChild(flight);
