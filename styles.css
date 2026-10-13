@@ -3356,3 +3356,18 @@ html[data-theme^="photo-user-"] .section-dim{
 .activity-screen.mind-v4-mode .activity-topbar{display:none}
 .activity-screen.mind-v4-mode .activity-content{padding:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:transparent}
 .activity-screen.mind-v4-mode .mind-v4-frame{display:block;width:100%;height:100%;border:0;background:transparent}
+
+/* V296 isolated trial: the outer flight shell alone moves.
+   Preserve the original stage's label CSS context; prevent descendants
+   of the flying clone from running independent transitions/animations. */
+.areg-rigid-card-flight > .home-section-card,
+.areg-rigid-card-flight > .toddler-game-card,
+.areg-rigid-card-flight > .home-section-card *,
+.areg-rigid-card-flight > .toddler-game-card *,
+.areg-rigid-card-flight > .home-section-card::before,
+.areg-rigid-card-flight > .home-section-card::after,
+.areg-rigid-card-flight > .toddler-game-card::before,
+.areg-rigid-card-flight > .toddler-game-card::after{
+  animation:none !important;
+  transition:none !important;
+}
