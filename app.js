@@ -1044,6 +1044,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    bondFlightLabels(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1253,6 +1254,33 @@
   // previous screen. A cloned card travels smoothly from the center back to
   // its exact origin while the prior screen fades in without rising/sliding.
   let reversePortalActive=false;
+  // The wooden plaque is a fixed part of the flying card, never a second animated object.
+  // Freeze its exact on-screen typography and box geometry before moving the clone
+  // outside the scaled 709px stage (important for iOS Safari / DotKiosk).
+  function bondFlightLabels(source,clone){
+    for(const selector of ['.home-card-label','.toddler-game-label']){
+      const original=source.querySelector(selector);
+      const label=clone.querySelector(selector);
+      if(!original||!label)continue;
+      const computed=getComputedStyle(original);
+      for(const property of ['left','right','top','bottom','width','height',
+        'padding-left','padding-right','padding-top','padding-bottom',
+        'box-sizing','font-family','font-size','font-weight','line-height',
+        'letter-spacing','white-space','text-align','display',
+        'align-items','justify-content','transform','transform-origin']){
+        label.style.setProperty(property,computed.getPropertyValue(property),'important');
+      }
+      label.style.setProperty('transition','none','important');
+      label.style.setProperty('animation','none','important');
+      const innerOriginal=original.querySelector('.constellations-fit-text');
+      const innerClone=label.querySelector('.constellations-fit-text');
+      if(innerOriginal&&innerClone){
+        innerClone.style.setProperty('transform',getComputedStyle(innerOriginal).transform,'important');
+        innerClone.style.setProperty('transition','none','important');
+        innerClone.style.setProperty('animation','none','important');
+      }
+    }
+  }
   function reversePortal(from,to,card,finishNavigation){
     if(reversePortalActive)return true;
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
@@ -1298,23 +1326,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // The clone leaves the 709px design-stage typography context. On WebKit
-    // its title can briefly reflow as the shrinking card reaches its slot.
-    // Freeze only the clone's current label geometry, not the real card or
-    // the user's approved portal speed/keyframes (Nature remains untouched).
-    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
-      for(const selector of ['.home-card-label','.toddler-game-label']){
-        const original=card.querySelector(selector);
-        const cloned=copy.querySelector(selector);
-        if(!original||!cloned)continue;
-        const measured=getComputedStyle(original);
-        for(const property of ['font-family','font-size','font-weight','line-height',
-          'letter-spacing','white-space','text-align','padding-left','padding-right',
-          'width','height','box-sizing','display','align-items','justify-content']){
-          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
-        }
-      }
-    }
+    bondFlightLabels(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1412,6 +1424,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    bondFlightLabels(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
