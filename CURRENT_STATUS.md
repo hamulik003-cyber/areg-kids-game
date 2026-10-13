@@ -1,3 +1,8 @@
+## 2026-10-13 — QA repairs for PR #26 (integration still pending)
+- User explicitly requests resolve all CI failures and merge approved Mind Deluxe V4 to production only when safe. CI failures were release-v291 PWA test expecting v290 cache and generic inner-game smoke expecting an in-app activity view for standalone V4.
+- Updated `qa/pwa-update.test.mjs` to assert real v291 app/SW cache while leaving existing behavior assertions intact. Updated `qa/browser-smoke.mjs` to test first Mind tile standalone V4 entry, 4 pieces, same shared star count, and back navigation, while leaving native section games' portal checks untouched.
+- QA commits: `8fa38142` and `4e2fdf54`. Await latest Full Game Audit and all ios-webkit, ios-pwa-music, mobile-browser checks before any PR #26 merge. Rollback main V290 `5a730d3a10b03914dc9879da81f91f9626799ddb` remains untouched.
+
 ## 2026-10-13 — NEW CHAT START HERE: Mind Deluxe V4 safe release in PR #26 — CI pending
 - User explicitly authorized safe production integration of screenshot labels: «Գտիր ճիշտ ձևը», «Գտիր գույնը», «Ո՞վ ավելորդ է», «Հավաքիր պատկերները» in the existing four Mind cards, with the first card launching the user-approved Deluxe V4. Existing other three mini-game implementations not redesigned.
 - Integration branch: `integrate/approved-mind-shapes-v4-20261013`, PR #26 https://github.com/hamulik003-cyber/areg-kids-game/pull/26. Base protected production V290 main `5a730d3a10b03914dc9879da81f91f9626799ddb`. User-approved V4 source `86dbd8177c1d4a35d72102adc844e6ae702b821b`; protected cube sizing, multitouch guard, green buttons.
