@@ -1,3 +1,9 @@
+# 2026-10-13 — MANDATORY NEW CHAT INSTRUCTION (PRIORITY)
+
+**FIRST READ [WORKFLOW_START_HERE.md](WORKFLOW_START_HERE.md).** It supersedes older, conflicting procedures below regarding slow per-trial handoff writes, whether the agent should actually execute GitHub changes, and how to share iPhone Safari previews. The user explicitly wants: implement requested corrections in a GitHub **trial branch**, give an actual **SHA-pinned raw.githack clickable preview URL**, iterate quickly from screenshots/video, then promote to protected main after an unambiguous request to release. A GitHub @mention plus clear change request is authorization for a trial write, not automatic production release. The user no longer wants every rejected micro-experiment copied to 3 giant documents; keep trials compact in PR comments and formally record **accepted releases**. Never skip verifying live GitHub state, preserve production/device data and comply with actual branch protection. If the connection is missing, say so and enable connection guidance instead of claiming generic inability. Older V290-specific 'current' headers are historical; live main was 8d365c739466eff1e45575235cc3320098d5b6bd when this note was written and must be rechecked.
+
+---
+
 ## PERMANENT USER REQUIREMENT — EXACT CONTINUITY AFTER EVERY CHANGE (2026-10-12)
 **User explicitly confirmed:** “ամեն փոփոխությունից հետո պահանջում եմ որ գրանցվի այտեղ ամեն բան որպիսի հաջորդ չաթերում ամեն բան պառզ լինի թէ ինչեր ենք արել ու ներկա պահին ինչ կետի վրա ենք կանգնած”. This is a standing rule for all future AREG Kids Game work, including QA-only fixes, security/backup work, documentation, trials, releases, regressions, and external user-performed steps.
 
