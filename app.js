@@ -1424,7 +1424,7 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:750,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
       const safety=setTimeout(cleanup,1900);
