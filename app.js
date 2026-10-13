@@ -449,9 +449,9 @@
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
         {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
-        {id:'sizes',label:'Գտիր գույնը',thumb:'mind-game-2.jpg',kind:'sizes'},
-        {id:'pattern',label:'Ո՞վ ավելորդ է',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Հավաքիր պատկերները',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Ո՞ւմ ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
@@ -3052,7 +3052,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=292',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=293',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
