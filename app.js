@@ -867,14 +867,26 @@
   function fitSpaceConstellationsLabel(){
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
-    label.style.setProperty('font-size','13px','important');
-    label.style.setProperty('letter-spacing','-.035em','important');
-    const min=10.5,step=.25;
-    let size=13;
-    while(size>min && label.scrollWidth>label.clientWidth){
-      size=Math.max(min,size-step);
-      label.style.setProperty('font-size',size+'px','important');
+    // Fit only the lettering. Keep the wooden plaque and all sibling cards unchanged.
+    let text=label.querySelector('.constellations-fit-text');
+    if(!text){
+      text=document.createElement('span');
+      text.className='constellations-fit-text';
+      text.textContent=label.textContent.trim();
+      label.textContent='';
+      label.appendChild(text);
     }
+    text.style.display='inline-block';
+    text.style.whiteSpace='nowrap';
+    text.style.maxWidth='none';
+    text.style.flex='0 0 auto';
+    text.style.transformOrigin='center center';
+    label.style.setProperty('font-size','16px','important');
+    label.style.setProperty('letter-spacing','-.035em','important');
+    const available=Math.max(1,label.clientWidth-20);
+    const natural=text.getBoundingClientRect().width;
+    const ratio=natural>available?available/natural:1;
+    text.style.transform='scaleX('+ratio+')';
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
