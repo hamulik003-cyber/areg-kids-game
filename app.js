@@ -867,14 +867,21 @@
   function fitSpaceConstellationsLabel(){
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
+    // Enlarge actual font and compress only the text horizontally to fit the unchanged plaque.
+    let text=label.querySelector('.constellations-fit-text');
+    if(!text){
+      text=document.createElement('span');
+      text.className='constellations-fit-text';
+      text.textContent='Համաստեղություններ';
+      label.replaceChildren(text);
+    }
     label.style.setProperty('font-size','16px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
-    const min=10.5,step=.25;
-    let size=16;
-    while(size>min && label.scrollWidth>label.clientWidth){
-      size=Math.max(min,size-step);
-      label.style.setProperty('font-size',size+'px','important');
-    }
+    text.style.cssText='display:inline-block;flex:0 0 auto;white-space:nowrap;max-width:none;transform-origin:center center;transform:none;';
+    const css=getComputedStyle(label);
+    const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)+2);
+    const natural=text.getBoundingClientRect().width;
+    text.style.transform='scaleX('+Math.min(1,available/Math.max(1,natural))+')';
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
@@ -953,6 +960,13 @@
             'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
           sectionScreen.classList.add('is-visible');
           sectionScreen.style.setProperty('opacity','1','important');
+          // Fit the long label on the normal animated entry path too.
+          if(id==='space'){
+            fitSpaceConstellationsLabel();
+            if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{
+              if(currentSection==='space')fitSpaceConstellationsLabel();
+            });
+          }
           // Keep transform fixed throughout; only alpha changes.
           sectionScreen.style.setProperty('transform','none','important');
           homeScreen.style.setProperty('opacity','0','important');
@@ -3076,7 +3090,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=295',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=296',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });

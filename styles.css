@@ -3232,18 +3232,7 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 
 
-/* V138 — keep the long Constellations labels fully inside their wooden pills. */
-.toddler-section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
-  left:5px !important;
-  right:5px !important;
-  padding-left:2px !important;
-  padding-right:2px !important;
-  font-size:12px !important;
-  line-height:1 !important;
-  letter-spacing:-.045em !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-}
+
 .activity-screen[data-game="constellations"] .activity-title-wrap{
   min-width:0 !important;
   overflow:hidden !important;
@@ -3261,24 +3250,6 @@ html[data-theme^="photo-user-"] .section-dim{
   text-overflow:clip !important;
 }
 
-
-/* =========================================================
-   V141 — SPACE / CONSTELLATIONS MAXIMUM SAFE LABEL SIZE
-   JS measures the real pill width and keeps the title as large
-   as the current device can fit without overflow.
-   ========================================================= */
-.toddler-section-screen[data-section="space"] .toddler-game-card[data-game="constellations"] .toddler-game-label{
-  left:5px !important;
-  right:5px !important;
-  padding-left:1px !important;
-  padding-right:1px !important;
-  font-size:16px !important;
-  line-height:1 !important;
-  letter-spacing:-.035em !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:clip !important;
-}
 
 /* V239: two decoded bitmap layers. The preview stays painted underneath
    until the original photograph is READY, so Safari/DotKiosk cannot display
