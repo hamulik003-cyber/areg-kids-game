@@ -263,7 +263,13 @@ try{
          !evidence.entry.enterFlight||!evidence.entry.enterFade)
         throw Error('Mind V4 integrated entry, stars or portal animation failed '+JSON.stringify(evidence));
       // A hint costs at most one star, even with repeated taps or a different selected piece.
-      await frame.locator('#pieces .piece').first().evaluate(el=>{el.click()});
+      await frame.locator('#pieces .piece').first().evaluate(el=>{
+        // V4 selects on pointerdown; synthetic WebKit taps must not fake pointer capture.
+        const capture=el.setPointerCapture;
+        el.setPointerCapture=()=>{};
+        try{el.dispatchEvent(new el.ownerDocument.defaultView.PointerEvent('pointerdown',{bubbles:true,pointerId:7,clientX:el.getBoundingClientRect().x+12,clientY:el.getBoundingClientRect().y+12}));}
+        finally{el.setPointerCapture=capture}
+      });
       await frame.locator('#help').evaluate(el=>el.click());
       const first=await page.evaluate(()=>{
         const doc=document.querySelector('.mind-v4-frame').contentDocument;
@@ -272,7 +278,12 @@ try{
       if(first!==wallet-(wallet>0?1:0))
         throw Error('Mind first hint charge mismatch '+JSON.stringify({wallet,first}));
       await frame.locator('#help').evaluate(el=>el.click());
-      await frame.locator('#pieces .piece').nth(1).evaluate(el=>{el.click()});
+      await frame.locator('#pieces .piece').nth(1).evaluate(el=>{
+        const capture=el.setPointerCapture;
+        el.setPointerCapture=()=>{};
+        try{el.dispatchEvent(new el.ownerDocument.defaultView.PointerEvent('pointerdown',{bubbles:true,pointerId:8,clientX:el.getBoundingClientRect().x+12,clientY:el.getBoundingClientRect().y+12}));}
+        finally{el.setPointerCapture=capture}
+      });
       await frame.locator('#help').evaluate(el=>el.click());
       const second=await page.evaluate(()=>{
         const doc=document.querySelector('.mind-v4-frame').contentDocument;
