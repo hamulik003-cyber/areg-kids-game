@@ -867,10 +867,10 @@
   function fitSpaceConstellationsLabel(){
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
-    label.style.setProperty('font-size','16px','important');
+    label.style.setProperty('font-size','13px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
     const min=10.5,step=.25;
-    let size=16;
+    let size=13;
     while(size>min && label.scrollWidth>label.clientWidth){
       size=Math.max(min,size-step);
       label.style.setProperty('font-size',size+'px','important');
