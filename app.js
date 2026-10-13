@@ -1021,33 +1021,6 @@
 
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
-  // Freeze the label IN the flying card at its exact real-card geometry.
-  // It scales and travels with the artwork; no independent label transition,
-  // late layout reflow, or screen-coordinate correction is allowed.
-  function freezePortalCardLabel(card,copy){
-    const original=card.querySelector('.home-card-label,.toddler-game-label');
-    const cloned=copy.querySelector('.home-card-label,.toddler-game-label');
-    if(!original||!cloned)return;
-    const tile=card.getBoundingClientRect();
-    const label=original.getBoundingClientRect();
-    const scale=tile.width/(card.offsetWidth||tile.width)||1;
-    const computed=getComputedStyle(original);
-    for(const key of ['font-family','font-size','font-weight','line-height',
-      'letter-spacing','white-space','text-align','color','text-shadow',
-      'display','align-items','justify-content','padding','box-sizing',
-      'border','border-radius','background','overflow']){
-      const value=computed.getPropertyValue(key);
-      if(value)cloned.style.setProperty(key,value,'important');
-    }
-    for(const [key,value] of Object.entries({
-      position:'absolute',left:(label.left-tile.left)/scale+'px',
-      top:(label.top-tile.top)/scale+'px',
-      width:label.width/scale+'px',height:label.height/scale+'px',
-      margin:'0',transform:'none',transition:'none',animation:'none',
-      transformOrigin:'top left'
-    }))cloned.style.setProperty(key,value,'important');
-  }
-
   function openAnimatedHomeSection(card){
     if(!card||homeEntryTransitionActive)return;
     const id=card.dataset.section;
@@ -1077,7 +1050,6 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    freezePortalCardLabel(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1383,13 +1355,39 @@
         }
       }
     }
-    // Preserve all destination titles as part of the moving card clone:
-    // one unified transform, no independent text animation or reflow.
-    freezePortalCardLabel(card,copy);
+    // All sections use the same Nature reference portal handoff.
+    // Keep the real destination label and the flying title synchronized:
+    // show the moving title immediately, then crossfade to the stationary
+    // real title together with the existing 100ms landing dissolve.
     const originalLabel=card.querySelector('.toddler-game-label,.home-card-label');
+    const flyingLabel=copy.querySelector('.toddler-game-label,.home-card-label');
     const originalLabelVisibility=originalLabel?.style.visibility||'';
     const originalLabelOpacity=originalLabel?.style.opacity||'';
     const originalLabelTransition=originalLabel?.style.transition||'';
+    const isLongSpaceLabel=to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations';
+    if(isLongSpaceLabel&&flyingLabel&&originalLabel){
+      // Freeze the final destination label's exact box and typography.
+      // A detached clone loses ancestor alignment, so its last-frame
+      // text can drift left when the real card replaces the flight.
+      const measured=getComputedStyle(originalLabel);
+      const originalBox=originalLabel.getBoundingClientRect();
+      const cardBox=card.getBoundingClientRect();
+      const scaledWidth=card.offsetWidth||cardBox.width;
+      const factor=cardBox.width/scaledWidth||1;
+      for(const key of ['font-size','letter-spacing','line-height','white-space',
+        'text-align','padding-left','padding-right','box-sizing']){
+        flyingLabel.style.setProperty(key,measured.getPropertyValue(key),'important');
+      }
+      // Align both label boxes at the landing pose; preserve the flight
+      // animation and avoid changing the genuine destination card.
+      flyingLabel.style.setProperty('position','absolute','important');
+      flyingLabel.style.setProperty('left',((originalBox.left-cardBox.left)/factor)+'px','important');
+      flyingLabel.style.setProperty('top',((originalBox.top-cardBox.top)/factor)+'px','important');
+      flyingLabel.style.setProperty('width',(originalBox.width/factor)+'px','important');
+      flyingLabel.style.setProperty('height',(originalBox.height/factor)+'px','important');
+      flyingLabel.style.setProperty('margin','0','important');
+      flyingLabel.style.setProperty('transform','none','important');
+    }
     if(originalLabel){
       originalLabel.style.setProperty('transition','none','important');
       originalLabel.style.setProperty('opacity','0','important');
@@ -1507,7 +1505,6 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    freezePortalCardLabel(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
