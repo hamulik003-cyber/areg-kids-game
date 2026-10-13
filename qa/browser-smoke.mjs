@@ -250,6 +250,22 @@ try{
       const frame=page.frameLocator('#activityContent .mind-v4-frame');
       await frame.locator('#view canvas').waitFor({timeout:30000});
       await frame.locator('#pieces .piece').first().waitFor({timeout:30000});
+      const themeBehind=await page.evaluate(()=>{
+        const child=document.querySelector('.mind-v4-frame')?.contentDocument;
+        const childBody=child?.body;
+        const childApp=child?.querySelector('#app');
+        const scene=child?.querySelector('.scene-wrap');
+        return {embedded:childBody?.classList.contains('areg-embedded'),
+          bodyBg:childBody&&getComputedStyle(childBody).backgroundColor,
+          appBg:childApp&&getComputedStyle(childApp).backgroundColor,
+          sceneBg:scene&&getComputedStyle(scene).backgroundImage,
+          frameBg:getComputedStyle(document.querySelector('.mind-v4-frame')).backgroundColor};
+      });
+      if(!themeBehind.embedded||themeBehind.bodyBg!=='rgba(0, 0, 0, 0)'||
+         themeBehind.appBg!=='rgba(0, 0, 0, 0)'||
+         themeBehind.frameBg!=='rgba(0, 0, 0, 0)'||
+         !themeBehind.sceneBg.includes('gradient'))
+        throw Error('Mind V4 theme outside puzzle box or approved box background changed '+JSON.stringify(themeBehind));
       const evidence=await page.evaluate(()=>{
         const iframe=document.querySelector('#activityContent .mind-v4-frame');
         return {src:iframe?.getAttribute('src'),
@@ -937,6 +953,19 @@ try{
       targetTileInlineOpacity:document.querySelector('.section-card[data-section="'+sectionId+'"]')?.style.opacity,
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   },section);
+  const reverseLabel=await page.evaluate(()=>{
+    const flight=document.querySelector('[data-reverse-portal-flight="home"]');
+    const label=flight?.querySelector('.home-card-label');
+    const source=document.querySelector('.section-card[data-section="'+section+'"] .home-card-label');
+    if(!label||!source)return null;
+    const frozen=getComputedStyle(label),original=getComputedStyle(source);
+    return {size:frozen.fontSize,originalSize:original.fontSize,
+      width:label.getBoundingClientRect().width,
+      originalWidth:source.getBoundingClientRect().width};
+  });
+  if(!reverseLabel||reverseLabel.size!==reverseLabel.originalSize||
+     Math.abs(reverseLabel.width-reverseLabel.originalWidth)>2)
+    throw Error('Reverse home title clone geometry changed '+section+' '+JSON.stringify(reverseLabel));
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
      exit.opacityStart!==0||exit.opacityEnd!==1||
      exit.frameCount!==2||exit.targetTileInlineOpacity==='0'||!exit.homeVisible)
