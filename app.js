@@ -868,7 +868,7 @@
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
     // Keep this single long Armenian title safely within its wooden label.
-    label.style.setProperty('font-size','11px','important');
+    label.style.setProperty('font-size','14px','important');
     label.style.setProperty('letter-spacing','-.045em','important');
   }
 
