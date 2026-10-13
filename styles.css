@@ -2823,8 +2823,13 @@ html[data-font="classic"]{
   transform-origin:center center !important;
 }
 
+/* The gallery flight shell is the ONLY moving layer. When spoken audio
+   applies --focus to the cloned animal/bird/sea/insect/planet card, do not
+   translate or scale its contents independently. This removes the extra
+   nudge on focus and the shrinking/settling step before the return flight.
+   Preserve shell flight transforms, timing, glow/filter and voice logic. */
 .gallery-card-flight-shell > .animal-card.animal-card--focus{
-  transform:translateY(-1px) scale(1.012) !important;
+  transform:none !important;
 }
 
 @media (prefers-reduced-motion:reduce){
