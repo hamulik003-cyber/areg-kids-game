@@ -867,7 +867,7 @@
   function fitSpaceConstellationsLabel(){
     const label=sectionGames.querySelector('.toddler-game-card[data-game="constellations"] .toddler-game-label');
     if(!label)return;
-    label.style.setProperty('font-size','15px','important');
+    label.style.setProperty('font-size','16px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
     const min=10.5,step=.25;
     let size=16;
@@ -1424,7 +1424,7 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:750,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
       const safety=setTimeout(cleanup,1900);
