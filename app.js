@@ -1344,6 +1344,33 @@
         if(value)copy.style.setProperty(key,value,'important');
       }
     }
+    // Preserve the exact original landing appearance while the clone flies.
+    // Off-grid detached cards lose their grid-dependent styles (especially
+    // WebKit's Armenian title styling); snapshot presentation without
+    // changing the approved flight scale or easing.
+    if(to===sectionScreen){
+      const rootStyle=getComputedStyle(card);
+      for(const prop of ['box-sizing','background','background-color','background-image',
+        'background-size','background-position','border','border-radius',
+        'box-shadow','outline','overflow','filter','opacity']){
+        const value=rootStyle.getPropertyValue(prop);
+        if(value)copy.style.setProperty(prop,value,'important');
+      }
+      const children=card.querySelectorAll('*');
+      const copies=copy.querySelectorAll('*');
+      for(let i=0;i<children.length&&i<copies.length;i++){
+        const computed=getComputedStyle(children[i]);
+        for(const prop of ['display','position','box-sizing','width','height',
+          'min-width','max-width','min-height','max-height','margin','padding',
+          'background','background-color','border','border-radius','box-shadow',
+          'color','font-family','font-size','font-weight','line-height',
+          'letter-spacing','white-space','text-align','object-fit',
+          'object-position','overflow','transform','opacity','filter']){
+          const value=computed.getPropertyValue(prop);
+          if(value)copies[i].style.setProperty(prop,value,'important');
+        }
+      }
+    }
     // Use exactly the same title geometry on forward and reverse travel.
     // The entire card, including text, is rigidly transformed as one layer.
     freezePortalTitleWithCard(card,copy);
