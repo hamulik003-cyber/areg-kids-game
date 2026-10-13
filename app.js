@@ -869,12 +869,23 @@
     if(!label)return;
     label.style.setProperty('font-size','16px','important');
     label.style.setProperty('letter-spacing','-.035em','important');
-    const min=10.5,step=.25;
+    // Measure the actual Armenian glyph run. scrollWidth on a flex label
+    // can equal clientWidth even when an unbreakable word paints outside.
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    if(!ctx)return;
+    const style=getComputedStyle(label);
+    const available=label.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-8;
+    if(available<=0)return;
+    const text=label.textContent.trim();
     let size=16;
-    while(size>min && label.scrollWidth>label.clientWidth){
-      size=Math.max(min,size-step);
-      label.style.setProperty('font-size',size+'px','important');
+    const weight=style.fontWeight, family=style.fontFamily;
+    while(size>8.5){
+      ctx.font=weight+' '+size+'px '+family;
+      if(ctx.measureText(text).width<=available)break;
+      size=Math.max(8.5,size-.25);
     }
+    label.style.setProperty('font-size',size+'px','important');
   }
 
   // V245: decode the small section illustrations in a bounded warm cache.
@@ -921,6 +932,11 @@
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
     if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
+    // Run for both cinematic and fallback entry, including after font load.
+    if(id==='space'){
+      requestAnimationFrame(()=>fitSpaceConstellationsLabel());
+      document.fonts?.ready?.then(()=>{if(currentSection==='space')fitSpaceConstellationsLabel()});
+    }
     const nav=++galleryNavigationId;
     const revealSection=()=>{
       if(nav!==galleryNavigationId||currentSection!==id)return;
@@ -1298,6 +1314,23 @@
           'letter-spacing','white-space','text-align','padding-left','padding-right',
           'width','height','box-sizing','display','align-items','justify-content']){
           cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
+        }
+      }
+    }
+    // A detached clone no longer inherits the .section-games-grid and
+    // .toddler-section-screen descendant rules. Preserve its actual visual
+    // pixels (especially label and image) before it lands on the real card;
+    // otherwise WebKit visibly snaps at the last frame.
+    if(to===sectionScreen){
+      for(const selector of ['.toddler-game-label','img']){
+        const source=card.querySelector(selector),target=copy.querySelector(selector);
+        if(!source||!target)continue;
+        const computed=getComputedStyle(source);
+        for(const prop of ['left','right','top','bottom','width','height','padding',
+          'border','border-radius','box-shadow','background','color','font-family',
+          'font-size','font-weight','line-height','letter-spacing','white-space',
+          'text-align','object-fit','object-position','opacity']){
+          target.style.setProperty(prop,computed.getPropertyValue(prop),'important');
         }
       }
     }
