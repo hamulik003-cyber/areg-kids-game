@@ -871,7 +871,7 @@
     const value='Համաստեղություններ';
     label.textContent=value;
     label.style.setProperty('white-space','nowrap','important');
-    label.style.setProperty('letter-spacing','-.035em','important');
+    label.style.setProperty('letter-spacing','-.065em','important');
     const css=getComputedStyle(label);
     const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-4);
     const canvas=document.createElement('canvas');
@@ -879,10 +879,10 @@
     if(!ctx)return;
     const family=css.fontFamily;
     const weight=css.fontWeight;
-    let size=16;
+    let size=17;
     while(size>8){
       ctx.font=weight+' '+size+'px '+family;
-      const width=ctx.measureText(value).width+(value.length-1)*(-.035*size);
+      const width=ctx.measureText(value).width+(value.length-1)*(-.065*size);
       if(width<=available)break;
       size-=.25;
     }
