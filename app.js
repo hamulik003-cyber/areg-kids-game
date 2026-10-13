@@ -1304,6 +1304,19 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    // Preserve the ROOT card's painted appearance too. Moving the clone to
+    // document.body removes .section-screen/.toddler-grid ancestor selectors,
+    // and stripping data-game can remove its own attribute-based rules.
+    // Never copy geometry or transform: those are the approved portal flight.
+    if(to===sectionScreen){
+      const rootStyle=getComputedStyle(card);
+      for(const key of ['box-sizing','background','background-color','background-image',
+        'background-size','background-position','border','border-radius',
+        'box-shadow','outline','overflow','filter','opacity']){
+        const value=rootStyle.getPropertyValue(key);
+        if(value)copy.style.setProperty(key,value,'important');
+      }
+    }
     // The clone leaves the 709px design-stage typography context. On WebKit
     // its title can briefly reflow as the shrinking card reaches its slot.
     // Freeze only the clone's current label geometry, not the real card or
