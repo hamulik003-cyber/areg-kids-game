@@ -449,9 +449,9 @@
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
         {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
-        {id:'sizes',label:'Գտիր գույնը',thumb:'mind-game-2.jpg',kind:'sizes'},
-        {id:'pattern',label:'Ո՞վ ավելորդ է',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Հավաքիր պատկերները',thumb:'mind-game-4.jpg',kind:'cups'}
+        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'pattern',label:'Ո՞ւմ ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
+        {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
@@ -1512,12 +1512,19 @@
   function backToSection(){
     if(reversePortalActive)return;
     ++galleryNavigationId;
+    const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
     if(reversePortal(activityScreen,sectionScreen,card,()=>{
       // Dispose 3D and gallery resources only after they have faded away.
-      cleanupGame();applyAudio();
+      cleanupGame();
+      // WebKit can leave a V4 forward-flight latch set if Back interrupts its
+      // final callback; never lock the next Mind card after returning.
+      if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
+      applyAudio();
     }))return;
-    cleanupGame();activityScreen.classList.remove('is-visible');
+    cleanupGame();
+    if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
+    activityScreen.classList.remove('is-visible');
     setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;
       requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160);
   }
@@ -3052,7 +3059,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=292',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=293',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
