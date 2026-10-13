@@ -1044,6 +1044,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    bondFlightLabels(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1253,6 +1254,42 @@
   // previous screen. A cloned card travels smoothly from the center back to
   // its exact origin while the prior screen fades in without rising/sliding.
   let reversePortalActive=false;
+  // Freeze the complete visual tile at its source-stage geometry.
+  // The overlay moves only its outer flight shell: no descendant animates,
+  // reflows its typography, or performs a separate transform.
+  function bondFlightLabels(source,clone){
+    clone.classList.add('areg-unified-flight-card');
+    const originalRect=source.getBoundingClientRect();
+    const sourceWidth=source.offsetWidth||originalRect.width;
+    const sourceHeight=source.offsetHeight||originalRect.height;
+    clone.style.setProperty('min-width',sourceWidth+'px','important');
+    clone.style.setProperty('max-width',sourceWidth+'px','important');
+    clone.style.setProperty('min-height',sourceHeight+'px','important');
+    clone.style.setProperty('max-height',sourceHeight+'px','important');
+    const sourceNodes=[source,...source.querySelectorAll('*')];
+    const cloneNodes=[clone,...clone.querySelectorAll('*')];
+    for(let i=0;i<Math.min(sourceNodes.length,cloneNodes.length);i++){
+      const original=sourceNodes[i],copy=cloneNodes[i];
+      const cs=getComputedStyle(original);
+      // Preserve all visible geometry/typography from the 709px stage.
+      // Keep the source card's own transitions/animations untouched.
+      for(const property of ['font-family','font-size','font-weight','font-style',
+        'line-height','letter-spacing','white-space','text-align','color',
+        'box-sizing','width','height','min-width','min-height',
+        'padding-left','padding-right','padding-top','padding-bottom',
+        'left','right','top','bottom','display','align-items','justify-content',
+        'object-fit','object-position','border-radius']){
+        const value=cs.getPropertyValue(property);
+        if(value)copy.style.setProperty(property,value,'important');
+      }
+      if(i>0){
+        copy.style.setProperty('transform',cs.transform,'important');
+        copy.style.setProperty('transform-origin',cs.transformOrigin,'important');
+      }
+      copy.style.setProperty('animation','none','important');
+      copy.style.setProperty('transition','none','important');
+    }
+  }
   function reversePortal(from,to,card,finishNavigation){
     if(reversePortalActive)return true;
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
@@ -1298,23 +1335,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // The clone leaves the 709px design-stage typography context. On WebKit
-    // its title can briefly reflow as the shrinking card reaches its slot.
-    // Freeze only the clone's current label geometry, not the real card or
-    // the user's approved portal speed/keyframes (Nature remains untouched).
-    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
-      for(const selector of ['.home-card-label','.toddler-game-label']){
-        const original=card.querySelector(selector);
-        const cloned=copy.querySelector(selector);
-        if(!original||!cloned)continue;
-        const measured=getComputedStyle(original);
-        for(const property of ['font-family','font-size','font-weight','line-height',
-          'letter-spacing','white-space','text-align','padding-left','padding-right',
-          'width','height','box-sizing','display','align-items','justify-content']){
-          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
-        }
-      }
-    }
+    bondFlightLabels(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1412,6 +1433,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    bondFlightLabels(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
