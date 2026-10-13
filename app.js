@@ -2803,7 +2803,14 @@
         const voice=pickArmenianSpeechVoice();if(voice)utter.voice=voice;
         utter.onend=()=>finish(true);utter.onerror=()=>finish(false);
         speechSynthesis.resume?.();speechSynthesis.speak(utter);
-        timer=setTimeout(()=>finish(false),6500);
+        // Constellation gallery: iOS Safari can omit speechSynthesis.onend.
+        // Bound only constellation narration; preserve the planet timings.
+        timer=setTimeout(()=>{
+          if(planet?.id&&CONSTELLATIONS.some(item=>item.id===planet.id)){
+            try{speechSynthesis.cancel()}catch{}
+          }
+          finish(false);
+        },CONSTELLATIONS.some(item=>item.id===planet?.id)?1700:6500);
       }catch{finish(false)}
     });
   }
