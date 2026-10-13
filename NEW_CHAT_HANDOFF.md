@@ -1,3 +1,10 @@
+
+
+## 2026-10-14 — Approved Constellations wooden label release V296
+- User approved final Safari trial `43d66e42699d201ebafac4bebee21109b69622c7` and explicitly authorized production promotion.
+- PR #53 branch `fix/space-label-symmetry-v295-try2`; remove two competing Constellations-specific CSS plaque overrides, inheriting sibling card geometry. Fit only the Armenian lettering inside the unchanged wooden plaque on both cinematic and regular Space entry paths; final text fitting adds 4px horizontal room. No game-card animation timings, assets, audio, game rules, or stars modified.
+- Baseline main V295 commit `1d9e21cad676f0b416de8d0caa2d486b55b3cdb3`; release cache bump V296 in index.html, app.js service-worker registration and service-worker.js core/runtime caches. iPhone visual approval applies to pinned trial; production cache/Pages confirmation still pending.
+- Rollback baseline: user-confirmed V295 `4cfcc66ca85752714ba678f8940b7d8d7b4079b3` (also restored main before PR).
 ## 2026-10-13 — NEW CHAT START HERE — USER WORKFLOW PRIORITY
 
 **Read [WORKFLOW_START_HERE.md](WORKFLOW_START_HERE.md) BEFORE using old entries.** This is the user's expressly requested, up-to-date GitHub collaboration agreement. We DO modify the game via GitHub tools on safe trial branches (not merely instruct the user); give direct clickable SHA-pinned Safari raw.githack links for every trial; refine promptly based on real iPhone screenshots/videos; deploy via protected-main PR and required checks after the user expressly accepts the change. Do not repeat lengthy three-handoff writes on each unapproved micro-experiment. Keep release/safety history, avoid touching unrelated assets/audio/state and never invent approval or CI status. Current production main at documentation start: 8d365c739466eff1e45575235cc3320098d5b6bd; V291 car trial PR #22 remains draft, and 9-concept bonus comparison page already exists on preview/reward-bonus-nine-concepts-20261012. **Recheck live main and all branches every new session.**
