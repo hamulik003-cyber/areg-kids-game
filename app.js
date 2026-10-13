@@ -879,7 +879,7 @@
     label.style.setProperty('letter-spacing','-.035em','important');
     text.style.cssText='display:inline-block;flex:0 0 auto;white-space:nowrap;max-width:none;transform-origin:center center;transform:none;';
     const css=getComputedStyle(label);
-    const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)-2);
+    const available=Math.max(1,label.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight)+2);
     const natural=text.getBoundingClientRect().width;
     text.style.transform='scaleX('+Math.min(1,available/Math.max(1,natural))+')';
   }
