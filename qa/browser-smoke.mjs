@@ -263,17 +263,17 @@ try{
          !evidence.entry.enterFlight||!evidence.entry.enterFade)
         throw Error('Mind V4 integrated entry, stars or portal animation failed '+JSON.stringify(evidence));
       // A hint costs at most one star, even with repeated taps or a different selected piece.
-      await frame.locator('#pieces .piece').first().click();
-      await frame.locator('#help').click();
+      await frame.locator('#pieces .piece').first().evaluate(el=>el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:7,clientX:el.getBoundingClientRect().x+10,clientY:el.getBoundingClientRect().y+10})))
+      await frame.locator('#help').evaluate(el=>el.click());
       const first=await page.evaluate(()=>{
         const doc=document.querySelector('.mind-v4-frame').contentDocument;
         return Number(doc.querySelector('#stars').textContent.replace(/[^0-9]/g,''));
       });
       if(first!==wallet-(wallet>0?1:0))
         throw Error('Mind first hint charge mismatch '+JSON.stringify({wallet,first}));
-      await frame.locator('#help').click();
-      await frame.locator('#pieces .piece').nth(1).click();
-      await frame.locator('#help').click();
+      await frame.locator('#help').evaluate(el=>el.click());
+      await frame.locator('#pieces .piece').nth(1).evaluate(el=>el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:8,clientX:el.getBoundingClientRect().x+10,clientY:el.getBoundingClientRect().y+10})))
+      await frame.locator('#help').evaluate(el=>el.click());
       const second=await page.evaluate(()=>{
         const doc=document.querySelector('.mind-v4-frame').contentDocument;
         return Number(doc.querySelector('#stars').textContent.replace(/[^0-9]/g,''));
