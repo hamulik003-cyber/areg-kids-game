@@ -1365,13 +1365,28 @@
     const originalLabelOpacity=originalLabel?.style.opacity||'';
     const originalLabelTransition=originalLabel?.style.transition||'';
     const isLongSpaceLabel=to===sectionScreen&&currentSection==='space'&&card.dataset.game==='constellations';
-    if(isLongSpaceLabel&&flyingLabel){
-      // Match the real card's already-fitted font, rather than restyling
-      // it mid-flight or hiding it until the end.
+    if(isLongSpaceLabel&&flyingLabel&&originalLabel){
+      // Freeze the final destination label's exact box and typography.
+      // A detached clone loses ancestor alignment, so its last-frame
+      // text can drift left when the real card replaces the flight.
       const measured=getComputedStyle(originalLabel);
-      for(const key of ['font-size','letter-spacing','line-height','white-space']){
+      const originalBox=originalLabel.getBoundingClientRect();
+      const cardBox=card.getBoundingClientRect();
+      const scaledWidth=card.offsetWidth||cardBox.width;
+      const factor=cardBox.width/scaledWidth||1;
+      for(const key of ['font-size','letter-spacing','line-height','white-space',
+        'text-align','padding-left','padding-right','box-sizing']){
         flyingLabel.style.setProperty(key,measured.getPropertyValue(key),'important');
       }
+      // Align both label boxes at the landing pose; preserve the flight
+      // animation and avoid changing the genuine destination card.
+      flyingLabel.style.setProperty('position','absolute','important');
+      flyingLabel.style.setProperty('left',((originalBox.left-cardBox.left)/factor)+'px','important');
+      flyingLabel.style.setProperty('top',((originalBox.top-cardBox.top)/factor)+'px','important');
+      flyingLabel.style.setProperty('width',(originalBox.width/factor)+'px','important');
+      flyingLabel.style.setProperty('height',(originalBox.height/factor)+'px','important');
+      flyingLabel.style.setProperty('margin','0','important');
+      flyingLabel.style.setProperty('transform','none','important');
     }
     if(originalLabel){
       originalLabel.style.setProperty('transition','none','important');
