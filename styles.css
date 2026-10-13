@@ -2827,6 +2827,15 @@ html[data-font="classic"]{
   transform:translateY(-1px) scale(1.012) !important;
 }
 
+/* Constellation gallery only: keep its flying card artwork and text at
+   one stable internal scale while the parent shell performs the return.
+   Other galleries retain their approved focus effect. */
+.gallery-card-flight-shell > .animal-card--constellation,
+.gallery-card-flight-shell > .animal-card--constellation.animal-card--focus{
+  transform:none !important;
+}
+
+
 @media (prefers-reduced-motion:reduce){
   .gallery-card-flight-host.animal-gallery{
     backdrop-filter:none !important;
