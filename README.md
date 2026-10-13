@@ -1,5 +1,3 @@
-> **FOR EVERY NEW CHAT OR AI CODING AGENT:** Start with [WORKFLOW_START_HERE.md](WORKFLOW_START_HERE.md). It defines the user's current fast trial → clickable Safari preview → iPhone feedback → approved protected-main deployment process. Older conflicting workflow instructions are historical; confirm actual GitHub status before writing.
-
 # Արեգ 3D աշխարհ
 
 Full-screen mobile/PWA home screen rebuilt from the supplied 709×1536 master blueprint.
