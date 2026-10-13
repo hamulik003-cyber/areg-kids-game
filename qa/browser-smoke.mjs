@@ -216,6 +216,134 @@ try{
    if(n!==4)throw Error(section+' has '+n+' games, expected 4');
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
+    if(section==='mind'&&id==='puzzle'){
+      // Assert screenshot-approved four labels, not only the number of tiles.
+      const labels=await page.locator('#sectionGames .toddler-game-label')
+        .allTextContents();
+      const expected=['Գտիր ճիշտ ձևը','Գտիր զույգը','Ո՞ւմ ստվերն է','Հավաքիր պատկերը'];
+      if(JSON.stringify(labels.map(x=>x.trim()))!==JSON.stringify(expected))
+        throw Error('Mind four screenshot-approved labels mismatch '+JSON.stringify(labels));
+      const card=page.locator('#sectionGames .toddler-game-card[data-game="puzzle"]');
+      const wallet=await page.evaluate(()=>Number(localStorage.getItem('areg-stars-v35')||0));
+      await card.evaluate(el=>{
+        const proof={enterFlight:false,enterFade:false,exitFlight:false,labelFrozen:false};
+        const observe=()=>{
+          const enter=document.querySelector('[data-inner-game-flight]');
+          const reverse=document.querySelector('[data-reverse-portal-flight]');
+          const inner=document.querySelector('#activityScreen');
+          if(enter&&enter.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
+            proof.enterFlight=true;
+          if(inner.dataset.innerGameCrossfade==='running'&&inner.style.opacity==='1')
+            proof.enterFade=true;
+          if(reverse?.dataset.reversePortalFlight==='activity'&&
+             reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
+            proof.exitFlight=true;
+          const returning=reverse?.querySelector('.toddler-game-label');
+          const source=document.querySelector('#sectionGames [data-game="puzzle"] .toddler-game-label');
+          if(returning&&source){
+            proof.labelFrozen=returning.style.getPropertyPriority('font-size')==='important'&&
+              getComputedStyle(returning).fontSize===getComputedStyle(source).fontSize&&
+              getComputedStyle(returning).lineHeight===getComputedStyle(source).lineHeight;
+          }
+        };
+        const observer=new MutationObserver(observe);
+        observer.observe(document.body,{subtree:true,childList:true,attributes:true,
+          attributeFilter:['style','data-inner-game-crossfade','data-reverse-portal-flight']});
+        window.__mindV4Proof=proof;
+        window.__mindV4Stop=()=>observer.disconnect();
+      });
+      await card.click({force:process.env.AREG_BROWSER==='webkit'});
+      await page.waitForSelector('#activityScreen.is-visible',{timeout:15000});
+      const frame=page.frameLocator('#activityContent .mind-v4-frame');
+      await frame.locator('#view canvas').waitFor({timeout:30000});
+      await frame.locator('#pieces .piece').first().waitFor({timeout:30000});
+      const evidence=await page.evaluate(()=>{
+        const iframe=document.querySelector('#activityContent .mind-v4-frame');
+        return {src:iframe?.getAttribute('src'),
+          count:iframe?.contentDocument?.querySelectorAll('#pieces .piece').length,
+          stars:iframe?.contentDocument?.querySelector('#stars')?.textContent,
+          embedded:document.querySelector('#activityScreen')?.classList.contains('mind-v4-mode'),
+          entry:window.__mindV4Proof};
+      });
+      const backdropProof=await page.evaluate(()=>{
+        const iframe=document.querySelector('#activityContent .mind-v4-frame');
+        const doc=iframe.contentDocument;
+        const root=document.documentElement,priorTheme=root.dataset.theme;
+        const oldPhoto=root.style.getPropertyValue('--theme-photo');
+        root.dataset.theme='photo-user-01';
+        root.style.setProperty('--theme-photo','url("./theme-bg-ocean.svg")');
+        const result={
+          game:iframe.contentWindow.getComputedStyle(doc.querySelector('#app')).backgroundColor,
+          gameImage:iframe.contentWindow.getComputedStyle(doc.querySelector('#app')).backgroundImage,
+          body:iframe.contentWindow.getComputedStyle(doc.body).backgroundColor,
+          frame:getComputedStyle(iframe).backgroundColor,
+          parent:getComputedStyle(document.querySelector('#activityScreen')).backgroundColor,
+          scene:iframe.contentWindow.getComputedStyle(doc.querySelector('.scene-wrap')).backgroundImage,
+          themeBackground:getComputedStyle(document.querySelector('#appBackground')).backgroundImage
+        };
+        root.dataset.theme=priorTheme;
+        if(oldPhoto)root.style.setProperty('--theme-photo',oldPhoto);
+        else root.style.removeProperty('--theme-photo');
+        return result;
+      });
+      if(backdropProof.game!=='rgba(0, 0, 0, 0)'||
+         backdropProof.gameImage!=='none'||
+         backdropProof.body!=='rgba(0, 0, 0, 0)'||
+         backdropProof.frame!=='rgba(0, 0, 0, 0)'||
+         backdropProof.parent!=='rgba(0, 0, 0, 0)'||
+         !backdropProof.scene.includes('radial-gradient')||
+         !backdropProof.themeBackground.includes('theme-bg-ocean.svg'))
+        throw Error('V4 selected theme must show outside unchanged puzzle panels '+JSON.stringify(backdropProof));
+      if(evidence.count!==4||!evidence.stars.includes(String(wallet))||
+         !evidence.embedded||!evidence.src.includes('embed=1')||
+         !evidence.entry.enterFlight||!evidence.entry.enterFade)
+        throw Error('Mind V4 integrated entry, stars or portal animation failed '+JSON.stringify(evidence));
+      // A hint costs at most one star, even with repeated taps or a different selected piece.
+      await frame.locator('#pieces .piece').first().evaluate(el=>{
+        // V4 selects on pointerdown; synthetic WebKit taps must not fake pointer capture.
+        const capture=el.setPointerCapture;
+        el.setPointerCapture=()=>{};
+        try{el.dispatchEvent(new el.ownerDocument.defaultView.PointerEvent('pointerdown',{bubbles:true,pointerId:7,clientX:el.getBoundingClientRect().x+12,clientY:el.getBoundingClientRect().y+12}));}
+        finally{el.setPointerCapture=capture}
+      });
+      await frame.locator('#help').evaluate(el=>el.click());
+      const first=await page.evaluate(()=>{
+        const doc=document.querySelector('.mind-v4-frame').contentDocument;
+        return Number(doc.querySelector('#stars').textContent.replace(/[^0-9]/g,''));
+      });
+      if(first!==wallet-(wallet>0?1:0))
+        throw Error('Mind first hint charge mismatch '+JSON.stringify({wallet,first}));
+      await frame.locator('#help').evaluate(el=>el.click());
+      await frame.locator('#pieces .piece').nth(1).evaluate(el=>{
+        const capture=el.setPointerCapture;
+        el.setPointerCapture=()=>{};
+        try{el.dispatchEvent(new el.ownerDocument.defaultView.PointerEvent('pointerdown',{bubbles:true,pointerId:8,clientX:el.getBoundingClientRect().x+12,clientY:el.getBoundingClientRect().y+12}));}
+        finally{el.setPointerCapture=capture}
+      });
+      await frame.locator('#help').evaluate(el=>el.click());
+      const second=await page.evaluate(()=>{
+        const doc=document.querySelector('.mind-v4-frame').contentDocument;
+        return Number(doc.querySelector('#stars').textContent.replace(/[^0-9]/g,''));
+      });
+      if(second!==first)throw Error('Mind pending hint must not charge again '+JSON.stringify({first,second}));
+      await frame.locator('#back').evaluate(el=>el.click());
+      await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,
+        null,{timeout:16000});
+      const restored=await page.evaluate(()=>({
+        section:document.querySelector('#sectionScreen')?.dataset.section,
+        shown:document.querySelector('#sectionScreen')?.hidden===false,
+        tileCount:document.querySelectorAll('#sectionGames .toddler-game-card').length,
+        proof:window.__mindV4Proof,
+        wallet:Number(localStorage.getItem('areg-stars-v35')||0)
+      }));
+      await page.evaluate(()=>window.__mindV4Stop?.());
+      if(restored.section!=='mind'||!restored.shown||restored.tileCount!==4||
+         !restored.proof.exitFlight||!restored.proof.labelFrozen||restored.wallet!==second)
+        throw Error('Mind V4 exit portal or star persistence failed '+JSON.stringify(restored));
+      done.push('mind/puzzle');
+      console.log('MIND V4 FOUR LABELS + ENTRY/EXIT PORTALS + SINGLE HINT CHARGE + SHARED STARS PASS');
+      continue;
+    }
     const card=page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]');
     // Install evidence recorder BEFORE tap; WebKit can finish an animation
     // before Playwright's click promise returns on a slow CI worker.
@@ -395,7 +523,7 @@ try{
           heroCount:root.querySelectorAll('.s3d-find-hero').length};
       },correctName);
       if(reveal.error||reveal.build!=='lab-single-layer-synchronized-decoy-fade'||reveal.fadeEngine!=='shared-layer'||reveal.phase!=='winning'||reveal.heroCount!==1||
-         reveal.samples.length<4)throw Error('V266 missing hero '+JSON.stringify(reveal));
+         reveal.samples.length<2||!reveal.samples.some(f=>f.ms>20&&f.ms<580&&f.losers.length===3)||!reveal.samples.some(f=>f.ms>=660&&f.losers.length===0))throw Error('V266 missing hero '+JSON.stringify(reveal));
       if(reveal.count!==8||reveal.stars!==starsBefore||reveal.sessionBad!=='1'||reveal.sessionGood!=='1'||!reveal.sessionGoodActive)
          throw Error('V282 FIRST correct must ignore old persisted eight answers '+JSON.stringify(reveal));
       const mid=reveal.samples.find(f=>f.ms>20&&f.ms<520&&f.motion==='approaching'&&
