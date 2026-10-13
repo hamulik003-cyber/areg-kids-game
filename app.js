@@ -1321,23 +1321,6 @@
         }
       }
     }
-    // A detached clone no longer inherits the .section-games-grid and
-    // .toddler-section-screen descendant rules. Preserve its actual visual
-    // pixels (especially label and image) before it lands on the real card;
-    // otherwise WebKit visibly snaps at the last frame.
-    if(to===sectionScreen){
-      for(const selector of ['.toddler-game-label','img']){
-        const source=card.querySelector(selector),target=copy.querySelector(selector);
-        if(!source||!target)continue;
-        const computed=getComputedStyle(source);
-        for(const prop of ['left','right','top','bottom','width','height','padding',
-          'border','border-radius','box-shadow','background','color','font-family',
-          'font-size','font-weight','line-height','letter-spacing','white-space',
-          'text-align','object-fit','object-position','opacity']){
-          target.style.setProperty(prop,computed.getPropertyValue(prop),'important');
-        }
-      }
-    }
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
