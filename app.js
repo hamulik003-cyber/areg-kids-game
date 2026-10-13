@@ -965,6 +965,13 @@
             'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
           sectionScreen.classList.add('is-visible');
           sectionScreen.style.setProperty('opacity','1','important');
+          // Fit the long label on the normal animated entry path too.
+          if(id==='space'){
+            fitSpaceConstellationsLabel();
+            if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{
+              if(currentSection==='space')fitSpaceConstellationsLabel();
+            });
+          }
           // Keep transform fixed throughout; only alpha changes.
           sectionScreen.style.setProperty('transform','none','important');
           homeScreen.style.setProperty('opacity','0','important');
