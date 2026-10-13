@@ -1,3 +1,9 @@
+## 2026-10-13 — Constellations gallery inner artwork/text shrink on reverse: isolated trial
+- User reports a brief shrink of the inner constellation picture and Armenian labels when a Constellations gallery card finishes returning to its slot; other galleries do not exhibit this.
+- Main checked: `8d365c739466eff1e45575235cc3320098d5b6bd` (V294). Existing generic focus transform `translateY(-1px) scale(1.012)` can cause child scale changes as the voice sequence toggles focus; this is a suspected cause, not yet device-proven.
+- Branch: `fix/constellation-gallery-settle-only-20261013`; CSS-only change in `styles.css`: inside `.gallery-card-flight-shell`, override internal transform for `.animal-card--constellation` whether focused or not. Preserve all other galleries and existing parent shell flight/return keyframes, timing, audio, game logic, PWA and assets.
+- CSS commit: `ffa212567a3ce985816f1a421bf4b6866f7b8392`. Draft PR opened. Requires CI and user iPhone/DotKiosk video confirmation. Do not merge without explicit user approval. Rollback by leaving main untouched and closing draft PR.
+
 ## 2026-10-13 — User rejected PR #38 gallery focus change; revert it exactly
 - User: «չե դա հետ դիր դրա մասին չեյ ասում» — the removal of the focused picture-card transform was NOT the issue they meant. Do not claim that the real issue was fixed or guess a replacement fix.
 - Restore precisely the original CSS selector `.gallery-card-flight-shell > .animal-card.animal-card--focus` with `transform:translateY(-1px) scale(1.012) !important;` and remove the PR #38 comment. No other animation, title, game logic, assets or audio touched.
