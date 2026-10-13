@@ -1029,6 +1029,11 @@
     cloned.style.setProperty('visibility','hidden','important');
     const box=original.getBoundingClientRect();
     const style=getComputedStyle(original);
+    // The 709px design stage is itself scaled on iPhones. Preserve local
+    // typography and apply the same stage scale to the fixed title mirror.
+    const localWidth=original.offsetWidth||box.width;
+    const localHeight=original.offsetHeight||box.height;
+    const stageScale=box.width/localWidth||1;
     const anchor=original.cloneNode(true);
     for(const key of ['font-family','font-size','font-weight','line-height',
       'letter-spacing','white-space','text-align','color','display','align-items',
@@ -1038,8 +1043,9 @@
     }
     for(const [key,value] of Object.entries({
       position:'fixed',left:box.left+'px',top:box.top+'px',
-      width:box.width+'px',height:box.height+'px',
-      margin:'0',transform:'none',transition:'none',animation:'none',
+      width:localWidth+'px',height:localHeight+'px',
+      margin:'0',transform:'scale('+stageScale+')',transformOrigin:'top left',
+      transition:'none',animation:'none',
       pointerEvents:'none',zIndex:'2147483001'
     }))anchor.style.setProperty(key,value,'important');
     anchor.setAttribute('aria-hidden','true');
