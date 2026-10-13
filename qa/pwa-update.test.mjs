@@ -22,7 +22,7 @@ try{
   const url='http://127.0.0.1:8767/';
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
   await page.evaluate(async ()=>{
-    await navigator.serviceWorker.register('./service-worker.js?v=291',
+    await navigator.serviceWorker.register('./service-worker.js?v=292',
       {updateViaCache:'none'});
   });
   // Poll real SW lifecycle rather than waiting for 'updatefound' AFTER it
@@ -56,7 +56,7 @@ try{
       active:reg?.active?.state||null,
       scope:reg?.scope||null,
       online:navigator.onLine,
-      coreCache:(await caches.keys()).includes('areg-v291-core')
+      coreCache:(await caches.keys()).includes('areg-v292-core')
     };
   });
   let sw=await swSnapshot();
@@ -72,20 +72,20 @@ try{
       await sleep(250);
     }while(Date.now()<deadline);
   }
-  if(!sw.controlled||!sw.controllerUrl.includes('service-worker.js?v=291'))
+  if(!sw.controlled||!sw.controllerUrl.includes('service-worker.js?v=292'))
     throw Error('V290 service worker did not control new page '+JSON.stringify(sw));
   console.log('V290 SERVICE WORKER CONTROL VERIFIED',JSON.stringify(sw));
   const bootstrap=await page.evaluate(async()=>{
-    const core=await caches.open('areg-v291-core');
+    const core=await caches.open('areg-v292-core');
     const original=await core.match('./index.html');
     if(!original)throw Error('Expected offline HTML core cache absent');
     const html=await original.text();
     const marker='<meta name="areg-qa-deliberately-stale" content="1">';
-    if(!html.includes('<script src="app.js?v=291"></script>'))
+    if(!html.includes('<script src="app.js?v=292"></script>'))
       throw Error('Installed V285 HTML script query absent');
     if(html.includes(marker))throw Error('Unexpected old injected marker');
-    const old=html.replace('<script src="app.js?v=291"></script>',
-      marker+'<script src="app.js?v=291"></script>');
+    const old=html.replace('<script src="app.js?v=292"></script>',
+      marker+'<script src="app.js?v=292"></script>');
     await core.put('./index.html',new Response(old,
       {status:200,headers:{'Content-Type':'text/html; charset=utf-8'}}));
     localStorage.setItem('areg-stars-reset-v40','1');
@@ -96,17 +96,17 @@ try{
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#homeScreen .section-card');
   const fresh=await page.evaluate(async()=>{
-    const cache=await caches.open('areg-v291-core');
+    const cache=await caches.open('areg-v292-core');
     return {oldMarker:!!document.querySelector('meta[name="areg-qa-deliberately-stale"]'),
       revalidated:(await (await cache.match('./index.html')).text())
-        .includes('app.js?v=291'),
+        .includes('app.js?v=292'),
       cacheStillStale:(await (await cache.match('./index.html')).text())
         .includes('areg-qa-deliberately-stale'),
       wallet:localStorage.getItem('areg-stars-v35'),
       controller:navigator.serviceWorker.controller?.scriptURL||''};
   });
   if(fresh.oldMarker||fresh.cacheStillStale||!fresh.revalidated||
-     fresh.wallet!=='17'||!fresh.controller.includes('v=291'))
+     fresh.wallet!=='17'||!fresh.controller.includes('v=292'))
     throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
   try{
@@ -352,16 +352,16 @@ try{
     // Exercise the actual ServiceWorker CORE CacheStorage offline payload
     // and persisted wallet while WebKit reports navigator.onLine=false.
     offline=await page.evaluate(async()=>{
-      const core=await caches.open('areg-v291-core');
+      const core=await caches.open('areg-v292-core');
       const entry=await core.match('./index.html');
-      const app=await core.match('./app.js?v=291');
-      const css=await core.match('./styles.css?v=290');
+      const app=await core.match('./app.js?v=292');
+      const css=await core.match('./styles.css?v=292');
       const constellationCss=await core.match('./space-3d-games.css?v=287');
       const html=entry?await entry.text():'';
       return {wallet:localStorage.getItem('areg-stars-v35'),
         stale:html.includes('areg-qa-deliberately-stale'),
         offlineController:!!navigator.serviceWorker?.controller,
-        cachedHome:!!entry&&html.includes('app.js?v=291'),
+        cachedHome:!!entry&&html.includes('app.js?v=292'),
         cachedApp:!!app,cachedStyle:!!css,cachedConstellationStyle:!!constellationCss,
         offlineFlag:navigator.onLine===false};
     });
