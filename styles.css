@@ -3370,5 +3370,5 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 .areg-unified-flight-card{
   isolation:isolate !important;
-  contain:layout style paint !important;
+  contain:layout style !important;
 }
