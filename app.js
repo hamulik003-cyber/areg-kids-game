@@ -1254,31 +1254,40 @@
   // previous screen. A cloned card travels smoothly from the center back to
   // its exact origin while the prior screen fades in without rising/sliding.
   let reversePortalActive=false;
-  // The wooden plaque is a fixed part of the flying card, never a second animated object.
-  // Freeze its exact on-screen typography and box geometry before moving the clone
-  // outside the scaled 709px stage (important for iOS Safari / DotKiosk).
+  // Freeze the complete visual tile at its source-stage geometry.
+  // The overlay moves only its outer flight shell: no descendant animates,
+  // reflows its typography, or performs a separate transform.
   function bondFlightLabels(source,clone){
-    for(const selector of ['.home-card-label','.toddler-game-label']){
-      const original=source.querySelector(selector);
-      const label=clone.querySelector(selector);
-      if(!original||!label)continue;
-      const computed=getComputedStyle(original);
-      for(const property of ['left','right','top','bottom','width','height',
+    clone.classList.add('areg-unified-flight-card');
+    const originalRect=source.getBoundingClientRect();
+    const sourceWidth=source.offsetWidth||originalRect.width;
+    const sourceHeight=source.offsetHeight||originalRect.height;
+    clone.style.setProperty('min-width',sourceWidth+'px','important');
+    clone.style.setProperty('max-width',sourceWidth+'px','important');
+    clone.style.setProperty('min-height',sourceHeight+'px','important');
+    clone.style.setProperty('max-height',sourceHeight+'px','important');
+    const sourceNodes=[source,...source.querySelectorAll('*')];
+    const cloneNodes=[clone,...clone.querySelectorAll('*')];
+    for(let i=0;i<Math.min(sourceNodes.length,cloneNodes.length);i++){
+      const original=sourceNodes[i],copy=cloneNodes[i];
+      const cs=getComputedStyle(original);
+      // Preserve all visible geometry/typography from the 709px stage.
+      // Keep the source card's own transitions/animations untouched.
+      for(const property of ['font-family','font-size','font-weight','font-style',
+        'line-height','letter-spacing','white-space','text-align','color',
+        'box-sizing','width','height','min-width','min-height',
         'padding-left','padding-right','padding-top','padding-bottom',
-        'box-sizing','font-family','font-size','font-weight','line-height',
-        'letter-spacing','white-space','text-align','display',
-        'align-items','justify-content','transform','transform-origin']){
-        label.style.setProperty(property,computed.getPropertyValue(property),'important');
+        'left','right','top','bottom','display','align-items','justify-content',
+        'object-fit','object-position','border-radius']){
+        const value=cs.getPropertyValue(property);
+        if(value)copy.style.setProperty(property,value,'important');
       }
-      label.style.setProperty('transition','none','important');
-      label.style.setProperty('animation','none','important');
-      const innerOriginal=original.querySelector('.constellations-fit-text');
-      const innerClone=label.querySelector('.constellations-fit-text');
-      if(innerOriginal&&innerClone){
-        innerClone.style.setProperty('transform',getComputedStyle(innerOriginal).transform,'important');
-        innerClone.style.setProperty('transition','none','important');
-        innerClone.style.setProperty('animation','none','important');
+      if(i>0){
+        copy.style.setProperty('transform',cs.transform,'important');
+        copy.style.setProperty('transform-origin',cs.transformOrigin,'important');
       }
+      copy.style.setProperty('animation','none','important');
+      copy.style.setProperty('transition','none','important');
     }
   }
   function reversePortal(from,to,card,finishNavigation){
