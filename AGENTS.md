@@ -1,3 +1,17 @@
+## CRITICAL — FIRST READ `WORKFLOW_PLAYBOOK.md` BEFORE HELPING WITH AREG KIDS GAME (2026-10-13)
+
+**User explicitly demands continuity and execution, not generic refusal.** The full working contract, trial URLs, currently liked V4 baseline, unapproved V7 experiment, GitHub + Render workflow, tests, user approval gates, and new-chat handoff instructions are maintained at **[`WORKFLOW_PLAYBOOK.md`](./WORKFLOW_PLAYBOOK.md)**.
+
+Before any AREG Game response/action:
+1. Check real GitHub main HEAD plus working trial branch; read this file, `WORKFLOW_PLAYBOOK.md`, `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, `NEW_CHAT_HANDOFF.md`; resolve latest user-approved/liked version separately from newest experimental commit.
+2. When user says «խաղի մեջ փոխի», **actually perform narrowly scoped trial code edits, test, deploy to Render, wait for live, and give a clickable Safari URL** when GitHub/Render access permits. Do not answer generically "I can't" while functional GitHub/Render tools are connected; if tool blocked, precisely report that blocker and current state. Never replace game editing with generated images.
+3. User says «լավա» → record exactly what was approved; «հետ դիր» → restore last approved/liked version; «հիմնականում դիր» → only after explicit production consent and tests. Never auto-merge trials to main.
+4. Each change: detailed checkpoint in all 3 handoffs, with SHA, branch, links, test evidence, rollback, pending action. Keep main game/code, PWA/DotKiosk and all unrelated visuals/audio untouched.
+
+**This guide documents expectations, not permission to bypass access/safety rules.** Read the actual playbook for exact current details.
+
+---
+
 ## PERMANENT USER REQUIREMENT — EXACT CONTINUITY AFTER EVERY CHANGE (2026-10-12)
 **User explicitly confirmed:** “ամեն փոփոխությունից հետո պահանջում եմ որ գրանցվի այտեղ ամեն բան որպիսի հաջորդ չաթերում ամեն բան պառզ լինի թէ ինչեր ենք արել ու ներկա պահին ինչ կետի վրա ենք կանգնած”. This is a standing rule for all future AREG Kids Game work, including QA-only fixes, security/backup work, documentation, trials, releases, regressions, and external user-performed steps.
 
