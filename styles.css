@@ -3383,7 +3383,9 @@ html[data-theme^="photo-user-"] .section-dim{
    A complete logo-style sweep occupies each sequential 5.8-second slot.
    The same background-position travel is used on every clipped card image. */
 .home-section-card .home-v44-sheen,
-.toddler-game-card .game-card-sheen{
+.toddler-game-card .game-card-sheen,
+.section-hero-card .section-hero-sheen,
+.magic-collect-card .magic-card-sheen{
   display:block !important;
   content:normal !important;
   position:absolute !important;
@@ -3410,7 +3412,9 @@ html[data-theme^="photo-user-"] .section-dim{
   border-radius:27px !important;
 }
 .home-section-card .home-v44-sheen::before,
-.toddler-game-card .game-card-sheen::before{
+.toddler-game-card .game-card-sheen::before,
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
   content:"";
   display:block;
   position:absolute;
@@ -3432,8 +3436,29 @@ html[data-theme^="photo-user-"] .section-dim{
 .home-section-card .home-v44-sheen::before{
   animation:aregExactLogoHome 29s ease-in-out infinite;
 }
-.toddler-game-card .game-card-sheen::before{
+.toddler-game-card .game-card-sheen::before,
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
   animation:aregExactLogoInner 23.2s ease-in-out infinite;
+}
+/* Hero and bonus cards use the identical logo stripe and cadence. */
+.section-hero-card .section-hero-sheen{
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  border-radius:25px !important;
+}
+.magic-collect-card .magic-card-sheen{
+  left:9px !important;
+  right:9px !important;
+  top:9px !important;
+  height:calc(100% - 48px) !important;
+  width:auto !important;
+  border-radius:20px !important;
+}
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
+  animation:logoSheenV41 5.8s ease-in-out infinite;
 }
 /* Same order as the five main sections, then each inner set of four. */
 .home-section-card[data-section="nature"] .home-v44-sheen::before{animation-delay:0s}
@@ -3458,7 +3483,9 @@ html[data-theme^="photo-user-"] .section-dim{
   11.75%,100%{background-position:165% 0;opacity:0}
 }
 .effects-off .home-section-card .home-v44-sheen::before,
-.effects-off .toddler-game-card .game-card-sheen::before{
+.effects-off .toddler-game-card .game-card-sheen::before,
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
   animation:none !important;
   opacity:0 !important;
 }
