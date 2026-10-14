@@ -1013,6 +1013,30 @@
     }
   }
 
+  // Experimental rigid card: copy the source card's painted styles once,
+  // before any flight, so all its parts scale with one outer wrapper.
+  function makeRigidFlightCopy(card){
+    const root=card.cloneNode(true);
+    const sources=[card,...card.querySelectorAll('*')];
+    const targets=[root,...root.querySelectorAll('*')];
+    sources.forEach((source,i)=>{
+      const target=targets[i];
+      if(!target)return;
+      const style=getComputedStyle(source);
+      for(let k=0;k<style.length;k++){
+        const prop=style[k];
+        if(prop==='transform'||prop.startsWith('animation')||prop.startsWith('transition'))continue;
+        target.style.setProperty(prop,style.getPropertyValue(prop),'important');
+      }
+      target.style.setProperty('animation','none','important');
+      target.style.setProperty('transition','none','important');
+      target.style.setProperty('transform',i===0?'none':style.transform,'important');
+    });
+    root.setAttribute('aria-hidden','true');
+    root.tabIndex=-1;
+    return root;
+  }
+
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
   function openAnimatedHomeSection(card){
@@ -1033,7 +1057,7 @@
       transformOrigin:'center center',pointerEvents:'none',
       willChange:'transform, opacity',zIndex:'2147483000'
     });
-    const copy=card.cloneNode(true);
+    const copy=makeRigidFlightCopy(card);
     copy.removeAttribute('data-section');
     copy.setAttribute('aria-hidden','true');
     copy.tabIndex=-1;
@@ -1288,7 +1312,7 @@
       pointerEvents:'none',transformOrigin:'center center',
       willChange:'transform, opacity',zIndex:'2147483000'
     });
-    const copy=card.cloneNode(true);
+    const copy=makeRigidFlightCopy(card);
     copy.removeAttribute('data-section');copy.removeAttribute('data-game');
     copy.setAttribute('aria-hidden','true');copy.tabIndex=-1;
     Object.assign(copy.style,{
@@ -1401,7 +1425,7 @@
       width:rect.width+'px',height:rect.height+'px',transformOrigin:'center center',
       pointerEvents:'none',willChange:'transform, opacity',zIndex:'2147483000'
     });
-    const copy=card.cloneNode(true);
+    const copy=makeRigidFlightCopy(card);
     copy.removeAttribute('data-game');
     copy.setAttribute('aria-hidden','true');
     copy.tabIndex=-1;
