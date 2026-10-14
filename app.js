@@ -1925,7 +1925,12 @@
     }
 
     const host=document.createElement('div');
-    host.className='animal-gallery gallery-card-flight-host';
+    // Keep the source gallery's CSS context on the flight host.
+    // In Constellations the original picture uses object-fit:contain;
+    // losing this parent class changes it to cover during the flight,
+    // producing the visible resize when returning to the grid.
+    const sourceGallery=card.closest('.animal-gallery');
+    host.className=(sourceGallery?.className||'animal-gallery')+' gallery-card-flight-host';
     host.setAttribute('aria-hidden','true');
 
     const shell=document.createElement('div');
