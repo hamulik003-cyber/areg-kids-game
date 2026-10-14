@@ -1,3 +1,9 @@
+## 2026-10-14 — User-approved V297 card animation release candidate
+- User explicitly approved Safari trial `047db8cff301e7c9a7f140536e93645ea01c40d6` and requested promotion to main/DotKiosk.
+- Based on approved V296 main `b7bc4b893c911920a374733d2b136ff1658cf8ba`. Approved trial changes stabilize gallery badges, home and inner menu labels, 2-line text in moving copies, seamless home/inner reverse flight handoffs, and preserve source gallery CSS context (notably Constellations' image object-fit:contain) on moving picture cards.
+- Production candidate bumps only CSS/JS and service-worker cache versions to V297; preserves origin, star/avatar keys, assets, sounds, gameplay, storage and DotKiosk URL.
+- Rollback: V296 main `b7bc4b893c911920a374733d2b136ff1658cf8ba`. Safari user approved the pinned trial; DotKiosk device update and Pages deployment require separate verification after merge.
+
 
 
 ## 2026-10-14 — Approved Constellations wooden label release V296
