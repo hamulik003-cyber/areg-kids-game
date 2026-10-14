@@ -1,3 +1,9 @@
+## 2026-10-14 — USER FINAL APPROVAL: V297 SAFARI + DOTKIOSK BASELINE
+- User explicitly confirmed **everything works correctly**, including the Hayk/Orion card's seamless return, the DotKiosk update, and preservation of the 135 stars / user data; approved the currently running version as the **final stable baseline for future edits**.
+- Approved production main SHA at confirmation: `f1ce2c0022d310bfd5af2576919fe801058b29e7` (V297). Previous Pages deployment and full four-stage CI passed; this approval supersedes earlier "DotKiosk refresh not verified" entries.
+- The separate trial `trial/v297-refresh-activation-check-20261014` at `6cd24800a36778b6dcc6a32a5d99f51179822e68` was **not merged** and is **not part of the approved main baseline**. Do not silently promote it.
+- Protect this exact approved game state, animation timing, artwork, audio, cache/PWA behavior, and local saved progress. Make all subsequent changes on separate trial branches; provide SHA-pinned Safari preview; merge only after explicit user approval. Rollback anchor: `f1ce2c0022d310bfd5af2576919fe801058b29e7`.
+
 ## 2026-10-14 — V297 audit assertion / refresh route alignment
 - AREG Full Game Audit on PR #59 advanced past handoff guard but revealed an obsolete hard-coded `v294` expectation for core stylesheet and refresh entrypoint. Align the audit expectations to already deployed V297 stylesheet and service-worker versions; align existing `refresh.html` safe registration to V297. No game animation/assets, persistent data or cache clearing changed.
 
