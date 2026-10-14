@@ -449,7 +449,7 @@
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
         {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
-        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'mindPairs'},
         {id:'pattern',label:'Ո՞ւմ ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
         {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
@@ -1738,7 +1738,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -3039,6 +3039,27 @@
       removeEventListener('message',handleBack);
       const next=Number(localStorage.getItem(STARS_KEY));
       if(Number.isFinite(next)&&next>=0){stars=next;updateStars()}
+      activityScreen.classList.remove('mind-v4-mode');
+    });
+  }
+  function gameMindPairs(){
+    // Isolated trial game: no writes to the existing star wallet or PWA data.
+    activityScreen.classList.add('mind-v4-mode');
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Գտիր զույգը';
+    frame.src='./mind-match-pairs.html?v=trial1';
+    frame.setAttribute('loading','eager');
+    activityContent.append(frame);
+    const onBack=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow||
+         event.data?.type!=='areg-mind-pairs-back'||currentGame?.kind!=='mindPairs')return;
+      backToSection();
+    };
+    addEventListener('message',onBack);
+    gameCleanup.push(()=>{
+      removeEventListener('message',onBack);
       activityScreen.classList.remove('mind-v4-mode');
     });
   }
