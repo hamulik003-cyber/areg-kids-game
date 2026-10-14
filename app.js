@@ -1027,6 +1027,7 @@
     homeEntryTransitionActive=true;
     const flight=document.createElement('div');
     flight.dataset.homeSectionFlight=id;
+    flight.classList.add('areg-rigid-card-flight');
     Object.assign(flight.style,{
       position:'fixed',left:rect.left+'px',top:rect.top+'px',
       width:rect.width+'px',height:rect.height+'px',
@@ -1282,6 +1283,8 @@
     if(previousCardOpacity==='0')card.style.removeProperty('opacity');
     const flight=document.createElement('div');
     flight.dataset.reversePortalFlight=to===homeScreen?'home':'activity';
+    flight.classList.add('areg-rigid-card-flight');
+    if(to===sectionScreen)flight.classList.add('section-games-grid');
     Object.assign(flight.style,{
       position:'fixed',left:rect.left+'px',top:rect.top+'px',
       width:rect.width+'px',height:rect.height+'px',
@@ -1396,6 +1399,7 @@
     if(!rect.width||!rect.height)return null;
     const flight=document.createElement('div');
     flight.dataset.innerGameFlight=game.id;
+    flight.classList.add('areg-rigid-card-flight','section-games-grid');
     Object.assign(flight.style,{
       position:'fixed',left:rect.left+'px',top:rect.top+'px',
       width:rect.width+'px',height:rect.height+'px',transformOrigin:'center center',
@@ -1942,6 +1946,11 @@
     }
     if(!card.isConnected)return;
     clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+    // Preserve source-card layout: image, plaque, name and badge travel as one.
+    clone.classList.add('areg-gallery-rigid-card');
+    shell.classList.add('areg-gallery-rigid-shell');
+    clone.style.setProperty('--areg-source-card-width',card.offsetWidth+'px');
+    clone.style.setProperty('--areg-source-card-height',card.offsetHeight+'px');
     clone.tabIndex=-1;
     clone.style.setProperty('width','100%','important');
     clone.style.setProperty('height','100%','important');

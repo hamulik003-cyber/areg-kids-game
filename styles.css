@@ -3356,3 +3356,36 @@ html[data-theme^="photo-user-"] .section-dim{
 .activity-screen.mind-v4-mode .activity-topbar{display:none}
 .activity-screen.mind-v4-mode .activity-content{padding:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:transparent}
 .activity-screen.mind-v4-mode .mind-v4-frame{display:block;width:100%;height:100%;border:0;background:transparent}
+
+/* Trial: all six inner picture-gallery card families travel as one rigid body.
+   Preserve the card's original dimensions, nameplate and status badge;
+   animate only the existing outer shell, never the children. */
+.gallery-card-flight-shell.areg-gallery-rigid-shell > .animal-card.areg-gallery-rigid-card{
+  width:100% !important;
+  height:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  max-width:none !important;
+  max-height:none !important;
+  transform:none !important;
+  transition:none !important;
+  animation:none !important;
+}
+.gallery-card-flight-shell.areg-gallery-rigid-shell > .animal-card.areg-gallery-rigid-card *,
+.gallery-card-flight-shell.areg-gallery-rigid-shell > .animal-card.areg-gallery-rigid-card::before,
+.gallery-card-flight-shell.areg-gallery-rigid-shell > .animal-card.areg-gallery-rigid-card::after{
+  transition:none !important;
+  animation:none !important;
+}
+.gallery-card-flight-shell.areg-gallery-rigid-shell > .animal-card.areg-gallery-rigid-card.animal-card--focus{
+  transform:none !important;
+}
+
+/* Outer home/section cards: same motion shell, no independent plaque movement. */
+.areg-rigid-card-flight > .home-section-card,
+.areg-rigid-card-flight > .toddler-game-card,
+.areg-rigid-card-flight > .home-section-card *,
+.areg-rigid-card-flight > .toddler-game-card *{
+  animation:none !important;
+  transition:none !important;
+}
