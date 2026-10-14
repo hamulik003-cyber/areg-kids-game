@@ -44,19 +44,19 @@ async function updateGame(){
       './service-worker.js?v=297',{updateViaCache:'none'});
     await registration.update();
     // This dedicated /refresh.html path was not cached by the previous
-    // service worker. Wait for v284 to truly activate before returning to
+    // service worker. Wait for the currently deployed V297 worker to truly activate before returning to
     // the cache-first PWA home screen, otherwise old index.html may reappear.
     const deadline=Date.now()+14000;
     while(Date.now()<deadline){
       const active=registration.active;
-      if(active&&active.state==='activated'&&active.scriptURL.includes('v=294')){
+      if(active&&active.state==='activated'&&active.scriptURL.includes('v=297')){
         status.textContent='Թարմացումն ավարտված է։ Բացվում է խաղը։';
         location.replace('./');
         return;
       }
       await sleep(150);
     }
-    throw Error('V294 service worker activation not confirmed');
+    throw Error('V297 service worker activation not confirmed');
   }catch(error){
     status.textContent='Չհաջողվեց հաստատել թարմացումը։ Ստուգեք կապը և սեղմեք «Կրկնել»։';
     retry.hidden=false;working=false;
