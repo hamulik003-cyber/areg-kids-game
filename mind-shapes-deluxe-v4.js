@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 const $=id=>document.getElementById(id), host=$('view'),msg=$('message');
-const colors=['#e44c4a','#f2b62f','#40a66a','#387ec7','#8c65cb','#ec8541','#e65199','#35b4a5','#e4b13d','#da5b56','#578bd1','#8bce65','#aa6bca','#e87d39','#41acbd','#df6786','#e5b94d','#68ad58','#7b8bd2','#d76a53','#a277c8','#58b6a1','#e6a347','#cb5e9e'];
+const colors=["#FF3030","#FF8C00","#FFD400","#00B83F","#008CFF","#743CFF","#FF1493","#00C8D7","#B8E600","#E53935","#1678FF","#9C27B0","#FF6D00","#00A86B","#E91E63","#00B8FF","#C62828","#7C4DFF","#FFB300","#16A34A","#D500F9","#00ACC1","#F4511E","#3949AB"];
 const rad=Math.PI/180;
 const circle=(rx,ry=rx,n=56)=>Array.from({length:n},(_,i)=>[Math.cos(i*2*Math.PI/n)*rx,Math.sin(i*2*Math.PI/n)*ry]);
 const poly=(n,r=.42,phase=-Math.PI/2)=>Array.from({length:n},(_,i)=>[Math.cos(phase+i*2*Math.PI/n)*r,Math.sin(phase+i*2*Math.PI/n)*r]);
@@ -33,7 +33,10 @@ const stageIds=()=>stageSchedule[stage];
 const wood=new THREE.MeshStandardMaterial({map:woodMap(),color:0xffe6bf,roughness:.78,metalness:0});
 const sideWood=new THREE.MeshStandardMaterial({color:0xb77c49,roughness:.82});
 const coreMat=new THREE.MeshStandardMaterial({color:0x8c5937,roughness:.95});
-const insetMat=id=>new THREE.MeshStandardMaterial({color:new THREE.Color(colors[id]).multiplyScalar(.68),roughness:1,side:THREE.DoubleSide});
+// Match the slot face pigment to its corresponding tray piece; preserve 3D lighting.
+// Use an unlit, untone-mapped pigment for the flat cube inset: its displayed
+// sRGB matches the tray SVG fill exactly, regardless of 3D scene lighting.
+const insetMat=id=>new THREE.MeshBasicMaterial({color:colors[id],toneMapped:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
 const colorMat=id=>new THREE.MeshStandardMaterial({color:colors[id],roughness:.45,metalness:0});
 function outline(){const s=new THREE.Shape(),r=1.54,k=.17;s.moveTo(-r+k,-r);s.lineTo(r-k,-r);s.quadraticCurveTo(r,-r,r,-r+k);s.lineTo(r,r-k);s.quadraticCurveTo(r,r,r-k,r);s.lineTo(-r+k,r);s.quadraticCurveTo(-r,r,-r,r-k);s.lineTo(-r,-r+k);s.quadraticCurveTo(-r,-r,-r+k,-r);return s}
 function panelGeo(face){const o=outline();for(let j=0;j<4;j++){let id=face*4+j,x=j%2?.77:-.77,y=j<2?.77:-.77;const h=new THREE.Path();scaledPoints(id).slice().reverse().forEach(([a,b],i)=>i?h.lineTo(a+x,b+y):h.moveTo(a+x,b+y));h.closePath();o.holes.push(h)}return new THREE.ExtrudeGeometry(o,{depth:.18,bevelEnabled:true,bevelThickness:.035,bevelSize:.035,bevelSegments:3,curveSegments:32,steps:1})}
@@ -51,7 +54,7 @@ cube=new THREE.Group();cube.scale.setScalar(1.08);scene.add(cube);cube.add(new T
 for(let face=0;face<6;face++){const g=new THREE.Group();if(face<4)g.rotation.y=face*Math.PI/2;else g.rotation.x=face===4?-Math.PI/2:Math.PI/2;cube.add(g);
 const panel=new THREE.Mesh(panelGeo(face),[wood,sideWood]);panel.position.z=1.50;g.add(panel);panels.push(panel);
 for(let j=0;j<4;j++){const id=face*4+j,x=j%2?.77:-.77,y=j<2?.77:-.77;
-const base=new THREE.Mesh(new THREE.ShapeGeometry(makeShape(id)),insetMat(id));base.position.set(x,y,1.545);g.add(base);
+const base=new THREE.Mesh(new THREE.ShapeGeometry(makeShape(id)),insetMat(id));base.position.set(x,y,1.545);base.renderOrder=2;g.add(base);
 const glow=new THREE.Mesh(new THREE.ShapeGeometry(makeShape(id)),new THREE.MeshBasicMaterial({color:0x65ff64,transparent:true,opacity:0,depthWrite:false,depthTest:false,side:THREE.DoubleSide}));glow.position.set(x,y,1.75);glow.renderOrder=9;glow.visible=false;g.add(glow);
 const outlineGlow=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(scaledPoints(id).map(([a,b])=>new THREE.Vector3(a,b,0))),new THREE.LineBasicMaterial({color:0x4cff4b,transparent:true,opacity:0,depthTest:false,depthWrite:false}));outlineGlow.position.set(x,y,1.77);outlineGlow.renderOrder=10;outlineGlow.visible=false;g.add(outlineGlow);
 const block=new THREE.Mesh(pieceGeo(id),colorMat(id));block.position.set(x,y,2.3);block.visible=false;g.add(block);
@@ -68,7 +71,26 @@ function resize(){if(!renderer)return;const w=Math.max(1,host.clientWidth),h=Mat
 function tick(t){requestAnimationFrame(tick);cube.quaternion.slerp(goal,.15);if(shadow){const faceDirection=new THREE.Vector3(0,0,1).applyQuaternion(cube.quaternion);shadow.position.set(.35+faceDirection.x*.30,-1.23+faceDirection.y*.20,-1.6);shadow.material.opacity=.66+Math.abs(faceDirection.z)*.16;shadow.scale.set(5.6+Math.abs(faceDirection.x)*.5,4.3+Math.abs(faceDirection.y)*.3,1)}const pulse=(Math.sin((t||0)*.0055)+1)*.5;for(const slot of slots){const isGreen=hinted.has(slot.id)&&!slot.filled;const isRed=wrongHint===slot.id&&performance.now()<wrongUntil&&!slot.filled;const show=isGreen||isRed;slot.glow.visible=show;slot.outlineGlow.visible=show;if(show){slot.glow.material.color.setHex(isRed?0xff3636:0x55ff50);slot.outlineGlow.material.color.setHex(isRed?0xff2020:0x27e831);slot.glow.material.opacity=(isRed?.3:.19)+pulse*(isRed?.37:.34);slot.outlineGlow.material.opacity=.55+pulse*.4;slot.glow.scale.setScalar(1.025+pulse*.035);slot.outlineGlow.scale.setScalar(1.025+pulse*.035)}}if(wrongHint!==null&&performance.now()>=wrongUntil)wrongHint=null;for(let i=anim.length-1;i>=0;i--){let a=anim[i];a.block.position.z+=(a.z-a.block.position.z)*.19;if(Math.abs(a.z-a.block.position.z)<.015){a.block.position.z=a.z;anim.splice(i,1)}}renderer.render(scene,camera)}
 function showError(s){msg.textContent=s;msg.style.color='#a22'}
 function play(ok){try{const AC=window.AudioContext||window.webkitAudioContext;audioCtx ||= new AC();if(audioCtx.state==='suspended')audioCtx.resume();for(const [hz,delay] of (ok?[[523,0],[784,.10],[1046,.2]]:[[392,0],[330,.13]])){const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+.01+delay;o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.22);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+.23)}}catch(e){}}
-function icon(id){const p=points(id).map(([x,y],i)=>(i?'L':'M')+(50+x*108).toFixed(2)+','+(50-y*108).toFixed(2)).join(' ')+'Z';return '<svg viewBox="0 0 100 100"><path d="'+p+'" transform="translate(0 3)" fill="#70472b" opacity=".25"/><path d="'+p+'" fill="'+colors[id]+'" stroke="#fff0cf" stroke-width="3.5" stroke-linejoin="round"/><path d="'+p+'" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/></svg>'}
+function icon(id){
+  const vertices=points(id);
+  const xy=vertices.map(([x,y])=>[50+x*108,50-y*108]);
+  // Center the complete visible outline of EACH shape in the SVG.
+  // Include the original 3-unit lower shadow; do not center by filled area,
+  // which makes asymmetric silhouettes look off-center in the cream tile.
+  const xs=xy.map(p=>p[0]),ys=xy.map(p=>p[1]);
+  const left=Math.min(...xs)-2.5,right=Math.max(...xs)+2.5;
+  const top=Math.min(...ys)-2.5,bottom=Math.max(...ys)+5.5;
+  // Make the longest visible dimension identical for every silhouette,
+  // irrespective of shape, while keeping the approved per-shape centering.
+  // 70 SVG units leaves symmetric visible breathing room inside the cream face.
+  const visibleWidth=right-left,visibleHeight=bottom-top;
+  const uniformExtent=82;
+  const scale=uniformExtent/Math.max(visibleWidth,visibleHeight);
+  const centerX=(left+right)/2,centerY=(top+bottom)/2;
+  const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
+  const transform='translate(50 50) scale('+scale.toFixed(5)+') translate('+(-centerX).toFixed(2)+' '+(-centerY).toFixed(2)+')';
+  return '<svg viewBox="0 0 100 100"><g transform="'+transform+'"><path d="'+p+'" fill="'+colors[id]+'" stroke="#fff8e9" stroke-width="2.5" stroke-linejoin="round"/></g></svg>';
+}
 function reset(){stage=0;stars=Number(localStorage.getItem('areg-stars-v35')||0);completed.clear();celebrating=false;activeHint=null;hinted.clear();wrongHint=null;slots.forEach(s=>{s.filled=false;s.block.visible=false;s.glow.visible=false;s.outlineGlow.visible=false});$('stars').textContent='⭐ '+stars;goal.setFromEuler(new THREE.Euler(-.38,-.52,0,'YXZ'));round()}
 
 function clearDrag(){if(drag){drag.ghost?.remove();drag=null}document.querySelectorAll('.ghost').forEach(el=>el.remove())}
@@ -84,7 +106,7 @@ function confetti(){const el=$('celebrate');el.replaceChildren();for(let i=0;i<2
 function playVictory(){try{const AC=window.AudioContext||window.webkitAudioContext;audioCtx ||= new AC();if(audioCtx.state==='suspended')audioCtx.resume();const start=audioCtx.currentTime+.06;const melody=[[523,0,.16],[659,.19,.16],[784,.38,.18],[1047,.58,.38],[784,1.05,.16],[1047,1.24,.55],[1175,1.84,.2],[1318,2.04,.5]];for(const [hz,delay,dur] of melody){const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=start+delay;o.type='triangle';o.frequency.value=hz;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.065,t+.03);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+dur+.02)}
 for(let i=0;i<11;i++){const len=Math.floor(audioCtx.sampleRate*.065),buffer=audioCtx.createBuffer(1,len,audioCtx.sampleRate),data=buffer.getChannelData(0);for(let j=0;j<len;j++)data[j]=(Math.random()*2-1)*Math.pow(1-j/len,1.5);const src=audioCtx.createBufferSource(),g=audioCtx.createGain(),filter=audioCtx.createBiquadFilter();src.buffer=buffer;filter.type='bandpass';filter.frequency.value=1450;filter.Q.value=.55;const t=start+i*.22;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.12,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.07);src.connect(filter);filter.connect(g);g.connect(audioCtx.destination);src.start(t);src.stop(t+.07)}}catch(e){}}
 function flyStars(){const from=$('bonus').getBoundingClientRect(),to=$('stars').getBoundingClientRect();const dx=to.left+to.width/2-(from.left+from.width/2),dy=to.top+to.height/2-(from.top+from.height/2);for(let i=0;i<5;i++){const el=document.createElement('span');el.className='flying-star';el.textContent='⭐';el.style.left=(from.left+from.width*(i+.5)/5-15)+'px';el.style.top=(from.top+8)+'px';document.body.append(el);setTimeout(()=>{el.style.transform='translate('+dx+'px,'+dy+'px) scale(.35)';el.style.opacity='0'},350+i*165);setTimeout(()=>{stars++;localStorage.setItem('areg-stars-v35',String(stars));$('stars').textContent='⭐ '+stars;el.remove()},1200+i*165)}}
-function showCelebration(){clearDrag();confetti();const isFinal=stage===5;$('award').textContent=isFinal?'🏆':'🌟';$('congrats').textContent=isFinal?'Դու հաղթեցի՜ր։':'Ապրե՜ս, շատ լավ էր։';$('congratsText').textContent=isFinal?'Բոլոր 6 փուլերն ավարտված են։':'Հրաշալի՜ կատարեցիր առաջադրանքը։';$('continue').innerHTML=isFinal?'Խաղալ նորից ↻':'Շարունակել ✨';$('bonus').classList.toggle('show',isFinal);$('bonus').replaceChildren();if(isFinal){for(let i=0;i<5;i++){const el=document.createElement('span');el.textContent='⭐';el.style.setProperty('--i',i);$('bonus').append(el)}}else{stars++;localStorage.setItem('areg-stars-v35',String(stars));$('stars').textContent='⭐ '+stars}
+function showCelebration(){clearDrag();confetti();const isFinal=stage===5;const award=$('award');award.classList.toggle('emoji-3d',!isFinal);award.innerHTML=isFinal?'🏆':'<span class="emoji-face">'+['😀','😁','😂','😛','🤩'][stage]+'</span>';$('congrats').textContent=isFinal?'Դու հաղթեցի՜ր։':'Ապրե՜ս, շատ լավ էր։';$('congratsText').textContent=isFinal?'Բոլոր 6 փուլերն ավարտված են։':'Հրաշալի՜ կատարեցիր առաջադրանքը։';$('continue').innerHTML=isFinal?'Խաղալ նորից ↻':'Շարունակել ✨';$('bonus').classList.toggle('show',isFinal);$('bonus').replaceChildren();if(isFinal){for(let i=0;i<5;i++){const el=document.createElement('span');el.textContent='⭐';el.style.setProperty('--i',i);$('bonus').append(el)}}
 $('overlay').classList.add('show');if(isFinal){playVictory();setTimeout(flyStars,900)}else{play(true)}}
 $('help').onclick=hint;$('continue').onclick=()=>{if(stage===5){reset()}else{stage++;round()}};$('back').onclick=()=>{if(new URLSearchParams(location.search).get('embed')==='1'&&window.parent!==window){window.parent.postMessage({type:'areg-mind-v4-back'},location.origin)}else{location.href='./index.html?section=mind'}};
 window.addEventListener('error',e=>showError('3D սխալ․ '+(e.message||'Ստուգիր Safari-ն')));setup();
