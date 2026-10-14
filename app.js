@@ -2036,6 +2036,22 @@
       await new Promise(r=>setTimeout(r,110));
       if(state.cancelled)return;
 
+      // Hayk (Orion) pilot: remove the temporary high-resolution overlay
+      // before the return flight. The original grid card uses the thumbnail,
+      // so leaving the overlay in place creates an image-size handoff snap.
+      const haykReturn=card.dataset.constellation==='hayk-orion';
+      if(haykReturn){
+        const hires=clone.querySelector('.gallery-hires-layer');
+        if(hires)hires.remove();
+        const originalPreview=card.querySelector('.animal-image-wrap img');
+        const flightPreview=clone.querySelector('.animal-image-wrap img');
+        if(originalPreview&&flightPreview){
+          flightPreview.src=originalPreview.currentSrc||originalPreview.src;
+          flightPreview.style.objectFit=getComputedStyle(originalPreview).objectFit;
+        }
+        // Restore the exact resting picture geometry for the final frame.
+        clone.classList.remove('animal-card--focus','animal-card--speaking');
+      }
       if(shell.animate){
         const midBack='translate3d('+(tx*.42)+'px,'+(ty*.42)+'px,0) scale('+(1+(scale-1)*.36)+') rotateY(6deg) rotateZ(-1.1deg)';
         const exit=shell.animate([
@@ -2055,6 +2071,14 @@
       }
 
       if(activeGalleryPresentation===state){
+        // On Hayk's final frame, reveal the stationary original before
+        // removing the moving overlay. Never animate the real image size.
+        if(haykReturn){
+          card.style.removeProperty('opacity');
+          card.style.removeProperty('pointer-events');
+          await new Promise(resolve=>requestAnimationFrame(resolve));
+          if(state.cancelled)return;
+        }
         host.classList.remove('gallery-card-flight-host--visible');
         try{host.remove()}catch{}
         card.style.removeProperty('opacity');
