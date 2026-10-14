@@ -1020,7 +1020,7 @@
     flightMs:1040,
     flightEasing:'cubic-bezier(.24,.20,.60,.94)',
     returnMs:1040,
-    returnEasing:'cubic-bezier(.40,0,.24,1)',
+    returnEasing:'cubic-bezier(.24,.20,.60,.94)',
     dissolveMs:1100
   });
 
