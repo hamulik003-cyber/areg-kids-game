@@ -89,7 +89,7 @@ function icon(id){
   const centerX=(left+right)/2,centerY=(top+bottom)/2;
   const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
   const transform='translate(50 50) scale('+scale.toFixed(5)+') translate('+(-centerX).toFixed(2)+' '+(-centerY).toFixed(2)+')';
-  return '<svg viewBox="0 0 100 100"><g transform="'+transform+'"><path d="'+p+'" transform="translate(0 3)" fill="#70472b" opacity=".25"/><path d="'+p+'" fill="'+colors[id]+'" stroke="#fff0cf" stroke-width="3.5" stroke-linejoin="round"/><path d="'+p+'" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/></g></svg>';
+  return '<svg viewBox="0 0 100 100"><g transform="'+transform+'"><path d="'+p+'" transform="translate(0 3)" fill="#70472b" opacity=".25"/><path d="'+p+'" fill="'+colors[id]+'" stroke="#70472b" stroke-opacity=".22" stroke-width="1.2" stroke-linejoin="round"/></g></svg>';
 }
 function reset(){stage=0;stars=Number(localStorage.getItem('areg-stars-v35')||0);completed.clear();celebrating=false;activeHint=null;hinted.clear();wrongHint=null;slots.forEach(s=>{s.filled=false;s.block.visible=false;s.glow.visible=false;s.outlineGlow.visible=false});$('stars').textContent='⭐ '+stars;goal.setFromEuler(new THREE.Euler(-.38,-.52,0,'YXZ'));round()}
 
