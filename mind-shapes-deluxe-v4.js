@@ -77,9 +77,15 @@ function icon(id){
   const xs=xy.map(p=>p[0]),ys=xy.map(p=>p[1]);
   const left=Math.min(...xs)-2.5,right=Math.max(...xs)+2.5;
   const top=Math.min(...ys)-2.5,bottom=Math.max(...ys)+5.5;
-  const offsetX=50-(left+right)/2,offsetY=50-(top+bottom)/2;
+  // Make the longest visible dimension identical for every silhouette,
+  // irrespective of shape, while keeping the approved per-shape centering.
+  // 84 SVG units leaves breathing room within the cream tile.
+  const visibleWidth=right-left,visibleHeight=bottom-top;
+  const uniformExtent=84;
+  const scale=uniformExtent/Math.max(visibleWidth,visibleHeight);
+  const centerX=(left+right)/2,centerY=(top+bottom)/2;
   const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
-  const transform='translate('+offsetX.toFixed(2)+' '+offsetY.toFixed(2)+')';
+  const transform='translate(50 50) scale('+scale.toFixed(5)+') translate('+(-centerX).toFixed(2)+' '+(-centerY).toFixed(2)+')';
   return '<svg viewBox="0 0 100 100"><g transform="'+transform+'"><path d="'+p+'" transform="translate(0 3)" fill="#70472b" opacity=".25"/><path d="'+p+'" fill="'+colors[id]+'" stroke="#fff0cf" stroke-width="3.5" stroke-linejoin="round"/><path d="'+p+'" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/></g></svg>';
 }
 function reset(){stage=0;stars=Number(localStorage.getItem('areg-stars-v35')||0);completed.clear();celebrating=false;activeHint=null;hinted.clear();wrongHint=null;slots.forEach(s=>{s.filled=false;s.block.visible=false;s.glow.visible=false;s.outlineGlow.visible=false});$('stars').textContent='⭐ '+stars;goal.setFromEuler(new THREE.Euler(-.38,-.52,0,'YXZ'));round()}
