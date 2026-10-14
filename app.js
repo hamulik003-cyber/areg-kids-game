@@ -1013,6 +1013,25 @@
     }
   }
 
+  // Freeze only moving-copy text geometry: Safari must not reflow a
+  // two-line title when its clone leaves the original grid/design stage.
+  // No changes to the real card, animation, artwork or sound.
+  function lockFlightTextLayout(sourceCard,flightCard){
+    for(const selector of ['.home-card-label','.toddler-game-label','.animal-name','.animal-type']){
+      const source=sourceCard.querySelector(selector);
+      const target=flightCard.querySelector(selector);
+      if(!source||!target)continue;
+      const style=getComputedStyle(source);
+      for(const prop of ['width','height','max-width','min-width','box-sizing',
+        'font-family','font-size','font-weight','line-height','letter-spacing',
+        'white-space','text-align','padding-left','padding-right',
+        'display','align-items','justify-content']){
+        target.style.setProperty(prop,style.getPropertyValue(prop),'important');
+      }
+      target.style.setProperty('flex-shrink','0','important');
+    }
+  }
+
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
   function openAnimatedHomeSection(card){
@@ -1044,6 +1063,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    lockFlightTextLayout(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1298,23 +1318,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // The clone leaves the 709px design-stage typography context. On WebKit
-    // its title can briefly reflow as the shrinking card reaches its slot.
-    // Freeze only the clone's current label geometry, not the real card or
-    // the user's approved portal speed/keyframes (Nature remains untouched).
-    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
-      for(const selector of ['.home-card-label','.toddler-game-label']){
-        const original=card.querySelector(selector);
-        const cloned=copy.querySelector(selector);
-        if(!original||!cloned)continue;
-        const measured=getComputedStyle(original);
-        for(const property of ['font-family','font-size','font-weight','line-height',
-          'letter-spacing','white-space','text-align','padding-left','padding-right',
-          'width','height','box-sizing','display','align-items','justify-content']){
-          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
-        }
-      }
-    }
+    lockFlightTextLayout(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1347,7 +1351,15 @@
       finishNavigation();
     };
     try{
-      const fly=flight.animate([
+      // Nature-only trial: finish with the real destination card already
+      // showing beneath the clone. Dissolve the clone before cleanup so
+      // removing it cannot cause a one-frame label/bitmap snap.
+      const seamlessReturn=to===homeScreen||to===sectionScreen;
+      const fly=flight.animate(seamlessReturn?[
+        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0,offset:0},
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1,offset:.88},
+        {transform:'translate3d(0,0,0) scale(1)',opacity:0,offset:1}
+      ]:[
         {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
@@ -1412,6 +1424,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    lockFlightTextLayout(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
@@ -1912,7 +1925,12 @@
     }
 
     const host=document.createElement('div');
-    host.className='animal-gallery gallery-card-flight-host';
+    // Keep the source gallery's CSS context on the flight host.
+    // In Constellations the original picture uses object-fit:contain;
+    // losing this parent class changes it to cover during the flight,
+    // producing the visible resize when returning to the grid.
+    const sourceGallery=card.closest('.animal-gallery');
+    host.className=(sourceGallery?.className||'animal-gallery')+' gallery-card-flight-host';
     host.setAttribute('aria-hidden','true');
 
     const shell=document.createElement('div');
@@ -1934,6 +1952,7 @@
     if(originalImage?.naturalWidth)originalImage.classList.add('is-decoded');
     if(!card.isConnected)return;
     const clone=card.cloneNode(true);
+    lockFlightTextLayout(card,clone);
     const cloneImage=clone.querySelector('.animal-image-wrap img');
     if(cloneImage){
       cloneImage.loading='eager';
@@ -3090,7 +3109,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=296',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=297',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
