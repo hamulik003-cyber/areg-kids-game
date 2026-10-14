@@ -70,13 +70,23 @@ function showError(s){msg.textContent=s;msg.style.color='#a22'}
 function play(ok){try{const AC=window.AudioContext||window.webkitAudioContext;audioCtx ||= new AC();if(audioCtx.state==='suspended')audioCtx.resume();for(const [hz,delay] of (ok?[[523,0],[784,.10],[1046,.2]]:[[392,0],[330,.13]])){const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+.01+delay;o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.22);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+.23)}}catch(e){}}
 function icon(id){
   const vertices=points(id);
-  // Center each shape by its own visible geometry, not a shared pixel nudge.
-  // Include the approved 3px drop-shadow geometry in the vertical bounds.
-  const xs=vertices.map(p=>50+p[0]*108),ys=vertices.map(p=>50-p[1]*108);
-  const minX=Math.min(...xs),maxX=Math.max(...xs);
-  const minY=Math.min(...ys),maxY=Math.max(...ys)+3;
-  const offsetX=50-(minX+maxX)/2,offsetY=50-(minY+maxY)/2;
-  const p=vertices.map(([x,y],i)=>(i?'L':'M')+(50+x*108).toFixed(2)+','+(50-y*108).toFixed(2)).join(' ')+'Z';
+  const xy=vertices.map(([x,y])=>[50+x*108,50-y*108]);
+  // Each silhouette has a different distribution of visual weight.
+  // Use its filled polygon's area centroid, not the SVG box center or
+  // the outer bounding rectangle (especially important for crescents).
+  let twiceArea=0,weightedX=0,weightedY=0;
+  for(let i=0;i<xy.length;i++){
+    const [x1,y1]=xy[i],[x2,y2]=xy[(i+1)%xy.length];
+    const cross=x1*y2-x2*y1;
+    twiceArea+=cross;
+    weightedX+=(x1+x2)*cross;
+    weightedY+=(y1+y2)*cross;
+  }
+  const xs=xy.map(p=>p[0]),ys=xy.map(p=>p[1]);
+  const centerX=Math.abs(twiceArea)>1e-6?weightedX/(3*twiceArea):(Math.min(...xs)+Math.max(...xs))/2;
+  const centerY=Math.abs(twiceArea)>1e-6?weightedY/(3*twiceArea):(Math.min(...ys)+Math.max(...ys))/2;
+  const offsetX=50-centerX,offsetY=50-centerY-1.5;
+  const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
   const transform='translate('+offsetX.toFixed(2)+' '+offsetY.toFixed(2)+')';
   return '<svg viewBox="0 0 100 100"><g transform="'+transform+'"><path d="'+p+'" transform="translate(0 3)" fill="#70472b" opacity=".25"/><path d="'+p+'" fill="'+colors[id]+'" stroke="#fff0cf" stroke-width="3.5" stroke-linejoin="round"/><path d="'+p+'" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/></g></svg>';
 }
