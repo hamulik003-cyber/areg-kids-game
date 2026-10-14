@@ -1112,7 +1112,10 @@
       (window.innerHeight-100)/rect.height));
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
-    const destination='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    // The wide Rewards tile starts at the bottom of the home grid.
+    // Limit upward travel so its entry reads as a forward zoom.
+    const flightDy=id==='magic'?Math.max(-rect.height*.12,Math.min(rect.height*.12,dy)):dy;
+    const destination='translate3d('+dx+'px,'+flightDy+'px,0) scale('+scale+')';
     try{
       // Single uninterrupted composite animation. Opacity fades WHILE the
       // card travels, never after a mid-flight pause or a second animation.
