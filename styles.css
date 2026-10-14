@@ -2818,16 +2818,8 @@ html[data-font="classic"]{
   transform-origin:center center !important;
 }
 
-/* Trial V296: the flight shell alone owns card movement. Never move its
-   picture, badge or card independently during focus/speech/return. */
 .gallery-card-flight-shell > .animal-card.animal-card--focus{
-  transform:none !important;
-}
-.gallery-card-flight-shell .animal-type-badge,
-.gallery-card-flight-shell .animal-card-label{
-  transform:none !important;
-  animation:none !important;
-  transition:none !important;
+  transform:translateY(-1px) scale(1.012) !important;
 }
 
 @media (prefers-reduced-motion:reduce){
