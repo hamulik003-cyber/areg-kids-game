@@ -915,7 +915,16 @@
     updateStars();sectionGames.innerHTML='';
     sectionGames.classList.remove('magic-collection-grid');
     sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
-    document.body.classList.toggle('magic-scroll-active',id==='magic');
+    // Do not switch the document to vertical pan while the home tile is flying.
+    // On iPhone this can visually pull the Rewards tile upward mid-flight.
+    // Enable native scrolling only after the stationary page dissolve finishes.
+    if(id==='magic'&&cinematicEntry){
+      document.body.classList.remove('magic-scroll-active');
+      setTimeout(()=>{
+        if(currentSection==='magic'&&sectionScreen.dataset.entryCrossfade!=='running')
+          document.body.classList.add('magic-scroll-active');
+      },1500);
+    }else document.body.classList.toggle('magic-scroll-active',id==='magic');
 
     if(id==='magic'){
       renderMagicCollection();
