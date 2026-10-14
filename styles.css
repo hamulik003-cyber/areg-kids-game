@@ -3380,3 +3380,12 @@ html[data-theme^="photo-user-"] .section-dim{
 .gallery-card-flight-shell.areg-gallery-rigid-shell > .animal-card.areg-gallery-rigid-card.animal-card--focus{
   transform:none !important;
 }
+
+/* Outer home/section cards: same motion shell, no independent plaque movement. */
+.areg-rigid-card-flight > .home-section-card,
+.areg-rigid-card-flight > .toddler-game-card,
+.areg-rigid-card-flight > .home-section-card *,
+.areg-rigid-card-flight > .toddler-game-card *{
+  animation:none !important;
+  transition:none !important;
+}
