@@ -56,7 +56,7 @@ try{
       active:reg?.active?.state||null,
       scope:reg?.scope||null,
       online:navigator.onLine,
-      coreCache:(await caches.keys()).includes('areg-v294-core')
+      coreCache:(await caches.keys()).includes('areg-v297-core')
     };
   });
   let sw=await swSnapshot();
@@ -76,7 +76,7 @@ try{
     throw Error('V290 service worker did not control new page '+JSON.stringify(sw));
   console.log('V290 SERVICE WORKER CONTROL VERIFIED',JSON.stringify(sw));
   const bootstrap=await page.evaluate(async()=>{
-    const core=await caches.open('areg-v294-core');
+    const core=await caches.open('areg-v297-core');
     const original=await core.match('./index.html');
     if(!original)throw Error('Expected offline HTML core cache absent');
     const html=await original.text();
@@ -96,7 +96,7 @@ try{
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForSelector('#homeScreen .section-card');
   const fresh=await page.evaluate(async()=>{
-    const cache=await caches.open('areg-v294-core');
+    const cache=await caches.open('areg-v297-core');
     return {oldMarker:!!document.querySelector('meta[name="areg-qa-deliberately-stale"]'),
       revalidated:(await (await cache.match('./index.html')).text())
         .includes('app.js?v=294'),
@@ -352,7 +352,7 @@ try{
     // Exercise the actual ServiceWorker CORE CacheStorage offline payload
     // and persisted wallet while WebKit reports navigator.onLine=false.
     offline=await page.evaluate(async()=>{
-      const core=await caches.open('areg-v294-core');
+      const core=await caches.open('areg-v297-core');
       const entry=await core.match('./index.html');
       const app=await core.match('./app.js?v=294');
       const css=await core.match('./styles.css?v=294');
