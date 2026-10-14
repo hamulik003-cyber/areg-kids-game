@@ -1024,6 +1024,9 @@
 
   // Main section navigation ONLY; internal game cards keep existing timing.
   const HOME_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
+  // Section-to-game navigation follows the same brisk tempo; individual
+  // gallery/info card animation and audio-completion timing stay untouched.
+  const INNER_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
 
   // Shared motion contract for the five home tiles and all inner game tiles.
   // Keep the approved V297 1040ms flight and 1100ms screen dissolve.
@@ -1390,14 +1393,14 @@
       ]:[
         {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
-      ],{duration:to===homeScreen?HOME_SECTION_MOTION.returnMs:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
+      ],{duration:to===homeScreen?HOME_SECTION_MOTION.returnMs:to===sectionScreen?INNER_SECTION_MOTION.returnMs:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
       fly.finished.catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
-        const dissolveMs=to===homeScreen?HOME_SECTION_MOTION.dissolveMs:SECTION_CARD_MOTION.dissolveMs;
+        const dissolveMs=to===homeScreen?HOME_SECTION_MOTION.dissolveMs:to===sectionScreen?INNER_SECTION_MOTION.dissolveMs:SECTION_CARD_MOTION.dissolveMs;
         to.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         from.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         to.style.setProperty('opacity','1','important');
@@ -1480,10 +1483,10 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
+      ],{duration:INNER_SECTION_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
-      const safety=setTimeout(cleanup,1900);
+      const safety=setTimeout(cleanup,1400);
       anim.finished.then(()=>clearTimeout(safety),()=>clearTimeout(safety));
       return {restoreCard,finished:()=>flightFinished,cleanup};
     }catch(error){
@@ -1542,9 +1545,9 @@
         started=true;
         // Same look, timing and easing as the user-liked Nature home entry.
         activityScreen.style.setProperty('transition',
-          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity '+INNER_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         sectionScreen.style.setProperty('transition',
-          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity '+INNER_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         activityScreen.classList.add('is-visible');
         activityScreen.style.setProperty('opacity','1','important');
         sectionScreen.style.setProperty('opacity','0','important');
@@ -1563,7 +1566,7 @@
           activityScreen.style.removeProperty('pointer-events');
           delete activityScreen.dataset.innerGameCrossfade;
           delete activityScreen.dataset.innerGameEntry;
-        },1180);
+        },INNER_SECTION_MOTION.dissolveMs+80);
       };
       const fallback=setTimeout(start,45);
       requestAnimationFrame(()=>{clearTimeout(fallback);start()});
@@ -1579,7 +1582,7 @@
     }
     if(flight){
       // 230ms minimum lead, without an artificial pause when resources are hot.
-      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,230))]).then(launch,launch);
+      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,INNER_SECTION_MOTION.leadMs))]).then(launch,launch);
     }else prep.then(launch,launch);
   }
   function backToSection(){
