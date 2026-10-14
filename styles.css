@@ -2696,6 +2696,17 @@ html[data-font="classic"]{
   transform:translateY(-1px) !important;
 }
 
+/* V296 user-approved badge stability: animals, birds, insects and sea life.
+   Prevent only the independent 1px status-badge lift; preserve each
+   card's travel, scale, halo, sound and the rest of its appearance. */
+.animal-gallery .animal-card .animal-type,
+.gallery-card-flight-shell .animal-card .animal-type{
+  transform:none !important;
+  animation:none !important;
+  transition:none !important;
+}
+
+
 @media (max-width:380px){
   .animal-gallery{gap:12px !important;padding:12px 9px 34px !important}
   .animal-gallery .animal-card,
@@ -3356,3 +3367,13 @@ html[data-theme^="photo-user-"] .section-dim{
 .activity-screen.mind-v4-mode .activity-topbar{display:none}
 .activity-screen.mind-v4-mode .activity-content{padding:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:transparent}
 .activity-screen.mind-v4-mode .mind-v4-frame{display:block;width:100%;height:100%;border:0;background:transparent}
+
+/* Trial: apply the approved badge-lock principle to the home and inner
+   section LABELS only. The parent cards still perform their existing
+   travel, scale, glow and navigation; no artwork/layout is altered. */
+.home-section-card .home-card-label,
+.toddler-game-card .toddler-game-label{
+  transform:none !important;
+  animation:none !important;
+  transition:none !important;
+}
