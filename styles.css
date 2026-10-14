@@ -2696,11 +2696,11 @@ html[data-font="classic"]{
   transform:translateY(-1px) !important;
 }
 
-/* V296 Nature animal-gallery rollout of the user-approved dog pilot.
-   Lock only the domestic/wild status badge relative to its card;
-   preserve card zoom, green/red halo, sound and all other galleries. */
-.animal-gallery:not(.animal-gallery--bird):not(.animal-gallery--sea):not(.animal-gallery--insect) .animal-card[data-animal] .animal-type,
-.gallery-card-flight-shell .animal-card[data-animal] .animal-type{
+/* V296 user-approved badge stability: animals, birds, insects and sea life.
+   Prevent only the independent 1px status-badge lift; preserve each
+   card's travel, scale, halo, sound and the rest of its appearance. */
+.animal-gallery .animal-card .animal-type,
+.gallery-card-flight-shell .animal-card .animal-type{
   transform:none !important;
   animation:none !important;
   transition:none !important;
