@@ -2696,6 +2696,18 @@ html[data-font="classic"]{
   transform:translateY(-1px) !important;
 }
 
+/* V296 isolated DOG trial: the green domestic badge must never lift
+   independently while the dog card speaks or its halo blooms.
+   All card/shell travel, glow and other animal badges remain unchanged. */
+.animal-gallery .animal-card[data-animal="dog"] .animal-type,
+.gallery-card-flight-shell .animal-card[data-animal="dog"] .animal-type,
+.animal-gallery .animal-card[data-animal="dog"].animal-card--speaking .animal-type{
+  transform:none !important;
+  animation:none !important;
+  transition:none !important;
+}
+
+
 @media (max-width:380px){
   .animal-gallery{gap:12px !important;padding:12px 9px 34px !important}
   .animal-gallery .animal-card,
