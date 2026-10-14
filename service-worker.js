@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v298-core';
-const RUNTIME_CACHE='areg-v298-runtime';
+const CORE_CACHE='areg-v301-core';
+const RUNTIME_CACHE='areg-v301-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
@@ -18,7 +18,7 @@ const CORE=[
   './space-game-4.jpg',
   './home-mind-art.jpg',
   './mind-shapes-deluxe-v4.html',
-  './mind-shapes-deluxe-v4.js?v=20261013f',
+  './mind-shapes-deluxe-v4.js?v=20261014-release-delay-130',
   './vendor/three.module.min.js',
   './home-create-art.jpg',
   './home-magic-art.jpg',
