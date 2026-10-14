@@ -3415,15 +3415,15 @@ html[data-theme^="photo-user-"] .section-dim{
   content:"";
   position:absolute;
   top:-12%;
-  left:-44%;
-  width:42%;
+  left:-46%;
+  width:46%;
   height:124%;
   pointer-events:none;
   opacity:0;
-  border-radius:20px;
+  border-radius:24px;
   transform:skewX(-17deg) translate3d(0,0,0);
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.08) 24%,rgba(255,255,255,.72) 49%,rgba(255,240,167,.50) 58%,transparent 100%);
-  filter:blur(1.1px);
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.05) 15%,rgba(255,255,255,.24) 30%,rgba(255,255,255,.68) 47%,rgba(255,247,207,.76) 53%,rgba(255,240,167,.43) 68%,rgba(255,255,255,.07) 84%,transparent 100%);
+  filter:blur(3px);
   mix-blend-mode:screen;
   will-change:transform,opacity;
 }
@@ -3446,15 +3446,15 @@ html[data-theme^="photo-user-"] .section-dim{
 .toddler-game-card:nth-child(4) .game-card-sheen::before{animation-delay:12s}
 @keyframes aregSequentialHomeStripe{
   0%{transform:skewX(-17deg) translate3d(0,0,0);opacity:0}
-  1.5%{opacity:.9}
-  12%{transform:skewX(-17deg) translate3d(350%,0,0);opacity:.8}
-  14%,100%{transform:skewX(-17deg) translate3d(350%,0,0);opacity:0}
+  1.5%{opacity:.94}
+  12%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:.9}
+  14%,100%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:0}
 }
 @keyframes aregSequentialInnerStripe{
   0%{transform:skewX(-17deg) translate3d(0,0,0);opacity:0}
-  1.875%{opacity:.9}
-  15%{transform:skewX(-17deg) translate3d(350%,0,0);opacity:.8}
-  17.5%,100%{transform:skewX(-17deg) translate3d(350%,0,0);opacity:0}
+  1.875%{opacity:.94}
+  15%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:.9}
+  17.5%,100%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:0}
 }
 .effects-off .home-section-card .home-v44-sheen::before,
 .effects-off .toddler-game-card .game-card-sheen::before{
