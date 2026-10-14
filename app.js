@@ -1350,7 +1350,7 @@
       // Nature-only trial: finish with the real destination card already
       // showing beneath the clone. Dissolve the clone before cleanup so
       // removing it cannot cause a one-frame label/bitmap snap.
-      const natureHomeReturn=to===homeScreen&&currentSection==='nature';
+      const natureHomeReturn=to===homeScreen;
       const fly=flight.animate(natureHomeReturn?[
         {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0,offset:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1,offset:.88},
