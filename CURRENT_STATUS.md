@@ -1,3 +1,12 @@
+## 2026-10-14 — V297 audit assertion / refresh route alignment
+- AREG Full Game Audit on PR #59 advanced past handoff guard but revealed an obsolete hard-coded `v294` expectation for core stylesheet and refresh entrypoint. Align the audit expectations to already deployed V297 stylesheet and service-worker versions; align existing `refresh.html` safe registration to V297. No game animation/assets, persistent data or cache clearing changed.
+
+## 2026-10-14 — V297 production hotfix #58 audit follow-up (documentation only)
+- User confirmed approved Hayk/Orion visual fix works on the published Safari game, but the separately installed DotKiosk browser still shows an older cached copy; **DotKiosk refresh not yet verified**. Do not delete user data, avatars or stars.
+- Approved V297 release PR #57 merged to main at `c8ba099e32669f385ed0f5d9e94a3729531e8346`; the service-worker precache alignment hotfix PR #58 merged at `b957f6541fea2e80bfc3915e19c3e1eac67653b9`. Pages deployment #1029 succeeded.
+- AREG Full Game Audit #566 (run `38527242092`) failed at `node qa/handoff-guard.mjs`: hotfix #58 changed functional `service-worker.js` but did not update both `CURRENT_STATUS.md` and `PROJECT_HANDOFF.md` in the same change. This stopped downstream mobile/WebKit/music checks; it is not evidence of a gameplay failure.
+- This documentation-only follow-up records the release/hotfix and the exact failed audit cause; **no application code, audio, images, assets or cache contents change**. Audit result and DotKiosk live device refresh must be checked separately. Rollback V296: `b7bc4b893c911920a374733d2b136ff1658cf8ba`.
+
 ## 2026-10-14 — User-approved V297 card animation release candidate
 - User explicitly approved Safari trial `047db8cff301e7c9a7f140536e93645ea01c40d6` and requested promotion to main/DotKiosk.
 - Based on approved V296 main `b7bc4b893c911920a374733d2b136ff1658cf8ba`. Approved trial changes stabilize gallery badges, home and inner menu labels, 2-line text in moving copies, seamless home/inner reverse flight handoffs, and preserve source gallery CSS context (notably Constellations' image object-fit:contain) on moving picture cards.
