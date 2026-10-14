@@ -33,7 +33,7 @@ const stageIds=()=>stageSchedule[stage];
 const wood=new THREE.MeshStandardMaterial({map:woodMap(),color:0xffe6bf,roughness:.78,metalness:0});
 const sideWood=new THREE.MeshStandardMaterial({color:0xb77c49,roughness:.82});
 const coreMat=new THREE.MeshStandardMaterial({color:0x8c5937,roughness:.95});
-const insetMat=id=>new THREE.MeshStandardMaterial({color:new THREE.Color(colors[id]).multiplyScalar(.68),roughness:1,side:THREE.DoubleSide});
+// Match the slot face pigment to its corresponding tray piece; preserve 3D lighting.\nconst insetMat=id=>new THREE.MeshStandardMaterial({color:colors[id],roughness:1,side:THREE.DoubleSide});
 const colorMat=id=>new THREE.MeshStandardMaterial({color:colors[id],roughness:.45,metalness:0});
 function outline(){const s=new THREE.Shape(),r=1.54,k=.17;s.moveTo(-r+k,-r);s.lineTo(r-k,-r);s.quadraticCurveTo(r,-r,r,-r+k);s.lineTo(r,r-k);s.quadraticCurveTo(r,r,r-k,r);s.lineTo(-r+k,r);s.quadraticCurveTo(-r,r,-r,r-k);s.lineTo(-r,-r+k);s.quadraticCurveTo(-r,-r,-r+k,-r);return s}
 function panelGeo(face){const o=outline();for(let j=0;j<4;j++){let id=face*4+j,x=j%2?.77:-.77,y=j<2?.77:-.77;const h=new THREE.Path();scaledPoints(id).slice().reverse().forEach(([a,b],i)=>i?h.lineTo(a+x,b+y):h.moveTo(a+x,b+y));h.closePath();o.holes.push(h)}return new THREE.ExtrudeGeometry(o,{depth:.18,bevelEnabled:true,bevelThickness:.035,bevelSize:.035,bevelSegments:3,curveSegments:32,steps:1})}
@@ -81,7 +81,7 @@ function icon(id){
   // irrespective of shape, while keeping the approved per-shape centering.
   // 70 SVG units leaves symmetric visible breathing room inside the cream face.
   const visibleWidth=right-left,visibleHeight=bottom-top;
-  const uniformExtent=70;
+  const uniformExtent=82;
   const scale=uniformExtent/Math.max(visibleWidth,visibleHeight);
   const centerX=(left+right)/2,centerY=(top+bottom)/2;
   const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
