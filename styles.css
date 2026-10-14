@@ -3379,8 +3379,9 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 
 
-/* Trial: match the existing Nature section hero sheen exactly in hue,
-   softness, diagonal stripe and 7.2-second travel. Sequential card slots. */
+/* Trial: one uninterrupted, hero-like light sweep per card.
+   Move a narrow child stripe fully across the clipped picture; no background
+   positioning, no conflicting transform on the host, and no midpoint stop. */
 .home-section-card .home-v44-sheen,
 .toddler-game-card .game-card-sheen{
   display:block !important;
@@ -3396,18 +3397,11 @@ html[data-theme^="photo-user-"] .section-dim{
   border-radius:21px !important;
   overflow:hidden !important;
   opacity:1 !important;
-  background-image:linear-gradient(90deg,
-    transparent 0%,rgba(255,255,255,.08) 24%,
-    rgba(255,255,255,.72) 49%,rgba(255,240,167,.50) 58%,
-    transparent 100%) !important;
-  background-repeat:no-repeat !important;
-  background-size:33% 100% !important;
-  background-position:-48% 0;
-  mix-blend-mode:screen;
-  filter:blur(1.1px) !important;
-  transform:skewX(-17deg) !important;
-  will-change:background-position;
-  animation:aregHeroMatchedHome 36s ease-in-out infinite !important;
+  background:none !important;
+  filter:none !important;
+  transform:none !important;
+  animation:none !important;
+  mix-blend-mode:normal !important;
 }
 .home-section-card .home-v44-sheen{
   left:12px !important;
@@ -3416,33 +3410,54 @@ html[data-theme^="photo-user-"] .section-dim{
   height:calc(100% - 100px) !important;
   border-radius:27px !important;
 }
-/* Main menu, exactly Nature -> Space -> Mind -> Create -> Magic. */
-.home-section-card[data-section="nature"] .home-v44-sheen{animation-delay:0s !important}
-.home-section-card[data-section="space"] .home-v44-sheen{animation-delay:7.2s !important}
-.home-section-card[data-section="mind"] .home-v44-sheen{animation-delay:14.4s !important}
-.home-section-card[data-section="create"] .home-v44-sheen{animation-delay:21.6s !important}
-.home-section-card[data-section="magic"] .home-v44-sheen{animation-delay:28.8s !important}
-@keyframes aregHeroMatchedHome{
-  0%,.4%{background-position:-48% 0}
-  3.8%{background-position:118% 0}
-  4.4%,100%{background-position:118% 0}
+.home-section-card .home-v44-sheen::before,
+.toddler-game-card .game-card-sheen::before{
+  content:"";
+  position:absolute;
+  top:-12%;
+  left:-36%;
+  width:30%;
+  height:124%;
+  pointer-events:none;
+  opacity:0;
+  border-radius:20px;
+  transform:skewX(-17deg) translate3d(0,0,0);
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.08) 24%,rgba(255,255,255,.72) 49%,rgba(255,240,167,.50) 58%,transparent 100%);
+  filter:blur(1.1px);
+  mix-blend-mode:screen;
+  will-change:transform,opacity;
 }
-/* Four inner cards follow their DOM order, one after another. */
-.toddler-game-card .game-card-sheen{
-  z-index:4 !important;
-  animation:aregHeroMatchedInner 28.8s ease-in-out infinite !important;
+/* A 5.8-second slot is exactly the logo sheen cadence. Only one tile
+   shines in each slot; the stripe travels all the way past the far edge. */
+.home-section-card .home-v44-sheen::before{
+  animation:aregSequentialHomeStripe 29s linear infinite;
 }
-.toddler-game-card:nth-child(1) .game-card-sheen{animation-delay:0s !important}
-.toddler-game-card:nth-child(2) .game-card-sheen{animation-delay:7.2s !important}
-.toddler-game-card:nth-child(3) .game-card-sheen{animation-delay:14.4s !important}
-.toddler-game-card:nth-child(4) .game-card-sheen{animation-delay:21.6s !important}
-@keyframes aregHeroMatchedInner{
-  0%,.5%{background-position:-48% 0}
-  4.75%{background-position:118% 0}
-  5.5%,100%{background-position:118% 0}
+.toddler-game-card .game-card-sheen::before{
+  animation:aregSequentialInnerStripe 23.2s linear infinite;
 }
-.effects-off .home-section-card .home-v44-sheen,
-.effects-off .toddler-game-card .game-card-sheen{
+.home-section-card[data-section="nature"] .home-v44-sheen::before{animation-delay:0s}
+.home-section-card[data-section="space"] .home-v44-sheen::before{animation-delay:5.8s}
+.home-section-card[data-section="mind"] .home-v44-sheen::before{animation-delay:11.6s}
+.home-section-card[data-section="create"] .home-v44-sheen::before{animation-delay:17.4s}
+.home-section-card[data-section="magic"] .home-v44-sheen::before{animation-delay:23.2s}
+.toddler-game-card:nth-child(1) .game-card-sheen::before{animation-delay:0s}
+.toddler-game-card:nth-child(2) .game-card-sheen::before{animation-delay:5.8s}
+.toddler-game-card:nth-child(3) .game-card-sheen::before{animation-delay:11.6s}
+.toddler-game-card:nth-child(4) .game-card-sheen::before{animation-delay:17.4s}
+@keyframes aregSequentialHomeStripe{
+  0%{transform:skewX(-17deg) translate3d(0,0,0);opacity:0}
+  1.2%{opacity:.9}
+  12.5%{transform:skewX(-17deg) translate3d(490%,0,0);opacity:.8}
+  14%,100%{transform:skewX(-17deg) translate3d(490%,0,0);opacity:0}
+}
+@keyframes aregSequentialInnerStripe{
+  0%{transform:skewX(-17deg) translate3d(0,0,0);opacity:0}
+  1.5%{opacity:.9}
+  15.625%{transform:skewX(-17deg) translate3d(490%,0,0);opacity:.8}
+  17.5%,100%{transform:skewX(-17deg) translate3d(490%,0,0);opacity:0}
+}
+.effects-off .home-section-card .home-v44-sheen::before,
+.effects-off .toddler-game-card .game-card-sheen::before{
   animation:none !important;
   opacity:0 !important;
 }
