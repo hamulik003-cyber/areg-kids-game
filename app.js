@@ -1957,7 +1957,7 @@
     }
     if(originalImage?.naturalWidth)originalImage.classList.add('is-decoded');
     if(!card.isConnected)return;
-    const clone=card.cloneNode(true);
+    const clone=makeRigidFlightCopy(card);
     const cloneImage=clone.querySelector('.animal-image-wrap img');
     if(cloneImage){
       cloneImage.loading='eager';
