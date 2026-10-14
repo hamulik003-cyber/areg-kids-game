@@ -3377,3 +3377,62 @@ html[data-theme^="photo-user-"] .section-dim{
   animation:none !important;
   transition:none !important;
 }
+
+
+/* Trial: restore the original gentle passing sheen on section tiles.
+   The later premium-card reset hid the existing overlays with display:none.
+   Keep the current geometry, artwork, title plaques and navigation untouched. */
+.home-section-card .home-v44-sheen,
+.toddler-game-card .game-card-sheen{
+  display:block !important;
+  content:normal !important;
+  position:absolute !important;
+  pointer-events:none !important;
+  z-index:5 !important;
+  left:10px !important;
+  right:10px !important;
+  top:10px !important;
+  width:auto !important;
+  height:calc(70% - 24px) !important;
+  border-radius:21px !important;
+  overflow:hidden !important;
+  opacity:1 !important;
+  background-image:linear-gradient(108deg,transparent 36%,rgba(255,255,255,.05) 42%,rgba(255,255,255,.48) 49%,rgba(255,243,179,.30) 54%,transparent 64%) !important;
+  background-repeat:no-repeat !important;
+  background-size:360% 100% !important;
+  background-position:150% 0;
+  mix-blend-mode:screen;
+  filter:none !important;
+  transform:none !important;
+  animation:aregRestoredSheen 10s ease-in-out infinite !important;
+}
+.home-section-card .home-v44-sheen{
+  left:12px !important;
+  right:12px !important;
+  top:12px !important;
+  height:calc(100% - 100px) !important;
+  border-radius:27px !important;
+}
+.home-section-card--wide .home-v44-sheen{
+  height:calc(100% - 100px) !important;
+}
+.toddler-game-card .game-card-sheen{
+  z-index:4 !important;
+}
+.home-section-card:nth-of-type(2) .home-v44-sheen,
+.toddler-game-card:nth-child(2) .game-card-sheen{animation-delay:2s !important}
+.home-section-card:nth-of-type(3) .home-v44-sheen,
+.toddler-game-card:nth-child(3) .game-card-sheen{animation-delay:4s !important}
+.home-section-card:nth-of-type(4) .home-v44-sheen,
+.toddler-game-card:nth-child(4) .game-card-sheen{animation-delay:6s !important}
+.home-section-card:nth-of-type(5) .home-v44-sheen{animation-delay:8s !important}
+@keyframes aregRestoredSheen{
+  0%,3%{background-position:150% 0}
+  18%{background-position:-50% 0}
+  20%,100%{background-position:-50% 0}
+}
+.effects-off .home-section-card .home-v44-sheen,
+.effects-off .toddler-game-card .game-card-sheen{
+  animation:none !important;
+  opacity:0 !important;
+}
