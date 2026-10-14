@@ -48,6 +48,32 @@ body{background:linear-gradient(90deg,#77512e 0%,#bd8854 9%,#e3b47d 22%,#d7a069 
 #menu .board .pairs-three-canvas{display:none!important}
 #menu .menu{display:none!important}
 #menu .board:before{display:none!important}
+
+/* Six equally sized raised 3D-style blank tiles within the tall approved frame. */
+#menu .menu{
+ display:grid!important;
+ position:absolute!important;
+ inset:clamp(20px,5%,42px) clamp(13px,4%,32px)!important;
+ width:auto!important;height:auto!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ grid-template-rows:repeat(3,minmax(0,1fr))!important;
+ gap:clamp(13px,3.3vw,25px)!important;
+ padding:0!important;
+ z-index:3!important;
+}
+#menu .category{
+ display:block!important;position:relative!important;width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ padding:0!important;
+ border:clamp(3px,.8vw,6px) solid #fff8e9!important;
+ border-radius:clamp(17px,3.7vw,31px)!important;
+ background:linear-gradient(148deg,#fffdf5 0%,#ffebc8 62%,#f6d49f 100%)!important;
+ box-shadow:inset 0 3px 5px #ffffffdd,inset -3px -4px 8px #c58d5140,0 7px 0 #c18a54,0 12px 13px #85552d55!important;
+ transform:translateZ(0);transition:transform .16s ease,box-shadow .16s ease;
+ cursor:pointer;
+}
+#menu .category:active{transform:translateY(4px)!important;box-shadow:inset 0 2px 5px #ffffffbb,0 3px 0 #c18a54,0 6px 8px #85552d55!important}
+#menu .category .icons,#menu .category .catlabel{display:none!important}
 </style></head><body><div class="room"></div><div class="shell"><div class="top"><button class="back" id="back" aria-label="Հետ">←</button><div class="heading" id="title">Գտիր զույգը</div><div class="wallet" id="wallet">⭐ 0</div></div><div id="progress" class="progress" hidden><strong id="stage">1 / 8</strong><div id="dots" class="dots"></div></div><section id="menu" class="screen active"><div class="board"><div class="menu" id="categories"></div></div></section><section id="play" class="screen"><div class="board"><div id="grid" class="grid"></div><div id="notice" class="notice">Բացիր երկու քարտ</div></div></section></div><div id="overlay" class="overlay"><div class="dialog"><div style="font-size:58px">🌟</div><h2 id="winTitle">Ապրե՜ս</h2><p id="winText">Գտար բոլոր զույգերը</p><button class="action" id="next">Շարունակել →</button></div></div><script>
 (()=>{'use strict';const $=id=>document.getElementById(id),wallet=$('wallet');const cats=[['Մրգեր','🍎','🍌',['🍎','🍌','🍓','🍇','🍉','🍒','🍐','🍊','🍍','🥝']],['Կենդանիներ','🐶','🐱',['🐶','🐱','🐰','🐻','🦊','🐼','🐸','🐵','🐯','🦁']],['Տրանսպորտ','🚗','🚚',['🚗','🚚','🚕','🚀','🚁','🚂','🚜','🚌','🚑','🚒']],['Բնություն','🦋','🌸',['🦋','🌸','🌻','🌳','🍄','🐝','🌈','🌷','🍀','🌼']],['Խաղալիքներ','🧸','🪁',['🧸','🪁','⚽','🎈','🎲','🪀','🪆','🎯','🛴','🥁']],['Երկինք','☀️','🌙',['☀️','🌙','⭐','🌍','🪐','☄️','🌟','🚀','🌈','🌛']]];let category=-1,round=0,first=null,lock=false,matched=0,timeout=null,seq=0;try{wallet.textContent='⭐ '+Math.max(0,Number(localStorage.getItem('areg-stars-v35'))||0)}catch{};cats.forEach((c,i)=>{const b=document.createElement('button');b.className='category';b.innerHTML='<span class="icons"><span class="object">'+c[1]+'</span><span class="object">'+c[2]+'</span></span><span class="catlabel">'+(i+1)+'. '+c[0]+'</span>';b.onclick=()=>start(i);$('categories').append(b)});function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}function start(i){category=i;round=0;$('menu').classList.remove('active');$('play').classList.add('active');$('progress').hidden=false;$('title').textContent=cats[i][0];draw()}function draw(){seq++;clearTimeout(timeout);first=null;lock=false;matched=0;$('overlay').classList.remove('visible');$('stage').textContent=(round+1)+' / 8';$('dots').replaceChildren();for(let i=0;i<8;i++){const d=document.createElement('span');d.className='dot'+(i<=round?' done':'');$('dots').append(d)}$('notice').textContent='Բացիր երկու քարտ';const pool=shuffle([...cats[category][3]]).slice(0,6);const cards=shuffle([...pool,...pool]);$('grid').replaceChildren();cards.forEach((value,i)=>{const tile=document.createElement('button');tile.className='tile';tile.type='button';tile.setAttribute('aria-label','Փակ քարտ '+(i+1));tile.innerHTML='<span class="inner"><span class="face front"></span><span class="face rear">'+value+'</span></span>';tile.dataset.value=value;tile.onclick=()=>flip(tile);$('grid').append(tile)})}function flip(tile){if(lock||tile.classList.contains('open')||tile.classList.contains('matched'))return;tile.classList.add('open');tile.setAttribute('aria-label',tile.dataset.value);if(!first){first=tile;return}const a=first;first=null;lock=true;const version=seq;if(a.dataset.value===tile.dataset.value){$('notice').textContent='Ճի՜շտ է ✨';timeout=setTimeout(()=>{if(version!==seq)return;a.classList.add('matched');tile.classList.add('matched');lock=false;matched++;if(matched===6){timeout=setTimeout(()=>{if(version!==seq)return;$('overlay').classList.add('visible');$('winTitle').textContent=round===7?'Բոլոր փուլերն ավարտված են!':'Ապրե՜ս';$('winText').textContent='Գտար բոլոր 6 զույգերը';$('next').textContent=round===7?'Թեմաների ընտրություն':'Հաջորդ փուլ →'},650)}},420)}else{$('notice').textContent='Փորձիր նորից';a.classList.add('wrong');tile.classList.add('wrong');timeout=setTimeout(()=>{if(version!==seq)return;a.classList.remove('open','wrong');tile.classList.remove('open','wrong');lock=false;$('notice').textContent='Գտիր նույն պատկերները'},900)}}$('next').onclick=()=>{if(round===7){goMenu()}else{round++;draw()}};function goMenu(){seq++;clearTimeout(timeout);$('overlay').classList.remove('visible');$('play').classList.remove('active');$('menu').classList.add('active');$('progress').hidden=true;$('title').textContent='Գտիր զույգը';category=-1}function back(){if($('overlay').classList.contains('visible')){$('overlay').classList.remove('visible');goMenu();return}if(category!==-1){goMenu();return}if(window.parent!==window){window.parent.postMessage({type:'areg-mind-pairs-back'},location.origin)}else{history.back()}}$('back').onclick=back;addEventListener('keydown',e=>{if(e.key==='Escape')back()})})();
 </script><script type="module" src="./mind-match-pairs-3d.js?v=1"></script></body></html>
