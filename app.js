@@ -1463,6 +1463,7 @@
   // card and 1100ms stationary two-screen dissolve as the five home tiles.
   // On cold entry preserve current gallery/3D warmup before revealing a page.
   let innerGameEntryActive=false;
+  let interruptInnerEntry=null;
   function beginInnerGameFlight(card,game){
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return null;
     const rect=card.getBoundingClientRect();
@@ -1517,7 +1518,8 @@
       // Not coupled to gallery/3D network readiness; no long overlay stall.
       const safety=setTimeout(cleanup,1400);
       anim.finished.then(()=>clearTimeout(safety),()=>clearTimeout(safety));
-      return {restoreCard,finished:()=>flightFinished,cleanup};
+      return {restoreCard,finished:()=>flightFinished,cleanup,
+        cancel:()=>{anim.cancel();cleanup();restoreCard()}};
     }catch(error){
       console.warn('Inner game flight fallback:',game.id,error);
       cleanup();
@@ -1530,11 +1532,31 @@
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
     if(flight)innerGameEntryActive=true;
+    // Permit an immediate Back tap even while the entry fade is running.
+    // Invalidate all pending warmup/reveal callbacks before reversing.
+    const interrupt=()=>{
+      ++galleryNavigationId;
+      flight?.cancel();
+      activityScreen.hidden=false;
+      activityScreen.classList.add('is-visible');
+      sectionScreen.hidden=true;
+      sectionScreen.classList.remove('is-visible');
+      for(const screen of [activityScreen,sectionScreen]){
+        for(const prop of ['transition','opacity','transform','pointer-events'])
+          screen.style.removeProperty(prop);
+      }
+      delete activityScreen.dataset.innerGameCrossfade;
+      delete activityScreen.dataset.innerGameEntry;
+      $('#activityBack').style.removeProperty('pointer-events');
+      interruptInnerEntry=null;
+    };
+    interruptInnerEntry=interrupt;
     const needsSpaceEngine=game.kind==='spaceSearch'||game.kind==='constellationQuest';
     const spaceEngineReady=needsSpaceEngine?(game.kind==='constellationQuest'?ensureConstellationQuestLoaded():ensureSpace3DLoaded()).catch(()=>{}):null;
     const launch=()=>{
       if(nav!==galleryNavigationId||sectionScreen.hidden){
         flight?.cleanup();flight?.restoreCard();
+        if(interruptInnerEntry===interrupt)interruptInnerEntry=null;
         return;
       }
       cleanupGame();
@@ -1566,6 +1588,7 @@
       sectionScreen.style.setProperty('transform','none','important');
       sectionScreen.style.pointerEvents='none';
       activityScreen.style.pointerEvents='none';
+      $('#activityBack').style.pointerEvents='auto';
       renderGame(game);
       void activityScreen.offsetWidth;
       let started=false;
@@ -1593,6 +1616,8 @@
           activityScreen.style.removeProperty('transition');
           activityScreen.style.removeProperty('transform');
           activityScreen.style.removeProperty('pointer-events');
+          $('#activityBack').style.removeProperty('pointer-events');
+          if(interruptInnerEntry===interrupt)interruptInnerEntry=null;
           delete activityScreen.dataset.innerGameCrossfade;
           delete activityScreen.dataset.innerGameEntry;
         },INNER_SECTION_MOTION.dissolveMs+80);
@@ -1616,6 +1641,7 @@
   }
   function backToSection(){
     if(reversePortalActive)return;
+    if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
