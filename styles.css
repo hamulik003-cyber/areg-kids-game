@@ -3484,8 +3484,8 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 .effects-off .home-section-card .home-v44-sheen::before,
 .effects-off .toddler-game-card .game-card-sheen::before,
-.section-hero-card .section-hero-sheen::before,
-.magic-collect-card .magic-card-sheen::before{
+.effects-off .section-hero-card .section-hero-sheen::before,
+.effects-off .magic-collect-card .magic-card-sheen::before{
   animation:none !important;
   opacity:0 !important;
 }
