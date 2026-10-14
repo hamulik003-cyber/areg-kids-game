@@ -1013,6 +1013,17 @@
     }
   }
 
+  // Shared motion contract for the five home tiles and all inner game tiles.
+  // Keep the approved V297 1040ms flight and 1100ms screen dissolve.
+  // Gallery cards are intentionally separate: their return follows audio completion.
+  const SECTION_CARD_MOTION=Object.freeze({
+    flightMs:1040,
+    flightEasing:'cubic-bezier(.24,.20,.60,.94)',
+    returnMs:1040,
+    returnEasing:'cubic-bezier(.40,0,.24,1)',
+    dissolveMs:1100
+  });
+
   // Freeze only moving-copy text geometry: Safari must not reflow a
   // two-line title when its clone leaves the original grid/design stage.
   // No changes to the real card, animation, artwork or sound.
@@ -1099,7 +1110,7 @@
       const flightAnimation=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:destination,opacity:0}
-      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       flightAnimation.finished.then(restore,restore);
       // All five section pages have identical gentle stationary dissolve.
       // Existing image warming/game initialization remain section-specific.
@@ -1362,7 +1373,7 @@
       ]:[
         {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
-      ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
+      ],{duration:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
       fly.finished.catch(()=>{});
@@ -1451,7 +1462,7 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
       const safety=setTimeout(cleanup,1900);
