@@ -3379,9 +3379,8 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 
 
-/* Trial: logo-matched, narrow and deliberately sequential light sweeps.
-   Each card gets a 5.8s slot using the same 108deg stripe, 42% width,
-   opacity envelope and horizontal travel as logoSheenV41. */
+/* Trial: match the existing Nature section hero sheen exactly in hue,
+   softness, diagonal stripe and 7.2-second travel. Sequential card slots. */
 .home-section-card .home-v44-sheen,
 .toddler-game-card .game-card-sheen{
   display:block !important;
@@ -3397,18 +3396,18 @@ html[data-theme^="photo-user-"] .section-dim{
   border-radius:21px !important;
   overflow:hidden !important;
   opacity:1 !important;
-  background-image:linear-gradient(108deg,
-    transparent 0 29%,rgba(255,255,255,.10) 34%,
-    rgba(255,255,255,.92) 47%,rgba(255,238,153,.56) 54%,
-    transparent 67% 100%) !important;
+  background-image:linear-gradient(90deg,
+    transparent 0%,rgba(255,255,255,.08) 24%,
+    rgba(255,255,255,.72) 49%,rgba(255,240,167,.50) 58%,
+    transparent 100%) !important;
   background-repeat:no-repeat !important;
-  background-size:42% 100% !important;
-  background-position:-55% 0;
+  background-size:33% 100% !important;
+  background-position:-48% 0;
   mix-blend-mode:screen;
-  filter:blur(.5px) !important;
-  transform:none !important;
-  will-change:background-position,opacity;
-  animation:aregLogoMatchedHomeSheen 29s ease-in-out infinite !important;
+  filter:blur(1.1px) !important;
+  transform:skewX(-17deg) !important;
+  will-change:background-position;
+  animation:aregHeroMatchedHome 36s ease-in-out infinite !important;
 }
 .home-section-card .home-v44-sheen{
   left:12px !important;
@@ -3417,29 +3416,30 @@ html[data-theme^="photo-user-"] .section-dim{
   height:calc(100% - 100px) !important;
   border-radius:27px !important;
 }
-/* Home order: Nature -> Space -> Mind -> Create -> Magic. */
+/* Main menu, exactly Nature -> Space -> Mind -> Create -> Magic. */
 .home-section-card[data-section="nature"] .home-v44-sheen{animation-delay:0s !important}
-.home-section-card[data-section="space"] .home-v44-sheen{animation-delay:5.8s !important}
-.home-section-card[data-section="mind"] .home-v44-sheen{animation-delay:11.6s !important}
-.home-section-card[data-section="create"] .home-v44-sheen{animation-delay:17.4s !important}
-.home-section-card[data-section="magic"] .home-v44-sheen{animation-delay:23.2s !important}
-@keyframes aregLogoMatchedHomeSheen{
-  0%,2.4%{background-position:-55% 0}
-  8.4%{background-position:165% 0}
-  9.4%,100%{background-position:165% 0}
+.home-section-card[data-section="space"] .home-v44-sheen{animation-delay:7.2s !important}
+.home-section-card[data-section="mind"] .home-v44-sheen{animation-delay:14.4s !important}
+.home-section-card[data-section="create"] .home-v44-sheen{animation-delay:21.6s !important}
+.home-section-card[data-section="magic"] .home-v44-sheen{animation-delay:28.8s !important}
+@keyframes aregHeroMatchedHome{
+  0%,.4%{background-position:-48% 0}
+  3.8%{background-position:118% 0}
+  4.4%,100%{background-position:118% 0}
 }
-/* Inner game tiles: 1 -> 2 -> 3 -> 4, same 5.8s sweep per tile. */
+/* Four inner cards follow their DOM order, one after another. */
 .toddler-game-card .game-card-sheen{
-  animation:aregLogoMatchedInnerSheen 23.2s ease-in-out infinite !important;
+  z-index:4 !important;
+  animation:aregHeroMatchedInner 28.8s ease-in-out infinite !important;
 }
 .toddler-game-card:nth-child(1) .game-card-sheen{animation-delay:0s !important}
-.toddler-game-card:nth-child(2) .game-card-sheen{animation-delay:5.8s !important}
-.toddler-game-card:nth-child(3) .game-card-sheen{animation-delay:11.6s !important}
-.toddler-game-card:nth-child(4) .game-card-sheen{animation-delay:17.4s !important}
-@keyframes aregLogoMatchedInnerSheen{
-  0%,3%{background-position:-55% 0}
-  10.5%{background-position:165% 0}
-  11.75%,100%{background-position:165% 0}
+.toddler-game-card:nth-child(2) .game-card-sheen{animation-delay:7.2s !important}
+.toddler-game-card:nth-child(3) .game-card-sheen{animation-delay:14.4s !important}
+.toddler-game-card:nth-child(4) .game-card-sheen{animation-delay:21.6s !important}
+@keyframes aregHeroMatchedInner{
+  0%,.5%{background-position:-48% 0}
+  4.75%{background-position:118% 0}
+  5.5%,100%{background-position:118% 0}
 }
 .effects-off .home-section-card .home-v44-sheen,
 .effects-off .toddler-game-card .game-card-sheen{
