@@ -1034,6 +1034,28 @@
       willChange:'transform, opacity',zIndex:'2147483000'
     });
     const copy=card.cloneNode(true);
+    // Nature-only trial: keep the source's design-stage dimensions and exact
+    // text metrics. The outer flight is the sole moving/scaling element.
+    if(id==='nature'){
+      const sourceNodes=[card,...card.querySelectorAll('*')];
+      const cloneNodes=[copy,...copy.querySelectorAll('*')];
+      sourceNodes.forEach((source,index)=>{
+        const target=cloneNodes[index];
+        if(!target)return;
+        const computed=getComputedStyle(source);
+        // Copy only the geometry/typography which changes when the clone
+        // leaves its 709px stage; keep all original artwork and colors.
+        for(const prop of ['font-family','font-size','font-weight','line-height',
+          'letter-spacing','white-space','text-align','box-sizing',
+          'padding-left','padding-right','padding-top','padding-bottom',
+          'border-width','border-radius']){
+          target.style.setProperty(prop,computed.getPropertyValue(prop),'important');
+        }
+        target.style.setProperty('animation','none','important');
+        target.style.setProperty('transition','none','important');
+      });
+      copy.style.setProperty('contain','layout style paint','important');
+    }
     copy.removeAttribute('data-section');
     copy.setAttribute('aria-hidden','true');
     copy.tabIndex=-1;
