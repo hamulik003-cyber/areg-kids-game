@@ -1296,6 +1296,248 @@
   // previous screen. A cloned card travels smoothly from the center back to
   // its exact origin while the prior screen fades in without rising/sliding.
   let reversePortalActive=false;
+  function openAnimatedHomeSection(card){
+    if(!card||homeEntryTransitionActive)return;
+    const id=card.dataset.section;
+    if(!SECTIONS[id])return;
+    const rect=card.getBoundingClientRect();
+    if(!card.animate||!rect.width||!rect.height||
+        window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches){
+      openSection(id);return;
+    }
+    homeEntryTransitionActive=true;
+    const flight=document.createElement('div');
+    flight.dataset.homeSectionFlight=id;
+    Object.assign(flight.style,{
+      position:'fixed',left:rect.left+'px',top:rect.top+'px',
+      width:rect.width+'px',height:rect.height+'px',
+      transformOrigin:'center center',pointerEvents:'none',
+      willChange:'transform, opacity',zIndex:'2147483000'
+    });
+    const copy=card.cloneNode(true);
+    copy.removeAttribute('data-section');
+    copy.setAttribute('aria-hidden','true');
+    copy.tabIndex=-1;
+    Object.assign(copy.style,{
+      position:'absolute',left:'0',top:'0',
+      width:card.offsetWidth+'px',height:card.offsetHeight+'px',
+      transformOrigin:'top left',
+      transform:'scale('+(rect.width/card.offsetWidth)+')',
+      pointerEvents:'none'
+    });
+    lockFlightTextLayout(card,copy);
+    flight.appendChild(copy);
+    document.body.appendChild(flight);
+    const previousOpacity=card.style.opacity;
+    card.style.opacity='0';
+    restoreHomeSourceCard=()=>{
+      card.style.opacity=previousOpacity;
+      restoreHomeSourceCard=null;
+    };
+    let done=false;
+    let safetyTimer=0;
+    const restore=()=>{
+      if(done)return;
+      done=true;
+      clearTimeout(safetyTimer);
+      flight.remove();
+      // When the moving card disappears at 1040ms, the two full screens are
+      // still dissolving. Do not let the original tile flash back underneath.
+      if(sectionScreen.dataset.entryCrossfade!=='running')
+        restoreHomeSourceCard?.();
+      homeEntryTransitionActive=false;
+    };
+    // Keep the entire artwork and Armenian title together, never move the
+    // underlying menu card or its fixed positions in the 709px design stage.
+    const scale=Math.max(1.1,Math.min(2.75,
+      (window.innerWidth-22)/rect.width,
+      (window.innerHeight-100)/rect.height));
+    const dx=window.innerWidth/2-(rect.left+rect.width/2);
+    const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    // The wide Rewards tile starts at the bottom of the home grid.
+    // Limit upward travel so its entry reads as a forward zoom.
+    const flightDy=id==='magic'?Math.max(-rect.height*.12,Math.min(rect.height*.12,dy)):dy;
+    const destination='translate3d('+dx+'px,'+flightDy+'px,0) scale('+scale+')';
+    try{
+      // Single uninterrupted composite animation. Opacity fades WHILE the
+      // card travels, never after a mid-flight pause or a second animation.
+      const flightAnimation=flight.animate([
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1},
+        {transform:destination,opacity:0}
+      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
+      flightAnimation.finished.then(restore,restore);
+      // All five section pages have identical gentle stationary dissolve.
+      // Existing image warming/game initialization remain section-specific.
+      // 230ms lead, 1100ms crossfade, 1040ms uninterrupted tile flight.
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,230));
+      openSection(id,revealDuringFlight,true);
+      safetyTimer=setTimeout(restore,1900);
+    }catch(error){
+      console.warn('Home section transition fallback:',id,error);
+      restore();
+      openSection(id);
+    }
+  }
+
+  function saveMagicUnlocked(){
+    localStorage.setItem(MAGIC_UNLOCK_KEY,JSON.stringify([...magicUnlocked]));
+  }
+
+  function renderMagicCollection(){
+    sectionGames.classList.add('magic-collection-grid');
+    sectionGames.innerHTML='';
+    MAGIC_ITEMS.forEach((item,index)=>{
+      const unlocked=magicUnlocked.has(item.id);
+      const eligible=stars>=item.cost;
+      const b=document.createElement('button');
+      b.className='magic-collect-card'+(unlocked?' is-unlocked':' is-locked')+(eligible&&!unlocked?' can-unlock':'');
+      b.dataset.id=item.id;
+      b.dataset.motion=item.motion;
+      b.setAttribute('aria-label',unlocked?`${item.name}, բացված է`:`${item.name}, ${item.cost} աստղ`);
+      b.innerHTML=`
+        <span class="magic-picture-wrap">
+          <span class="magic-picture" aria-hidden="true">${item.icon}</span>
+          <span class="magic-aura" aria-hidden="true"></span>
+          <span class="magic-sparkle magic-sparkle--1" aria-hidden="true">✦</span>
+          <span class="magic-sparkle magic-sparkle--2" aria-hidden="true">✦</span>
+          <span class="magic-sparkle magic-sparkle--3" aria-hidden="true">✦</span>
+        </span>
+        <span class="section-card-sheen magic-card-sheen" aria-hidden="true"></span>
+        <span class="magic-cost">${unlocked?'✓ Բացված է':'⭐ '+item.cost}</span>
+        ${unlocked?'':'<span class="magic-lock" aria-hidden="true">🔒</span>'}
+      `;
+      b.addEventListener('click',()=>handleMagicItemTap(b,item));
+      sectionGames.appendChild(b);
+    });
+  }
+
+  function updateMagicAvailability(){
+    for(const card of sectionGames.querySelectorAll('.magic-collect-card')){
+      const item=MAGIC_ITEMS.find(entry=>entry.id===card.dataset.id);
+      if(!item)continue;
+      card.classList.toggle('can-unlock',!magicUnlocked.has(item.id)&&stars>=item.cost);
+    }
+  }
+  function handleMagicItemTap(card,item){
+    if(!magicUnlocked.has(item.id)){
+      if(stars<item.cost){
+        card.classList.remove('need-stars');
+        void card.offsetWidth;
+        card.classList.add('need-stars');
+        showToast(`⭐ ${item.cost}`);
+        return;
+      }
+      // A reward costs actual earned stars, paid ONCE. Do not debit
+      // previously unlocked items again when they are tapped or revisited.
+      const priorStars=stars;
+      stars-=item.cost;
+      magicUnlocked.add(item.id);
+      try{
+        saveStars();
+        saveMagicUnlocked();
+      }catch(error){
+        stars=priorStars;
+        magicUnlocked.delete(item.id);
+        try{saveStars();saveMagicUnlocked()}catch{}
+        showToast('Չհաջողվեց պահպանել։ Փորձիր նորից։');
+        return;
+      }
+      updateStars();
+      card.classList.remove('is-locked','can-unlock');
+      card.classList.add('is-unlocked','just-unlocked');
+      card.setAttribute('aria-label',`${item.name}, բացված է`);
+      const price=$('.magic-cost',card);
+      if(price)price.textContent='✓ Բացված է';
+      $('.magic-lock',card)?.remove();
+      updateMagicAvailability();
+      setTimeout(()=>card.classList.remove('just-unlocked'),900);
+      animateMagicItem(card,item.motion);
+      return;
+    }
+    animateMagicItem(card,item.motion);
+  }
+
+  function animateMagicItem(card,motion){
+    const pic=$('.magic-picture',card);
+    if(!pic)return;
+    const className=`magic-motion-${motion}`;
+    pic.classList.remove(
+      'magic-motion-drive','magic-motion-driveFast','magic-motion-driveHeavy','magic-motion-siren','magic-motion-train',
+      'magic-motion-fly','magic-motion-flySpin','magic-motion-pounce','magic-motion-bounce','magic-motion-hop',
+      'magic-motion-roar','magic-motion-stomp','magic-motion-sway','magic-motion-gallop','magic-motion-swing',
+      'magic-motion-flutter','magic-motion-soar','magic-motion-waddle','magic-motion-glide','magic-motion-buzz',
+      'magic-motion-crawl','magic-motion-crawlSlow','magic-motion-swimJump','magic-motion-swim','magic-motion-swimHeavy',
+      'magic-motion-wiggle','magic-motion-crab','magic-motion-launch','magic-motion-twinkle','magic-motion-glow',
+      'magic-motion-rainbow','magic-motion-prance'
+    );
+    void pic.offsetWidth;
+    pic.classList.add(className);
+    card.classList.remove('magic-active');void card.offsetWidth;card.classList.add('magic-active');
+    setTimeout(()=>{pic.classList.remove(className);card.classList.remove('magic-active')},1900);
+  }
+
+  /* V239 - decode the first gallery row before revealing its cards. */
+  const GALLERY_WARM_ITEMS={
+    animalGallery:ANIMALS.map(x=>x.image),
+    birdGallery:BIRDS.map(x=>x.image),
+    seaGallery:SEA_CREATURES.map(x=>x.image),
+    insects:INSECTS.map(x=>x.image),
+    planetGallery:PLANETS.map(x=>x.img),
+    constellationGallery:CONSTELLATIONS.map(x=>x.img)
+  };
+  const galleryImagePromises=new Map();
+  const GALLERY_PREVIEW_CACHE_LIMIT=40;
+  function preloadGalleryPreview(file){
+    const url='assets/thumbs/'+String(file).split('/').pop().replace(/\.[^.]+$/,'.webp')+'?v=238';
+    if(galleryImagePromises.has(url))return galleryImagePromises.get(url);
+    const task=new Promise(resolve=>{
+      const img=new Image();img.decoding='async';
+      img.onload=()=>{
+        if(typeof img.decode==='function')img.decode().then(()=>resolve(img)).catch(()=>resolve(img.naturalWidth?img:null));
+        else resolve(img);
+      };
+      img.onerror=()=>{galleryImagePromises.delete(url);resolve(null)};
+      img.src=url;
+    });
+    galleryImagePromises.set(url,task);
+    while(galleryImagePromises.size>GALLERY_PREVIEW_CACHE_LIMIT){
+      galleryImagePromises.delete(galleryImagePromises.keys().next().value);
+    }
+    return task;
+  }
+  function warmGalleryPreviews(kind,count=8){
+    const list=GALLERY_WARM_ITEMS[kind];
+    return list?Promise.all(list.slice(0,count).map(preloadGalleryPreview)):Promise.resolve([]);
+  }
+  let galleryNavigationId=0;
+  function observeGalleryUpcomingImages(wrap){
+    // Reveal only decoded images, so Safari never paints a white bitmap in a card.
+    wrap.querySelectorAll('img[data-full-src]').forEach(img=>{
+      const reveal=()=>{
+        if(!img.isConnected)return;
+        const ready=()=>{if(img.isConnected&&img.naturalWidth)img.classList.add('is-decoded')};
+        if(typeof img.decode==='function')img.decode().then(ready).catch(ready);
+        else ready();
+      };
+      img.addEventListener('load',reveal,{once:true});
+      if(img.complete&&img.naturalWidth)reveal();
+    });
+    if(!('IntersectionObserver' in window))return;
+    const obs=new IntersectionObserver(entries=>{
+      for(const e of entries){
+        if(!e.isIntersecting)continue;
+        e.target.loading='eager';
+        obs.unobserve(e.target);
+      }
+    },{root:wrap,rootMargin:'700px 0px',threshold:0});
+    wrap.querySelectorAll('img[loading="lazy"]').forEach(img=>obs.observe(img));
+    gameCleanup.push(()=>obs.disconnect());
+  }
+
+  // V290 test: reverse the APPROVED portal effect when returning to the
+  // previous screen. A cloned card travels smoothly from the center back to
+  // its exact origin while the prior screen fades in without rising/sliding.
+  let reversePortalActive=false;
   function reversePortal(from,to,card,finishNavigation){
     if(reversePortalActive)return true;
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
@@ -1351,6 +1593,10 @@
     void to.offsetWidth;
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    // Mirror the Rewards forward zoom's shallow vertical travel on return.
+    // Other section and inner-game reverse flights remain unchanged.
+    const returnDy=to===homeScreen&&card.dataset.section==='magic'
+      ?Math.max(-rect.height*.12,Math.min(rect.height*.12,dy)):dy;
     const scale=Math.max(1.1,Math.min(2.75,
       (window.innerWidth-22)/rect.width,
       (window.innerHeight-100)/rect.height));
