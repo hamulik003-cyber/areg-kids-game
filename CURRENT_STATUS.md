@@ -1,3 +1,8 @@
+## 2026-10-14 — Remove temporary DotKiosk QA overlay (trial)
+- User confirms DotKiosk shape game now behaves as desired, matching Safari. The bottom-right black timing overlay is temporary QA and should be removed, without reverting WebGL idle pause or changing shape gameplay, stars, colors, audio, PWA storage, or other games.
+- Baseline main 09ac4e54440fa65ab72867722d9fa8e47e38e4b7 (successful audit/deploy), rollback reference. Branch trial/v301-remove-touch-qa-20261014 changes only shape JS/HTML, its service-worker precache URL, and handoff docs. QA overlay/timing instrumentation removed, shape JS URL version refreshed. No localStorage deletion.
+- Run full CI before merging, then confirm Pages deploy and ask user to check DotKiosk without reinstall or clearing caches.
+
 ## 2026-10-14 — DotKiosk intermittent Continue latency diagnostic (TRIAL, NOT YET RELEASED)
 - User explicitly authorized work limited to the intermittent DotKiosk delay in «Գտիր ճիշտ ձևը», including testing on the main installed game after required checks; no unrelated changes.
 - Approved production baseline remains V300 main dd1a4f2e9b19d69d62b7e0ce53688cf08172258b, rollback anchor. Trial branch: trial/v300-dotkiosk-shape-cache-20261014, PR #64.
