@@ -857,6 +857,7 @@
   // all five home tiles. Preserve every tile's DOM, geometry and artwork.
   let homeEntryTransitionActive=false;
   let restoreHomeSourceCard=null;
+  let interruptHomeEntry=null;
   $$('.section-card').forEach(card=>card.addEventListener('click',()=>{
     if(homeEntryTransitionActive)return;
     openAnimatedHomeSection(card);
@@ -956,7 +957,10 @@
         homeScreen.style.setProperty('opacity','1','important');
         // Prevent extra taps from interrupting the compositing handoff.
         homeScreen.style.pointerEvents='none';
+        // The Back button must remain tappable during the incoming fade.
+        // Other section controls stay locked until the transition finishes.
         sectionScreen.style.pointerEvents='none';
+        $('#sectionBack').style.pointerEvents='auto';
         // Force a real 0-opacity rendered state before transition start.
         void sectionScreen.offsetWidth;
         let crossfadeStarted=false;
@@ -994,6 +998,7 @@
             sectionScreen.style.removeProperty('opacity');
             sectionScreen.style.removeProperty('transform');
             sectionScreen.style.removeProperty('pointer-events');
+            $('#sectionBack').style.removeProperty('pointer-events');
             delete sectionScreen.dataset.entryCrossfade;
             delete sectionScreen.dataset.entrySection;
           },HOME_SECTION_MOTION.dissolveMs+80);
@@ -1100,6 +1105,7 @@
     };
     let done=false;
     let safetyTimer=0;
+    let flightAnimation=null;
     const restore=()=>{
       if(done)return;
       done=true;
@@ -1110,7 +1116,29 @@
       if(sectionScreen.dataset.entryCrossfade!=='running')
         restoreHomeSourceCard?.();
       homeEntryTransitionActive=false;
+      if(interruptHomeEntry===interrupt)interruptHomeEntry=null;
     };
+    const interrupt=()=>{
+      // The destination page is already mounted; make it fully visible
+      // before reverse navigation, without waiting for the entry dissolve.
+      ++galleryNavigationId;
+      flightAnimation?.cancel();
+      restore();
+      homeScreen.style.visibility='hidden';
+      homeScreen.style.removeProperty('opacity');
+      homeScreen.style.removeProperty('transition');
+      homeScreen.style.removeProperty('pointer-events');
+      sectionScreen.hidden=false;
+      sectionScreen.classList.add('is-visible');
+      for(const prop of ['transition','opacity','transform','pointer-events'])
+        sectionScreen.style.removeProperty(prop);
+      delete sectionScreen.dataset.entryCrossfade;
+      delete sectionScreen.dataset.entrySection;
+      $('#sectionBack').style.removeProperty('pointer-events');
+      restoreHomeSourceCard?.();
+      interruptHomeEntry=null;
+    };
+    interruptHomeEntry=interrupt;
     // Keep the entire artwork and Armenian title together, never move the
     // underlying menu card or its fixed positions in the 709px design stage.
     const scale=Math.max(1.1,Math.min(2.75,
@@ -1125,7 +1153,7 @@
     try{
       // Single uninterrupted composite animation. Opacity fades WHILE the
       // card travels, never after a mid-flight pause or a second animation.
-      const flightAnimation=flight.animate([
+      flightAnimation=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:destination,opacity:0}
       ],{duration:HOME_SECTION_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
@@ -1421,6 +1449,7 @@
   }
   function closeSection(){
     if(reversePortalActive)return;
+    if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
     const card=$('.section-card[data-section="'+currentSection+'"]');
     if(reversePortal(sectionScreen,homeScreen,card,()=>{
