@@ -79,9 +79,9 @@ function icon(id){
   const top=Math.min(...ys)-2.5,bottom=Math.max(...ys)+5.5;
   // Make the longest visible dimension identical for every silhouette,
   // irrespective of shape, while keeping the approved per-shape centering.
-  // 84 SVG units leaves breathing room within the cream tile.
+  // 70 SVG units leaves symmetric visible breathing room inside the cream face.
   const visibleWidth=right-left,visibleHeight=bottom-top;
-  const uniformExtent=84;
+  const uniformExtent=70;
   const scale=uniformExtent/Math.max(visibleWidth,visibleHeight);
   const centerX=(left+right)/2,centerY=(top+bottom)/2;
   const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
