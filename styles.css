@@ -2696,12 +2696,11 @@ html[data-font="classic"]{
   transform:translateY(-1px) !important;
 }
 
-/* V296 isolated DOG trial: the green domestic badge must never lift
-   independently while the dog card speaks or its halo blooms.
-   All card/shell travel, glow and other animal badges remain unchanged. */
-.animal-gallery .animal-card[data-animal="dog"] .animal-type,
-.gallery-card-flight-shell .animal-card[data-animal="dog"] .animal-type,
-.animal-gallery .animal-card[data-animal="dog"].animal-card--speaking .animal-type{
+/* V296 Nature animal-gallery rollout of the user-approved dog pilot.
+   Lock only the domestic/wild status badge relative to its card;
+   preserve card zoom, green/red halo, sound and all other galleries. */
+.animal-gallery:not(.animal-gallery--bird):not(.animal-gallery--sea):not(.animal-gallery--insect) .animal-card[data-animal] .animal-type,
+.gallery-card-flight-shell .animal-card[data-animal] .animal-type{
   transform:none !important;
   animation:none !important;
   transition:none !important;
