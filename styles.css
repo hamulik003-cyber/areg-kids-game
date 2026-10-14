@@ -3396,7 +3396,7 @@ html[data-theme^="photo-user-"] .section-dim{
   height:calc(70% - 24px) !important;
   border-radius:21px !important;
   overflow:hidden !important;
-  opacity:0 !important;
+  opacity:1 !important;
   background-image:linear-gradient(108deg,
     transparent 0 29%,rgba(255,255,255,.10) 34%,
     rgba(255,255,255,.92) 47%,rgba(255,238,153,.56) 54%,
@@ -3424,10 +3424,9 @@ html[data-theme^="photo-user-"] .section-dim{
 .home-section-card[data-section="create"] .home-v44-sheen{animation-delay:17.4s !important}
 .home-section-card[data-section="magic"] .home-v44-sheen{animation-delay:23.2s !important}
 @keyframes aregLogoMatchedHomeSheen{
-  0%,2.4%{background-position:-55% 0;opacity:0}
-  3.4%{opacity:.95}
-  8.4%{background-position:165% 0;opacity:.8}
-  9.4%,100%{background-position:165% 0;opacity:0}
+  0%,2.4%{background-position:-55% 0}
+  8.4%{background-position:165% 0}
+  9.4%,100%{background-position:165% 0}
 }
 /* Inner game tiles: 1 -> 2 -> 3 -> 4, same 5.8s sweep per tile. */
 .toddler-game-card .game-card-sheen{
@@ -3438,10 +3437,9 @@ html[data-theme^="photo-user-"] .section-dim{
 .toddler-game-card:nth-child(3) .game-card-sheen{animation-delay:11.6s !important}
 .toddler-game-card:nth-child(4) .game-card-sheen{animation-delay:17.4s !important}
 @keyframes aregLogoMatchedInnerSheen{
-  0%,3%{background-position:-55% 0;opacity:0}
-  4.25%{opacity:.95}
-  10.5%{background-position:165% 0;opacity:.8}
-  11.75%,100%{background-position:165% 0;opacity:0}
+  0%,3%{background-position:-55% 0}
+  10.5%{background-position:165% 0}
+  11.75%,100%{background-position:165% 0}
 }
 .effects-off .home-section-card .home-v44-sheen,
 .effects-off .toddler-game-card .game-card-sheen{
