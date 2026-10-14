@@ -1,3 +1,10 @@
+
+## 2026-10-14 — USER APPROVED V298 CARD MOTION RELEASE
+- User explicitly approved trial SHA `047152a59bd5f6c9353d59c7858daafd6a1c2914` for production: «սա հաստատում ենք և քցում հիմնական խաղ».
+- Shared home/inner-card forward and return 1040ms easing; Rewards wide home tile uses shallow vertical flight in both directions; no gallery item motion changes. Trial restored app.js after an accidental duplicate-content edit; approved SHA has no duplicate section.
+- Production candidate refreshes index.html/app.js/service-worker.js cache query and core/runtime keys from V297 to V298. Preserves stars, avatars, audio, gallery animation and storage. Prior stable rollback game SHA `f1ce2c0022d310bfd5af2576919fe801058b29e7`; production main before this release `3250e0285b6bb18497da9f2107de839976639cf4`.
+- Release approval is user-reported; CI, Pages deployment and DotKiosk device update must be checked independently. Next: PR merge after checks, then verify Pages and request device confirmation.
+
 ## 2026-10-14 — USER FINAL APPROVAL: V297 SAFARI + DOTKIOSK BASELINE
 - User explicitly confirmed **everything works correctly**, including the Hayk/Orion card's seamless return, the DotKiosk update, and preservation of the 135 stars / user data; approved the currently running version as the **final stable baseline for future edits**.
 - Approved production main SHA at confirmation: `f1ce2c0022d310bfd5af2576919fe801058b29e7` (V297). Previous Pages deployment and full four-stage CI passed; this approval supersedes earlier "DotKiosk refresh not verified" entries.

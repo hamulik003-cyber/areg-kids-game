@@ -915,7 +915,16 @@
     updateStars();sectionGames.innerHTML='';
     sectionGames.classList.remove('magic-collection-grid');
     sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
-    document.body.classList.toggle('magic-scroll-active',id==='magic');
+    // Do not switch the document to vertical pan while the home tile is flying.
+    // On iPhone this can visually pull the Rewards tile upward mid-flight.
+    // Enable native scrolling only after the stationary page dissolve finishes.
+    if(id==='magic'&&cinematicEntry){
+      document.body.classList.remove('magic-scroll-active');
+      setTimeout(()=>{
+        if(currentSection==='magic'&&sectionScreen.dataset.entryCrossfade!=='running')
+          document.body.classList.add('magic-scroll-active');
+      },1500);
+    }else document.body.classList.toggle('magic-scroll-active',id==='magic');
 
     if(id==='magic'){
       renderMagicCollection();
@@ -1013,6 +1022,17 @@
     }
   }
 
+  // Shared motion contract for the five home tiles and all inner game tiles.
+  // Keep the approved V297 1040ms flight and 1100ms screen dissolve.
+  // Gallery cards are intentionally separate: their return follows audio completion.
+  const SECTION_CARD_MOTION=Object.freeze({
+    flightMs:1040,
+    flightEasing:'cubic-bezier(.24,.20,.60,.94)',
+    returnMs:1040,
+    returnEasing:'cubic-bezier(.24,.20,.60,.94)',
+    dissolveMs:1100
+  });
+
   // Freeze only moving-copy text geometry: Safari must not reflow a
   // two-line title when its clone leaves the original grid/design stage.
   // No changes to the real card, animation, artwork or sound.
@@ -1092,14 +1112,17 @@
       (window.innerHeight-100)/rect.height));
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
-    const destination='translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')';
+    // The wide Rewards tile starts at the bottom of the home grid.
+    // Limit upward travel so its entry reads as a forward zoom.
+    const flightDy=id==='magic'?Math.max(-rect.height*.12,Math.min(rect.height*.12,dy)):dy;
+    const destination='translate3d('+dx+'px,'+flightDy+'px,0) scale('+scale+')';
     try{
       // Single uninterrupted composite animation. Opacity fades WHILE the
       // card travels, never after a mid-flight pause or a second animation.
       const flightAnimation=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:destination,opacity:0}
-      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       flightAnimation.finished.then(restore,restore);
       // All five section pages have identical gentle stationary dissolve.
       // Existing image warming/game initialization remain section-specific.
@@ -1328,6 +1351,8 @@
     void to.offsetWidth;
     const dx=window.innerWidth/2-(rect.left+rect.width/2);
     const dy=window.innerHeight/2-(rect.top+rect.height/2);
+    const returnDy=to===homeScreen&&card.dataset.section==='magic'
+      ?Math.max(-rect.height*.12,Math.min(rect.height*.12,dy)):dy;
     const scale=Math.max(1.1,Math.min(2.75,
       (window.innerWidth-22)/rect.width,
       (window.innerHeight-100)/rect.height));
@@ -1356,13 +1381,13 @@
       // removing it cannot cause a one-frame label/bitmap snap.
       const seamlessReturn=to===homeScreen||to===sectionScreen;
       const fly=flight.animate(seamlessReturn?[
-        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0,offset:0},
+        {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0,offset:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1,offset:.88},
         {transform:'translate3d(0,0,0) scale(1)',opacity:0,offset:1}
       ]:[
-        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
+        {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
-      ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
+      ],{duration:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
       fly.finished.catch(()=>{});
@@ -1451,7 +1476,7 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:1040,easing:'cubic-bezier(.24,.20,.60,.94)',fill:'forwards'});
+      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
       const safety=setTimeout(cleanup,1900);
@@ -3109,7 +3134,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=297',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=298',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
