@@ -923,7 +923,7 @@
       setTimeout(()=>{
         if(currentSection==='magic'&&sectionScreen.dataset.entryCrossfade!=='running')
           document.body.classList.add('magic-scroll-active');
-      },1500);
+      },1050);
     }else document.body.classList.toggle('magic-scroll-active',id==='magic');
 
     if(id==='magic'){
@@ -964,9 +964,9 @@
           if(crossfadeStarted||nav!==galleryNavigationId||currentSection!==id)return;
           crossfadeStarted=true;
           sectionScreen.style.setProperty('transition',
-            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+            'opacity '+HOME_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
           homeScreen.style.setProperty('transition',
-            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+            'opacity '+HOME_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
           sectionScreen.classList.add('is-visible');
           sectionScreen.style.setProperty('opacity','1','important');
           // Fit the long label on the normal animated entry path too.
@@ -996,7 +996,7 @@
             sectionScreen.style.removeProperty('pointer-events');
             delete sectionScreen.dataset.entryCrossfade;
             delete sectionScreen.dataset.entrySection;
-          },1180);
+          },HOME_SECTION_MOTION.dissolveMs+80);
         };
         // WebKit can delay requestAnimationFrame when decoding pictures.
         // Start within a tiny guaranteed window even if a frame is throttled.
@@ -1021,6 +1021,9 @@
       Promise.race([warming,deadline]).then(revealSection,revealSection);
     }
   }
+
+  // Main section navigation ONLY; internal game cards keep existing timing.
+  const HOME_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
 
   // Shared motion contract for the five home tiles and all inner game tiles.
   // Keep the approved V297 1040ms flight and 1100ms screen dissolve.
@@ -1122,14 +1125,14 @@
       const flightAnimation=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:destination,opacity:0}
-      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
+      ],{duration:HOME_SECTION_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       flightAnimation.finished.then(restore,restore);
       // All five section pages have identical gentle stationary dissolve.
       // Existing image warming/game initialization remain section-specific.
       // 230ms lead, 1100ms crossfade, 1040ms uninterrupted tile flight.
-      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,230));
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,HOME_SECTION_MOTION.leadMs));
       openSection(id,revealDuringFlight,true);
-      safetyTimer=setTimeout(restore,1900);
+      safetyTimer=setTimeout(restore,1400);
     }catch(error){
       console.warn('Home section transition fallback:',id,error);
       restore();
@@ -1387,21 +1390,22 @@
       ]:[
         {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
-      ],{duration:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
+      ],{duration:to===homeScreen?HOME_SECTION_MOTION.returnMs:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
       fly.finished.catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
-        to.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
-        from.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        const dissolveMs=to===homeScreen?HOME_SECTION_MOTION.dissolveMs:SECTION_CARD_MOTION.dissolveMs;
+        to.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
+        from.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         to.style.setProperty('opacity','1','important');
         from.style.setProperty('opacity','0','important');
         cleanupTimer=setTimeout(()=>{
           delete to.dataset.reversePortal;
           complete();
-        },1180);
+        },dissolveMs+80);
       };
       const fallback=setTimeout(fade,45);
       requestAnimationFrame(()=>{clearTimeout(fallback);fade()});
