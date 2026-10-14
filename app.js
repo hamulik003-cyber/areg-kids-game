@@ -5013,11 +5013,11 @@
       // removing it cannot cause a one-frame label/bitmap snap.
       const seamlessReturn=to===homeScreen||to===sectionScreen;
       const fly=flight.animate(seamlessReturn?[
-        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0,offset:0},
+        {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0,offset:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1,offset:.88},
         {transform:'translate3d(0,0,0) scale(1)',opacity:0,offset:1}
       ]:[
-        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
+        {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
       ],{duration:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
