@@ -1420,6 +1420,21 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    // Preserve the actual two-line label layout in the flight clone.
+    // Without the section grid ancestor, WebKit can widen the text into
+    // a single line even though the stationary card has two lines.
+    const originalLabel=card.querySelector('.toddler-game-label');
+    const clonedLabel=copy.querySelector('.toddler-game-label');
+    if(originalLabel&&clonedLabel){
+      const labelStyle=getComputedStyle(originalLabel);
+      for(const prop of ['width','height','max-width','min-width','box-sizing',
+        'font-family','font-size','font-weight','line-height','letter-spacing',
+        'white-space','text-align','padding-left','padding-right',
+        'display','align-items','justify-content']){
+        clonedLabel.style.setProperty(prop,labelStyle.getPropertyValue(prop),'important');
+      }
+      clonedLabel.style.setProperty('flex-shrink','0','important');
+    }
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
