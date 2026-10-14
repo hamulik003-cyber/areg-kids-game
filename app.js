@@ -1942,6 +1942,11 @@
     }
     if(!card.isConnected)return;
     clone.classList.remove('animal-card--pressing','animal-card--focus','animal-card--speaking');
+    // Preserve source-card layout: image, plaque, name and badge travel as one.
+    clone.classList.add('areg-gallery-rigid-card');
+    shell.classList.add('areg-gallery-rigid-shell');
+    clone.style.setProperty('--areg-source-card-width',card.offsetWidth+'px');
+    clone.style.setProperty('--areg-source-card-height',card.offsetHeight+'px');
     clone.tabIndex=-1;
     clone.style.setProperty('width','100%','important');
     clone.style.setProperty('height','100%','important');
