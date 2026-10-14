@@ -71,21 +71,13 @@ function play(ok){try{const AC=window.AudioContext||window.webkitAudioContext;au
 function icon(id){
   const vertices=points(id);
   const xy=vertices.map(([x,y])=>[50+x*108,50-y*108]);
-  // Each silhouette has a different distribution of visual weight.
-  // Use its filled polygon's area centroid, not the SVG box center or
-  // the outer bounding rectangle (especially important for crescents).
-  let twiceArea=0,weightedX=0,weightedY=0;
-  for(let i=0;i<xy.length;i++){
-    const [x1,y1]=xy[i],[x2,y2]=xy[(i+1)%xy.length];
-    const cross=x1*y2-x2*y1;
-    twiceArea+=cross;
-    weightedX+=(x1+x2)*cross;
-    weightedY+=(y1+y2)*cross;
-  }
+  // Center the complete visible outline of EACH shape in the SVG.
+  // Include the original 3-unit lower shadow; do not center by filled area,
+  // which makes asymmetric silhouettes look off-center in the cream tile.
   const xs=xy.map(p=>p[0]),ys=xy.map(p=>p[1]);
-  const centerX=Math.abs(twiceArea)>1e-6?weightedX/(3*twiceArea):(Math.min(...xs)+Math.max(...xs))/2;
-  const centerY=Math.abs(twiceArea)>1e-6?weightedY/(3*twiceArea):(Math.min(...ys)+Math.max(...ys))/2;
-  const offsetX=50-centerX,offsetY=50-centerY-1.5;
+  const left=Math.min(...xs)-2.5,right=Math.max(...xs)+2.5;
+  const top=Math.min(...ys)-2.5,bottom=Math.max(...ys)+5.5;
+  const offsetX=50-(left+right)/2,offsetY=50-(top+bottom)/2;
   const p=xy.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ')+'Z';
   const transform='translate('+offsetX.toFixed(2)+' '+offsetY.toFixed(2)+')';
   return '<svg viewBox="0 0 100 100"><g transform="'+transform+'"><path d="'+p+'" transform="translate(0 3)" fill="#70472b" opacity=".25"/><path d="'+p+'" fill="'+colors[id]+'" stroke="#fff0cf" stroke-width="3.5" stroke-linejoin="round"/><path d="'+p+'" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/></g></svg>';
