@@ -18,7 +18,7 @@ const CORE=[
   './space-game-4.jpg',
   './home-mind-art.jpg',
   './mind-shapes-deluxe-v4.html',
-  './mind-shapes-deluxe-v4.js?v=20261013f',
+  './mind-shapes-deluxe-v4.js?v=20261014-dotkiosk-touch-qa',
   './vendor/three.module.min.js',
   './home-create-art.jpg',
   './home-magic-art.jpg',

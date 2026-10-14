@@ -1,3 +1,10 @@
+## 2026-10-14 — DotKiosk intermittent Continue latency diagnostic (TRIAL, NOT YET RELEASED)
+- User explicitly authorized work limited to the intermittent DotKiosk delay in «Գտիր ճիշտ ձևը», including testing on the main installed game after required checks; no unrelated changes.
+- Approved production baseline remains V300 main dd1a4f2e9b19d69d62b7e0ce53688cf08172258b, rollback anchor. Trial branch: trial/v300-dotkiosk-shape-cache-20261014, PR #64.
+- Changes only mind-shapes-deluxe-v4.js/html and service-worker.js: skip WebGL render while congratulations overlay is visible, show on-screen pointer down/up/action/next-stage timing diagnostics, version-bump shape JS URL and core/runtime caches; align precache URL. Preserve 24 colors/shapes, 6 rounds, 5 final stars, stored stars and persistent media caches.
+- User reports Safari preview fast, installed DotKiosk intermittent (sometimes fast, sometimes seconds slow). No DotKiosk measurement yet. Initial CI failed solely because handoff guard required these checkpoint files; this checkpoint addresses that requirement. Do not claim CI or device passed.
+- Next: complete PR #64 required audit jobs, verify release scope, merge only if safe under user's authorization, verify Pages; user to test installed DotKiosk and report timing panel values. If regression, revert to V300.
+
 
 ## 2026-10-14 — USER APPROVED V298 CARD MOTION RELEASE
 - User explicitly approved trial SHA `047152a59bd5f6c9353d59c7858daafd6a1c2914` for production: «սա հաստատում ենք և քցում հիմնական խաղ».
