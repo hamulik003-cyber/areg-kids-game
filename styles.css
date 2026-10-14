@@ -3379,9 +3379,9 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 
 
-/* Trial: one uninterrupted, hero-like light sweep per card.
-   Move a narrow child stripe fully across the clipped picture; no background
-   positioning, no conflicting transform on the host, and no midpoint stop. */
+/* Trial: exact logo sheen gradient, width, blur and 5.8-second cadence.
+   A complete logo-style sweep occupies each sequential 5.8-second slot.
+   The same background-position travel is used on every clipped card image. */
 .home-section-card .home-v44-sheen,
 .toddler-game-card .game-card-sheen{
   display:block !important;
@@ -3398,10 +3398,9 @@ html[data-theme^="photo-user-"] .section-dim{
   overflow:hidden !important;
   opacity:1 !important;
   background:none !important;
-  filter:none !important;
   transform:none !important;
+  filter:none !important;
   animation:none !important;
-  mix-blend-mode:normal !important;
 }
 .home-section-card .home-v44-sheen{
   left:12px !important;
@@ -3413,48 +3412,50 @@ html[data-theme^="photo-user-"] .section-dim{
 .home-section-card .home-v44-sheen::before,
 .toddler-game-card .game-card-sheen::before{
   content:"";
+  display:block;
   position:absolute;
-  top:-12%;
-  left:-46%;
-  width:46%;
-  height:124%;
+  inset:0;
   pointer-events:none;
   opacity:0;
-  border-radius:24px;
-  transform:skewX(-17deg) translate3d(0,0,0);
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.05) 15%,rgba(255,255,255,.24) 30%,rgba(255,255,255,.68) 47%,rgba(255,247,207,.76) 53%,rgba(255,240,167,.43) 68%,rgba(255,255,255,.07) 84%,transparent 100%);
-  filter:blur(3px);
+  transform:none;
+  background:linear-gradient(108deg,
+    transparent 0 29%,rgba(255,255,255,.10) 34%,
+    rgba(255,255,255,.92) 47%,rgba(255,238,153,.56) 54%,
+    transparent 67% 100%);
+  background-size:42% 100%;
+  background-repeat:no-repeat;
+  background-position:-55% 0;
+  filter:blur(.5px);
   mix-blend-mode:screen;
-  will-change:transform,opacity;
+  will-change:background-position,opacity;
 }
-/* Each tile gets a 4-second slot, with a 2.4-second full-width sweep. Only one tile
-   shines in each slot; the stripe travels all the way past the far edge. */
 .home-section-card .home-v44-sheen::before{
-  animation:aregSequentialHomeStripe 20s linear infinite;
+  animation:aregExactLogoHome 29s ease-in-out infinite;
 }
 .toddler-game-card .game-card-sheen::before{
-  animation:aregSequentialInnerStripe 16s linear infinite;
+  animation:aregExactLogoInner 23.2s ease-in-out infinite;
 }
+/* Same order as the five main sections, then each inner set of four. */
 .home-section-card[data-section="nature"] .home-v44-sheen::before{animation-delay:0s}
-.home-section-card[data-section="space"] .home-v44-sheen::before{animation-delay:4s}
-.home-section-card[data-section="mind"] .home-v44-sheen::before{animation-delay:8s}
-.home-section-card[data-section="create"] .home-v44-sheen::before{animation-delay:12s}
-.home-section-card[data-section="magic"] .home-v44-sheen::before{animation-delay:16s}
+.home-section-card[data-section="space"] .home-v44-sheen::before{animation-delay:5.8s}
+.home-section-card[data-section="mind"] .home-v44-sheen::before{animation-delay:11.6s}
+.home-section-card[data-section="create"] .home-v44-sheen::before{animation-delay:17.4s}
+.home-section-card[data-section="magic"] .home-v44-sheen::before{animation-delay:23.2s}
 .toddler-game-card:nth-child(1) .game-card-sheen::before{animation-delay:0s}
-.toddler-game-card:nth-child(2) .game-card-sheen::before{animation-delay:4s}
-.toddler-game-card:nth-child(3) .game-card-sheen::before{animation-delay:8s}
-.toddler-game-card:nth-child(4) .game-card-sheen::before{animation-delay:12s}
-@keyframes aregSequentialHomeStripe{
-  0%{transform:skewX(-17deg) translate3d(0,0,0);opacity:0}
-  1.5%{opacity:.94}
-  12%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:.9}
-  14%,100%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:0}
+.toddler-game-card:nth-child(2) .game-card-sheen::before{animation-delay:5.8s}
+.toddler-game-card:nth-child(3) .game-card-sheen::before{animation-delay:11.6s}
+.toddler-game-card:nth-child(4) .game-card-sheen::before{animation-delay:17.4s}
+@keyframes aregExactLogoHome{
+  0%,2.4%{background-position:-55% 0;opacity:0}
+  3.4%{opacity:.95}
+  8.4%{background-position:165% 0;opacity:.8}
+  9.4%,100%{background-position:165% 0;opacity:0}
 }
-@keyframes aregSequentialInnerStripe{
-  0%{transform:skewX(-17deg) translate3d(0,0,0);opacity:0}
-  1.875%{opacity:.94}
-  15%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:.9}
-  17.5%,100%{transform:skewX(-17deg) translate3d(320%,0,0);opacity:0}
+@keyframes aregExactLogoInner{
+  0%,3%{background-position:-55% 0;opacity:0}
+  4.25%{opacity:.95}
+  10.5%{background-position:165% 0;opacity:.8}
+  11.75%,100%{background-position:165% 0;opacity:0}
 }
 .effects-off .home-section-card .home-v44-sheen::before,
 .effects-off .toddler-game-card .game-card-sheen::before{
