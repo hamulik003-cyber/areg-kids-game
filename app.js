@@ -1302,7 +1302,7 @@
     // its title can briefly reflow as the shrinking card reaches its slot.
     // Freeze only the clone's current label geometry, not the real card or
     // the user's approved portal speed/keyframes (Nature remains untouched).
-    if(to===sectionScreen||(to===homeScreen&&currentSection!=='nature')){
+    if(to===sectionScreen||to===homeScreen){
       for(const selector of ['.home-card-label','.toddler-game-label']){
         const original=card.querySelector(selector);
         const cloned=copy.querySelector(selector);
@@ -1347,7 +1347,15 @@
       finishNavigation();
     };
     try{
-      const fly=flight.animate([
+      // Nature-only trial: finish with the real destination card already
+      // showing beneath the clone. Dissolve the clone before cleanup so
+      // removing it cannot cause a one-frame label/bitmap snap.
+      const natureHomeReturn=to===homeScreen&&currentSection==='nature';
+      const fly=flight.animate(natureHomeReturn?[
+        {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0,offset:0},
+        {transform:'translate3d(0,0,0) scale(1)',opacity:1,offset:.88},
+        {transform:'translate3d(0,0,0) scale(1)',opacity:0,offset:1}
+      ]:[
         {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
       ],{duration:1040,easing:'cubic-bezier(.40,0,.24,1)',fill:'forwards'});
