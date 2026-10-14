@@ -2036,6 +2036,20 @@
       await new Promise(r=>setTimeout(r,110));
       if(state.cancelled)return;
 
+      // Hayk-only: keep the zoom image and all inner geometry unchanged
+      // during the return. The entire shell alone scales back to its slot.
+      // This avoids a mid-flight swap from full-resolution to thumbnail.
+      const rigidHaykReturn=card.dataset.constellation==='hayk-orion';
+      if(rigidHaykReturn){
+        // No child animation/transform changes while the shell travels.
+        // At the end the stationary original is revealed behind the
+        // clone, and the clone fades away without another size change.
+        const hiRes=clone.querySelector('.gallery-hires-layer');
+        if(hiRes){
+          hiRes.style.setProperty('transition','none','important');
+          hiRes.style.setProperty('animation','none','important');
+        }
+      }
       if(shell.animate){
         const midBack='translate3d('+(tx*.42)+'px,'+(ty*.42)+'px,0) scale('+(1+(scale-1)*.36)+') rotateY(6deg) rotateZ(-1.1deg)';
         const exit=shell.animate([
@@ -2055,6 +2069,19 @@
       }
 
       if(activeGalleryPresentation===state){
+        if(rigidHaykReturn){
+          // First hold the completed flight at the exact resting position.
+          // Swap the still frame using opacity only, never image sizing.
+          shell.style.transform='translate3d(0,0,0) scale(1) rotateY(0deg) rotateZ(0deg)';
+          try{state.animation?.cancel()}catch{}
+          card.style.removeProperty('opacity');
+          card.style.removeProperty('pointer-events');
+          shell.animate([{opacity:1},{opacity:0}],{
+            duration:150,easing:'linear',fill:'forwards'
+          });
+          await new Promise(resolve=>setTimeout(resolve,155));
+          if(state.cancelled)return;
+        }
         host.classList.remove('gallery-card-flight-host--visible');
         try{host.remove()}catch{}
         card.style.removeProperty('opacity');
