@@ -1,3 +1,9 @@
+## 2026-10-14 — USER FINAL APPROVAL: V297 SAFARI + DOTKIOSK BASELINE
+- User explicitly confirmed **everything works correctly**, including the Hayk/Orion card's seamless return, the DotKiosk update, and preservation of the 135 stars / user data; approved the currently running version as the **final stable baseline for future edits**.
+- Approved production main SHA at confirmation: `f1ce2c0022d310bfd5af2576919fe801058b29e7` (V297). Previous Pages deployment and full four-stage CI passed; this approval supersedes earlier "DotKiosk refresh not verified" entries.
+- The separate trial `trial/v297-refresh-activation-check-20261014` at `6cd24800a36778b6dcc6a32a5d99f51179822e68` was **not merged** and is **not part of the approved main baseline**. Do not silently promote it.
+- Protect this exact approved game state, animation timing, artwork, audio, cache/PWA behavior, and local saved progress. Make all subsequent changes on separate trial branches; provide SHA-pinned Safari preview; merge only after explicit user approval. Rollback anchor: `f1ce2c0022d310bfd5af2576919fe801058b29e7`.
+
 ## 2026-10-14 — V297 production hotfix #58 audit follow-up (documentation only)
 - User confirmed approved Hayk/Orion visual fix works on the published Safari game, but the separately installed DotKiosk browser still shows an older cached copy; **DotKiosk refresh not yet verified**. Do not delete user data, avatars or stars.
 - Approved V297 release PR #57 merged to main at `c8ba099e32669f385ed0f5d9e94a3729531e8346`; the service-worker precache alignment hotfix PR #58 merged at `b957f6541fea2e80bfc3915e19c3e1eac67653b9`. Pages deployment #1029 succeeded.
