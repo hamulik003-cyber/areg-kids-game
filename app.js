@@ -857,6 +857,7 @@
   // all five home tiles. Preserve every tile's DOM, geometry and artwork.
   let homeEntryTransitionActive=false;
   let restoreHomeSourceCard=null;
+  let interruptHomeEntry=null;
   $$('.section-card').forEach(card=>card.addEventListener('click',()=>{
     if(homeEntryTransitionActive)return;
     openAnimatedHomeSection(card);
@@ -923,7 +924,7 @@
       setTimeout(()=>{
         if(currentSection==='magic'&&sectionScreen.dataset.entryCrossfade!=='running')
           document.body.classList.add('magic-scroll-active');
-      },1500);
+      },1050);
     }else document.body.classList.toggle('magic-scroll-active',id==='magic');
 
     if(id==='magic'){
@@ -956,7 +957,10 @@
         homeScreen.style.setProperty('opacity','1','important');
         // Prevent extra taps from interrupting the compositing handoff.
         homeScreen.style.pointerEvents='none';
+        // The Back button must remain tappable during the incoming fade.
+        // Other section controls stay locked until the transition finishes.
         sectionScreen.style.pointerEvents='none';
+        $('#sectionBack').style.pointerEvents='auto';
         // Force a real 0-opacity rendered state before transition start.
         void sectionScreen.offsetWidth;
         let crossfadeStarted=false;
@@ -964,9 +968,9 @@
           if(crossfadeStarted||nav!==galleryNavigationId||currentSection!==id)return;
           crossfadeStarted=true;
           sectionScreen.style.setProperty('transition',
-            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+            'opacity '+HOME_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
           homeScreen.style.setProperty('transition',
-            'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+            'opacity '+HOME_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
           sectionScreen.classList.add('is-visible');
           sectionScreen.style.setProperty('opacity','1','important');
           // Fit the long label on the normal animated entry path too.
@@ -994,9 +998,10 @@
             sectionScreen.style.removeProperty('opacity');
             sectionScreen.style.removeProperty('transform');
             sectionScreen.style.removeProperty('pointer-events');
+            $('#sectionBack').style.removeProperty('pointer-events');
             delete sectionScreen.dataset.entryCrossfade;
             delete sectionScreen.dataset.entrySection;
-          },1180);
+          },HOME_SECTION_MOTION.dissolveMs+80);
         };
         // WebKit can delay requestAnimationFrame when decoding pictures.
         // Start within a tiny guaranteed window even if a frame is throttled.
@@ -1021,6 +1026,12 @@
       Promise.race([warming,deadline]).then(revealSection,revealSection);
     }
   }
+
+  // Main section navigation ONLY; internal game cards keep existing timing.
+  const HOME_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
+  // Section-to-game navigation follows the same brisk tempo; individual
+  // gallery/info card animation and audio-completion timing stay untouched.
+  const INNER_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
 
   // Shared motion contract for the five home tiles and all inner game tiles.
   // Keep the approved V297 1040ms flight and 1100ms screen dissolve.
@@ -1094,6 +1105,7 @@
     };
     let done=false;
     let safetyTimer=0;
+    let flightAnimation=null;
     const restore=()=>{
       if(done)return;
       done=true;
@@ -1104,7 +1116,29 @@
       if(sectionScreen.dataset.entryCrossfade!=='running')
         restoreHomeSourceCard?.();
       homeEntryTransitionActive=false;
+      if(interruptHomeEntry===interrupt)interruptHomeEntry=null;
     };
+    const interrupt=()=>{
+      // The destination page is already mounted; make it fully visible
+      // before reverse navigation, without waiting for the entry dissolve.
+      ++galleryNavigationId;
+      flightAnimation?.cancel();
+      restore();
+      homeScreen.style.visibility='hidden';
+      homeScreen.style.removeProperty('opacity');
+      homeScreen.style.removeProperty('transition');
+      homeScreen.style.removeProperty('pointer-events');
+      sectionScreen.hidden=false;
+      sectionScreen.classList.add('is-visible');
+      for(const prop of ['transition','opacity','transform','pointer-events'])
+        sectionScreen.style.removeProperty(prop);
+      delete sectionScreen.dataset.entryCrossfade;
+      delete sectionScreen.dataset.entrySection;
+      $('#sectionBack').style.removeProperty('pointer-events');
+      restoreHomeSourceCard?.();
+      interruptHomeEntry=null;
+    };
+    interruptHomeEntry=interrupt;
     // Keep the entire artwork and Armenian title together, never move the
     // underlying menu card or its fixed positions in the 709px design stage.
     const scale=Math.max(1.1,Math.min(2.75,
@@ -1119,17 +1153,17 @@
     try{
       // Single uninterrupted composite animation. Opacity fades WHILE the
       // card travels, never after a mid-flight pause or a second animation.
-      const flightAnimation=flight.animate([
+      flightAnimation=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:destination,opacity:0}
-      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
+      ],{duration:HOME_SECTION_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       flightAnimation.finished.then(restore,restore);
       // All five section pages have identical gentle stationary dissolve.
       // Existing image warming/game initialization remain section-specific.
       // 230ms lead, 1100ms crossfade, 1040ms uninterrupted tile flight.
-      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,230));
+      const revealDuringFlight=new Promise(resolve=>setTimeout(resolve,HOME_SECTION_MOTION.leadMs));
       openSection(id,revealDuringFlight,true);
-      safetyTimer=setTimeout(restore,1900);
+      safetyTimer=setTimeout(restore,1400);
     }catch(error){
       console.warn('Home section transition fallback:',id,error);
       restore();
@@ -1387,21 +1421,22 @@
       ]:[
         {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
-      ],{duration:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
+      ],{duration:to===homeScreen?HOME_SECTION_MOTION.returnMs:to===sectionScreen?INNER_SECTION_MOTION.returnMs:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
       fly.finished.catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
-        to.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
-        from.style.setProperty('transition','opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+        const dissolveMs=to===homeScreen?HOME_SECTION_MOTION.dissolveMs:to===sectionScreen?INNER_SECTION_MOTION.dissolveMs:SECTION_CARD_MOTION.dissolveMs;
+        to.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
+        from.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         to.style.setProperty('opacity','1','important');
         from.style.setProperty('opacity','0','important');
         cleanupTimer=setTimeout(()=>{
           delete to.dataset.reversePortal;
           complete();
-        },1180);
+        },dissolveMs+80);
       };
       const fallback=setTimeout(fade,45);
       requestAnimationFrame(()=>{clearTimeout(fallback);fade()});
@@ -1414,6 +1449,7 @@
   }
   function closeSection(){
     if(reversePortalActive)return;
+    if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
     const card=$('.section-card[data-section="'+currentSection+'"]');
     if(reversePortal(sectionScreen,homeScreen,card,()=>{
@@ -1427,6 +1463,7 @@
   // card and 1100ms stationary two-screen dissolve as the five home tiles.
   // On cold entry preserve current gallery/3D warmup before revealing a page.
   let innerGameEntryActive=false;
+  let interruptInnerEntry=null;
   function beginInnerGameFlight(card,game){
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return null;
     const rect=card.getBoundingClientRect();
@@ -1476,12 +1513,13 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:SECTION_CARD_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
+      ],{duration:INNER_SECTION_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
-      const safety=setTimeout(cleanup,1900);
+      const safety=setTimeout(cleanup,1400);
       anim.finished.then(()=>clearTimeout(safety),()=>clearTimeout(safety));
-      return {restoreCard,finished:()=>flightFinished,cleanup};
+      return {restoreCard,finished:()=>flightFinished,cleanup,
+        cancel:()=>{anim.cancel();cleanup();restoreCard()}};
     }catch(error){
       console.warn('Inner game flight fallback:',game.id,error);
       cleanup();
@@ -1494,11 +1532,31 @@
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
     if(flight)innerGameEntryActive=true;
+    // Permit an immediate Back tap even while the entry fade is running.
+    // Invalidate all pending warmup/reveal callbacks before reversing.
+    const interrupt=()=>{
+      ++galleryNavigationId;
+      flight?.cancel();
+      activityScreen.hidden=false;
+      activityScreen.classList.add('is-visible');
+      sectionScreen.hidden=true;
+      sectionScreen.classList.remove('is-visible');
+      for(const screen of [activityScreen,sectionScreen]){
+        for(const prop of ['transition','opacity','transform','pointer-events'])
+          screen.style.removeProperty(prop);
+      }
+      delete activityScreen.dataset.innerGameCrossfade;
+      delete activityScreen.dataset.innerGameEntry;
+      $('#activityBack').style.removeProperty('pointer-events');
+      interruptInnerEntry=null;
+    };
+    interruptInnerEntry=interrupt;
     const needsSpaceEngine=game.kind==='spaceSearch'||game.kind==='constellationQuest';
     const spaceEngineReady=needsSpaceEngine?(game.kind==='constellationQuest'?ensureConstellationQuestLoaded():ensureSpace3DLoaded()).catch(()=>{}):null;
     const launch=()=>{
       if(nav!==galleryNavigationId||sectionScreen.hidden){
         flight?.cleanup();flight?.restoreCard();
+        if(interruptInnerEntry===interrupt)interruptInnerEntry=null;
         return;
       }
       cleanupGame();
@@ -1530,6 +1588,7 @@
       sectionScreen.style.setProperty('transform','none','important');
       sectionScreen.style.pointerEvents='none';
       activityScreen.style.pointerEvents='none';
+      $('#activityBack').style.pointerEvents='auto';
       renderGame(game);
       void activityScreen.offsetWidth;
       let started=false;
@@ -1538,9 +1597,9 @@
         started=true;
         // Same look, timing and easing as the user-liked Nature home entry.
         activityScreen.style.setProperty('transition',
-          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity '+INNER_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         sectionScreen.style.setProperty('transition',
-          'opacity 1100ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity '+INNER_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         activityScreen.classList.add('is-visible');
         activityScreen.style.setProperty('opacity','1','important');
         sectionScreen.style.setProperty('opacity','0','important');
@@ -1557,9 +1616,11 @@
           activityScreen.style.removeProperty('transition');
           activityScreen.style.removeProperty('transform');
           activityScreen.style.removeProperty('pointer-events');
+          $('#activityBack').style.removeProperty('pointer-events');
+          if(interruptInnerEntry===interrupt)interruptInnerEntry=null;
           delete activityScreen.dataset.innerGameCrossfade;
           delete activityScreen.dataset.innerGameEntry;
-        },1180);
+        },INNER_SECTION_MOTION.dissolveMs+80);
       };
       const fallback=setTimeout(start,45);
       requestAnimationFrame(()=>{clearTimeout(fallback);start()});
@@ -1575,11 +1636,12 @@
     }
     if(flight){
       // 230ms minimum lead, without an artificial pause when resources are hot.
-      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,230))]).then(launch,launch);
+      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,INNER_SECTION_MOTION.leadMs))]).then(launch,launch);
     }else prep.then(launch,launch);
   }
   function backToSection(){
     if(reversePortalActive)return;
+    if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;

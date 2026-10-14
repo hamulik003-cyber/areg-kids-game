@@ -3377,3 +3377,115 @@ html[data-theme^="photo-user-"] .section-dim{
   animation:none !important;
   transition:none !important;
 }
+
+
+/* Trial: exact logo sheen gradient, width, blur and 5.8-second cadence.
+   A complete logo-style sweep occupies each sequential 5.8-second slot.
+   The same background-position travel is used on every clipped card image. */
+.home-section-card .home-v44-sheen,
+.toddler-game-card .game-card-sheen,
+.section-hero-card .section-hero-sheen,
+.magic-collect-card .magic-card-sheen{
+  display:block !important;
+  content:normal !important;
+  position:absolute !important;
+  pointer-events:none !important;
+  z-index:5 !important;
+  left:10px !important;
+  right:10px !important;
+  top:10px !important;
+  width:auto !important;
+  height:calc(70% - 24px) !important;
+  border-radius:21px !important;
+  overflow:hidden !important;
+  opacity:1 !important;
+  background:none !important;
+  transform:none !important;
+  filter:none !important;
+  animation:none !important;
+}
+.home-section-card .home-v44-sheen{
+  left:12px !important;
+  right:12px !important;
+  top:12px !important;
+  height:calc(100% - 100px) !important;
+  border-radius:27px !important;
+}
+.home-section-card .home-v44-sheen::before,
+.toddler-game-card .game-card-sheen::before,
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
+  transform:none;
+  background:linear-gradient(108deg,
+    transparent 0 29%,rgba(255,255,255,.10) 34%,
+    rgba(255,255,255,.92) 47%,rgba(255,238,153,.56) 54%,
+    transparent 67% 100%);
+  background-size:42% 100%;
+  background-repeat:no-repeat;
+  background-position:-55% 0;
+  filter:blur(.5px);
+  mix-blend-mode:screen;
+  will-change:background-position,opacity;
+}
+.home-section-card .home-v44-sheen::before{
+  animation:aregExactLogoHome 29s ease-in-out infinite;
+}
+.toddler-game-card .game-card-sheen::before,
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
+  animation:aregExactLogoInner 23.2s ease-in-out infinite;
+}
+/* Hero and bonus cards use the identical logo stripe and cadence. */
+.section-hero-card .section-hero-sheen{
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  border-radius:25px !important;
+}
+.magic-collect-card .magic-card-sheen{
+  left:9px !important;
+  right:9px !important;
+  top:9px !important;
+  height:calc(100% - 48px) !important;
+  width:auto !important;
+  border-radius:20px !important;
+}
+.section-hero-card .section-hero-sheen::before,
+.magic-collect-card .magic-card-sheen::before{
+  animation:logoSheenV41 5.8s ease-in-out infinite;
+}
+/* Same order as the five main sections, then each inner set of four. */
+.home-section-card[data-section="nature"] .home-v44-sheen::before{animation-delay:0s}
+.home-section-card[data-section="space"] .home-v44-sheen::before{animation-delay:5.8s}
+.home-section-card[data-section="mind"] .home-v44-sheen::before{animation-delay:11.6s}
+.home-section-card[data-section="create"] .home-v44-sheen::before{animation-delay:17.4s}
+.home-section-card[data-section="magic"] .home-v44-sheen::before{animation-delay:23.2s}
+.toddler-game-card:nth-child(1) .game-card-sheen::before{animation-delay:0s}
+.toddler-game-card:nth-child(2) .game-card-sheen::before{animation-delay:5.8s}
+.toddler-game-card:nth-child(3) .game-card-sheen::before{animation-delay:11.6s}
+.toddler-game-card:nth-child(4) .game-card-sheen::before{animation-delay:17.4s}
+@keyframes aregExactLogoHome{
+  0%,2.4%{background-position:-55% 0;opacity:0}
+  3.4%{opacity:.95}
+  8.4%{background-position:165% 0;opacity:.8}
+  9.4%,100%{background-position:165% 0;opacity:0}
+}
+@keyframes aregExactLogoInner{
+  0%,3%{background-position:-55% 0;opacity:0}
+  4.25%{opacity:.95}
+  10.5%{background-position:165% 0;opacity:.8}
+  11.75%,100%{background-position:165% 0;opacity:0}
+}
+.effects-off .home-section-card .home-v44-sheen::before,
+.effects-off .toddler-game-card .game-card-sheen::before,
+.effects-off .section-hero-card .section-hero-sheen::before,
+.effects-off .magic-collect-card .magic-card-sheen::before{
+  animation:none !important;
+  opacity:0 !important;
+}
