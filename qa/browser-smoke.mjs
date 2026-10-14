@@ -947,7 +947,7 @@ try{
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
     },id);
     if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
-       exit.opacityStart!==0||exit.opacityEnd!==1||exit.frameCount!==2||
+       exit.opacityStart!==0||exit.opacityEnd!==0||exit.frameCount!==3||
        exit.targetTileInlineOpacity==='0'||
        !exit.incomingVisible||!exit.outgoingVisible)
        throw Error('V290 game reverse cinematic transition missing '+section+'/'+id+' '+JSON.stringify(exit));
@@ -974,8 +974,8 @@ try{
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   },section);
   if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
-     exit.opacityStart!==0||exit.opacityEnd!==1||
-     exit.frameCount!==2||exit.targetTileInlineOpacity==='0'||!exit.homeVisible)
+     exit.opacityStart!==0||exit.opacityEnd!==0||
+     exit.frameCount!==3||exit.targetTileInlineOpacity==='0'||!exit.homeVisible)
     throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
   await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true,null,{timeout:15000});
   if(await page.locator('[data-reverse-portal-flight]').count())
