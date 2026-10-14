@@ -1013,6 +1013,25 @@
     }
   }
 
+  // Freeze only moving-copy text geometry: Safari must not reflow a
+  // two-line title when its clone leaves the original grid/design stage.
+  // No changes to the real card, animation, artwork or sound.
+  function lockFlightTextLayout(sourceCard,flightCard){
+    for(const selector of ['.home-card-label','.toddler-game-label','.animal-name','.animal-type']){
+      const source=sourceCard.querySelector(selector);
+      const target=flightCard.querySelector(selector);
+      if(!source||!target)continue;
+      const style=getComputedStyle(source);
+      for(const prop of ['width','height','max-width','min-width','box-sizing',
+        'font-family','font-size','font-weight','line-height','letter-spacing',
+        'white-space','text-align','padding-left','padding-right',
+        'display','align-items','justify-content']){
+        target.style.setProperty(prop,style.getPropertyValue(prop),'important');
+      }
+      target.style.setProperty('flex-shrink','0','important');
+    }
+  }
+
   // Trial only: fly an exact visual clone of whichever of the 5 home cards
   // was pressed. Original design-stage positions are never modified.
   function openAnimatedHomeSection(card){
@@ -1044,6 +1063,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
+    lockFlightTextLayout(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const previousOpacity=card.style.opacity;
@@ -1298,23 +1318,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // The clone leaves the 709px design-stage typography context. On WebKit
-    // its title can briefly reflow as the shrinking card reaches its slot.
-    // Freeze only the clone's current label geometry, not the real card or
-    // the user's approved portal speed/keyframes (Nature remains untouched).
-    if(to===sectionScreen||to===homeScreen){
-      for(const selector of ['.home-card-label','.toddler-game-label']){
-        const original=card.querySelector(selector);
-        const cloned=copy.querySelector(selector);
-        if(!original||!cloned)continue;
-        const measured=getComputedStyle(original);
-        for(const property of ['font-family','font-size','font-weight','line-height',
-          'letter-spacing','white-space','text-align','padding-left','padding-right',
-          'width','height','box-sizing','display','align-items','justify-content']){
-          cloned.style.setProperty(property,measured.getPropertyValue(property),'important');
-        }
-      }
-    }
+    lockFlightTextLayout(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     from.style.setProperty('transition','none','important');
@@ -1420,21 +1424,7 @@
       transform:'scale('+(rect.width/card.offsetWidth)+')',
       pointerEvents:'none'
     });
-    // Preserve the actual two-line label layout in the flight clone.
-    // Without the section grid ancestor, WebKit can widen the text into
-    // a single line even though the stationary card has two lines.
-    const originalLabel=card.querySelector('.toddler-game-label');
-    const clonedLabel=copy.querySelector('.toddler-game-label');
-    if(originalLabel&&clonedLabel){
-      const labelStyle=getComputedStyle(originalLabel);
-      for(const prop of ['width','height','max-width','min-width','box-sizing',
-        'font-family','font-size','font-weight','line-height','letter-spacing',
-        'white-space','text-align','padding-left','padding-right',
-        'display','align-items','justify-content']){
-        clonedLabel.style.setProperty(prop,labelStyle.getPropertyValue(prop),'important');
-      }
-      clonedLabel.style.setProperty('flex-shrink','0','important');
-    }
+    lockFlightTextLayout(card,copy);
     flight.appendChild(copy);
     document.body.appendChild(flight);
     const oldOpacity=card.style.opacity;
@@ -1957,6 +1947,7 @@
     if(originalImage?.naturalWidth)originalImage.classList.add('is-decoded');
     if(!card.isConnected)return;
     const clone=card.cloneNode(true);
+    lockFlightTextLayout(card,clone);
     const cloneImage=clone.querySelector('.animal-image-wrap img');
     if(cloneImage){
       cloneImage.loading='eager';
