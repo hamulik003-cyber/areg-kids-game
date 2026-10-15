@@ -322,6 +322,12 @@ body{background:linear-gradient(90deg,#77512e 0%,#bd8854 9%,#e3b47d 22%,#d7a069 
 .shell>.top::before,.shell>.top::after{display:none!important;content:none!important}
 .shell{background:transparent!important}
 
+/* Embedded matching game: the parent's selected theme remains visible outside
+   the six-category board and outside the 12-card board in each round.
+   Same transparent iframe strategy as the approved Shapes game. */
+html,body{background:transparent!important}
+body>.room{display:none!important}
+
 /* iPhone/DotKiosk: these are game surfaces, never selectable web content. */
 html,body,body *,body *::before,body *::after{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important}
 img{-webkit-user-drag:none!important;pointer-events:none!important}
