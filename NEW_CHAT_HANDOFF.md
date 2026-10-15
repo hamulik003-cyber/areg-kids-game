@@ -1,3 +1,11 @@
+## 2026-10-16 — USER-APPROVED SHADOW MATCH RELEASE PR #77
+- User explicitly requested moving the liked emoji-based Shadow Match game into main/DotKiosk, after rejecting the SVG/vector experiment.
+- Approved source SHA `4e1f6bec3f31e1fee2efc85250bfed7565d9639c`; immutable preview: https://raw.githack.com/hamulik003-cyber/areg-kids-game/4e1f6bec3f31e1fee2efc85250bfed7565d9639c/index.html .
+- PR #77 squash-merged to main at `af7dd3b150531498e764c94b4d2386712fe719af`. Only `app.js` shadow-game route and `mind-shadow-3d.html` were included. Preserves RGB moving background, floating color shapes, hint lamp at upper-right outer scene, persistent green hint until correct tap, one-star hint charge, five stages, original emoji silhouettes.
+- Rejected OpenMoji/SVG work in `trial/shadow-hd-assets-20261015` was NOT merged. Do not substitute unapproved vectors/3D art.
+- GitHub merge is verified; Pages deployment and installed DotKiosk refresh still require separate verification. Never reset stored stars or change PWA cache without explicit authorization.
+- This approved game release supersedes earlier Shadow Match trials. Preserve exact accepted version in future chats.
+
 
 ## 2026-10-15 — APPROVED PR #74: THEME BEHIND SIX PAIRS CARDS
 - User tested pinned Safari preview `fae42220f86ab13de235c8e307534650338c885f` and confirmed «ապրես կյանքս եղավ💋», then explicitly requested release to main/DotKiosk.
