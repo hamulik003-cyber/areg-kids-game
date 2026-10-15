@@ -322,6 +322,13 @@ body{background:linear-gradient(90deg,#77512e 0%,#bd8854 9%,#e3b47d 22%,#d7a069 
 .shell>.top::before,.shell>.top::after{display:none!important;content:none!important}
 .shell{background:transparent!important}
 
+/* Trial: match the main game's warm backdrop OUTSIDE the six-category board.
+   The six category tiles, frame, header, and inner games remain unchanged. */
+body:has(#menu:not([hidden])){
+ background:radial-gradient(circle at 15% 10%,rgba(255,255,255,.28),transparent 28%),radial-gradient(circle at 82% 26%,rgba(255,255,255,.16),transparent 26%),repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,rgba(85,44,12,.016) 1px 2px),linear-gradient(180deg,#f9d9ad,#f7d3a4 58%,#efbf83)!important;
+}
+body:has(#menu:not([hidden]))>.room{display:none!important}
+
 /* iPhone/DotKiosk: these are game surfaces, never selectable web content. */
 html,body,body *,body *::before,body *::after{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important}
 img{-webkit-user-drag:none!important;pointer-events:none!important}
