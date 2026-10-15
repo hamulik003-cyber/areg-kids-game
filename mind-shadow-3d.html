@@ -18,9 +18,9 @@
 .shadowboard{width:min(84%,410px);flex:0 1 72%;max-height:490px;min-height:170px;display:grid;place-items:center;position:relative;perspective:750px}.board{position:absolute;inset:3%;border:11px solid #a66b3b;border-radius:24px;background:radial-gradient(circle at 45% 35%,#fff8e6,#f4d9ac);box-shadow:0 12px 0 #734123,0 22px 27px #39200c44,inset 0 0 0 4px #e7bc78;transform:rotateX(4deg);animation:boardFloat 4s ease-in-out infinite}.board:before{content:"";position:absolute;inset:-16px;border-radius:27px;border:3px solid #dca36a;pointer-events:none}.shadow-float{position:relative;z-index:1;display:grid;place-items:center;transform:translateY(-2%);animation:shadowFloat 3s ease-in-out infinite}
 .option.hint-active{box-shadow:0 0 0 5px #7bff94,0 0 21px 8px #55ed8a9c,inset 0 0 15px #8cffac!important;animation:hintPulse 1.4s ease-in-out infinite!important}@keyframes hintPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
 .shadow-motion{display:grid;place-items:center;grid-area:1/1;transform:translate3d(0,0,0);transform-origin:center;backface-visibility:hidden}
-.silhouette,.shadow-color{grid-area:1/1;font-size:clamp(110px,31vh,240px);line-height:1;backface-visibility:hidden}
-.silhouette{filter:brightness(0);opacity:1}
-.shadow-color{opacity:0;pointer-events:none}
+.silhouette,.shadow-color{grid-area:1/1;font-size:clamp(110px,31vh,240px);line-height:1;backface-visibility:hidden;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;transform:translateZ(0)}
+.silhouette{filter:brightness(0) contrast(1.18);opacity:1}
+.shadow-color{opacity:0;pointer-events:none;filter:saturate(1.2) contrast(1.1) drop-shadow(0 5px 3px #563b2840)}
 .shadow-motion.reveal{animation:smoothPop 1.15s cubic-bezier(.22,.61,.36,1) both}
 .shadow-motion.reveal .silhouette{animation:fadeShadow 1.15s ease-in-out both}
 .shadow-motion.reveal .shadow-color{animation:fadeColor 1.15s ease-in-out both}
