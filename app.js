@@ -1654,60 +1654,61 @@
       Promise.all([prep,new Promise(resolve=>setTimeout(resolve,gameMotion(game).leadMs))]).then(launch,launch);
     }else prep.then(launch,launch);
   }
+  // Unified game exit: the ordinary reverse portal is kept on every completed
+  // game; unfinished entrances are cancelled atomically and then animated out.
   function backToSection(){
     if(reversePortalActive){finishReversePortalNow?.();return;}
-    if(interruptInnerEntry && !currentGame){
-      interruptInnerEntry();
-      ++galleryNavigationId;
-      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
-      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
-      innerGameEntryActive=false;
-      sectionGames.querySelectorAll('.toddler-game-card').forEach(c=>c.style.removeProperty('opacity'));
-      return;
-    }
-    if(activityScreen.hidden)return;
-    const wasEntering=Boolean(interruptInnerEntry);
-    if(interruptInnerEntry)interruptInnerEntry();
+    if(activityScreen.hidden && !interruptInnerEntry)return;
+    const entering=Boolean(interruptInnerEntry);
+    if(entering)interruptInnerEntry();
     ++galleryNavigationId;
-    // An interrupted entrance must not start a reverse animation on a
-    // half-mounted game. Restore the section deterministically instead.
-    if(wasEntering){
-      cleanupGame();
-      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
-      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
-      innerGameEntryActive=false;
-      sectionGames.querySelectorAll('.toddler-game-card').forEach(c=>c.style.removeProperty('opacity'));
-      for(const screen of [activityScreen,sectionScreen])
-        for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
-      applyAudio();
-      return;
-    }
-    // Cancel any stale entrance lock even when a fast Back interrupts a flight.
     innerGameEntryActive=false;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
-    // During a rapid entry/exit, the source card may not have stable geometry.
-    // Prefer a deterministic immediate return over a reverse animation that can stall.
-    if(!card || !card.isConnected || !card.getBoundingClientRect().width){
-      cleanupGame();
-      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
-      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
-      for(const screen of [activityScreen,sectionScreen])for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
-      applyAudio();return;
+    // If a game was never mounted, return with the same stationary dissolve.
+    // Never try to reverse a non-existent card or leave an entry latch active.
+    if(!currentGame){
+      activityScreen.hidden=false;
+      sectionScreen.hidden=false;
+      sectionScreen.classList.add('is-visible');
+      for(const screen of [activityScreen,sectionScreen])
+        for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+      activityScreen.style.pointerEvents='none';
+      activityScreen.style.opacity='1';
+      sectionScreen.style.opacity='0';
+      sectionScreen.style.transition='opacity '+INNER_SECTION_MOTION.dissolveMs+'ms ease';
+      activityScreen.style.transition='opacity '+INNER_SECTION_MOTION.dissolveMs+'ms ease';
+      requestAnimationFrame(()=>{sectionScreen.style.opacity='1';activityScreen.style.opacity='0'});
+      setTimeout(()=>{
+        if(!activityScreen.hidden){activityScreen.hidden=true;activityScreen.classList.remove('is-visible')}
+        for(const screen of [activityScreen,sectionScreen])
+          for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+      },INNER_SECTION_MOTION.dissolveMs+90);
+      return;
     }
-    if(reversePortal(activityScreen,sectionScreen,card,()=>{
-      // Dispose 3D and gallery resources only after they have faded away.
-      cleanupGame();
-      // WebKit can leave a V4 forward-flight latch set if Back interrupts its
-      // final callback; never lock the next Mind card after returning.
-      if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
-      applyAudio();
-    }))return;
-    cleanupGame();
-    if(leavingMindV4){innerGameEntryActive=false;card?.style.removeProperty('opacity')}
-    activityScreen.classList.remove('is-visible');
-    setTimeout(()=>{activityScreen.hidden=true;sectionScreen.hidden=false;
-      requestAnimationFrame(()=>sectionScreen.classList.add('is-visible'));applyAudio()},160);
+    // The reverse animation requires a measurable source card. The fallback
+    // still dissolves the two screens instead of cutting abruptly.
+    if(card?.isConnected && card.getBoundingClientRect().width &&
+       reversePortal(activityScreen,sectionScreen,card,()=>{
+         cleanupGame();
+         if(leavingMindV4)card.style.removeProperty('opacity');
+         applyAudio();
+       }))return;
+    activityScreen.hidden=false;sectionScreen.hidden=false;
+    sectionScreen.classList.add('is-visible');
+    for(const screen of [activityScreen,sectionScreen])
+      for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+    activityScreen.style.opacity='1';sectionScreen.style.opacity='0';
+    activityScreen.style.transition='opacity '+INNER_SECTION_MOTION.dissolveMs+'ms ease';
+    sectionScreen.style.transition='opacity '+INNER_SECTION_MOTION.dissolveMs+'ms ease';
+    activityScreen.style.pointerEvents='none';
+    requestAnimationFrame(()=>{activityScreen.style.opacity='0';sectionScreen.style.opacity='1'});
+    setTimeout(()=>{
+      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
+      for(const screen of [activityScreen,sectionScreen])
+        for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+      cleanupGame();applyAudio();
+    },INNER_SECTION_MOTION.dissolveMs+90);
   }
   // Star milestones are PER GAME VISIT, just like the visible 0/0 score.
   // Past visits' unfinished answers must NEVER silently earn a later star.
