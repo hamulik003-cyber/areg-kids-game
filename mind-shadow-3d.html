@@ -9,13 +9,13 @@
 .shadowboard{width:min(84%,410px);flex:0 1 72%;max-height:490px;min-height:170px;display:grid;place-items:center;position:relative;perspective:750px}.board{position:absolute;inset:3%;border:11px solid #a66b3b;border-radius:24px;background:radial-gradient(circle at 45% 35%,#fff8e6,#f4d9ac);box-shadow:0 12px 0 #734123,0 22px 27px #39200c44,inset 0 0 0 4px #e7bc78;transform:rotateX(4deg);animation:boardFloat 4s ease-in-out infinite}.board:before{content:"";position:absolute;inset:-16px;border-radius:27px;border:3px solid #dca36a;pointer-events:none}.shadow-wrap{position:relative;z-index:1;display:grid;place-items:center;transform:translateY(-2%);animation:shadowFloat 3s ease-in-out infinite;isolation:isolate}
 .silhouette,.shadow-color{grid-area:1/1;font-size:clamp(110px,31vh,240px);line-height:1;transform-origin:center;backface-visibility:hidden}
 .silhouette{filter:brightness(0) drop-shadow(4px 8px 2px #281a1544);opacity:1;will-change:opacity}
-.shadow-color{opacity:0;transform:scale(.48) rotate(-14deg);will-change:transform,opacity;pointer-events:none}
-.shadow-wrap.reveal{animation:none}
+.shadow-color{opacity:0;transform:scale(.90) rotate(-5deg);will-change:transform,opacity;pointer-events:none}
+/* Keep the existing gentle float running during reveal to avoid a position snap. */
 .shadow-wrap.reveal .silhouette{animation:shadowFade 2.1s ease-in-out both}
 .shadow-wrap.reveal .shadow-color{animation:colorEmerge 2.1s cubic-bezier(.4,0,.2,1) both}
 .shadow-wrap.leaving{animation:shadowExit .65s ease-in-out both}
-@keyframes shadowFade{0%,22%{opacity:1}70%{opacity:.42}100%{opacity:0}}
-@keyframes colorEmerge{0%{opacity:0;transform:scale(.48) rotate(-14deg)}22%{opacity:.08;transform:scale(.62) rotate(-10deg)}70%{opacity:.8;transform:scale(.96) rotate(-2deg)}87%{opacity:1;transform:scale(1.035) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes shadowFade{0%{opacity:1}25%{opacity:.94}55%{opacity:.56}80%{opacity:.16}100%{opacity:0}}
+@keyframes colorEmerge{0%{opacity:0;transform:scale(.90) rotate(-5deg)}25%{opacity:.10;transform:scale(.925) rotate(-4deg)}55%{opacity:.45;transform:scale(.96) rotate(-2deg)}80%{opacity:.84;transform:scale(.99) rotate(-.5deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
 
 .options{height:clamp(110px,20vh,172px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(5px,1.5vw,11px);padding:8px;border:5px solid #a76c3f;border-radius:27px;background:linear-gradient(#e5ae70,#b87540);box-shadow:0 8px 0 #7d4628,0 13px 20px #371a0a44}
 .option{min-width:0;display:grid;place-items:center;border:4px solid #f9dbab;border-bottom:8px solid #c99055;border-radius:20px;background:linear-gradient(#fff5db,#ffdfaa);box-shadow:inset 0 2px 0 #fff,0 5px 10px #512a1540;transition:transform .18s,filter .18s;position:relative}.option span{font-size:clamp(62px,15vw,124px);line-height:1;filter:drop-shadow(0 5px 3px #57311945);animation:toyBreathe 3s ease-in-out infinite}.option:active{transform:scale(.94) translateY(3px)}.option.correct{background:linear-gradient(#e6ffcb,#b5e98b);border-color:#d7ffa5}.option.wrong{background:#ffbbb2;border-color:#f07066;animation:wrong .35s ease-in-out}.option.correct:after{content:"✓";position:absolute;right:5px;top:0;font-size:30px;color:#26853d}.option.wrong:after{content:"✕";position:absolute;right:5px;top:0;font-size:30px;color:#b52d2d}
