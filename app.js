@@ -1474,6 +1474,7 @@
   // On cold entry preserve current gallery/3D warmup before revealing a page.
   let innerGameEntryActive=false;
   let interruptInnerEntry=null;
+  let pendingInnerGame=null;
   function beginInnerGameFlight(card,game){
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return null;
     const rect=card.getBoundingClientRect();
@@ -1540,6 +1541,7 @@
   function openGame(section,game,card){
     if(innerGameEntryActive)return;
     const nav=++galleryNavigationId;
+    pendingInnerGame=game;
     const flight=card?beginInnerGameFlight(card,game):null;
     if(flight)innerGameEntryActive=true;
     // Permit an immediate Back tap even while the entry fade is running.
@@ -1574,7 +1576,7 @@
       }
       cleanupGame();
       activityContent.classList.toggle('space-preparing',needsSpaceEngine);
-      currentGame=game;activityScreen.dataset.game=game.id;
+      currentGame=game;pendingInnerGame=null;activityScreen.dataset.game=game.id;
       activitySectionTitle.textContent=section.title;activityTitle.textContent=game.label;
       updateStars();
       if(!flight){
@@ -1660,14 +1662,16 @@
     if(reversePortalActive){finishReversePortalNow?.();return;}
     if(activityScreen.hidden && !interruptInnerEntry)return;
     const entering=Boolean(interruptInnerEntry);
+    const returningGame=currentGame||pendingInnerGame;
     if(entering)interruptInnerEntry();
+    pendingInnerGame=null;
     ++galleryNavigationId;
     innerGameEntryActive=false;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
-    const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
+    const card=returningGame?sectionGames.querySelector('.toddler-game-card[data-game="'+returningGame.id+'"]'):null;
     // If a game was never mounted, return with the same stationary dissolve.
     // Never try to reverse a non-existent card or leave an entry latch active.
-    if(!currentGame){
+    if(!currentGame && !card){
       activityScreen.hidden=false;
       sectionScreen.hidden=false;
       sectionScreen.classList.add('is-visible');
