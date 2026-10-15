@@ -1457,7 +1457,7 @@
     }
   }
   function closeSection(){
-    if(reversePortalActive){finishReversePortalNow?.();if(reversePortalActive)return;}
+    if(reversePortalActive){finishReversePortalNow?.();return;}
     if(sectionScreen.hidden)return;
     if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
@@ -1650,8 +1650,17 @@
     }else prep.then(launch,launch);
   }
   function backToSection(){
-    if(reversePortalActive){finishReversePortalNow?.();if(reversePortalActive)return;}
-    if(activityScreen.hidden){if(!sectionScreen.hidden)closeSection();return;}
+    if(reversePortalActive){finishReversePortalNow?.();return;}
+    if(interruptInnerEntry && !currentGame){
+      interruptInnerEntry();++galleryNavigationId;
+      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
+      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
+      innerGameEntryActive=false;
+      for(const screen of [activityScreen,sectionScreen])for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+      $('#activityBack').style.removeProperty('pointer-events');
+      return;
+    }
+    if(activityScreen.hidden)return;
     if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
