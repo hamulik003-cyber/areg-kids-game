@@ -1,4 +1,11 @@
 
+## 2026-10-15 — APPROVED PR #74: THEME BEHIND SIX PAIRS CARDS
+- User tested pinned Safari preview `fae42220f86ab13de235c8e307534650338c885f` and confirmed «ապրես կյանքս եղավ💋», then explicitly requested release to main/DotKiosk.
+- PR #74 squash-merged to main as approved **gameplay commit `7f53b189b16d35d2bc90719a08c9a418021f105c`**. Only `mind-match-pairs.html` changed: remove its opaque iframe background and decorative room layer so the main game's selected theme is visible outside the six-category board (and round board). Does not change card art, frames, matching logic, stars, sounds, animations or cache.
+- Pages deployment run `38771476967` started after merge; verify its completion separately. Actual installed DotKiosk refresh requires user confirmation; do not claim device confirmation based on GitHub.
+- **CURRENT APPROVED GAMEPLAY BASELINE IS PR #74 / `7f53b189`**, superseding PR #72 / `d1887935`. Preserve all earlier approved fixes. GitHub audit has known pre-existing service-worker version mismatch; do not silently change cache or stored stars.
+
+
 ## 2026-10-15 — USER APPROVED PR #72 / iOS TOUCH RELEASE
 - User explicitly approved the Safari trial: «լավա կյանք սա համարում ենք հաստատված տարբերակ քցի dotkiosk💋». This authorizes production release but does not establish an installed DotKiosk test.
 - Approved trial `f281fbe5dd4e3cb8e2fc739ab49903d17eacd419` merged via PR #72 as production gameplay commit `d188793508a959e5df88ca1428f7c73358b64d3f`. iOS Shape and Pairs native callouts suppressed; Space Search guards simultaneous pointers and overlapping wrong-answer feedback. No deliberate image, sound, star, cache, or PWA-storage changes.
