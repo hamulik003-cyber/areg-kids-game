@@ -3498,3 +3498,10 @@ html[data-theme^="photo-user-"] .section-dim{
 .activity-topbar .activity-title{font-size:clamp(17px,4.7vw,27px)!important;line-height:1.04!important;text-align:center!important}
 .toddler-topbar .wood-stars,.activity-topbar .activity-stars{width:106px!important;min-width:0!important;height:56px!important;border-radius:17px!important;padding:0 6px!important;font-size:21px!important;background:linear-gradient(180deg,#ffe2aa,#f2b16b)!important;border:3px solid rgba(115,61,28,.22)!important;box-shadow:0 5px 0 #9c582d,0 11px 22px #14080430,inset 0 1px 0 #fff9!important}
 @media(max-width:370px){.toddler-topbar,.activity-topbar{grid-template-columns:49px minmax(0,1fr) 86px!important;gap:6px!important}.toddler-topbar .wood-round,.activity-topbar .wood-round{width:49px!important;height:52px!important}.toddler-topbar .wood-stars,.activity-topbar .activity-stars{width:86px!important;font-size:18px!important}}
+
+/* TRIAL: one vertical header landmark for every native section and activity.
+   The reference is the Nature screenshot: safe-area top + 12px. */
+:root{--areg-unified-header-top:calc(env(safe-area-inset-top,0px) + 12px)}
+.toddler-section-shell,.activity-shell{padding-top:var(--areg-unified-header-top)!important}
+@media(max-height:760px){.toddler-section-shell,.activity-shell{padding-top:var(--areg-unified-header-top)!important}}
+.toddler-topbar,.activity-topbar{flex:0 0 auto;margin-top:0!important;transform:none!important}
