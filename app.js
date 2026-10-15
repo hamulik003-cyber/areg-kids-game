@@ -1333,6 +1333,7 @@
   // previous screen. A cloned card travels smoothly from the center back to
   // its exact origin while the prior screen fades in without rising/sliding.
   let reversePortalActive=false;
+  let finishReversePortalNow=null;
   function reversePortal(from,to,card,finishNavigation){
     if(reversePortalActive)return true;
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
@@ -1410,8 +1411,13 @@
       else card.style.opacity=previousCardOpacity;
       flight.remove();
       reversePortalActive=false;
+      finishReversePortalNow=null;
       finishNavigation();
     };
+    finishReversePortalNow=complete;
+    // Keep the destination Back arrow responsive even during the fade.
+    const destinationBack=to===sectionScreen?$('#sectionBack'):to===activityScreen?$('#activityBack'):null;
+    if(destinationBack){to.style.pointerEvents='auto';destinationBack.style.pointerEvents='auto';}
     try{
       // Nature-only trial: finish with the real destination card already
       // showing beneath the clone. Dissolve the clone before cleanup so
@@ -1451,7 +1457,8 @@
     }
   }
   function closeSection(){
-    if(reversePortalActive)return;
+    if(reversePortalActive){finishReversePortalNow?.();if(reversePortalActive)return;}
+    if(sectionScreen.hidden)return;
     if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
     const card=$('.section-card[data-section="'+currentSection+'"]');
@@ -1643,7 +1650,8 @@
     }else prep.then(launch,launch);
   }
   function backToSection(){
-    if(reversePortalActive)return;
+    if(reversePortalActive){finishReversePortalNow?.();if(reversePortalActive)return;}
+    if(activityScreen.hidden){if(!sectionScreen.hidden)closeSection();return;}
     if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
