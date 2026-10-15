@@ -1033,7 +1033,7 @@
   // gallery/info card animation and audio-completion timing stay untouched.
   const INNER_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
   // Mind games use the same card-flight and dissolve duration as the approved section cards.
-  const MIND_GAME_MOTION=Object.freeze({flightMs:1040,returnMs:1040,dissolveMs:1100,leadMs:170});
+  const MIND_GAME_MOTION=INNER_SECTION_MOTION;
   const gameMotion=game=>game?.kind==='mindShapesV4'||game?.kind==='mindPairs'||game?.kind==='pattern'||game?.kind==='cups'?MIND_GAME_MOTION:INNER_SECTION_MOTION;
 
   // Shared motion contract for the five home tiles and all inner game tiles.
