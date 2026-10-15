@@ -11,8 +11,8 @@
 .silhouette{filter:brightness(0) drop-shadow(4px 8px 2px #281a1544);opacity:1;will-change:opacity}
 .shadow-color{opacity:0;transform:scale(.90) rotate(-5deg);will-change:transform,opacity;pointer-events:none}
 /* Keep the existing gentle float running during reveal to avoid a position snap. */
-.shadow-wrap.reveal .silhouette{animation:shadowFade 2.1s ease-in-out both}
-.shadow-wrap.reveal .shadow-color{animation:colorEmerge 2.1s cubic-bezier(.4,0,.2,1) both}
+.shadow-wrap.reveal .silhouette{animation:shadowFade 1.65s ease-in-out both}
+.shadow-wrap.reveal .shadow-color{animation:colorEmerge 1.65s cubic-bezier(.4,0,.2,1) both}
 .shadow-wrap.leaving{animation:shadowExit .65s ease-in-out both}
 @keyframes shadowFade{0%{opacity:1}25%{opacity:.94}55%{opacity:.56}80%{opacity:.16}100%{opacity:0}}
 @keyframes colorEmerge{0%{opacity:0;transform:scale(.90) rotate(-5deg)}25%{opacity:.10;transform:scale(.925) rotate(-4deg)}55%{opacity:.45;transform:scale(.96) rotate(-2deg)}80%{opacity:.84;transform:scale(.99) rotate(-.5deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
@@ -56,6 +56,6 @@ function stars(){try{const keys=Object.keys(localStorage);const k=keys.find(x=>/
 function draw(){if(!active)return;locked=false;hinted=false;overlay.hidden=true;const r=rounds[index];$('progress').textContent='Փուլ '+(index+1)+' / '+rounds.length;$('stage').className='stage '+r.kind;shadowWrap.className='shadow-wrap';shadow.textContent=r.answer;shadowColor.textContent=r.answer;options.replaceChildren();for(const emoji of r.options){const b=document.createElement('button');b.type='button';b.className='option';b.setAttribute('aria-label','Ընտրել '+emoji);const s=document.createElement('span');s.textContent=emoji;b.append(s);b.addEventListener('click',()=>choose(b,emoji));options.append(b)}}
 function choose(b,emoji){if(!active||locked)return;const right=emoji===rounds[index].answer;if(!right){play(false);b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>b.classList.remove('wrong'),550);return}locked=true;play(true);b.classList.add('correct');clearTimeout(feedbackTimer);
  shadowWrap.classList.add('reveal');
- feedbackTimer=setTimeout(()=>{if(!active)return;if(index===rounds.length-1){overlay.hidden=false;return}shadowWrap.classList.add('leaving');feedbackTimer=setTimeout(()=>{if(!active)return;index++;draw()},650)},3900)}
+ feedbackTimer=setTimeout(()=>{if(!active)return;if(index===rounds.length-1){overlay.hidden=false;return}shadowWrap.classList.add('leaving');feedbackTimer=setTimeout(()=>{if(!active)return;index++;draw()},650)},3450)}
 $('continue').addEventListener('click',()=>{if(!active)return;index=0;rounds.length=0;makeRounds();draw()});$('hint').addEventListener('click',()=>{if(locked)return;const r=rounds[index];for(const b of options.children){if(b.textContent===r.answer){b.animate([{boxShadow:'0 0 0 0 #8ef2a6'},{boxShadow:'0 0 0 10px #8ef2a6aa'},{boxShadow:'0 0 0 0 #8ef2a6'}],{duration:1100,iterations:2});break}}});$('back').addEventListener('click',()=>{active=false;clearTimeout(feedbackTimer);window.parent.postMessage({type:'areg-mind-shadow-back'},location.origin)});stars();draw();
 </script></body></html>
