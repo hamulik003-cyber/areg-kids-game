@@ -1547,10 +1547,12 @@
     const interrupt=()=>{
       ++galleryNavigationId;
       flight?.cancel();
+      // Keep both screens rendered for a valid reverse-flight card geometry.
+      // Never hide the section before the Back transition locates its card.
+      sectionScreen.hidden=false;
+      sectionScreen.classList.add('is-visible');
       activityScreen.hidden=false;
       activityScreen.classList.add('is-visible');
-      sectionScreen.hidden=true;
-      sectionScreen.classList.remove('is-visible');
       for(const screen of [activityScreen,sectionScreen]){
         for(const prop of ['transition','opacity','transform','pointer-events'])
           screen.style.removeProperty(prop);
@@ -1558,6 +1560,7 @@
       delete activityScreen.dataset.innerGameCrossfade;
       delete activityScreen.dataset.innerGameEntry;
       $('#activityBack').style.removeProperty('pointer-events');
+      innerGameEntryActive=false;
       interruptInnerEntry=null;
     };
     interruptInnerEntry=interrupt;
@@ -1652,12 +1655,9 @@
   function backToSection(){
     if(reversePortalActive){finishReversePortalNow?.();return;}
     if(interruptInnerEntry && !currentGame){
-      interruptInnerEntry();++galleryNavigationId;
+      interruptInnerEntry();
       activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
       sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
-      innerGameEntryActive=false;
-      for(const screen of [activityScreen,sectionScreen])for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
-      $('#activityBack').style.removeProperty('pointer-events');
       return;
     }
     if(activityScreen.hidden)return;
