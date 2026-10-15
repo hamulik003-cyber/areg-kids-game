@@ -1,3 +1,10 @@
+## 2026-10-16 — Approved unified header alignment release
+- User approved trial `e67d8305f044f68f509148c2ec26c172f4604563` and explicitly requested moving to main for final DotKiosk check.
+- PR #79 squash merged to main at `9baccb01cf8f12ad4c6b30432f21e66676ba38a5`. Files changed: `styles.css`, `mind-match-pairs.html`, `mind-shadow-3d.html`, `mind-shapes-deluxe-v4.html`.
+- Goal: align back button, title and stars top edges to the user-supplied Nature screen reference, respecting iPhone safe area; fix matching-game double top padding and embedded mind-game parent inset.
+- This is a CSS layout release, not a full device-by-device visual certification. User will now validate actual DotKiosk; do not claim DotKiosk updated until reported. No artwork, gameplay, star storage or PWA cache reset.
+- Preserve PR #79 baseline as approved; subsequent fixes first on trial branch and only merge after user approval.
+
 ## 2026-10-16 — USER-APPROVED SHADOW MATCH RELEASE PR #77
 - User explicitly requested moving the liked emoji-based Shadow Match game into main/DotKiosk, after rejecting the SVG/vector experiment.
 - Approved source SHA `4e1f6bec3f31e1fee2efc85250bfed7565d9639c`; immutable preview: https://raw.githack.com/hamulik003-cyber/areg-kids-game/4e1f6bec3f31e1fee2efc85250bfed7565d9639c/index.html .
