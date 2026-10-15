@@ -1760,7 +1760,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -3098,6 +3098,28 @@
   function gamePattern(){
     const s=surface('☝️');let round=0;const rounds=[[['🔵','🟡','🔵','🟡'],'🔵',['🔵','🟢','🔺']],[['⭐','🌙','⭐','🌙'],'⭐',['🌙','⭐','☀️']],[['🍎','🍌','🍎','🍌'],'🍎',['🍎','🍓','🍌']]];
     function draw(){s.innerHTML='';const h=document.createElement('div');h.className='game-hint';h.textContent='☝️';s.appendChild(h);const [seq,ans,opts]=rounds[round];const row=document.createElement('div');row.className='pattern-row';row.textContent=seq.join(' ')+'  ❓';const choices=document.createElement('div');choices.className='pattern-options';opts.forEach(o=>{const b=document.createElement('button');b.className='pattern-choice';b.textContent=o;b.addEventListener('click',()=>{if(o===ans){b.style.background='#c7f2ac';round++;if(round>=rounds.length)reward();else setTimeout(draw,350)}else shake(b)});choices.appendChild(b)});s.append(row,choices)}draw()
+  }
+  function gameMindShadow3D(){
+    // Isolated trial: reuse the approved Mind-game portal, back navigation,
+    // selected parent background and existing stars without changing storage.
+    activityScreen.classList.add('mind-v4-mode');
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Ո՞ւմ ստվերն է';
+    frame.src='./mind-shadow-3d.html?v=trial1';
+    frame.setAttribute('loading','eager');
+    activityContent.append(frame);
+    const onBack=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow||
+         event.data?.type!=='areg-mind-shadow-back'||currentGame?.kind!=='pattern')return;
+      backToSection();
+    };
+    addEventListener('message',onBack);
+    gameCleanup.push(()=>{
+      removeEventListener('message',onBack);
+      activityScreen.classList.remove('mind-v4-mode');
+    });
   }
   function gameCups(){
     const s=surface('☝️');let round=0,target=0;const area=document.createElement('div');area.className='cups-area';s.appendChild(area);
