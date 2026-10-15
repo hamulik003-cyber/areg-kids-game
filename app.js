@@ -1658,13 +1658,30 @@
     if(reversePortalActive){finishReversePortalNow?.();return;}
     if(interruptInnerEntry && !currentGame){
       interruptInnerEntry();
+      ++galleryNavigationId;
       activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
       sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
+      innerGameEntryActive=false;
+      sectionGames.querySelectorAll('.toddler-game-card').forEach(c=>c.style.removeProperty('opacity'));
       return;
     }
     if(activityScreen.hidden)return;
+    const wasEntering=Boolean(interruptInnerEntry);
     if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
+    // An interrupted entrance must not start a reverse animation on a
+    // half-mounted game. Restore the section deterministically instead.
+    if(wasEntering){
+      cleanupGame();
+      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
+      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
+      innerGameEntryActive=false;
+      sectionGames.querySelectorAll('.toddler-game-card').forEach(c=>c.style.removeProperty('opacity'));
+      for(const screen of [activityScreen,sectionScreen])
+        for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+      applyAudio();
+      return;
+    }
     // Cancel any stale entrance lock even when a fast Back interrupts a flight.
     innerGameEntryActive=false;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
