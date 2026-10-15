@@ -104,6 +104,8 @@ header .stars{font-size:21px!important;padding:0 4px!important;white-space:nowra
 /* iPhone/DotKiosk: these are game surfaces, never selectable web content. */
 html,body,body *,body *::before,body *::after{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important}
 img{-webkit-user-drag:none!important;pointer-events:none!important}
+/* Trial: align with Nature's header start while preserving the shape-game scene. */
+#app{padding-top:calc(env(safe-area-inset-top,0px) + 12px)!important}
 </style><script>
 document.addEventListener('contextmenu',e=>e.preventDefault(),true);
 document.addEventListener('selectstart',e=>e.preventDefault(),true);
