@@ -1896,7 +1896,8 @@ function gameSpaceSearch(ctx){
     root.dataset.spaceRoundPhase='exit';
   }
   function pointer(e){
-    if(locked||transition)return;
+    // One wrong-answer animation at a time; never leave two planets displaced.
+    if(locked||transition||wrong)return;
     const r=renderer.domElement.getBoundingClientRect();
     mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;
     ray.setFromCamera(mouse,camera);
@@ -1947,7 +1948,34 @@ function gameSpaceSearch(ctx){
     timer=setTimeout(()=>{if(!disposed&&winStart)beginExit()},2750);
   }
 
-  renderer.domElement.addEventListener('pointerup',pointer);
+  // Only a completed single-pointer tap can select a planet. A second finger
+  // cancels the entire gesture until all fingers are lifted (iPhone/DotKiosk).
+  const heldPlanetPointers=new Set();
+  let activePlanetPointer=null,planetGestureCancelled=false;
+  function planetPointerDown(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    heldPlanetPointers.add(e.pointerId);
+    if(heldPlanetPointers.size===1&&e.isPrimary!==false){
+      activePlanetPointer={id:e.pointerId,x:e.clientX,y:e.clientY};
+      planetGestureCancelled=false;
+    }else planetGestureCancelled=true;
+  }
+  function planetPointerUp(e){
+    const valid=activePlanetPointer?.id===e.pointerId&&!planetGestureCancelled
+      &&heldPlanetPointers.size===1
+      &&Math.hypot(e.clientX-activePlanetPointer.x,e.clientY-activePlanetPointer.y)<24;
+    heldPlanetPointers.delete(e.pointerId);
+    if(!heldPlanetPointers.size){activePlanetPointer=null;planetGestureCancelled=false;}
+    if(valid)pointer(e);
+  }
+  function planetPointerCancel(e){
+    heldPlanetPointers.delete(e.pointerId);
+    planetGestureCancelled=true;
+    if(!heldPlanetPointers.size){activePlanetPointer=null;planetGestureCancelled=false;}
+  }
+  renderer.domElement.addEventListener('pointerdown',planetPointerDown);
+  renderer.domElement.addEventListener('pointerup',planetPointerUp);
+  renderer.domElement.addEventListener('pointercancel',planetPointerCancel);
 
   function loop(t){
     if(disposed)return;
@@ -2131,7 +2159,10 @@ function gameSpaceSearch(ctx){
   buildRound();requestAnimationFrame(loop);
   ctx.gameCleanup.push(()=>{
     disposed=true;roundSeq++;session.dispose();clearTimeout(timer);clearTimeout(prewarmTimer);try{speechSynthesis.cancel()}catch{};
-    renderer.domElement.removeEventListener('pointerup',pointer);shooting.dispose();clear();
+    renderer.domElement.removeEventListener('pointerdown',planetPointerDown);
+    renderer.domElement.removeEventListener('pointerup',planetPointerUp);
+    renderer.domElement.removeEventListener('pointercancel',planetPointerCancel);
+    shooting.dispose();clear();
     stars.traverse(o=>{
       o.geometry?.dispose?.();
       if(o.material){
