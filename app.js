@@ -1458,10 +1458,16 @@
   }
   function closeSection(){
     if(reversePortalActive){finishReversePortalNow?.();return;}
-    if(sectionScreen.hidden)return;
+    if(sectionScreen.hidden && !interruptHomeEntry)return;
     if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
+    // Safari can retain the source home card's hidden opacity while its
+    // entrance flight is interrupted. Restore its geometry before reversing.
+    restoreHomeSourceCard?.();
+    homeEntryTransitionActive=false;
+    homeScreen.style.visibility='visible';
     const card=$('.section-card[data-section="'+currentSection+'"]');
+    if(card)card.style.removeProperty('opacity');
     if(reversePortal(sectionScreen,homeScreen,card,()=>{
       document.body.classList.remove('magic-scroll-active');
     }))return;
