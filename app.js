@@ -1665,8 +1665,19 @@
     if(activityScreen.hidden)return;
     if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
+    // Cancel any stale entrance lock even when a fast Back interrupts a flight.
+    innerGameEntryActive=false;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
     const card=currentGame?sectionGames.querySelector('.toddler-game-card[data-game="'+currentGame.id+'"]'):null;
+    // During a rapid entry/exit, the source card may not have stable geometry.
+    // Prefer a deterministic immediate return over a reverse animation that can stall.
+    if(!card || !card.isConnected || !card.getBoundingClientRect().width){
+      cleanupGame();
+      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
+      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
+      for(const screen of [activityScreen,sectionScreen])for(const prop of ['transition','opacity','transform','pointer-events'])screen.style.removeProperty(prop);
+      applyAudio();return;
+    }
     if(reversePortal(activityScreen,sectionScreen,card,()=>{
       // Dispose 3D and gallery resources only after they have faded away.
       cleanupGame();
