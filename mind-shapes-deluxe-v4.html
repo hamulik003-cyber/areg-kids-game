@@ -91,6 +91,15 @@ body{background:#152932}
    while showing the parent's selected background OUTSIDE these panels. */
 html.v4-embedded,html.v4-embedded body{background:transparent !important}
 html.v4-embedded #app{background:transparent !important;box-shadow:none !important}
+
+/* Shared matching-game header geometry: back, title and stars. */
+header{grid-template-columns:56px minmax(0,1fr) 106px!important;gap:10px!important;height:58px!important;align-items:stretch!important}
+header .wood{border:3px solid rgba(115,61,28,.22)!important;border-radius:17px!important;background:linear-gradient(180deg,#ffe2aa,#f2b16b)!important;box-shadow:0 5px 0 #9c582d,0 11px 22px #14080430,inset 0 1px 0 #fff9!important;color:#54220f!important}
+header .back{font-size:34px!important}
+header .brand{border-radius:20px!important;font-size:clamp(17px,4.7vw,27px)!important}
+header .brand small{display:none!important}
+header .stars{font-size:21px!important;padding:0 4px!important;white-space:nowrap!important}
+@media(max-width:370px){header{grid-template-columns:49px minmax(0,1fr) 86px!important;gap:6px!important}header .stars{font-size:18px!important}}
 </style><script>
 if(new URLSearchParams(location.search).get('embed')==='1'){
   document.documentElement.classList.add('v4-embedded');

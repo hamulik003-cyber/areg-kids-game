@@ -449,7 +449,7 @@
       title:'Մտքի խաղեր', hero:'hero-mind.jpg', backdrop:'hero-mind.jpg',
       games:[
         {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
-        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'sizes'},
+        {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'mindPairs'},
         {id:'pattern',label:'Ո՞ւմ ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
         {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
@@ -1032,6 +1032,9 @@
   // Section-to-game navigation follows the same brisk tempo; individual
   // gallery/info card animation and audio-completion timing stay untouched.
   const INNER_SECTION_MOTION=Object.freeze({flightMs:760,returnMs:760,dissolveMs:800,leadMs:170});
+  // Mind games use the same card-flight and dissolve duration as the approved section cards.
+  const MIND_GAME_MOTION=INNER_SECTION_MOTION;
+  const gameMotion=game=>game?.kind==='mindShapesV4'||game?.kind==='mindPairs'||game?.kind==='pattern'||game?.kind==='cups'?MIND_GAME_MOTION:INNER_SECTION_MOTION;
 
   // Shared motion contract for the five home tiles and all inner game tiles.
   // Keep the approved V297 1040ms flight and 1100ms screen dissolve.
@@ -1330,6 +1333,7 @@
   // previous screen. A cloned card travels smoothly from the center back to
   // its exact origin while the prior screen fades in without rising/sliding.
   let reversePortalActive=false;
+  let finishReversePortalNow=null;
   function reversePortal(from,to,card,finishNavigation){
     if(reversePortalActive)return true;
     if(!card?.animate||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
@@ -1407,8 +1411,13 @@
       else card.style.opacity=previousCardOpacity;
       flight.remove();
       reversePortalActive=false;
+      finishReversePortalNow=null;
       finishNavigation();
     };
+    finishReversePortalNow=complete;
+    // Keep the destination Back arrow responsive even during the fade.
+    const destinationBack=to===sectionScreen?$('#sectionBack'):to===activityScreen?$('#activityBack'):null;
+    if(destinationBack){to.style.pointerEvents='auto';destinationBack.style.pointerEvents='auto';}
     try{
       // Nature-only trial: finish with the real destination card already
       // showing beneath the clone. Dissolve the clone before cleanup so
@@ -1421,14 +1430,14 @@
       ]:[
         {transform:'translate3d('+dx+'px,'+returnDy+'px,0) scale('+scale+')',opacity:0},
         {transform:'translate3d(0,0,0) scale(1)',opacity:1}
-      ],{duration:to===homeScreen?HOME_SECTION_MOTION.returnMs:to===sectionScreen?INNER_SECTION_MOTION.returnMs:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
+      ],{duration:to===homeScreen?HOME_SECTION_MOTION.returnMs:to===sectionScreen?gameMotion(currentGame).returnMs:SECTION_CARD_MOTION.returnMs,easing:SECTION_CARD_MOTION.returnEasing,fill:'forwards'});
       // Keep the completed hero clone through the end of the 1100ms fade
       // rather than exposing the real card while parent opacity is mid-way.
       fly.finished.catch(()=>{});
       const fade=()=>{
         if(done)return;
         to.dataset.reversePortal='running';
-        const dissolveMs=to===homeScreen?HOME_SECTION_MOTION.dissolveMs:to===sectionScreen?INNER_SECTION_MOTION.dissolveMs:SECTION_CARD_MOTION.dissolveMs;
+        const dissolveMs=to===homeScreen?HOME_SECTION_MOTION.dissolveMs:to===sectionScreen?gameMotion(currentGame).dissolveMs:SECTION_CARD_MOTION.dissolveMs;
         to.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         from.style.setProperty('transition','opacity '+dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         to.style.setProperty('opacity','1','important');
@@ -1448,7 +1457,8 @@
     }
   }
   function closeSection(){
-    if(reversePortalActive)return;
+    if(reversePortalActive){finishReversePortalNow?.();return;}
+    if(sectionScreen.hidden)return;
     if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
     const card=$('.section-card[data-section="'+currentSection+'"]');
@@ -1513,7 +1523,7 @@
       const anim=flight.animate([
         {transform:'translate3d(0,0,0) scale(1)',opacity:1},
         {transform:to,opacity:0}
-      ],{duration:INNER_SECTION_MOTION.flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
+      ],{duration:gameMotion(game).flightMs,easing:SECTION_CARD_MOTION.flightEasing,fill:'forwards'});
       anim.finished.then(cleanup,cleanup);
       // Not coupled to gallery/3D network readiness; no long overlay stall.
       const safety=setTimeout(cleanup,1400);
@@ -1537,10 +1547,12 @@
     const interrupt=()=>{
       ++galleryNavigationId;
       flight?.cancel();
+      // Keep both screens rendered for a valid reverse-flight card geometry.
+      // Never hide the section before the Back transition locates its card.
+      sectionScreen.hidden=false;
+      sectionScreen.classList.add('is-visible');
       activityScreen.hidden=false;
       activityScreen.classList.add('is-visible');
-      sectionScreen.hidden=true;
-      sectionScreen.classList.remove('is-visible');
       for(const screen of [activityScreen,sectionScreen]){
         for(const prop of ['transition','opacity','transform','pointer-events'])
           screen.style.removeProperty(prop);
@@ -1548,6 +1560,7 @@
       delete activityScreen.dataset.innerGameCrossfade;
       delete activityScreen.dataset.innerGameEntry;
       $('#activityBack').style.removeProperty('pointer-events');
+      innerGameEntryActive=false;
       interruptInnerEntry=null;
     };
     interruptInnerEntry=interrupt;
@@ -1587,7 +1600,9 @@
       sectionScreen.style.setProperty('opacity','1','important');
       sectionScreen.style.setProperty('transform','none','important');
       sectionScreen.style.pointerEvents='none';
-      activityScreen.style.pointerEvents='none';
+      // A child cannot receive taps while its parent is pointer-events:none
+      // reliably in iOS Safari during crossfade. Keep the activity layer live.
+      activityScreen.style.pointerEvents='auto';
       $('#activityBack').style.pointerEvents='auto';
       renderGame(game);
       void activityScreen.offsetWidth;
@@ -1597,9 +1612,9 @@
         started=true;
         // Same look, timing and easing as the user-liked Nature home entry.
         activityScreen.style.setProperty('transition',
-          'opacity '+INNER_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity '+gameMotion(game).dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         sectionScreen.style.setProperty('transition',
-          'opacity '+INNER_SECTION_MOTION.dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
+          'opacity '+gameMotion(game).dissolveMs+'ms cubic-bezier(.40,0,.24,1)','important');
         activityScreen.classList.add('is-visible');
         activityScreen.style.setProperty('opacity','1','important');
         sectionScreen.style.setProperty('opacity','0','important');
@@ -1620,7 +1635,7 @@
           if(interruptInnerEntry===interrupt)interruptInnerEntry=null;
           delete activityScreen.dataset.innerGameCrossfade;
           delete activityScreen.dataset.innerGameEntry;
-        },INNER_SECTION_MOTION.dissolveMs+80);
+        },gameMotion(game).dissolveMs+80);
       };
       const fallback=setTimeout(start,45);
       requestAnimationFrame(()=>{clearTimeout(fallback);start()});
@@ -1636,11 +1651,18 @@
     }
     if(flight){
       // 230ms minimum lead, without an artificial pause when resources are hot.
-      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,INNER_SECTION_MOTION.leadMs))]).then(launch,launch);
+      Promise.all([prep,new Promise(resolve=>setTimeout(resolve,gameMotion(game).leadMs))]).then(launch,launch);
     }else prep.then(launch,launch);
   }
   function backToSection(){
-    if(reversePortalActive)return;
+    if(reversePortalActive){finishReversePortalNow?.();return;}
+    if(interruptInnerEntry && !currentGame){
+      interruptInnerEntry();
+      activityScreen.hidden=true;activityScreen.classList.remove('is-visible');
+      sectionScreen.hidden=false;sectionScreen.classList.add('is-visible');
+      return;
+    }
+    if(activityScreen.hidden)return;
     if(interruptInnerEntry)interruptInnerEntry();
     ++galleryNavigationId;
     const leavingMindV4=currentGame?.kind==='mindShapesV4';
@@ -1738,7 +1760,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,sort:gameSort,sizes:gameSizes,pattern:gamePattern,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -3039,6 +3061,27 @@
       removeEventListener('message',handleBack);
       const next=Number(localStorage.getItem(STARS_KEY));
       if(Number.isFinite(next)&&next>=0){stars=next;updateStars()}
+      activityScreen.classList.remove('mind-v4-mode');
+    });
+  }
+  function gameMindPairs(){
+    // Isolated trial game: no writes to the existing star wallet or PWA data.
+    activityScreen.classList.add('mind-v4-mode');
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Գտիր զույգը';
+    frame.src='./mind-match-pairs.html?v=trial1';
+    frame.setAttribute('loading','eager');
+    activityContent.append(frame);
+    const onBack=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow||
+         event.data?.type!=='areg-mind-pairs-back'||currentGame?.kind!=='mindPairs')return;
+      backToSection();
+    };
+    addEventListener('message',onBack);
+    gameCleanup.push(()=>{
+      removeEventListener('message',onBack);
       activityScreen.classList.remove('mind-v4-mode');
     });
   }
