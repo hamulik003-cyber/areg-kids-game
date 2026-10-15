@@ -100,7 +100,14 @@ header .brand{border-radius:20px!important;font-size:clamp(17px,4.7vw,27px)!impo
 header .brand small{display:none!important}
 header .stars{font-size:21px!important;padding:0 4px!important;white-space:nowrap!important}
 @media(max-width:370px){header{grid-template-columns:49px minmax(0,1fr) 86px!important;gap:6px!important}header .stars{font-size:18px!important}}
+
+/* iPhone/DotKiosk: these are game surfaces, never selectable web content. */
+html,body,body *,body *::before,body *::after{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important}
+img{-webkit-user-drag:none!important;pointer-events:none!important}
 </style><script>
+document.addEventListener('contextmenu',e=>e.preventDefault(),true);
+document.addEventListener('selectstart',e=>e.preventDefault(),true);
+document.addEventListener('dragstart',e=>e.preventDefault(),true);
 if(new URLSearchParams(location.search).get('embed')==='1'){
   document.documentElement.classList.add('v4-embedded');
 }
