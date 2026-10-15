@@ -1600,7 +1600,9 @@
       sectionScreen.style.setProperty('opacity','1','important');
       sectionScreen.style.setProperty('transform','none','important');
       sectionScreen.style.pointerEvents='none';
-      activityScreen.style.pointerEvents='none';
+      // A child cannot receive taps while its parent is pointer-events:none
+      // reliably in iOS Safari during crossfade. Keep the activity layer live.
+      activityScreen.style.pointerEvents='auto';
       $('#activityBack').style.pointerEvents='auto';
       renderGame(game);
       void activityScreen.offsetWidth;
