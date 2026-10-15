@@ -3505,3 +3505,7 @@ html[data-theme^="photo-user-"] .section-dim{
 .toddler-section-shell,.activity-shell{padding-top:var(--areg-unified-header-top)!important}
 @media(max-height:760px){.toddler-section-shell,.activity-shell{padding-top:var(--areg-unified-header-top)!important}}
 .toddler-topbar,.activity-topbar{flex:0 0 auto;margin-top:0!important;transform:none!important}
+/* Embedded mind games own their header; the parent shell must not add a second top inset. */
+.activity-screen.mind-v4-mode .activity-shell{padding:0!important}
+.activity-screen.mind-v4-mode .activity-content{margin:0!important}
+
