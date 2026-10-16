@@ -200,11 +200,11 @@
  function fit(){
   if(busy||screen.dataset.game!=='constellations'||!title.textContent.trim())return;
   busy=true;
-  title.style.fontSize='22px';
+  title.style.setProperty('font-size','22px','important');
   const max=title.clientWidth;
   if(max>0){
    let size=22;
-   while(size>11&&title.scrollWidth>max-4){size-=0.5;title.style.fontSize=size+'px'}
+   while(size>11&&title.scrollWidth>max-4){size-=0.5;title.style.setProperty('font-size',size+'px','important')}
   }
   busy=false;
  }
