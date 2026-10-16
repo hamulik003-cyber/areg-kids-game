@@ -190,5 +190,29 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="none"></audio>
   <script src="app.js?v=299"></script>
+<script>
+/* Fit the Constellations title to its wooden header without changing its font family. */
+(()=>{
+ const title=document.getElementById('activityTitle');
+ const screen=document.getElementById('activityScreen');
+ if(!title||!screen)return;
+ let busy=false;
+ function fit(){
+  if(busy||screen.dataset.game!=='constellations'||!title.textContent.trim())return;
+  busy=true;
+  title.style.fontSize='22px';
+  const max=title.clientWidth;
+  if(max>0){
+   let size=22;
+   while(size>11&&title.scrollWidth>max-4){size-=0.5;title.style.fontSize=size+'px'}
+  }
+  busy=false;
+ }
+ new MutationObserver(fit).observe(title,{childList:true,characterData:true,subtree:true});
+ new MutationObserver(fit).observe(screen,{attributes:true,attributeFilter:['data-game','hidden']});
+ window.addEventListener('resize',fit);
+ document.fonts?.ready.then(fit);
+})();
+</script>
 </body>
 </html>
