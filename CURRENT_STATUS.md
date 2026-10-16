@@ -1,3 +1,10 @@
+
+## 2026-10-16 — Jigsaw native topbar trial (UNAPPROVED)
+- User supplied screenshot of «Գտիր գույները» and requested a 1:1 header in «Հավաքիր պատկերը», with actual code reuse rather than visual guessing.
+- Main does not contain a standalone «Գտիր գույները» file. Implemented an isolated trial `trial/jigsaw-exact-native-header-20261016` starting from `trial/jigsaw-reference-header-20261016`. Copied the approved native topbar geometry, color, border and shadows from main `styles.css` to `mind-jigsaw.html` (back/title/stars); kept title text fitted.
+- `app.js` now answers iframe `areg-jigsaw-stars-request` with actual in-memory stars using same-origin postMessage; iframe shows real parent stars and does not reset them. Existing back event and +5 star award remain in place.
+- Trial SHA at code checkpoint: `f45f6e805482fb2fc02f6a30b98a4c005532b5a4`; not tested in real Safari/PWA/DotKiosk yet. Not approved; DO NOT merge main.
+- Next: open immutable Safari preview, check header against supplied reference and verify back, star count, puzzle input on iPhone. Rollback: existing main untouched.
 ## PERMANENT USER RULE — NO IMAGE GENERATION WITHOUT EXPLICIT IMAGE-GENERATION REQUEST (2026-10-16)
 - For AREG Kids Game and related development discussions, when the user says “ստեղծիր”, “սարքի”, “պատրաստիր”, “խաղի մեջ սարքի”, or asks to show an implementation, this means **implement an actual interactive/playable game in code on an isolated trial branch**, not generate a picture, mockup, concept image, or collage.
 - **Never invoke an image-generation tool proactively.** Generate or edit an image **only** if the user explicitly asks to “գեներացրա”, “նկար գեներացրա”, or otherwise unmistakably requests image generation or an image edit. A reference screenshot/image is for visual guidance and does not itself authorize generating a new image.
