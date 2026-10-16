@@ -1,3 +1,8 @@
+
+## 2026-10-16 — User-approved jigsaw vertical centering for production
+- User explicitly approved trial commit `452118d16d6256829a72ce3bd89b0db659335772` for main/DotKiosk. Relative to main `4cfae33551b407969fea4609b584db67c277f4ba`, only `mind-jigsaw.html` changes (one layout calculation: center the two framed panels within available vertical height). Other games, assets, audio, star storage, and service worker remain unchanged.
+- Safari approval is user-provided; DotKiosk device verification is pending. Production release must pass required GitHub checks and Pages deployment. Do not claim device verified or cache refreshed without evidence. Rollback baseline: `4cfae33551b407969fea4609b584db67c277f4ba`.
+
 ## 2026-10-16 — Universal Nature-header trial (UNAPPROVED)
 - User selected screenshot of «Կենդանիներ» as canonical exact header (back arrow, title, star counter; aligned pixel-for-pixel across sections and games).
 - Branch `trial/unified-headers-from-jigsaw-20261016` started from prior approved-for-testing jigsaw trial, NOT main. Existing native section/activity header in styles.css already uses shared grid and safe-area landmark; left untouched.
