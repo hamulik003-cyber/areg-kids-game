@@ -335,6 +335,11 @@ img{-webkit-user-drag:none!important;pointer-events:none!important}
 /* Trial: same physical header landmark as Nature, without changing game logic. */
 .shell{padding-top:calc(env(safe-area-inset-top,0px) + 12px)!important}
 .shell>.top{margin-top:0!important;padding-top:0!important;padding-bottom:0!important}
+
+/* Trial: stage marker floats cleanly, centered between header and blue game board. */
+#progress.progress{background:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important;padding:0 12px!important;min-width:0!important;margin:8px auto 4px!important;line-height:1.12!important}
+#progress .dots{margin-top:7px!important}
+#play{padding-top:8px!important}
 </style></head><body><script>
 document.addEventListener('contextmenu',e=>e.preventDefault(),true);
 document.addEventListener('selectstart',e=>e.preventDefault(),true);

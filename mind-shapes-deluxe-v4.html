@@ -106,6 +106,9 @@ html,body,body *,body *::before,body *::after{-webkit-touch-callout:none!importa
 img{-webkit-user-drag:none!important;pointer-events:none!important}
 /* Trial: align with Nature's header start while preserving the shape-game scene. */
 #app{padding-top:calc(env(safe-area-inset-top,0px) + 12px)!important}
+
+/* Trial: lower phase and score chips slightly without moving the approved header. */
+#app>.status{margin-top:8px!important;margin-bottom:2px!important}
 </style><script>
 document.addEventListener('contextmenu',e=>e.preventDefault(),true);
 document.addEventListener('selectstart',e=>e.preventDefault(),true);
