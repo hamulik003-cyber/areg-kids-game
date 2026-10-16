@@ -366,6 +366,9 @@ img{-webkit-user-drag:none!important;pointer-events:none!important}
 /* Match native Mind Games 12px horizontal header inset; leave board untouched. */
 .shell>.top.areg-unified-header{width:calc(100% + 0px)!important;max-width:none!important;justify-self:stretch!important}
 .shell{padding-left:12px!important;padding-right:12px!important}
+
+/* Matching-game header only: full-width alignment with the other mind games. */
+.shell>.top.areg-unified-header{width:calc(100% + 24px)!important;max-width:none!important;margin-left:-12px!important;margin-right:-12px!important;transform:none!important}
 </style></head><body><script>
 document.addEventListener('contextmenu',e=>e.preventDefault(),true);
 document.addEventListener('selectstart',e=>e.preventDefault(),true);
