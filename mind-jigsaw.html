@@ -171,12 +171,16 @@ cv.addEventListener('pointermove',e=>{
   if(gestureMode==='blocked')return;
   if(gestureMode==='pending'&&Math.hypot(dx,dy)<11)return;
   if(gestureMode==='pending'){
-   if(gesturePiece&&dy< -10&&Math.abs(dy)>Math.abs(dx)*.85){
+   if(gesturePiece&&dy < -11 && (Math.abs(dy)>Math.abs(dx)*.45 || v.y<tray.y+18)){
     if(hintPiece&&gesturePiece!==hintPiece){flashWrong(gesturePiece.homeX-trayScroll,gesturePiece.homeY);gestureMode='blocked';return}
     drag=gesturePiece;activePointer=e.pointerId;gestureMode='drag';
     drag.cx=drag.homeX-trayScroll;drag.cy=drag.homeY;
-    drag.ox=(gestureStartX-drag.cx)/drag.scale;drag.oy=(gestureStartY-drag.cy)/drag.scale;
+    // Keep the finger-to-piece offset in canvas coordinates; the full-size
+    // lifted piece must follow the finger without a sudden jump.
+    drag.ox=gestureStartX-drag.cx;drag.oy=gestureStartY-drag.cy;
     scrollPointer=null;gesturePiece=null;
+    drag.cx=clamp(v.x-drag.ox,drag.w*.35,W-drag.w*.35);
+    drag.cy=clamp(v.y-drag.oy,130,H-75);
    }else if(Math.abs(dx)>Math.abs(dy)*.8){gestureMode='scroll';gesturePiece=null}
    else return;
   }
