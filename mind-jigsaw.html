@@ -35,8 +35,32 @@ function grad(x,y,w,h,colors){const g=ctx.createLinearGradient(x,y,x+w*.3,y+h);c
 function bluePanel(x,y,w,h,r){ctx.save();ctx.shadowColor='#55341e66';ctx.shadowBlur=21;ctx.shadowOffsetY=12;rounded(x,y,w,h,r);ctx.fillStyle='#a65d30';ctx.fill();ctx.restore();rounded(x+2,y+2,w-4,h-4,r-2);ctx.fillStyle=grad(x,y,w,h,['#ffe3aa','#d48b49','#ad6936']);ctx.fill();rounded(x+8,y+8,w-16,h-16,r-7);ctx.fillStyle='#fff3d4';ctx.fill();rounded(x+13,y+13,w-26,h-26,r-12);ctx.fillStyle=grad(x,y,w,h,['#4789d2','#1e579a','#0c3977']);ctx.fill();rounded(x+18,y+18,w-36,h-36,r-16);ctx.fillStyle='#0b3a78';ctx.fill();rounded(x+20,y+20,w-40,h-40,r-18);ctx.strokeStyle='#90c8fc';ctx.lineWidth=2;ctx.stroke()}
 function trayPanel(x,y,w,h){ctx.save();ctx.shadowColor='#40231d6e';ctx.shadowBlur=17;ctx.shadowOffsetY=9;rounded(x,y,w,h,25);ctx.fillStyle='#93502b';ctx.fill();ctx.restore();rounded(x+3,y+3,w-6,h-6,23);ctx.fillStyle=grad(x,y,w,h,['#f8c889','#bd7740','#e7ab6c']);ctx.fill();rounded(x+9,y+9,w-18,h-18,18);ctx.fillStyle=grad(x,y,w,h,['#5ca7ee','#1859af','#0a397e']);ctx.fill();rounded(x+15,y+15,w-30,h-30,14);ctx.fillStyle='#06254e';ctx.fill();rounded(x+19,y+19,w-38,h-38,12);ctx.fillStyle=grad(x,y,w,h,['#0b376a','#061b3d']);ctx.fill();rounded(x+15,y+15,w-30,h-30,14);ctx.strokeStyle='#a4d8ff';ctx.lineWidth=2;ctx.stroke()}
 function frame(x,y,w,h){bluePanel(panel.x,panel.y,panel.w,panel.h,31);trayPanel(tray.x,tray.y,tray.w,tray.h);ctx.save();ctx.shadowColor='#34241e66';ctx.shadowBlur=12;ctx.shadowOffsetY=6;rounded(x-10,y-10,w+20,h+20,20);ctx.fillStyle='#9a562e';ctx.fill();ctx.restore();rounded(x-8,y-8,w+16,h+16,19);ctx.fillStyle=grad(x,y,w,h,['#ffe2a3','#c67c40','#f5bd70']);ctx.fill();rounded(x-3,y-3,w+6,h+6,13);ctx.fillStyle='#573d2b';ctx.fill();rounded(x,y,w,h,10);ctx.fillStyle='#f5dfb7';ctx.fill();ctx.save();ctx.globalAlpha=.34;imageCover(imgs[image],x,y,w,h);ctx.restore();rounded(x,y,w,h,10);ctx.lineWidth=2;ctx.strokeStyle='#fff3d1';ctx.stroke()}
-function shape(p,offX=0,offY=0){const x=p.x+offX,y=p.y+offY,w=p.w,h=p.h,t=Math.min(w,h)*.18;ctx.beginPath();ctx.moveTo(x,y);function edge(x1,y1,x2,y2,type){const dx=x2-x1,dy=y2-y1,px=-dy,py=dx;if(!type){ctx.lineTo(x2,y2);return}const sign=type;const at=(u,v)=>[x1+dx*u+px*v*sign,y1+dy*u+py*v*sign];let a=at(.32,0);ctx.lineTo(...a);let b=at(.34,-.08),c=at(.30,.2),d=at(.40,.25);ctx.bezierCurveTo(...b,...c,...d);a=at(.5,.38);b=at(.6,.25);ctx.bezierCurveTo(...a,...a,...b);a=at(.70,.2);b=at(.66,-.08);c=at(.68,0);ctx.bezierCurveTo(...a,...b,...c);ctx.lineTo(x2,y2)}
-edge(x,y,x+w,y,p.top);edge(x+w,y,x+w,y+h,p.right);edge(x+w,y+h,x,y+h,p.bottom);edge(x,y+h,x,y,p.left);ctx.closePath()}
+function shape(p,offX=0,offY=0){
+const x=p.x+offX,y=p.y+offY,w=p.w,h=p.h;
+ctx.beginPath();ctx.moveTo(x,y);
+function edge(x1,y1,x2,y2,type){
+ const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+ if(!type||len<2){ctx.lineTo(x2,y2);return}
+ // Rounded classic jigsaw connector: gentle shoulders, narrow neck and a circular bulb.
+ // The perpendicular displacement is capped by the smaller piece dimension.
+ const nx=-dy/len*type,ny=dx/len*type;
+ const depth=Math.min(len*.27,Math.min(w,h)*.27);
+ const at=(u,v)=>[x1+dx*u+nx*depth*v,y1+dy*u+ny*depth*v];
+ const curve=(a,b,c)=>ctx.bezierCurveTo(...at(...a),...at(...b),...at(...c));
+ ctx.lineTo(...at(.29,0));
+ curve([.34,0],[.39,-.06],[.39,-.24]);
+ curve([.38,-.43],[.30,-.60],[.32,-.91]);
+ curve([.34,-1.27],[.68,-1.27],[.70,-.91]);
+ curve([.72,-.60],[.62,-.43],[.61,-.24]);
+ curve([.61,-.06],[.66,0],[.71,0]);
+ ctx.lineTo(x2,y2);
+}
+edge(x,y,x+w,y,p.top);
+edge(x+w,y,x+w,y+h,p.right);
+edge(x+w,y+h,x,y+h,p.bottom);
+edge(x,y+h,x,y,p.left);
+ctx.closePath();
+}
 function drawPiece(p){const scale=p.locked?1:p===drag?Math.min(1,p.scale*1.5):p.scale;ctx.save();ctx.translate(p.cx,p.cy);ctx.scale(scale,scale);const x=-p.w/2,y=-p.h/2,draw={...p,x,y};ctx.save();ctx.shadowColor='#4d2d2066';ctx.shadowBlur=p.locked?3:18;ctx.shadowOffsetY=p.locked?2:9;shape(draw,0,7);ctx.fillStyle='#8b542e';ctx.fill();ctx.restore();shape(draw,0,5);ctx.fillStyle=grad(x,y,p.w,p.h,['#ffdf9c','#b97940','#6b422e']);ctx.fill();shape(draw);ctx.save();ctx.clip();imageCover(imgs[image],x-p.col*p.w,y-p.row*p.h,board.w,board.h);ctx.restore();shape(draw);ctx.lineWidth=p.locked?1.6:2.5;ctx.strokeStyle='#ffe3a6';ctx.stroke();ctx.restore()}
 function layout(){const cols=count===12?3:count===4?2:3,rows=count/cols;const top=embedded?Math.max(144,H*.17):Math.max(136,H*.16),bottom=Math.max(30,H*.035);const gap=clamp(W*.024,8,13);const side=Math.max(10,W*.025);const trayH=clamp(W*.48,165,230);const maxMainH=Math.max(230,H-top-bottom-gap-trayH);const activeImage=imgs[image];const imageRatio=activeImage?.naturalWidth&&activeImage?.naturalHeight?activeImage.naturalWidth/activeImage.naturalHeight:1;const naturalPanelH=(W-2*side-54)/imageRatio+54;const mainH=Math.min(maxMainH,Math.max(180,naturalPanelH));const groupH=mainH+gap+trayH;const groupTop=top+Math.max(0,H-top-bottom-groupH)*.48;panel={x:side,y:groupTop,w:W-2*side,h:mainH};tray={x:side,y:groupTop+mainH+gap,w:W-2*side,h:trayH};const inset=31;const availableW=Math.max(80,panel.w-inset*2),availableH=Math.max(80,panel.h-inset*2);const source=imgs[image];const ratio=source?.naturalWidth&&source?.naturalHeight?source.naturalWidth/source.naturalHeight:1;const bw=availableW,bh=availableH;board={x:panel.x+inset,y:panel.y+inset,w:bw,h:bh,cols,rows};if(pieces.length){const pw=bw/cols,ph=bh/rows;for(const p of pieces){p.w=pw;p.h=ph;p.tx=board.x+(p.col+.5)*pw;p.ty=board.y+(p.row+.5)*ph;if(p.locked){p.cx=p.tx;p.cy=p.ty}else if(p!==drag){p.cx=p.homeX;p.cy=p.homeY}}}}
 function build(){if(winTimer){clearTimeout(winTimer);winTimer=null}celebrationStart=0;won=false;drag=null;activePointer=null;$('modal').classList.remove('show');pieces=[];layout();const cols=board.cols,rows=board.rows,pw=board.w/cols,ph=board.h/rows;const grid=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const id=r*cols+c;grid.push({id,row:r,col:c,left:c?-grid[id-1].right:0,top:r?-grid[id-cols].bottom:0,right:c===cols-1?0:Math.random()<.5?1:-1,bottom:r===rows-1?0:Math.random()<.5?1:-1})}const ncols=count===12?6:count===9?5:count===6?3:4,nrows=Math.ceil(count/ncols);const usableW=tray.w-56,usableH=tray.h-36;const sc=Math.min(.65,(usableW/ncols)/(pw*1.48),(usableH/nrows)/(ph*1.48));const gapX=usableW/ncols,gapY=usableH/nrows;const order=grid.map((g,i)=>({...g,sort:Math.random()})).sort((a,b)=>a.sort-b.sort);for(let i=0;i<count;i++){const g=order[i],col=i%ncols,row=Math.floor(i/ncols);const hx=tray.x+tray.w/2+(col-(ncols-1)/2)*gapX,hy=tray.y+tray.h/2+(row-(nrows-1)/2)*gapY+3;pieces.push({...g,w:pw,h:ph,tx:board.x+(g.col+.5)*pw,ty:board.y+(g.row+.5)*ph,cx:hx,cy:hy,homeX:hx,homeY:hy,scale:sc,locked:false})}$('status').textContent='Փուլ '+(round+1)+'/5 · Հատ '+(1)+'/10';}
