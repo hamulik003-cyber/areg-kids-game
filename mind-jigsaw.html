@@ -61,7 +61,7 @@ edge(x+w,y+h,x,y+h,p.bottom);
 edge(x,y+h,x,y,p.left);
 ctx.closePath();
 }
-function drawPiece(p){const scale=p.locked?1:p===drag?Math.min(1,p.scale*1.12):p.scale;ctx.save();ctx.translate(p.cx,p.cy);ctx.scale(scale,scale);const x=-p.w/2,y=-p.h/2,draw={...p,x,y};ctx.save();ctx.shadowColor='#4d2d2066';ctx.shadowBlur=p.locked?3:18;ctx.shadowOffsetY=p.locked?2:9;shape(draw,0,7);ctx.fillStyle='#8b542e';ctx.fill();ctx.restore();shape(draw,0,5);ctx.fillStyle=grad(x,y,p.w,p.h,['#ffdf9c','#b97940','#6b422e']);ctx.fill();shape(draw);ctx.save();ctx.clip();imageCover(imgs[image],x-p.col*p.w,y-p.row*p.h,board.w,board.h);ctx.restore();shape(draw);ctx.lineWidth=p.locked?1.6:2.5;ctx.strokeStyle='#ffe3a6';ctx.stroke();ctx.restore()}
+function drawPiece(p){const scale=(p.locked||p===drag)?1:p.scale;ctx.save();ctx.translate(p.cx,p.cy);ctx.scale(scale,scale);const x=-p.w/2,y=-p.h/2,draw={...p,x,y};ctx.save();ctx.shadowColor='#4d2d2066';ctx.shadowBlur=p.locked?3:18;ctx.shadowOffsetY=p.locked?2:9;shape(draw,0,7);ctx.fillStyle='#8b542e';ctx.fill();ctx.restore();shape(draw,0,5);ctx.fillStyle=grad(x,y,p.w,p.h,['#ffdf9c','#b97940','#6b422e']);ctx.fill();shape(draw);ctx.save();ctx.clip();imageCover(imgs[image],x-p.col*p.w,y-p.row*p.h,board.w,board.h);ctx.restore();shape(draw);ctx.lineWidth=p.locked?1.6:2.5;ctx.strokeStyle='#ffe3a6';ctx.stroke();ctx.restore()}
 function layout(){const cols=count===12?3:count===4?2:3,rows=count/cols;const top=embedded?Math.max(144,H*.17):Math.max(136,H*.16),bottom=Math.max(30,H*.035);const gap=clamp(W*.024,8,13);const side=Math.max(10,W*.025);const trayH=clamp(W*.30,112,145);const maxMainH=Math.max(230,H-top-bottom-gap-trayH);const activeImage=imgs[image];const imageRatio=activeImage?.naturalWidth&&activeImage?.naturalHeight?activeImage.naturalWidth/activeImage.naturalHeight:1;const naturalPanelH=(W-2*side-54)/imageRatio+54;const mainH=Math.min(maxMainH,Math.max(240,naturalPanelH+Math.min(105,H*.12)));const groupH=mainH+gap+trayH;const groupTop=top+Math.max(0,H-top-bottom-groupH)*.48;panel={x:side,y:groupTop,w:W-2*side,h:mainH};tray={x:side,y:groupTop+mainH+gap,w:W-2*side,h:trayH};const inset=31;const availableW=Math.max(80,panel.w-inset*2),availableH=Math.max(80,panel.h-inset*2);const source=imgs[image];const ratio=source?.naturalWidth&&source?.naturalHeight?source.naturalWidth/source.naturalHeight:1;const bw=availableW,bh=availableH;board={x:panel.x+inset,y:panel.y+inset,w:bw,h:bh,cols,rows};if(pieces.length){const pw=bw/cols,ph=bh/rows;for(const p of pieces){p.w=pw;p.h=ph;p.tx=board.x+(p.col+.5)*pw;p.ty=board.y+(p.row+.5)*ph;if(p.locked){p.cx=p.tx;p.cy=p.ty}else if(p!==drag){p.cx=p.homeX;p.cy=p.homeY}}}}
 let trayScroll=0,scrollPointer=null,scrollStartX=0,scrollOrigin=0,scrollMoved=false;
 function maxTrayScroll(){if(!pieces.length)return 0;const p=pieces[0],stride=p.w*p.scale*1.70;return Math.max(0,50+(count-1)*stride+p.w*p.scale*1.52-(tray.w-24))}
@@ -92,7 +92,8 @@ cv.addEventListener('pointermove',e=>{
   if(!scrollMoved&&gesturePiece&&dy< -12&&Math.abs(dy)>Math.abs(dx)*1.15){
    const p=gesturePiece;drag=p;activePointer=e.pointerId;
    drag.cx=p.homeX-trayScroll;drag.cy=p.homeY;
-   drag.ox=v.x-drag.cx;drag.oy=v.y-drag.cy;
+   // Keep the touched point under the finger as the piece expands to board size.
+   drag.ox=(v.x-drag.cx)/p.scale;drag.oy=(v.y-drag.cy)/p.scale;
    scrollPointer=null;gesturePiece=null;
   }else if(!scrollMoved&&Math.abs(dx)>=Math.abs(dy)*.75){
    scrollMoved=true;gesturePiece=null;
