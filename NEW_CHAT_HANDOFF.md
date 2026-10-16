@@ -1,3 +1,7 @@
+## 2026-10-16 — Jigsaw header trial — NOT APPROVED
+- Branch: `trial/jigsaw-exact-native-header-20261016`. Copied approved native header CSS geometry from main styles.css into trial mind-jigsaw.html; app.js same-origin iframe star synchronization added. Back routing remains unchanged. User's supplied «Գտիր գույները» screenshot is reference; exact rendered 1:1 fidelity still awaits iPhone screenshot validation.
+- Trial code SHA `f45f6e805482fb2fc02f6a30b98a4c005532b5a4`; main unchanged. Await Safari test and explicit approval before merging. Current trial handoff checkpoint also in CURRENT_STATUS.md. Do not assert DotKiosk verification.
+
 ## PERMANENT USER RULE — NO IMAGE GENERATION WITHOUT EXPLICIT IMAGE-GENERATION REQUEST (2026-10-16)
 - For AREG Kids Game and related development discussions, when the user says “ստեղծիր”, “սարքի”, “պատրաստիր”, “խաղի մեջ սարքի”, or asks to show an implementation, this means **implement an actual interactive/playable game in code on an isolated trial branch**, not generate a picture, mockup, concept image, or collage.
 - **Never invoke an image-generation tool proactively.** Generate or edit an image **only** if the user explicitly asks to “գեներացրա”, “նկար գեներացրա”, or otherwise unmistakably requests image generation or an image edit. A reference screenshot/image is for visual guidance and does not itself authorize generating a new image.
