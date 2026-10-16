@@ -1,3 +1,8 @@
+
+## 2026-10-16 — User-approved jigsaw vertical centering for production
+- User explicitly approved trial commit `452118d16d6256829a72ce3bd89b0db659335772` for main/DotKiosk. Relative to main `4cfae33551b407969fea4609b584db67c277f4ba`, only `mind-jigsaw.html` changes (one layout calculation: center the two framed panels within available vertical height). Other games, assets, audio, star storage, and service worker remain unchanged.
+- Safari approval is user-provided; DotKiosk device verification is pending. Production release must pass required GitHub checks and Pages deployment. Do not claim device verified or cache refreshed without evidence. Rollback baseline: `4cfae33551b407969fea4609b584db67c277f4ba`.
+
 ## 2026-10-16 — Jigsaw header trial — NOT APPROVED
 - Branch: `trial/jigsaw-exact-native-header-20261016`. Copied approved native header CSS geometry from main styles.css into trial mind-jigsaw.html; app.js same-origin iframe star synchronization added. Back routing remains unchanged. User's supplied «Գտիր գույները» screenshot is reference; exact rendered 1:1 fidelity still awaits iPhone screenshot validation.
 - Trial code SHA `f45f6e805482fb2fc02f6a30b98a4c005532b5a4`; main unchanged. Await Safari test and explicit approval before merging. Current trial handoff checkpoint also in CURRENT_STATUS.md. Do not assert DotKiosk verification.
