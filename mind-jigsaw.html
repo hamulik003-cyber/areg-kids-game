@@ -231,7 +231,7 @@ document.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>{count=12;doc
 $('next').addEventListener('pointerup',()=>{$('next').classList.remove('pressed')});
 $('next').addEventListener('pointercancel',()=>{$('next').classList.remove('pressed')});
 $('next').addEventListener('click',()=>{if(nextBusy)return;nextBusy=true;$('next').classList.add('pressed');setTimeout(()=>{if(!customMode){round=(round+1)%5;image=imgs.findIndex((im,j)=>j>=round%assets.length&&j<assets.length&&im.complete&&im.naturalWidth>0)}if(image<0)image=imgs.findIndex(im=>im&&im.complete&&im.naturalWidth>0);$('rewardBurst').replaceChildren();build();$('next').classList.remove('pressed')},270)});
-const counts=[4,8,12,16,20,24,28,32,36,40],host=$('pieceChoices');
+const counts=[4,12,16,20,36],host=$('pieceChoices');
 function updateCountButtons(){host.querySelectorAll('button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count))}
 counts.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.dataset.count=n;b.type='button';b.addEventListener('click',()=>{count=n;updateCountButtons();build()});host.append(b)});updateCountButtons();
 $('settingsGear').addEventListener('click',()=>{$('settingsModal').classList.add('show');unlockAudio()});
