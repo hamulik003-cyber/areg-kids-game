@@ -36,34 +36,31 @@ function bluePanel(x,y,w,h,r){ctx.save();ctx.shadowColor='#55341e66';ctx.shadowB
 function trayPanel(x,y,w,h){ctx.save();ctx.shadowColor='#40231d6e';ctx.shadowBlur=17;ctx.shadowOffsetY=9;rounded(x,y,w,h,25);ctx.fillStyle='#93502b';ctx.fill();ctx.restore();rounded(x+3,y+3,w-6,h-6,23);ctx.fillStyle=grad(x,y,w,h,['#f8c889','#bd7740','#e7ab6c']);ctx.fill();rounded(x+9,y+9,w-18,h-18,18);ctx.fillStyle=grad(x,y,w,h,['#5ca7ee','#1859af','#0a397e']);ctx.fill();rounded(x+15,y+15,w-30,h-30,14);ctx.fillStyle='#06254e';ctx.fill();rounded(x+19,y+19,w-38,h-38,12);ctx.fillStyle=grad(x,y,w,h,['#0b376a','#061b3d']);ctx.fill();rounded(x+15,y+15,w-30,h-30,14);ctx.strokeStyle='#a4d8ff';ctx.lineWidth=2;ctx.stroke()}
 function frame(x,y,w,h){bluePanel(panel.x,panel.y,panel.w,panel.h,31);trayPanel(tray.x,tray.y,tray.w,tray.h);ctx.save();ctx.shadowColor='#34241e66';ctx.shadowBlur=12;ctx.shadowOffsetY=6;rounded(x-10,y-10,w+20,h+20,20);ctx.fillStyle='#9a562e';ctx.fill();ctx.restore();rounded(x-8,y-8,w+16,h+16,19);ctx.fillStyle=grad(x,y,w,h,['#ffe2a3','#c67c40','#f5bd70']);ctx.fill();rounded(x-3,y-3,w+6,h+6,13);ctx.fillStyle='#573d2b';ctx.fill();rounded(x,y,w,h,10);ctx.fillStyle='#f5dfb7';ctx.fill();ctx.save();ctx.globalAlpha=.15;imageCover(imgs[image],x,y,w,h);ctx.restore();rounded(x,y,w,h,10);ctx.lineWidth=2;ctx.strokeStyle='#fff3d1';ctx.stroke()}
 function shape(p,offX=0,offY=0){
- const x=p.x+offX,y=p.y+offY,w=p.w,h=p.h;
- ctx.beginPath();ctx.moveTo(x,y);
- function edge(x1,y1,x2,y2,type){
-  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
-  if(!type){ctx.lineTo(x2,y2);return}
-  // Same physical tab size on horizontal and vertical edges, even for
-  // rectangular cells. Opposite edges reverse traversal AND tab sign.
-  // The symmetric Bézier controls guarantee complementary cut contours.
-  const unit=Math.min(w,h),depth=unit*.265;
-  const width=Math.min(len*.58,unit*.70);
-  const half=width/(2*len),a=.5-half,b=.5+half;
-  const nx=-dy/len*type,ny=dx/len*type;
-  const at=(u,v)=>[x1+dx*u+nx*depth*v,y1+dy*u+ny*depth*v];
-  const curve=(a,b,c)=>ctx.bezierCurveTo(...at(...a),...at(...b),...at(...c));
-  const shoulder=half*.36,neck=half*.31,bulge=half*.96;
-  ctx.lineTo(...at(a,0));
-  curve([a+shoulder,0],[.5-neck,.02],[.5-neck,.20]);
-  curve([.5-neck,.36],[.5-bulge,.42],[.5-bulge,.67]);
-  curve([.5-bulge,1.12],[.5+bulge,1.12],[.5+bulge,.67]);
-  curve([.5+bulge,.42],[.5+neck,.36],[.5+neck,.20]);
-  curve([.5+neck,.02],[b-shoulder,0],[b,0]);
-  ctx.lineTo(x2,y2);
- }
- edge(x,y,x+w,y,p.top);
- edge(x+w,y,x+w,y+h,p.right);
- edge(x+w,y+h,x,y+h,p.bottom);
- edge(x,y+h,x,y,p.left);
- ctx.closePath();
+const x=p.x+offX,y=p.y+offY,w=p.w,h=p.h;
+ctx.beginPath();ctx.moveTo(x,y);
+function edge(x1,y1,x2,y2,type){
+ const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+ if(!type){ctx.lineTo(x2,y2);return}
+ // Original familiar tab silhouette; scale only its width and depth
+ // from the shorter cell side for equal horizontal/vertical proportions.
+ const nx=-dy/len*type,ny=dx/len*type;
+ const unit=Math.min(w,h),depth=unit*.24;
+ const q=Math.min(len*.22,unit*.22)/(len*.22);
+ const at=(u,v)=>[x1+dx*u+nx*depth*v,y1+dy*u+ny*depth*v];
+ const curve=(a,b,c)=>ctx.bezierCurveTo(...at(...a),...at(...b),...at(...c));
+ ctx.lineTo(...at(.5-.22*q,0));
+ curve([.5-.15*q,0],[.5-.11*q,.02],[.5-.11*q,.20]);
+ curve([.5-.11*q,.36],[.5-.20*q,.40],[.5-.20*q,.67]);
+ curve([.5-.20*q,1.16],[.5+.20*q,1.16],[.5+.20*q,.67]);
+ curve([.5+.20*q,.40],[.5+.11*q,.36],[.5+.11*q,.20]);
+ curve([.5+.11*q,.02],[.5+.15*q,0],[.5+.22*q,0]);
+ ctx.lineTo(x2,y2);
+}
+edge(x,y,x+w,y,p.top);
+edge(x+w,y,x+w,y+h,p.right);
+edge(x+w,y+h,x,y+h,p.bottom);
+edge(x,y+h,x,y,p.left);
+ctx.closePath();
 }
 function drawPiece(p){
  const scale=(p.locked||p===drag)?1:p.scale;
