@@ -1,4 +1,9 @@
 
+## 2026-10-16 — Release 300 cache/version alignment (approved production repair)
+- User explicitly requested completion of GitHub release fix. Trial branch aligns `index.html` app script `v=300`, `app.js` service worker registration `v=300`, `service-worker.js` CORE/RUNTIME caches `areg-v300-*` and app precache `v=300`. Does not touch stars/localStorage, images, animations, jigsaw game logic, or other game files.
+- Motivation: PR #89 full-audit `qa/full-audit.mjs` failed version consistency; Pages success alone did not establish DotKiosk refresh. Verify audit and Pages deployment, then user device test. Rollback baseline main merge `90dd0ce906db500e6063543c7cdc8b4f2d22c1b0`.
+
+
 ## 2026-10-16 — User-approved jigsaw vertical centering for production
 - User explicitly approved trial commit `452118d16d6256829a72ce3bd89b0db659335772` for main/DotKiosk. Relative to main `4cfae33551b407969fea4609b584db67c277f4ba`, only `mind-jigsaw.html` changes (one layout calculation: center the two framed panels within available vertical height). Other games, assets, audio, star storage, and service worker remain unchanged.
 - Safari approval is user-provided; DotKiosk device verification is pending. Production release must pass required GitHub checks and Pages deployment. Do not claim device verified or cache refreshed without evidence. Rollback baseline: `4cfae33551b407969fea4609b584db67c277f4ba`.
