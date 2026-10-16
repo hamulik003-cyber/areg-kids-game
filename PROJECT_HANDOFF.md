@@ -1,3 +1,9 @@
+
+## 2026-10-16 — PR #87 production verification and DotKiosk report
+- User approved jigsaw layout trial `c0dcf4ba6d67c21fd8c107f0cb1ece746fb4730e`; PR #87 merged as `4cfae33551b407969fea4609b584db67c277f4ba` (only `mind-jigsaw.html`). GitHub Pages deployment run #38924554842 succeeded. Audit run #38924555525 failed at `Require both project handoffs with code changes`, causing later mobile/WebKit tests to be skipped; earlier assistant incorrectly treated merge as sufficient release QA.
+- User reports DotKiosk screen still looks unchanged after app restart. Root cause not established; screenshot alone cannot distinguish layout behavior from cached content. `app.js` currently loads `mind-jigsaw.html?embed=1&v=trial1`; service worker caches `areg-v299-*` and registers `service-worker.js?v=298`. Do not clear local storage or erase earned stars.
+- This checkpoint is documentation-only; it does not fix layout, change SW, or certify DotKiosk. Next: isolate a narrowly scoped, safe cache/version diagnostic and test Safari/DotKiosk, while preserving user data; only merge a functional fix after explicit user approval.
+
 ## 2026-10-16 — Jigsaw header trial — NOT APPROVED
 - Branch: `trial/jigsaw-exact-native-header-20261016`. Copied approved native header CSS geometry from main styles.css into trial mind-jigsaw.html; app.js same-origin iframe star synchronization added. Back routing remains unchanged. User's supplied «Գտիր գույները» screenshot is reference; exact rendered 1:1 fidelity still awaits iPhone screenshot validation.
 - Trial code SHA `f45f6e805482fb2fc02f6a30b98a4c005532b5a4`; main unchanged. Await Safari test and explicit approval before merging. Current trial handoff checkpoint also in CURRENT_STATUS.md. Do not assert DotKiosk verification.
