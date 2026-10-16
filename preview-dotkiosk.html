@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>AREG — DotKiosk չափերի փորձնական դիտում</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#16251d;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+#frame{position:absolute;top:0;left:0;width:393px;height:852px;border:0;background:#f9d8ac;transform-origin:0 0}
+#label{position:fixed;z-index:5;bottom:calc(env(safe-area-inset-bottom) + 6px);left:50%;transform:translateX(-50%);background:#132b25d9;border:1px solid #ffffff55;border-radius:12px;padding:5px 10px;font-size:11px;pointer-events:none;white-space:nowrap}
+</style></head><body>
+<iframe id="frame" title="AREG Kids Game DotKiosk-sized preview" src="./index.html" allow="autoplay"></iframe>
+<div id="label">Փորձնական DotKiosk չափ՝ 393 × 852 CSS px · ոչ տեղադրված հավելված</div>
+<script>
+(()=>{const frame=document.getElementById('frame');const width=393,height=852;
+function fit(){const vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;const scale=Math.min(vw/width,vh/height);frame.style.transform='scale('+scale+')';frame.style.left=Math.max(0,(vw-width*scale)/2)+'px';frame.style.top=Math.max(0,(vh-height*scale)/2)+'px'}
+addEventListener('resize',fit);if(window.visualViewport)visualViewport.addEventListener('resize',fit);fit()})();
+</script></body></html>
