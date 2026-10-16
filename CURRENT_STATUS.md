@@ -1,3 +1,16 @@
+## 2026-10-16 — Universal Nature-header trial (UNAPPROVED)
+- User selected screenshot of «Կենդանիներ» as canonical exact header (back arrow, title, star counter; aligned pixel-for-pixel across sections and games).
+- Branch `trial/unified-headers-from-jigsaw-20261016` started from prior approved-for-testing jigsaw trial, NOT main. Existing native section/activity header in styles.css already uses shared grid and safe-area landmark; left untouched.
+- Visual-only CSS and class additions in mind-shadow-3d.html, mind-match-pairs.html and mind-shapes-deluxe-v4.html to use consistent 56px/center/106px grid, 10px gap, +12px safe-area offset, font and wooden surface. Jigsaw inherited unchanged from latest user-liked trial. No game logic/assets/audio changed. Back and star element IDs unchanged.
+- Checkpoint commit `cc47097a104c573bacd9ce8b24d584b389847d66`. Need user Safari iPhone checks in each section, especially short heights, long titles, arrow navigation, star count, drag gestures, and DotKiosk later. NOT verified on device. Main untouched; no merge.
+
+
+## 2026-10-16 — Jigsaw native topbar trial (UNAPPROVED)
+- User supplied screenshot of «Գտիր գույները» and requested a 1:1 header in «Հավաքիր պատկերը», with actual code reuse rather than visual guessing.
+- Main does not contain a standalone «Գտիր գույները» file. Implemented an isolated trial `trial/jigsaw-exact-native-header-20261016` starting from `trial/jigsaw-reference-header-20261016`. Copied the approved native topbar geometry, color, border and shadows from main `styles.css` to `mind-jigsaw.html` (back/title/stars); kept title text fitted.
+- `app.js` now answers iframe `areg-jigsaw-stars-request` with actual in-memory stars using same-origin postMessage; iframe shows real parent stars and does not reset them. Existing back event and +5 star award remain in place.
+- Trial SHA at code checkpoint: `f45f6e805482fb2fc02f6a30b98a4c005532b5a4`; not tested in real Safari/PWA/DotKiosk yet. Not approved; DO NOT merge main.
+- Next: open immutable Safari preview, check header against supplied reference and verify back, star count, puzzle input on iPhone. Rollback: existing main untouched.
 ## PERMANENT USER RULE — NO IMAGE GENERATION WITHOUT EXPLICIT IMAGE-GENERATION REQUEST (2026-10-16)
 - For AREG Kids Game and related development discussions, when the user says “ստեղծիր”, “սարքի”, “պատրաստիր”, “խաղի մեջ սարքի”, or asks to show an implementation, this means **implement an actual interactive/playable game in code on an isolated trial branch**, not generate a picture, mockup, concept image, or collage.
 - **Never invoke an image-generation tool proactively.** Generate or edit an image **only** if the user explicitly asks to “գեներացրա”, “նկար գեներացրա”, or otherwise unmistakably requests image generation or an image edit. A reference screenshot/image is for visual guidance and does not itself authorize generating a new image.
