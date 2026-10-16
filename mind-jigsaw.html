@@ -81,14 +81,17 @@ function drawPiece(p){
 function layout(){const cols=count===12?3:count===4?2:3,rows=count/cols;const head=$('status').getBoundingClientRect();const root=cv.getBoundingClientRect();const top=Math.max(head.bottom-root.top+18,embedded?112:136),bottom=Math.max(22,H*.035);const gap=clamp(W*.024,8,13);const side=Math.max(10,W*.025);const trayH=clamp(W*.30,112,145);const maxMainH=Math.max(170,H-top-bottom-gap-trayH);const activeImage=imgs[image];const imageRatio=activeImage?.naturalWidth&&activeImage?.naturalHeight?activeImage.naturalWidth/activeImage.naturalHeight:1;const naturalPanelH=(W-2*side-54)/imageRatio+54;const mainH=Math.min(maxMainH,Math.max(200,naturalPanelH+30));const groupH=mainH+gap+trayH;const groupTop=top+Math.max(0,H-top-bottom-groupH)*.48;panel={x:side,y:groupTop,w:W-2*side,h:mainH};tray={x:side,y:groupTop+mainH+gap,w:W-2*side,h:trayH};const inset=31;const availableW=Math.max(80,panel.w-inset*2),availableH=Math.max(80,panel.h-inset*2);const source=imgs[image];const ratio=source?.naturalWidth&&source?.naturalHeight?source.naturalWidth/source.naturalHeight:1;const bw=availableW,bh=availableH;board={x:panel.x+inset,y:panel.y+inset,w:bw,h:bh,cols,rows};if(pieces.length){const pw=bw/cols,ph=bh/rows;for(const p of pieces){p.w=pw;p.h=ph;p.tx=board.x+(p.col+.5)*pw;p.ty=board.y+(p.row+.5)*ph;if(p.locked){p.cx=p.tx;p.cy=p.ty}else if(p!==drag){p.cx=p.homeX;p.cy=p.homeY}}}}
 let trayScroll=0,scrollPointer=null,scrollStartX=0,scrollOrigin=0,scrollMoved=false;
 let mistakes=0,hintPiece=null,wrongFlashUntil=0,wrongFlashX=0,wrongFlashY=0;
+let feedbackKind='',feedbackStart=0,feedbackX=0,feedbackY=0;
+function feedback(kind,x,y){feedbackKind=kind;feedbackX=x;feedbackY=y;feedbackStart=performance.now()}
+function keepHintVisible(){if(!hintPiece||hintPiece.locked||hintPiece===drag)return;const left=tray.x+33,right=tray.x+tray.w-33;const visibleX=hintPiece.homeX-trayScroll;const pad=hintPiece.w*hintPiece.scale*.68;if(visibleX<left+pad)trayScroll=clamp(hintPiece.homeX-(left+pad),0,maxTrayScroll());else if(visibleX>right-pad)trayScroll=clamp(hintPiece.homeX-(right-pad),0,maxTrayScroll())}
 function remaining(){return pieces.filter(p=>!p.locked)}
 function stride(){const p=pieces[0];return p?p.w*p.scale*1.70:80}
-function reflowTray(){remaining().forEach((p,i)=>{p.homeX=tray.x+25+p.w*p.scale*.76+stride()*i;p.homeY=tray.y+tray.h/2;if(p!==drag){p.cx=p.homeX;p.cy=p.homeY}});trayScroll=clamp(trayScroll,0,maxTrayScroll())}
-function flashWrong(x,y){wrongFlashX=x;wrongFlashY=y;wrongFlashUntil=performance.now()+750}
-function activateHint(){if(!hintPiece){hintPiece=remaining()[0]||null;if(hintPiece){const i=remaining().indexOf(hintPiece);trayScroll=clamp(hintPiece.homeX-tray.x-tray.w/2,0,maxTrayScroll())}}}
+function reflowTray(){remaining().forEach((p,i)=>{p.homeX=tray.x+25+p.w*p.scale*.76+stride()*i;p.homeY=tray.y+tray.h/2;if(p!==drag){p.cx=p.homeX;p.cy=p.homeY}});trayScroll=clamp(trayScroll,0,maxTrayScroll());keepHintVisible()}
+function flashWrong(x,y){wrongFlashX=x;wrongFlashY=y;wrongFlashUntil=performance.now()+850;feedback('wrong',x,y)}
+function activateHint(){if(!hintPiece){hintPiece=remaining()[0]||null;if(hintPiece){trayScroll=clamp(hintPiece.homeX-(tray.x+tray.w/2),0,maxTrayScroll());keepHintVisible()}}}
 
 function maxTrayScroll(){if(!pieces.length)return 0;const p=pieces[0],stride=p.w*p.scale*1.70;return Math.max(0,50+(remaining().length-1)*stride+p.w*p.scale*1.52-(tray.w-24))}
-function build(){if(winTimer){clearTimeout(winTimer);winTimer=null}celebrationStart=0;won=false;drag=null;activePointer=null;mistakes=0;hintPiece=null;wrongFlashUntil=0;$('modal').classList.remove('show');pieces=[];layout();const cols=board.cols,rows=board.rows,pw=board.w/cols,ph=board.h/rows;const grid=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const id=r*cols+c;grid.push({id,row:r,col:c,left:c?-grid[id-1].right:0,top:r?-grid[id-cols].bottom:0,right:c===cols-1?0:Math.random()<.5?1:-1,bottom:r===rows-1?0:Math.random()<.5?1:-1})}const ncols=count,nrows=1;trayScroll=0;const usableH=tray.h-52;const sc=Math.min(.78,usableH/(ph*1.68),.9);const gapX=pw*sc*1.70,gapY=0;const order=grid.map((g,i)=>({...g,sort:Math.random()})).sort((a,b)=>a.sort-b.sort);for(let i=0;i<count;i++){const g=order[i],col=i%ncols,row=Math.floor(i/ncols);const hx=tray.x+25+pw*sc*.76+gapX*col,hy=tray.y+tray.h/2;pieces.push({...g,w:pw,h:ph,tx:board.x+(g.col+.5)*pw,ty:board.y+(g.row+.5)*ph,cx:hx,cy:hy,homeX:hx,homeY:hy,scale:sc,locked:false})}reflowTray();$('status').textContent='Փուլ '+(round+1)+'/5 · 0/'+count+' կտոր';}
+function build(){if(winTimer){clearTimeout(winTimer);winTimer=null}celebrationStart=0;won=false;drag=null;activePointer=null;mistakes=0;hintPiece=null;wrongFlashUntil=0;feedbackKind='';$('modal').classList.remove('show');pieces=[];layout();const cols=board.cols,rows=board.rows,pw=board.w/cols,ph=board.h/rows;const grid=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const id=r*cols+c;grid.push({id,row:r,col:c,left:c?-grid[id-1].right:0,top:r?-grid[id-cols].bottom:0,right:c===cols-1?0:Math.random()<.5?1:-1,bottom:r===rows-1?0:Math.random()<.5?1:-1})}const ncols=count,nrows=1;trayScroll=0;const usableH=tray.h-52;const sc=Math.min(.78,usableH/(ph*1.68),.9);const gapX=pw*sc*1.70,gapY=0;const order=grid.map((g,i)=>({...g,sort:Math.random()})).sort((a,b)=>a.sort-b.sort);for(let i=0;i<count;i++){const g=order[i],col=i%ncols,row=Math.floor(i/ncols);const hx=tray.x+25+pw*sc*.76+gapX*col,hy=tray.y+tray.h/2;pieces.push({...g,w:pw,h:ph,tx:board.x+(g.col+.5)*pw,ty:board.y+(g.row+.5)*ph,cx:hx,cy:hy,homeX:hx,homeY:hy,scale:sc,locked:false})}reflowTray();$('status').textContent='Փուլ '+(round+1)+'/5 · 0/'+count+' կտոր';}
 function drawBg(time){if(embedded)return;ctx.save();const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#83bde0');sky.addColorStop(.42,'#d3e9d5');sky.addColorStop(1,'#d9a873');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);const t=time*.00018;for(let i=0;i<9;i++){const x=(i*91+Math.sin(t+i)*14)%(W+60)-30,y=H*(.12+.09*(i%4));ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#fff8df';ctx.beginPath();ctx.ellipse(x,y,38+(i%3)*15,13,0,0,Math.PI*2);ctx.fill();ctx.restore()}ctx.fillStyle='#83b77e';ctx.beginPath();ctx.moveTo(0,H*.84);ctx.quadraticCurveTo(W*.28,H*.72,W*.55,H*.82);ctx.quadraticCurveTo(W*.83,H*.72,W,H*.8);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();ctx.fillStyle='#e5b079';ctx.fillRect(0,H*.94,W,H*.06);for(let i=0;i<8;i++){const x=(i*71+17)%W,y=H*.94;ctx.fillStyle='#7d9f60';ctx.beginPath();ctx.ellipse(x,y,5,16,.3,0,Math.PI*2);ctx.fill()}ctx.restore()}
 function drawLivingPicture(){ctx.save();rounded(board.x,board.y,board.w,board.h,9);ctx.clip();imageCover(imgs[image],board.x,board.y,board.w,board.h);ctx.restore()}
 function draw(t){ctx.clearRect(0,0,W,H);drawBg(t);if(ready){frame(board.x,board.y,board.w,board.h);// Carved interlocking sockets replace flat rectangular grid lines.
@@ -127,7 +130,7 @@ cv.addEventListener('pointermove',e=>{
    }else if(Math.abs(dx)>Math.abs(dy)*.8){gestureMode='scroll';gesturePiece=null}
    else return;
   }
-  if(gestureMode==='scroll'){trayScroll=clamp(scrollOrigin+scrollStartX-v.x,0,maxTrayScroll());return}
+  if(gestureMode==='scroll'){trayScroll=clamp(scrollOrigin+scrollStartX-v.x,0,maxTrayScroll());keepHintVisible();return}
  }
  if(!drag||e.pointerId!==activePointer)return;
  drag.cx=clamp(v.x-drag.ox,drag.w*.35,W-drag.w*.35);
@@ -152,6 +155,7 @@ function release(e){
  const p=drag;drag=null;activePointer=null;
  const close=Math.hypot(p.cx-p.tx,p.cy-p.ty)<Math.max(35,Math.min(p.w,p.h)*.55);
  if(close){
+  feedback('correct',p.tx,p.ty);
   p.cx=p.tx;p.cy=p.ty;p.locked=true;mistakes=0;
   if(hintPiece===p)hintPiece=null;
   reflowTray();
