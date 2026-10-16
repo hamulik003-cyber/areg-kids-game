@@ -3122,9 +3122,27 @@
     });
   }
   function gameCups(){
-    const s=surface('☝️');let round=0,target=0;const area=document.createElement('div');area.className='cups-area';s.appendChild(area);
-    function next(){area.innerHTML='';target=Math.floor(Math.random()*3);for(let i=0;i<3;i++){const b=document.createElement('button');b.className='cup-btn';b.innerHTML=`🥤<span class="cup-star">⭐</span>`;if(i===target)b.classList.add('reveal');area.appendChild(b);b.addEventListener('click',()=>choose(i,b))}setTimeout(()=>{$$('.cup-btn',area).forEach(b=>b.classList.remove('reveal'));area.animate([{transform:'translateX(0)'},{transform:'translateX(10px)'},{transform:'translateX(-10px)'},{transform:'translateX(0)'}],{duration:650})},850)}
-    function choose(i,b){if(i===target){b.classList.add('reveal');round++;if(round>=3)reward();else setTimeout(next,550)}else shake(b)}next()
+    // "Հավաքիր պատկերը" — embedded real jigsaw, preserving the approved game-card portal.
+    activityScreen.classList.add('mind-v4-mode');
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Հավաքիր պատկերը';
+    frame.src='./mind-jigsaw.html?embed=1&v=trial1';
+    frame.setAttribute('loading','eager');
+    activityContent.append(frame);
+    const onMessage=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow||currentGame?.kind!=='cups')return;
+      if(event.data?.type==='areg-jigsaw-back'){backToSection();return}
+      if(event.data?.type==='areg-jigsaw-earned'&&event.data.amount===5){
+        stars+=5;saveStars();updateStars();
+      }
+    };
+    addEventListener('message',onMessage);
+    gameCleanup.push(()=>{
+      removeEventListener('message',onMessage);
+      activityScreen.classList.remove('mind-v4-mode');
+    });
   }
 
   /* CREATIVITY */
