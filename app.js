@@ -3134,6 +3134,7 @@
     const onMessage=event=>{
       if(event.origin!==location.origin||event.source!==frame.contentWindow||currentGame?.kind!=='cups')return;
       if(event.data?.type==='areg-jigsaw-back'){backToSection();return}
+      if(event.data?.type==='areg-jigsaw-stars-request'){frame.contentWindow?.postMessage({type:'areg-jigsaw-stars-sync',stars},location.origin);return}
       if(event.data?.type==='areg-jigsaw-earned'&&event.data.amount===5){
         stars+=5;saveStars();updateStars();
       }
