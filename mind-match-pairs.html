@@ -359,6 +359,10 @@ img{-webkit-user-drag:none!important;pointer-events:none!important}
 .areg-unified-header>.areg-header-stars{font-size:21px!important}
 @media(max-width:370px){.areg-unified-header>.areg-header-title{font-size:clamp(17px,4.2vw,24px)!important}.areg-unified-header>.areg-header-stars{font-size:18px!important}}
 
+/* Match Shapes' 12px side inset: the matching shell's internal padding
+   previously made the header 12px too narrow on each side. Only extend
+   the header grid; do not touch the board or the rest of the shell. */
+.shell>.top.areg-unified-header{width:calc(100% + 24px)!important;max-width:none!important;margin-left:-12px!important;margin-right:-12px!important}
 /* Match native Mind Games 12px horizontal header inset; leave board untouched. */
 .shell>.top.areg-unified-header{width:calc(100% + 0px)!important;max-width:none!important;justify-self:stretch!important}
 .shell{padding-left:12px!important;padding-right:12px!important}
