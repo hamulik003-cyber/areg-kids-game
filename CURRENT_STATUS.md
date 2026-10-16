@@ -1,3 +1,9 @@
+
+## 2026-10-16 — PR #87 production verification and DotKiosk report
+- User approved jigsaw layout trial `c0dcf4ba6d67c21fd8c107f0cb1ece746fb4730e`; PR #87 merged as `4cfae33551b407969fea4609b584db67c277f4ba` (only `mind-jigsaw.html`). GitHub Pages deployment run #38924554842 succeeded. Audit run #38924555525 failed at `Require both project handoffs with code changes`, causing later mobile/WebKit tests to be skipped; earlier assistant incorrectly treated merge as sufficient release QA.
+- User reports DotKiosk screen still looks unchanged after app restart. Root cause not established; screenshot alone cannot distinguish layout behavior from cached content. `app.js` currently loads `mind-jigsaw.html?embed=1&v=trial1`; service worker caches `areg-v299-*` and registers `service-worker.js?v=298`. Do not clear local storage or erase earned stars.
+- This checkpoint is documentation-only; it does not fix layout, change SW, or certify DotKiosk. Next: isolate a narrowly scoped, safe cache/version diagnostic and test Safari/DotKiosk, while preserving user data; only merge a functional fix after explicit user approval.
+
 ## 2026-10-16 — Universal Nature-header trial (UNAPPROVED)
 - User selected screenshot of «Կենդանիներ» as canonical exact header (back arrow, title, star counter; aligned pixel-for-pixel across sections and games).
 - Branch `trial/unified-headers-from-jigsaw-20261016` started from prior approved-for-testing jigsaw trial, NOT main. Existing native section/activity header in styles.css already uses shared grid and safe-area landmark; left untouched.
