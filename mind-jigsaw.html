@@ -40,19 +40,19 @@ const x=p.x+offX,y=p.y+offY,w=p.w,h=p.h;
 ctx.beginPath();ctx.moveTo(x,y);
 function edge(x1,y1,x2,y2,type){
  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
- if(!type||len<2){ctx.lineTo(x2,y2);return}
- // Rounded classic jigsaw connector: gentle shoulders, narrow neck and a circular bulb.
- // The perpendicular displacement is capped by the smaller piece dimension.
+ if(!type){ctx.lineTo(x2,y2);return}
+ // One shared, reversible contour for the piece and its socket.
+ // The outward normal is reversed by the edge traversal on adjacent pieces.
  const nx=-dy/len*type,ny=dx/len*type;
- const depth=Math.min(len*.27,Math.min(w,h)*.27);
+ const depth=Math.min(len*.22,Math.min(w,h)*.23);
  const at=(u,v)=>[x1+dx*u+nx*depth*v,y1+dy*u+ny*depth*v];
  const curve=(a,b,c)=>ctx.bezierCurveTo(...at(...a),...at(...b),...at(...c));
- ctx.lineTo(...at(.29,0));
- curve([.34,0],[.39,-.06],[.39,-.24]);
- curve([.38,-.43],[.30,-.60],[.32,-.91]);
- curve([.34,-1.27],[.68,-1.27],[.70,-.91]);
- curve([.72,-.60],[.62,-.43],[.61,-.24]);
- curve([.61,-.06],[.66,0],[.71,0]);
+ ctx.lineTo(...at(.30,0));
+ curve([.36,0],[.40,.02],[.40,.22]);
+ curve([.40,.34],[.31,.38],[.31,.68]);
+ curve([.31,1.11],[.69,1.11],[.69,.68]);
+ curve([.69,.38],[.60,.34],[.60,.22]);
+ curve([.60,.02],[.64,0],[.70,0]);
  ctx.lineTo(x2,y2);
 }
 edge(x,y,x+w,y,p.top);
