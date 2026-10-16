@@ -5,10 +5,14 @@
 html.embedded .top{position:absolute;z-index:5;left:clamp(10px,3vw,22px);right:clamp(10px,3vw,22px);top:clamp(8px,2.4vh,20px)}
 html.embedded .top .wood{padding:0;text-shadow:none;min-height:0;display:grid;place-items:center;color:#542718}
 html.embedded .top .back{text-decoration:none}
-html.embedded .top .heading{min-width:0;font-size:clamp(16px,4.8vw,28px)}
+html.embedded .top .heading{min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;letter-spacing:0;line-height:1.12;padding:0 4px;font-size:clamp(13px,3.8vw,24px);text-align:center}
+html.embedded .top .stars{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap;white-space:nowrap;font-size:22px}
+html.embedded .top .stars span{display:inline-block;flex:none}
+html.embedded .top .back{display:grid;place-items:center}
+
 html.embedded .sub{display:none}
 html.embedded .footer{display:none}
-</style></head><body><canvas id="game"></canvas><header class="top"><a class="wood back" href="index.html" id="jigsawBack" aria-label="Հետ">←</a><div class="wood heading">Հավաքիր պատկերը</div><div class="wood stars">⭐ <span id="stars">0</span></div></header><div class="sub" id="status">1 / 5　🟡 ⚪ ⚪ ⚪ ⚪</div><div class="modal" id="modal"><div class="dialog"><div style="font-size:64px">🏆</div><h2>Ապրե՜ս, հավաքեցիր նկարը</h2><p>⭐ +5 աստղ</p><button id="next">Շարունակել</button></div></div><div class="loading" id="loading">Բեռնվում է փազլը…</div><script>
+</style></head><body><canvas id="game"></canvas><header class="top"><a class="wood back" href="index.html" id="jigsawBack" aria-label="Հետ">←</a><div class="wood heading">Հավաքիր պատկերը</div><div class="wood stars"><span aria-hidden="true">⭐</span><span id="stars">0</span></div></header><div class="sub" id="status">1 / 5　🟡 ⚪ ⚪ ⚪ ⚪</div><div class="modal" id="modal"><div class="dialog"><div style="font-size:64px">🏆</div><h2>Ապրե՜ս, հավաքեցիր նկարը</h2><p>⭐ +5 աստղ</p><button id="next">Շարունակել</button></div></div><div class="loading" id="loading">Բեռնվում է փազլը…</div><script>
 (()=>{'use strict';const embedded=new URLSearchParams(location.search).has('embed');if(embedded)document.documentElement.classList.add('embedded');const cv=document.getElementById('game'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id);let W=0,H=0,dpr=1,count=4,round=0,stars=0,board={},panel={},tray={},pieces=[],drag=null,imgs=[],ready=false,particles=[],won=false,activePointer=null,celebrationStart=0,winTimer=null;const assets=['animal-dog.jpg','animal-cat.jpg','animal-rabbit.jpg','animal-lion.jpg','animal-deer.jpg'];const names=['Շնիկ','Կատու','Նապաստակ','Առյուծ','Եղնիկ'];let image=0;const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const rand=(a,b)=>a+Math.random()*(b-a);const ease=t=>1-Math.pow(1-t,3);
 function resize(){W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);layout()}addEventListener('resize',resize);
 function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
