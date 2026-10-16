@@ -1,3 +1,9 @@
+## 2026-10-16 — User-approved header detail fixes
+- User approved trial `a57db9245149ad17162a61a16fadfc6e42a7821c` and requested main merge for DotKiosk validation.
+- PR #81 merged successfully to main as `02bd29b83be2a4b45c34c2f30caa4bb69ad89e0f`.
+- Adjustments: pair game progress dots/1-of-5 marker lowered and brown background removed across six themes; shape game stage chips slightly lowered; Constellations title typography resized to fit its wooden header. No game logic, assets, audio, or star calculations altered.
+- Device validation in DotKiosk still pending user confirmation. Do not conflate GitHub merge with completed DotKiosk verification.
+
 ## 2026-10-16 — Approved unified header alignment release
 - User approved trial `e67d8305f044f68f509148c2ec26c172f4604563` and explicitly requested moving to main for final DotKiosk check.
 - PR #79 squash merged to main at `9baccb01cf8f12ad4c6b30432f21e66676ba38a5`. Files changed: `styles.css`, `mind-match-pairs.html`, `mind-shadow-3d.html`, `mind-shapes-deluxe-v4.html`.
