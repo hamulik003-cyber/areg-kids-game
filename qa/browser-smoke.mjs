@@ -366,8 +366,8 @@ try{
             proof.oneContinuousFlight=true;
         }
         if(inner.dataset.innerGameCrossfade==='running' &&
-           inner.style.transition.includes('1100ms') &&
-           outer.style.transition.includes('1100ms') &&
+           inner.style.transition.includes('800ms') &&
+           outer.style.transition.includes('800ms') &&
            inner.style.opacity==='1' && outer.style.opacity==='0'){
           proof.crossfade=true;
           if(inner.style.transform==='none' &&
