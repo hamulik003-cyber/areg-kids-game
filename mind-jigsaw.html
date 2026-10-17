@@ -153,7 +153,7 @@ function draw(t){
  const dt=Math.min(48,Math.max(0,t-(draw.lastTime||t)));draw.lastTime=t;
  const ease=1-Math.exp(-dt/95);
  for(const p of pieces){if(p.locked)continue;
-  const target=p===drag?1:p===gesturePiece&&gestureMode==='pending'?Math.min(1,p.scale*1.18):p.scale;
+  const target=p===drag?1:p.scale; // Holding a tray piece must not enlarge or overlap its neighbors.
   p.visualScale+=(target-p.visualScale)*ease;
   if(Math.abs(p.visualScale-target)<.001)p.visualScale=target;
  }
@@ -243,7 +243,7 @@ const settingsPlay=$('settingsClose');settingsPlay.addEventListener('pointerdown
 cv.addEventListener('pointerup',release);
 cv.addEventListener('pointercancel',e=>{
  if(drag&&e.pointerId===activePointer){drag.cx=drag.homeX;drag.cy=drag.homeY;drag=null;activePointer=null}
- if(e.pointerId===scrollPointer){scrollPointer=null;gestureMode='none';gesturePiece=null}
+ if(e.pointerId===scrollPointer){scrollPointer=null;gestureMode='none';gesturePiece=null;scrollMoved=false}
 });
 document.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>{count=12;document.querySelectorAll('[data-count]').forEach(x=>x.classList.toggle('selected',x===b));build()});$('next').addEventListener('pointerdown',()=>{$('next').classList.add('pressed');unlockAudio()});
 $('next').addEventListener('pointerup',()=>{$('next').classList.remove('pressed')});
