@@ -1,3 +1,7 @@
+## 2026-10-17 — Approved DotKiosk jigsaw stage plaque adjustment (PR #96)
+- User approved the reference layout and explicitly requested promotion to main. Trial `trial/jigsaw-stage-pill-20261017` changes only `mind-jigsaw.html` CSS: stage/progress plaque lowered from safe-area +85px to +98px, widened from 54% to 64% of viewport, given 44px minimum height, centered flex alignment and slightly larger text. Embedded and standalone use the same rule. Puzzle geometry, board/tray, input, rewards and audio are unchanged.
+- PR #96 first CI run #715 was blocked solely by the mandatory two-journal guard; both journals are now updated. Full CI must pass before merging. Actual DotKiosk confirmation is still pending after deployment.
+
 ## 2026-10-17 — PR #95 reverse flight CI regression
 - Run `39019215028`: mobile browser failed `V290 game reverse cinematic transition missing nature/animals` with actual animation duration 760ms and all other reverse-flight properties correct; production uses `INNER_SECTION_MOTION.returnMs=760` and `HOME_SECTION_MOTION.returnMs=760`, but smoke assertions expected 1040ms. Corrected both reverse-flight assertions and the puzzle enter/reverse observer to 760ms. Existing reverse animation and all assertions remain active. Main unchanged pending green CI.
 
