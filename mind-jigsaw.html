@@ -194,7 +194,7 @@ cv.addEventListener('pointermove',e=>{
     scrollPointer=null;gesturePiece=null;
     drag.cx=clamp(v.x-drag.ox,drag.w*.35,W-drag.w*.35);
     drag.cy=clamp(v.y-drag.oy,130,H-75);
-   }else if(Math.abs(dx)>Math.max(24,Math.abs(dy)*1.25)&&(!gesturePiece||performance.now()-gestureDownAt<180)){gestureMode='scroll';gesturePiece=null}
+   }else if(Math.abs(dx)>Math.max(32,Math.abs(dy)*1.5)&&(!gesturePiece||performance.now()-gestureDownAt<140)){gestureMode='scroll';gesturePiece=null}
    else return;
   }
   if(gestureMode==='scroll'){trayScroll=clamp(scrollOrigin+scrollStartX-v.x,0,maxTrayScroll());keepHintVisible();return}
@@ -216,7 +216,7 @@ function release(e){
     drag=null;activePointer=null;
    }
   }
-  scrollPointer=null;gestureMode='none';gesturePiece=null;trayScroll=clamp(trayScroll,0,maxTrayScroll());return;
+  if(gestureMode==='scroll')trayScroll=clamp(trayScroll,0,maxTrayScroll());else trayScroll=scrollOrigin;scrollPointer=null;gestureMode='none';gesturePiece=null;return;
  }
  if(!drag||e.pointerId!==activePointer)return;
  const p=drag;drag=null;activePointer=null;
