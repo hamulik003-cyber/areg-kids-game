@@ -89,8 +89,8 @@ try{
       if(incoming.dataset.entryCrossfade==='running' &&
          incoming.dataset.entrySection===id &&
          incoming.style.opacity==='1' && home.style.opacity==='0' &&
-         incoming.style.transition.includes('1100ms') &&
-         home.style.transition.includes('1100ms')){
+         incoming.style.transition.includes('800ms') &&
+         home.style.transition.includes('800ms')){
         proof.targeted=true;
         proof.correctSection=true;
         if(!incoming.hidden && home.style.visibility!=='hidden')
