@@ -137,7 +137,7 @@ function drawFeedback(t){if(!feedbackKind)return;const elapsed=t-feedbackStart;i
  else{ctx.moveTo(-30,-30);ctx.lineTo(30,30);ctx.moveTo(30,-30);ctx.lineTo(-30,30)}
  ctx.strokeStyle='white';ctx.lineWidth=23;ctx.stroke();ctx.strokeStyle=feedbackKind==='correct'?'#13c83d':'#f03835';ctx.lineWidth=15;ctx.stroke();ctx.restore()
 }
-function keepHintVisible(){if(!hintPiece||hintPiece.locked||hintPiece===drag)return;const left=tray.x+33,right=tray.x+tray.w-33;const visibleX=hintPiece.homeX-trayScroll;const pad=hintPiece.w*hintPiece.scale*.68;if(visibleX<left+pad)trayScroll=clamp(hintPiece.homeX-(left+pad),0,maxTrayScroll());else if(visibleX>right-pad)trayScroll=clamp(hintPiece.homeX-(right-pad),0,maxTrayScroll())}
+function keepHintVisible(){if(!hintPiece||hintPiece.locked||hintPiece===drag)return;const idx=remaining().indexOf(hintPiece);if(idx<0)return;trayPage=Math.floor(idx/3);trayScroll=trayPage*stride()*3}
 function remaining(){return pieces.filter(p=>!p.locked)}
 function stride(){return (tray.w-44)/3}
 function reflowTray(){remaining().forEach((p,i)=>{p.homeX=tray.x+22+stride()*(i+.5);p.homeY=tray.y+tray.h/2;if(p!==drag){p.cx=p.homeX;p.cy=p.homeY}});trayPage=clamp(trayPage,0,Math.max(0,Math.ceil(remaining().length/3)-1));trayScroll=trayPage*stride()*3;keepHintVisible()}
