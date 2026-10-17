@@ -38,7 +38,9 @@ function layout(){
  const preferredBoardH=preferredBoardW/.87;
  const availableBoardH=Math.max(1,freeHeight-boardTrayGap-preferredTrayH);
  const scale=Math.min(1,availableBoardH/preferredBoardH);
- const bw=preferredBoardW*scale,bh=preferredBoardH*scale;
+ // Align the outer wooden board frame (14px overhang per side) with the tray frame.
+ // Change only horizontal board size: keep the approved board height and both Y positions.
+ const bw=W-64,bh=preferredBoardH*scale;
  board={x:(W-bw)/2,y:top,w:bw,h:bh};
  tray={x:18,y:top+bh+boardTrayGap,w:W-36,h:preferredTrayH};
  pieces.forEach(p=>{p.x=board.x+(p.c+.5)*board.w/p.cols;p.y=board.y+(p.r+.5)*board.h/p.rows;p.w=board.w/p.cols;p.h=board.h/p.rows})
