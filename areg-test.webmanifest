@@ -1,9 +1,9 @@
 {
-  "id": "./areg-test.html",
-  "name": "AREG TEST — ամբողջական փորձնական խաղ",
+  "id": "./areg-test-standalone",
+  "name": "AREG TEST — փորձնական ամբողջաէկրան խաղ",
   "short_name": "AREG TEST",
   "lang": "hy",
-  "start_url": "./areg-test.html",
+  "start_url": "./index.html?areg_trial=1",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
