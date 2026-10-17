@@ -329,7 +329,8 @@ continueButton.addEventListener('lostpointercapture',e=>{
 });
 // Keyboard/accessibility or legacy browsers: the synthesized click after
 // pointerup is ignored because the 180ms transition is already scheduled.
-continueButton.onclick=()=>{if(nextPointerId===null)launchNextStage()};
+// Touch/pointer clicks are handled on release above; the click fallback is keyboard only.
+continueButton.onclick=e=>{if(e.detail===0&&nextPointerId===null)launchNextStage()};
 $('jigsawBack').onclick=()=>{if(embedded)parent.postMessage({type:'areg-jigsaw-back'},'*');else location.href='index.html'};
 $('settingsGear').onclick=()=>$('settingsModal').classList.add('show');$('settingsClose').onclick=()=>$('settingsModal').classList.remove('show');
 for(const n of [4,12,16,20,36]){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{count=n;document.querySelectorAll('#pieceChoices button').forEach(x=>x.classList.toggle('selected',x===b));build()};if(n===12)b.classList.add('selected');$('pieceChoices').append(b)}
