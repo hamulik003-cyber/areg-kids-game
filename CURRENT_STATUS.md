@@ -1,3 +1,7 @@
+## 2026-10-17 — Jigsaw long-press tray stability trial (NOT approved for main)
+- User reported tray puzzle pieces seeming to overlap/disappear after holding and releasing. Trial disables the pending-press visual enlargement (`visualScale` remains at tray scale until a real upward drag begins), preserving positions and avoiding long-press piece overlap; also resets canceled scroll gesture flag. No layout, image, puzzle shape, reward, sound, or cache changes.
+- Trial commit `27306acf` on `trial/jigsaw-long-press-tray-stability-20261017`; require direct Safari touch validation and full audit before main. This is a focused hypothesis fix; exact reported device behavior still needs reproduction confirmation.
+
 ## 2026-10-17 — Trial cleanup of superseded fruit assets (NOT approved for main yet)
 - User requested a cautious audit and removal of genuinely unused game images. GitHub main baseline `4b5bd769` contains 771 image files (376,538,458 bytes in the current tree). In `mind-match-pairs.html`, the live Fruits pool explicitly references 30 numbered `.jpg` files (1–20, 22–31), not the previous descriptive fruit PNG/WebP assets.
 - Trial `trial/unused-fruit-assets-cleanup-20261017` removes **81 root-level superseded descriptive fruit PNG/WebP files**, totaling **7,931,163 bytes (7.93 MB / 7.56 MiB)** from the checked-out tree. It does not touch the active numbered JPG fruit files, category artwork, gameplay, PWA, cache, or other image families.
