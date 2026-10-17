@@ -102,11 +102,31 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d'),embedded=new URLSearchParams(location.search).has('embed');if(embedded)document.documentElement.classList.add('embedded');
 const assets=['animal-dog.jpg','animal-cat.jpg','animal-rabbit.jpg','animal-lion.jpg','animal-deer.jpg'],names=['Շնիկ','Կատու','Նապաստակ','Առյուծ','Եղնիկ'],imgs=[],KEY='areg-stars-v35';
-let W=0,H=0,dpr=1,round=0,count=12,photo=0,custom=false,customURL=null,pieces=[],page=0,board={},tray={},active=null,press=null,swipe=null,pageMotion=null,ready=false,won=false,rewarded=false,animTime=0,feedbackTimer=null,feedbackSerial=0,audioCtx=null;
+const LEVEL_COUNTS=[4,12,16,20,36];
+let W=0,H=0,dpr=1,round=0,count=4,photo=0,custom=false,customURL=null,pieces=[],page=0,board={},tray={},active=null,press=null,swipe=null,pageMotion=null,ready=false,won=false,rewarded=false,animTime=0,feedbackTimer=null,feedbackSerial=0,audioCtx=null;
+let photoDeck=[],sessionId=Math.random().toString(36).slice(2),stageAwarded=false,awardTimer=null,burstTimer=null,winAudioStarted=false;
 let victoryAt=0,victoryTimer=null,nextTimer=null,nextPointerId=null,nextTransition=false;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=(a,b)=>a+Math.random()*(b-a),rest=()=>pieces.filter(p=>!p.done);
 function stars(n){$('stars').textContent='⭐ '+n}try{if(embedded)parent.postMessage({type:'areg-jigsaw-stars-request'},location.origin);else stars(Number(localStorage.getItem(KEY))||0)}catch(e){}
-addEventListener('message',e=>{if(embedded&&e.source===parent&&e.origin===location.origin&&e.data?.type==='areg-jigsaw-stars-sync')stars(Number(e.data.stars)||0)});
+function useSelectedTheme(data){
+ if(!data||!Array.isArray(data.colors)||data.colors.length!==3)return;
+ const colors=data.colors.map(v=>String(v||'').trim());
+ if(colors.some(v=>!/^#[0-9a-fA-F]{3,8}$/.test(v)&&!/^rgba?\([0-9.,% ]+\)$/.test(v)))return;
+ const layer=$('jigsawThemeBackground'),photoFile=data.photo;
+ if(typeof photoFile==='string'&&/^theme-bg-[a-z0-9-]+\.svg$/.test(photoFile)){
+  layer.style.backgroundImage='linear-gradient(180deg,rgba(10,10,24,.04),rgba(10,10,24,.18)),url("'+photoFile+'")';
+  layer.style.backgroundPosition='center center';layer.style.backgroundSize='cover';
+  layer.style.filter='blur('+clamp(Number(data.blur)||0,0,24)+'px) saturate(.98) brightness(.93)';
+ }else{
+  layer.style.filter='none';
+  layer.style.backgroundImage='radial-gradient(circle at 15% 10%,rgba(255,255,255,.23),transparent 28%),radial-gradient(circle at 82% 26%,rgba(255,255,255,.13),transparent 26%),linear-gradient(180deg,'+colors[0]+','+colors[1]+' 58%,'+colors[2]+')';
+ }
+}
+addEventListener('message',e=>{
+ if(!embedded||e.source!==parent||e.origin!==location.origin)return;
+ if(e.data?.type==='areg-jigsaw-stars-sync'){stars(Number(e.data.stars)||0);return}
+ if(e.data?.type==='areg-jigsaw-theme')useSelectedTheme(e.data)
+});
 function rect(x,y,w,h,r=15){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
 function fill(x,y,w,h,c1,c2,r=15){const g=ctx.createLinearGradient(x,y,x+w*.18,y+h);g.addColorStop(0,c1);g.addColorStop(1,c2);rect(x,y,w,h,r);ctx.fillStyle=g;ctx.fill()}
 
@@ -239,7 +259,13 @@ function tile(p,x,y,scale=1,raised=false,placed=false){
  }
  ctx.restore()
 }
-function build(){if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
+function shufflePhotos(){
+ const deck=assets.map((_,i)=>i);
+ for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+ return deck
+}
+function startNextPhotoCycle(){photoDeck=shufflePhotos();sessionId=Math.random().toString(36).slice(2)}
+function build(){if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}if(burstTimer!==null){clearTimeout(burstTimer);burstTimer=null}$('rewardBurst').replaceChildren();$('rewardFlightLayer').replaceChildren();stageAwarded=false;winAudioStarted=false;if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
 function update(){$('status').textContent='Փուլ '+(round+1)+'/5 · '+pieces.filter(p=>p.done).length+'/'+count+' կտոր'}
 function pageCount(){return Math.max(1,Math.ceil(rest().length/3))}
 function setPage(n){page=clamp(n,0,pageCount()-1);pageMotion=null}
@@ -272,8 +298,7 @@ function drawTrayPage(pageIndex,offset,dt){
  })
 }
 function scene(t){const dt=Math.min(50,t-(animTime||t));animTime=t;ctx.clearRect(0,0,W,H);
-let g=ctx.createRadialGradient(W*.4,H*.25,30,W*.5,H*.5,H);g.addColorStop(0,'#405d91');g.addColorStop(.55,'#172b50');g.addColorStop(1,'#080f25');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-for(let i=0;i<17;i++){ctx.beginPath();ctx.arc((i*97+23)%W,(i*139+17)%H,1.5+(i%3),0,7);ctx.fillStyle='#b1e6ff55';ctx.fill()}
+// Transparent canvas shows the actual selected app theme behind both RGB frames.
 drawFrame(board.x-14,board.y-14,board.w+28,board.h+28,t);
 if(won){
  // Full photograph replaces individual tiles, so no seams/outlines survive the win.
@@ -343,8 +368,10 @@ function launchNextStage(){
  nextTransition=true;
  nextTimer=setTimeout(()=>{
   nextTimer=null;
-  round=(round+1)%5;
-  if(!custom){photo=imgs[round]?.naturalWidth?round:imgs.findIndex(im=>im?.naturalWidth>0);if(photo<0)photo=round}
+  if(!stageAwarded)creditStageReward();
+  round++;
+  if(round>=5){round=0;startNextPhotoCycle()}
+  count=LEVEL_COUNTS[round];custom=false;photo=photoDeck[round];
   build();$('modal').classList.remove('show')
  },180)
 }
@@ -376,9 +403,21 @@ continueButton.addEventListener('lostpointercapture',e=>{
 continueButton.onclick=e=>{if(e.detail===0&&nextPointerId===null)launchNextStage()};
 $('jigsawBack').onclick=()=>{if(embedded)parent.postMessage({type:'areg-jigsaw-back'},'*');else location.href='index.html'};
 $('settingsGear').onclick=()=>$('settingsModal').classList.add('show');$('settingsClose').onclick=()=>$('settingsModal').classList.remove('show');
-for(const n of [4,12,16,20,36]){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{count=n;document.querySelectorAll('#pieceChoices button').forEach(x=>x.classList.toggle('selected',x===b));build()};if(n===12)b.classList.add('selected');$('pieceChoices').append(b)}
+for(const n of LEVEL_COUNTS){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{count=n;document.querySelectorAll('#pieceChoices button').forEach(x=>x.classList.toggle('selected',x===b));build()};if(n===4)b.classList.add('selected');$('pieceChoices').append(b)}
 $('customPhoto').onchange=e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith('image/'))return;const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{if(customURL)URL.revokeObjectURL(customURL);customURL=url;imgs[5]=im;photo=5;custom=true;round=0;build();$('photoInfo').textContent='✓ '+f.name;$('settingsModal').classList.remove('show')};im.onerror=()=>URL.revokeObjectURL(url);im.src=url};
-let loaded=0;assets.forEach((a,i)=>{const im=new Image();imgs[i]=im;im.onload=()=>{loaded++;if(!ready){ready=true;$('loading').style.display='none';photo=i;build()}};im.onerror=()=>{loaded++;if(loaded===5&&!ready)$('loading').textContent='Նկարները չբեռնվեցին'};im.src=a});
+let loaded=0;
+function finishLoading(){
+ if(loaded!==assets.length||ready)return;
+ if(imgs.some(im=>!im||!im.naturalWidth)){$('loading').textContent='Որոշ նկարներ չբեռնվեցին։ Փորձեք վերագործարկել խաղը։';return}
+ ready=true;$('loading').style.display='none';
+ startNextPhotoCycle();round=0;count=LEVEL_COUNTS[0];photo=photoDeck[0];build()
+}
+assets.forEach((asset,i)=>{
+ const im=new Image();imgs[i]=im;
+ im.onload=()=>{loaded++;finishLoading()};
+ im.onerror=()=>{loaded++;finishLoading()};
+ im.src=asset
+});
 addEventListener('resize',()=>{resize();setPage(page)});resize();requestAnimationFrame(scene);
 })();
 </script></body></html>
