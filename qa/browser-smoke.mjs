@@ -120,7 +120,7 @@ try{
   if(!entryPilot.flight||entryPilot.flightSection!==section||
      entryPilot.animationCount!==1||!entryPilot.sourceHidden||
      entryPilot.frameCount!==2||entryPilot.firstOpacity!==1||
-     entryPilot.lastOpacity!==0||entryPilot.duration!==1040||
+     entryPilot.lastOpacity!==0||entryPilot.duration!==760||
      !entryPilot.finalTransform?.includes('translate3d('))
     throw Error('V288 all-section flight missing or incorrect '+section+' '+JSON.stringify(entryPilot));
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
