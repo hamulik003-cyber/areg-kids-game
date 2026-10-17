@@ -1,3 +1,6 @@
+## 2026-10-17 — Trial jigsaw scroll bounds fix
+- User screenshot shows tray apparently losing pieces after long hold. `maxTrayScroll()` previously allowed overscroll beyond the last remaining piece. Trial `e7da9d0e` calculates bound from actual last piece, clamps after release, and protects long-held piece from accidental swipe. Approved press enlargement and all animations restored/preserved. No main merge without verified user approval.
+
 ## 2026-10-17 — CORRECTION: preserve approved jigsaw long-press animation
 - User rejected trial removal of the press-to-enlarge animation. Immediately restored the **exact original visualScale target** (`p===gesturePiece && gestureMode==='pending' ? min(1,p.scale*1.18) : p.scale`) in trial commit `6dbcc69a`.
 - Only intended bug fix: avoid accidental horizontal tray scrolling triggered by small movements while holding a piece. Horizontal scroll now requires >24px predominantly horizontal movement initiated within 180ms; deliberate quick swipes remain. Original lift/drag/placement animation unchanged. This is a trial hypothesis awaiting user validation; do not merge to main without approval.
