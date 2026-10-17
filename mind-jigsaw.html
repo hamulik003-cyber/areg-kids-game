@@ -320,13 +320,14 @@ function beginGuidedHint(){
 }
 function drawGuidedPieceRing(p,x,y,slot,t){
  if(p!==guidedPiece||p.done)return;
- const wave=(Math.sin(t*.005)+1)*.5;
- ctx.save();ctx.shadowColor='rgba(48,255,120,.8)';ctx.shadowBlur=12+wave*9;
- ctx.strokeStyle='rgba(95,255,139,'+(.84+wave*.16)+')';
- ctx.lineWidth=4.2;
+ const pulse=(Math.sin(t*.006)+1)*.5;
  const sc=Math.min((slot-18)/(p.w*1.52),(tray.h-52)/(p.h*1.52),.78);
- ctx.translate(x,y);ctx.scale(sc,sc);shape(p,0,0);
- ctx.stroke();ctx.restore()
+ ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+ shape(p,0,0);
+ ctx.fillStyle='rgba(45,255,106,'+(.13+pulse*.11)+')';ctx.fill();
+ ctx.shadowColor='rgba(35,255,114,.95)';ctx.shadowBlur=(15+pulse*12)/sc;
+ ctx.strokeStyle='rgba(104,255,139,'+(.81+pulse*.19)+')';
+ ctx.lineWidth=4.5/sc;ctx.stroke();ctx.restore()
 }
 function drawGuidedDestination(t){
  if(!guidedPiece||!guidePicked||guidedPiece.done||won)return;
