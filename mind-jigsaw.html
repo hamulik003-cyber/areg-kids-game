@@ -13,6 +13,13 @@
 @keyframes flake-fall{0%{opacity:0;transform:translate3d(0,-8vh,0) rotate(0deg) scale(.5)}
   13%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate3d(var(--flake-drift),115vh,0) rotate(var(--flake-rotation)) scale(.76)}}
 #rewardFlightLayer{position:fixed;inset:0;z-index:13;pointer-events:none;overflow:hidden}
+#rewardCounterPreview{position:fixed;z-index:14;pointer-events:none;display:none;align-items:center;justify-content:center;
+ border:1px solid #b6e6ff9a;border-radius:18px;background:linear-gradient(155deg,#3d648d,#1b345d);
+ box-shadow:inset 0 2px #ffffff65,0 8px 18px #020b1cb0;color:#fff;font-size:19px;font-weight:900;
+ text-shadow:0 2px 3px #071129;white-space:nowrap}
+#rewardCounterPreview.show{display:flex}
+#rewardCounterPreview.arrived{animation:starCounterPop .44s ease-out}
+@keyframes starCounterPop{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
 .reward-fly-star{position:absolute;font-size:38px;line-height:1;will-change:transform,opacity;
  filter:drop-shadow(0 3px 5px #613d11a6)}
 #rewardHero{position:relative;min-height:186px;display:grid;place-items:center;margin:0 auto 8px;max-width:260px}
@@ -96,7 +103,7 @@
 </div>
 <h2 id="rewardTitle">Ապրե՜ս, հավաքեցիր նկարը</h2><p id="rewardAmount">⭐ +1 աստղ</p>
 <button id="next">Շարունակել</button></div></div>
-<div id="rewardBurst" aria-hidden="true"></div><div id="rewardFlightLayer" aria-hidden="true"></div>
+<div id="rewardBurst" aria-hidden="true"></div><div id="rewardFlightLayer" aria-hidden="true"></div><div id="rewardCounterPreview" aria-hidden="true"></div>
 <div id="loading" class="loading">Բեռնվում է փազլը…</div>
 <script>
 (()=>{'use strict';
@@ -107,7 +114,7 @@ let W=0,H=0,dpr=1,round=0,count=4,photo=0,custom=false,customURL=null,pieces=[],
 let photoDeck=[],sessionId=Math.random().toString(36).slice(2),stageAwarded=false,awardTimer=null,burstTimer=null,winAudioStarted=false;
 let victoryAt=0,victoryTimer=null,nextTimer=null,nextPointerId=null,nextTransition=false;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=(a,b)=>a+Math.random()*(b-a),rest=()=>pieces.filter(p=>!p.done);
-function stars(n){$('stars').textContent='⭐ '+n}try{if(embedded)parent.postMessage({type:'areg-jigsaw-stars-request'},location.origin);else stars(Number(localStorage.getItem(KEY))||0)}catch(e){}
+function stars(n){const value='⭐ '+n;$('stars').textContent=value;const preview=$('rewardCounterPreview');if(preview)preview.textContent=value}try{if(embedded)parent.postMessage({type:'areg-jigsaw-stars-request'},location.origin);else stars(Number(localStorage.getItem(KEY))||0)}catch(e){}
 function useSelectedTheme(data){
  if(!data||!Array.isArray(data.colors)||data.colors.length!==3)return;
  const colors=data.colors.map(v=>String(v||'').trim());
@@ -265,7 +272,7 @@ function shufflePhotos(){
  return deck
 }
 function startNextPhotoCycle(){photoDeck=shufflePhotos();sessionId=Math.random().toString(36).slice(2)}
-function build(){if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}if(burstTimer!==null){clearTimeout(burstTimer);burstTimer=null}$('rewardBurst').replaceChildren();$('rewardFlightLayer').replaceChildren();stageAwarded=false;winAudioStarted=false;if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
+function build(){$('rewardCounterPreview').className='';if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}if(burstTimer!==null){clearTimeout(burstTimer);burstTimer=null}$('rewardBurst').replaceChildren();$('rewardFlightLayer').replaceChildren();stageAwarded=false;winAudioStarted=false;if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
 function update(){$('status').textContent='Փուլ '+(round+1)+'/5 · '+pieces.filter(p=>p.done).length+'/'+count+' կտոր';document.querySelectorAll('#pieceChoices button').forEach(b=>b.classList.toggle('selected',Number(b.textContent)===count))}
 function pageCount(){return Math.max(1,Math.ceil(rest().length/3))}
 function setPage(n){page=clamp(n,0,pageCount()-1);pageMotion=null}
@@ -362,9 +369,17 @@ canvas.addEventListener('pointerdown',e=>{if(won||pageMotion)return;unlockAudio(
 canvas.addEventListener('pointermove',e=>{if(!press||e.pointerId!==press.id)return;const v=point(e),dx=v.x-press.start.x,dy=v.y-press.start.y;if(active){active.x=v.x;active.y=v.y;return}if(press.piece&&!swipe&&dy< -17&&Math.abs(dy)>Math.abs(dx)*.55){active={piece:press.piece,x:v.x,y:v.y};press.piece.lift=1}else if(!swipe&&Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)*1.15){swipe={dx:0}}if(swipe){const next=page+(dx<0?1:-1),canTurn=next>=0&&next<pageCount();swipe.dx=clamp(dx*(canTurn?1:.22),-(tray.w-38),tray.w-38)}});
 function finish(e,cancel=false){if(!press||e.pointerId!==press.id)return;const v=point(e);if(active){const p=active.piece;if(!cancel&&Math.hypot(v.x-p.x,v.y-p.y)<Math.max(32,p.w*.42)){p.done=true;setPage(page);update();showPlacementFeedback(true);if(rest().length===0)completeJigsaw()}else{if(!cancel&&v.x>=board.x&&v.x<=board.x+board.w&&v.y>=board.y&&v.y<=board.y+board.h)showPlacementFeedback(false);p.lift=0;}active=null}else if(swipe){const dx=v.x-press.start.x,next=page+(dx<0?1:-1);const shouldTurn=!cancel&&Math.abs(dx)>38&&next>=0&&next<pageCount();animatePage(shouldTurn?next:page,swipe.dx)}press=null;swipe=null}
 canvas.addEventListener('pointerup',e=>finish(e));canvas.addEventListener('pointercancel',e=>finish(e,true));canvas.addEventListener('lostpointercapture',e=>finish(e,true));
+function showRewardCounterPreview(){
+ const source=$('stars'),preview=$('rewardCounterPreview'),bounds=source.getBoundingClientRect();
+ preview.style.left=bounds.left+'px';preview.style.top=bounds.top+'px';
+ preview.style.width=bounds.width+'px';preview.style.height=bounds.height+'px';
+ preview.textContent=source.textContent;preview.className='show'
+}
 function creditStageReward(){
  if(stageAwarded||!rewarded)return;
  stageAwarded=true;
+ const preview=$('rewardCounterPreview');
+ preview.classList.add('arrived');
  if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}
  const amount=round===4?5:1,awardId=sessionId+'-'+round;
  if(embedded){
@@ -451,6 +466,7 @@ function reward(){
  $('rewardTitle').textContent=final?'Հրաշալի՜ է, հաղթեցիր բոլոր 5 փուլերը':'Ապրե՜ս, հավաքեցիր նկարը';
  $('rewardAmount').textContent=final?'⭐ +5 աստղ':'⭐ +1 աստղ';
  $('modal').classList.add('show');
+ showRewardCounterPreview();
  playVictorySound();
  fallingWinStars();
  flyStarToTotal()
