@@ -359,7 +359,7 @@ try{
           const a=flight.getAnimations()[0];
           const frames=a?.effect?.getKeyframes()||[];
           if(flight.getAnimations().length===1 &&
-             a?.effect?.getTiming()?.duration===1040 &&
+             a?.effect?.getTiming()?.duration===760 &&
              frames.length===2 && Number(frames[0].opacity)===1 &&
              Number(frames[1].opacity)===0 &&
              frames[1]?.transform?.includes('translate3d('))
