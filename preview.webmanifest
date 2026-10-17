@@ -1,0 +1,11 @@
+{
+  "name": "AREG TEST — Փորձնական փազլ",
+  "short_name": "AREG TEST",
+  "description": "AREG Kids Game isolated fullscreen trial",
+  "start_url": "./preview.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#091326",
+  "theme_color": "#091326"
+}
