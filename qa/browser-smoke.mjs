@@ -89,8 +89,8 @@ try{
       if(incoming.dataset.entryCrossfade==='running' &&
          incoming.dataset.entrySection===id &&
          incoming.style.opacity==='1' && home.style.opacity==='0' &&
-         incoming.style.transition.includes('1100ms') &&
-         home.style.transition.includes('1100ms')){
+         incoming.style.transition.includes('800ms') &&
+         home.style.transition.includes('800ms')){
         proof.targeted=true;
         proof.correctSection=true;
         if(!incoming.hidden && home.style.visibility!=='hidden')
@@ -120,7 +120,7 @@ try{
   if(!entryPilot.flight||entryPilot.flightSection!==section||
      entryPilot.animationCount!==1||!entryPilot.sourceHidden||
      entryPilot.frameCount!==2||entryPilot.firstOpacity!==1||
-     entryPilot.lastOpacity!==0||entryPilot.duration!==1040||
+     entryPilot.lastOpacity!==0||entryPilot.duration!==760||
      !entryPilot.finalTransform?.includes('translate3d('))
     throw Error('V288 all-section flight missing or incorrect '+section+' '+JSON.stringify(entryPilot));
   if(process.env.AREG_BROWSER==='webkit'){await page.waitForTimeout(450);console.log('WEBKIT AFTER CLICK '+JSON.stringify(await diag(section+'-after')));}
@@ -231,12 +231,12 @@ try{
           const enter=document.querySelector('[data-inner-game-flight]');
           const reverse=document.querySelector('[data-reverse-portal-flight]');
           const inner=document.querySelector('#activityScreen');
-          if(enter&&enter.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
+          if(enter&&enter.getAnimations().some(a=>a.effect?.getTiming()?.duration===760))
             proof.enterFlight=true;
           if(inner.dataset.innerGameCrossfade==='running'&&inner.style.opacity==='1')
             proof.enterFade=true;
           if(reverse?.dataset.reversePortalFlight==='activity'&&
-             reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
+             reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===760))
             proof.exitFlight=true;
           const returning=reverse?.querySelector('.toddler-game-label');
           const source=document.querySelector('#sectionGames [data-game="puzzle"] .toddler-game-label');
@@ -359,15 +359,15 @@ try{
           const a=flight.getAnimations()[0];
           const frames=a?.effect?.getKeyframes()||[];
           if(flight.getAnimations().length===1 &&
-             a?.effect?.getTiming()?.duration===1040 &&
+             a?.effect?.getTiming()?.duration===760 &&
              frames.length===2 && Number(frames[0].opacity)===1 &&
              Number(frames[1].opacity)===0 &&
              frames[1]?.transform?.includes('translate3d('))
             proof.oneContinuousFlight=true;
         }
         if(inner.dataset.innerGameCrossfade==='running' &&
-           inner.style.transition.includes('1100ms') &&
-           outer.style.transition.includes('1100ms') &&
+           inner.style.transition.includes('800ms') &&
+           outer.style.transition.includes('800ms') &&
            inner.style.opacity==='1' && outer.style.opacity==='0'){
           proof.crossfade=true;
           if(inner.style.transform==='none' &&
@@ -946,12 +946,12 @@ try{
         incomingVisible:!document.querySelector('#sectionScreen').hidden,
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
     },id);
-    if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
+    if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==760||
        exit.opacityStart!==0||exit.opacityEnd!==0||exit.frameCount!==3||
        exit.targetTileInlineOpacity==='0'||
        !exit.incomingVisible||!exit.outgoingVisible)
        throw Error('V290 game reverse cinematic transition missing '+section+'/'+id+' '+JSON.stringify(exit));
-    await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000});
+    await page.waitForFunction(()=>document.querySelector('#activityScreen')?.hidden===true,null,{timeout:15000}).catch(async error=>{ const state=await page.evaluate(()=>({activityHidden:document.querySelector('#activityScreen')?.hidden,sectionHidden:document.querySelector('#sectionScreen')?.hidden,reverseFlight:document.querySelector('[data-reverse-portal-flight]')?.dataset.reversePortalFlight,reverseState:document.querySelector('#sectionScreen')?.dataset.reversePortal,activityStyle:document.querySelector('#activityScreen')?.getAttribute('style'),sectionStyle:document.querySelector('#sectionScreen')?.getAttribute('style'),game:document.querySelector('#activityTitle')?.textContent}));throw Error('BACK RETURN TIMEOUT '+section+'/'+id+' '+JSON.stringify(state)+' '+error.message)});
     if(await page.locator('[data-reverse-portal-flight]').count())
       throw Error('V290 back-to-section left a ghost card '+section+'/'+id);
     const tileOpacity=await page.locator('#sectionGames .toddler-game-card[data-game="'+id+'"]').evaluate(el=>({
@@ -973,7 +973,7 @@ try{
       targetTileInlineOpacity:document.querySelector('.section-card[data-section="'+sectionId+'"]')?.style.opacity,
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   },section);
-  if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
+  if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==760||
      exit.opacityStart!==0||exit.opacityEnd!==0||
      exit.frameCount!==3||exit.targetTileInlineOpacity==='0'||!exit.homeVisible)
     throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
