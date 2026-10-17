@@ -3128,7 +3128,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Հավաքիր պատկերը';
-    frame.src='./mind-jigsaw.html?embed=1&v=trial1';
+    frame.src='./mind-jigsaw.html?embed=1&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
     activityContent.append(frame);
     const onMessage=event=>{
