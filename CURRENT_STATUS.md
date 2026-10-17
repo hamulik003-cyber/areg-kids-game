@@ -1,3 +1,7 @@
+## 2026-10-18 — DotKiosk stale jigsaw cache correction
+- After approved PR #107 merged, user screenshot still displayed older blue header in production DotKiosk. Root risk: unchanged `app.js?v=300` and jigsaw iframe `v=trial1` URL could serve stale PWA assets.
+- Isolated fix branch bumps index app.js reference to v301, service worker core/runtime to v301 and registration to v301, and iframe URL to a new approved UI version. Does not alter the approved jigsaw visuals, stars storage, or game logic. Verify all CI and production deployment; on-device confirmation remains necessary. No user data/cache wholesale clear.
+
 ## 2026-10-18 — Approved jigsaw UI follow-up release
 - User explicitly approved AREG TEST visual changes for main: warm gold top navigation panels, matching thick section back arrow and larger title, aligned top panel sizes, and the original independent blue settings gear (without inherited gold chip class). Preserve all previously approved puzzle behavior and design. Only mind-jigsaw.html is the gameplay change; this release does not include trial PWA/Render infrastructure.
 - Isolated release branch: `release/jigsaw-ui-approved-20261018`; run all required CI checks before merging into main. Verify main publication and DotKiosk separately. Never equate GitHub merge with on-device cache refresh.

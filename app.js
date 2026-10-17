@@ -3128,7 +3128,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Հավաքիր պատկերը';
-    frame.src='./mind-jigsaw.html?embed=1&v=trial1';
+    frame.src='./mind-jigsaw.html?embed=1&v=20261018-approved-ui';
     frame.setAttribute('loading','eager');
     activityContent.append(frame);
     const onMessage=event=>{
@@ -3280,7 +3280,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=300',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=301',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
