@@ -6,12 +6,12 @@
 .progress{position:absolute;z-index:2;top:calc(env(safe-area-inset-top) + 92px);left:16%;right:16%;height:46px;border-radius:26px;border:1px solid #b1e6ff88;background:linear-gradient(160deg,#244872,#152c50);box-shadow:0 8px 18px #02091d80,inset 0 1px #ffffff55;display:grid;place-items:center;font-size:clamp(14px,3.8vw,18px);font-weight:900}
 #settingsGear{position:absolute;right:14px;top:calc(env(safe-area-inset-top) + 91px);z-index:4;font-size:25px;width:44px;height:44px;padding:0}
 .nav{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 34px);left:7%;right:7%;height:44px;pointer-events:none;z-index:3}
-.modal{display:none;position:fixed;inset:0;background:#020b1cce;z-index:10;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.dialog{background:linear-gradient(160deg,#294f7a,#101f40);border:2px solid #a5d8ff;border-radius:26px;box-shadow:0 25px 60px #000b;max-width:390px;width:100%;padding:24px;text-align:center}.dialog h2{margin:0 0 18px}.dialog button,.dialog label{border:1px solid #b4e4ff;background:#4d78ad;color:white;border-radius:14px;padding:12px;font-size:17px;font-weight:800}.dialog button{cursor:pointer}.choices{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:14px 0 22px}.choices button{padding:10px 0}.choices .selected{background:#f5a965;color:#16203b}.dialog label{display:block;margin-bottom:10px}#customPhoto{position:absolute;left:-10000px}#photoInfo{font-size:12px;opacity:.8}.loading{position:absolute;top:50%;left:0;right:0;text-align:center;font-weight:800}.embedded .nav{bottom:calc(env(safe-area-inset-bottom) + 25px)}#rewardBurst{position:fixed;inset:0;pointer-events:none;z-index:12;overflow:hidden}
-.victory-flake{position:absolute;top:-16%;left:var(--flake-x);font-size:var(--flake-size);opacity:0;
+.modal{display:none;position:fixed;inset:0;background:#020b1cce;z-index:10;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.dialog{background:linear-gradient(160deg,#294f7a,#101f40);border:2px solid #a5d8ff;border-radius:26px;box-shadow:0 25px 60px #000b;max-width:390px;width:100%;padding:24px;text-align:center}.dialog h2{margin:0 0 18px}.dialog button,.dialog label{border:1px solid #b4e4ff;background:#4d78ad;color:white;border-radius:14px;padding:12px;font-size:17px;font-weight:800}.dialog button{cursor:pointer}.choices{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:14px 0 22px}.choices button{padding:10px 0}.choices .selected{background:#f5a965;color:#16203b}.dialog label{display:block;margin-bottom:10px}#customPhoto{position:absolute;left:-10000px}#photoInfo{font-size:12px;opacity:.8}.loading{position:absolute;top:50%;left:0;right:0;text-align:center;font-weight:800}.embedded .nav{bottom:calc(env(safe-area-inset-bottom) + 25px)}#rewardBurst{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden;border-radius:24px}
+.victory-flake{position:absolute;top:-16%;left:var(--flake-x);font-size:var(--flake-size);opacity:0;will-change:transform,opacity;
   color:var(--flake-color);text-shadow:0 2px 8px #ffd75a99;
-  animation:flake-fall var(--flake-time) var(--flake-delay) cubic-bezier(.18,.4,.6,1) both}
-@keyframes flake-fall{0%{opacity:0;transform:translate3d(0,-8vh,0) rotate(0deg) scale(.5)}
-  13%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate3d(var(--flake-drift),115vh,0) rotate(var(--flake-rotation)) scale(.76)}}
+  animation:flake-fall var(--flake-time) var(--flake-delay) linear infinite}
+@keyframes flake-fall{0%{opacity:0;transform:translate3d(0,-14px,0) rotate(0deg) scale(.5)}
+  13%{opacity:.85}75%{opacity:.85}100%{opacity:0;transform:translate3d(var(--flake-drift),480px,0) rotate(var(--flake-rotation)) scale(.76)}}
 #rewardFlightLayer{position:fixed;inset:0;z-index:13;pointer-events:none;overflow:hidden}
 #rewardCounterPreview{position:fixed;z-index:14;pointer-events:none;display:none;align-items:center;justify-content:center;
  border:1px solid #b6e6ff9a;border-radius:18px;background:linear-gradient(155deg,#3d648d,#1b345d);
@@ -32,8 +32,8 @@
 #rewardHero.final .reward-five-stars{display:flex}
 #rewardTitle{font-size:22px;margin:5px 0 10px}
 #rewardAmount{font-size:20px;color:#ffe5a0;font-weight:900;margin:0 0 18px}
-#modal .dialog{border-color:#ffdf95;box-shadow:0 22px 65px #000b,inset 0 0 35px #c88e3240}
-@media (prefers-reduced-motion:reduce){.victory-flake{animation-duration:.01ms!important}}
+#modal .dialog{position:relative;isolation:isolate;border-color:#ffdf95;box-shadow:0 22px 65px #000b,inset 0 0 35px #c88e3240}
+@media (prefers-reduced-motion:reduce){.victory-flake{animation-duration:10s!important;opacity:.65}}
 
 /* A tactile, kid-friendly button: it stays down during touch, and rises on release. */
 #next{display:inline-flex;justify-content:center;align-items:center;gap:11px;min-width:210px;min-height:59px;padding:13px 24px;
@@ -83,6 +83,7 @@
 <div class="nav" aria-hidden="true"></div>
 <div class="modal" id="settingsModal"><div class="dialog"><h2>⚙ Կարգավորումներ</h2><strong>Կտորների քանակը</strong><div id="pieceChoices" class="choices"></div><label for="customPhoto">📷 Ընտրել սեփական նկար</label><input id="customPhoto" type="file" accept="image/*"><p id="photoInfo">Նկարը կմնա այս սարքում</p><button id="settingsClose">Խաղալ</button></div></div>
 <div class="modal" id="modal"><div class="dialog">
+<div id="rewardBurst" aria-hidden="true"></div>
 <div id="rewardHero" aria-label="Աստղային պարգև">
  <div class="reward-five-stars" aria-hidden="true"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
  <svg class="reward-icon reward-big-star" viewBox="0 0 180 180" aria-hidden="true">
@@ -90,6 +91,15 @@
   <path d="M90 9 L112 61 L169 65 L125 103 L140 161 L90 132 L40 161 L55 103 L11 65 L68 61 Z" fill="url(#goldStar)" stroke="#fff5a8" stroke-width="4" stroke-linejoin="round"/>
   <path d="M90 20 L108 68 L158 71 L119 103 L130 148 L90 123 L49 148 L62 103 L22 72 L73 67 Z" fill="none" stroke="#fffac5" stroke-width="3" stroke-opacity=".55"/>
   <path d="M80 42 L88 26 L98 49" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+  <!-- The golden award star smiles warmly at the child. -->
+  <ellipse cx="72" cy="87" rx="5.2" ry="7.2" fill="#633715"/>
+  <ellipse cx="108" cy="87" rx="5.2" ry="7.2" fill="#633715"/>
+  <circle cx="73.4" cy="84.7" r="1.7" fill="#fff9e9"/>
+  <circle cx="109.4" cy="84.7" r="1.7" fill="#fff9e9"/>
+  <ellipse cx="59" cy="97" rx="10" ry="5" fill="#ff915e" fill-opacity=".49"/>
+  <ellipse cx="121" cy="97" rx="10" ry="5" fill="#ff915e" fill-opacity=".49"/>
+  <path d="M76 105 Q90 122 105 104" fill="none" stroke="#73431d" stroke-width="5" stroke-linecap="round"/>
+  <path d="M84 112 Q91 116 98 111" fill="none" stroke="#fff8da" stroke-width="2" stroke-linecap="round" opacity=".8"/>
  </svg>
  <svg class="reward-icon reward-trophy" viewBox="0 0 180 180" aria-hidden="true">
   <defs><linearGradient id="goldCup" x1="0" y1="0" x2="1" y2=".9"><stop offset="0" stop-color="#fff6a6"/><stop offset=".45" stop-color="#ffc947"/><stop offset=".8" stop-color="#ed9b25"/><stop offset="1" stop-color="#965108"/></linearGradient></defs>
@@ -103,7 +113,7 @@
 </div>
 <h2 id="rewardTitle">Ապրե՜ս, հավաքեցիր նկարը</h2><p id="rewardAmount">⭐ +1 աստղ</p>
 <button id="next">Շարունակել</button></div></div>
-<div id="rewardBurst" aria-hidden="true"></div><div id="rewardFlightLayer" aria-hidden="true"></div><div id="rewardCounterPreview" aria-hidden="true"></div>
+<div id="rewardFlightLayer" aria-hidden="true"></div><div id="rewardCounterPreview" aria-hidden="true"></div>
 <div id="loading" class="loading">Բեռնվում է փազլը…</div>
 <script>
 (()=>{'use strict';
@@ -456,24 +466,22 @@ function creditStageReward(){
  }
 }
 function fallingWinStars(){
- const layer=$('rewardBurst');
- layer.replaceChildren();
+ // Continuous CSS loop stays clipped inside reward dialog until Continue.
+ const layer=$('rewardBurst');layer.replaceChildren();
  const shapes=['★','✦','✧','❋'],colors=['#ffdf62','#fff7c1','#aef0ff','#ffb9ea'];
- for(let i=0;i<36;i++){
+ for(let i=0;i<32;i++){
   const flake=document.createElement('span');
-  flake.className='victory-flake';
-  flake.textContent=shapes[i%shapes.length];
-  const dx=Math.round(rand(-90,90)),delay=(i%9)*.10,sec=1.65+rand(0,1.2);
-  flake.style.setProperty('--flake-x',rand(2,98).toFixed(1)+'%');
-  flake.style.setProperty('--flake-size',(13+rand(0,20)).toFixed(0)+'px');
+  flake.className='victory-flake';flake.textContent=shapes[i%shapes.length];
+  const dx=Math.round(rand(-45,45)),delay=-rand(0,5.5),sec=2.4+rand(0,1.5);
+  flake.style.setProperty('--flake-x',rand(3,97).toFixed(1)+'%');
+  flake.style.setProperty('--flake-size',(10+rand(0,14)).toFixed(0)+'px');
   flake.style.setProperty('--flake-color',colors[i%colors.length]);
   flake.style.setProperty('--flake-drift',dx+'px');
   flake.style.setProperty('--flake-time',sec.toFixed(2)+'s');
   flake.style.setProperty('--flake-delay',delay.toFixed(2)+'s');
-  flake.style.setProperty('--flake-rotation',Math.round(rand(-460,460))+'deg');
+  flake.style.setProperty('--flake-rotation',Math.round(rand(-280,280))+'deg');
   layer.appendChild(flake)
  }
- burstTimer=setTimeout(()=>{burstTimer=null;layer.replaceChildren()},3400)
 }
 function flyStarToTotal(){
  const layer=$('rewardFlightLayer'),hero=$('rewardHero'),target=$('stars');
