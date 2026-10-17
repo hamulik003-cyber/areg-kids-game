@@ -48,7 +48,7 @@ function tile(p,x,y,scale=1,raised=false){
  const ox=p.c*p.w,oy=p.r*p.h;
  ctx.save();ctx.translate(0,raised?7:4);shape(p,0,0);ctx.fillStyle='#061023';ctx.shadowColor='#000c';ctx.shadowBlur=raised?24:10;ctx.shadowOffsetY=raised?13:5;ctx.fill();ctx.restore();
  ctx.save();shape(p,0,0);ctx.clip();
- cover(imgs[photo],p.w/2-ox,p.h/2-oy,board.w,board.h);
+ cover(imgs[photo],-p.w/2-ox,-p.h/2-oy,board.w,board.h);
  const sheen=ctx.createLinearGradient(-p.w/2,-p.h/2,p.w/2,p.h/2);sheen.addColorStop(0,'#ffffff4d');sheen.addColorStop(.3,'#ffffff08');sheen.addColorStop(.75,'#0000000d');sheen.addColorStop(1,'#00000035');ctx.fillStyle=sheen;ctx.fillRect(-p.w,-p.h,p.w*2,p.h*2);
  ctx.restore();shape(p,0,0);ctx.lineWidth=raised?3:2.3;ctx.strokeStyle=raised?'#fff3ca':'#e8e0d5';ctx.stroke();
  ctx.save();ctx.translate(0,-1.2);shape(p,0,0);ctx.lineWidth=1.1;ctx.strokeStyle='#ffffff85';ctx.stroke();ctx.restore();ctx.restore()
