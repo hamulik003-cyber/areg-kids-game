@@ -1,3 +1,6 @@
+## 2026-10-17 — PR #95 reverse flight CI regression
+- Run `39019215028`: mobile browser failed `V290 game reverse cinematic transition missing nature/animals` with actual animation duration 760ms and all other reverse-flight properties correct; production uses `INNER_SECTION_MOTION.returnMs=760` and `HOME_SECTION_MOTION.returnMs=760`, but smoke assertions expected 1040ms. Corrected both reverse-flight assertions and the puzzle enter/reverse observer to 760ms. Existing reverse animation and all assertions remain active. Main unchanged pending green CI.
+
 ## 2026-10-17 — PR #95 inner game flight QA mismatch
 - Run `38985010332` passed assets/code and PWA/music; Chromium and WebKit both failed the same nature/animals flight assertion. Existing runtime `INNER_SECTION_MOTION.flightMs=760` but browser smoke still expected 1040ms. Corrected this single test assertion to 760ms; kept all animation existence, single continuous animation, opacity frames, transform, crossfade, overlap and stationary checks. No game runtime change. Re-run required CI before main merge.
 
