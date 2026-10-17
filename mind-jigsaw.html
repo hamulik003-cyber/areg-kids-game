@@ -24,7 +24,18 @@
  filter:drop-shadow(0 3px 5px #613d11a6)}
 #rewardHero{position:relative;min-height:186px;display:grid;place-items:center;margin:0 auto 8px;max-width:260px}
 #rewardHero .reward-icon{width:158px;height:156px;display:block;filter:drop-shadow(0 8px 10px #100a27a6)}
-#rewardHero .reward-big-star{display:block}
+#rewardHero .reward-big-star{display:block;transform-origin:50% 55%}
+#rewardHero.star-entrance .reward-big-star{animation:rewardStarEntrance 1.45s cubic-bezier(.22,.82,.25,1) both}
+@keyframes rewardStarEntrance{
+  0%{opacity:0;transform:translate3d(0,45px,0) scale(.28) rotate(-17deg)}
+  32%{opacity:1;transform:translate3d(0,-17px,0) scale(1.18) rotate(11deg)}
+  51%{transform:translate3d(-13px,-7px,0) scale(1.08) rotate(-9deg)}
+  70%{transform:translate3d(10px,2px,0) scale(1.035) rotate(6deg)}
+  86%{transform:translate3d(-4px,0,0) scale(1.01) rotate(-2deg)}
+  100%{opacity:1;transform:translate3d(0,0,0) scale(1) rotate(0)}
+}
+@media(prefers-reduced-motion:reduce){#rewardHero.star-entrance .reward-big-star{animation:none}}
+
 #rewardHero .reward-trophy{display:none}
 #rewardHero .reward-five-stars{display:none;position:absolute;top:-10px;left:0;right:0;justify-content:center;gap:5px;color:#ffe177;font-size:27px;text-shadow:0 2px 3px #6b410baa}
 #rewardHero.final .reward-big-star{display:none}
@@ -546,6 +557,8 @@ function reward(){
  rewarded=true;
  const final=round===4;
  $('rewardHero').classList.toggle('final',final);
+ $('rewardHero').classList.remove('star-entrance');
+ if(!final){void $('rewardHero').offsetWidth;$('rewardHero').classList.add('star-entrance')}
  $('rewardTitle').textContent=final?'Հրաշալի՜ է, հաղթեցիր բոլոր 5 փուլերը':'Ապրե՜ս, հավաքեցիր նկարը';
  $('rewardAmount').textContent=final?'⭐ +5 աստղ':'⭐ +1 աստղ';
  $('modal').classList.add('show');
