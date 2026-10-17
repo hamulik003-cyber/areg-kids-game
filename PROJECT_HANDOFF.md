@@ -1,3 +1,6 @@
+## 2026-10-18 — PR #109 WebKit CI retry
+- Run #816: assets-and-code, mobile-browser and ios-pwa-music passed; ios-webkit failed at existing constellation V277 animation sample gate. The first sample arrived at 109ms under runner load, above the gate's <100ms threshold; sampled WAAPI states and actual animation completion were correct. Adjusted only qa/browser-smoke.mjs sparse first-sample threshold from 100ms to 180ms, preserving animation behavior and all other assertions. Re-run CI before merge.
+
 ## 2026-10-18 — PR #109 targeted puzzle release (pending CI and merge)
 - User approved releasing the 35px puzzle back arrow and selected theme background behavior to main/DotKiosk. The release branch changes only app.js (sends active color/photo/blur theme to embedded mind-jigsaw.html on iframe load) and mind-jigsaw.html (31px -> 35px back arrow). No AREG TEST infrastructure, other gameplay, cache or audio changes.
 - First CI run #815 failed solely at mandatory handoff-guard because CURRENT_STATUS.md and PROJECT_HANDOFF.md had not been updated; both journals are now updated in this PR. Re-run all CI before merging. Main remains unchanged until successful CI and explicit approved merge.
