@@ -144,7 +144,7 @@ function reflowTray(){remaining().forEach((p,i)=>{p.homeX=tray.x+25+p.w*p.scale*
 function flashWrong(x,y){wrongFlashX=x;wrongFlashY=y;wrongFlashUntil=performance.now()+1050;feedback('wrong')}
 function activateHint(){if(!hintPiece){hintPiece=remaining()[0]||null;if(hintPiece){trayScroll=clamp(hintPiece.homeX-(tray.x+tray.w/2),0,maxTrayScroll());keepHintVisible()}}}
 
-function maxTrayScroll(){if(!pieces.length)return 0;const p=pieces[0],stride=p.w*p.scale*1.70;return Math.max(0,50+(remaining().length-1)*stride+p.w*p.scale*1.52-(tray.w-24))}
+function maxTrayScroll(){const rest=remaining();if(!rest.length)return 0;const last=rest[rest.length-1];const rightmost=last.homeX+last.w*last.scale*.76;return Math.max(0,rightmost-(tray.x+tray.w-24))}
 function build(){if(winTimer){clearTimeout(winTimer);winTimer=null}celebrationStart=0;won=false;drag=null;activePointer=null;rewardDelivered=false;nextBusy=false;mistakes=0;hintPiece=null;wrongFlashUntil=0;feedbackKind='';$('modal').classList.remove('show');pieces=[];layout();const cols=board.cols,rows=board.rows,pw=board.w/cols,ph=board.h/rows;const grid=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const id=r*cols+c;grid.push({id,row:r,col:c,left:c?-grid[id-1].right:0,top:r?-grid[id-cols].bottom:0,right:c===cols-1?0:Math.random()<.5?1:-1,bottom:r===rows-1?0:Math.random()<.5?1:-1})}const ncols=count,nrows=1;trayScroll=0;const usableH=tray.h-52;const sc=Math.min(.78,usableH/(ph*1.68),.9);const gapX=pw*sc*1.70,gapY=0;const order=grid.map((g,i)=>({...g,sort:Math.random()})).sort((a,b)=>a.sort-b.sort);for(let i=0;i<count;i++){const g=order[i],col=i%ncols,row=Math.floor(i/ncols);const hx=tray.x+25+pw*sc*.76+gapX*col,hy=tray.y+tray.h/2;pieces.push({...g,w:pw,h:ph,tx:board.x+(g.col+.5)*pw,ty:board.y+(g.row+.5)*ph,cx:hx,cy:hy,homeX:hx,homeY:hy,scale:sc,visualScale:sc,locked:false})}reflowTray();$('status').textContent='Փուլ '+(round+1)+'/5 · 0/'+count+' կտոր';}
 function drawBg(time){if(embedded)return;ctx.save();const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#83bde0');sky.addColorStop(.42,'#d3e9d5');sky.addColorStop(1,'#d9a873');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);const t=time*.00018;for(let i=0;i<9;i++){const x=(i*91+Math.sin(t+i)*14)%(W+60)-30,y=H*(.12+.09*(i%4));ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#fff8df';ctx.beginPath();ctx.ellipse(x,y,38+(i%3)*15,13,0,0,Math.PI*2);ctx.fill();ctx.restore()}ctx.fillStyle='#83b77e';ctx.beginPath();ctx.moveTo(0,H*.84);ctx.quadraticCurveTo(W*.28,H*.72,W*.55,H*.82);ctx.quadraticCurveTo(W*.83,H*.72,W,H*.8);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();ctx.fillStyle='#e5b079';ctx.fillRect(0,H*.94,W,H*.06);for(let i=0;i<8;i++){const x=(i*71+17)%W,y=H*.94;ctx.fillStyle='#7d9f60';ctx.beginPath();ctx.ellipse(x,y,5,16,.3,0,Math.PI*2);ctx.fill()}ctx.restore()}
 function drawLivingPicture(){ctx.save();rounded(board.x,board.y,board.w,board.h,9);ctx.clip();imageCover(imgs[image],board.x,board.y,board.w,board.h);ctx.restore()}
@@ -194,7 +194,7 @@ cv.addEventListener('pointermove',e=>{
     scrollPointer=null;gesturePiece=null;
     drag.cx=clamp(v.x-drag.ox,drag.w*.35,W-drag.w*.35);
     drag.cy=clamp(v.y-drag.oy,130,H-75);
-   }else if(Math.abs(dx)>Math.max(24,Math.abs(dy)*1.25)&&performance.now()-gestureDownAt<180){gestureMode='scroll';gesturePiece=null}
+   }else if(Math.abs(dx)>Math.max(24,Math.abs(dy)*1.25)&&(!gesturePiece||performance.now()-gestureDownAt<180)){gestureMode='scroll';gesturePiece=null}
    else return;
   }
   if(gestureMode==='scroll'){trayScroll=clamp(scrollOrigin+scrollStartX-v.x,0,maxTrayScroll());keepHintVisible();return}
@@ -216,7 +216,7 @@ function release(e){
     drag=null;activePointer=null;
    }
   }
-  scrollPointer=null;gestureMode='none';gesturePiece=null;return;
+  scrollPointer=null;gestureMode='none';gesturePiece=null;trayScroll=clamp(trayScroll,0,maxTrayScroll());return;
  }
  if(!drag||e.pointerId!==activePointer)return;
  const p=drag;drag=null;activePointer=null;
