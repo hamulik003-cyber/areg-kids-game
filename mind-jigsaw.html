@@ -15,6 +15,10 @@ html.embedded,html.embedded body{background:transparent!important}
 .top{top:calc(env(safe-area-inset-top,0px) + 10px)}
 .sub{top:calc(env(safe-area-inset-top,0px) + 85px);left:23%;right:23%;border:3px solid #d7a66e;border-radius:30px;background:#fff1d5;color:#60351e;text-shadow:none;padding:5px 3px;box-shadow:0 4px 10px #76411c36;font-size:clamp(12px,3.3vw,17px)}
 html.embedded .sub{display:block;top:calc(env(safe-area-inset-top,0px) + 85px)}
+/* Approved DotKiosk reference: lower, larger, centered stage progress plaque.
+   Keep the same top safe-area anchor in embedded and standalone modes. */
+.sub,html.embedded .sub{top:calc(env(safe-area-inset-top,0px) + 98px);left:18%;right:18%;min-height:44px;display:flex;align-items:center;justify-content:center;padding:8px 8px;font-size:clamp(14px,3.7vw,19px);line-height:1.15;white-space:nowrap}
+
 .top .heading{font-size:clamp(16px,4vw,24px)!important}
 
 
