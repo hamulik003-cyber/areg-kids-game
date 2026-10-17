@@ -231,12 +231,12 @@ try{
           const enter=document.querySelector('[data-inner-game-flight]');
           const reverse=document.querySelector('[data-reverse-portal-flight]');
           const inner=document.querySelector('#activityScreen');
-          if(enter&&enter.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
+          if(enter&&enter.getAnimations().some(a=>a.effect?.getTiming()?.duration===760))
             proof.enterFlight=true;
           if(inner.dataset.innerGameCrossfade==='running'&&inner.style.opacity==='1')
             proof.enterFade=true;
           if(reverse?.dataset.reversePortalFlight==='activity'&&
-             reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===1040))
+             reverse.getAnimations().some(a=>a.effect?.getTiming()?.duration===760))
             proof.exitFlight=true;
           const returning=reverse?.querySelector('.toddler-game-label');
           const source=document.querySelector('#sectionGames [data-game="puzzle"] .toddler-game-label');
