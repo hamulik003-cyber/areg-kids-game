@@ -1,3 +1,8 @@
+## 2026-10-17 — Trial cleanup of superseded fruit assets (NOT approved for main yet)
+- User requested a cautious audit and removal of genuinely unused game images. GitHub main baseline `4b5bd769` contains 771 image files (376,538,458 bytes in the current tree). In `mind-match-pairs.html`, the live Fruits pool explicitly references 30 numbered `.jpg` files (1–20, 22–31), not the previous descriptive fruit PNG/WebP assets.
+- Trial `trial/unused-fruit-assets-cleanup-20261017` removes **81 root-level superseded descriptive fruit PNG/WebP files**, totaling **7,931,163 bytes (7.93 MB / 7.56 MiB)** from the checked-out tree. It does not touch the active numbered JPG fruit files, category artwork, gameplay, PWA, cache, or other image families.
+- Important: Git history remains, so repository history size is not reduced by ordinary deletion. CI and complete reference/cache checks are required before main promotion; actual DotKiosk verification afterward. This is a conservative first cleanup batch, not a claim that all unused images in the repository were found.
+
 ## 2026-10-17 — PR #96 Chromium completed-navigation polling race
 - CI #717 mobile-browser reported a 15s `page.waitForFunction` timeout at mind/sizes, but immediate page-state inspection proved `activityHidden:true`, `sectionHidden:false`, no reverse-flight and both inline styles cleared: reverse navigation actually completed. The test now accepts this independently verified completed state after polling timeout; it still throws on incomplete navigation and retains subsequent ghost-flight/tile-opacity checks. No game runtime changes.
 
