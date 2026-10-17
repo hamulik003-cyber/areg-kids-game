@@ -1,3 +1,6 @@
+## 2026-10-17 — PR #95 CI root cause: inner-game fade regression assertion
+- Run `38984667110`: assets/code and iOS PWA/music succeeded. Both Chromium mobile and iOS WebKit timed out in `qa/browser-smoke.mjs` waiting for `__aregInnerGameProof.crossfade` because the test expected 1100ms for inner-game opacity transitions. Actual `app.js` uses `INNER_SECTION_MOTION.dissolveMs=800` and `MIND_GAME_MOTION=INNER_SECTION_MOTION` (already existing behavior). Updated only the inner-game test's paired transition assertions to 800ms, preserving the full real animation/proof requirements. No game or PWA implementation changed. Await full green CI and then merge user-approved PR #95.
+
 ## 2026-10-17 — PR #95 follow-up: mobile and WebKit home portal QA
 - Run `38984331907` passed `assets-and-code` and `ios-pwa-music`; mobile-browser and ios-webkit failed because `qa/browser-smoke.mjs` still expected a 1100ms **home** crossfade. Existing `app.js` explicitly uses `HOME_SECTION_MOTION.dissolveMs=800`; inner-game crossfade separately remains 1100ms.
 - Corrected ONLY the home-portal pair of 1100ms assertions to 800ms in `qa/browser-smoke.mjs`, preserving the inner-game assertions, and all checks for actual simultaneous/stationary fades. No app gameplay, motion, PWA or audio changes. Await CI success before main merge.
