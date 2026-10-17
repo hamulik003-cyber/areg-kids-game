@@ -55,18 +55,23 @@ addEventListener('message',e=>{if(embedded&&e.source===parent&&e.origin===locati
 function rect(x,y,w,h,r=15){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
 function fill(x,y,w,h,c1,c2,r=15){const g=ctx.createLinearGradient(x,y,x+w*.18,y+h);g.addColorStop(0,c1);g.addColorStop(1,c2);rect(x,y,w,h,r);ctx.fillStyle=g;ctx.fill()}
 
-// The two frames have identical bevels and one continuous, gently changing RGB rim.
+// Both frames share the SAME 14px-wide luminous RGB bezel, not a thin neon outline.
+// Hue completes one gentle 20-second revolution. Only the FRAME changes color.
 function drawFrame(x,y,w,h,t){
- const hue=(t*.018)%360;
- ctx.save();ctx.shadowColor='#000c';ctx.shadowBlur=27;ctx.shadowOffsetY=13;
- fill(x,y,w,h,'#fbe4b3','#995c3c',25);ctx.restore();
- fill(x+5,y+5,w-10,h-10,'#ffe7bd','#ab6744',21);
- fill(x+11,y+11,w-22,h-22,'#396a8a','#081c37',17);
- fill(x+14,y+14,w-28,h-28,'#153d5b','#081a32',13);
- ctx.save();ctx.shadowColor='hsla('+hue+',96%,60%,.65)';ctx.shadowBlur=18;
- ctx.lineWidth=2.8;ctx.strokeStyle='hsla('+hue+',96%,67%,.75)';
- rect(x+8,y+8,w-16,h-16,19);ctx.stroke();ctx.restore();
- ctx.save();ctx.lineWidth=1;ctx.strokeStyle='rgba(255,248,219,.38)';
+ const hue=(t*.018)%360,next=(hue+12)%360;
+ const light='hsl('+hue+',100%,77%)',bright='hsl('+hue+',98%,65%)';
+ const deep='hsl('+next+',88%,36%)',middle='hsl('+next+',95%,49%)';
+ ctx.save();
+ ctx.shadowColor='hsla('+hue+',98%,61%,.64)';
+ ctx.shadowBlur=21;ctx.shadowOffsetY=7;
+ fill(x,y,w,h,bright,deep,25);
+ ctx.restore();
+ // Entire wood-width (14 CSS px) is lit with layered RGB glass gradients.
+ fill(x+2,y+2,w-4,h-4,light,middle,23);
+ fill(x+5,y+5,w-10,h-10,bright,deep,20);
+ fill(x+10,y+10,w-20,h-20,'hsl('+hue+',91%,51%)','hsl('+next+',76%,27%)',17);
+ fill(x+14,y+14,w-28,h-28,'#163d5d','#081a32',13);
+ ctx.save();ctx.lineWidth=1.1;ctx.strokeStyle='rgba(255,255,255,.55)';
  rect(x+3,y+3,w-6,h-6,23);ctx.stroke();ctx.restore()
 }
 // Soft positive/negative synthesized tones; works offline and never plays on a swipe.
@@ -151,15 +156,33 @@ function shape(p,x,y){const w=p.w,h=p.h;ctx.beginPath();ctx.moveTo(x-w/2,y-h/2);
  edge(x+w/2,y-h/2,x+w/2,y+h/2,p.right);
  edge(x+w/2,y+h/2,x-w/2,y+h/2,p.bottom);
  edge(x-w/2,y+h/2,x-w/2,y-h/2,p.left);ctx.closePath()}
-function tile(p,x,y,scale=1,raised=false){
+function tile(p,x,y,scale=1,raised=false,placed=false){
  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
  const ox=p.c*p.w,oy=p.r*p.h;
- ctx.save();ctx.translate(0,raised?7:4);shape(p,0,0);ctx.fillStyle='#061023';ctx.shadowColor='#000c';ctx.shadowBlur=raised?24:10;ctx.shadowOffsetY=raised?13:5;ctx.fill();ctx.restore();
+ // Loose puzzle pieces keep their lift/drop depth, snapped pieces get no dark
+ // backing, no shadow, and no translucent sheen on top of the original image.
+ if(!placed){
+  ctx.save();ctx.translate(0,raised?7:4);shape(p,0,0);
+  ctx.fillStyle='#061023';ctx.shadowColor='#000c';
+  ctx.shadowBlur=raised?24:10;ctx.shadowOffsetY=raised?13:5;
+  ctx.fill();ctx.restore()
+ }
  ctx.save();shape(p,0,0);ctx.clip();
  cover(imgs[photo],-p.w/2-ox,-p.h/2-oy,board.w,board.h);
- const sheen=ctx.createLinearGradient(-p.w/2,-p.h/2,p.w/2,p.h/2);sheen.addColorStop(0,'#ffffff4d');sheen.addColorStop(.3,'#ffffff08');sheen.addColorStop(.75,'#0000000d');sheen.addColorStop(1,'#00000035');ctx.fillStyle=sheen;ctx.fillRect(-p.w,-p.h,p.w*2,p.h*2);
- ctx.restore();shape(p,0,0);ctx.lineWidth=raised?3:2.3;ctx.strokeStyle=raised?'#fff3ca':'#e8e0d5';ctx.stroke();
- ctx.save();ctx.translate(0,-1.2);shape(p,0,0);ctx.lineWidth=1.1;ctx.strokeStyle='#ffffff85';ctx.stroke();ctx.restore();ctx.restore()
+ if(!placed){
+  const sheen=ctx.createLinearGradient(-p.w/2,-p.h/2,p.w/2,p.h/2);
+  sheen.addColorStop(0,'#ffffff4d');sheen.addColorStop(.3,'#ffffff08');
+  sheen.addColorStop(.75,'#0000000d');sheen.addColorStop(1,'#00000035');
+  ctx.fillStyle=sheen;ctx.fillRect(-p.w,-p.h,p.w*2,p.h*2)
+ }
+ ctx.restore();
+ shape(p,0,0);ctx.lineWidth=placed?1.25:(raised?3:2.3);
+ ctx.strokeStyle=placed?'rgba(255,242,215,.73)':(raised?'#fff3ca':'#e8e0d5');ctx.stroke();
+ if(!placed){
+  ctx.save();ctx.translate(0,-1.2);shape(p,0,0);
+  ctx.lineWidth=1.1;ctx.strokeStyle='#ffffff85';ctx.stroke();ctx.restore()
+ }
+ ctx.restore()
 }
 function build(){won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
 function update(){$('status').textContent='Փուլ '+(round+1)+'/5 · '+pieces.filter(p=>p.done).length+'/'+count+' կտոր'}
@@ -197,7 +220,7 @@ function scene(t){const dt=Math.min(50,t-(animTime||t));animTime=t;ctx.clearRect
 let g=ctx.createRadialGradient(W*.4,H*.25,30,W*.5,H*.5,H);g.addColorStop(0,'#405d91');g.addColorStop(.55,'#172b50');g.addColorStop(1,'#080f25');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 for(let i=0;i<17;i++){ctx.beginPath();ctx.arc((i*97+23)%W,(i*139+17)%H,1.5+(i%3),0,7);ctx.fillStyle='#b1e6ff55';ctx.fill()}
 drawFrame(board.x-14,board.y-14,board.w+28,board.h+28,t);ctx.save();rect(board.x,board.y,board.w,board.h,11);ctx.clip();ctx.globalAlpha=.31;cover(imgs[photo],board.x,board.y,board.w,board.h);ctx.restore();
-for(const p of pieces){if(p.done)tile(p,p.x,p.y);else{ctx.save();shape(p,p.x,p.y);ctx.fillStyle='#0b1d3480';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#f7e2bdc7';ctx.stroke();ctx.restore()}}
+for(const p of pieces){if(p.done)tile(p,p.x,p.y,1,false,true);else{ctx.save();shape(p,p.x,p.y);ctx.fillStyle='#0b1d3480';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#f7e2bdc7';ctx.stroke();ctx.restore()}}
 drawFrame(tray.x,tray.y,tray.w,tray.h,t);
 const slideX=pageSlideX(t);
 ctx.save();rect(tray.x+13,tray.y+13,tray.w-26,tray.h-26,14);ctx.clip();
