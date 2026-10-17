@@ -81,11 +81,15 @@ try{
     if(!original)throw Error('Expected offline HTML core cache absent');
     const html=await original.text();
     const marker='<meta name="areg-qa-deliberately-stale" content="1">';
-    if(!html.includes('<script src="app.js?v=300"></script>'))
-      throw Error('Installed V285 HTML script query absent');
+    // Production uses a static script tag; AREG TEST injects a versioned
+    // script dynamically. Require a real app bootstrap in either layout.
+    const staticBootstrap='<script src="app.js?v=300"></script>';
+    const dynamicBootstrap="script.src='app.js?v=300&testv='+v;";
+    const bootstrap=html.includes(staticBootstrap)?staticBootstrap:
+      html.includes(dynamicBootstrap)?dynamicBootstrap:null;
+    if(!bootstrap)throw Error('Installed HTML app bootstrap absent');
     if(html.includes(marker))throw Error('Unexpected old injected marker');
-    const old=html.replace('<script src="app.js?v=300"></script>',
-      marker+'<script src="app.js?v=300"></script>');
+    const old=html.replace(bootstrap,marker+bootstrap);
     await core.put('./index.html',new Response(old,
       {status:200,headers:{'Content-Type':'text/html; charset=utf-8'}}));
     localStorage.setItem('areg-stars-reset-v40','1');

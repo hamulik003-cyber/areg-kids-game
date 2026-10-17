@@ -1,0 +1,24 @@
+{
+  "id": "./areg-test-standalone",
+  "name": "AREG TEST — փորձնական ամբողջաէկրան խաղ",
+  "short_name": "AREG TEST",
+  "lang": "hy",
+  "start_url": "./index.html?areg_trial=1",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4d6a8",
+  "theme_color": "#f4d6a8",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

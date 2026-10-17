@@ -535,9 +535,11 @@ try{
       const firstNativeOk=reveal.sameTapNative?.heroState==='running'&&
         reveal.sameTapNative.heroDuration===850&&reveal.sameTapNative.decoys?.length===3&&
         reveal.sameTapNative.decoys.every(c=>c.state==='running'&&c.duration===580);
-      const sparseFade=reveal.samples[0]?.ms<100&&
-        reveal.samples[0].losers.length===3&&
-        reveal.samples[0].losers.every(c=>c.fadeState==='running'&&c.shellPaused)&&
+      // WebKit may postpone the first RAF for hundreds of milliseconds under CI load.
+      // Require measured native in-flight fading, not an arbitrary first-frame deadline.
+      const sparseFade=reveal.samples.some(f=>f.ms>20&&f.ms<580&&
+        f.losers.length===3&&f.losers.every(c=>c.fadeState==='running'&&
+          c.shellPaused&&c.opacity<.99&&c.opacity>0))&&
         reveal.samples.some(f=>f.ms>=660&&f.losers.length===0&&
           (f.motion==='approaching'||f.motion==='holding')&&f.heroTransform!==reveal.startTransform);
       if(!firstNativeOk||(!mid&&!sparseFade))

@@ -3128,15 +3128,33 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Հավաքիր պատկերը';
-    frame.src='./mind-jigsaw.html?embed=1&v=trial1';
+    frame.src='./mind-jigsaw.html?embed=1&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
     activityContent.append(frame);
+    // The child inherits the chosen global app theme, including photo themes.
+    const sendJigsawTheme=()=>{
+      const active=themes.find(([id])=>id===settings.theme);
+      const css=getComputedStyle(root);
+      const colors=['--bg-1','--bg-2','--bg-3'].map(k=>css.getPropertyValue(k).trim());
+      const photo=active&&String(active[0]).startsWith('photo-user-')?active[2]:null;
+      frame.contentWindow?.postMessage({
+        type:'areg-jigsaw-theme',colors,photo,blur:Number(settings.themeBlur)||0
+      },location.origin);
+    };
+    frame.addEventListener('load',sendJigsawTheme);
+    const rewardedStages=new Set();
     const onMessage=event=>{
       if(event.origin!==location.origin||event.source!==frame.contentWindow||currentGame?.kind!=='cups')return;
       if(event.data?.type==='areg-jigsaw-back'){backToSection();return}
-      if(event.data?.type==='areg-jigsaw-stars-request'){frame.contentWindow?.postMessage({type:'areg-jigsaw-stars-sync',stars},location.origin);return}
-      if(event.data?.type==='areg-jigsaw-earned'&&event.data.amount===5){
-        stars+=5;saveStars();updateStars();
+      if(event.data?.type==='areg-jigsaw-stars-request'){
+        frame.contentWindow?.postMessage({type:'areg-jigsaw-stars-sync',stars},location.origin);return
+      }
+      if(event.data?.type==='areg-jigsaw-earned'){
+        const amount=event.data.amount,awardId=event.data.awardId;
+        if((amount!==1&&amount!==5)||typeof awardId!=='string'||awardId.length>96||rewardedStages.has(awardId))return;
+        rewardedStages.add(awardId);
+        stars+=amount;saveStars();updateStars();
+        frame.contentWindow?.postMessage({type:'areg-jigsaw-stars-sync',stars},location.origin);
       }
     };
     addEventListener('message',onMessage);
@@ -3278,7 +3296,7 @@
     openSection('mind');
   }
   updateStars();
-  if('serviceWorker'in navigator)addEventListener('load',async()=>{
+  if('serviceWorker'in navigator&&!window.__AREG_LIVE_TEST__)addEventListener('load',async()=>{
     try{
       const reg=await navigator.serviceWorker.register('./service-worker.js?v=300',{updateViaCache:'none'});
       reg.update().catch(()=>{});
