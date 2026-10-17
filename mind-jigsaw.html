@@ -113,6 +113,7 @@ const LEVEL_COUNTS=[4,12,16,20,36];
 let W=0,H=0,dpr=1,round=0,count=4,photo=0,custom=false,customURL=null,pieces=[],page=0,board={},tray={},active=null,press=null,swipe=null,pageMotion=null,ready=false,won=false,rewarded=false,animTime=0,feedbackTimer=null,feedbackSerial=0,audioCtx=null;
 let photoDeck=[],sessionId=Math.random().toString(36).slice(2),stageAwarded=false,awardTimer=null,burstTimer=null,winAudioStarted=false;
 let victoryAt=0,victoryTimer=null,nextTimer=null,nextPointerId=null,nextTransition=false;
+let incorrectDrops=0,guidedPiece=null,guidePicked=false;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rand=(a,b)=>a+Math.random()*(b-a),rest=()=>pieces.filter(p=>!p.done);
 function stars(n){const value='⭐ '+n;$('stars').textContent=value;const preview=$('rewardCounterPreview');if(preview)preview.textContent=value}try{if(embedded)parent.postMessage({type:'areg-jigsaw-stars-request'},location.origin);else stars(Number(localStorage.getItem(KEY))||0)}catch(e){}
 function useSelectedTheme(data){
@@ -272,7 +273,7 @@ function shufflePhotos(){
  return deck
 }
 function startNextPhotoCycle(){photoDeck=shufflePhotos();sessionId=Math.random().toString(36).slice(2)}
-function build(){$('rewardCounterPreview').className='';if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}if(burstTimer!==null){clearTimeout(burstTimer);burstTimer=null}$('rewardBurst').replaceChildren();$('rewardFlightLayer').replaceChildren();stageAwarded=false;winAudioStarted=false;if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
+function build(){incorrectDrops=0;guidedPiece=null;guidePicked=false;$('rewardCounterPreview').className='';if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}if(burstTimer!==null){clearTimeout(burstTimer);burstTimer=null}$('rewardBurst').replaceChildren();$('rewardFlightLayer').replaceChildren();stageAwarded=false;winAudioStarted=false;if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
 function update(){$('status').textContent='Փուլ '+(round+1)+'/5 · '+pieces.filter(p=>p.done).length+'/'+count+' կտոր';document.querySelectorAll('#pieceChoices button').forEach(b=>b.classList.toggle('selected',Number(b.textContent)===count))}
 function pageCount(){return Math.max(1,Math.ceil(rest().length/3))}
 function setPage(n){page=clamp(n,0,pageCount()-1);pageMotion=null}
@@ -290,6 +291,39 @@ function pageSlideX(t){
  if(p>=1){page=motion.to;pageMotion=null;return 0}
  return motion.fromOffset+(motion.toOffset-motion.fromOffset)*easeSlide(p)
 }
+
+function beginGuidedHint(){
+ const remaining=rest();
+ if(guidedPiece||won||!remaining.length)return;
+ const visible=remaining.slice(page*3,page*3+3);
+ guidedPiece=visible[Math.floor(Math.random()*visible.length)]||remaining[0];
+ guidePicked=false;
+ page=Math.floor(remaining.indexOf(guidedPiece)/3);
+ pageMotion=null;swipe=null
+}
+function drawGuidedPieceRing(p,x,y,slot,t){
+ if(p!==guidedPiece||p.done)return;
+ const wave=(Math.sin(t*.005)+1)*.5;
+ ctx.save();ctx.shadowColor='rgba(48,255,120,.8)';ctx.shadowBlur=12+wave*9;
+ ctx.strokeStyle='rgba(95,255,139,'+(.84+wave*.16)+')';
+ ctx.lineWidth=4;ctx.beginPath();
+ ctx.arc(x,y,Math.min(slot*.47,tray.h*.39),0,Math.PI*2);
+ ctx.stroke();ctx.restore()
+}
+function drawGuidedDestination(t){
+ if(!guidedPiece||!guidePicked||guidedPiece.done||won)return;
+ const p=guidedPiece,pulse=(Math.sin(t*.006)+1)*.5;
+ ctx.save();shape(p,p.x,p.y);
+ ctx.fillStyle='rgba(45,255,106,'+(.13+pulse*.11)+')';ctx.fill();
+ ctx.shadowColor='rgba(35,255,114,.95)';ctx.shadowBlur=15+pulse*12;
+ ctx.strokeStyle='rgba(104,255,139,'+(.81+pulse*.19)+')';
+ ctx.lineWidth=4.5;ctx.stroke();ctx.restore()
+}
+function noteWrongPlacement(){
+ if(guidedPiece)return;
+ incorrectDrops++;
+ if(incorrectDrops>=5)beginGuidedHint()
+}
 function drawTrayPage(pageIndex,offset,dt){
  const gap=(tray.w-38)/3,slot=gap-8,visible=rest().slice(pageIndex*3,pageIndex*3+3);
  visible.forEach((p,i)=>{
@@ -301,7 +335,8 @@ function drawTrayPage(pageIndex,offset,dt){
   if(p===press?.piece&&!swipe)p.lift=Math.min(1,(p.lift||0)+dt/150);
   else p.lift=Math.max(0,(p.lift||0)-dt/120);
   const sc=Math.min((slot-18)/(p.w*1.52),(tray.h-52)/(p.h*1.52),.78);
-  tile(p,x,y,sc*(1+(p.lift||0)*.16),!!p.lift)
+  tile(p,x,y,sc*(1+(p.lift||0)*.16),!!p.lift);
+  drawGuidedPieceRing(p,x,y,slot,animTime)
  })
 }
 function scene(t){const dt=Math.min(50,t-(animTime||t));animTime=t;ctx.clearRect(0,0,W,H);
@@ -319,6 +354,7 @@ if(won){
   if(p.done)tile(p,p.x,p.y,1,false,true);
   else{ctx.save();shape(p,p.x,p.y);ctx.fillStyle='#0b1d3480';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#f7e2bdc7';ctx.stroke();ctx.restore()}
  }
+ drawGuidedDestination(t)
 }
 drawFrame(tray.x,tray.y,tray.w,tray.h,t);
 const slideX=pageSlideX(t);
