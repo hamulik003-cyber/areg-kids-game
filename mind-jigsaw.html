@@ -266,7 +266,7 @@ function shufflePhotos(){
 }
 function startNextPhotoCycle(){photoDeck=shufflePhotos();sessionId=Math.random().toString(36).slice(2)}
 function build(){if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}if(burstTimer!==null){clearTimeout(burstTimer);burstTimer=null}$('rewardBurst').replaceChildren();$('rewardFlightLayer').replaceChildren();stageAwarded=false;winAudioStarted=false;if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}if(nextTimer!==null){clearTimeout(nextTimer);nextTimer=null}nextPointerId=null;nextTransition=false;$('next').classList.remove('is-pressed');victoryAt=0;won=false;rewarded=false;feedbackSerial++;if(feedbackTimer!==null){clearTimeout(feedbackTimer);feedbackTimer=null}$('placementFeedback').className='placement-feedback';page=0;pageMotion=null;active=null;press=null;swipe=null;const cols=count===4?2:count===12?3:count===16?4:count===20?4:6,rows=count/cols;pieces=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){pieces.push({id:r*cols+c,r,c,rows,cols,done:false,left:c?0:0,top:r?0:0,right:c===cols-1?0:1,bottom:r===rows-1?0:1,scale:1})}for(const p of pieces){if(p.c) p.left=-pieces[p.id-1].right;if(p.r)p.top=-pieces[p.id-cols].bottom}pieces.sort(()=>Math.random()-.5);layout();update()}
-function update(){$('status').textContent='Փուլ '+(round+1)+'/5 · '+pieces.filter(p=>p.done).length+'/'+count+' կտոր'}
+function update(){$('status').textContent='Փուլ '+(round+1)+'/5 · '+pieces.filter(p=>p.done).length+'/'+count+' կտոր';document.querySelectorAll('#pieceChoices button').forEach(b=>b.classList.toggle('selected',Number(b.textContent)===count))}
 function pageCount(){return Math.max(1,Math.ceil(rest().length/3))}
 function setPage(n){page=clamp(n,0,pageCount()-1);pageMotion=null}
 function easeSlide(p){const x=clamp(p,0,1);return 1-Math.pow(1-x,3)}
@@ -362,7 +362,99 @@ canvas.addEventListener('pointerdown',e=>{if(won||pageMotion)return;unlockAudio(
 canvas.addEventListener('pointermove',e=>{if(!press||e.pointerId!==press.id)return;const v=point(e),dx=v.x-press.start.x,dy=v.y-press.start.y;if(active){active.x=v.x;active.y=v.y;return}if(press.piece&&!swipe&&dy< -17&&Math.abs(dy)>Math.abs(dx)*.55){active={piece:press.piece,x:v.x,y:v.y};press.piece.lift=1}else if(!swipe&&Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)*1.15){swipe={dx:0}}if(swipe){const next=page+(dx<0?1:-1),canTurn=next>=0&&next<pageCount();swipe.dx=clamp(dx*(canTurn?1:.22),-(tray.w-38),tray.w-38)}});
 function finish(e,cancel=false){if(!press||e.pointerId!==press.id)return;const v=point(e);if(active){const p=active.piece;if(!cancel&&Math.hypot(v.x-p.x,v.y-p.y)<Math.max(32,p.w*.42)){p.done=true;setPage(page);update();showPlacementFeedback(true);if(rest().length===0)completeJigsaw()}else{if(!cancel&&v.x>=board.x&&v.x<=board.x+board.w&&v.y>=board.y&&v.y<=board.y+board.h)showPlacementFeedback(false);p.lift=0;}active=null}else if(swipe){const dx=v.x-press.start.x,next=page+(dx<0?1:-1);const shouldTurn=!cancel&&Math.abs(dx)>38&&next>=0&&next<pageCount();animatePage(shouldTurn?next:page,swipe.dx)}press=null;swipe=null}
 canvas.addEventListener('pointerup',e=>finish(e));canvas.addEventListener('pointercancel',e=>finish(e,true));canvas.addEventListener('lostpointercapture',e=>finish(e,true));
-function reward(){if(rewarded)return;rewarded=true;$('modal').classList.add('show');$('rewardTitle').textContent='Ապրե՜ս, հավաքեցիր նկարը';$('rewardAmount').textContent='⭐ +1 աստղ';if(embedded){parent.postMessage({type:'areg-jigsaw-earned',amount:1},location.origin)}else{const n=(Number(localStorage.getItem(KEY))||0)+1;localStorage.setItem(KEY,n);stars(n)}}
+function creditStageReward(){
+ if(stageAwarded||!rewarded)return;
+ stageAwarded=true;
+ if(awardTimer!==null){clearTimeout(awardTimer);awardTimer=null}
+ const amount=round===4?5:1,awardId=sessionId+'-'+round;
+ if(embedded){
+  parent.postMessage({type:'areg-jigsaw-earned',amount,awardId},location.origin);
+ }else{
+  const n=(Number(localStorage.getItem(KEY))||0)+amount;
+  localStorage.setItem(KEY,String(n));stars(n)
+ }
+}
+function fallingWinStars(){
+ const layer=$('rewardBurst');
+ layer.replaceChildren();
+ const shapes=['★','✦','✧','❋'],colors=['#ffdf62','#fff7c1','#aef0ff','#ffb9ea'];
+ for(let i=0;i<36;i++){
+  const flake=document.createElement('span');
+  flake.className='victory-flake';
+  flake.textContent=shapes[i%shapes.length];
+  const dx=Math.round(rand(-90,90)),delay=(i%9)*.10,sec=1.65+rand(0,1.2);
+  flake.style.setProperty('--flake-x',rand(2,98).toFixed(1)+'%');
+  flake.style.setProperty('--flake-size',(13+rand(0,20)).toFixed(0)+'px');
+  flake.style.setProperty('--flake-color',colors[i%colors.length]);
+  flake.style.setProperty('--flake-drift',dx+'px');
+  flake.style.setProperty('--flake-time',sec.toFixed(2)+'s');
+  flake.style.setProperty('--flake-delay',delay.toFixed(2)+'s');
+  flake.style.setProperty('--flake-rotation',Math.round(rand(-460,460))+'deg');
+  layer.appendChild(flake)
+ }
+ burstTimer=setTimeout(()=>{burstTimer=null;layer.replaceChildren()},3400)
+}
+function flyStarToTotal(){
+ const layer=$('rewardFlightLayer'),hero=$('rewardHero'),target=$('stars');
+ layer.replaceChildren();
+ const from=hero.getBoundingClientRect(),to=target.getBoundingClientRect();
+ const sx=from.left+from.width/2,sy=from.top+from.height*.46;
+ const dx=to.left+to.width/2-sx,dy=to.top+to.height/2-sy;
+ const star=document.createElement('span');
+ star.className='reward-fly-star';
+ star.textContent='⭐';
+ star.style.left=sx+'px';star.style.top=sy+'px';
+ layer.appendChild(star);
+ let finished=false;
+ const finish=()=>{
+  if(finished)return;
+  finished=true;layer.replaceChildren();creditStageReward()
+ };
+ if(typeof star.animate==='function'){
+  try{
+   const flight=star.animate([
+    {opacity:.05,transform:'translate(-50%,-50%) scale(.24)',offset:0},
+    {opacity:1,transform:'translate(-50%,-120%) scale(1.3)',offset:.25},
+    {opacity:1,transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(.32)',offset:1}
+   ],{duration:960,easing:'cubic-bezier(.18,.67,.18,1)',fill:'forwards'});
+   flight.onfinish=finish
+  }catch(_){}
+ }else{
+  star.style.transition='transform 900ms cubic-bezier(.18,.67,.18,1)';
+  requestAnimationFrame(()=>star.style.transform='translate('+dx+'px,'+dy+'px) scale(.35)')
+ }
+ awardTimer=setTimeout(finish,1040)
+}
+function playVictorySound(){
+ if(winAudioStarted)return;
+ winAudioStarted=true;
+ const notes=()=>{
+  if(!audioCtx||audioCtx.state!=='running')return;
+  // Gentle ascending triumph with a warm resolving chord.
+  softNote(392,0,.24,.10);
+  softNote(523.25,.16,.27,.095);
+  softNote(659.25,.34,.33,.10);
+  softNote(783.99,.54,.54,.11);
+  softNote(1046.5,.62,.48,.075)
+ };
+ try{
+  unlockAudio();
+  if(audioCtx?.state==='running')notes();
+  else audioCtx?.resume?.().then(notes).catch(()=>{})
+ }catch(_){}
+}
+function reward(){
+ if(rewarded)return;
+ rewarded=true;
+ const final=round===4;
+ $('rewardHero').classList.toggle('final',final);
+ $('rewardTitle').textContent=final?'Հրաշալի՜ է, հաղթեցիր բոլոր 5 փուլերը':'Ապրե՜ս, հավաքեցիր նկարը';
+ $('rewardAmount').textContent=final?'⭐ +5 աստղ':'⭐ +1 աստղ';
+ $('modal').classList.add('show');
+ playVictorySound();
+ fallingWinStars();
+ flyStarToTotal()
+}
 function launchNextStage(){
  if(!won||nextTransition)return;
  nextTransition=true;
@@ -401,7 +493,7 @@ continueButton.addEventListener('lostpointercapture',e=>{
 // pointerup is ignored because the 180ms transition is already scheduled.
 // Touch/pointer clicks are handled on release above; the click fallback is keyboard only.
 continueButton.onclick=e=>{if(e.detail===0&&nextPointerId===null)launchNextStage()};
-$('jigsawBack').onclick=()=>{if(embedded)parent.postMessage({type:'areg-jigsaw-back'},'*');else location.href='index.html'};
+$('jigsawBack').onclick=()=>{if(rewarded&&!stageAwarded)creditStageReward();if(embedded)parent.postMessage({type:'areg-jigsaw-back'},'*');else location.href='index.html'};
 $('settingsGear').onclick=()=>$('settingsModal').classList.add('show');$('settingsClose').onclick=()=>$('settingsModal').classList.remove('show');
 for(const n of LEVEL_COUNTS){const b=document.createElement('button');b.textContent=n;b.onclick=()=>{count=n;document.querySelectorAll('#pieceChoices button').forEach(x=>x.classList.toggle('selected',x===b));build()};if(n===4)b.classList.add('selected');$('pieceChoices').append(b)}
 $('customPhoto').onchange=e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith('image/'))return;const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{if(customURL)URL.revokeObjectURL(customURL);customURL=url;imgs[5]=im;photo=5;custom=true;round=0;build();$('photoInfo').textContent='✓ '+f.name;$('settingsModal').classList.remove('show')};im.onerror=()=>URL.revokeObjectURL(url);im.src=url};
