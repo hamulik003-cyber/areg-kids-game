@@ -1,3 +1,7 @@
+## 2026-10-17 — PR #95 follow-up: mobile and WebKit home portal QA
+- Run `38984331907` passed `assets-and-code` and `ios-pwa-music`; mobile-browser and ios-webkit failed because `qa/browser-smoke.mjs` still expected a 1100ms **home** crossfade. Existing `app.js` explicitly uses `HOME_SECTION_MOTION.dissolveMs=800`; inner-game crossfade separately remains 1100ms.
+- Corrected ONLY the home-portal pair of 1100ms assertions to 800ms in `qa/browser-smoke.mjs`, preserving the inner-game assertions, and all checks for actual simultaneous/stationary fades. No app gameplay, motion, PWA or audio changes. Await CI success before main merge.
+
 ## 2026-10-17 — PR #95 CI root-cause correction (test-only)
 - GitHub Actions run `38983336590` passed assets/code but failed mobile-browser and ios-webkit because `qa/browser-smoke.mjs` asserted 1040ms home-card flight, while existing `app.js` explicitly uses the previously established `HOME_SECTION_MOTION.flightMs=760`. No gameplay animation was changed; corrected the stale QA expectation to 760ms.
 - Independent ios-pwa-music failed `Expected offline HTML core cache absent`: `qa/pwa-update.test.mjs` was hardcoded to service-worker/cache/app version 298 while existing runtime uses `service-worker.js?v=300`, `areg-v300-core`, `app.js?v=300`, and `styles.css?v=299`. Updated test references to actual production versions, retaining all real cache, offline, wallet and music persistence assertions.
