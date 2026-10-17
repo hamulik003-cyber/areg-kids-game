@@ -946,7 +946,7 @@ try{
         incomingVisible:!document.querySelector('#sectionScreen').hidden,
         outgoingVisible:!document.querySelector('#activityScreen').hidden};
     },id);
-    if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==1040||
+    if(exit.flight!=='activity'||exit.animationCount!==1||exit.duration!==760||
        exit.opacityStart!==0||exit.opacityEnd!==0||exit.frameCount!==3||
        exit.targetTileInlineOpacity==='0'||
        !exit.incomingVisible||!exit.outgoingVisible)
@@ -973,7 +973,7 @@ try{
       targetTileInlineOpacity:document.querySelector('.section-card[data-section="'+sectionId+'"]')?.style.opacity,
       homeVisible:document.querySelector('#homeScreen')?.style.visibility==='visible'};
   },section);
-  if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==1040||
+  if(exit.flight!=='home'||exit.animationCount!==1||exit.duration!==760||
      exit.opacityStart!==0||exit.opacityEnd!==0||
      exit.frameCount!==3||exit.targetTileInlineOpacity==='0'||!exit.homeVisible)
     throw Error('V290 home reverse cinematic transition missing '+section+' '+JSON.stringify(exit));
