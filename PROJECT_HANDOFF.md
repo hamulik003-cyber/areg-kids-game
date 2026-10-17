@@ -1,3 +1,6 @@
+## 2026-10-17 — PR #95 inner game flight QA mismatch
+- Run `38985010332` passed assets/code and PWA/music; Chromium and WebKit both failed the same nature/animals flight assertion. Existing runtime `INNER_SECTION_MOTION.flightMs=760` but browser smoke still expected 1040ms. Corrected this single test assertion to 760ms; kept all animation existence, single continuous animation, opacity frames, transform, crossfade, overlap and stationary checks. No game runtime change. Re-run required CI before main merge.
+
 ## 2026-10-17 — PR #95 CI root cause: inner-game fade regression assertion
 - Run `38984667110`: assets/code and iOS PWA/music succeeded. Both Chromium mobile and iOS WebKit timed out in `qa/browser-smoke.mjs` waiting for `__aregInnerGameProof.crossfade` because the test expected 1100ms for inner-game opacity transitions. Actual `app.js` uses `INNER_SECTION_MOTION.dissolveMs=800` and `MIND_GAME_MOTION=INNER_SECTION_MOTION` (already existing behavior). Updated only the inner-game test's paired transition assertions to 800ms, preserving the full real animation/proof requirements. No game or PWA implementation changed. Await full green CI and then merge user-approved PR #95.
 
