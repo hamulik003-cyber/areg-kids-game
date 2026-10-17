@@ -1,3 +1,7 @@
+## 2026-10-17 — CORRECTION: preserve approved jigsaw long-press animation
+- User rejected trial removal of the press-to-enlarge animation. Immediately restored the **exact original visualScale target** (`p===gesturePiece && gestureMode==='pending' ? min(1,p.scale*1.18) : p.scale`) in trial commit `6dbcc69a`.
+- Only intended bug fix: avoid accidental horizontal tray scrolling triggered by small movements while holding a piece. Horizontal scroll now requires >24px predominantly horizontal movement initiated within 180ms; deliberate quick swipes remain. Original lift/drag/placement animation unchanged. This is a trial hypothesis awaiting user validation; do not merge to main without approval.
+
 ## 2026-10-17 — Jigsaw long-press tray stability trial (NOT approved for main)
 - User reported tray puzzle pieces seeming to overlap/disappear after holding and releasing. Trial disables the pending-press visual enlargement (`visualScale` remains at tray scale until a real upward drag begins), preserving positions and avoiding long-press piece overlap; also resets canceled scroll gesture flag. No layout, image, puzzle shape, reward, sound, or cache changes.
 - Trial commit `27306acf` on `trial/jigsaw-long-press-tray-stability-20261017`; require direct Safari touch validation and full audit before main. This is a focused hypothesis fix; exact reported device behavior still needs reproduction confirmation.
