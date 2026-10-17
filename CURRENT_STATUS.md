@@ -1,3 +1,8 @@
+## 2026-10-17 — PR #95 CI root-cause correction (test-only)
+- GitHub Actions run `38983336590` passed assets/code but failed mobile-browser and ios-webkit because `qa/browser-smoke.mjs` asserted 1040ms home-card flight, while existing `app.js` explicitly uses the previously established `HOME_SECTION_MOTION.flightMs=760`. No gameplay animation was changed; corrected the stale QA expectation to 760ms.
+- Independent ios-pwa-music failed `Expected offline HTML core cache absent`: `qa/pwa-update.test.mjs` was hardcoded to service-worker/cache/app version 298 while existing runtime uses `service-worker.js?v=300`, `areg-v300-core`, `app.js?v=300`, and `styles.css?v=299`. Updated test references to actual production versions, retaining all real cache, offline, wallet and music persistence assertions.
+- These are regression-test synchronization fixes only, not a bypass; re-run required CI and check results before merging PR #95. Main remains unchanged pending checks.
+
 ## 2026-10-17 — PR #95 approved jigsaw refinement release checkpoint
 - User explicitly approved promoting the latest tested 16/36-piece jigsaw board-width refinement to the main game after Safari visual review.
 - PR #95 (`trial/jigsaw-dotkiosk-drag-20261017` → `main`) contains only the functional `mind-jigsaw.html` change (22 additions, 8 deletions), trial head `0b39723ea5f37f4ff6337abb307a529ba26d7f2d` before this documentation checkpoint.
