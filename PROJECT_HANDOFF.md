@@ -1,3 +1,9 @@
+## 2026-10-18 — Eight drawing choices added INSIDE locked Creativity header (TRIAL ONLY)
+- User explicitly approved trying an 8-option drawing-game collection like the existing pair-matching selection, and again strictly required the shared arrow/title/stars header remain **pixel-for-pixel unchanged in size, position, and height** across ALL sections/games.
+- In AREG TEST branch only, replaced just `gamePaint()` in `app.js` to lazy-load new `paint-arcade-trial.js` inside existing `activityContent`. **No header markup, CSS, back arrow, title, star counter, shared navigation or other sections were changed.** No duplicate iframe header.
+- Added eight selectable two-column dimensional cards: classic coloring, automatic outline+color, tap-to-fill, free drawing, magical coloring, segmented coloring, picture gallery, animated finish. Initial playable trial modes share a drawing canvas and palette; some modes are early-stage mechanic prototypes, not finished bespoke 3D games. Need iPhone visual/touch validation, especially performance, card layout and game mechanics, before approval. Existing main/DotKiosk untouched.
+- Preview via the EXISTING AREG TEST Home Screen icon after Render deployment; no separate Safari link. Do not merge to main without explicit user approval.
+
 ## 2026-10-18 — USER-REQUESTED ROLLBACK: original finger-painting game restored
 - User explicitly requested removing the newly created drawing/coloring game and restoring the ORIGINAL game as it existed BEFORE any new finger-painting work. Replaced only the `gamePaint()` function in trial `app.js` with its byte-for-byte original implementation from approved production main (simple freehand white canvas, seven color dots, ⭐ finish/reward). Deleted experimental `create-finger-paint.html` entirely. Other trial games and production main unchanged. Publish to AREG TEST and verify deployment; no new game requested.
 
