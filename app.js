@@ -3220,12 +3220,22 @@
     function sound(i){if(muted||dead)return;try{
       const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
       if(!audio)audio=new AC();if(audio.state==='suspended')audio.resume().catch(()=>{});
-      const now=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
-      const freq=mode===2?([110,160,230,320][i]||160):261.63*Math.pow(2,(i+(mode===3?0:0))/12);
-      osc.type=mode===2?'triangle':mode===3?'sine':mode===1?'sine':'triangle';
-      osc.frequency.setValueAtTime(freq,now);if(mode===2)osc.frequency.exponentialRampToValueAtTime(Math.max(60,freq*.6),now+.13);
-      gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.18,now+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+(mode===2?.22:.58));
-      osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+(mode===2?.23:.6));
+      const now=audio.currentTime;
+      const envelope=(source,duration,peak=.18)=>{const gain=audio.createGain();gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(peak,now+.009);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);source.connect(gain);gain.connect(audio.destination);source.start(now);source.stop(now+duration+.01)};
+      const note=[261.63,293.66,329.63,349.23,392,440,493.88,523.25,587.33][i];
+      if(mode===2){
+        // Kick, snare, tom and hi-hat: noise + pitched membrane transients.
+        const len=Math.floor(audio.sampleRate*.48),buffer=audio.createBuffer(1,len,audio.sampleRate),data=buffer.getChannelData(0);
+        for(let j=0;j<len;j++)data[j]=(Math.random()*2-1)*Math.exp(-j/(audio.sampleRate*(i===3?.027:.09)));
+        const noise=audio.createBufferSource();noise.buffer=buffer;
+        const filter=audio.createBiquadFilter();filter.type=i===3?'highpass':'lowpass';filter.frequency.value=i===3?4500:i===1?1700:650;
+        noise.connect(filter);const g=audio.createGain();g.gain.value=i===3?.15:.19;filter.connect(g);g.connect(audio.destination);noise.start(now);noise.stop(now+.48);
+        if(i!==3){const osc=audio.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(i===0?155:i===1?220:270,now);osc.frequency.exponentialRampToValueAtTime(i===0?55:i===1?115:95,now+.18);envelope(osc,i===0?.32:.19,.24)}
+      }else{
+        const duration=mode===0?1.25:mode===1?.9:.42;
+        const osc=audio.createOscillator();osc.type=mode===0?'triangle':'sine';osc.frequency.value=mode===3?note*.55:note;envelope(osc,duration,mode===0?.15:.2);
+        if(mode===0||mode===1){const overtone=audio.createOscillator();overtone.type='sine';overtone.frequency.value=note*(mode===0?2:3.98);envelope(overtone,mode===0?.85:.32,mode===0?.035:.07)}
+      }
     }catch(e){console.warn('Music audio unavailable',e)}}
     function play(i,el){sound(i);played++;el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),140);
       const n=document.createElement('span');n.className='areg-music-note';n.textContent=['♪','♫','♬','✦'][i%4];const rect=el.getBoundingClientRect(),parent=board.getBoundingClientRect();n.style.left=(rect.left-parent.left+rect.width*.4)+'px';n.style.top=(rect.top-parent.top)+'px';board.append(n);setTimeout(()=>n.remove(),1050);
