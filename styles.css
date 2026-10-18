@@ -1785,8 +1785,9 @@ body.magic-scroll-active{
 
 /* Move live bonus/star counter under the gear so it never covers the logo text. */
 .star-counter.dynamic-star-counter{
+  z-index:12 !important;
   left:590px !important;
-  top:calc(138px + var(--top-controls-safe-y)) !important;
+  top:138px !important;
   width:110px !important;
   height:64px !important;
   border-radius:23px !important;
