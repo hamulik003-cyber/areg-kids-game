@@ -3260,8 +3260,80 @@
     }
     wrap.querySelector('.areg-music-reset').onclick=()=>{played=0;render()};
     wrap.querySelector('.areg-music-sound').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Ձայնն անջատված է':'🔊 Ձայնը միացված է'};
+
+    // Same local Three.js/WebGL engine used by the approved 3D shape game.
+    let renderer3d=null,scene3d=null,camera3d=null,raf3d=0,resize3d=null,canvas3d=null,hit3d=[];
+    const boot3d=async()=>{
+      try{
+        const THREE=await import('./vendor/three.module.min.js');
+        if(dead)return;
+        const scene=new THREE.Scene();scene3d=scene;
+        const camera=new THREE.PerspectiveCamera(38,1,.1,100);camera3d=camera;camera.position.set(0,3.6,9.8);camera.lookAt(0,0,0);
+        const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer3d=renderer;
+        renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+        renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+        renderer.domElement.style.cssText='position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:2';
+        canvas3d=renderer.domElement;board.append(canvas3d);keys.style.visibility='hidden';
+        scene.add(new THREE.HemisphereLight(0xffffff,0x6a4a39,2.4));
+        const lamp=new THREE.DirectionalLight(0xffedcb,3.2);lamp.position.set(-4,8,6);lamp.castShadow=true;lamp.shadow.mapSize.set(1024,1024);scene.add(lamp);
+        const fill=new THREE.DirectionalLight(0x90caff,1.6);fill.position.set(5,2,-4);scene.add(fill);
+        const material=(color,metalness=0,roughness=.38)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
+        const wood=material('#b87436'),dark=material('#35221c'),white=material('#fffaf0'),silver=material('#c9d5df',.72,.23),gold=material('#f5bf46',.35,.25);
+        const rainbow=['#ed444b','#f58c29','#f6d942','#33bd5e','#23bde3','#3979ef','#a54bd9','#ee70a7'];
+        let group=null;
+        const mesh=(parent,geometry,mat,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geometry,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
+        const box=(parent,w,h,d,mat,x=0,y=0,z=0)=>mesh(parent,new THREE.BoxGeometry(w,h,d),mat,x,y,z);
+        const cylinder=(parent,rt,rb,h,mat,x=0,y=0,z=0)=>mesh(parent,new THREE.CylinderGeometry(rt,rb,h,32),mat,x,y,z);
+        const addHit=(obj,i)=>{obj.userData.noteIndex=i;hit3d.push(obj)};
+        const rebuild=()=>{
+          if(group){scene.remove(group);group.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
+          group=new THREE.Group();scene.add(group);hit3d=[];
+          if(mode===0){
+            box(group,7,.35,2.65,gold,0,-.45,0);
+            box(group,6.8,.28,2.45,dark,0,-.23,0);
+            for(let i=0;i<8;i++){
+              const x=(i-3.5)*.82;
+              const key=box(group,.77,.25,2.1,white,x,-.01,.18);addHit(key,i);
+              const cm=material(rainbow[i]);box(group,.65,.09,.52,cm,x,.14,1.05);
+              if(![2,6,7].includes(i)){const black=box(group,.43,.31,1.18,dark,x+.4,.24,-.34);addHit(black,i)}
+            }
+          }else if(mode===1){
+            box(group,5.9,.32,2.9,wood,0,-.6,0);
+            for(let i=0;i<8;i++){const bar=box(group,4.9-i*.32,.23,.31,material(rainbow[i],.32,.22),0,-.2,1.12-i*.32);addHit(bar,i);
+              cylinder(group,.08,.08,.07,silver,-(2.2-i*.14),-.03,1.12-i*.32);cylinder(group,.08,.08,.07,silver,2.2-i*.14,-.03,1.12-i*.32)}
+            for(let i=0;i<2;i++){const stick=cylinder(group,.075,.075,2.6,wood,-2+i*4,.0,2);stick.rotation.z=.65*(i?1:-1)}
+          }else if(mode===2){
+            for(let i=0;i<6;i++){const x=(i%3-1)*2.05,z=(Math.floor(i/3)-.5)*2.4;const shell=cylinder(group,.78,.84,.65,material(i>3?'#c9a65d':'#a65a38',.35,.27),x,-.3,z);const head=cylinder(group,.79,.79,.07,i>3?gold:white,x,.08,z);addHit(head,i);
+              cylinder(group,.06,.06,.55,silver,x,-.92,z)}
+          }else if(mode===3){
+            const body=cylinder(group,1.45,1.2,.5,wood,0,-.3,.8);body.scale.set(1.08,1,1.35);
+            cylinder(group,.48,.48,.53,dark,0,-.01,.8);
+            box(group,1.05,.3,4.1,wood,0,-.3,-1.65);
+            box(group,.85,.12,3.65,dark,0,-.11,-1.6);
+            for(let i=0;i<6;i++){const x=(i-2.5)*.14;const string=box(group,.014,.025,5.8,silver,x,.04,-.2);addHit(string,i)}
+          }else{
+            for(let i=0;i<10;i++){const h=3.6-i*.27,x=(i-4.5)*.58;const pipe=cylinder(group,.25,.25,h,wood,x,-h*.5+.6,0);const rim=cylinder(group,.24,.24,.055,dark,x,.63,0);addHit(rim,i)}
+            box(group,6.2,.32,.65,material('#e8b954'),0,-.65,.34);
+            box(group,6.3,.15,.75,material('#9e3932'),0,-.95,.34);
+          }
+          group.rotation.y=-.16;group.rotation.x=-.11;
+        };
+        rebuild();
+        const originalRender=render;
+        // Keep the existing mode buttons; refresh the WebGL instrument after mode changes.
+        tabs.addEventListener('click',()=>{if(!dead)rebuild()});
+        const pointer=e=>{e.preventDefault();const rect=canvas3d.getBoundingClientRect(),point=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
+          const ray=new THREE.Raycaster();ray.setFromCamera(point,camera);const hits=ray.intersectObjects(hit3d,false);if(hits.length){const o=hits[0].object,i=o.userData.noteIndex;play(i,o);const original=o.scale.y;o.scale.y=original*.87;setTimeout(()=>{if(!dead)o.scale.y=original},115)}};
+        canvas3d.addEventListener('pointerdown',pointer);
+        resize3d=()=>{const w=board.clientWidth,h=board.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};
+        resize3d();addEventListener('resize',resize3d);
+        const animate=()=>{if(dead)return;raf3d=requestAnimationFrame(animate);renderer.render(scene,camera)};animate();
+        gameCleanup.push(()=>{cancelAnimationFrame(raf3d);removeEventListener('resize',resize3d);renderer.dispose();canvas3d.remove()});
+      }catch(error){console.warn('3D musical instruments unavailable; interactive fallback retained',error);keys.style.visibility='visible'}
+    };
+
     gameCleanup.push(()=>{dead=true;audio?.close().catch(()=>{});style.remove()});
-    render();
+    render();boot3d();
   }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
