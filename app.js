@@ -3172,17 +3172,59 @@
     const pt=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};canvas.onpointerdown=e=>{drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};canvas.onpointermove=e=>{if(!drawing)return;const p=pt(e);ctx.strokeStyle=col;ctx.lineTo(p.x,p.y);ctx.stroke()};const paintUp=()=>drawing=false;addEventListener('pointerup',paintUp);gameCleanup.push(()=>removeEventListener('pointerup',paintUp));done.addEventListener('click',()=>reward())
   }
   function gameStickers(){
-    const s=surface('☝️'),scene=document.createElement('div');scene.className='sticker-scene';
-    const tray=document.createElement('div');tray.className='sticker-tray';s.append(scene,tray);let placed=0;
-    ['🌈','☀️','🌳','🐶','⭐','🌸'].forEach(ico=>{
-      const p=document.createElement('button');p.className='sticker-item';p.textContent=ico;tray.appendChild(p);
-      p.addEventListener('click',()=>{
-        const clone=document.createElement('div');clone.className='sticker-item';clone.textContent=ico;
-        clone.style.cssText=`position:absolute;left:${5+Math.random()*78}%;top:${8+Math.random()*68}%;font-size:${42+Math.random()*22}px;transform:rotate(${Math.random()*18-9}deg);`;
-        scene.appendChild(clone);clone.animate([{transform:'scale(.2)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:280});
-        if(++placed===5)reward();
-      });
-    });
+    // Musical playground replaces the former sticker placement activity ONLY.
+    // Canonical parent navigation/title/star header remains untouched.
+    const s=surface(null);
+    const style=document.createElement('style');
+    style.textContent=`
+    .areg-music{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;gap:9px;padding:8px;overflow:hidden;color:#65321b;font-family:system-ui,sans-serif}
+    .areg-music *{box-sizing:border-box;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+    .areg-music-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+    .areg-music-tab{min-height:48px;border:3px solid #fff1b9;border-radius:16px;background:linear-gradient(#ffe2a0,#df9d4b);box-shadow:0 4px 0 #a26530;font-size:24px}
+    .areg-music-tab[aria-pressed=true]{background:linear-gradient(#fffab1,#ffbb43);outline:2px solid #ffdf44}
+    .areg-music-board{position:relative;flex:1;min-height:0;overflow:hidden;border:7px solid #ffcd71;border-radius:29px;background:radial-gradient(circle at 25% 15%,#d7fbff,#64d9f7 53%,#4f92e6);box-shadow:inset 0 0 0 3px #fff8cc,0 7px 0 #a65e30,0 12px 20px #70412e66}
+    .areg-music-title{font-weight:1000;font-size:clamp(17px,4.4vw,23px);text-align:center;margin:12px 4px 4px;color:#fff;text-shadow:0 3px 2px #3764a7}
+    .areg-music-keys{position:absolute;inset:21% 6% 15%;display:flex;align-items:stretch;justify-content:center;gap:4px;transform:perspective(500px) rotateX(5deg)}
+    .areg-music-key{flex:1;min-width:0;border:3px solid #ffefb3;border-bottom:9px solid #92512c;border-radius:15px;background:linear-gradient(115deg,#ffffff7d 0%,transparent 38%),linear-gradient(var(--light),var(--tone));box-shadow:inset -4px -5px 6px #0002,0 6px 0 #74411c;font-weight:1000;font-size:clamp(16px,5vw,26px);color:#fff;text-shadow:0 2px 3px #52321b;transition:transform .09s,filter .09s}
+    .areg-music-key:active,.areg-music-key.pressed{transform:translateY(7px) scale(.97);filter:brightness(1.18);box-shadow:inset 0 3px 9px #0003}
+    .areg-music-board.drums .areg-music-keys,.areg-music-board.band .areg-music-keys{inset:23% 6% 12%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:15px;transform:none}
+    .areg-music-board.drums .areg-music-key,.areg-music-board.band .areg-music-key{border-radius:50%;border-width:8px;font-size:clamp(26px,9vw,45px)}
+    .areg-music-board.frogs{background:radial-gradient(circle at 50% 30%,#98edfc,#4cc6e5 60%,#2b9db4)}
+    .areg-music-board.frogs .areg-music-keys{inset:20% 4% 12%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px;transform:none}
+    .areg-music-board.frogs .areg-music-key{border-radius:45% 45% 30% 30%;border:5px solid #b4ff71;font-size:clamp(22px,7vw,36px)}
+    .areg-music-foot{display:flex;justify-content:center;gap:9px}
+    .areg-music-foot button{border:3px solid #ffefbc;border-radius:15px;background:linear-gradient(#ffe7a8,#e8a24e);box-shadow:0 4px 0 #9e5c32;padding:9px 15px;font-weight:900;color:#64371d}
+    .areg-music-note{position:absolute;pointer-events:none;color:#fff9a2;text-shadow:0 2px 8px #fff;animation:aregNoteFly 1s ease-out forwards;font-size:30px}
+    @keyframes aregNoteFly{to{transform:translateY(-105px) rotate(22deg);opacity:0}}
+    `;
+    s.append(style);
+    const wrap=document.createElement('div');wrap.className='areg-music';wrap.innerHTML='<div class="areg-music-tabs"></div><div class="areg-music-board"><div class="areg-music-title"></div><div class="areg-music-keys"></div></div><div class="areg-music-foot"><button class="areg-music-reset">↻ Նորից</button><button class="areg-music-sound">🔊 Ձայնը միացված է</button></div>';s.append(wrap);
+    const tabs=wrap.querySelector('.areg-music-tabs'),board=wrap.querySelector('.areg-music-board'),keys=wrap.querySelector('.areg-music-keys'),title=wrap.querySelector('.areg-music-title');
+    const modes=[['🎹','Դաշնամուր',9],['🎼','Քսիլոֆոն',7],['🥁','Թմբուկներ',4],['🐸','Երաժշտական գորտեր',6]];
+    const tones=['#ff504a','#ff942d','#f8d537','#32c958','#23b7e4','#3b70f4','#aa49e7','#f36bbb','#ed4280'];
+    let mode=0,muted=false,played=0,audio=null,dead=false;
+    function sound(i){if(muted||dead)return;try{
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      if(!audio)audio=new AC();if(audio.state==='suspended')audio.resume().catch(()=>{});
+      const now=audio.currentTime,osc=audio.createOscillator(),gain=audio.createGain();
+      const freq=mode===2?([110,160,230,320][i]||160):261.63*Math.pow(2,(i+(mode===3?0:0))/12);
+      osc.type=mode===2?'triangle':mode===3?'sine':mode===1?'sine':'triangle';
+      osc.frequency.setValueAtTime(freq,now);if(mode===2)osc.frequency.exponentialRampToValueAtTime(Math.max(60,freq*.6),now+.13);
+      gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.18,now+.015);gain.gain.exponentialRampToValueAtTime(.0001,now+(mode===2?.22:.58));
+      osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+(mode===2?.23:.6));
+    }catch(e){console.warn('Music audio unavailable',e)}}
+    function play(i,el){sound(i);played++;el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),140);
+      const n=document.createElement('span');n.className='areg-music-note';n.textContent=['♪','♫','♬','✦'][i%4];const rect=el.getBoundingClientRect(),parent=board.getBoundingClientRect();n.style.left=(rect.left-parent.left+rect.width*.4)+'px';n.style.top=(rect.top-parent.top)+'px';board.append(n);setTimeout(()=>n.remove(),1050);
+      if(played===16){played=0;reward()}
+    }
+    function render(){tabs.replaceChildren();keys.replaceChildren();board.className='areg-music-board '+(['piano','xylophone','drums','frogs'][mode]);title.textContent=modes[mode][1];
+      modes.forEach(([ico,name],i)=>{const b=document.createElement('button');b.className='areg-music-tab';b.textContent=ico;b.title=name;b.setAttribute('aria-label',name);b.setAttribute('aria-pressed',String(i===mode));b.onclick=()=>{mode=i;played=0;render()};tabs.append(b)});
+      for(let i=0;i<modes[mode][2];i++){const b=document.createElement('button');b.className='areg-music-key';b.style.setProperty('--tone',tones[i]);b.style.setProperty('--light',tones[i]+'bb');b.textContent=mode===2?['🥁','🪘','✨','🥁'][i]:mode===3?'🐸':String(i+1);b.setAttribute('aria-label',modes[mode][1]+' '+(i+1));b.addEventListener('pointerdown',e=>{e.preventDefault();play(i,b)});keys.append(b)}
+    }
+    wrap.querySelector('.areg-music-reset').onclick=()=>{played=0;render()};
+    wrap.querySelector('.areg-music-sound').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Ձայնն անջատված է':'🔊 Ձայնը միացված է'};
+    gameCleanup.push(()=>{dead=true;audio?.close().catch(()=>{});style.remove()});
+    render();
   }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
