@@ -3179,7 +3179,7 @@
     style.textContent=`
     .areg-music{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;gap:9px;padding:8px;overflow:hidden;color:#65321b;font-family:system-ui,sans-serif}
     .areg-music *{box-sizing:border-box;touch-action:manipulation;-webkit-user-select:none;user-select:none}
-    .areg-music-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .areg-music-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
     .areg-music-tab{min-height:52px;border:3px solid #fff1b9;border-radius:16px;background:linear-gradient(#ffe2a0,#df9d4b);box-shadow:0 4px 0 #a26530;font-size:23px}
     .areg-music-tab[aria-pressed=true]{background:linear-gradient(#fffab1,#ffbb43);outline:2px solid #ffdf44}
     .areg-music-board{position:relative;flex:1;min-height:0;overflow:hidden;border:7px solid #ffcd71;border-radius:29px;background:radial-gradient(circle at 25% 15%,#d7fbff,#64d9f7 53%,#4f92e6);box-shadow:inset 0 0 0 3px #fff8cc,0 7px 0 #a65e30,0 12px 20px #70412e66}
@@ -3206,6 +3206,19 @@
     .areg-music-board.drums .areg-music-key{background:radial-gradient(ellipse at 45% 35%,#fffdf4 0 42%,#b0b9c9 43% 49%,var(--tone) 50% 75%,#60365a 90%);border:8px solid #f8d37b;box-shadow:0 12px 0 #865344,0 17px 10px #372d4866;text-shadow:0 2px 3px #333}
     .areg-music-board.frogs .areg-music-key{background:radial-gradient(circle at 35% 25%,#d2ff89,#44c941 55%,#15872b);box-shadow:inset -6px -8px 8px #087d3c,0 9px 0 #2d6b32,0 12px 10px #0004}
     .areg-music-board.frogs .areg-music-key:active{transform:translateY(7px) scale(.94)}
+
+    .areg-music-board.guitar{background:radial-gradient(circle at 30% 15%,#fff3c7,#9cdbdd 75%)}
+    .areg-music-board.guitar .areg-music-keys{inset:13% 8% 12%;display:flex;flex-direction:row;gap:2px;transform:none;padding:15px 24%;background:radial-gradient(ellipse at 50% 65%,#603a22 0 10%,#cf8335 11% 29%,#eab251 30% 42%,transparent 43%),linear-gradient(90deg,transparent 38%,#774d2b 39% 61%,transparent 62%);border-radius:45%}
+    .areg-music-board.guitar .areg-music-key{flex:1;border:0;border-left:2px solid #ffffffb0;border-radius:0;background:linear-gradient(90deg,#a6a7a8,#fff 48%,#777);box-shadow:0 0 2px #333;font-size:0;opacity:.85}
+    .areg-music-board.guitar .areg-music-key:active{background:#fff9ab;transform:translateX(3px)}
+    .areg-music-board.panflute{background:radial-gradient(circle at 40% 10%,#fff6d3,#86d5c7 75%)}
+    .areg-music-board.panflute .areg-music-keys{inset:18% 7% 14%;gap:1px;transform:none;align-items:flex-start;padding:18px 8px 35px;background:linear-gradient(180deg,transparent 20%,#bc3734 21% 27%,#e5b95e 28% 30%,transparent 31%);border-radius:16px}
+    .areg-music-board.panflute .areg-music-key{flex:1;height:calc(100% - var(--index)*7%);border:3px solid #ad642c;border-top:9px solid #77421e;border-bottom:7px solid #82441d;border-radius:9px 9px 20px 20px;background:linear-gradient(90deg,#9b4e24,#eeb779 35%,#c57b3b 75%,#83441f);box-shadow:inset 3px 0 3px #fff6,4px 4px 4px #0003;font-size:0}
+    .areg-music-board.panflute .areg-music-key:active{filter:brightness(1.3);transform:translateY(3px)}
+    .areg-music-board.drums .areg-music-keys{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));inset:24% 4% 13%;gap:9px}
+    .areg-music-board.drums .areg-music-key{font-size:0;border-width:5px}
+    .areg-music-board.drums .areg-music-key:nth-child(5),.areg-music-board.drums .areg-music-key:nth-child(6){background:radial-gradient(ellipse at 45% 40%,#fff6a5 0 48%,#a77a32 49% 58%,#d8a850 59%);border-color:#c9b16a}
+    .areg-music-board.xylophone .areg-music-key{background:linear-gradient(180deg,#fff8 0%,transparent 38%),var(--tone)}
     .areg-music-foot{display:flex;justify-content:center;gap:9px}
     .areg-music-foot button{border:3px solid #ffefbc;border-radius:15px;background:linear-gradient(#ffe7a8,#e8a24e);box-shadow:0 4px 0 #9e5c32;padding:9px 15px;font-weight:900;color:#64371d}
     .areg-music-note{position:absolute;pointer-events:none;color:#fff9a2;text-shadow:0 2px 8px #fff;animation:aregNoteFly 1s ease-out forwards;font-size:30px}
@@ -3214,7 +3227,7 @@
     s.append(style);
     const wrap=document.createElement('div');wrap.className='areg-music';wrap.innerHTML='<div class="areg-music-tabs"></div><div class="areg-music-board"><div class="areg-music-title"></div><div class="areg-music-keys"></div></div><div class="areg-music-foot"><button class="areg-music-reset">↻ Նորից</button><button class="areg-music-sound">🔊 Ձայնը միացված է</button></div>';s.append(wrap);
     const tabs=wrap.querySelector('.areg-music-tabs'),board=wrap.querySelector('.areg-music-board'),keys=wrap.querySelector('.areg-music-keys'),title=wrap.querySelector('.areg-music-title');
-    const modes=[['🎹','Դաշնամուր',8],['🎼','Քսիլոֆոն',7],['🥁','Թմբուկներ',4],['🐸','Երաժշտական գորտեր',6]];
+    const modes=[['🎹','Դաշնամուր',8],['🎼','Քսիլոֆոն',8],['🥁','Թմբուկներ',6],['🎸','Կիթառ',6],['🎶','Փանֆլեյտա',10]];
     const tones=['#ff504a','#ff942d','#f8d537','#32c958','#23b7e4','#3b70f4','#aa49e7','#f36bbb','#ed4280'];
     let mode=0,muted=false,played=0,audio=null,dead=false;
     function sound(i){if(muted||dead)return;try{
@@ -3226,24 +3239,24 @@
       if(mode===2){
         // Kick, snare, tom and hi-hat: noise + pitched membrane transients.
         const len=Math.floor(audio.sampleRate*.48),buffer=audio.createBuffer(1,len,audio.sampleRate),data=buffer.getChannelData(0);
-        for(let j=0;j<len;j++)data[j]=(Math.random()*2-1)*Math.exp(-j/(audio.sampleRate*(i===3?.027:.09)));
+        for(let j=0;j<len;j++)data[j]=(Math.random()*2-1)*Math.exp(-j/(audio.sampleRate*(i>=4?.027:.09)));
         const noise=audio.createBufferSource();noise.buffer=buffer;
-        const filter=audio.createBiquadFilter();filter.type=i===3?'highpass':'lowpass';filter.frequency.value=i===3?4500:i===1?1700:650;
-        noise.connect(filter);const g=audio.createGain();g.gain.value=i===3?.15:.19;filter.connect(g);g.connect(audio.destination);noise.start(now);noise.stop(now+.48);
-        if(i!==3){const osc=audio.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(i===0?155:i===1?220:270,now);osc.frequency.exponentialRampToValueAtTime(i===0?55:i===1?115:95,now+.18);envelope(osc,i===0?.32:.19,.24)}
+        const filter=audio.createBiquadFilter();filter.type=i>=4?'highpass':'lowpass';filter.frequency.value=i>=4?4500:i===1?1700:650;
+        noise.connect(filter);const g=audio.createGain();g.gain.value=i>=4?.15:.19;filter.connect(g);g.connect(audio.destination);noise.start(now);noise.stop(now+.48);
+        if(i<4){const osc=audio.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(i===0?155:i===1?220:270,now);osc.frequency.exponentialRampToValueAtTime(i===0?55:i===1?115:95,now+.18);envelope(osc,i===0?.32:.19,.24)}
       }else{
-        const duration=mode===0?1.25:mode===1?.9:.42;
-        const osc=audio.createOscillator();osc.type=mode===0?'triangle':'sine';osc.frequency.value=mode===3?note*.55:note;envelope(osc,duration,mode===0?.15:.2);
-        if(mode===0||mode===1){const overtone=audio.createOscillator();overtone.type='sine';overtone.frequency.value=note*(mode===0?2:3.98);envelope(overtone,mode===0?.85:.32,mode===0?.035:.07)}
+        const duration=mode===0?1.25:mode===1?.9:mode===3?1.5:1.1;
+        const osc=audio.createOscillator();osc.type=mode===0?'triangle':mode===3?'sawtooth':'sine';osc.frequency.value=mode===3?note*.5:mode===4?note*2:note;envelope(osc,duration,mode===3?.085:mode===4?.11:mode===0?.15:.2);
+        if(mode===0||mode===1||mode===3){const overtone=audio.createOscillator();overtone.type='sine';overtone.frequency.value=note*(mode===0?2:mode===3?1.5:3.98);envelope(overtone,mode===0?.85:mode===3?1.1:.32,mode===0?.035:mode===3?.03:.07)}
       }
     }catch(e){console.warn('Music audio unavailable',e)}}
     function play(i,el){sound(i);played++;el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),140);
       const n=document.createElement('span');n.className='areg-music-note';n.textContent=['♪','♫','♬','✦'][i%4];const rect=el.getBoundingClientRect(),parent=board.getBoundingClientRect();n.style.left=(rect.left-parent.left+rect.width*.4)+'px';n.style.top=(rect.top-parent.top)+'px';board.append(n);setTimeout(()=>n.remove(),1050);
-      if(played===16){played=0;reward()}
+      // Free musical play: never award stars for tapping instruments.
     }
-    function render(){tabs.replaceChildren();keys.replaceChildren();board.className='areg-music-board '+(['piano','xylophone','drums','frogs'][mode]);title.textContent=modes[mode][1];
+    function render(){tabs.replaceChildren();keys.replaceChildren();board.className='areg-music-board '+(['piano','xylophone','drums','guitar','panflute'][mode]);title.textContent=modes[mode][1];
       modes.forEach(([ico,name],i)=>{const b=document.createElement('button');b.className='areg-music-tab';b.textContent=ico;b.title=name;b.setAttribute('aria-label',name);b.setAttribute('aria-pressed',String(i===mode));b.onclick=()=>{mode=i;played=0;render()};tabs.append(b)});
-      for(let i=0;i<modes[mode][2];i++){const b=document.createElement('button');b.style.setProperty('--index',String(i));b.className='areg-music-key';b.style.setProperty('--tone',tones[i]);b.style.setProperty('--light',tones[i]+'bb');b.textContent=mode===2?['🥁','🥁','🥁','🥁'][i]:mode===3?'🐸':mode===0?'':String(i+1);b.setAttribute('aria-label',modes[mode][1]+' '+(i+1));b.addEventListener('pointerdown',e=>{e.preventDefault();play(i,b)});keys.append(b)}
+      for(let i=0;i<modes[mode][2];i++){const b=document.createElement('button');b.style.setProperty('--index',String(i));b.className='areg-music-key';b.style.setProperty('--tone',tones[i]);b.style.setProperty('--light',tones[i]+'bb');b.textContent=mode===2?'':mode===3?'':mode===4?'':mode===0?'':String(i+1);b.setAttribute('aria-label',modes[mode][1]+' '+(i+1));b.addEventListener('pointerdown',e=>{e.preventDefault();play(i,b)});keys.append(b)}
     }
     wrap.querySelector('.areg-music-reset').onclick=()=>{played=0;render()};
     wrap.querySelector('.areg-music-sound').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Ձայնն անջատված է':'🔊 Ձայնը միացված է'};
