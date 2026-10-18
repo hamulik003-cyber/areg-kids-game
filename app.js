@@ -3268,7 +3268,7 @@
         const THREE=await import('./vendor/three.module.min.js');
         if(dead)return;
         const scene=new THREE.Scene();scene3d=scene;
-        const camera=new THREE.PerspectiveCamera(38,1,.1,100);camera3d=camera;camera.position.set(0,3.6,9.8);camera.lookAt(0,0,0);
+        const camera=new THREE.PerspectiveCamera(38,1,.1,100);camera3d=camera;camera.position.set(0,12.5,2.5);camera.lookAt(0,0,0);
         const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer3d=renderer;
         renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
         renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -3286,15 +3286,15 @@
         const cylinder=(parent,rt,rb,h,mat,x=0,y=0,z=0)=>mesh(parent,new THREE.CylinderGeometry(rt,rb,h,32),mat,x,y,z);
         const addHit=(obj,i)=>{obj.userData.noteIndex=i;hit3d.push(obj)};
         const rebuild=()=>{
-          if(group){scene.remove(group);group.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
+          if(group){scene.remove(group);group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&o.material!==wood&&o.material!==dark&&o.material!==white&&o.material!==silver&&o.material!==gold)o.material.dispose()})}
           group=new THREE.Group();scene.add(group);hit3d=[];
           if(mode===0){
             box(group,7,.35,2.65,gold,0,-.45,0);
             box(group,6.8,.28,2.45,dark,0,-.23,0);
             for(let i=0;i<8;i++){
               const x=(i-3.5)*.82;
-              const key=box(group,.77,.25,2.1,white,x,-.01,.18);addHit(key,i);
-              const cm=material(rainbow[i]);box(group,.65,.09,.52,cm,x,.14,1.05);
+              const key=box(group,.77,.25,2.1,material(rainbow[i],.12,.23),x,-.01,.18);addHit(key,i);
+              box(group,.65,.09,.52,material('#fff3c9'),x,.14,1.05);
               if(![2,6,7].includes(i)){const black=box(group,.43,.31,1.18,dark,x+.4,.24,-.34);addHit(black,i)}
             }
           }else if(mode===1){
@@ -3316,7 +3316,7 @@
             box(group,6.2,.32,.65,material('#e8b954'),0,-.65,.34);
             box(group,6.3,.15,.75,material('#9e3932'),0,-.95,.34);
           }
-          group.rotation.y=-.16;group.rotation.x=-.11;
+          group.rotation.y=0;group.rotation.x=0;
         };
         rebuild();
         // Keep the existing mode buttons; refresh the WebGL instrument after mode changes.
