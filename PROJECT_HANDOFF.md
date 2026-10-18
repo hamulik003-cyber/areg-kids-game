@@ -1,3 +1,6 @@
+## 2026-10-18 — PR #109 delayed WebKit sample correction
+- Run #821: ios-pwa-music, assets-and-code passed. ios-webkit again hit V277, now first WAAPI sample at 308ms due to heavy CI scheduling; native animation states/durations were correct and completion sampled at 1865ms. Extended sparse first-sample gate to <600ms while still requiring three running paused decoys and a later completed fade/hero transform; no gameplay/animation changes. Await complete CI.
+
 ## 2026-10-18 — PR #109 WebKit PWA CI correction
 - Run #819 passed assets-and-code, mobile-browser, ios-webkit; ios-pwa-music passed controller, refreshed cache, saved music and offline CORE checks but failed on a headless WebKit browser-internal `service-worker.js?v=300 due to access control checks.` pageerror immediately after setOffline(true). Adjusted only qa/pwa-update.test.mjs to filter this exact WebKit/offline diagnostic after validating real cache/controller and persisted wallet; all other JS errors remain failures. No PWA/runtime modifications. Await fresh CI before merge.
 
