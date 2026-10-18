@@ -458,7 +458,7 @@
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
-        {id:'stickers',label:'Կպչուն պատկերներ',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'stickers',label:'Երաժշտական գործիքներ',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
