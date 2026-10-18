@@ -3179,8 +3179,8 @@
     style.textContent=`
     .areg-music{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;gap:9px;padding:8px;overflow:hidden;color:#65321b;font-family:system-ui,sans-serif}
     .areg-music *{box-sizing:border-box;touch-action:manipulation;-webkit-user-select:none;user-select:none}
-    .areg-music-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-    .areg-music-tab{min-height:48px;border:3px solid #fff1b9;border-radius:16px;background:linear-gradient(#ffe2a0,#df9d4b);box-shadow:0 4px 0 #a26530;font-size:24px}
+    .areg-music-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .areg-music-tab{min-height:52px;border:3px solid #fff1b9;border-radius:16px;background:linear-gradient(#ffe2a0,#df9d4b);box-shadow:0 4px 0 #a26530;font-size:23px}
     .areg-music-tab[aria-pressed=true]{background:linear-gradient(#fffab1,#ffbb43);outline:2px solid #ffdf44}
     .areg-music-board{position:relative;flex:1;min-height:0;overflow:hidden;border:7px solid #ffcd71;border-radius:29px;background:radial-gradient(circle at 25% 15%,#d7fbff,#64d9f7 53%,#4f92e6);box-shadow:inset 0 0 0 3px #fff8cc,0 7px 0 #a65e30,0 12px 20px #70412e66}
     .areg-music-title{font-weight:1000;font-size:clamp(17px,4.4vw,23px);text-align:center;margin:12px 4px 4px;color:#fff;text-shadow:0 3px 2px #3764a7}
@@ -3192,6 +3192,20 @@
     .areg-music-board.frogs{background:radial-gradient(circle at 50% 30%,#98edfc,#4cc6e5 60%,#2b9db4)}
     .areg-music-board.frogs .areg-music-keys{inset:20% 4% 12%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px;transform:none}
     .areg-music-board.frogs .areg-music-key{border-radius:45% 45% 30% 30%;border:5px solid #b4ff71;font-size:clamp(22px,7vw,36px)}
+    .areg-music-board.piano{background:radial-gradient(circle at 30% 10%,#e9faff,#6acff4 62%,#4382cb)}
+    .areg-music-board.piano .areg-music-keys{inset:23% 4% 15%;gap:0;padding:13px 10px 16px;background:linear-gradient(#ffe75b,#e8a72c);border:7px solid #ffdb62;border-radius:27px;box-shadow:inset 0 6px 8px #fff8,0 10px 0 #9b5b20}
+    .areg-music-board.piano .areg-music-key{position:relative;border:2px solid #353238;border-bottom:11px solid #9e9693;border-radius:0 0 11px 11px;background:linear-gradient(100deg,#e2e0df,#fff 25%,#fff 72%,#cbcbd1);box-shadow:inset -3px 0 5px #0002;color:#453632;text-shadow:none;font-size:13px;align-self:stretch;padding-top:55%}
+    .areg-music-board.piano .areg-music-key:after{content:'';position:absolute;top:0;right:-25%;height:53%;width:48%;background:linear-gradient(90deg,#222,#444 65%,#111);border:2px solid #161515;border-radius:0 0 6px 6px;z-index:2;pointer-events:none}
+    .areg-music-board.piano .areg-music-key:nth-child(3):after,.areg-music-board.piano .areg-music-key:nth-child(7):after,.areg-music-board.piano .areg-music-key:last-child:after{display:none}
+    .areg-music-board.xylophone{background:radial-gradient(circle at 20% 15%,#fff2ca,#b99af1 70%,#8664d1)}
+    .areg-music-board.xylophone .areg-music-keys{inset:26% 5% 20%;flex-direction:column;gap:7px;transform:rotate(-2deg);padding:12px 25px;background:linear-gradient(90deg,#c48643,#f1c781,#b5783e);border-radius:22px;box-shadow:0 12px 0 #89522e}
+    .areg-music-board.xylophone .areg-music-key{flex:1;align-self:center;width:calc(95% - var(--index)*8%);border:2px solid #ffffff99;border-bottom:6px solid #7e3c39;border-radius:12px;font-size:0;position:relative}
+    .areg-music-board.xylophone .areg-music-key:before,.areg-music-board.xylophone .areg-music-key:after{content:'';position:absolute;top:40%;width:12px;height:12px;background:#f4ebdc;border-radius:50%;box-shadow:inset 1px 2px 2px #856c62}
+    .areg-music-board.xylophone .areg-music-key:before{left:10px}.areg-music-board.xylophone .areg-music-key:after{right:10px}
+    .areg-music-board.drums{background:radial-gradient(circle at 25% 20%,#f0e7ff,#b390ec 65%,#805bbd)}
+    .areg-music-board.drums .areg-music-key{background:radial-gradient(ellipse at 45% 35%,#fffdf4 0 42%,#b0b9c9 43% 49%,var(--tone) 50% 75%,#60365a 90%);border:8px solid #f8d37b;box-shadow:0 12px 0 #865344,0 17px 10px #372d4866;text-shadow:0 2px 3px #333}
+    .areg-music-board.frogs .areg-music-key{background:radial-gradient(circle at 35% 25%,#d2ff89,#44c941 55%,#15872b);box-shadow:inset -6px -8px 8px #087d3c,0 9px 0 #2d6b32,0 12px 10px #0004}
+    .areg-music-board.frogs .areg-music-key:active{transform:translateY(7px) scale(.94)}
     .areg-music-foot{display:flex;justify-content:center;gap:9px}
     .areg-music-foot button{border:3px solid #ffefbc;border-radius:15px;background:linear-gradient(#ffe7a8,#e8a24e);box-shadow:0 4px 0 #9e5c32;padding:9px 15px;font-weight:900;color:#64371d}
     .areg-music-note{position:absolute;pointer-events:none;color:#fff9a2;text-shadow:0 2px 8px #fff;animation:aregNoteFly 1s ease-out forwards;font-size:30px}
@@ -3200,7 +3214,7 @@
     s.append(style);
     const wrap=document.createElement('div');wrap.className='areg-music';wrap.innerHTML='<div class="areg-music-tabs"></div><div class="areg-music-board"><div class="areg-music-title"></div><div class="areg-music-keys"></div></div><div class="areg-music-foot"><button class="areg-music-reset">↻ Նորից</button><button class="areg-music-sound">🔊 Ձայնը միացված է</button></div>';s.append(wrap);
     const tabs=wrap.querySelector('.areg-music-tabs'),board=wrap.querySelector('.areg-music-board'),keys=wrap.querySelector('.areg-music-keys'),title=wrap.querySelector('.areg-music-title');
-    const modes=[['🎹','Դաշնամուր',9],['🎼','Քսիլոֆոն',7],['🥁','Թմբուկներ',4],['🐸','Երաժշտական գորտեր',6]];
+    const modes=[['🎹','Դաշնամուր',8],['🎼','Քսիլոֆոն',7],['🥁','Թմբուկներ',4],['🐸','Երաժշտական գորտեր',6]];
     const tones=['#ff504a','#ff942d','#f8d537','#32c958','#23b7e4','#3b70f4','#aa49e7','#f36bbb','#ed4280'];
     let mode=0,muted=false,played=0,audio=null,dead=false;
     function sound(i){if(muted||dead)return;try{
@@ -3219,7 +3233,7 @@
     }
     function render(){tabs.replaceChildren();keys.replaceChildren();board.className='areg-music-board '+(['piano','xylophone','drums','frogs'][mode]);title.textContent=modes[mode][1];
       modes.forEach(([ico,name],i)=>{const b=document.createElement('button');b.className='areg-music-tab';b.textContent=ico;b.title=name;b.setAttribute('aria-label',name);b.setAttribute('aria-pressed',String(i===mode));b.onclick=()=>{mode=i;played=0;render()};tabs.append(b)});
-      for(let i=0;i<modes[mode][2];i++){const b=document.createElement('button');b.className='areg-music-key';b.style.setProperty('--tone',tones[i]);b.style.setProperty('--light',tones[i]+'bb');b.textContent=mode===2?['🥁','🪘','✨','🥁'][i]:mode===3?'🐸':String(i+1);b.setAttribute('aria-label',modes[mode][1]+' '+(i+1));b.addEventListener('pointerdown',e=>{e.preventDefault();play(i,b)});keys.append(b)}
+      for(let i=0;i<modes[mode][2];i++){const b=document.createElement('button');b.style.setProperty('--index',String(i));b.className='areg-music-key';b.style.setProperty('--tone',tones[i]);b.style.setProperty('--light',tones[i]+'bb');b.textContent=mode===2?['🥁','🥁','🥁','🥁'][i]:mode===3?'🐸':mode===0?'':String(i+1);b.setAttribute('aria-label',modes[mode][1]+' '+(i+1));b.addEventListener('pointerdown',e=>{e.preventDefault();play(i,b)});keys.append(b)}
     }
     wrap.querySelector('.areg-music-reset').onclick=()=>{played=0;render()};
     wrap.querySelector('.areg-music-sound').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Ձայնն անջատված է':'🔊 Ձայնը միացված է'};
