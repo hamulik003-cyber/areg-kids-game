@@ -3220,7 +3220,7 @@
     const bpm=[124,92,138,112],freq=[261.63,293.66,329.63,349.23,392,440,493.88,523.25];
     for(let i=0;i<24;i++){
       const pad=document.createElement('button');pad.type='button';pad.className='areg-beat-pad';pad.setAttribute('aria-pressed','false');pad.setAttribute('aria-label',labels[i]);pad.innerHTML='<span class="symbol">'+symbols[i]+'</span><span class="label">'+labels[i]+'</span>';
-      pad.addEventListener('click',()=>{if(closed)return;ensureAudio();if(active.has(i)){active.delete(i);pad.classList.remove('on');pad.setAttribute('aria-pressed','false')}else{active.add(i);pad.classList.add('on');pad.setAttribute('aria-pressed','true');if(audio&&!silent)play(i,audio.currentTime+.008)}caption.textContent=active.size+' միացված • '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
+      pad.addEventListener('click',()=>{if(closed)return;ensureAudio();if(active.has(i)){active.delete(i);pad.classList.remove('on');pad.setAttribute('aria-pressed','false')}else{active.add(i);pad.classList.add('on');pad.setAttribute('aria-pressed','true');if(audio&&!silent){const trigger=()=>{if(!closed&&active.has(i)&&audio&&audio.state==='running')play(i,audio.currentTime+.04)};if(audio.state==='running')trigger();else audio.resume().then(trigger).catch(()=>{caption.textContent='Ձայնը միացնելու համար կրկին սեղմիր'})}}caption.textContent=active.size+' միացված • '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
       grid.appendChild(pad);pads.push(pad);
     }
     function recolor(){pads.forEach((p,i)=>p.style.setProperty('--pad',palettes[rhythm][(i+Math.floor(i/4)*2)%8]))}
@@ -3228,8 +3228,8 @@
     function ensureAudio(){
       if(closed)return;
       try{
-        if(!audio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;audio=new AC();master=audio.createGain();master.gain.value=.23;master.connect(audio.destination);nextTime=audio.currentTime+.06;timer=setInterval(tick,25)}
-        if(audio.state==='suspended')audio.resume().catch(()=>{});
+        if(!audio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC){caption.textContent='Այս սարքում ձայնը հասանելի չէ';return}try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}audio=new AC();master=audio.createGain();master.gain.value=.65;master.connect(audio.destination);nextTime=audio.currentTime+.06;timer=setInterval(tick,25)}
+        if(audio.state!=='running')audio.resume().then(()=>{if(!closed){nextTime=audio.currentTime+.06;tick()}}).catch(()=>{caption.textContent='Սեղմիր կոճակը՝ ձայնը միացնելու համար'});
       }catch(e){console.warn('Music audio unavailable',e)}
     }
     function tone(hz,t,dur,type='sine',vol=.3,filterFreq=0){
@@ -3246,7 +3246,7 @@
       src.connect(flt);flt.connect(env);env.connect(master);src.start(t);src.stop(t+dur+.01);
     }
     function play(id,t){
-      if(!audio||silent||closed)return;
+      if(!audio||silent||closed||audio.state!=='running')return;
       const note=freq[(id-8+8)%8],shift=[1,.75,1.25,1.12][rhythm];
       if(id===0){tone(83*shift,t,.25,'sawtooth',.33,700);tone(41*shift,t,.28,'sine',.32);return}
       if(id===1){tone(150,t,.20,'sine',.72);tone(58,t+.016,.18,'sine',.55);return}
@@ -3292,7 +3292,7 @@
     }
     selectors[0].addEventListener('change',e=>{rhythm=Number(e.target.value);recolor();step=0;if(audio)nextTime=audio.currentTime+.035;caption.textContent='Նոր ռիթմ՝ '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
     selectors[1].addEventListener('change',e=>{instrument=Number(e.target.value);caption.textContent='Նոր գործիք՝ '+['Դաշնամուր','Կիթառ','Մարիմբա','Սինթեզատոր'][instrument]});
-    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔊':'🔇';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.23,audio.currentTime,.02)});
+    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔊':'🔇';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.65,audio.currentTime,.02)});
     gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
