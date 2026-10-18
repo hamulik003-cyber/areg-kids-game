@@ -3250,8 +3250,8 @@
         if(mode===0||mode===1||mode===3){const overtone=audio.createOscillator();overtone.type='sine';overtone.frequency.value=note*(mode===0?2:mode===3?1.5:3.98);envelope(overtone,mode===0?.85:mode===3?1.1:.32,mode===0?.035:mode===3?.03:.07)}
       }
     }catch(e){console.warn('Music audio unavailable',e)}}
-    function play(i,el){sound(i);played++;el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),140);
-      const n=document.createElement('span');n.className='areg-music-note';n.textContent=['♪','♫','♬','✦'][i%4];const rect=el.getBoundingClientRect(),parent=board.getBoundingClientRect();n.style.left=(rect.left-parent.left+rect.width*.4)+'px';n.style.top=(rect.top-parent.top)+'px';board.append(n);setTimeout(()=>n.remove(),1050);
+    function play(i,el){sound(i);played++;if(el.classList){el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),140)}
+      const n=document.createElement('span');n.className='areg-music-note';n.textContent=['♪','♫','♬','✦'][i%4];const rect=el.getBoundingClientRect?el.getBoundingClientRect():{left:board.getBoundingClientRect().left+board.clientWidth*.5,top:board.getBoundingClientRect().top+board.clientHeight*.5,width:0},parent=board.getBoundingClientRect();n.style.left=(rect.left-parent.left+rect.width*.4)+'px';n.style.top=(rect.top-parent.top)+'px';board.append(n);setTimeout(()=>n.remove(),1050);
       // Free musical play: never award stars for tapping instruments.
     }
     function render(){tabs.replaceChildren();keys.replaceChildren();board.className='areg-music-board '+(['piano','xylophone','drums','guitar','panflute'][mode]);title.textContent=modes[mode][1];
@@ -3319,7 +3319,6 @@
           group.rotation.y=-.16;group.rotation.x=-.11;
         };
         rebuild();
-        const originalRender=render;
         // Keep the existing mode buttons; refresh the WebGL instrument after mode changes.
         tabs.addEventListener('click',()=>{if(!dead)rebuild()});
         const pointer=e=>{e.preventDefault();const rect=canvas3d.getBoundingClientRect(),point=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
