@@ -508,7 +508,13 @@
       if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
       safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
     }else root.classList.remove('ios-standalone');
-    const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
+    // iOS standalone can report a visual viewport wider than the actual portrait screen
+    // during launch/restore. Never enlarge the 709px home stage beyond the physical
+    // screen's CSS width; this prevents cards being clipped on both sides.
+    const portrait=innerWidth<=innerHeight;
+    const physicalW=Math.min(screen?.width||lw,screen?.height||lw);
+    const reliableW=portrait&&physicalW>=280&&physicalW<=600?Math.min(lw,innerWidth||lw,physicalW):Math.min(lw,innerWidth||lw);
+    const scale=Math.min(reliableW/DESIGN_W,lh/DESIGN_H);
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
     root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
     if(standalone&&ios){
