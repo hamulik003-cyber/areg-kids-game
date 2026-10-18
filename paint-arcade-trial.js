@@ -39,7 +39,18 @@ export function mountPaintArcade(host, award, registerCleanup){
  {label:'Արև',d:'M200 115 A95 95 0 1 1 199.9 115 Z',parts:['M200 115 A95 95 0 1 1 199.9 115 Z']}
  ];
  function play(mode,shapeIndex=0){
- clear();let shape=shapes[shapeIndex%shapes.length],phase=mode===1?'trace':'paint',drawing=false,last=null,color=0,strokes=[],points=0,done=false,raf=0,token=0;
+ clear();
+ if(mode===7){
+   root.innerHTML='<div class="areg-paint-tip">Առյուծիկի գունավորումը բացվում է…</div>';
+   let active=true;dispose=()=>{active=false};
+   import('./paint-lion-result-trial.js?v=1').then(({mountLionResult})=>{
+     if(!active||destroyed)return;
+     root.replaceChildren();
+     mountLionResult(root,n=>{if(!earned){earned=true;award(n)}},menu,fn=>{dispose=()=>{active=false;fn()}});
+   }).catch(err=>{console.error('Lion game load',err);if(active)root.textContent='Խաղը չբեռնվեց'});
+   return;
+ }
+let shape=shapes[shapeIndex%shapes.length],phase=mode===1?'trace':'paint',drawing=false,last=null,color=0,strokes=[],points=0,done=false,raf=0,token=0;
  root.innerHTML='<div class="areg-paint-play"><div class="areg-paint-subhead"><button class="areg-paint-small" id="paintMenu">‹ Խաղերը</button><span class="areg-paint-name"></span><button class="areg-paint-small" id="paintReset">↻</button></div><div class="areg-paint-tip" id="paintTip"></div><div class="areg-paint-sheet"><canvas></canvas></div><div class="areg-paint-pal"></div><button class="areg-paint-small areg-paint-finish" id="paintFinish">Պատրաստ է ✓</button></div>';
  const wrap=root.querySelector('.areg-paint-sheet'),canvas=wrap.querySelector('canvas'),ctx=canvas.getContext('2d'),tip=root.querySelector('#paintTip'),pal=root.querySelector('.areg-paint-pal');
  root.querySelector('.areg-paint-name').textContent=modes[mode][0];
