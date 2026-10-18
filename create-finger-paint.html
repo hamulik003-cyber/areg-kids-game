@@ -73,7 +73,32 @@ function makeMask(){
   for(const region of paintRegions[index])m.fill(new Path2D(region));
 }
 function replay(strokes){ctx.clearRect(0,0,canvas.width,canvas.height);if(phase!=='paint')return;makeMask();for(const s of strokes)drawStroke(s,false)}
-function drawStroke(s,save=true){const c=ctx,r=paper.getBoundingClientRect();c.save();c.beginPath();c.lineCap='round';c.lineJoin='round';c.strokeStyle=s.color;c.fillStyle=s.color;c.lineWidth=Math.max(18,r.width*.074);if(s.a.x===s.b.x&&s.a.y===s.b.y){c.arc(s.a.x,s.a.y,c.lineWidth/2,0,Math.PI*2);c.fill()}else{c.moveTo(s.a.x,s.a.y);c.lineTo(s.b.x,s.b.y);c.stroke()}c.globalCompositeOperation='destination-in';c.drawImage(mask,0,0,r.width,r.height);c.restore();if(save)strokeHistory.push(s)}
+function drawStroke(s,save=true){
+  const c=ctx,r=paper.getBoundingClientRect();
+  c.save();
+  // Soft round-tip marker; use short overlapping dabs for smooth continuous coverage.
+  // Masking is applied to the newly drawn paint BEFORE compositing onto old strokes,
+  // so repeated colors never punch holes into earlier painted areas.
+  const layer=document.createElement('canvas');
+  layer.width=canvas.width;layer.height=canvas.height;
+  const g=layer.getContext('2d');
+  g.setTransform(canvas.width/r.width,0,0,canvas.height/r.height,0,0);
+  const radius=Math.max(12,r.width*.038);
+  const dx=s.b.x-s.a.x,dy=s.b.y-s.a.y,dist=Math.hypot(dx,dy);
+  const steps=Math.max(1,Math.ceil(dist/Math.max(2,radius*.28)));
+  g.fillStyle=s.color;
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    g.beginPath();
+    g.arc(s.a.x+dx*t,s.a.y+dy*t,radius,0,Math.PI*2);
+    g.fill();
+  }
+  g.globalCompositeOperation='destination-in';
+  g.drawImage(mask,0,0,layer.width,layer.height);
+  c.drawImage(layer,0,0,r.width,r.height);
+  c.restore();
+  if(save)strokeHistory.push(s);
+}
 function showMarker(x,y){targetX=x;targetY=y;markerVisible=true;marker.classList.add('show');if(!markerRAF){markerX=x;markerY=y;const animate=()=>{markerX+=(targetX-markerX)*.34;markerY+=(targetY-markerY)*.34;marker.style.left=markerX+'px';marker.style.top=markerY+'px';if(markerVisible||Math.abs(targetX-markerX)+Math.abs(targetY-markerY)>.5)markerRAF=requestAnimationFrame(animate);else markerRAF=0};markerRAF=requestAnimationFrame(animate)}}
 function hideMarker(){markerVisible=false;marker.classList.remove('show')}
 function renderPalette(){controls.replaceChildren();colors.forEach((color,i)=>{const b=document.createElement('button');b.className='swatch'+(i===selected?' selected':'');b.style.background=color;b.setAttribute('aria-label','Գույն '+(i+1));b.addEventListener('click',()=>{selected=i;renderPalette()});controls.append(b)});const done=document.createElement('button');done.className='wood action';done.textContent='Պատրաստ է ✓';done.addEventListener('click',complete);controls.append(done)}
