@@ -3273,18 +3273,16 @@
       while(nextTime<audio.currentTime+.12&&count++<10){
         const k=step%16;
         for(const id of active){
-          let hit=false;
-          if(id===0)hit=k%4===0;
-          else if(id===1)hit=rhythm===1?(k===0||k===7||k===10):(k%4===0);
-          else if(id===2)hit=k===4||k===12;
-          else if(id===3)hit=k===4||k===12;
-          else if(id===4)hit=k%2===0;
-          else if(id===5)hit=k%2===1;
-          else if(id===6)hit=k%4===2;
-          else if(id===7)hit=k===7||k===15;
-          else if(id<16)hit=k%4===((id-8)%4);
-          else if(id<20)hit=k%8===((id-16)*2);
-          else hit=k%8===(id-20)*2;
+          // Restore the earlier approved Launchpad groove patterns, adapted to
+          // the new 24-pad layout. Keep the current 3D UI and audio clock.
+          const grooves=[
+            [[0,4,8,12],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,14],[0,4,8,12],[2,6,10,14],[3,7,11,15]],
+            [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
+            [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]],
+            [[0,3,6,8,11,14],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,15],[1,5,9,13],[2,7,10,15],[3,7,11,15]]
+          ];
+          const groove=grooves[rhythm][id%8];
+          const hit=groove.includes((k+Math.floor(id/8)*2)%16);
           if(hit){play(id,nextTime);const pad=pads[id];const delay=Math.max(0,(nextTime-audio.currentTime)*1000);setTimeout(()=>{if(closed||!pad.isConnected)return;pad.classList.add('pulse');setTimeout(()=>pad.classList.remove('pulse'),125)},delay)}
         }
         nextTime+=beat;step++;
