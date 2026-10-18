@@ -1,3 +1,8 @@
+## 2026-10-18 — Musical instruments WebGL 3D trial
+- Inspected approved `mind-shapes-deluxe-v4.js`: imports bundled `./vendor/three.module.min.js`, uses `THREE.WebGLRenderer`, actual 3D meshes. The earlier music game was CSS, not the same rendering engine.
+- Updated only trial `app.js` gameStickers to dynamically load the same local Three.js library and draw five playable 3D instrument representations with meshes, lighting, shadows, materials, raycast pointer taps and subtle press motion: piano, xylophone, drum kit, guitar and pan flute. Existing CSS fallback remains if WebGL fails. Removed prior free-play star rewards; canonical header and main unchanged.
+- This is a first geometry-based 3D implementation, NOT a photorealistic model or confirmed iPhone-quality match. Audio is still synthesized, not sampled. Must verify live trial and iOS touch/audio, then iterate visual fidelity with user before production.
+
 ## 2026-10-18 — Music reference revision (trial)
 - User supplied reference photos of pan flute, full drum kit, rainbow xylophone, acoustic guitar, and colored piano. Removed frog mode; added guitar and pan flute, leaving five modes; retained two-row instrument selector (3+2). Removed automatic `reward()` from instrument taps so no stars are earned by free play. CSS instrument controls now use visually differentiated shapes, including piano black/white keys, colored xylophone, drum pads/cymbals, guitar strings/body, and wooden pan pipes. The canonical app header is untouched; main/DotKiosk untouched.
 - These are interactive CSS illustrations and synthesized audio, not yet true photo-faithful 3D assets or recorded authentic instrument samples. Needs visual and iPhone audio review.
