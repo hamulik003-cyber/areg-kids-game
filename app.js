@@ -3287,6 +3287,31 @@
         overtone.connect(g);g.connect(master);overtone.start(t);overtone.stop(t+Math.min(.19,dur)+.01);
       }
     }
+    // Distinctive instrument articulations, synthesized locally for offline PWA.
+    function instrumentVoice(midi,t,dur,vol=.055){
+      if(!audio||!master)return;
+      const f=440*Math.pow(2,(midi-69)/12),type=instrument;
+      if(type===3){percussion(['kick','snare','hat','clap','shaker'][Math.abs(midi)%5],t);return}
+      const attack=[.004,.003,.12,.004,.002,.055][type];
+      const sustain=[.21,.10,.78,.1,.14,.65][type];
+      const release=[.22,.12,.42,.1,.19,.31][type];
+      const duration=type===2?Math.max(.32,dur):type===5?Math.max(.24,dur):dur;
+      const partials=type===0?[[1,1],[2,.23],[3,.085]]:type===1?[[1,1],[2,.34],[3,.17],[4,.08]]:type===2?[[1,1],[2,.35],[3,.21],[4,.13]]:type===4?[[1,1],[2,.12],[3.98,.31]]:[[1,1],[2,.20],[3,.11]];
+      const filter=audio.createBiquadFilter(),env=audio.createGain();
+      filter.type='lowpass';filter.frequency.setValueAtTime([2600,1750,2200,1800,3200,1400][type],t);
+      if(type===1)filter.frequency.exponentialRampToValueAtTime(580,t+.19);
+      if(type===5)filter.frequency.linearRampToValueAtTime(2100,t+.23);
+      env.gain.setValueAtTime(.0001,t);env.gain.linearRampToValueAtTime(vol,t+attack);
+      env.gain.exponentialRampToValueAtTime(Math.max(.0002,vol*sustain),t+attack+duration);
+      env.gain.exponentialRampToValueAtTime(.0001,t+attack+duration+release);
+      filter.connect(env);env.connect(master);if(fxSend)env.connect(fxSend);
+      for(const [ratio,weight] of partials){
+        const osc=audio.createOscillator(),g=audio.createGain();osc.type=type===5&&ratio===1?'triangle':'sine';
+        osc.frequency.setValueAtTime(f*ratio,t);
+        if(type===2){osc.frequency.setValueAtTime(f*ratio*.998,t);osc.frequency.linearRampToValueAtTime(f*ratio*1.002,t+duration)}
+        g.gain.value=weight;osc.connect(g);g.connect(filter);osc.start(t);osc.stop(t+attack+duration+release+.02);
+      }
+    }
     function percussion(kind,t){
       if(!audio||!master)return;
       if(kind==='kick'){
@@ -3327,17 +3352,17 @@
         const index=(id-8+Math.floor(k/4))%h.notes.length;
         const n=h.notes[index]+(id>=13?0:-12);
         const kind=['piano','guitar','violin','drums','marimba','synth'][instrument];
-        if(kind==='drums'){percussion((id%3===0)?'kick':(id%3===1)?'snare':'hat',t)}else voice(hz(n),t,(kind==='synth'||kind==='violin')?quarter*.95:dur,kind,.055);
+        instrumentVoice(n,t,instrument===2?quarter*1.35:instrument===1?quarter*.42:dur,.055);
         return;
       }
       if(id<20){
         // Voiced chord tones from the current harmony, with controlled polyphony.
         const offsets=[[0,1,2],[1,2,3],[0,2,4],[2,3,5]][id-16];
-        for(const ix of offsets)voice(hz(h.notes[ix]-12),t,quarter*1.45,['piano','guitar','violin','pad','marimba','synth'][instrument],.022);
+        for(const ix of offsets)instrumentVoice(h.notes[ix]-12,t,quarter*1.35,.018);
         return;
       }
       const n=h.notes[(id-20+Math.floor(k/4))%h.notes.length]+12;
-      if(instrument===3)percussion(id%2?'shaker':'clap',t);else voice(hz(n),t,.17,['piano','guitar','violin','pad','marimba','synth'][instrument],.032);
+      instrumentVoice(n,t,.19,.035);
     }
     const grooves=[
       [[0,4,8,12],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
@@ -3357,7 +3382,14 @@
           // the new 24-pad layout. Keep the current 3D UI and audio clock.
           const groove=id<8?grooves[rhythm][id]:id<16?[[0,4,8,12],[2,6,10,14],[0,8],[4,12],[3,7,11,15],[0,4,8,12],[2,10],[6,14]][id-8]:id<20?[[0,8],[4,12],[0],[8]][id-16]:[[0,8],[4,12],[2,10],[6,14]][id-20];
           // No per-row phase shift: every loop stays on the same 16-step grid.
-          const hit=groove.includes(k);
+          // Each instrument has a recognizable rhythmic phrase while staying in sync.
+          const phrase=instrument===0?groove:
+            instrument===1?(id<8?groove:(id<16?[0,3,6,10,12,14]:[0,6,10])):
+            instrument===2?(id<8?groove:(id<16?[0,8]:[0])):
+            instrument===3?(id<8?groove:(id<16?[0,2,4,6,8,10,12,14]:[4,12])):
+            instrument===4?(id<8?groove:(id<16?[0,2,5,8,10,13]:[0,8])):
+            (id<8?groove:(id<16?[0,3,7,10,14]:[0,4,8,12]));
+          const hit=phrase.includes(k);
           if(hit){play(id,nextTime,k);const pad=pads[id];const delay=Math.max(0,(nextTime-audio.currentTime)*1000);setTimeout(()=>{if(closed||!pad.isConnected)return;pad.classList.add('pulse');setTimeout(()=>pad.classList.remove('pulse'),125)},delay)}
         }
         nextTime+=beat;step++;
