@@ -3216,7 +3216,7 @@
       ['#25d6f5','#8c5aff','#f73bb5','#e5ed41','#50e7a0','#ff704d','#629fff','#bf63ff'],
       ['#ffc054','#ff695c','#74dc82','#44c7c8','#e487eb','#ffdc5d','#72b6ff','#ef9a65']
     ];
-    const active=new Set(),pads=[];let rhythm=0,instrument=0,silent=false,audio=null,master=null,timer=null,nextTime=0,step=0,closed=false;
+    const active=new Set(),pads=[];let rhythm=0,instrument=0,silent=false,audio=null,master=null,fxSend=null,timer=null,nextTime=0,step=0,closed=false;
     const bpm=[124,92,138,112];
     // All pitched pads share a C-minor pentatonic palette and one chord progression.
     const scale=[0,3,5,7,10],roots=[0,8,3,10];
@@ -3230,54 +3230,85 @@
     function ensureAudio(){
       if(closed)return;
       try{
-        if(!audio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC){caption.textContent='Այս սարքում ձայնը հասանելի չէ';return}try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}audio=new AC();master=audio.createGain();master.gain.value=.65;master.connect(audio.destination);nextTime=audio.currentTime+.06;timer=setInterval(tick,25)}
+        if(!audio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC){caption.textContent='Այս սարքում ձայնը հասանելի չէ';return}try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}audio=new AC();master=audio.createGain();master.gain.value=.46;const limiter=audio.createDynamicsCompressor();limiter.threshold.value=-21;limiter.knee.value=22;limiter.ratio.value=5;limiter.attack.value=.012;limiter.release.value=.19;master.connect(limiter);limiter.connect(audio.destination);const delay=audio.createDelay(.6),feedback=audio.createGain(),wet=audio.createGain();delay.delayTime.value=.19;feedback.gain.value=.16;wet.gain.value=.12;fxSend=audio.createGain();fxSend.gain.value=.34;fxSend.connect(delay);delay.connect(feedback);feedback.connect(delay);delay.connect(wet);wet.connect(limiter);nextTime=audio.currentTime+.06;timer=setInterval(tick,25)}
         if(audio.state!=='running')audio.resume().then(()=>{if(!closed){nextTime=audio.currentTime+.06;tick()}}).catch(()=>{caption.textContent='Սեղմիր կոճակը՝ ձայնը միացնելու համար'});
       }catch(e){console.warn('Music audio unavailable',e)}
     }
-    function tone(hz,t,dur,type='sine',vol=.3,filterFreq=0){
+    // Soft musical voices with transient shaping, filtering and restrained ambience.
+    function voice(hz,t,dur,kind,vol=.1){
       if(!audio||!master)return;
-      const osc=audio.createOscillator(),env=audio.createGain();osc.type=type;osc.frequency.setValueAtTime(Math.max(25,hz),t);
-      env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(Math.max(.001,vol),t+.008);env.gain.exponentialRampToValueAtTime(.0001,t+dur);
-      if(filterFreq){const fl=audio.createBiquadFilter();fl.type='lowpass';fl.frequency.value=filterFreq;osc.connect(fl);fl.connect(env)}else osc.connect(env);
-      env.connect(master);osc.start(t);osc.stop(t+dur+.03);
+      const osc=audio.createOscillator(),gain=audio.createGain(),filter=audio.createBiquadFilter();
+      const attack=kind==='pad'?.09:.008,release=kind==='pad'?.38:kind==='bass'?.13:.22;
+      const peak=Math.max(.001,vol),end=t+dur+release;
+      osc.type=kind==='bell'?'sine':kind==='bass'?'triangle':kind==='pluck'?'triangle':kind==='pad'?'sine':'sine';
+      osc.frequency.setValueAtTime(hz,t);
+      filter.type='lowpass';filter.frequency.value=kind==='bass'?420:kind==='pluck'?1900:kind==='pad'?1300:2600;
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.linearRampToValueAtTime(peak,t+attack);
+      gain.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*(kind==='pad'?.48:.17)),t+dur);
+      gain.gain.exponentialRampToValueAtTime(.0001,end);
+      osc.connect(filter);filter.connect(gain);gain.connect(master);
+      if(fxSend&&kind!=='bass')gain.connect(fxSend);
+      osc.start(t);osc.stop(end+.025);
+      if(kind==='bell'||kind==='pluck'){
+        const overtone=audio.createOscillator(),g=audio.createGain();
+        overtone.type='sine';overtone.frequency.value=hz*(kind==='bell'?2.01:2);
+        g.gain.setValueAtTime(Math.max(.0001,peak*.16),t);
+        g.gain.exponentialRampToValueAtTime(.0001,t+Math.min(.19,dur));
+        overtone.connect(g);g.connect(master);overtone.start(t);overtone.stop(t+Math.min(.19,dur)+.01);
+      }
     }
-    function noise(t,dur,vol,highpass){
-      if(!audio||!master)return;const n=Math.ceil(audio.sampleRate*dur),buffer=audio.createBuffer(1,n,audio.sampleRate),data=buffer.getChannelData(0);
-      for(let i=0;i<n;i++)data[i]=Math.random()*2-1;
-      const src=audio.createBufferSource(),flt=audio.createBiquadFilter(),env=audio.createGain();src.buffer=buffer;flt.type='highpass';flt.frequency.value=highpass;env.gain.setValueAtTime(vol,t);env.gain.exponentialRampToValueAtTime(.0001,t+dur);
-      src.connect(flt);flt.connect(env);env.connect(master);src.start(t);src.stop(t+dur+.01);
+    function percussion(kind,t){
+      if(!audio||!master)return;
+      if(kind==='kick'){
+        const osc=audio.createOscillator(),g=audio.createGain();osc.type='sine';
+        osc.frequency.setValueAtTime(135,t);osc.frequency.exponentialRampToValueAtTime(47,t+.12);
+        g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.34,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.20);
+        osc.connect(g);g.connect(master);osc.start(t);osc.stop(t+.21);return;
+      }
+      const duration=kind==='hat'?.032:kind==='shaker'?.055:.095;
+      const buf=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buf.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.4);
+      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;
+      fl.type=kind==='snare'?'bandpass':'highpass';fl.frequency.value=kind==='hat'?7500:kind==='shaker'?4600:kind==='clap'?2100:1450;
+      fl.Q.value=.6;g.gain.setValueAtTime(kind==='hat'?.065:kind==='shaker'?.065:.13,t);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      src.connect(fl);fl.connect(g);g.connect(master);src.start(t);src.stop(t+duration+.005);
     }
+    const hz=midi=>440*Math.pow(2,(midi-69)/12);
+    // C minor -> A-flat major -> E-flat major -> B-flat major.
+    // Each bar uses only its own chord tones and compatible pentatonic passing notes.
+    const harmony=[
+      {bass:36,notes:[60,63,67,70,72,75,79]},
+      {bass:44,notes:[56,60,63,68,72,75,80]},
+      {bass:39,notes:[58,63,67,70,75,79,82]},
+      {bass:46,notes:[58,62,65,70,74,77,82]}
+    ];
     function play(id,t,k){
       if(!audio||silent||closed||audio.state!=='running')return;
-      const bar=Math.floor(step/16),root=roots[bar%4],beatDur=60/bpm[rhythm]/4;
-      const hz=(midi)=>440*Math.pow(2,(midi-69)/12);
-      if(id===0){tone(hz(36+root),t,.19,'triangle',.22,600);return}
-      if(id===1){tone(125,t,.14,'sine',.48);tone(54,t+.012,.13,'sine',.37);return}
-      if(id===2){noise(t,.105,.25,1150);return}
-      if(id===3){noise(t,.085,.28,1450);return}
-      if(id===4){noise(t,.038,.14,6500);return}
-      if(id===5){noise(t,.065,.12,3900);return}
-      if(id===6){tone(176,t,.10,'triangle',.19);return}
-      if(id===7){tone(130,t,.10,'triangle',.18);return}
-      const inst=['triangle','sawtooth','sine','square'][instrument];
-      const duration=Math.min(beatDur*3,instrument===0?.33:instrument===2?.28:.20);
-      const cut=instrument===1?1150:instrument===3?1200:2400;
+      const h=harmony[Math.floor(step/16)%4],quarter=60/bpm[rhythm],dur=quarter*.65;
+      if(id===0){voice(hz(h.bass),t,quarter*.64,'bass',.17);return}
+      if(id===1){percussion('kick',t);return}
+      if(id===2){percussion('snare',t);return}
+      if(id===3){percussion('clap',t);return}
+      if(id===4){percussion('hat',t);return}
+      if(id===5){percussion('shaker',t);return}
+      if(id===6){voice(hz(h.bass+12),t,.11,'pluck',.045);return}
+      if(id===7){percussion('snare',t);return}
       if(id<16){
-        const degree=scale[(id-8+Math.floor(k/4))%5];
-        const n=60+root+degree+(id>=13?12:0);
-        tone(hz(n),t,duration,inst,.095,cut);
-        if(instrument===0)tone(hz(n+12),t,.10,'sine',.022);
+        const index=(id-8+Math.floor(k/4))%h.notes.length;
+        const n=h.notes[index]+(id>=13?0:-12);
+        const kind=['pluck','pluck','bell','pad'][instrument];
+        voice(hz(n),t,kind==='pad'?quarter*.95:dur,kind,.045);
         return;
       }
       if(id<20){
-        // Harmonically related minor / major triads: never arbitrary intervals.
-        const chordRoot=48+root+(id-16===1?7:id-16===2?12:id-16===3?-5:0);
-        const minor=id===16||id===18;
-        for(const interval of [0,minor?3:4,7])tone(hz(chordRoot+interval),t,Math.min(.5,beatDur*4),inst,.045,cut);
+        // Voiced chord tones from the current harmony, with controlled polyphony.
+        const offsets=[[0,1,2],[1,2,3],[0,2,4],[2,3,5]][id-16];
+        for(const ix of offsets)voice(hz(h.notes[ix]-12),t,quarter*1.45,'pad',.024);
         return;
       }
-      const n=72+root+scale[(id-20+Math.floor(k/4))%5];
-      tone(hz(n),t,.12,id===22?'triangle':'sine',.055,2400);
+      const n=h.notes[(id-20+Math.floor(k/4))%h.notes.length]+12;
+      voice(hz(n),t,.17,id===21?'bell':'pluck',.032);
     }
     const grooves=[
       [[0,4,8,12],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
@@ -3305,7 +3336,7 @@
     }
     selectors[0].addEventListener('change',e=>{rhythm=Number(e.target.value);recolor();step=0;if(audio)nextTime=audio.currentTime+.035;caption.textContent='Նոր ռիթմ՝ '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
     selectors[1].addEventListener('change',e=>{instrument=Number(e.target.value);caption.textContent='Նոր գործիք՝ '+['Դաշնամուր','Կիթառ','Մարիմբա','Սինթեզատոր'][instrument]});
-    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔊':'🔇';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.65,audio.currentTime,.02)});
+    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔊':'🔇';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.46,audio.currentTime,.02)});
     gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
