@@ -3159,10 +3159,36 @@
 
   /* CREATIVITY */
   function gamePaint(){
-    const s=surface(null),wrap=document.createElement('div');wrap.className='paint-wrap';const pal=document.createElement('div');pal.className='palette-row';const box=document.createElement('div');box.className='paint-canvas-box';box.innerHTML='<canvas class="paint-canvas"></canvas>';const done=document.createElement('button');done.className='primary-action';done.textContent='⭐';done.style.cssText='align-self:center;min-width:90px;font-size:28px';wrap.append(pal,box,done);s.appendChild(wrap);
-    const colors=['#ef5350','#ff9800','#ffeb3b','#66bb6a','#42a5f5','#ab47bc','#3e2723'];let col=colors[0];colors.forEach((c,i)=>{const b=document.createElement('button');b.className='palette-dot';b.style.background=c;if(i===0)b.style.boxShadow='0 0 0 4px #ffd77f';b.addEventListener('click',()=>{col=c;$$('.palette-dot',pal).forEach(x=>x.style.boxShadow='');b.style.boxShadow='0 0 0 4px #ffd77f'});pal.appendChild(b)});
-    const canvas=$('canvas',box),ctx=canvas.getContext('2d');function size(){const r=box.getBoundingClientRect();canvas.width=Math.max(250,r.width);canvas.height=Math.max(300,r.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=10}requestAnimationFrame(size);let drawing=false;
-    const pt=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};canvas.onpointerdown=e=>{drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};canvas.onpointermove=e=>{if(!drawing)return;const p=pt(e);ctx.strokeStyle=col;ctx.lineTo(p.x,p.y);ctx.stroke()};const paintUp=()=>drawing=false;addEventListener('pointerup',paintUp);gameCleanup.push(()=>removeEventListener('pointerup',paintUp));done.addEventListener('click',()=>reward())
+    // Isolated playable painting game, with the same embedded activity shell as the approved jigsaw.
+    activityScreen.classList.add('mind-v4-mode');
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Մատով նկարչություն';
+    frame.src='./create-finger-paint.html?embed=1&v=trial1';
+    frame.setAttribute('loading','eager');
+    activityContent.append(frame);
+    const sendTheme=()=>{
+      const active=themes.find(([id])=>id===settings.theme);
+      const css=getComputedStyle(root);
+      const colors=['--bg-1','--bg-2','--bg-3'].map(k=>css.getPropertyValue(k).trim());
+      const photo=active&&String(active[0]).startsWith('photo-user-')?active[2]:null;
+      frame.contentWindow?.postMessage({
+        type:'areg-paint-theme',colors,photo,blur:Number(settings.themeBlur)||0
+      },location.origin);
+    };
+    frame.addEventListener('load',sendTheme);
+    const onMessage=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow||
+         currentGame?.kind!=='paint')return;
+      if(event.data?.type==='areg-paint-back')backToSection();
+    };
+    addEventListener('message',onMessage);
+    gameCleanup.push(()=>{
+      removeEventListener('message',onMessage);
+      frame.removeEventListener('load',sendTheme);
+      activityScreen.classList.remove('mind-v4-mode');
+    });
   }
   function gameStickers(){
     const s=surface('☝️'),scene=document.createElement('div');scene.className='sticker-scene';
