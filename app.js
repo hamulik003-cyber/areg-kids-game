@@ -508,9 +508,14 @@
       if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
       safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
     }else root.classList.remove('ios-standalone');
-    const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
+    // Physical portrait width is the upper bound; visualViewport can be stale in iOS PWA.
+    const physicalWidth=Math.min(screen?.width||vw,screen?.height||vw);
+    const portrait=innerWidth<=innerHeight;
+    const fitWidth=portrait&&physicalWidth>250&&physicalWidth<650
+      ?Math.min(lw,innerWidth||lw,physicalWidth):Math.min(lw,innerWidth||lw);
+    const scale=Math.min(fitWidth/DESIGN_W,lh/DESIGN_H);
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
-    root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
+    root.style.setProperty('--stage-x',`${fitWidth/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
     if(standalone&&ios){
       root.style.setProperty('--avatar-safe-y',`${Math.max(0,(safeTop+2)/scale-58)}px`);
       root.style.setProperty('--top-controls-safe-y',`${Math.max(0,(safeTop+8)/scale-34)}px`);
