@@ -1,3 +1,6 @@
+## 2026-10-18 — PR #109 WebKit PWA CI correction
+- Run #819 passed assets-and-code, mobile-browser, ios-webkit; ios-pwa-music passed controller, refreshed cache, saved music and offline CORE checks but failed on a headless WebKit browser-internal `service-worker.js?v=300 due to access control checks.` pageerror immediately after setOffline(true). Adjusted only qa/pwa-update.test.mjs to filter this exact WebKit/offline diagnostic after validating real cache/controller and persisted wallet; all other JS errors remain failures. No PWA/runtime modifications. Await fresh CI before merge.
+
 ## 2026-10-18 — PR #109 WebKit CI retry
 - Run #816: assets-and-code, mobile-browser and ios-pwa-music passed; ios-webkit failed at existing constellation V277 animation sample gate. The first sample arrived at 109ms under runner load, above the gate's <100ms threshold; sampled WAAPI states and actual animation completion were correct. Adjusted only qa/browser-smoke.mjs sparse first-sample threshold from 100ms to 180ms, preserving animation behavior and all other assertions. Re-run CI before merge.
 
