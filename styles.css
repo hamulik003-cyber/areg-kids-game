@@ -1,6 +1,7 @@
 :root {
   --app-h: 100dvh;
-  --stage-scale: 1;
+  /* Safe portrait fallback before JS viewport sync, including a JS load failure. */
+  --stage-scale: .54;
   --stage-x: 50vw;
   --stage-y: 50vh;
   --avatar-safe-y: 0px;
@@ -3513,3 +3514,8 @@ html[data-theme^="photo-user-"] .section-dim{
 /* Trial: long Constellations title must stay within the fixed shared wood header. */
 .activity-screen[data-game="constellations"] .activity-title-wrap{min-width:0!important;overflow:hidden!important;padding-left:5px!important;padding-right:5px!important}
 .activity-screen[data-game="constellations"] .activity-title{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;font-family:var(--areg-font)!important;font-weight:900!important;font-size:clamp(17px,4.1vw,21px)!important;letter-spacing:-.055em!important;line-height:1.05!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important}
+
+/* AREG TEST: safe initial iPhone home stage fit, even if JavaScript is delayed. */
+@media (max-width: 600px) and (orientation: portrait) {
+  :root { --stage-x: 50vw; --stage-y: 50dvh; }
+}
