@@ -3184,7 +3184,6 @@
     const dock=ui.querySelector('.dock');let activeColor=0;
     const inks=['#222936','#9b513d','#d7dde1','#258fe0','#13a4af','#1ea76d','#79cd56','#ffe047','#ff9437','#d93c61','#b454a4','#f9b9a4','#7958d7','#865e3d','#ffffff'];
     function drawDock(){dock.replaceChildren();const brush=tool==='brush';inks.forEach((ink,i)=>{const item=document.createElement('button');item.type='button';item.className='stick '+tool+(i===inks.length-1?' rgb':'');item.style.setProperty('--ink',brush&&i!==inks.length-1?color:ink);item.style.setProperty('--bristle',(7+i*2)+'px');item.setAttribute('aria-label',i===inks.length-1?'RGB գույն':brush?'Վրձնի չափ':'Գույն');item.innerHTML='<span class="shaft"></span><span class="point"></span>';item.addEventListener('click',()=>{activeColor=i;Array.from(dock.children).forEach(x=>x.classList.remove('on'));item.classList.add('on');if(i===inks.length-1){picker.click()}else if(brush){width=3+i*3;range.value=Math.min(46,width);num.textContent=width}else{color=ink;picker.value=ink}});dock.appendChild(item)});dock.children[activeColor].classList.add('on')}
-    drawDock();
     const overlay=document.createElement('div');overlay.className='overlay';overlay.style.display='none';overlay.innerHTML='<div class="dialog"><div class="dialog-head"><span class="dialog-title"></span><button class="dismiss" type="button">✕</button></div><div class="dialog-grid"></div></div>';ui.appendChild(overlay);const grid=overlay.querySelector('.dialog-grid');
     function closeDialog(){overlay.classList.remove('open');setTimeout(()=>{if(!overlay.classList.contains('open'))overlay.style.display='none'},220)}
     overlay.querySelector('.dismiss').addEventListener('click',closeDialog);overlay.addEventListener('click',e=>{if(e.target===overlay)closeDialog()});
@@ -3193,7 +3192,8 @@
     // Keep the paper dominant, with a compact tool drawer above it.
     const compact=window.matchMedia&&window.matchMedia('(max-height:720px)').matches;
     if(compact)ui.classList.add('compact');
-    let color='#ff527a',tool='marker',shapeMode=null,width=12,down=false,last=null,start=null,base=null;const undo=[],redo=[];
+    let color='#ff527a',tool='marker',shapeMode=null,width=12,down=false,last=null,start=null,base=null;
+    drawDock();const undo=[],redo=[];
     const snapshot=()=>ctx.getImageData(0,0,W,H),restore=img=>ctx.putImageData(img,0,0);
     const clear=()=>{ctx.save();ctx.globalCompositeOperation='source-over';ctx.fillStyle='#fffefa';ctx.fillRect(0,0,W,H);ctx.restore()};clear();
     const saveStep=()=>{undo.push(snapshot());if(undo.length>15)undo.shift();redo.length=0};
