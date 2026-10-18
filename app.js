@@ -3196,7 +3196,7 @@
     s.append(wrap);
     const grid=wrap.querySelector('.areg-lp-grid'),caption=wrap.querySelector('.areg-lp-caption');
     const palettes=['#fb5c77','#fd8951','#ffc54b','#f7e96c','#8be267','#44d7b4','#45d5ec','#61a8fa','#8d85fa','#c079f9','#f472c2','#f16e9b'];
-    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null;const active=new Set();const bpms=[124,88,138];
+    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային','Դաշնամուր','Կիթառ','Գործիքների միքս'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null;const active=new Set();const bpms=[124,88,138,108,100,116];
     const pads=[];
     for(let i=0;i<24;i++){const pad=document.createElement('button');pad.type='button';pad.className='areg-lp-pad';pad.style.setProperty('--pad',palettes[(i+Math.floor(i/4)*2)%palettes.length]);pad.setAttribute('aria-label','Երաժշտական կոճակ '+(i+1));grid.append(pad);pads.push(pad)}
     function audioReady(){if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();master=ctx.createGain();master.gain.value=.45;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return true}
@@ -3207,10 +3207,34 @@
     const patterns=[
       [[0,4,8,12],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,14],[0,4,8,12],[2,6,10,14],[3,7,11,15]],
       [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
-      [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]]
+      [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]],
+      [[0,8],[4,12],[2,6,10,14],[7,15],[0,4,8,12],[0,3,6,9,12,15],[2,6,10,14],[3,7,11,15]],
+      [[0,8],[4,12],[2,6,10,14],[7,15],[0,4,8,12],[0,2,4,6,8,10,12,14],[1,5,9,13],[3,7,11,15]],
+      [[0,4,8,12],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,14],[0,4,8,12],[2,6,10,14],[3,7,11,15]]
     ];
+    // Instrumental layers use synthesized plucked strings, struck piano harmonics,
+    // bell/mallet and woodwind voices. They stay synchronized to the same sequencer.
+    function pianoVoice(f,vel=.15){tone(f,1.12,'triangle',vel);tone(f*2,.55,'sine',vel*.29);tone(f*3,.24,'sine',vel*.12)}
+    function guitarVoice(f,vel=.13){tone(f,.48,'triangle',vel);tone(f*2,.24,'sine',vel*.24);tone(f*3,.13,'sine',vel*.1)}
+    function bellVoice(f){tone(f,1.05,'sine',.12);tone(f*2.02,.5,'sine',.065);tone(f*3.93,.28,'sine',.028)}
+    function fluteVoice(f){tone(f,.52,'sine',.13);tone(f*2,.35,'sine',.023)}
+    function instrumentHit(i,beat){
+      const oct=Math.floor(i/8),kind=i%8;
+      const scale=[0,2,4,7,9,12,14,16],chord=[0,4,7,12],root=style===3?220:style===4?164.81:196;
+      const semitone=scale[(oct*2+kind+Math.floor(beat/4))%scale.length],f=root*Math.pow(2,semitone/12);
+      if(style===3){if(kind<2)pianoVoice(f*.5,.11);else if(kind<6)pianoVoice(f,.14);else bellVoice(f*1.5)}
+      else if(style===4){if(kind<2)guitarVoice(f*.5,.16);else if(kind<6)guitarVoice(f,.15);else{guitarVoice(f*1.5,.09);noise(.055,4000,.025)}}
+      else{
+        const voice=(kind+oct)%4;
+        if(voice===0)pianoVoice(f,.13);
+        else if(voice===1)guitarVoice(f*.5,.13);
+        else if(voice===2)bellVoice(f);
+        else fluteVoice(f*1.5);
+        if(kind===0&&beat%4===0)tone(82,.18,'sine',.14,0,47);
+      }
+    }
     function hit(i,beat){if(dead||muted||!ctx||ctx.state!=='running')return;
-      const kind=i%8,oct=Math.floor(i/8),shift=[0,-4,5][style],v=style===1?.84:style===2?.7:1;
+      if(style>=3){try{instrumentHit(i,beat)}catch(err){console.warn('Instrument audio error',err)}return}\n      const kind=i%8,oct=Math.floor(i/8),shift=[0,-4,5][style],v=style===1?.84:style===2?.7:1;
       try{
         if(kind===0){tone(style===2?185:style===1?115:155,.24,'sine',.46*v,0,style===2?47:39);tone(65,.1,'triangle',.08*v)}
         else if(kind===1){noise(style===1?.2:.12,style===2?1800:800,.2*v);tone(170,.08,'triangle',.07*v)}
