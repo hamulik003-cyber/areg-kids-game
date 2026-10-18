@@ -3184,8 +3184,8 @@
       .areg-lp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,2.3vw,15px)}
       .areg-lp-pad{appearance:none;position:relative;aspect-ratio:1;min-width:0;border:2px solid #ffffff66;border-bottom:6px solid #0008;border-radius:clamp(12px,3vw,19px);background:linear-gradient(140deg,#ffffffa8,#ffffff10 40%,#0003 95%),var(--pad);box-shadow:inset 0 3px 5px #fff9,inset 0 -5px 7px #0003,0 6px 0 #080d1b,0 9px 10px #0006;transform:translateY(0);transition:transform .09s,filter .09s,box-shadow .09s;touch-action:none;cursor:pointer}
       .areg-lp-pad:before{content:'';position:absolute;inset:8%;border-radius:inherit;border:1px solid #ffffff55;pointer-events:none}
-      .areg-lp-pad:active,.areg-lp-pad.is-hit{transform:translateY(5px) scale(.96);filter:brightness(1.35);box-shadow:inset 0 2px 13px #fff9,0 1px 0 #080d1b,0 0 22px var(--pad)}
-      .areg-lp-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;width:min(100%,520px)}
+      .areg-lp-pad:active,.areg-lp-pad.is-hit,.areg-lp-pad.is-on{transform:translateY(5px) scale(.96);filter:brightness(1.35);box-shadow:inset 0 2px 13px #fff9,0 1px 0 #080d1b,0 0 22px var(--pad)}
+      .areg-lp-pad.is-on{filter:brightness(1.23);box-shadow:inset 0 2px 10px #fff9,0 2px 0 #080d1b,0 0 20px var(--pad);transform:translateY(4px)}\n      .areg-lp-pad.is-on.is-beat{filter:brightness(1.7);box-shadow:inset 0 0 16px #fff,0 0 27px var(--pad)}\n      .areg-lp-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;width:min(100%,520px)}
       .areg-lp-control{flex:1;min-width:0;border:2px solid #ffedb0;border-radius:16px;background:linear-gradient(#fff3c2,#eab35f);box-shadow:0 5px 0 #95602e;color:#54311e;font-weight:900;font-size:clamp(13px,3.4vw,17px);padding:11px 5px;touch-action:manipulation}
       .areg-lp-control:active{transform:translateY(3px);box-shadow:0 2px 0 #95602e}
       .areg-lp-caption{color:#fff8db;font-weight:800;font-size:clamp(12px,3vw,16px);text-align:center;text-shadow:0 2px 3px #433c60}
@@ -3196,28 +3196,49 @@
     s.append(wrap);
     const grid=wrap.querySelector('.areg-lp-grid'),caption=wrap.querySelector('.areg-lp-caption');
     const palettes=['#fb5c77','#fd8951','#ffc54b','#f7e96c','#8be267','#44d7b4','#45d5ec','#61a8fa','#8d85fa','#c079f9','#f472c2','#f16e9b'];
-    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային'];let style=0,muted=false,ctx=null,master=null,dead=false;
+    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null;const active=new Set();const bpms=[124,88,138];
     const pads=[];
     for(let i=0;i<24;i++){const pad=document.createElement('button');pad.type='button';pad.className='areg-lp-pad';pad.style.setProperty('--pad',palettes[(i+Math.floor(i/4)*2)%palettes.length]);pad.setAttribute('aria-label','Երաժշտական կոճակ '+(i+1));grid.append(pad);pads.push(pad)}
     function audioReady(){if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();master=ctx.createGain();master.gain.value=.45;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return true}
     function tone(freq,duration,type='sine',volume=.23,delay=0,slide=0){const t=ctx.currentTime+delay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,freq),t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+Math.min(.2,duration));g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.02)}
     function noise(duration=.13,highpass=1200,volume=.16){const n=Math.max(1,Math.floor(ctx.sampleRate*duration)),buf=ctx.createBuffer(1,n,ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<n;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=highpass;gain.gain.value=volume;src.connect(filter);filter.connect(gain);gain.connect(master);src.start();src.stop(ctx.currentTime+duration)}
-    function play(i){if(dead)return;const p=pads[i];p.classList.remove('is-hit');void p.offsetWidth;p.classList.add('is-hit');setTimeout(()=>{if(!dead)p.classList.remove('is-hit')},145);if(muted||!audioReady())return;
-      try{const kind=i%8,oct=Math.floor(i/8),shift=style===0?0:style===1?-3:4;
-        if(kind===0){tone(155-oct*18,.28,'sine',.6,0,48);tone(75,.12,'triangle',.12)}
-        else if(kind===1){noise(.16,950,.25);tone(180,.09,'triangle',.09)}
-        else if(kind===2){noise(.08,6000,.14)}
-        else if(kind===3){noise(.27,3900,.13);tone(560,.07,'square',.035)}
-        else if(kind===4){const notes=[130.81,146.83,164.81,196,220,261.63,293.66,329.63];const f=notes[(oct*3+style*2)%notes.length];tone(f,.45,'sawtooth',.16);tone(f/2,.4,'sine',.13)}
-        else if(kind===5){const f=261.63*Math.pow(2,(oct*4+shift)/12);tone(f,.65,style===2?'square':'triangle',.18);tone(f*1.5,.34,'sine',.06)}
-        else if(kind===6){const f=392*Math.pow(2,(oct*3+shift)/12);tone(f,.22,'triangle',.18);tone(f*2,.13,'sine',.05)}
-        else{tone(520+oct*190,.12,'sine',.12,0,210+oct*90);noise(.06,4500,.07)}
+    // Each pad is a latched, independently repeating musical layer. All layers share one beat clock.
+    // Each genre has its own rhythmic pattern, timbre and BPM; no notes are awarded.
+    const patterns=[
+      [[0,4,8,12],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,14],[0,4,8,12],[2,6,10,14],[3,7,11,15]],
+      [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
+      [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]]
+    ];
+    function hit(i,beat){if(dead||muted||!ctx||ctx.state!=='running')return;
+      const kind=i%8,oct=Math.floor(i/8),shift=[0,-4,5][style],v=style===1?.84:style===2?.7:1;
+      try{
+        if(kind===0){tone(style===2?185:style===1?115:155,.24,'sine',.46*v,0,style===2?47:39);tone(65,.1,'triangle',.08*v)}
+        else if(kind===1){noise(style===1?.2:.12,style===2?1800:800,.2*v);tone(170,.08,'triangle',.07*v)}
+        else if(kind===2){noise(style===2?.045:.075,style===1?4300:7000,.10*v)}
+        else if(kind===3){noise(.19,style===1?2500:4700,.13*v);tone(style===2?800:440,.065,'square',.025*v)}
+        else if(kind===4){const f=110*Math.pow(2,(oct*3+shift+(beat%4===0?0:3))/12);tone(f,style===1?.32:.24,style===2?'square':'sawtooth',.11*v);tone(f/2,.25,'sine',.13*v)}
+        else if(kind===5){const f=261.63*Math.pow(2,(oct*4+shift+(beat%8>=4?7:0))/12);tone(f,style===0?.36:style===1?.55:.17,style===2?'square':'triangle',.12*v);tone(f*1.5,.18,'sine',.035*v)}
+        else if(kind===6){const f=392*Math.pow(2,(oct*3+shift+(beat%4)*2)/12);tone(f,style===2?.09:.18,style===1?'sine':'triangle',.13*v)}
+        else{tone(style===1?360:style===2?880:560,.11,style===2?'sawtooth':'sine',.10*v,0,style===2?260:170);noise(.04,4800,.035*v)}
       }catch(err){console.warn('Launchpad audio error',err)}
     }
-    pads.forEach((p,i)=>{p.addEventListener('pointerdown',e=>{e.preventDefault();play(i)});p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();play(i)}})});
-    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];caption.textContent=styles[style]+' ռիթմեր․ փորձիր տարբեր կոճակներ'};
-    wrap.querySelector('.areg-lp-mute').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Անձայն':'🔊 Ձայն'};
-    gameCleanup.push(()=>{dead=true;ctx?.close().catch(()=>{});css.remove()});
+    function tick(){
+      if(dead)return;
+      for(const i of active){const pattern=patterns[style][i%8];const beat=(step+i%3*(style===1?1:0))%16;if(pattern.includes(beat)){hit(i,step);const p=pads[i];p.classList.add('is-beat');setTimeout(()=>{if(!dead)p.classList.remove('is-beat')},95)}}
+      step=(step+1)%16;
+    }
+    function startClock(){if(timer!==null)clearInterval(timer);timer=null;step=0;if(active.size){if(!muted)audioReady();tick();timer=setInterval(tick,60000/bpms[style]/4)}}
+    function toggle(i){if(dead)return;const p=pads[i];if(active.has(i)){active.delete(i);p.classList.remove('is-on','is-beat');p.setAttribute('aria-pressed','false')}
+      else{active.add(i);p.classList.add('is-on');p.setAttribute('aria-pressed','true');if(!muted)audioReady()}
+      if(!active.size){clearInterval(timer);timer=null;step=0}else if(timer===null)startClock();
+      caption.textContent=styles[style]+' · '+active.size+' ռիթմ միացված';
+    }
+    pads.forEach((p,i)=>{p.setAttribute('aria-pressed','false');p.addEventListener('pointerdown',e=>{e.preventDefault();toggle(i)});p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(i)}})});
+    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];caption.textContent=styles[style]+' · '+bpms[style]+' BPM · '+active.size+' ռիթմ';startClock()};
+    wrap.querySelector('.areg-lp-mute').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Անձայն':'🔊 Ձայն';if(!muted)audioReady()};
+    const visibility=()=>{if(document.hidden){if(timer!==null){clearInterval(timer);timer=null}}else if(active.size)startClock()};
+    document.addEventListener('visibilitychange',visibility);
+    gameCleanup.push(()=>{dead=true;if(timer!==null)clearInterval(timer);document.removeEventListener('visibilitychange',visibility);ctx?.close().catch(()=>{});css.remove()});
   }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
