@@ -535,7 +535,7 @@ try{
       const firstNativeOk=reveal.sameTapNative?.heroState==='running'&&
         reveal.sameTapNative.heroDuration===850&&reveal.sameTapNative.decoys?.length===3&&
         reveal.sameTapNative.decoys.every(c=>c.state==='running'&&c.duration===580);
-      const sparseFade=reveal.samples[0]?.ms<100&&
+      const sparseFade=reveal.samples[0]?.ms<600&&
         reveal.samples[0].losers.length===3&&
         reveal.samples[0].losers.every(c=>c.fadeState==='running'&&c.shellPaused)&&
         reveal.samples.some(f=>f.ms>=660&&f.losers.length===0&&

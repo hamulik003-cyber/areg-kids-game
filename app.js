@@ -3131,6 +3131,17 @@
     frame.src='./mind-jigsaw.html?embed=1&v=trial1';
     frame.setAttribute('loading','eager');
     activityContent.append(frame);
+    // Send the selected global theme to the embedded puzzle, including photo themes.
+    const sendJigsawTheme=()=>{
+      const active=themes.find(([id])=>id===settings.theme);
+      const css=getComputedStyle(root);
+      const colors=['--bg-1','--bg-2','--bg-3'].map(k=>css.getPropertyValue(k).trim());
+      const photo=active&&String(active[0]).startsWith('photo-user-')?active[2]:null;
+      frame.contentWindow?.postMessage({
+        type:'areg-jigsaw-theme',colors,photo,blur:Number(settings.themeBlur)||0
+      },location.origin);
+    };
+    frame.addEventListener('load',sendJigsawTheme);
     const onMessage=event=>{
       if(event.origin!==location.origin||event.source!==frame.contentWindow||currentGame?.kind!=='cups')return;
       if(event.data?.type==='areg-jigsaw-back'){backToSection();return}
