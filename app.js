@@ -3196,12 +3196,12 @@
     s.append(wrap);
     const grid=wrap.querySelector('.areg-lp-grid'),caption=wrap.querySelector('.areg-lp-caption');
     const palettes=['#fb5c77','#fd8951','#ffc54b','#f7e96c','#8be267','#44d7b4','#45d5ec','#61a8fa','#8d85fa','#c079f9','#f472c2','#f16e9b'];
-    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային','Դաշնամուր','Կիթառ','Քսիլոֆոն','Ֆլեյտա','Գործիքների միքս'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null;const active=new Set();const bpms=[124,88,138,106,104,116,96,120];
+    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային','Դաշնամուր','Կիթառ','Քսիլոֆոն','Ֆլեյտա','Գործիքների միքս'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null,nextBeat=0;const active=new Set();const bpms=[124,88,138,106,104,116,96,120];
     const pads=[];
     for(let i=0;i<24;i++){const pad=document.createElement('button');pad.type='button';pad.className='areg-lp-pad';pad.style.setProperty('--pad',palettes[(i+Math.floor(i/4)*2)%palettes.length]);pad.setAttribute('aria-label','Երաժշտական կոճակ '+(i+1));grid.append(pad);pads.push(pad)}
     function audioReady(){if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();master=ctx.createGain();master.gain.value=.45;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return true}
-    function tone(freq,duration,type='sine',volume=.23,delay=0,slide=0){const t=ctx.currentTime+delay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,freq),t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+Math.min(.2,duration));g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.02)}
-    function noise(duration=.13,highpass=1200,volume=.16){const n=Math.max(1,Math.floor(ctx.sampleRate*duration)),buf=ctx.createBuffer(1,n,ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<n;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=highpass;gain.gain.value=volume;src.connect(filter);filter.connect(gain);gain.connect(master);src.start();src.stop(ctx.currentTime+duration)}
+    function tone(freq,duration,type='sine',volume=.23,delay=0,slide=0){const t=ctx.currentTime+delay+scheduledDelay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,freq),t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+Math.min(.2,duration));g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.02)}
+    function noise(duration=.13,highpass=1200,volume=.16,delay=0){const n=Math.max(1,Math.floor(ctx.sampleRate*duration)),buf=ctx.createBuffer(1,n,ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<n;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=highpass;gain.gain.value=volume;src.connect(filter);filter.connect(gain);gain.connect(master);src.start(ctx.currentTime+delay+scheduledDelay);src.stop(ctx.currentTime+delay+scheduledDelay+duration)}
     // Each pad is a latched, independently repeating musical layer. All layers share one beat clock.
     // Each genre has its own rhythmic pattern, timbre and BPM; no notes are awarded.
     const patterns=[
@@ -3209,8 +3209,31 @@
       [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
       [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]]
     ];
+    // Real recorded instrument samples, loaded lazily and cached per session.
+    // Public CC-BY samples from nbrosowsky/tonejs-instruments; synth fallback offline.
+    const sampleNames=['piano','guitar-acoustic','xylophone','flute','bass-electric'];
+    const samples=new Map(),samplePending=new Set();
+    function loadSample(name){
+      if(!ctx||dead||samples.has(name)||samplePending.has(name))return;
+      samplePending.add(name);
+      const url='https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/master/samples/'+name+'/C4.mp3';
+      fetch(url,{mode:'cors'}).then(r=>{if(!r.ok)throw Error('sample '+r.status);return r.arrayBuffer()})
+        .then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{if(!dead)samples.set(name,buffer)})
+        .catch(err=>console.debug('Instrument sample unavailable; synth fallback',name,err))
+        .finally(()=>samplePending.delete(name));
+    }
+    function sampleVoice(name,f,delay=0){
+      const key=name==='guitar'?'guitar-acoustic':name==='bass'?'bass-electric':name;
+      const buffer=samples.get(key);
+      if(!buffer)return false;
+      const source=ctx.createBufferSource(),gain=ctx.createGain();
+      source.buffer=buffer;source.playbackRate.value=Math.max(.45,Math.min(2.2,f/261.63));
+      gain.gain.value=name==='bass'?.23:.2;source.connect(gain);gain.connect(master);
+      source.start(ctx.currentTime+delay+scheduledDelay);source.stop(ctx.currentTime+delay+scheduledDelay+Math.min(buffer.duration/source.playbackRate.value,1.15));
+      return true;
+    }
     // Lightweight WebAudio instrument timbres: no new assets or changes to the app shell.
-    function instrumentVoice(name,f){
+    function instrumentVoice(name,f,delay=0){if(sampleVoice(name,f,delay))return;
       if(name==='piano'){tone(f,.8,'triangle',.12);tone(f*2,.38,'sine',.035);tone(f*3,.15,'sine',.016)}
       else if(name==='guitar'){tone(f,.4,'triangle',.13);tone(f*2,.19,'sine',.03);tone(f*3,.1,'sine',.015)}
       else if(name==='xylophone'){tone(f,.3,'sine',.14);tone(f*3.96,.14,'sine',.043)}
@@ -3241,19 +3264,40 @@
         else{tone(style===1?360:style===2?880:560,.11,style===2?'sawtooth':'sine',.10*v,0,style===2?260:170);noise(.04,4800,.035*v)}
       }catch(err){console.warn('Launchpad audio error',err)}
     }
+    // Lookahead clock avoids setInterval drift; schedule each beat on AudioContext time.
     function tick(){
-      if(dead)return;
-      for(const i of active){const pattern=patterns[style<3?style:style===7?0:style%3][i%8];const beat=(step+i%3*(style===1?1:0))%16;if(pattern.includes(beat)){hit(i,step);const p=pads[i];p.classList.add('is-beat');setTimeout(()=>{if(!dead)p.classList.remove('is-beat')},95)}}
-      step=(step+1)%16;
+      if(dead||!active.size||!ctx||ctx.state!=='running')return;
+      const beatLength=60/bpms[style]/4;
+      let guard=0;
+      while(nextBeat<ctx.currentTime+.11&&guard++<12){
+        const due=Math.max(0,nextBeat-ctx.currentTime);
+        for(const i of active){
+          const pattern=patterns[style<3?style:style===7?0:style%3][i%8];
+          const beat=(step+i%3*(style===1?1:0))%16;
+          if(pattern.includes(beat)){
+            // The voice generator schedules against the shared clock offset.
+            scheduledDelay=due;
+            hit(i,step);
+            const pad=pads[i];
+            if(due<.045){pad.classList.add('is-beat');setTimeout(()=>{if(!dead)pad.classList.remove('is-beat')},90)}
+          }
+        }
+        step=(step+1)%16;nextBeat+=beatLength;
+      }
+      if(nextBeat<ctx.currentTime-.5)nextBeat=ctx.currentTime;
     }
-    function startClock(){if(timer!==null)clearInterval(timer);timer=null;step=0;if(active.size){if(!muted)audioReady();tick();timer=setInterval(tick,60000/bpms[style]/4)}}
+    let scheduledDelay=0;
+    function startClock(){
+      if(timer!==null)clearInterval(timer);timer=null;step=0;
+      if(active.size){if(!muted)audioReady();if(ctx){nextBeat=ctx.currentTime+.05;tick();timer=setInterval(tick,25)}}
+    }
     function toggle(i){if(dead)return;const p=pads[i];if(active.has(i)){active.delete(i);p.classList.remove('is-on','is-beat');p.setAttribute('aria-pressed','false')}
-      else{active.add(i);p.classList.add('is-on');p.setAttribute('aria-pressed','true');if(!muted)audioReady()}
+      else{active.add(i);p.classList.add('is-on');p.setAttribute('aria-pressed','true');if(!muted){audioReady();sampleNames.forEach(loadSample)}}
       if(!active.size){clearInterval(timer);timer=null;step=0}else if(timer===null)startClock();
       caption.textContent=styles[style]+' · '+active.size+' ռիթմ միացված';
     }
     pads.forEach((p,i)=>{p.setAttribute('aria-pressed','false');p.addEventListener('pointerdown',e=>{e.preventDefault();toggle(i)});p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(i)}})});
-    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];caption.textContent=styles[style]+' · '+bpms[style]+' BPM · '+active.size+' ռիթմ';startClock()};
+    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];caption.textContent=styles[style]+' · '+bpms[style]+' BPM · '+active.size+' ռիթմ';if(style>=3)sampleNames.forEach(loadSample);startClock()};
     wrap.querySelector('.areg-lp-mute').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Անձայն':'🔊 Ձայն';if(!muted)audioReady()};
     const visibility=()=>{if(document.hidden){if(timer!==null){clearInterval(timer);timer=null}}else if(active.size)startClock()};
     document.addEventListener('visibilitychange',visibility);
