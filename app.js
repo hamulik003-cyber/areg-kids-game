@@ -458,7 +458,7 @@
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
-        {id:'stickers',label:'Կպչուն պատկերներ',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'stickers',label:'Ստեղծել երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
@@ -3179,17 +3179,121 @@
     const pt=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};canvas.onpointerdown=e=>{drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};canvas.onpointermove=e=>{if(!drawing)return;const p=pt(e);ctx.strokeStyle=col;ctx.lineTo(p.x,p.y);ctx.stroke()};const paintUp=()=>drawing=false;addEventListener('pointerup',paintUp);gameCleanup.push(()=>removeEventListener('pointerup',paintUp));done.addEventListener('click',()=>reward())
   }
   function gameStickers(){
-    const s=surface('☝️'),scene=document.createElement('div');scene.className='sticker-scene';
-    const tray=document.createElement('div');tray.className='sticker-tray';s.append(scene,tray);let placed=0;
-    ['🌈','☀️','🌳','🐶','⭐','🌸'].forEach(ico=>{
-      const p=document.createElement('button');p.className='sticker-item';p.textContent=ico;tray.appendChild(p);
-      p.addEventListener('click',()=>{
-        const clone=document.createElement('div');clone.className='sticker-item';clone.textContent=ico;
-        clone.style.cssText=`position:absolute;left:${5+Math.random()*78}%;top:${8+Math.random()*68}%;font-size:${42+Math.random()*22}px;transform:rotate(${Math.random()*18-9}deg);`;
-        scene.appendChild(clone);clone.animate([{transform:'scale(.2)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:280});
-        if(++placed===5)reward();
-      });
-    });
+    // Self-contained music studio. Do not modify shared header, stars or other activities.
+    const host=surface(null);
+    const css=document.createElement('style');
+    css.textContent=`
+      .areg-beat-studio{box-sizing:border-box;width:100%;height:100%;min-height:490px;padding:12px 10px 18px;overflow:auto;position:relative;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,#34437a 0%,#111b3d 52%,#090d20 100%);color:#fff;font-family:system-ui,-apple-system,sans-serif;touch-action:pan-y}
+      .areg-beat-studio *{box-sizing:border-box}
+      .areg-beat-heading{text-align:center;font-weight:950;font-size:21px;letter-spacing:1.1px;color:#fff7d9;text-shadow:0 3px 0 #26316d,0 0 17px #65baff}
+      .areg-beat-sub{text-align:center;font-size:11px;opacity:.83;margin:2px 0 10px}
+      .areg-beat-toolbar{display:flex;gap:7px;margin-bottom:10px;align-items:stretch}
+      .areg-beat-select,.areg-beat-control{flex:1;min-width:0;border:1px solid #8db1ff8c;border-radius:12px;padding:10px 5px;color:#fff;background:linear-gradient(#47548b,#232d62);font-size:12px;font-weight:800;text-align:center;box-shadow:inset 0 2px 1px #ffffff45,0 4px 0 #0a1233;appearance:none}
+      .areg-beat-control{flex:0 0 63px}
+      .areg-beat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;perspective:800px;padding:6px 2px 14px}
+      .areg-beat-pad{position:relative;aspect-ratio:1/1;min-height:58px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;border:2px solid #ffffff5c;border-radius:17px;color:#fff;cursor:pointer;touch-action:manipulation;background:linear-gradient(160deg,#ffffff87 0%,#ffffff20 18%,transparent 43%),linear-gradient(150deg,var(--pad),#101a4a);box-shadow:inset 0 3px 4px #ffffff7a,inset 0 -7px 9px #0005,0 7px 0 #070b23,0 10px 14px #0009;transform:translateY(0);transition:transform .12s,box-shadow .12s,filter .12s,border-color .12s}
+      .areg-beat-pad:before{content:'';position:absolute;inset:5px;border:1px solid #ffffff36;border-radius:11px;pointer-events:none}
+      .areg-beat-pad .symbol{font-size:27px;line-height:1;filter:drop-shadow(0 2px 2px #0008)}
+      .areg-beat-pad .label{font-size:9px;font-weight:850;text-shadow:0 1px 2px #000a;line-height:1.1}
+      .areg-beat-pad.on{transform:translateY(5px) scale(.98);border:3px solid #fff9b9;filter:brightness(1.42) saturate(1.4);box-shadow:inset 0 0 0 3px #fff8,inset 0 0 15px #fff9,0 2px 0 #090e29,0 0 18px 5px var(--pad),0 0 28px 6px #fff5}
+      .areg-beat-pad.pulse{filter:brightness(1.8) saturate(1.6);box-shadow:inset 0 0 22px #fff,0 0 26px 7px var(--pad),0 2px 0 #080d24}
+      .areg-beat-bottom{display:flex;justify-content:center;align-items:center;gap:10px;font-size:12px;color:#d6e4ff}
+      .areg-beat-lamp{width:9px;height:9px;border-radius:50%;background:#48ffba;box-shadow:0 0 12px #48ffba;animation:aregBeatBlink 1s infinite alternate}
+      @keyframes aregBeatBlink{to{opacity:.35;transform:scale(.8)}}
+      @media(max-width:400px){.areg-beat-studio{padding:10px 8px}.areg-beat-grid{gap:7px}.areg-beat-pad{border-radius:13px}.areg-beat-pad .symbol{font-size:23px}.areg-beat-pad .label{font-size:8px}}
+      @media(prefers-reduced-motion:reduce){.areg-beat-lamp{animation:none}.areg-beat-pad{transition:none}}
+    `;
+    host.appendChild(css);
+    const wrap=document.createElement('div');wrap.className='areg-beat-studio';
+    wrap.innerHTML='<div class="areg-beat-heading">🎶 MUSIC MIX 3D</div><div class="areg-beat-sub">Միացրու մի քանի կոճակ՝ ստեղծիր քո ռիթմը</div><div class="areg-beat-toolbar"><select class="areg-beat-select" aria-label="Ռիթմ"><option value="0">🪩 Պարային</option><option value="1">🎤 Հիփ-հոփ</option><option value="2">⚡ Էլեկտրոնային</option><option value="3">🌴 Լատինո</option></select><select class="areg-beat-select" aria-label="Գործիք"><option value="0">🎹 Դաշնամուր</option><option value="1">🎸 Կիթառ</option><option value="2">🎼 Մարիմբա</option><option value="3">🎛️ Սինթեզատոր</option></select><button class="areg-beat-control" type="button">🔇</button></div><div class="areg-beat-grid"></div><div class="areg-beat-bottom"><span class="areg-beat-lamp"></span><span class="areg-beat-caption">Ընտրիր գույները և միացրու երաժշտությունը</span></div>';
+    host.appendChild(wrap);
+    const grid=wrap.querySelector('.areg-beat-grid'),selectors=wrap.querySelectorAll('select'),mute=wrap.querySelector('.areg-beat-control'),caption=wrap.querySelector('.areg-beat-caption');
+    const labels=['Բաս','Թմբուկ','Հարված','Ծափ','Հեթ','Շեյքեր','Ռիթմ','Տոմ','Դո','Ռե','Մի','Ֆա','Սոլ','Լյա','Սի','Դո+','Ակորդ','Ակորդ 2','Ակորդ 3','Արպեջիո','Էֆեկտ','Զանգ','Լազեր','Փայլ'];
+    const symbols=['🎸','🥁','🥁','👏','🎩','🪇','🪘','🥁','🎹','🎵','🎶','🎼','🎹','🎵','🎶','🎹','🎼','🎹','🎼','✨','🌟','🔔','🚀','💫'];
+    const palettes=[
+      ['#ff4775','#ff9a3e','#ffdd42','#72d965','#2de0c6','#31bbf2','#8e78ff','#f46bc2'],
+      ['#ff7355','#dbad52','#8c74db','#43b0d8','#ca62a4','#a2c36b','#ef9472','#637ee4'],
+      ['#25d6f5','#8c5aff','#f73bb5','#e5ed41','#50e7a0','#ff704d','#629fff','#bf63ff'],
+      ['#ffc054','#ff695c','#74dc82','#44c7c8','#e487eb','#ffdc5d','#72b6ff','#ef9a65']
+    ];
+    const active=new Set(),pads=[];let rhythm=0,instrument=0,silent=false,audio=null,master=null,timer=null,nextTime=0,step=0,closed=false;
+    const bpm=[124,92,138,112],freq=[261.63,293.66,329.63,349.23,392,440,493.88,523.25];
+    for(let i=0;i<24;i++){
+      const pad=document.createElement('button');pad.type='button';pad.className='areg-beat-pad';pad.setAttribute('aria-pressed','false');pad.setAttribute('aria-label',labels[i]);pad.innerHTML='<span class="symbol">'+symbols[i]+'</span><span class="label">'+labels[i]+'</span>';
+      pad.addEventListener('click',()=>{if(closed)return;ensureAudio();if(active.has(i)){active.delete(i);pad.classList.remove('on');pad.setAttribute('aria-pressed','false')}else{active.add(i);pad.classList.add('on');pad.setAttribute('aria-pressed','true');if(audio&&!silent)play(i,audio.currentTime+.008)}caption.textContent=active.size+' միացված • '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
+      grid.appendChild(pad);pads.push(pad);
+    }
+    function recolor(){pads.forEach((p,i)=>p.style.setProperty('--pad',palettes[rhythm][(i+Math.floor(i/4)*2)%8]))}
+    recolor();
+    function ensureAudio(){
+      if(closed)return;
+      try{
+        if(!audio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;audio=new AC();master=audio.createGain();master.gain.value=.23;master.connect(audio.destination);nextTime=audio.currentTime+.06;timer=setInterval(tick,25)}
+        if(audio.state==='suspended')audio.resume().catch(()=>{});
+      }catch(e){console.warn('Music audio unavailable',e)}
+    }
+    function tone(hz,t,dur,type='sine',vol=.3,filterFreq=0){
+      if(!audio||!master)return;
+      const osc=audio.createOscillator(),env=audio.createGain();osc.type=type;osc.frequency.setValueAtTime(Math.max(25,hz),t);
+      env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(Math.max(.001,vol),t+.008);env.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      if(filterFreq){const fl=audio.createBiquadFilter();fl.type='lowpass';fl.frequency.value=filterFreq;osc.connect(fl);fl.connect(env)}else osc.connect(env);
+      env.connect(master);osc.start(t);osc.stop(t+dur+.03);
+    }
+    function noise(t,dur,vol,highpass){
+      if(!audio||!master)return;const n=Math.ceil(audio.sampleRate*dur),buffer=audio.createBuffer(1,n,audio.sampleRate),data=buffer.getChannelData(0);
+      for(let i=0;i<n;i++)data[i]=Math.random()*2-1;
+      const src=audio.createBufferSource(),flt=audio.createBiquadFilter(),env=audio.createGain();src.buffer=buffer;flt.type='highpass';flt.frequency.value=highpass;env.gain.setValueAtTime(vol,t);env.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      src.connect(flt);flt.connect(env);env.connect(master);src.start(t);src.stop(t+dur+.01);
+    }
+    function play(id,t){
+      if(!audio||silent||closed)return;
+      const note=freq[(id-8+8)%8],shift=[1,.75,1.25,1.12][rhythm];
+      if(id===0){tone(83*shift,t,.25,'sawtooth',.33,700);tone(41*shift,t,.28,'sine',.32);return}
+      if(id===1){tone(150,t,.20,'sine',.72);tone(58,t+.016,.18,'sine',.55);return}
+      if(id===2){noise(t,.14,.37,1000);tone(185,t,.10,'triangle',.14);return}
+      if(id===3){noise(t,.10,.42,1300);noise(t+.038,.09,.22,1900);return}
+      if(id===4||id===5){noise(t,id===4?.055:.12,id===4?.24:.15,id===4?6800:3000);return}
+      if(id===6||id===7){tone(id===6?195:132,t,.13,'triangle',.42);noise(t,.055,.1,1400);return}
+      if(id>=20){tone([880,1174,660,1320][id-20]*shift,t,.22,id===22?'sawtooth':'sine',.20);return}
+      const n=id>=16?freq[(id-16)*2%8]:note;
+      const inst=['triangle','sawtooth','sine','square'][instrument];
+      const duration=instrument===1?.23:instrument===2?.42:instrument===3?.31:.55;
+      const cut=instrument===1?1350:instrument===3?1700:2700;
+      tone(n*shift,t,duration,inst,.27,cut);
+      if(instrument===0)tone(n*shift*2,t,.20,'sine',.085);
+      if(instrument===1)tone(n*shift*1.003,t+.017,.17,'triangle',.13,1600);
+      if(instrument===2)tone(n*shift*3,t,.15,'sine',.11);
+      if(id>=16){tone(n*shift*1.25,t,duration*.9,inst,.12,cut);tone(n*shift*1.5,t,duration*.9,inst,.1,cut)}
+    }
+    function tick(){
+      if(!audio||closed||audio.state!=='running')return;
+      const beat=60/bpm[rhythm]/4;
+      if(nextTime<audio.currentTime-.2)nextTime=audio.currentTime+.02;
+      let count=0;
+      while(nextTime<audio.currentTime+.12&&count++<10){
+        const k=step%16;
+        for(const id of active){
+          let hit=false;
+          if(id===0)hit=k%4===0;
+          else if(id===1)hit=rhythm===1?(k===0||k===7||k===10):(k%4===0);
+          else if(id===2)hit=k===4||k===12;
+          else if(id===3)hit=k===4||k===12;
+          else if(id===4)hit=k%2===0;
+          else if(id===5)hit=k%2===1;
+          else if(id===6)hit=k%4===2;
+          else if(id===7)hit=k===7||k===15;
+          else if(id<16)hit=k%4===((id-8)%4);
+          else if(id<20)hit=k%8===((id-16)*2);
+          else hit=k%8===(id-20)*2;
+          if(hit){play(id,nextTime);const pad=pads[id];const delay=Math.max(0,(nextTime-audio.currentTime)*1000);setTimeout(()=>{if(closed||!pad.isConnected)return;pad.classList.add('pulse');setTimeout(()=>pad.classList.remove('pulse'),125)},delay)}
+        }
+        nextTime+=beat;step++;
+      }
+    }
+    selectors[0].addEventListener('change',e=>{rhythm=Number(e.target.value);recolor();step=0;if(audio)nextTime=audio.currentTime+.035;caption.textContent='Նոր ռիթմ՝ '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
+    selectors[1].addEventListener('change',e=>{instrument=Number(e.target.value);caption.textContent='Նոր գործիք՝ '+['Դաշնամուր','Կիթառ','Մարիմբա','Սինթեզատոր'][instrument]});
+    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔊':'🔇';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.23,audio.currentTime,.02)});
+    gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
