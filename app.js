@@ -3238,18 +3238,29 @@
     function voice(hz,t,dur,kind,vol=.1){
       if(!audio||!master)return;
       const osc=audio.createOscillator(),gain=audio.createGain(),filter=audio.createBiquadFilter();
-      const attack=kind==='pad'?.09:.008,release=kind==='pad'?.38:kind==='bass'?.13:.22;
+      const attack=(kind==='pad'||kind==='synth')?.09:.008,release=(kind==='pad'||kind==='synth')?.38:kind==='bass'?.13:kind==='guitar'?.11:.22;
       const peak=Math.max(.001,vol),end=t+dur+release;
-      osc.type=kind==='bell'?'sine':kind==='bass'?'triangle':kind==='pluck'?'triangle':kind==='pad'?'sine':'sine';
+      osc.type=kind==='guitar'?'triangle':kind==='synth'?'sawtooth':kind==='bass'?'triangle':'sine';
       osc.frequency.setValueAtTime(hz,t);
-      filter.type='lowpass';filter.frequency.value=kind==='bass'?420:kind==='pluck'?1900:kind==='pad'?1300:2600;
+      filter.type='lowpass';filter.frequency.value=kind==='bass'?420:kind==='guitar'?1050:kind==='synth'?900:kind==='pad'?1300:kind==='marimba'?1700:2400;
       gain.gain.setValueAtTime(.0001,t);
       gain.gain.linearRampToValueAtTime(peak,t+attack);
-      gain.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*(kind==='pad'?.48:.17)),t+dur);
+      gain.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*((kind==='pad'||kind==='synth')?.48:.17)),t+dur);
       gain.gain.exponentialRampToValueAtTime(.0001,end);
       osc.connect(filter);filter.connect(gain);gain.connect(master);
       if(fxSend&&kind!=='bass')gain.connect(fxSend);
       osc.start(t);osc.stop(end+.025);
+      if(kind==='piano'||kind==='guitar'||kind==='marimba'||kind==='synth'){
+        const color=audio.createOscillator(),cg=audio.createGain();
+        const ratio=kind==='piano'?2:kind==='guitar'?3:kind==='marimba'?3.98:1.005;
+        const strength=kind==='piano'?.24:kind==='guitar'?.11:kind==='marimba'?.32:.25;
+        color.type=kind==='synth'?'triangle':'sine';
+        color.frequency.value=hz*ratio;
+        cg.gain.setValueAtTime(.0001,t);
+        cg.gain.linearRampToValueAtTime(Math.max(.0001,peak*strength),t+.006);
+        cg.gain.exponentialRampToValueAtTime(.0001,t+(kind==='synth'?dur+.25:kind==='piano'?.23:kind==='guitar'?.11:.18));
+        color.connect(cg);cg.connect(master);color.start(t);color.stop(t+(kind==='synth'?dur+.26:.26));
+      }
       if(kind==='bell'||kind==='pluck'){
         const overtone=audio.createOscillator(),g=audio.createGain();
         overtone.type='sine';overtone.frequency.value=hz*(kind==='bell'?2.01:2);
@@ -3297,18 +3308,18 @@
       if(id<16){
         const index=(id-8+Math.floor(k/4))%h.notes.length;
         const n=h.notes[index]+(id>=13?0:-12);
-        const kind=['pluck','pluck','bell','pad'][instrument];
-        voice(hz(n),t,kind==='pad'?quarter*.95:dur,kind,.045);
+        const kind=['piano','guitar','marimba','synth'][instrument];
+        voice(hz(n),t,kind==='synth'?quarter*.95:dur,kind,.055);
         return;
       }
       if(id<20){
         // Voiced chord tones from the current harmony, with controlled polyphony.
         const offsets=[[0,1,2],[1,2,3],[0,2,4],[2,3,5]][id-16];
-        for(const ix of offsets)voice(hz(h.notes[ix]-12),t,quarter*1.45,'pad',.024);
+        for(const ix of offsets)voice(hz(h.notes[ix]-12),t,quarter*1.45,['piano','guitar','marimba','synth'][instrument],.022);
         return;
       }
       const n=h.notes[(id-20+Math.floor(k/4))%h.notes.length]+12;
-      voice(hz(n),t,.17,id===21?'bell':'pluck',.032);
+      voice(hz(n),t,.17,['piano','guitar','marimba','synth'][instrument],.032);
     }
     const grooves=[
       [[0,4,8,12],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
