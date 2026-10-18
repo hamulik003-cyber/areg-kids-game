@@ -513,7 +513,7 @@
     const portrait=innerWidth<=innerHeight;
     const fitWidth=portrait&&physicalWidth>250&&physicalWidth<650
       ?Math.min(lw,innerWidth||lw,physicalWidth):Math.min(lw,innerWidth||lw);
-    const scale=Math.min(fitWidth/DESIGN_W,lh/DESIGN_H);
+    // Match the user-verified compact iPhone Home Screen layout (CSS startup fallback .54).\n    // Keep the stage interactive: clamp only its rendered scale, not the app script.\n    const compactHomeScale=standalone&&ios&&portrait&&fitWidth<=450?.54:Infinity;\n    const scale=Math.min(fitWidth/DESIGN_W,lh/DESIGN_H,compactHomeScale);
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
     root.style.setProperty('--stage-x',`${fitWidth/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
     if(standalone&&ios){
