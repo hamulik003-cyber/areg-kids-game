@@ -3217,10 +3217,12 @@
       ['#ffc054','#ff695c','#74dc82','#44c7c8','#e487eb','#ffdc5d','#72b6ff','#ef9a65']
     ];
     const active=new Set(),pads=[];let rhythm=0,instrument=0,silent=false,audio=null,master=null,timer=null,nextTime=0,step=0,closed=false;
-    const bpm=[124,92,138,112],freq=[261.63,293.66,329.63,349.23,392,440,493.88,523.25];
+    const bpm=[124,92,138,112];
+    // All pitched pads share a C-minor pentatonic palette and one chord progression.
+    const scale=[0,3,5,7,10],roots=[0,8,3,10];
     for(let i=0;i<24;i++){
       const pad=document.createElement('button');pad.type='button';pad.className='areg-beat-pad';pad.setAttribute('aria-pressed','false');pad.setAttribute('aria-label',labels[i]);pad.innerHTML='<span class="symbol">'+symbols[i]+'</span><span class="label">'+labels[i]+'</span>';
-      pad.addEventListener('click',()=>{if(closed)return;ensureAudio();if(active.has(i)){active.delete(i);pad.classList.remove('on');pad.setAttribute('aria-pressed','false')}else{active.add(i);pad.classList.add('on');pad.setAttribute('aria-pressed','true');if(audio&&!silent){const trigger=()=>{if(!closed&&active.has(i)&&audio&&audio.state==='running')play(i,audio.currentTime+.04)};if(audio.state==='running')trigger();else audio.resume().then(trigger).catch(()=>{caption.textContent='Ձայնը միացնելու համար կրկին սեղմիր'})}}caption.textContent=active.size+' միացված • '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
+      pad.addEventListener('click',()=>{if(closed)return;ensureAudio();if(active.has(i)){active.delete(i);pad.classList.remove('on');pad.setAttribute('aria-pressed','false')}else{active.add(i);pad.classList.add('on');pad.setAttribute('aria-pressed','true');if(audio&&audio.state!=='running')audio.resume().catch(()=>{caption.textContent='Սեղմիր նորից՝ ձայնը միացնելու համար'})}caption.textContent=active.size+' միացված • '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
       grid.appendChild(pad);pads.push(pad);
     }
     function recolor(){pads.forEach((p,i)=>p.style.setProperty('--pad',palettes[rhythm][(i+Math.floor(i/4)*2)%8]))}
@@ -3245,26 +3247,44 @@
       const src=audio.createBufferSource(),flt=audio.createBiquadFilter(),env=audio.createGain();src.buffer=buffer;flt.type='highpass';flt.frequency.value=highpass;env.gain.setValueAtTime(vol,t);env.gain.exponentialRampToValueAtTime(.0001,t+dur);
       src.connect(flt);flt.connect(env);env.connect(master);src.start(t);src.stop(t+dur+.01);
     }
-    function play(id,t){
+    function play(id,t,k){
       if(!audio||silent||closed||audio.state!=='running')return;
-      const note=freq[(id-8+8)%8],shift=[1,.75,1.25,1.12][rhythm];
-      if(id===0){tone(83*shift,t,.25,'sawtooth',.33,700);tone(41*shift,t,.28,'sine',.32);return}
-      if(id===1){tone(150,t,.20,'sine',.72);tone(58,t+.016,.18,'sine',.55);return}
-      if(id===2){noise(t,.14,.37,1000);tone(185,t,.10,'triangle',.14);return}
-      if(id===3){noise(t,.10,.42,1300);noise(t+.038,.09,.22,1900);return}
-      if(id===4||id===5){noise(t,id===4?.055:.12,id===4?.24:.15,id===4?6800:3000);return}
-      if(id===6||id===7){tone(id===6?195:132,t,.13,'triangle',.42);noise(t,.055,.1,1400);return}
-      if(id>=20){tone([880,1174,660,1320][id-20]*shift,t,.22,id===22?'sawtooth':'sine',.20);return}
-      const n=id>=16?freq[(id-16)*2%8]:note;
+      const bar=Math.floor(step/16),root=roots[bar%4],beatDur=60/bpm[rhythm]/4;
+      const hz=(midi)=>440*Math.pow(2,(midi-69)/12);
+      if(id===0){tone(hz(36+root),t,.19,'triangle',.22,600);return}
+      if(id===1){tone(125,t,.14,'sine',.48);tone(54,t+.012,.13,'sine',.37);return}
+      if(id===2){noise(t,.105,.25,1150);return}
+      if(id===3){noise(t,.085,.28,1450);return}
+      if(id===4){noise(t,.038,.14,6500);return}
+      if(id===5){noise(t,.065,.12,3900);return}
+      if(id===6){tone(176,t,.10,'triangle',.19);return}
+      if(id===7){tone(130,t,.10,'triangle',.18);return}
       const inst=['triangle','sawtooth','sine','square'][instrument];
-      const duration=instrument===1?.23:instrument===2?.42:instrument===3?.31:.55;
-      const cut=instrument===1?1350:instrument===3?1700:2700;
-      tone(n*shift,t,duration,inst,.27,cut);
-      if(instrument===0)tone(n*shift*2,t,.20,'sine',.085);
-      if(instrument===1)tone(n*shift*1.003,t+.017,.17,'triangle',.13,1600);
-      if(instrument===2)tone(n*shift*3,t,.15,'sine',.11);
-      if(id>=16){tone(n*shift*1.25,t,duration*.9,inst,.12,cut);tone(n*shift*1.5,t,duration*.9,inst,.1,cut)}
+      const duration=Math.min(beatDur*3,instrument===0?.33:instrument===2?.28:.20);
+      const cut=instrument===1?1150:instrument===3?1200:2400;
+      if(id<16){
+        const degree=scale[(id-8+Math.floor(k/4))%5];
+        const n=60+root+degree+(id>=13?12:0);
+        tone(hz(n),t,duration,inst,.095,cut);
+        if(instrument===0)tone(hz(n+12),t,.10,'sine',.022);
+        return;
+      }
+      if(id<20){
+        // Harmonically related minor / major triads: never arbitrary intervals.
+        const chordRoot=48+root+(id-16===1?7:id-16===2?12:id-16===3?-5:0);
+        const minor=id===16||id===18;
+        for(const interval of [0,minor?3:4,7])tone(hz(chordRoot+interval),t,Math.min(.5,beatDur*4),inst,.045,cut);
+        return;
+      }
+      const n=72+root+scale[(id-20+Math.floor(k/4))%5];
+      tone(hz(n),t,.12,id===22?'triangle':'sine',.055,2400);
     }
+    const grooves=[
+      [[0,4,8,12],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
+      [[0,7,10],[0,7,10],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
+      [[0,3,6,9,12,15],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[1,5,9,13],[3,11],[7,15]],
+      [[0,3,6,8,11,14],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]]
+    ];
     function tick(){
       if(!audio||closed||audio.state!=='running')return;
       const beat=60/bpm[rhythm]/4;
@@ -3275,15 +3295,10 @@
         for(const id of active){
           // Restore the earlier approved Launchpad groove patterns, adapted to
           // the new 24-pad layout. Keep the current 3D UI and audio clock.
-          const grooves=[
-            [[0,4,8,12],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,14],[0,4,8,12],[2,6,10,14],[3,7,11,15]],
-            [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
-            [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]],
-            [[0,3,6,8,11,14],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,15],[1,5,9,13],[2,7,10,15],[3,7,11,15]]
-          ];
-          const groove=grooves[rhythm][id%8];
-          const hit=groove.includes((k+Math.floor(id/8)*2)%16);
-          if(hit){play(id,nextTime);const pad=pads[id];const delay=Math.max(0,(nextTime-audio.currentTime)*1000);setTimeout(()=>{if(closed||!pad.isConnected)return;pad.classList.add('pulse');setTimeout(()=>pad.classList.remove('pulse'),125)},delay)}
+          const groove=id<8?grooves[rhythm][id]:id<16?[[0,4,8,12],[2,6,10,14],[0,8],[4,12],[3,7,11,15],[0,4,8,12],[2,10],[6,14]][id-8]:id<20?[[0,8],[4,12],[0],[8]][id-16]:[[0,8],[4,12],[2,10],[6,14]][id-20];
+          // No per-row phase shift: every loop stays on the same 16-step grid.
+          const hit=groove.includes(k);
+          if(hit){play(id,nextTime,k);const pad=pads[id];const delay=Math.max(0,(nextTime-audio.currentTime)*1000);setTimeout(()=>{if(closed||!pad.isConnected)return;pad.classList.add('pulse');setTimeout(()=>pad.classList.remove('pulse'),125)},delay)}
         }
         nextTime+=beat;step++;
       }
