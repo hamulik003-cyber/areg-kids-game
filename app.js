@@ -3221,7 +3221,8 @@
     function loadSample(name){
       if(!ctx||dead||samples.has(name)||samplePending.has(name))return;
       samplePending.add(name);
-      const note=name==='xylophone'?'G4':name==='bass-electric'?'E3':'C4';\n      const url='https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/master/samples/'+name+'/'+note+'.mp3';
+      const note=name==='xylophone'?'G4':name==='bass-electric'?'E3':'C4';
+      const url='https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/master/samples/'+name+'/'+note+'.mp3';
       fetch(url,{mode:'cors'}).then(r=>{if(!r.ok)throw Error('sample '+r.status);return r.arrayBuffer()})
         .then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{if(!dead)samples.set(name,buffer)})
         .catch(err=>console.debug('Instrument sample unavailable; synth fallback',name,err))
