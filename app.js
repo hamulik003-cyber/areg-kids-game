@@ -508,6 +508,13 @@
       if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
       safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
     }else root.classList.remove('ios-standalone');
+    // iOS installed PWA: use the visible viewport for the actual fitted stage.
+    // The legacy screen.height fallback enlarged the stage and hid the star counter.
+    // Keep the existing event handlers and every game unchanged.
+    if(standalone&&ios&&vw<=vh){
+      lw=Math.min(vw,innerWidth||vw);
+      lh=Math.min(vh,innerHeight||vh);
+    }
     const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
     root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
