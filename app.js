@@ -3190,7 +3190,8 @@
       .areg-lp-pad{appearance:none;position:relative;aspect-ratio:1;min-width:0;border:2px solid #ffffff66;border-bottom:6px solid #0008;border-radius:clamp(12px,3vw,19px);background:linear-gradient(140deg,#ffffffa8,#ffffff10 40%,#0003 95%),var(--pad);box-shadow:inset 0 3px 5px #fff9,inset 0 -5px 7px #0003,0 6px 0 #080d1b,0 9px 10px #0006;transform:translateY(0);transition:transform .09s,filter .09s,box-shadow .09s;touch-action:none;cursor:pointer}
       .areg-lp-pad:before{content:'';position:absolute;inset:8%;border-radius:inherit;border:1px solid #ffffff55;pointer-events:none}
       .areg-lp-pad:active,.areg-lp-pad.is-hit,.areg-lp-pad.is-on{transform:translateY(5px) scale(.96);filter:brightness(1.35);box-shadow:inset 0 2px 13px #fff9,0 1px 0 #080d1b,0 0 22px var(--pad)}
-      .areg-lp-pad.is-on{filter:brightness(1.23);box-shadow:inset 0 2px 10px #fff9,0 2px 0 #080d1b,0 0 20px var(--pad);transform:translateY(4px)}\n      .areg-lp-pad.is-on.is-beat{filter:brightness(1.7);box-shadow:inset 0 0 16px #fff,0 0 27px var(--pad)}\n      .areg-lp-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;width:min(100%,520px)}
+      .areg-lp-pad.is-on{filter:brightness(1.48) saturate(1.35);border:3px solid #fffde7;box-shadow:inset 0 0 0 3px #fff9,inset 0 2px 12px #fff,0 2px 0 #080d1b,0 0 17px 5px var(--pad),0 0 27px 8px #fff8;transform:translateY(4px) scale(.97)}\n      .areg-lp-pad.is-on.is-beat{filter:brightness(1.8) saturate(1.5);box-shadow:inset 0 0 19px #fff,0 0 24px 8px var(--pad),0 0 30px 8px #fff9}\n      .activity-screen[data-game=stickers] .activity-topbar .activity-title{font-size:16px!important;line-height:1.06!important;letter-spacing:-.025em!important;white-space:normal!important}
+      .areg-lp-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;width:min(100%,520px)}
       .areg-lp-control{flex:1;min-width:0;border:2px solid #ffedb0;border-radius:16px;background:linear-gradient(#fff3c2,#eab35f);box-shadow:0 5px 0 #95602e;color:#54311e;font-weight:900;font-size:clamp(13px,3.4vw,17px);padding:11px 5px;touch-action:manipulation}
       .areg-lp-control:active{transform:translateY(3px);box-shadow:0 2px 0 #95602e}
       .areg-lp-caption{color:#fff8db;font-weight:800;font-size:clamp(12px,3vw,16px);text-align:center;text-shadow:0 2px 3px #433c60}
@@ -3202,8 +3203,20 @@
     const grid=wrap.querySelector('.areg-lp-grid'),caption=wrap.querySelector('.areg-lp-caption');
     const palettes=['#fb5c77','#fd8951','#ffc54b','#f7e96c','#8be267','#44d7b4','#45d5ec','#61a8fa','#8d85fa','#c079f9','#f472c2','#f16e9b'];
     const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային','Դաշնամուր','Կիթառ','Քսիլոֆոն','Ֆլեյտա','Գործիքների միքս'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null,nextBeat=0;const active=new Set();const bpms=[124,88,138,106,104,116,96,120];
+    const colorThemes=[
+      ['#ff476e','#ff9c38','#ffe452','#9bea46','#29dbc0','#38bafa','#8c73ff','#e668ed'],
+      ['#ee6055','#f6b344','#6dcfc7','#6994de','#bd7df3','#f68ab8','#86c95e','#ffa26b'],
+      ['#38e4fb','#785cff','#f641bc','#ffdb34','#47fca2','#ff694c','#62a2ff','#bb6aff'],
+      ['#fff0a2','#e3b7ff','#91c6ff','#f5b4b4','#b3e5cb','#ffd8a2','#c6b6fa','#a9e6e4'],
+      ['#e1a052','#d87943','#f3ca7e','#b78d61','#f6ad72','#e8d1a4','#bd7653','#ffdd91'],
+      ['#ffe47a','#ffad70','#fa78a7','#9be978','#6bdcf0','#a994ff','#f8ca66','#7ae6c7'],
+      ['#86c9ff','#b0e8f5','#91dfc9','#c4b5fd','#e7b3f3','#8de0ef','#b6eab0','#f1c7ee'],
+      ['#ff649b','#4ee5ff','#ffe060','#8cf076','#b18aff','#ffa56b','#70f0c4','#ed7afa']
+    ];
+    function updatePadColors(){const colors=colorThemes[style];pads.forEach((pad,i)=>pad.style.setProperty('--pad',colors[(i+Math.floor(i/4)*2)%colors.length]))}
     const pads=[];
     for(let i=0;i<24;i++){const pad=document.createElement('button');pad.type='button';pad.className='areg-lp-pad';pad.style.setProperty('--pad',palettes[(i+Math.floor(i/4)*2)%palettes.length]);pad.setAttribute('aria-label','Երաժշտական կոճակ '+(i+1));grid.append(pad);pads.push(pad)}
+    updatePadColors();
     function audioReady(){if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();master=ctx.createGain();master.gain.value=.45;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return true}
     function tone(freq,duration,type='sine',volume=.23,delay=0,slide=0){const t=ctx.currentTime+delay+scheduledDelay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,freq),t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+Math.min(.2,duration));g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.02)}
     function noise(duration=.13,highpass=1200,volume=.16,delay=0){const n=Math.max(1,Math.floor(ctx.sampleRate*duration)),buf=ctx.createBuffer(1,n,ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<n;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=highpass;gain.gain.value=volume;src.connect(filter);filter.connect(gain);gain.connect(master);src.start(ctx.currentTime+delay+scheduledDelay);src.stop(ctx.currentTime+delay+scheduledDelay+duration)}
@@ -3303,7 +3316,7 @@
       caption.textContent=styles[style]+' · '+active.size+' ռիթմ միացված';
     }
     pads.forEach((p,i)=>{p.setAttribute('aria-pressed','false');p.addEventListener('pointerdown',e=>{e.preventDefault();toggle(i)});p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(i)}})});
-    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];caption.textContent=styles[style]+' · '+bpms[style]+' BPM · '+active.size+' ռիթմ';if(style>=3)sampleNames.forEach(loadSample);startClock()};
+    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];updatePadColors();caption.textContent=styles[style]+' · '+bpms[style]+' BPM · '+active.size+' ռիթմ';if(style>=3)sampleNames.forEach(loadSample);startClock()};
     wrap.querySelector('.areg-lp-mute').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Անձայն':'🔊 Ձայն';if(!muted)audioReady()};
     const visibility=()=>{if(document.hidden){if(timer!==null){clearInterval(timer);timer=null}}else if(active.size)startClock()};
     document.addEventListener('visibilitychange',visibility);
