@@ -2275,14 +2275,12 @@ body.magic-scroll-active{
    ========================================================= */
 .settings-button{
   left:597px !important;
-  /* Keep settings above the existing star counter without changing cards or taps. */
-  top:calc(0px + var(--top-controls-safe-y)) !important;
+  top:calc(72px + var(--top-controls-safe-y)) !important;
 }
 
 .star-counter.dynamic-star-counter{
   left:590px !important;
-  top:calc(104px + var(--top-controls-safe-y)) !important;
-  z-index:30 !important;
+  top:calc(172px + var(--top-controls-safe-y)) !important;
 }
 
 /* =========================================================
