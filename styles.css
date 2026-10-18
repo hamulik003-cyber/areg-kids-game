@@ -2280,7 +2280,8 @@ body.magic-scroll-active{
 
 .star-counter.dynamic-star-counter{
   left:590px !important;
-  top:calc(172px + var(--top-controls-safe-y)) !important;
+  top:calc(104px + var(--top-controls-safe-y)) !important;
+  z-index:30 !important;
 }
 
 /* =========================================================
