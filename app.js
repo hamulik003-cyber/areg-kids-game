@@ -3180,7 +3180,7 @@
     const canvas=ui.querySelector('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true}),bar=ui.querySelector('.bar'),toolsBox=ui.querySelector('.tools'),palette=ui.querySelector('.colors'),range=ui.querySelector('input[type=range]'),num=ui.querySelector('.num'),picker=document.createElement('input'),hint=ui.querySelector('.hint');
     picker.type='color';picker.value='#ff527a';const W=600,H=750;canvas.width=W;canvas.height=H;
     const tabs=Array.from(ui.querySelectorAll('.tab')),panels=Array.from(ui.querySelectorAll('.panel'));
-    tabs.forEach(t=>{const original=t.textContent.trim(),match=original.match(/^(\\S+)\\s+(.+)$/u);if(!match)return;t.replaceChildren();const icon=document.createElement('span');icon.className='main-toy';icon.textContent=match[1];icon.setAttribute('aria-hidden','true');const caption=document.createElement('span');caption.textContent=match[2];t.append(icon,caption)});
+    tabs.forEach(t=>{const original=t.textContent.trim(),match=original.match(/^(\S+)\s+(.+)$/u);if(!match)return;t.replaceChildren();const icon=document.createElement('span');icon.className='main-toy';icon.textContent=match[1];icon.setAttribute('aria-hidden','true');const caption=document.createElement('span');caption.textContent=match[2];t.append(icon,caption)});
     function openPanel(name){tabs.forEach(t=>t.classList.toggle('on',t.dataset.panel===name));panels.forEach(t=>t.classList.toggle('on',t.dataset.content===name))}
     const dock=ui.querySelector('.dock');let activeColor=0;
     const inks=['#222936','#a4573e','#e5e9f0','#268fe0','#1ea76d','#80d34e','#ffdf3c','#ff933b','#e53f68','#a64fb0','#f5b49d'];
