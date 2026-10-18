@@ -3196,7 +3196,7 @@
     s.append(wrap);
     const grid=wrap.querySelector('.areg-lp-grid'),caption=wrap.querySelector('.areg-lp-caption');
     const palettes=['#fb5c77','#fd8951','#ffc54b','#f7e96c','#8be267','#44d7b4','#45d5ec','#61a8fa','#8d85fa','#c079f9','#f472c2','#f16e9b'];
-    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null;const active=new Set();const bpms=[124,88,138];
+    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային','Դաշնամուր','Կիթառ','Քսիլոֆոն','Ֆլեյտա','Գործիքների միքս'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null;const active=new Set();const bpms=[124,88,138,106,104,116,96,120];
     const pads=[];
     for(let i=0;i<24;i++){const pad=document.createElement('button');pad.type='button';pad.className='areg-lp-pad';pad.style.setProperty('--pad',palettes[(i+Math.floor(i/4)*2)%palettes.length]);pad.setAttribute('aria-label','Երաժշտական կոճակ '+(i+1));grid.append(pad);pads.push(pad)}
     function audioReady(){if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();master=ctx.createGain();master.gain.value=.45;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return true}
@@ -3209,9 +3209,28 @@
       [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
       [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]]
     ];
+    // Lightweight WebAudio instrument timbres: no new assets or changes to the app shell.
+    function instrumentVoice(name,f){
+      if(name==='piano'){tone(f,.8,'triangle',.12);tone(f*2,.38,'sine',.035);tone(f*3,.15,'sine',.016)}
+      else if(name==='guitar'){tone(f,.4,'triangle',.13);tone(f*2,.19,'sine',.03);tone(f*3,.1,'sine',.015)}
+      else if(name==='xylophone'){tone(f,.3,'sine',.14);tone(f*3.96,.14,'sine',.043)}
+      else if(name==='flute'){tone(f,.5,'sine',.14);tone(f*2,.4,'sine',.018)}
+      else if(name==='bass'){tone(f/2,.32,'triangle',.16);tone(f,.12,'sine',.03)}
+      else if(name==='bell'){tone(f,.75,'sine',.12);tone(f*2.01,.4,'sine',.045)}
+    }
+    function instrumentHit(i,beat){
+      const names=['piano','guitar','xylophone','flute','bass','bell'];
+      const name=style===7?names[i%names.length]:names[style-3];
+      const notes=[0,2,4,7,9,12,14,16];
+      const note=notes[(i+Math.floor(beat/4))%notes.length];
+      const base=style===4?164.81:style===6?293.66:196;
+      const f=base*Math.pow(2,(note+Math.floor(i/8)*3)/12);
+      instrumentVoice(name,f);
+    }
     function hit(i,beat){if(dead||muted||!ctx||ctx.state!=='running')return;
       const kind=i%8,oct=Math.floor(i/8),shift=[0,-4,5][style],v=style===1?.84:style===2?.7:1;
       try{
+        if(style>=3){instrumentHit(i,beat);return}
         if(kind===0){tone(style===2?185:style===1?115:155,.24,'sine',.46*v,0,style===2?47:39);tone(65,.1,'triangle',.08*v)}
         else if(kind===1){noise(style===1?.2:.12,style===2?1800:800,.2*v);tone(170,.08,'triangle',.07*v)}
         else if(kind===2){noise(style===2?.045:.075,style===1?4300:7000,.10*v)}
@@ -3224,7 +3243,7 @@
     }
     function tick(){
       if(dead)return;
-      for(const i of active){const pattern=patterns[style][i%8];const beat=(step+i%3*(style===1?1:0))%16;if(pattern.includes(beat)){hit(i,step);const p=pads[i];p.classList.add('is-beat');setTimeout(()=>{if(!dead)p.classList.remove('is-beat')},95)}}
+      for(const i of active){const pattern=patterns[style<3?style:style===7?0:style%3][i%8];const beat=(step+i%3*(style===1?1:0))%16;if(pattern.includes(beat)){hit(i,step);const p=pads[i];p.classList.add('is-beat');setTimeout(()=>{if(!dead)p.classList.remove('is-beat')},95)}}
       step=(step+1)%16;
     }
     function startClock(){if(timer!==null)clearInterval(timer);timer=null;step=0;if(active.size){if(!muted)audioReady();tick();timer=setInterval(tick,60000/bpms[style]/4)}}
