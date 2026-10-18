@@ -3184,6 +3184,9 @@
     const css=document.createElement('style');
     css.textContent=`
       .areg-beat-studio{box-sizing:border-box;width:100%;height:100%;min-height:490px;padding:12px 10px 18px;overflow:auto;position:relative;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,#34437a 0%,#111b3d 52%,#090d20 100%);color:#fff;font-family:system-ui,-apple-system,sans-serif;touch-action:pan-y}
+      /* Only this music game's shared title: keep its wooden header aligned with back/stars. */
+      #activityScreen[data-game="stickers"] .activity-title-wrap{height:58px;min-height:58px;overflow:hidden;justify-content:center}
+      #activityScreen[data-game="stickers"] .activity-title{font-size:18px;line-height:1.08;overflow-wrap:normal}
       .areg-beat-studio *{box-sizing:border-box}
       .areg-beat-heading{text-align:center;font-weight:950;font-size:21px;letter-spacing:1.1px;color:#fff7d9;text-shadow:0 3px 0 #26316d,0 0 17px #65baff}
       .areg-beat-sub{text-align:center;font-size:11px;opacity:.83;margin:2px 0 10px}
@@ -3205,7 +3208,7 @@
     `;
     host.appendChild(css);
     const wrap=document.createElement('div');wrap.className='areg-beat-studio';
-    wrap.innerHTML='<div class="areg-beat-heading">🎶 MUSIC MIX 3D</div><div class="areg-beat-sub">Միացրու մի քանի կոճակ՝ ստեղծիր քո ռիթմը</div><div class="areg-beat-toolbar"><select class="areg-beat-select" aria-label="Ռիթմ"><option value="0">🪩 Պարային</option><option value="1">🎤 Հիփ-հոփ</option><option value="2">⚡ Էլեկտրոնային</option><option value="3">🌴 Լատինո</option></select><select class="areg-beat-select" aria-label="Գործիք"><option value="0">🎹 Դաշնամուր</option><option value="1">🎸 Կիթառ</option><option value="2">🎼 Մարիմբա</option><option value="3">🎛️ Սինթեզատոր</option></select><button class="areg-beat-control" type="button">🔇</button></div><div class="areg-beat-grid"></div><div class="areg-beat-bottom"><span class="areg-beat-lamp"></span><span class="areg-beat-caption">Ընտրիր գույները և միացրու երաժշտությունը</span></div>';
+    wrap.innerHTML='<div class="areg-beat-heading">🎶 Երաժշտական աշխարհ 3D</div><div class="areg-beat-sub">Միացրու մի քանի կոճակ՝ ստեղծիր քո ռիթմը</div><div class="areg-beat-toolbar"><select class="areg-beat-select" aria-label="Ռիթմ"><option value="0">🪩 Պարային</option><option value="1">🎤 Հիփ-հոփ</option><option value="2">⚡ Էլեկտրոնային</option><option value="3">🌴 Լատինո</option></select><select class="areg-beat-select" aria-label="Գործիք"><option value="0">🎹 Դաշնամուր</option><option value="1">🎸 Կիթառ</option><option value="2">🎼 Մարիմբա</option><option value="3">🎛️ Սինթեզատոր</option></select><button class="areg-beat-control" type="button" aria-label="Անջատել ձայնը">🔊</button></div><div class="areg-beat-grid"></div><div class="areg-beat-bottom"><span class="areg-beat-lamp"></span><span class="areg-beat-caption">Ընտրիր գույները և միացրու երաժշտությունը</span></div>';
     host.appendChild(wrap);
     const grid=wrap.querySelector('.areg-beat-grid'),selectors=wrap.querySelectorAll('select'),mute=wrap.querySelector('.areg-beat-control'),caption=wrap.querySelector('.areg-beat-caption');
     const labels=['Բաս','Թմբուկ','Հարված','Ծափ','Հեթ','Շեյքեր','Ռիթմ','Տոմ','Դո','Ռե','Մի','Ֆա','Սոլ','Լյա','Սի','Դո+','Ակորդ','Ակորդ 2','Ակորդ 3','Արպեջիո','Էֆեկտ','Զանգ','Լազեր','Փայլ'];
@@ -3347,7 +3350,7 @@
     }
     selectors[0].addEventListener('change',e=>{rhythm=Number(e.target.value);recolor();step=0;if(audio)nextTime=audio.currentTime+.035;caption.textContent='Նոր ռիթմ՝ '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
     selectors[1].addEventListener('change',e=>{instrument=Number(e.target.value);caption.textContent='Նոր գործիք՝ '+['Դաշնամուր','Կիթառ','Մարիմբա','Սինթեզատոր'][instrument]});
-    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔊':'🔇';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.46,audio.currentTime,.02)});
+    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔇':'🔊';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.46,audio.currentTime,.02)});
     gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
