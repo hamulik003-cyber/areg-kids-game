@@ -458,7 +458,7 @@
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
-        {id:'stickers',label:'Կպչուն պատկերներ',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'stickers',label:'Երաժշտական աշխարհ 3D',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
@@ -3165,17 +3165,226 @@
     const pt=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};canvas.onpointerdown=e=>{drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};canvas.onpointermove=e=>{if(!drawing)return;const p=pt(e);ctx.strokeStyle=col;ctx.lineTo(p.x,p.y);ctx.stroke()};const paintUp=()=>drawing=false;addEventListener('pointerup',paintUp);gameCleanup.push(()=>removeEventListener('pointerup',paintUp));done.addEventListener('click',()=>reward())
   }
   function gameStickers(){
-    const s=surface('☝️'),scene=document.createElement('div');scene.className='sticker-scene';
-    const tray=document.createElement('div');tray.className='sticker-tray';s.append(scene,tray);let placed=0;
-    ['🌈','☀️','🌳','🐶','⭐','🌸'].forEach(ico=>{
-      const p=document.createElement('button');p.className='sticker-item';p.textContent=ico;tray.appendChild(p);
-      p.addEventListener('click',()=>{
-        const clone=document.createElement('div');clone.className='sticker-item';clone.textContent=ico;
-        clone.style.cssText=`position:absolute;left:${5+Math.random()*78}%;top:${8+Math.random()*68}%;font-size:${42+Math.random()*22}px;transform:rotate(${Math.random()*18-9}deg);`;
-        scene.appendChild(clone);clone.animate([{transform:'scale(.2)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:280});
-        if(++placed===5)reward();
+    // Self-contained music studio. Do not modify shared header, stars or other activities.
+    const host=surface(null);
+    const css=document.createElement('style');
+    css.textContent=`
+      .areg-beat-studio{box-sizing:border-box;width:100%;height:100%;min-height:490px;padding:12px 10px 18px;overflow:auto;position:relative;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,#34437a 0%,#111b3d 52%,#090d20 100%);color:#fff;font-family:system-ui,-apple-system,sans-serif;touch-action:pan-y}
+      /* Only this music game's shared title: keep its wooden header aligned with back/stars. */
+      #activityScreen[data-game="stickers"] .activity-title-wrap{height:58px;min-height:58px;overflow:hidden;justify-content:center}
+      #activityScreen[data-game="stickers"] .activity-title{font-size:18px;line-height:1.08;overflow-wrap:normal}
+      .areg-beat-studio *{box-sizing:border-box}
+      .areg-beat-heading{text-align:center;font-weight:950;font-size:21px;letter-spacing:1.1px;color:#fff7d9;text-shadow:0 3px 0 #26316d,0 0 17px #65baff}
+      .areg-beat-sub{text-align:center;font-size:11px;opacity:.83;margin:2px 0 10px}
+      .areg-beat-toolbar{display:flex;gap:7px;margin-bottom:10px;align-items:stretch}
+      .areg-beat-select,.areg-beat-control{flex:1;min-width:0;border:1px solid #8db1ff8c;border-radius:12px;padding:10px 5px;color:#fff;background:linear-gradient(#47548b,#232d62);font-size:12px;font-weight:800;text-align:center;box-shadow:inset 0 2px 1px #ffffff45,0 4px 0 #0a1233;appearance:none}
+      .areg-beat-control{flex:0 0 63px}
+      .areg-beat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;perspective:800px;padding:6px 2px 14px}
+      .areg-beat-pad{position:relative;aspect-ratio:1/1;min-height:58px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;border:2px solid #ffffff5c;border-radius:17px;color:#fff;cursor:pointer;touch-action:manipulation;background:linear-gradient(160deg,#ffffff87 0%,#ffffff20 18%,transparent 43%),linear-gradient(150deg,var(--pad),#101a4a);box-shadow:inset 0 3px 4px #ffffff7a,inset 0 -7px 9px #0005,0 7px 0 #070b23,0 10px 14px #0009;transform:translateY(0);transition:transform .12s,box-shadow .12s,filter .12s,border-color .12s}
+      .areg-beat-pad[data-instrument='0']{background:linear-gradient(155deg,#fffdf0aa,#b6d5ff44 38%,var(--pad) 72%,#111b4b);border-color:#f5f2e5}
+      .areg-beat-pad[data-instrument='1']{background:linear-gradient(155deg,#ffe1a788,#a76b4344 38%,var(--pad) 72%,#211129)}
+      .areg-beat-pad[data-instrument='2']{background:linear-gradient(155deg,#ffd7ae88,#8d3f3744 38%,var(--pad) 72%,#22112d)}
+      .areg-beat-pad[data-instrument='3']{background:linear-gradient(155deg,#c9e5ff88,#263d7144 38%,var(--pad) 72%,#0b1939)}
+      .areg-beat-pad:before{content:'';position:absolute;inset:5px;border:1px solid #ffffff36;border-radius:11px;pointer-events:none}
+      .areg-beat-pad .symbol{font-size:27px;line-height:1;filter:drop-shadow(0 2px 2px #0008)}
+      .areg-beat-pad .label{font-size:9px;font-weight:850;text-shadow:0 1px 2px #000a;line-height:1.1}
+      .areg-beat-pad.on{transform:translateY(5px) scale(.98);border:3px solid #fff9b9;filter:brightness(1.42) saturate(1.4);box-shadow:inset 0 0 0 3px #fff8,inset 0 0 15px #fff9,0 2px 0 #090e29,0 0 18px 5px var(--pad),0 0 28px 6px #fff5}
+      .areg-beat-pad.pulse{filter:brightness(1.8) saturate(1.6);box-shadow:inset 0 0 22px #fff,0 0 26px 7px var(--pad),0 2px 0 #080d24}
+      .areg-beat-bottom{display:flex;justify-content:center;align-items:center;gap:10px;font-size:12px;color:#d6e4ff}
+      .areg-beat-lamp{width:9px;height:9px;border-radius:50%;background:#48ffba;box-shadow:0 0 12px #48ffba;animation:aregBeatBlink 1s infinite alternate}
+      @keyframes aregBeatBlink{to{opacity:.35;transform:scale(.8)}}
+      @media(max-width:400px){.areg-beat-studio{padding:10px 8px}.areg-beat-grid{gap:7px}.areg-beat-pad{border-radius:13px}.areg-beat-pad .symbol{font-size:23px}.areg-beat-pad .label{font-size:8px}}
+      @media(prefers-reduced-motion:reduce){.areg-beat-lamp{animation:none}.areg-beat-pad{transition:none}}
+    `;
+    host.appendChild(css);
+    const wrap=document.createElement('div');wrap.className='areg-beat-studio';
+    wrap.innerHTML='<div class="areg-beat-heading">🎶 Երաժշտական աշխարհ 3D</div><div class="areg-beat-sub">Միացրու մի քանի կոճակ՝ ստեղծիր քո ռիթմը</div><div class="areg-beat-toolbar"><select class="areg-beat-select" aria-label="Ռիթմ"><option value="0">🪩 Պարային</option><option value="1">🎤 Հիփ-հոփ</option><option value="2">⚡ Էլեկտրոնային</option><option value="3">🌴 Լատինո</option></select><select class="areg-beat-select" aria-label="Գործիք"><option value="0">🎹 Դաշնամուր</option><option value="1">🎸 Կիթառ</option><option value="2">🎻 Ջութակ</option><option value="3">🥁 Հարվածայիններ</option><option value="4">🎼 Մարիմբա</option><option value="5">🎶 Քսիլոֆոն</option></select><button class="areg-beat-control" type="button" aria-label="Անջատել ձայնը">🔊</button></div><div class="areg-beat-grid"></div><div class="areg-beat-bottom"><span class="areg-beat-lamp"></span><span class="areg-beat-caption">Ընտրիր գույները և միացրու երաժշտությունը</span></div>';
+    host.appendChild(wrap);
+    const grid=wrap.querySelector('.areg-beat-grid'),selectors=wrap.querySelectorAll('select'),mute=wrap.querySelector('.areg-beat-control'),caption=wrap.querySelector('.areg-beat-caption');
+    const labels=['Բաս','Թմբուկ','Հարված','Ծափ','Հեթ','Շեյքեր','Ռիթմ','Տոմ','Դո','Ռե','Մի','Ֆա','Սոլ','Լյա','Սի','Դո+','Ակորդ','Ակորդ 2','Ակորդ 3','Արպեջիո','Էֆեկտ','Զանգ','Լազեր','Փայլ'];
+    const symbols=['🎸','🥁','🥁','👏','🎩','🪇','🪘','🥁','🎹','🎵','🎶','🎼','🎹','🎵','🎶','🎹','🎼','🎹','🎼','✨','🌟','🔔','🚀','💫'];
+    const palettes=[
+      ['#ff4775','#ff9a3e','#ffdd42','#72d965','#2de0c6','#31bbf2','#8e78ff','#f46bc2'],
+      ['#ff7355','#dbad52','#8c74db','#43b0d8','#ca62a4','#a2c36b','#ef9472','#637ee4'],
+      ['#25d6f5','#8c5aff','#f73bb5','#e5ed41','#50e7a0','#ff704d','#629fff','#bf63ff'],
+      ['#ffc054','#ff695c','#74dc82','#44c7c8','#e487eb','#ffdc5d','#72b6ff','#ef9a65']
+    ];
+    const active=new Set(),pads=[];let rhythm=0,instrument=0,silent=false,audio=null,master=null,fxSend=null,timer=null,nextTime=0,step=0,closed=false;
+    const bpm=[124,92,138,112];
+    // All pitched pads share a C-minor pentatonic palette and one chord progression.
+    const scale=[0,3,5,7,10],roots=[0,8,3,10];
+    for(let i=0;i<24;i++){
+      const pad=document.createElement('button');pad.type='button';pad.className='areg-beat-pad';pad.setAttribute('aria-pressed','false');pad.setAttribute('aria-label',labels[i]);pad.innerHTML='<span class="symbol">'+symbols[i]+'</span><span class="label">'+labels[i]+'</span>';
+      pad.addEventListener('click',()=>{if(closed)return;ensureAudio();if(active.has(i)){active.delete(i);pad.classList.remove('on');pad.setAttribute('aria-pressed','false')}else{active.add(i);pad.classList.add('on');pad.setAttribute('aria-pressed','true');if(audio&&audio.state!=='running')audio.resume().catch(()=>{caption.textContent='Սեղմիր նորից՝ ձայնը միացնելու համար'})}caption.textContent=active.size+' միացված • '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
+      grid.appendChild(pad);pads.push(pad);
+    }
+    function updateInstrumentLook(){
+      const themes=['🎹','🎸','🎻','🥁','🎼','🎶'];
+      pads.forEach((pad,i)=>{
+        if(i<8)return;
+        const symbol=pad.querySelector('.symbol'),label=pad.querySelector('.label');
+        if(!symbol||!label)return;
+        symbol.textContent=instrument===0?(i%3===0?'🎹':'🎵'):instrument===1?'🎸':instrument===2?'🎻':instrument===3?'🥁':instrument===4?'🎼' :'🎶';
+        label.textContent=instrument===3?['Բիթ','Թմբուկ','Ռիթմ','Ծափ'][i%4]:instrument===0?['Դո','Ռե','Մի','Ֆա','Սոլ','Լյա','Սի','Դո+'][(i-8)%8]:instrument===1?'Լար '+(i-7):instrument===2?'Նոտա '+(i-7):instrument===4?'Ձայն '+(i-7):'Ձող '+(i-7);
+        pad.dataset.instrument=String(instrument);
       });
-    });
+    }
+    function recolor(){pads.forEach((p,i)=>p.style.setProperty('--pad',palettes[rhythm][(i+Math.floor(i/4)*2)%8]))}
+    recolor();updateInstrumentLook();
+    function ensureAudio(){
+      if(closed)return;
+      try{
+        if(!audio){const AC=window.AudioContext||window.webkitAudioContext;if(!AC){caption.textContent='Այս սարքում ձայնը հասանելի չէ';return}try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(_){}audio=new AC();master=audio.createGain();master.gain.value=.46;const limiter=audio.createDynamicsCompressor();limiter.threshold.value=-21;limiter.knee.value=22;limiter.ratio.value=5;limiter.attack.value=.012;limiter.release.value=.19;master.connect(limiter);limiter.connect(audio.destination);const delay=audio.createDelay(.6),feedback=audio.createGain(),wet=audio.createGain();delay.delayTime.value=.19;feedback.gain.value=.16;wet.gain.value=.12;fxSend=audio.createGain();fxSend.gain.value=.34;fxSend.connect(delay);delay.connect(feedback);feedback.connect(delay);delay.connect(wet);wet.connect(limiter);nextTime=audio.currentTime+.06;timer=setInterval(tick,25)}
+        if(audio.state!=='running')audio.resume().then(()=>{if(!closed){nextTime=audio.currentTime+.06;tick()}}).catch(()=>{caption.textContent='Սեղմիր կոճակը՝ ձայնը միացնելու համար'});
+      }catch(e){console.warn('Music audio unavailable',e)}
+    }
+    // Soft musical voices with transient shaping, filtering and restrained ambience.
+    function voice(hz,t,dur,kind,vol=.1){
+      if(!audio||!master)return;
+      const osc=audio.createOscillator(),gain=audio.createGain(),filter=audio.createBiquadFilter();
+      const attack=(kind==='pad'||kind==='synth'||kind==='violin')?.09:.008,release=(kind==='pad'||kind==='synth')?.38:kind==='bass'?.13:kind==='guitar'?.11:kind==='violin'?.36:.22;
+      const peak=Math.max(.001,vol),end=t+dur+release;
+      osc.type=kind==='guitar'?'triangle':kind==='synth'?'sawtooth':kind==='violin'?'triangle':kind==='bass'?'triangle':'sine';
+      osc.frequency.setValueAtTime(hz,t);
+      filter.type='lowpass';filter.frequency.value=kind==='bass'?420:kind==='guitar'?1050:kind==='synth'?900:kind==='violin'?1150:kind==='pad'?1300:kind==='marimba'?1700:2400;
+      gain.gain.setValueAtTime(.0001,t);
+      gain.gain.linearRampToValueAtTime(peak,t+attack);
+      gain.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*((kind==='pad'||kind==='synth')?.48:.17)),t+dur);
+      gain.gain.exponentialRampToValueAtTime(.0001,end);
+      osc.connect(filter);filter.connect(gain);gain.connect(master);
+      if(fxSend&&kind!=='bass')gain.connect(fxSend);
+      osc.start(t);osc.stop(end+.025);
+      if(kind==='piano'||kind==='guitar'||kind==='violin'||kind==='marimba'||kind==='synth'){
+        const color=audio.createOscillator(),cg=audio.createGain();
+        const ratio=kind==='piano'?2:kind==='guitar'?3:kind==='violin'?2.003:kind==='marimba'?3.98:1.005;
+        const strength=kind==='piano'?.24:kind==='guitar'?.11:kind==='violin'?.10:kind==='marimba'?.32:.25;
+        color.type=kind==='synth'?'triangle':'sine';
+        color.frequency.value=hz*ratio;
+        cg.gain.setValueAtTime(.0001,t);
+        cg.gain.linearRampToValueAtTime(Math.max(.0001,peak*strength),t+.006);
+        cg.gain.exponentialRampToValueAtTime(.0001,t+(kind==='synth'?dur+.25:kind==='piano'?.23:kind==='guitar'?.11:.18));
+        color.connect(cg);cg.connect(master);color.start(t);color.stop(t+(kind==='synth'?dur+.26:.26));
+      }
+      if(kind==='bell'||kind==='pluck'){
+        const overtone=audio.createOscillator(),g=audio.createGain();
+        overtone.type='sine';overtone.frequency.value=hz*(kind==='bell'?2.01:2);
+        g.gain.setValueAtTime(Math.max(.0001,peak*.16),t);
+        g.gain.exponentialRampToValueAtTime(.0001,t+Math.min(.19,dur));
+        overtone.connect(g);g.connect(master);overtone.start(t);overtone.stop(t+Math.min(.19,dur)+.01);
+      }
+    }
+    // Distinctive instrument articulations, synthesized locally for offline PWA.
+    function instrumentVoice(midi,t,dur,vol=.055){
+      if(!audio||!master)return;
+      const f=440*Math.pow(2,(midi-69)/12),type=instrument;
+      if(type===3){percussion(['kick','snare','hat','clap','shaker'][Math.abs(midi)%5],t);return}
+      const attack=[.004,.003,.12,.004,.002,.002][type];
+      const sustain=[.21,.10,.78,.1,.14,.075][type];
+      const release=[.22,.12,.42,.1,.19,.12][type];
+      const duration=type===2?Math.max(.32,dur):type===5?Math.min(.24,dur):dur;
+      const partials=type===0?[[1,1],[2,.23],[3,.085]]:type===1?[[1,1],[2,.34],[3,.17],[4,.08]]:type===2?[[1,1],[2,.35],[3,.21],[4,.13]]:type===4?[[1,1],[2,.12],[3.98,.31]]:[[1,1],[2.02,.28],[3.93,.15],[5.4,.055]];
+      const filter=audio.createBiquadFilter(),env=audio.createGain();
+      filter.type='lowpass';filter.frequency.setValueAtTime([2600,1750,2200,1800,3200,3800][type],t);
+      if(type===1)filter.frequency.exponentialRampToValueAtTime(580,t+.19);
+      if(type===5)filter.frequency.exponentialRampToValueAtTime(1700,t+.16);
+      env.gain.setValueAtTime(.0001,t);env.gain.linearRampToValueAtTime(vol,t+attack);
+      env.gain.exponentialRampToValueAtTime(Math.max(.0002,vol*sustain),t+attack+duration);
+      env.gain.exponentialRampToValueAtTime(.0001,t+attack+duration+release);
+      filter.connect(env);env.connect(master);if(fxSend)env.connect(fxSend);
+      for(const [ratio,weight] of partials){
+        const osc=audio.createOscillator(),g=audio.createGain();osc.type='sine';
+        osc.frequency.setValueAtTime(f*ratio,t);
+        if(type===2){osc.frequency.setValueAtTime(f*ratio*.998,t);osc.frequency.linearRampToValueAtTime(f*ratio*1.002,t+duration)}
+        g.gain.value=weight;osc.connect(g);g.connect(filter);osc.start(t);osc.stop(t+attack+duration+release+.02);
+      }
+    }
+    function percussion(kind,t){
+      if(!audio||!master)return;
+      if(kind==='kick'){
+        const osc=audio.createOscillator(),g=audio.createGain();osc.type='sine';
+        osc.frequency.setValueAtTime(135,t);osc.frequency.exponentialRampToValueAtTime(47,t+.12);
+        g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.34,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.20);
+        osc.connect(g);g.connect(master);osc.start(t);osc.stop(t+.21);return;
+      }
+      const duration=kind==='hat'?.032:kind==='shaker'?.055:.095;
+      const buf=audio.createBuffer(1,Math.ceil(audio.sampleRate*duration),audio.sampleRate),data=buf.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,1.4);
+      const src=audio.createBufferSource(),fl=audio.createBiquadFilter(),g=audio.createGain();src.buffer=buf;
+      fl.type=kind==='snare'?'bandpass':'highpass';fl.frequency.value=kind==='hat'?7500:kind==='shaker'?4600:kind==='clap'?2100:1450;
+      fl.Q.value=.6;g.gain.setValueAtTime(kind==='hat'?.065:kind==='shaker'?.065:.13,t);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      src.connect(fl);fl.connect(g);g.connect(master);src.start(t);src.stop(t+duration+.005);
+    }
+    const hz=midi=>440*Math.pow(2,(midi-69)/12);
+    // C minor -> A-flat major -> E-flat major -> B-flat major.
+    // Each bar uses only its own chord tones and compatible pentatonic passing notes.
+    const harmony=[
+      {bass:36,notes:[60,63,67,70,72,75,79]},
+      {bass:44,notes:[56,60,63,68,72,75,80]},
+      {bass:39,notes:[58,63,67,70,75,79,82]},
+      {bass:46,notes:[58,62,65,70,74,77,82]}
+    ];
+    function play(id,t,k){
+      if(!audio||silent||closed||audio.state!=='running')return;
+      const h=harmony[Math.floor(step/16)%4],quarter=60/bpm[rhythm],dur=quarter*.65;
+      if(id===0){voice(hz(h.bass),t,quarter*.64,'bass',.17);return}
+      if(id===1){percussion('kick',t);return}
+      if(id===2){percussion('snare',t);return}
+      if(id===3){percussion('clap',t);return}
+      if(id===4){percussion('hat',t);return}
+      if(id===5){percussion('shaker',t);return}
+      if(id===6){voice(hz(h.bass+12),t,.11,'pluck',.045);return}
+      if(id===7){percussion('snare',t);return}
+      if(id<16){
+        const index=(id-8+Math.floor(k/4))%h.notes.length;
+        const n=h.notes[index]+(id>=13?0:-12);
+        const kind=['piano','guitar','violin','drums','marimba','xylophone'][instrument];
+        instrumentVoice(n,t,instrument===2?quarter*1.35:instrument===1?quarter*.42:dur,.055);
+        return;
+      }
+      if(id<20){
+        // Voiced chord tones from the current harmony, with controlled polyphony.
+        const offsets=[[0,1,2],[1,2,3],[0,2,4],[2,3,5]][id-16];
+        for(const ix of offsets)instrumentVoice(h.notes[ix]-12,t,quarter*1.35,.018);
+        return;
+      }
+      const n=h.notes[(id-20+Math.floor(k/4))%h.notes.length]+12;
+      instrumentVoice(n,t,.19,.035);
+    }
+    const grooves=[
+      [[0,4,8,12],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
+      [[0,7,10],[0,7,10],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]],
+      [[0,3,6,9,12,15],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[1,5,9,13],[3,11],[7,15]],
+      [[0,3,6,8,11,14],[0,4,8,12],[4,12],[4,12],[0,2,4,6,8,10,12,14],[2,6,10,14],[3,11],[7,15]]
+    ];
+    function tick(){
+      if(!audio||closed||audio.state!=='running')return;
+      const beat=60/bpm[rhythm]/4;
+      if(nextTime<audio.currentTime-.2)nextTime=audio.currentTime+.02;
+      let count=0;
+      while(nextTime<audio.currentTime+.12&&count++<10){
+        const k=step%16;
+        for(const id of active){
+          // Restore the earlier approved Launchpad groove patterns, adapted to
+          // the new 24-pad layout. Keep the current 3D UI and audio clock.
+          const groove=id<8?grooves[rhythm][id]:id<16?[[0,4,8,12],[2,6,10,14],[0,8],[4,12],[3,7,11,15],[0,4,8,12],[2,10],[6,14]][id-8]:id<20?[[0,8],[4,12],[0],[8]][id-16]:[[0,8],[4,12],[2,10],[6,14]][id-20];
+          // No per-row phase shift: every loop stays on the same 16-step grid.
+          // Each instrument has a recognizable rhythmic phrase while staying in sync.
+          const phrase=instrument===0?groove:
+            instrument===1?(id<8?groove:(id<16?[0,3,6,10,12,14]:[0,6,10])):
+            instrument===2?(id<8?groove:(id<16?[0,8]:[0])):
+            instrument===3?(id<8?groove:(id<16?[0,2,4,6,8,10,12,14]:[4,12])):
+            instrument===4?(id<8?groove:(id<16?[0,2,5,8,10,13]:[0,8])):
+            (id<8?groove:(id<16?[0,3,7,10,14]:[0,4,8,12]));
+          const hit=phrase.includes(k);
+          if(hit){play(id,nextTime,k);const pad=pads[id];const delay=Math.max(0,(nextTime-audio.currentTime)*1000);setTimeout(()=>{if(closed||!pad.isConnected)return;pad.classList.add('pulse');setTimeout(()=>pad.classList.remove('pulse'),125)},delay)}
+        }
+        nextTime+=beat;step++;
+      }
+    }
+    selectors[0].addEventListener('change',e=>{rhythm=Number(e.target.value);recolor();step=0;if(audio)nextTime=audio.currentTime+.035;caption.textContent='Նոր ռիթմ՝ '+['Պարային','Հիփ-հոփ','Էլեկտրոնային','Լատինո'][rhythm]});
+    selectors[1].addEventListener('change',e=>{instrument=Number(e.target.value);updateInstrumentLook();caption.textContent='Նոր գործիք՝ '+['Դաշնամուր','Կիթառ','Ջութակ','Հարվածայիններ','Մարիմբա','Քսիլոֆոն'][instrument]});
+    mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔇':'🔊';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.46,audio.currentTime,.02)});
+    gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
