@@ -508,7 +508,11 @@
       if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
       safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
     }else root.classList.remove('ios-standalone');
-    const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
+    const portrait=lw<=lh;
+    // Preserve the original compact Home Screen composition on iPhone PWA.
+    // Keep JavaScript navigation intact: only the visual stage scale changes.
+    const baseScale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
+    const scale=standalone&&ios&&portrait?baseScale*.885:baseScale;
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
     root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
     if(standalone&&ios){
