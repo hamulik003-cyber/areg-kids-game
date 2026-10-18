@@ -508,11 +508,7 @@
       if(!Number.isFinite(lh)||lh<vh)lh=Math.max(vh,innerHeight||0);
       safeTop=Math.max(safeTop,Math.max(sw,sh)>=852?59:Math.max(sw,sh)>=812?47:20);root.classList.add('ios-standalone');
     }else root.classList.remove('ios-standalone');
-    const portrait=lw<=lh;
-    // Preserve the original compact Home Screen composition on iPhone PWA.
-    // Keep JavaScript navigation intact: only the visual stage scale changes.
-    const baseScale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
-    const scale=standalone&&ios&&portrait?baseScale*.885:baseScale;
+    const scale=Math.min(lw/DESIGN_W,lh/DESIGN_H);
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
     root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
     if(standalone&&ios){
@@ -3176,150 +3172,167 @@
     const pt=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};canvas.onpointerdown=e=>{drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};canvas.onpointermove=e=>{if(!drawing)return;const p=pt(e);ctx.strokeStyle=col;ctx.lineTo(p.x,p.y);ctx.stroke()};const paintUp=()=>drawing=false;addEventListener('pointerup',paintUp);gameCleanup.push(()=>removeEventListener('pointerup',paintUp));done.addEventListener('click',()=>reward())
   }
   function gameStickers(){
-    // Launchpad replaces only the Creativity musical activity. Shared header is owned by the app.
+    // Musical playground replaces the former sticker placement activity ONLY.
+    // Canonical parent navigation/title/star header remains untouched.
     const s=surface(null);
-    const css=document.createElement('style');
-    css.textContent=`
-      .areg-launchpad{height:100%;width:100%;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,22px);padding:12px 12px 22px;box-sizing:border-box;overflow:hidden;font-family:system-ui,sans-serif;touch-action:manipulation}
-      .areg-launchpad *{box-sizing:border-box;-webkit-user-select:none;user-select:none}
-      .areg-lp-shell{width:min(100%,520px);padding:clamp(12px,3.5vw,23px);border-radius:30px;background:linear-gradient(135deg,#545b70,#1e2537 34%,#11182a 76%,#414b65);border:3px solid #8995b1;box-shadow:inset 0 3px 3px #ffffff60,inset 0 -7px 13px #0008,0 15px 0 #141a29,0 25px 25px #17182c77;position:relative}
-      .areg-lp-head{display:flex;justify-content:space-between;align-items:center;color:#e8f4ff;letter-spacing:2px;font-size:clamp(10px,2.5vw,14px);font-weight:900;margin:0 3px 13px;text-shadow:0 2px 3px #0008}
-      .areg-lp-led{display:inline-block;width:9px;height:9px;border-radius:50%;background:#54ff9a;box-shadow:0 0 12px #54ff9a;margin-right:7px}
-      .areg-lp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,2.3vw,15px)}
-      .areg-lp-pad{appearance:none;position:relative;aspect-ratio:1;min-width:0;border:2px solid #ffffff66;border-bottom:6px solid #0008;border-radius:clamp(12px,3vw,19px);background:linear-gradient(140deg,#ffffffa8,#ffffff10 40%,#0003 95%),var(--pad);box-shadow:inset 0 3px 5px #fff9,inset 0 -5px 7px #0003,0 6px 0 #080d1b,0 9px 10px #0006;transform:translateY(0);transition:transform .09s,filter .09s,box-shadow .09s;touch-action:none;cursor:pointer}
-      .areg-lp-pad:before{content:'';position:absolute;inset:8%;border-radius:inherit;border:1px solid #ffffff55;pointer-events:none}
-      .areg-lp-pad:active,.areg-lp-pad.is-hit,.areg-lp-pad.is-on{transform:translateY(5px) scale(.96);filter:brightness(1.35);box-shadow:inset 0 2px 13px #fff9,0 1px 0 #080d1b,0 0 22px var(--pad)}
-      .areg-lp-pad.is-on{filter:brightness(1.48) saturate(1.35);border:3px solid #fffde7;box-shadow:inset 0 0 0 3px #fff9,inset 0 2px 12px #fff,0 2px 0 #080d1b,0 0 17px 5px var(--pad),0 0 27px 8px #fff8;transform:translateY(4px) scale(.97)}\n      .areg-lp-pad.is-on.is-beat{filter:brightness(1.8) saturate(1.5);box-shadow:inset 0 0 19px #fff,0 0 24px 8px var(--pad),0 0 30px 8px #fff9}\n      .activity-screen[data-game=stickers] .activity-topbar .activity-title{font-size:16px!important;line-height:1.06!important;letter-spacing:-.025em!important;white-space:normal!important}
-      .areg-lp-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;width:min(100%,520px)}
-      .areg-lp-control{flex:1;min-width:0;border:2px solid #ffedb0;border-radius:16px;background:linear-gradient(#fff3c2,#eab35f);box-shadow:0 5px 0 #95602e;color:#54311e;font-weight:900;font-size:clamp(13px,3.4vw,17px);padding:11px 5px;touch-action:manipulation}
-      .areg-lp-control:active{transform:translateY(3px);box-shadow:0 2px 0 #95602e}
-      .areg-lp-caption{color:#fff8db;font-weight:800;font-size:clamp(12px,3vw,16px);text-align:center;text-shadow:0 2px 3px #433c60}
+    const style=document.createElement('style');
+    style.textContent=`
+    .areg-music{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;gap:9px;padding:8px;overflow:hidden;color:#65321b;font-family:system-ui,sans-serif}
+    .areg-music *{box-sizing:border-box;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+    .areg-music-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+    .areg-music-tab{min-height:52px;border:3px solid #fff1b9;border-radius:16px;background:linear-gradient(#ffe2a0,#df9d4b);box-shadow:0 4px 0 #a26530;font-size:23px}
+    .areg-music-tab[aria-pressed=true]{background:linear-gradient(#fffab1,#ffbb43);outline:2px solid #ffdf44}
+    .areg-music-board{position:relative;flex:1;min-height:0;overflow:hidden;border:7px solid #ffcd71;border-radius:29px;background:radial-gradient(circle at 25% 15%,#d7fbff,#64d9f7 53%,#4f92e6);box-shadow:inset 0 0 0 3px #fff8cc,0 7px 0 #a65e30,0 12px 20px #70412e66}
+    .areg-music-title{font-weight:1000;font-size:clamp(17px,4.4vw,23px);text-align:center;margin:12px 4px 4px;color:#fff;text-shadow:0 3px 2px #3764a7}
+    .areg-music-keys{position:absolute;inset:21% 6% 15%;display:flex;align-items:stretch;justify-content:center;gap:4px;transform:perspective(500px) rotateX(5deg)}
+    .areg-music-key{flex:1;min-width:0;border:3px solid #ffefb3;border-bottom:9px solid #92512c;border-radius:15px;background:linear-gradient(115deg,#ffffff7d 0%,transparent 38%),linear-gradient(var(--light),var(--tone));box-shadow:inset -4px -5px 6px #0002,0 6px 0 #74411c;font-weight:1000;font-size:clamp(16px,5vw,26px);color:#fff;text-shadow:0 2px 3px #52321b;transition:transform .09s,filter .09s}
+    .areg-music-key:active,.areg-music-key.pressed{transform:translateY(7px) scale(.97);filter:brightness(1.18);box-shadow:inset 0 3px 9px #0003}
+    .areg-music-board.drums .areg-music-keys,.areg-music-board.band .areg-music-keys{inset:23% 6% 12%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:15px;transform:none}
+    .areg-music-board.drums .areg-music-key,.areg-music-board.band .areg-music-key{border-radius:50%;border-width:8px;font-size:clamp(26px,9vw,45px)}
+    .areg-music-board.frogs{background:radial-gradient(circle at 50% 30%,#98edfc,#4cc6e5 60%,#2b9db4)}
+    .areg-music-board.frogs .areg-music-keys{inset:20% 4% 12%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px;transform:none}
+    .areg-music-board.frogs .areg-music-key{border-radius:45% 45% 30% 30%;border:5px solid #b4ff71;font-size:clamp(22px,7vw,36px)}
+    .areg-music-board.piano{background:radial-gradient(circle at 30% 10%,#e9faff,#6acff4 62%,#4382cb)}
+    .areg-music-board.piano .areg-music-keys{inset:23% 4% 15%;gap:0;padding:13px 10px 16px;background:linear-gradient(#ffe75b,#e8a72c);border:7px solid #ffdb62;border-radius:27px;box-shadow:inset 0 6px 8px #fff8,0 10px 0 #9b5b20}
+    .areg-music-board.piano .areg-music-key{position:relative;border:2px solid #353238;border-bottom:11px solid #9e9693;border-radius:0 0 11px 11px;background:linear-gradient(100deg,#e2e0df,#fff 25%,#fff 72%,#cbcbd1);box-shadow:inset -3px 0 5px #0002;color:#453632;text-shadow:none;font-size:13px;align-self:stretch;padding-top:55%}
+    .areg-music-board.piano .areg-music-key:after{content:'';position:absolute;top:0;right:-25%;height:53%;width:48%;background:linear-gradient(90deg,#222,#444 65%,#111);border:2px solid #161515;border-radius:0 0 6px 6px;z-index:2;pointer-events:none}
+    .areg-music-board.piano .areg-music-key:nth-child(3):after,.areg-music-board.piano .areg-music-key:nth-child(7):after,.areg-music-board.piano .areg-music-key:last-child:after{display:none}
+    .areg-music-board.xylophone{background:radial-gradient(circle at 20% 15%,#fff2ca,#b99af1 70%,#8664d1)}
+    .areg-music-board.xylophone .areg-music-keys{inset:26% 5% 20%;flex-direction:column;gap:7px;transform:rotate(-2deg);padding:12px 25px;background:linear-gradient(90deg,#c48643,#f1c781,#b5783e);border-radius:22px;box-shadow:0 12px 0 #89522e}
+    .areg-music-board.xylophone .areg-music-key{flex:1;align-self:center;width:calc(95% - var(--index)*8%);border:2px solid #ffffff99;border-bottom:6px solid #7e3c39;border-radius:12px;font-size:0;position:relative}
+    .areg-music-board.xylophone .areg-music-key:before,.areg-music-board.xylophone .areg-music-key:after{content:'';position:absolute;top:40%;width:12px;height:12px;background:#f4ebdc;border-radius:50%;box-shadow:inset 1px 2px 2px #856c62}
+    .areg-music-board.xylophone .areg-music-key:before{left:10px}.areg-music-board.xylophone .areg-music-key:after{right:10px}
+    .areg-music-board.drums{background:radial-gradient(circle at 25% 20%,#f0e7ff,#b390ec 65%,#805bbd)}
+    .areg-music-board.drums .areg-music-key{background:radial-gradient(ellipse at 45% 35%,#fffdf4 0 42%,#b0b9c9 43% 49%,var(--tone) 50% 75%,#60365a 90%);border:8px solid #f8d37b;box-shadow:0 12px 0 #865344,0 17px 10px #372d4866;text-shadow:0 2px 3px #333}
+    .areg-music-board.frogs .areg-music-key{background:radial-gradient(circle at 35% 25%,#d2ff89,#44c941 55%,#15872b);box-shadow:inset -6px -8px 8px #087d3c,0 9px 0 #2d6b32,0 12px 10px #0004}
+    .areg-music-board.frogs .areg-music-key:active{transform:translateY(7px) scale(.94)}
+
+    .areg-music-board.guitar{background:radial-gradient(circle at 30% 15%,#fff3c7,#9cdbdd 75%)}
+    .areg-music-board.guitar .areg-music-keys{inset:13% 8% 12%;display:flex;flex-direction:row;gap:2px;transform:none;padding:15px 24%;background:radial-gradient(ellipse at 50% 65%,#603a22 0 10%,#cf8335 11% 29%,#eab251 30% 42%,transparent 43%),linear-gradient(90deg,transparent 38%,#774d2b 39% 61%,transparent 62%);border-radius:45%}
+    .areg-music-board.guitar .areg-music-key{flex:1;border:0;border-left:2px solid #ffffffb0;border-radius:0;background:linear-gradient(90deg,#a6a7a8,#fff 48%,#777);box-shadow:0 0 2px #333;font-size:0;opacity:.85}
+    .areg-music-board.guitar .areg-music-key:active{background:#fff9ab;transform:translateX(3px)}
+    .areg-music-board.panflute{background:radial-gradient(circle at 40% 10%,#fff6d3,#86d5c7 75%)}
+    .areg-music-board.panflute .areg-music-keys{inset:18% 7% 14%;gap:1px;transform:none;align-items:flex-start;padding:18px 8px 35px;background:linear-gradient(180deg,transparent 20%,#bc3734 21% 27%,#e5b95e 28% 30%,transparent 31%);border-radius:16px}
+    .areg-music-board.panflute .areg-music-key{flex:1;height:calc(100% - var(--index)*7%);border:3px solid #ad642c;border-top:9px solid #77421e;border-bottom:7px solid #82441d;border-radius:9px 9px 20px 20px;background:linear-gradient(90deg,#9b4e24,#eeb779 35%,#c57b3b 75%,#83441f);box-shadow:inset 3px 0 3px #fff6,4px 4px 4px #0003;font-size:0}
+    .areg-music-board.panflute .areg-music-key:active{filter:brightness(1.3);transform:translateY(3px)}
+    .areg-music-board.drums .areg-music-keys{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));inset:24% 4% 13%;gap:9px}
+    .areg-music-board.drums .areg-music-key{font-size:0;border-width:5px}
+    .areg-music-board.drums .areg-music-key:nth-child(5),.areg-music-board.drums .areg-music-key:nth-child(6){background:radial-gradient(ellipse at 45% 40%,#fff6a5 0 48%,#a77a32 49% 58%,#d8a850 59%);border-color:#c9b16a}
+    .areg-music-board.xylophone .areg-music-key{background:linear-gradient(180deg,#fff8 0%,transparent 38%),var(--tone)}
+    .areg-music-foot{display:flex;justify-content:center;gap:9px}
+    .areg-music-foot button{border:3px solid #ffefbc;border-radius:15px;background:linear-gradient(#ffe7a8,#e8a24e);box-shadow:0 4px 0 #9e5c32;padding:9px 15px;font-weight:900;color:#64371d}
+    .areg-music-note{position:absolute;pointer-events:none;color:#fff9a2;text-shadow:0 2px 8px #fff;animation:aregNoteFly 1s ease-out forwards;font-size:30px}
+    @keyframes aregNoteFly{to{transform:translateY(-105px) rotate(22deg);opacity:0}}
     `;
-    s.append(css);
-    const wrap=document.createElement('div');wrap.className='areg-launchpad';
-    wrap.innerHTML='<div class="areg-lp-shell"><div class="areg-lp-head"><span><span class="areg-lp-led"></span>AREG BEAT PAD</span><span>♫ 24 PADS</span></div><div class="areg-lp-grid" role="group" aria-label="Երաժշտական կոճակներ"></div></div><div class="areg-lp-controls"><button type="button" class="areg-lp-control areg-lp-style">🎵 Փոխել ոճը</button><button type="button" class="areg-lp-control areg-lp-mute">🔊 Ձայն</button></div><div class="areg-lp-caption">Սեղմիր գունավոր կոճակները և ստեղծիր քո ռիթմը</div>';
-    s.append(wrap);
-    const grid=wrap.querySelector('.areg-lp-grid'),caption=wrap.querySelector('.areg-lp-caption');
-    const palettes=['#fb5c77','#fd8951','#ffc54b','#f7e96c','#8be267','#44d7b4','#45d5ec','#61a8fa','#8d85fa','#c079f9','#f472c2','#f16e9b'];
-    const styles=['Պարային','Հիփ-հոփ','Էլեկտրոնային','Դաշնամուր','Կիթառ','Քսիլոֆոն','Ֆլեյտա','Գործիքների միքս'];let style=0,muted=false,ctx=null,master=null,dead=false,step=0,timer=null,nextBeat=0;const active=new Set();const bpms=[124,88,138,106,104,116,96,120];
-    const colorThemes=[
-      ['#ff476e','#ff9c38','#ffe452','#9bea46','#29dbc0','#38bafa','#8c73ff','#e668ed'],
-      ['#ee6055','#f6b344','#6dcfc7','#6994de','#bd7df3','#f68ab8','#86c95e','#ffa26b'],
-      ['#38e4fb','#785cff','#f641bc','#ffdb34','#47fca2','#ff694c','#62a2ff','#bb6aff'],
-      ['#fff0a2','#e3b7ff','#91c6ff','#f5b4b4','#b3e5cb','#ffd8a2','#c6b6fa','#a9e6e4'],
-      ['#e1a052','#d87943','#f3ca7e','#b78d61','#f6ad72','#e8d1a4','#bd7653','#ffdd91'],
-      ['#ffe47a','#ffad70','#fa78a7','#9be978','#6bdcf0','#a994ff','#f8ca66','#7ae6c7'],
-      ['#86c9ff','#b0e8f5','#91dfc9','#c4b5fd','#e7b3f3','#8de0ef','#b6eab0','#f1c7ee'],
-      ['#ff649b','#4ee5ff','#ffe060','#8cf076','#b18aff','#ffa56b','#70f0c4','#ed7afa']
-    ];
-    function updatePadColors(){const colors=colorThemes[style];pads.forEach((pad,i)=>pad.style.setProperty('--pad',colors[(i+Math.floor(i/4)*2)%colors.length]))}
-    const pads=[];
-    for(let i=0;i<24;i++){const pad=document.createElement('button');pad.type='button';pad.className='areg-lp-pad';pad.style.setProperty('--pad',palettes[(i+Math.floor(i/4)*2)%palettes.length]);pad.setAttribute('aria-label','Երաժշտական կոճակ '+(i+1));grid.append(pad);pads.push(pad)}
-    updatePadColors();
-    function audioReady(){if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();master=ctx.createGain();master.gain.value=.45;master.connect(ctx.destination)}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return true}
-    function tone(freq,duration,type='sine',volume=.23,delay=0,slide=0){const t=ctx.currentTime+delay+scheduledDelay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,freq),t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+Math.min(.2,duration));g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.02)}
-    function noise(duration=.13,highpass=1200,volume=.16,delay=0){const n=Math.max(1,Math.floor(ctx.sampleRate*duration)),buf=ctx.createBuffer(1,n,ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<n;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=highpass;gain.gain.value=volume;src.connect(filter);filter.connect(gain);gain.connect(master);src.start(ctx.currentTime+delay+scheduledDelay);src.stop(ctx.currentTime+delay+scheduledDelay+duration)}
-    // Each pad is a latched, independently repeating musical layer. All layers share one beat clock.
-    // Each genre has its own rhythmic pattern, timbre and BPM; no notes are awarded.
-    const patterns=[
-      [[0,4,8,12],[4,12],[2,6,10,14],[7,15],[0,3,6,10,12,14],[0,4,8,12],[2,6,10,14],[3,7,11,15]],
-      [[0,7,10],[4,12],[2,6,10,14],[6,14],[0,5,10],[0,6,11],[3,11],[7,15]],
-      [[0,3,6,9,12,15],[4,12],[0,2,4,6,8,10,12,14],[3,7,11,15],[0,2,5,7,10,12,15],[0,3,6,9,12,15],[1,4,7,10,13],[2,6,10,14]]
-    ];
-    // Real recorded instrument samples, loaded lazily and cached per session.
-    // Public CC-BY samples from nbrosowsky/tonejs-instruments; synth fallback offline.
-    const sampleNames=['piano','guitar-acoustic','xylophone','flute','bass-electric'];
-    const samples=new Map(),samplePending=new Set();
-    function loadSample(name){
-      if(!ctx||dead||samples.has(name)||samplePending.has(name))return;
-      samplePending.add(name);
-      const note=name==='xylophone'?'G4':name==='bass-electric'?'E3':'C4';
-      const url='https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/master/samples/'+name+'/'+note+'.mp3';
-      fetch(url,{mode:'cors'}).then(r=>{if(!r.ok)throw Error('sample '+r.status);return r.arrayBuffer()})
-        .then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{if(!dead)samples.set(name,buffer)})
-        .catch(err=>console.debug('Instrument sample unavailable; synth fallback',name,err))
-        .finally(()=>samplePending.delete(name));
-    }
-    function sampleVoice(name,f,delay=0){
-      const key=name==='guitar'?'guitar-acoustic':name==='bass'?'bass-electric':name;
-      const buffer=samples.get(key);
-      if(!buffer)return false;
-      const source=ctx.createBufferSource(),gain=ctx.createGain();
-      source.buffer=buffer;source.playbackRate.value=Math.max(.45,Math.min(2.2,f/261.63));
-      gain.gain.value=name==='bass'?.23:.2;source.connect(gain);gain.connect(master);
-      source.start(ctx.currentTime+delay+scheduledDelay);source.stop(ctx.currentTime+delay+scheduledDelay+Math.min(buffer.duration/source.playbackRate.value,1.15));
-      return true;
-    }
-    // Lightweight WebAudio instrument timbres: no new assets or changes to the app shell.
-    function instrumentVoice(name,f,delay=0){if(sampleVoice(name,f,delay))return;
-      if(name==='piano'){tone(f,.8,'triangle',.12);tone(f*2,.38,'sine',.035);tone(f*3,.15,'sine',.016)}
-      else if(name==='guitar'){tone(f,.4,'triangle',.13);tone(f*2,.19,'sine',.03);tone(f*3,.1,'sine',.015)}
-      else if(name==='xylophone'){tone(f,.3,'sine',.14);tone(f*3.96,.14,'sine',.043)}
-      else if(name==='flute'){tone(f,.5,'sine',.14);tone(f*2,.4,'sine',.018)}
-      else if(name==='bass'){tone(f/2,.32,'triangle',.16);tone(f,.12,'sine',.03)}
-      else if(name==='bell'){tone(f,.75,'sine',.12);tone(f*2.01,.4,'sine',.045)}
-    }
-    function instrumentHit(i,beat){
-      const names=['piano','guitar','xylophone','flute','bass','bell'];
-      const name=style===7?names[i%names.length]:names[style-3];
-      const notes=[0,2,4,7,9,12,14,16];
-      const note=notes[(i+Math.floor(beat/4))%notes.length];
-      const base=style===4?164.81:style===6?293.66:196;
-      const f=base*Math.pow(2,(note+Math.floor(i/8)*3)/12);
-      instrumentVoice(name,f);
-    }
-    function hit(i,beat){if(dead||muted||!ctx||ctx.state!=='running')return;
-      const kind=i%8,oct=Math.floor(i/8),shift=[0,-4,5][style],v=style===1?.84:style===2?.7:1;
-      try{
-        if(style>=3){instrumentHit(i,beat);return}
-        if(kind===0){tone(style===2?185:style===1?115:155,.24,'sine',.46*v,0,style===2?47:39);tone(65,.1,'triangle',.08*v)}
-        else if(kind===1){noise(style===1?.2:.12,style===2?1800:800,.2*v);tone(170,.08,'triangle',.07*v)}
-        else if(kind===2){noise(style===2?.045:.075,style===1?4300:7000,.10*v)}
-        else if(kind===3){noise(.19,style===1?2500:4700,.13*v);tone(style===2?800:440,.065,'square',.025*v)}
-        else if(kind===4){const f=110*Math.pow(2,(oct*3+shift+(beat%4===0?0:3))/12);tone(f,style===1?.32:.24,style===2?'square':'sawtooth',.11*v);tone(f/2,.25,'sine',.13*v)}
-        else if(kind===5){const f=261.63*Math.pow(2,(oct*4+shift+(beat%8>=4?7:0))/12);tone(f,style===0?.36:style===1?.55:.17,style===2?'square':'triangle',.12*v);tone(f*1.5,.18,'sine',.035*v)}
-        else if(kind===6){const f=392*Math.pow(2,(oct*3+shift+(beat%4)*2)/12);tone(f,style===2?.09:.18,style===1?'sine':'triangle',.13*v)}
-        else{tone(style===1?360:style===2?880:560,.11,style===2?'sawtooth':'sine',.10*v,0,style===2?260:170);noise(.04,4800,.035*v)}
-      }catch(err){console.warn('Launchpad audio error',err)}
-    }
-    // Lookahead clock avoids setInterval drift; schedule each beat on AudioContext time.
-    function tick(){
-      if(dead||!active.size||!ctx||ctx.state!=='running')return;
-      const beatLength=60/bpms[style]/4;
-      let guard=0;
-      while(nextBeat<ctx.currentTime+.11&&guard++<12){
-        const due=Math.max(0,nextBeat-ctx.currentTime);
-        for(const i of active){
-          const pattern=patterns[style<3?style:style===7?0:style%3][i%8];
-          const beat=(step+i%3*(style===1?1:0))%16;
-          if(pattern.includes(beat)){
-            // The voice generator schedules against the shared clock offset.
-            scheduledDelay=due;
-            hit(i,step);
-            const pad=pads[i];
-            if(due<.045){pad.classList.add('is-beat');setTimeout(()=>{if(!dead)pad.classList.remove('is-beat')},90)}
-          }
-        }
-        step=(step+1)%16;nextBeat+=beatLength;
+    s.append(style);
+    const wrap=document.createElement('div');wrap.className='areg-music';wrap.innerHTML='<div class="areg-music-tabs"></div><div class="areg-music-board"><div class="areg-music-title"></div><div class="areg-music-keys"></div></div><div class="areg-music-foot"><button class="areg-music-reset">↻ Նորից</button><button class="areg-music-sound">🔊 Ձայնը միացված է</button></div>';s.append(wrap);
+    const tabs=wrap.querySelector('.areg-music-tabs'),board=wrap.querySelector('.areg-music-board'),keys=wrap.querySelector('.areg-music-keys'),title=wrap.querySelector('.areg-music-title');
+    const modes=[['🎹','Դաշնամուր',8],['🎼','Քսիլոֆոն',8],['🥁','Թմբուկներ',6],['🎸','Կիթառ',6],['🎶','Փանֆլեյտա',10]];
+    const tones=['#ff504a','#ff942d','#f8d537','#32c958','#23b7e4','#3b70f4','#aa49e7','#f36bbb','#ed4280'];
+    let mode=0,muted=false,played=0,audio=null,dead=false;
+    function sound(i){if(muted||dead)return;try{
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      if(!audio)audio=new AC();if(audio.state==='suspended')audio.resume().catch(()=>{});
+      const now=audio.currentTime;
+      const envelope=(source,duration,peak=.18)=>{const gain=audio.createGain();gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(peak,now+.009);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);source.connect(gain);gain.connect(audio.destination);source.start(now);source.stop(now+duration+.01)};
+      const note=[261.63,293.66,329.63,349.23,392,440,493.88,523.25,587.33][i];
+      if(mode===2){
+        // Kick, snare, tom and hi-hat: noise + pitched membrane transients.
+        const len=Math.floor(audio.sampleRate*.48),buffer=audio.createBuffer(1,len,audio.sampleRate),data=buffer.getChannelData(0);
+        for(let j=0;j<len;j++)data[j]=(Math.random()*2-1)*Math.exp(-j/(audio.sampleRate*(i>=4?.027:.09)));
+        const noise=audio.createBufferSource();noise.buffer=buffer;
+        const filter=audio.createBiquadFilter();filter.type=i>=4?'highpass':'lowpass';filter.frequency.value=i>=4?4500:i===1?1700:650;
+        noise.connect(filter);const g=audio.createGain();g.gain.value=i>=4?.15:.19;filter.connect(g);g.connect(audio.destination);noise.start(now);noise.stop(now+.48);
+        if(i<4){const osc=audio.createOscillator();osc.type='sine';osc.frequency.setValueAtTime(i===0?155:i===1?220:270,now);osc.frequency.exponentialRampToValueAtTime(i===0?55:i===1?115:95,now+.18);envelope(osc,i===0?.32:.19,.24)}
+      }else{
+        const duration=mode===0?1.25:mode===1?.9:mode===3?1.5:1.1;
+        const osc=audio.createOscillator();osc.type=mode===0?'triangle':mode===3?'sawtooth':'sine';osc.frequency.value=mode===3?note*.5:mode===4?note*2:note;envelope(osc,duration,mode===3?.085:mode===4?.11:mode===0?.15:.2);
+        if(mode===0||mode===1||mode===3){const overtone=audio.createOscillator();overtone.type='sine';overtone.frequency.value=note*(mode===0?2:mode===3?1.5:3.98);envelope(overtone,mode===0?.85:mode===3?1.1:.32,mode===0?.035:mode===3?.03:.07)}
       }
-      if(nextBeat<ctx.currentTime-.5)nextBeat=ctx.currentTime;
+    }catch(e){console.warn('Music audio unavailable',e)}}
+    function play(i,el){sound(i);played++;if(el.classList){el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),140)}
+      const n=document.createElement('span');n.className='areg-music-note';n.textContent=['♪','♫','♬','✦'][i%4];const rect=el.getBoundingClientRect?el.getBoundingClientRect():{left:board.getBoundingClientRect().left+board.clientWidth*.5,top:board.getBoundingClientRect().top+board.clientHeight*.5,width:0},parent=board.getBoundingClientRect();n.style.left=(rect.left-parent.left+rect.width*.4)+'px';n.style.top=(rect.top-parent.top)+'px';board.append(n);setTimeout(()=>n.remove(),1050);
+      // Free musical play: never award stars for tapping instruments.
     }
-    let scheduledDelay=0;
-    function startClock(){
-      if(timer!==null)clearInterval(timer);timer=null;step=0;
-      if(active.size){if(!muted)audioReady();if(ctx){nextBeat=ctx.currentTime+.05;tick();timer=setInterval(tick,25)}}
+    function render(){tabs.replaceChildren();keys.replaceChildren();board.className='areg-music-board '+(['piano','xylophone','drums','guitar','panflute'][mode]);title.textContent=modes[mode][1];
+      modes.forEach(([ico,name],i)=>{const b=document.createElement('button');b.className='areg-music-tab';b.textContent=ico;b.title=name;b.setAttribute('aria-label',name);b.setAttribute('aria-pressed',String(i===mode));b.onclick=()=>{mode=i;played=0;render()};tabs.append(b)});
+      for(let i=0;i<modes[mode][2];i++){const b=document.createElement('button');b.style.setProperty('--index',String(i));b.className='areg-music-key';b.style.setProperty('--tone',tones[i]);b.style.setProperty('--light',tones[i]+'bb');b.textContent=mode===2?'':mode===3?'':mode===4?'':mode===0?'':String(i+1);b.setAttribute('aria-label',modes[mode][1]+' '+(i+1));b.addEventListener('pointerdown',e=>{e.preventDefault();play(i,b)});keys.append(b)}
     }
-    function toggle(i){if(dead)return;const p=pads[i];if(active.has(i)){active.delete(i);p.classList.remove('is-on','is-beat');p.setAttribute('aria-pressed','false')}
-      else{active.add(i);p.classList.add('is-on');p.setAttribute('aria-pressed','true');if(!muted){audioReady();sampleNames.forEach(loadSample)}}
-      if(!active.size){clearInterval(timer);timer=null;step=0}else if(timer===null)startClock();
-      caption.textContent=styles[style]+' · '+active.size+' ռիթմ միացված';
-    }
-    pads.forEach((p,i)=>{p.setAttribute('aria-pressed','false');p.addEventListener('pointerdown',e=>{e.preventDefault();toggle(i)});p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(i)}})});
-    wrap.querySelector('.areg-lp-style').onclick=e=>{style=(style+1)%styles.length;e.currentTarget.textContent='🎵 '+styles[style];updatePadColors();caption.textContent=styles[style]+' · '+bpms[style]+' BPM · '+active.size+' ռիթմ';if(style>=3)sampleNames.forEach(loadSample);startClock()};
-    wrap.querySelector('.areg-lp-mute').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Անձայն':'🔊 Ձայն';if(!muted)audioReady()};
-    const visibility=()=>{if(document.hidden){if(timer!==null){clearInterval(timer);timer=null}}else if(active.size)startClock()};
-    document.addEventListener('visibilitychange',visibility);
-    gameCleanup.push(()=>{dead=true;if(timer!==null)clearInterval(timer);document.removeEventListener('visibilitychange',visibility);ctx?.close().catch(()=>{});css.remove()});
+    wrap.querySelector('.areg-music-reset').onclick=()=>{played=0;render()};
+    wrap.querySelector('.areg-music-sound').onclick=e=>{muted=!muted;e.currentTarget.textContent=muted?'🔇 Ձայնն անջատված է':'🔊 Ձայնը միացված է'};
+
+    // Same local Three.js/WebGL engine used by the approved 3D shape game.
+    let renderer3d=null,scene3d=null,camera3d=null,raf3d=0,resize3d=null,canvas3d=null,hit3d=[];
+    const boot3d=async()=>{
+      try{
+        const THREE=await import('./vendor/three.module.min.js');
+        if(dead)return;
+        const scene=new THREE.Scene();scene3d=scene;
+        const camera=new THREE.PerspectiveCamera(38,1,.1,100);camera3d=camera;camera.position.set(0,12.5,2.5);camera.lookAt(0,0,0);
+        const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer3d=renderer;
+        renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+        renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+        renderer.domElement.style.cssText='position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:2';
+        canvas3d=renderer.domElement;board.append(canvas3d);keys.style.visibility='hidden';
+        scene.add(new THREE.HemisphereLight(0xffffff,0x6a4a39,2.4));
+        const lamp=new THREE.DirectionalLight(0xffedcb,3.2);lamp.position.set(-4,8,6);lamp.castShadow=true;lamp.shadow.mapSize.set(1024,1024);scene.add(lamp);
+        const fill=new THREE.DirectionalLight(0x90caff,1.6);fill.position.set(5,2,-4);scene.add(fill);
+        const material=(color,metalness=0,roughness=.38)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
+        const wood=material('#b87436'),dark=material('#35221c'),white=material('#fffaf0'),silver=material('#c9d5df',.72,.23),gold=material('#f5bf46',.35,.25);
+        const rainbow=['#ed444b','#f58c29','#f6d942','#33bd5e','#23bde3','#3979ef','#a54bd9','#ee70a7'];
+        let group=null;
+        const mesh=(parent,geometry,mat,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geometry,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m};
+        const box=(parent,w,h,d,mat,x=0,y=0,z=0)=>mesh(parent,new THREE.BoxGeometry(w,h,d),mat,x,y,z);
+        const cylinder=(parent,rt,rb,h,mat,x=0,y=0,z=0)=>mesh(parent,new THREE.CylinderGeometry(rt,rb,h,32),mat,x,y,z);
+        const addHit=(obj,i)=>{obj.userData.noteIndex=i;hit3d.push(obj)};
+        const rebuild=()=>{
+          if(group){scene.remove(group);group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&o.material!==wood&&o.material!==dark&&o.material!==white&&o.material!==silver&&o.material!==gold)o.material.dispose()})}
+          group=new THREE.Group();scene.add(group);hit3d=[];
+          if(mode===0){
+            box(group,7,.35,2.65,gold,0,-.45,0);
+            box(group,6.8,.28,2.45,dark,0,-.23,0);
+            for(let i=0;i<8;i++){
+              const x=(i-3.5)*.82;
+              const key=box(group,.77,.25,2.1,material(rainbow[i],.12,.23),x,-.01,.18);addHit(key,i);
+              box(group,.65,.09,.52,material('#fff3c9'),x,.14,1.05);
+              if(![2,6,7].includes(i)){const black=box(group,.43,.31,1.18,dark,x+.4,.24,-.34);addHit(black,i)}
+            }
+          }else if(mode===1){
+            box(group,5.9,.32,2.9,wood,0,-.6,0);
+            for(let i=0;i<8;i++){const bar=box(group,4.9-i*.32,.23,.31,material(rainbow[i],.32,.22),0,-.2,1.12-i*.32);addHit(bar,i);
+              cylinder(group,.08,.08,.07,silver,-(2.2-i*.14),-.03,1.12-i*.32);cylinder(group,.08,.08,.07,silver,2.2-i*.14,-.03,1.12-i*.32)}
+            for(let i=0;i<2;i++){const stick=cylinder(group,.075,.075,2.6,wood,-2+i*4,.0,2);stick.rotation.z=.65*(i?1:-1)}
+          }else if(mode===2){
+            for(let i=0;i<6;i++){const x=(i%3-1)*2.05,z=(Math.floor(i/3)-.5)*2.4;const shell=cylinder(group,.78,.84,.65,material(i>3?'#c9a65d':'#a65a38',.35,.27),x,-.3,z);const head=cylinder(group,.79,.79,.07,i>3?gold:white,x,.08,z);addHit(head,i);
+              cylinder(group,.06,.06,.55,silver,x,-.92,z)}
+          }else if(mode===3){
+            const body=cylinder(group,1.45,1.2,.5,wood,0,-.3,.8);body.scale.set(1.08,1,1.35);
+            cylinder(group,.48,.48,.53,dark,0,-.01,.8);
+            box(group,1.05,.3,4.1,wood,0,-.3,-1.65);
+            box(group,.85,.12,3.65,dark,0,-.11,-1.6);
+            for(let i=0;i<6;i++){const x=(i-2.5)*.14;const string=box(group,.014,.025,5.8,silver,x,.04,-.2);addHit(string,i)}
+          }else{
+            for(let i=0;i<10;i++){const h=3.6-i*.27,x=(i-4.5)*.58;const pipe=cylinder(group,.25,.25,h,wood,x,-h*.5+.6,0);const rim=cylinder(group,.24,.24,.055,dark,x,.63,0);addHit(rim,i)}
+            box(group,6.2,.32,.65,material('#e8b954'),0,-.65,.34);
+            box(group,6.3,.15,.75,material('#9e3932'),0,-.95,.34);
+          }
+          group.rotation.y=0;group.rotation.x=0;
+        };
+        rebuild();
+        // Keep the existing mode buttons; refresh the WebGL instrument after mode changes.
+        tabs.addEventListener('click',()=>{if(!dead)rebuild()});
+        const pointer=e=>{e.preventDefault();const rect=canvas3d.getBoundingClientRect(),point=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
+          const ray=new THREE.Raycaster();ray.setFromCamera(point,camera);const hits=ray.intersectObjects(hit3d,false);if(hits.length){const o=hits[0].object,i=o.userData.noteIndex;play(i,o);const original=o.scale.y;o.scale.y=original*.87;setTimeout(()=>{if(!dead)o.scale.y=original},115)}};
+        canvas3d.addEventListener('pointerdown',pointer);
+        resize3d=()=>{const w=board.clientWidth,h=board.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};
+        resize3d();addEventListener('resize',resize3d);
+        const animate=()=>{if(dead)return;raf3d=requestAnimationFrame(animate);renderer.render(scene,camera)};animate();
+        gameCleanup.push(()=>{cancelAnimationFrame(raf3d);removeEventListener('resize',resize3d);renderer.dispose();canvas3d.remove()});
+      }catch(error){console.warn('3D musical instruments unavailable; interactive fallback retained',error);keys.style.visibility='visible'}
+    };
+
+    gameCleanup.push(()=>{dead=true;audio?.close().catch(()=>{});style.remove()});
+    render();boot3d();
   }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
