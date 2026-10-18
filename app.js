@@ -3219,11 +3219,34 @@
     const regionAt=(p)=>{const sx=Math.floor(p.x),sy=Math.floor(p.y),origin=sy*W+sx;let seed=origin;const empty=new Uint8Array(W*H);if(barriers[seed]){let found=false;for(let radius=1;radius<=18&&!found;radius++){for(let dy=-radius;dy<=radius&&!found;dy++)for(let dx=-radius;dx<=radius;dx++){const xx=sx+dx,yy=sy+dy;if(xx>=0&&xx<W&&yy>=0&&yy<H&&!barriers[yy*W+xx]){seed=yy*W+xx;found=true;break}}}if(!found)return empty}const region=new Uint8Array(W*H),queue=new Int32Array(W*H);let head=0,tail=1;queue[0]=seed;region[seed]=1;while(head<tail){const k=queue[head++],x=k%W;const visit=n=>{if(!barriers[n]&&!region[n]){region[n]=1;queue[tail++]=n}};if(x>0)visit(k-1);if(x<W-1)visit(k+1);if(k>=W)visit(k-W);if(k<W*(H-1))visit(k+W)}if(region[0]||region[W-1]||region[(H-1)*W]||region[W*H-1])return empty;return region};
     const protectRegion=()=>{if(!strokeRegion||!strokeBefore)return;const image=snapshot(),data=image.data,original=strokeBefore.data;for(let k=0;k<W*H;k++){if(!strokeRegion[k]){const i=k*4;data[i]=original[i];data[i+1]=original[i+1];data[i+2]=original[i+2];data[i+3]=original[i+3]}}restore(image)};
     const bucket=(x,y)=>{const image=snapshot(),d=image.data,k0=(Math.floor(y)*W+Math.floor(x))*4,seed=Array.from(d.slice(k0,k0+4)),temp=document.createElement('canvas').getContext('2d');temp.fillStyle=color;temp.fillRect(0,0,1,1);const target=temp.getImageData(0,0,1,1).data;if(seed.every((v,i)=>v===target[i]))return;const seen=new Uint8Array(W*H),stack=[Math.floor(y)*W+Math.floor(x)];while(stack.length){const k=stack.pop();if(k<0||k>=W*H||seen[k])continue;seen[k]=1;const i=k*4;if(Math.abs(d[i]-seed[0])>20||Math.abs(d[i+1]-seed[1])>20||Math.abs(d[i+2]-seed[2])>20||Math.abs(d[i+3]-seed[3])>20)continue;d[i]=target[0];d[i+1]=target[1];d[i+2]=target[2];d[i+3]=255;const xx=k%W;if(xx)stack.push(k-1);if(xx<W-1)stack.push(k+1);if(k>=W)stack.push(k-W);if(k<W*(H-1))stack.push(k+W)}restore(image)};
+    // Magic painting: an isolated, editable placement preview. Main canvas is untouched until ✓.
+    const placementLayer=document.createElement('canvas');
+    placementLayer.width=W;placementLayer.height=H;
+    placementLayer.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3';
+    const paper=canvas.parentElement;paper.style.position='relative';paper.appendChild(placementLayer);
+    const placementCtx=placementLayer.getContext('2d');
+    const placementBar=document.createElement('div');
+    placementBar.style.cssText='position:absolute;left:50%;top:8px;transform:translateX(-50%);display:none;gap:7px;z-index:4;align-items:center';
+    paper.appendChild(placementBar);
+    let placement=null,placementDrag=null;
+    const placeButton=(label,aria,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',aria);b.style.cssText='min-height:39px;min-width:42px;border:2px solid white;border-radius:12px;background:linear-gradient(#6e93dc,#304a89);color:white;font-size:19px;box-shadow:0 3px 7px #0007';b.addEventListener('click',fn);placementBar.appendChild(b);return b};
+    const drawPlacement=(target)=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const oldMode=shapeMode,oldColor=color;shapeMode=placement.kind;color=placement.color;target.save();target.translate(cx,cy);target.rotate(placement.angle);target.translate(-cx,-cy);const main=ctx;ctx=target;try{shape(placement.a,placement.b)}finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
+    const renderPlacement=()=>{placementCtx.clearRect(0,0,W,H);if(!placement){placementBar.style.display='none';return}drawPlacement(placementCtx);placementBar.style.display='flex';hint.textContent='↔ Տեղաշարժիր, ⟳ շրջիր, +/− չափափոխիր, ✓ հաստատիր'};
+    placeButton('⟲','Պտտել ձախ',()=>{if(placement){placement.angle-=Math.PI/12;renderPlacement()}});
+    placeButton('⟳','Պտտել աջ',()=>{if(placement){placement.angle+=Math.PI/12;renderPlacement()}});
+    placeButton('−','Փոքրացնել',()=>{if(placement){const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;for(const p of [placement.a,placement.b]){p.x=cx+(p.x-cx)*.85;p.y=cy+(p.y-cy)*.85}renderPlacement()}});
+    placeButton('+','Մեծացնել',()=>{if(placement){const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;for(const p of [placement.a,placement.b]){p.x=cx+(p.x-cx)*1.15;p.y=cy+(p.y-cy)*1.15}renderPlacement()}});
+    placeButton('✕','Չեղարկել',()=>{placement=null;renderPlacement()});
+    const confirmPlacement=placeButton('✓','Հաստատել դիրքը',()=>{if(!placement)return;saveStep();const before=snapshot();drawPlacement(ctx);rememberOutline(before);placement=null;renderPlacement()});
+    confirmPlacement.style.background='linear-gradient(#54e68c,#178c4d)';
+    canvas.addEventListener('pointerdown',e=>{if(!placement)return;e.preventDefault();e.stopImmediatePropagation();try{canvas.setPointerCapture(e.pointerId)}catch(_){}placementDrag=point(e)});
+    canvas.addEventListener('pointermove',e=>{if(!placement||!placementDrag)return;e.preventDefault();e.stopImmediatePropagation();const p=point(e),dx=p.x-placementDrag.x,dy=p.y-placementDrag.y;for(const v of [placement.a,placement.b]){v.x+=dx;v.y+=dy}placementDrag=p;renderPlacement()});
+    for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(placement){e.stopImmediatePropagation();placementDrag=null}});
     canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
     canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
-    const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);shape(point(e),start);rememberOutline(base)}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
+    const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
     canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',()=>{down=false;base=null;strokeRegion=null;strokeBefore=null});
-    gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;canvas.width=1;canvas.height=1});
+    gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();canvas.width=1;canvas.height=1});
   }
   function gameStickers(){
     // Self-contained music studio. Do not modify shared header, stars or other activities.
