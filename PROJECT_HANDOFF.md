@@ -1,3 +1,11 @@
+## 2026-10-18 — USER-APPROVED FINAL PRODUCTION BASELINE (AREG Kids Game)
+- User explicitly confirmed that the released game now works correctly in the real DotKiosk installation and requested a final check, designation as the final approved version, and moving on to building subsequent games.
+- **Canonical approved gameplay baseline: main merge commit `89ec450bd54d7d49fb2db3dd7a1fb1b9c2920290` (PR #109).** This is the immutable reference for future development and rollback. Subsequent documentation-only commits must NOT be mistaken for a new gameplay baseline.
+- Final verification: compare of `89ec450...` to `main` was identical (0 ahead/behind); PR #109 was merged; GitHub Actions Full Game Audit run #824 (39081626462) completed with all four jobs successful: assets-and-code, mobile-browser, ios-webkit, ios-pwa-music. Production `app.js` includes selected color/photo/blur theme forwarding to puzzle iframe; `mind-jigsaw.html` includes user-approved 35px back arrow.
+- **Real device confirmation comes from user**, not from automated CI: DotKiosk now shows the approved version. No new device screenshots, exhaustive edge-case tests, or independent physical-device verification are claimed.
+- Final approved jigsaw includes five stages (4, 12, 16, 20, 36 pieces), user-approved reward animations and stars, approved golden top header and original blue settings gear, and theme matching. Preserve all approved existing game sections, assets, music, stars, navigation, iOS PWA/DotKiosk cache and compatibility.
+- **Next phase:** build additional real playable games, one at a time, using isolated trial branches, Safari standalone + full-app integration testing, required handoff/status updates, CI and user review before main merge. Do not modify or replace this approved baseline without explicit user authorization. The unmerged AREG TEST trial PR #104 is not the production baseline.
+
 ## 2026-10-18 — PR #109 delayed WebKit sample correction
 - Run #821: ios-pwa-music, assets-and-code passed. ios-webkit again hit V277, now first WAAPI sample at 308ms due to heavy CI scheduling; native animation states/durations were correct and completion sampled at 1865ms. Extended sparse first-sample gate to <600ms while still requiring three running paused decoys and a later completed fade/hero transform; no gameplay/animation changes. Await complete CI.
 
