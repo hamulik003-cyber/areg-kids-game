@@ -1,3 +1,6 @@
+## 2026-10-18 — Top-down WebGL music instruments trial
+- User requested true 3D instruments from a top-down camera angle. Trial-only app.js music scene now uses a high near-overhead Three.js camera, zero object-group rotation and colorful piano key surfaces; retains raycast playing and no star rewards. This is a directional refinement, NOT yet a complete premium photorealistic instrument set. Need screenshot/iPhone QA before claiming fidelity. Main/header unchanged.
+
 ## 2026-10-18 — Musical instruments WebGL 3D trial
 - Inspected approved `mind-shapes-deluxe-v4.js`: imports bundled `./vendor/three.module.min.js`, uses `THREE.WebGLRenderer`, actual 3D meshes. The earlier music game was CSS, not the same rendering engine.
 - Updated only trial `app.js` gameStickers to dynamically load the same local Three.js library and draw five playable 3D instrument representations with meshes, lighting, shadows, materials, raycast pointer taps and subtle press motion: piano, xylophone, drum kit, guitar and pan flute. Existing CSS fallback remains if WebGL fails. Removed prior free-play star rewards; canonical header and main unchanged.
