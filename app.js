@@ -492,11 +492,11 @@
   let stableViewportWidth=0, stableViewportHeight=0;
   function syncViewport(){
     const vv=visualViewport;
-    const rawW=vv?.width||innerWidth;
-    const rawH=Math.max(vv?.height||0,innerHeight||0);
+    const rawW=Math.min(innerWidth||Infinity,vv?.width||Infinity,document.documentElement.clientWidth||Infinity);
+    const rawH=Math.min(innerHeight||Infinity,vv?.height||Infinity,document.documentElement.clientHeight||Infinity);
     const orientationChanged=stableViewportWidth&&Math.abs(rawW-stableViewportWidth)>80;
     if(!stableViewportHeight||orientationChanged){stableViewportWidth=rawW;stableViewportHeight=rawH}
-    else{stableViewportWidth=rawW;stableViewportHeight=Math.max(stableViewportHeight,rawH)}
+    else{stableViewportWidth=rawW;stableViewportHeight=rawH}
     const vw=rawW, vh=stableViewportHeight;
     const standalone=matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true;
     const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
