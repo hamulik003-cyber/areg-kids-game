@@ -3332,10 +3332,38 @@
     const frame=ui.querySelector('.frame');frame.style.overflow='hidden';
     paper.style.transformOrigin='center center';
     let zoom=1;
-    const zoomTouches=new Map();let zoomStart=null;
-    paper.addEventListener('pointerdown',e=>{if(placement||e.pointerType!=='touch')return;zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(zoomTouches.size===2){const pts=[...zoomTouches.values()];zoomStart={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),zoom};down=false}},true);
-    paper.addEventListener('pointermove',e=>{if(!zoomTouches.has(e.pointerId))return;zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(zoomStart&&zoomTouches.size===2){e.preventDefault();e.stopPropagation();const pts=[...zoomTouches.values()],distance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);zoom=Math.max(1,Math.min(3,zoomStart.zoom*distance/Math.max(1,zoomStart.distance)));paper.style.transform='scale('+zoom+')'}},true);
-    for(const name of ['pointerup','pointercancel'])paper.addEventListener(name,e=>{zoomTouches.delete(e.pointerId);if(zoomTouches.size<2)zoomStart=null},true);
+    // Multi-touch is exclusively a zoom gesture, never a drawing/shape gesture.
+    const zoomTouches=new Map();let zoomStart=null,gestureBlocked=false;
+    const cancelStroke=()=>{if(down&&base)restore(base);down=false;base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
+    paper.addEventListener('pointerdown',e=>{
+      if(placement||e.pointerType!=='touch')return;
+      zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(zoomTouches.size>=2){
+        cancelStroke();gestureBlocked=true;
+        const pts=[...zoomTouches.values()];
+        zoomStart={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),zoom};
+        e.preventDefault();e.stopImmediatePropagation();
+      }else if(gestureBlocked){e.preventDefault();e.stopImmediatePropagation()}
+    },true);
+    paper.addEventListener('pointermove',e=>{
+      if(!zoomTouches.has(e.pointerId))return;
+      zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(gestureBlocked){e.preventDefault();e.stopImmediatePropagation()}
+      if(zoomStart&&zoomTouches.size>=2){
+        const pts=[...zoomTouches.values()];
+        const distance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+        zoom=Math.max(1,Math.min(3,zoomStart.zoom*distance/Math.max(1,zoomStart.distance)));
+        paper.style.transform='scale('+zoom+')';
+      }
+    },true);
+    const endZoom=e=>{
+      if(!zoomTouches.has(e.pointerId))return;
+      if(gestureBlocked){e.preventDefault();e.stopImmediatePropagation()}
+      zoomTouches.delete(e.pointerId);
+      if(zoomTouches.size<2)zoomStart=null;
+      if(zoomTouches.size===0)gestureBlocked=false;
+    };
+    for(const name of ['pointerup','pointercancel','lostpointercapture'])paper.addEventListener(name,endZoom,true);
     const placementCtx=placementLayer.getContext('2d');
     const placementBar=document.createElement('div');
     placementBar.style.cssText='position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:none;gap:7px;z-index:5;align-items:center;white-space:nowrap';
@@ -3425,9 +3453,9 @@
       renderPlacement()});
     for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(!placement)return;e.stopImmediatePropagation();activePointers.delete(e.pointerId);pinchStart=null;placementDrag=activePointers.size===1?[...activePointers.values()][0]:null});
     canvas.addEventListener('pointerdown',e=>{if(!eyedropper)return;e.preventDefault();e.stopImmediatePropagation();const p=point(e);const rgba=ctx.getImageData(Math.floor(p.x),Math.floor(p.y),1,1).data;if(rgba[3]>20){const hex='#'+[rgba[0],rgba[1],rgba[2]].map(n=>n.toString(16).padStart(2,'0')).join('');setColor(hex);activeColor=inks.length-1;tool='marker';shapeMode=null;updateToolTab();toolButtons.forEach((button,id)=>button.classList.toggle('on',id===tool));hint.textContent='Գույնն ընտրված է'}else hint.textContent='Դիպչիր գունավոր հատվածին';eyedropper=false;pickButton.style.outline='none'},true);
-    canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
-    canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
-    const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
+    canvas.addEventListener('pointerdown',e=>{if(gestureBlocked||zoomTouches.size>1)return;if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
+    canvas.addEventListener('pointermove',e=>{if(gestureBlocked||!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
+    const finish=e=>{if(gestureBlocked){cancelStroke();return}if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
     canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',()=>{down=false;base=null;strokeRegion=null;strokeBefore=null});
     gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();rotateHandle.remove();cornerHandles.forEach(({handle})=>handle.remove());canvas.width=1;canvas.height=1});
   }
