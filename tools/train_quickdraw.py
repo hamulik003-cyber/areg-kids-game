@@ -12,7 +12,7 @@ from urllib.parse import quote
 import tensorflow as tf
 
 CATEGORIES = ["circle", "square", "triangle", "star", "heart", "flower", "house", "sun", "arrow", "cloud", "tree", "moon", "diamond", "umbrella", "fish", "apple"]
-SAMPLES_PER_CLASS = 3500
+SAMPLES_PER_CLASS = 1200
 ROOT = Path("quickdraw-model")
 ROOT.mkdir(exist_ok=True)
 xs, ys = [], []
