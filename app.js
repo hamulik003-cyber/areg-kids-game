@@ -3225,10 +3225,12 @@
       }else if(tool==='rainbow'){
         ['#ff4c6e','#ffad40','#ffe26d','#54d887','#4bb7f5','#9a73ed'].forEach((c,i)=>{ctx.strokeStyle=c;ctx.lineWidth=Math.max(2,width/2.8);ctx.beginPath();ctx.moveTo(q.x,q.y+(i-2.5)*width/2.5);ctx.lineTo(p.x,p.y+(i-2.5)*width/2.5);ctx.stroke()})
       }else if(tool==='pencil'){
-        // Continuous graphite core; subtle translucent edge, no scattered dots.
+        // Solid uninterrupted pencil line: lighter color, not transparency or grain.
         const size=Math.max(1.6,width*.27);
-        ctx.globalAlpha=.16;ctx.lineWidth=size+1.1;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
-        ctx.globalAlpha=.87;ctx.lineWidth=size;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+        const rgb=color.match(/^#([0-9a-f]{6})$/i);
+        if(rgb){const n=parseInt(rgb[1],16),mix=v=>Math.round(v*.72+255*.28);ctx.strokeStyle='rgb('+mix((n>>16)&255)+','+mix((n>>8)&255)+','+mix(n&255)+')';ctx.fillStyle=ctx.strokeStyle}
+        ctx.globalAlpha=1;ctx.lineWidth=size;ctx.lineCap='round';ctx.lineJoin='round';
+        ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
         if(length<.5){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,6.283);ctx.fill()}
       }else if(tool==='marker'){
         // Felt-tip marker: wide saturated body with soft translucent edge.
