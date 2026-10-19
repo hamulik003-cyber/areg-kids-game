@@ -1,3 +1,8 @@
+## 2026-10-20 — 3D Car Wash first AREG TEST prototype (NOT approved)
+- User explicitly requested replacing «Խառնիր գույները» with a high-quality real interactive 3D car-wash game inspired by their screen recording, exclusively in installed AREG TEST Home Screen, no Safari links or main/DotKiosk change.
+- Trial-only: added `car-wash-3d.html` with Three.js WebGL procedural 3D car, lit garage, shadows, dirt patches, four touch tools, particles, cleaning progress and multi-car stages. In `app.js` only `gameMix()` now opens this iframe in the established `mind-v4-mode` game area beneath the canonical parent header. No other games modified.
+- Prototype is FIRST ITERATION, not yet proven on iPhone or approved; test real appearance, touch, performance, and reference fidelity. Existing trial branch `trial/areg-test-full-app-20261017`, production main protected. Render autoDeploy=yes; check actual live deploy commit before user tests.
+
 ## 2026-10-18 — Top-down WebGL music instruments trial
 - User requested true 3D instruments from a top-down camera angle. Trial-only app.js music scene now uses a high near-overhead Three.js camera, zero object-group rotation and colorful piano key surfaces; retains raycast playing and no star rewards. This is a directional refinement, NOT yet a complete premium photorealistic instrument set. Need screenshot/iPhone QA before claiming fidelity. Main/header unchanged.
 
