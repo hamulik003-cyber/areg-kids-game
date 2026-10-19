@@ -3225,16 +3225,11 @@
       }else if(tool==='rainbow'){
         ['#ff4c6e','#ffad40','#ffe26d','#54d887','#4bb7f5','#9a73ed'].forEach((c,i)=>{ctx.strokeStyle=c;ctx.lineWidth=Math.max(2,width/2.8);ctx.beginPath();ctx.moveTo(q.x,q.y+(i-2.5)*width/2.5);ctx.lineTo(p.x,p.y+(i-2.5)*width/2.5);ctx.stroke()})
       }else if(tool==='pencil'){
-        // Graphite: thin soft core with translucent grain and irregular pressure.
-        const radius=Math.max(.8,width*.13),steps=Math.max(1,Math.ceil(length/1.8));
-        ctx.lineWidth=radius*2;ctx.globalAlpha=.35;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
-        for(let i=0;i<=steps;i++){
-          const t=i/steps,x=q.x+dx*t,y=q.y+dy*t;
-          for(let j=0;j<4;j++){
-            const angle=Math.random()*6.283,dist=Math.sqrt(Math.random())*radius*1.4;
-            ctx.globalAlpha=.08+Math.random()*.23;ctx.beginPath();ctx.arc(x+Math.cos(angle)*dist,y+Math.sin(angle)*dist,.25+Math.random()*.55,0,6.283);ctx.fill();
-          }
-        }
+        // Continuous graphite core; subtle translucent edge, no scattered dots.
+        const size=Math.max(1.6,width*.27);
+        ctx.globalAlpha=.16;ctx.lineWidth=size+1.1;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+        ctx.globalAlpha=.87;ctx.lineWidth=size;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+        if(length<.5){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,6.283);ctx.fill()}
       }else if(tool==='marker'){
         // Felt-tip marker: wide saturated body with soft translucent edge.
         const size=Math.max(3,width*1.3);
