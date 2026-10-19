@@ -3272,7 +3272,7 @@
           const target=t.normalized.pts;
           for(const reversed of [false,true]){
             const arr=reversed?input.pts.slice().reverse():input.pts;
-            const offsets=t.closed?[0,10,20,30,40,50,60,70]:[0];
+            const offsets=t.closed?Array.from({length:N},(_,i)=>i):[0];
             for(const offset of offsets){
               let error=0;for(let i=0;i<N;i++){const p=arr[i],q=target[(i+offset)%N];error+=(p.x-q.x)**2+(p.y-q.y)**2}
               error=Math.sqrt(error/N)+aspect*.045;
@@ -3284,7 +3284,7 @@
         const t=best.t,x=Math.min(...raw.map(p=>p.x)),y=Math.min(...raw.map(p=>p.y)),w=Math.max(...raw.map(p=>p.x))-x,h=Math.max(...raw.map(p=>p.y))-y;
         const fitted=norm(t.pts).pts;
         const vertices=fitted.map(p=>({x:p.x/Math.max(1e-5,Math.max(...fitted.map(v=>v.x))),y:p.y/Math.max(1e-5,Math.max(...fitted.map(v=>v.y)))}));
-        return {kind:t.kind==='circle'||t.kind==='ellipse'?t.kind:t.kind==='smart-closed-curve'?'smart-closed-curve':t.kind==='smart-curve'?'smart-curve':'smart-polyline',a:{x,y},b:{x:x+w,y:y+h},vertices};
+        return {kind:t.kind==='circle'||t.kind==='ellipse'?t.kind:t.kind==='smart-closed-curve'?'smart-closed-curve':t.kind==='smart-curve'?'smart-curve':'smart-polyline',a:{x,y},b:{x:x+w,y:y+h},vertices,closed:t.closed};
       };
     })();
         const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
@@ -3338,7 +3338,7 @@
           else v=[{x,y},{x:right,y},{x:right,y:bottom},{x,y:bottom}];
         }else if(placement.kind==='smart-diamond'){const x=Math.min(...v.map(p=>p.x)),y=Math.min(...v.map(p=>p.y)),right=Math.max(...v.map(p=>p.x)),bottom=Math.max(...v.map(p=>p.y));v=[{x:(x+right)/2,y},{x:right,y:(y+bottom)/2},{x:(x+right)/2,y:bottom},{x,y:(y+bottom)/2}]}
         target.beginPath();target.moveTo(v[0].x,v[0].y);for(const p of v.slice(1))target.lineTo(p.x,p.y);
-        if(placement.kind!=='smart-polyline')target.closePath();
+        if(placement.kind!=='smart-polyline'||placement.closed)target.closePath();
         target.strokeStyle=placement.color;target.lineWidth=width;target.lineJoin='round';target.lineCap='round';target.globalAlpha=1;target.stroke();
       }else shape(placement.a,placement.b)
     }finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
