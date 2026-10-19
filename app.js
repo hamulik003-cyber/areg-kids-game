@@ -3272,7 +3272,7 @@
           const radialError=radii.reduce((sum,v)=>sum+Math.abs(v-1),0)/radii.length;
           let arc=0;for(let i=1;i<sampled.length;i++)arc+=Math.hypot(sampled[i].x-sampled[i-1].x,sampled[i].y-sampled[i-1].y);
           const ellipseLength=Math.PI*(3*(input.w/2+input.h/2)-Math.sqrt((3*input.w/2+input.h/2)*(input.w/2+3*input.h/2)));
-          if(radialError<.16&&Math.abs(arc-ellipseLength)/ellipseLength<.23){
+          if(radialError<.075&&Math.abs(arc-ellipseLength)/ellipseLength<.16){
             return {kind:Math.abs(input.w-input.h)/Math.max(input.w,input.h)<.18?'circle':'ellipse',a:{x:left,y:top},b:{x:left+input.w,y:top+input.h},closed:true};
           }
         }
