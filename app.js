@@ -3239,6 +3239,9 @@
       const star=(n=5)=>polygon(Array.from({length:2*n},(_,i)=>{const r=i%2?.21:.48,a=-Math.PI/2+i*Math.PI/n;return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}));
       add('star-5',star(5));add('star-6',star(6));
       add('heart',curve(t=>{const a=2*Math.PI*t;return {x:.5+(.029*16*Math.pow(Math.sin(a),3)),y:.45-(.029*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a)))}}),true,'smart-closed-curve');
+      // Smooth flower outlines are recognized as curves, not jagged polygons.
+      add('flower-5',curve(t=>{const a=2*Math.PI*t,r=.32+.14*Math.cos(5*a);return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}),true,'smart-closed-curve');
+      add('flower-6',curve(t=>{const a=2*Math.PI*t,r=.32+.14*Math.cos(6*a);return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}),true,'smart-closed-curve');
       poly('plus',[{x:.38,y:.04},{x:.62,y:.04},{x:.62,y:.38},{x:.96,y:.38},{x:.96,y:.62},{x:.62,y:.62},{x:.62,y:.96},{x:.38,y:.96},{x:.38,y:.62},{x:.04,y:.62},{x:.04,y:.38},{x:.38,y:.38}]);
       poly('cross',[{x:.18,y:.04},{x:.5,y:.36},{x:.82,y:.04},{x:.96,y:.18},{x:.64,y:.5},{x:.96,y:.82},{x:.82,y:.96},{x:.5,y:.64},{x:.18,y:.96},{x:.04,y:.82},{x:.36,y:.5},{x:.04,y:.18}]);
       poly('right-arrow',[{x:.04,y:.35},{x:.64,y:.35},{x:.64,y:.08},{x:.97,y:.5},{x:.64,y:.92},{x:.64,y:.65},{x:.04,y:.65}]);
@@ -3303,7 +3306,7 @@
                 const radius=vertices.reduce((a,p)=>a+dist(p,center),0)/n;
                 ideal=Array.from({length:n},(_,i)=>({x:center.x+radius*Math.cos(phase+direction*2*Math.PI*i/n),y:center.y+radius*Math.sin(phase+direction*2*Math.PI*i/n)}));
               }
-              if(!hasConcave||n>=8){
+              if(!hasConcave){
                 const left=Math.min(...ideal.map(p=>p.x)),top=Math.min(...ideal.map(p=>p.y));
                 const right=Math.max(...ideal.map(p=>p.x)),bottom=Math.max(...ideal.map(p=>p.y));
                 return {kind:'smart-polyline',closed:true,a:{x:left,y:top},b:{x:right,y:bottom},vertices:ideal.map(p=>({x:(p.x-left)/(right-left||1),y:(p.y-top)/(bottom-top||1)}))};
