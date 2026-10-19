@@ -3225,7 +3225,16 @@
       const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,w),y:(p.y-minY)/Math.max(1,h)})):null});
       if(!closed){
         const v=simplify(filtered,diag*.055);
-        if(v.length>=4&&v.length<=15){let turns=0;for(let i=1;i<v.length-1;i++){const u=v[i-1],p=v[i],q=v[i+1],cross=(p.x-u.x)*(q.y-p.y)-(p.y-u.y)*(q.x-p.x);if(Math.abs(cross)>diag*diag*.008)turns++}if(turns>=2)return pack('smart-polyline',v)}
+        if(v.length>=4&&v.length<=15){
+          // Corners have concentrated direction changes; curved handwriting spreads turns
+          // over many short segments. Do not turn a handwritten 3 into a sharp zigzag.
+          const sampled=[];const step=Math.max(7,diag*.045);
+          for(let i=1;i<filtered.length-1;i++){const prev=filtered[Math.max(0,i-3)],next=filtered[Math.min(filtered.length-1,i+3)];const u={x:filtered[i].x-prev.x,y:filtered[i].y-prev.y},z={x:next.x-filtered[i].x,y:next.y-filtered[i].y};const den=Math.hypot(u.x,u.y)*Math.hypot(z.x,z.y);if(den>1)sampled.push(Math.acos(Math.max(-1,Math.min(1,(u.x*z.x+u.y*z.y)/den))))}
+          const sharp=sampled.filter(x=>x>1.05).length;
+          const avg=sampled.length?sampled.reduce((x,y)=>x+y,0)/sampled.length:0;
+          if(sharp>=2&&avg>.22)return pack('smart-polyline',v);
+          return pack('smart-curve',filtered.filter((_,i)=>i%3===0).concat([last]));
+        }
         if(v.length===2)return pack('line',[first,last]);
         return null;
       }
@@ -3290,6 +3299,12 @@
       if(placement.kind.startsWith('smart-')&&placement.vertices){
         const w=placement.b.x-placement.a.x,h=placement.b.y-placement.a.y;
         let v=placement.vertices.map(p=>({x:placement.a.x+p.x*w,y:placement.a.y+p.y*h}));
+        if(placement.kind==='smart-curve'){
+          target.beginPath();target.moveTo(v[0].x,v[0].y);
+          for(let i=1;i<v.length-1;i++){const p=v[i],q=v[i+1];target.quadraticCurveTo(p.x,p.y,(p.x+q.x)/2,(p.y+q.y)/2)}
+          if(v.length>1){const p=v[v.length-1];target.lineTo(p.x,p.y)}
+          target.strokeStyle=placement.color;target.lineWidth=width;target.lineJoin='round';target.lineCap='round';target.globalAlpha=1;target.stroke();return;
+        }
         if(placement.kind==='smart-square'||placement.kind==='smart-rectangle'){
           const x=Math.min(...v.map(p=>p.x)),y=Math.min(...v.map(p=>p.y)),right=Math.max(...v.map(p=>p.x)),bottom=Math.max(...v.map(p=>p.y));
           if(placement.kind==='smart-square'){const side=Math.min(right-x,bottom-y),cx=(x+right)/2,cy=(y+bottom)/2;v=[{x:cx-side/2,y:cy-side/2},{x:cx+side/2,y:cy-side/2},{x:cx+side/2,y:cy+side/2},{x:cx-side/2,y:cy+side/2}]}
