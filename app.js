@@ -3226,27 +3226,54 @@
     const paper=canvas.parentElement;paper.style.position='relative';paper.appendChild(placementLayer);
     const placementCtx=placementLayer.getContext('2d');
     const placementBar=document.createElement('div');
-    placementBar.style.cssText='position:absolute;left:50%;top:8px;transform:translateX(-50%);display:none;gap:7px;z-index:4;align-items:center';
+    placementBar.style.cssText='position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:none;gap:7px;z-index:5;align-items:center;white-space:nowrap';
     paper.appendChild(placementBar);
-    let placement=null,placementDrag=null;
+    const rotateHandle=document.createElement('button');
+    rotateHandle.type='button';rotateHandle.textContent='⟳';rotateHandle.setAttribute('aria-label','Պտտել պատկերը');
+    rotateHandle.style.cssText='position:absolute;display:none;z-index:6;width:43px;height:43px;border-radius:50%;border:2px solid white;background:linear-gradient(#80baff,#375da2);color:white;font-size:25px;touch-action:none;transform:translate(-50%,-50%);box-shadow:0 3px 9px #0007';
+    paper.appendChild(rotateHandle);
+    let placement=null,placementDrag=null,rotateDrag=null;
+    const activePointers=new Map();let pinchStart=null;
     const placeButton=(label,aria,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',aria);b.style.cssText='min-height:39px;min-width:42px;border:2px solid white;border-radius:12px;background:linear-gradient(#6e93dc,#304a89);color:white;font-size:19px;box-shadow:0 3px 7px #0007';b.addEventListener('click',fn);placementBar.appendChild(b);return b};
-    const drawPlacement=(target)=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const oldMode=shapeMode,oldColor=color;shapeMode=placement.kind;color=placement.color;target.save();target.translate(cx,cy);target.rotate(placement.angle);target.translate(-cx,-cy);const main=ctx;ctx=target;try{shape(placement.a,placement.b)}finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
-    const renderPlacement=()=>{placementCtx.clearRect(0,0,W,H);if(!placement){placementBar.style.display='none';return}drawPlacement(placementCtx);placementBar.style.display='flex';hint.textContent='↔ Տեղաշարժիր, ⟳ շրջիր, +/− չափափոխիր, ✓ հաստատիր'};
-    placeButton('⟲','Պտտել ձախ',()=>{if(placement){placement.angle-=Math.PI/12;renderPlacement()}});
-    placeButton('⟳','Պտտել աջ',()=>{if(placement){placement.angle+=Math.PI/12;renderPlacement()}});
-    placeButton('−','Փոքրացնել',()=>{if(placement){const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;for(const p of [placement.a,placement.b]){p.x=cx+(p.x-cx)*.85;p.y=cy+(p.y-cy)*.85}renderPlacement()}});
-    placeButton('+','Մեծացնել',()=>{if(placement){const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;for(const p of [placement.a,placement.b]){p.x=cx+(p.x-cx)*1.15;p.y=cy+(p.y-cy)*1.15}renderPlacement()}});
+    const resizePlacement=factor=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;for(const p of [placement.a,placement.b]){p.x=cx+(p.x-cx)*factor;p.y=cy+(p.y-cy)*factor}renderPlacement()};
+    const drawPlacement=target=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const oldMode=shapeMode,oldColor=color;shapeMode=placement.kind;color=placement.color;target.save();target.translate(cx,cy);target.rotate(placement.angle);target.translate(-cx,-cy);const main=ctx;ctx=target;try{shape(placement.a,placement.b)}finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
+    const renderPlacement=()=>{
+      placementCtx.clearRect(0,0,W,H);
+      if(!placement){placementBar.style.display='none';rotateHandle.style.display='none';activePointers.clear();pinchStart=null;return}
+      drawPlacement(placementCtx);
+      const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;
+      const w=Math.max(12,Math.abs(placement.a.x-placement.b.x)),h=Math.max(12,Math.abs(placement.a.y-placement.b.y));
+      placementCtx.save();placementCtx.translate(cx,cy);placementCtx.rotate(placement.angle);
+      placementCtx.strokeStyle='#3299e8';placementCtx.lineWidth=2.8;placementCtx.setLineDash([9,5]);
+      placementCtx.strokeRect(-w/2-8,-h/2-8,w+16,h+16);placementCtx.setLineDash([]);
+      placementCtx.fillStyle='#fff';placementCtx.strokeStyle='#3299e8';
+      for(const x of [-w/2-8,w/2+8])for(const y of [-h/2-8,h/2+8]){placementCtx.beginPath();placementCtx.rect(x-5,y-5,10,10);placementCtx.fill();placementCtx.stroke()}
+      placementCtx.restore();
+      const handleY=cy-(h/2+32)*Math.cos(placement.angle);
+      const handleX=cx+(h/2+32)*Math.sin(placement.angle);
+      rotateHandle.style.left=(handleX/W*100)+'%';rotateHandle.style.top=(handleY/H*100)+'%';
+      rotateHandle.style.display='block';placementBar.style.display='flex';
+      hint.textContent='Մատով տեղափոխիր • 2 մատով չափափոխիր • ⟳ շրջիր • ✓ հաստատիր';
+    };
+    rotateHandle.addEventListener('pointerdown',e=>{if(!placement)return;e.preventDefault();e.stopPropagation();rotateHandle.setPointerCapture(e.pointerId);rotateDrag={id:e.pointerId}});
+    rotateHandle.addEventListener('pointermove',e=>{if(!placement||!rotateDrag||rotateDrag.id!==e.pointerId)return;e.preventDefault();const p=point(e),cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;placement.angle=Math.atan2(p.x-cx,cy-p.y);renderPlacement()});
+    for(const name of ['pointerup','pointercancel','lostpointercapture'])rotateHandle.addEventListener(name,()=>{rotateDrag=null});
+    placeButton('−','Փոքրացնել',()=>resizePlacement(.85));
+    placeButton('+','Մեծացնել',()=>resizePlacement(1.15));
     placeButton('✕','Չեղարկել',()=>{placement=null;renderPlacement()});
     const confirmPlacement=placeButton('✓','Հաստատել դիրքը',()=>{if(!placement)return;saveStep();const before=snapshot();drawPlacement(ctx);rememberOutline(before);placement=null;renderPlacement()});
     confirmPlacement.style.background='linear-gradient(#54e68c,#178c4d)';
-    canvas.addEventListener('pointerdown',e=>{if(!placement)return;e.preventDefault();e.stopImmediatePropagation();try{canvas.setPointerCapture(e.pointerId)}catch(_){}placementDrag=point(e)});
-    canvas.addEventListener('pointermove',e=>{if(!placement||!placementDrag)return;e.preventDefault();e.stopImmediatePropagation();const p=point(e),dx=p.x-placementDrag.x,dy=p.y-placementDrag.y;for(const v of [placement.a,placement.b]){v.x+=dx;v.y+=dy}placementDrag=p;renderPlacement()});
-    for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(placement){e.stopImmediatePropagation();placementDrag=null}});
+    canvas.addEventListener('pointerdown',e=>{if(!placement)return;e.preventDefault();e.stopImmediatePropagation();try{canvas.setPointerCapture(e.pointerId)}catch(_){}activePointers.set(e.pointerId,point(e));placementDrag=null;if(activePointers.size===1)placementDrag=point(e);if(activePointers.size===2){const pts=[...activePointers.values()];pinchStart={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),a:{...placement.a},b:{...placement.b}}}});
+    canvas.addEventListener('pointermove',e=>{if(!placement||!activePointers.has(e.pointerId))return;e.preventDefault();e.stopImmediatePropagation();const p=point(e),prev=activePointers.get(e.pointerId);activePointers.set(e.pointerId,p);
+      if(activePointers.size===2&&pinchStart){const pts=[...activePointers.values()],dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),factor=Math.max(.2,Math.min(5,dist/Math.max(1,pinchStart.distance)));const cx=(pinchStart.a.x+pinchStart.b.x)/2,cy=(pinchStart.a.y+pinchStart.b.y)/2;placement.a={x:cx+(pinchStart.a.x-cx)*factor,y:cy+(pinchStart.a.y-cy)*factor};placement.b={x:cx+(pinchStart.b.x-cx)*factor,y:cy+(pinchStart.b.y-cy)*factor}}
+      else if(activePointers.size===1){for(const v of [placement.a,placement.b]){v.x+=p.x-prev.x;v.y+=p.y-prev.y}}
+      renderPlacement()});
+    for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(!placement)return;e.stopImmediatePropagation();activePointers.delete(e.pointerId);pinchStart=null;placementDrag=activePointers.size===1?[...activePointers.values()][0]:null});
     canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
     canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
     const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
     canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',()=>{down=false;base=null;strokeRegion=null;strokeBefore=null});
-    gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();canvas.width=1;canvas.height=1});
+    gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();rotateHandle.remove();canvas.width=1;canvas.height=1});
   }
   function gameStickers(){
     // Self-contained music studio. Do not modify shared header, stars or other activities.
