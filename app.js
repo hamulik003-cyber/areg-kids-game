@@ -3251,9 +3251,18 @@
       const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
       const radial=filtered.map(p=>Math.hypot((p.x-cx)/(w/2),(p.y-cy)/(h/2)));
       const radialError=radial.reduce((sum,x)=>sum+Math.abs(x-1),0)/radial.length;
-      const turning=filtered.map((p,i)=>{const k=4;if(i<k||i>=filtered.length-k)return 0;const a=filtered[i-k],b=filtered[i+k],ux=p.x-a.x,uy=p.y-a.y,vx=b.x-p.x,vy=b.y-p.y;return Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1))))});
-      const sharpTurns=turning.filter(t=>t>.52).length/turning.length;
-      if(radialError<.115&&length>diag*2&&sharpTurns<.065)return pack(Math.abs(w-h)/Math.max(w,h)<.14?'circle':'ellipse');
+      // A circle must traverse the full perimeter with consistently rounded turns.
+      // Raw pointer density is uneven on iOS; resample before evaluating curvature.
+      const samples=[];const step=Math.max(2,diag/70);let carry=0;samples.push(filtered[0]);
+      for(let i=1;i<filtered.length;i++){let p=filtered[i-1],q=filtered[i],d=dist(p,q);while(d+carry>=step&&d>0){const t=(step-carry)/d,n={x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t};samples.push(n);p=n;d=dist(p,q);carry=0}carry+=d}
+      const turns=[];const k=3;
+      for(let i=k;i<samples.length-k;i++){const p=samples[i],a=samples[i-k],b=samples[i+k],u={x:p.x-a.x,y:p.y-a.y},v={x:b.x-p.x,y:b.y-p.y};
+        turns.push(Math.acos(Math.max(-1,Math.min(1,(u.x*v.x+u.y*v.y)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)||1)))));
+      }
+      const sorted=turns.slice().sort((x,y)=>x-y),peak=sorted[Math.floor(sorted.length*.92)]||0;
+      const ellipsePerimeter=Math.PI*(3*(w/2+h/2)-Math.sqrt((3*w/2+h/2)*(w/2+3*h/2)));
+      if(radialError<.19&&length>diag*1.85&&length<diag*4.5&&Math.abs(length-ellipsePerimeter)/ellipsePerimeter<.28&&peak<.65)
+        return pack(Math.abs(w-h)/Math.max(w,h)<.16?'circle':'ellipse');
       let pivot=0;for(let i=1;i<filtered.length;i++)if(dist(filtered[i],{x:cx,y:cy})>dist(filtered[pivot],{x:cx,y:cy}))pivot=i;
       const cycle=filtered.slice(pivot).concat(filtered.slice(0,pivot+1));
       let v=simplify(cycle,diag*.065);
