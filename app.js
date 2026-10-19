@@ -3235,7 +3235,11 @@
         let maxDeviation=0;
         for(const p of filtered){const deviation=den?Math.abs((p.x-first.x)*dy-(p.y-first.y)*dx)/den:Math.hypot(p.x-first.x,p.y-first.y);maxDeviation=Math.max(maxDeviation,deviation)}
         if(den>diag*.8&&maxDeviation<diag*.025)return pack('line',[first,last]);
-        return null;
+        // Keep the stroke topology: smooth handwritten numbers, arcs and petals
+        // without turning them into polygons or replacing them with a template.
+        const smoothed=filtered.map((p,i)=>{if(i===0||i===filtered.length-1)return p;const a=filtered[Math.max(0,i-2)],b=filtered[Math.min(filtered.length-1,i+2)];return {x:p.x*.68+(a.x+b.x)*.16,y:p.y*.68+(a.y+b.y)*.16}});
+        return pack('smart-curve',smoothed);
+
       }
       if(w<25||h<25)return null;
       const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
@@ -3300,8 +3304,13 @@
         let v=placement.vertices.map(p=>({x:placement.a.x+p.x*w,y:placement.a.y+p.y*h}));
         if(placement.kind==='smart-curve'){
           target.beginPath();target.moveTo(v[0].x,v[0].y);
-          for(let i=1;i<v.length-1;i++){const p=v[i],q=v[i+1];target.quadraticCurveTo(p.x,p.y,(p.x+q.x)/2,(p.y+q.y)/2)}
-          if(v.length>1){const p=v[v.length-1];target.lineTo(p.x,p.y)}
+          for(let i=0;i<v.length-1;i++){
+            const p0=v[Math.max(0,i-1)],p1=v[i],p2=v[i+1],p3=v[Math.min(v.length-1,i+2)];
+            // Centripetal-like cubic smoothing: smooth continuity without
+            // snapping open handwriting to a zigzag or closing its endpoints.
+            const t=.18;
+            target.bezierCurveTo(p1.x+(p2.x-p0.x)*t,p1.y+(p2.y-p0.y)*t,p2.x-(p3.x-p1.x)*t,p2.y-(p3.y-p1.y)*t,p2.x,p2.y);
+          }
           target.strokeStyle=placement.color;target.lineWidth=width;target.lineJoin='round';target.lineCap='round';target.globalAlpha=1;target.stroke();return;
         }
         if(placement.kind==='smart-square'||placement.kind==='smart-rectangle'){
