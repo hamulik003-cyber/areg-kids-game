@@ -1,3 +1,9 @@
+## 2026-10-20 — User-approved finger painting release (pending CI and merge)
+- User explicitly approved the AREG TEST «Մատով նկարչություն» after fixing two-finger pinch accidentally placing a star and locking drawing. Exact approved trial source commit: `ccc73abdd7cd43d9a5bd11be808136c42f896839`.
+- Focused release branch `release/paint-approved-20261020` replaces only the `gamePaint()` function in production `app.js` with the approved trial implementation. All other production game functions, headers, PWA files, jigsaw, audio and assets remain unchanged. Do NOT merge broad PR #104 or trial-only Render/PWA infrastructure.
+- Approved behavior: original clean layout, five dot sizes in place of Pen, invisible two-finger pinch zoom, Save menu for phone or in-game gallery/reopen, no extra toolbar, multitouch star-placement regression fixed.
+- Validate syntax, CI, mobile touch and PWA before merge. GitHub merge/Pages checks do not prove DotKiosk cache refresh; ask user to verify on device. Rollback reference: production main `cf77d504cd0364d5a006ae94749934ecd5b04fbc`.
+
 ## 2026-10-18 — Approved jigsaw UI follow-up release
 - User explicitly approved AREG TEST visual changes for main: warm gold top navigation panels, matching thick section back arrow and larger title, aligned top panel sizes, and the original independent blue settings gear (without inherited gold chip class). Preserve all previously approved puzzle behavior and design. Only mind-jigsaw.html is the gameplay change; this release does not include trial PWA/Render infrastructure.
 - Isolated release branch: `release/jigsaw-ui-approved-20261018`; run all required CI checks before merging into main. Verify main publication and DotKiosk separately. Never equate GitHub merge with on-device cache refresh.
