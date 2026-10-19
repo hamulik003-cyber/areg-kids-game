@@ -3422,6 +3422,13 @@
     canvas.addEventListener('pointermove',e=>{if(!placement||!activePointers.has(e.pointerId))return;e.preventDefault();e.stopImmediatePropagation();const p=point(e),prev=activePointers.get(e.pointerId);activePointers.set(e.pointerId,p);
       if(activePointers.size===2&&pinchStart){const pts=[...activePointers.values()],dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),factor=Math.max(.2,Math.min(5,dist/Math.max(1,pinchStart.distance)));const cx=(pinchStart.a.x+pinchStart.b.x)/2,cy=(pinchStart.a.y+pinchStart.b.y)/2;placement.a={x:cx+(pinchStart.a.x-cx)*factor,y:cy+(pinchStart.a.y-cy)*factor};placement.b={x:cx+(pinchStart.b.x-cx)*factor,y:cy+(pinchStart.b.y-cy)*factor}}
       else if(activePointers.size===1){for(const v of [placement.a,placement.b]){v.x+=p.x-prev.x;v.y+=p.y-prev.y}}
+      // Keep movable objects inside the drawing paper.
+      const boxW=Math.abs(placement.b.x-placement.a.x),boxH=Math.abs(placement.b.y-placement.a.y);
+      const midX=(placement.a.x+placement.b.x)/2,midY=(placement.a.y+placement.b.y)/2;
+      const halfW=Math.min(W/2,boxW/2),halfH=Math.min(H/2,boxH/2);
+      const fixedX=Math.max(halfW,Math.min(W-halfW,midX)),fixedY=Math.max(halfH,Math.min(H-halfH,midY));
+      placement.a.x+=fixedX-midX;placement.b.x+=fixedX-midX;
+      placement.a.y+=fixedY-midY;placement.b.y+=fixedY-midY;
       renderPlacement()});
     for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(!placement)return;e.stopImmediatePropagation();activePointers.delete(e.pointerId);pinchStart=null;placementDrag=activePointers.size===1?[...activePointers.values()][0]:null});
     canvas.addEventListener('pointerdown',e=>{if(!eyedropper)return;e.preventDefault();e.stopImmediatePropagation();const p=point(e);const rgba=ctx.getImageData(Math.floor(p.x),Math.floor(p.y),1,1).data;if(rgba[3]>20){const hex='#'+[rgba[0],rgba[1],rgba[2]].map(n=>n.toString(16).padStart(2,'0')).join('');setColor(hex);activeColor=inks.length-1;tool='marker';shapeMode=null;updateToolTab();toolButtons.forEach((button,id)=>button.classList.toggle('on',id===tool));hint.textContent='Գույնն ընտրված է'}else hint.textContent='Դիպչիր գունավոր հատվածին';eyedropper=false;pickButton.style.outline='none'},true);
