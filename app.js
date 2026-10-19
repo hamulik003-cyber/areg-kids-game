@@ -3257,7 +3257,16 @@
       add('arch',curve(t=>({x:.05+.9*t,y:.95-.88*Math.sin(Math.PI*t)})),false,'smart-curve');
       const sample=(pts,n=N)=>{const lens=[0];for(let i=1;i<pts.length;i++)lens.push(lens[i-1]+Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y));const total=lens[lens.length-1];if(total<1e-5)return null;let k=1;return Array.from({length:n},(_,i)=>{const d=total*i/(n-1);while(k<lens.length-1&&lens[k]<d)k++;const p=pts[k-1],q=pts[k],f=(d-lens[k-1])/(lens[k]-lens[k-1]||1);return {x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f}})};
       const norm=pts=>{const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,d=Math.max(w,h);return {pts:pts.map(p=>({x:(p.x-x)/d,y:(p.y-y)/d})),aspect:w/Math.max(h,1e-5),w,h}};
-      const known=templates.map(t=>({...t,normalized:norm(sample(t.pts))}));
+      // Multi-prototype nearest-neighbor classification, inspired by sketch recognizers.
+      // Augmented prototypes make matching tolerant of finger jitter and skew.
+      const prototypeSet=templates.flatMap(t=>{
+        const variations=[t.pts];
+        for(const skew of [-.12,.12]){
+          variations.push(t.pts.map(p=>({x:p.x+skew*(p.y-.5),y:p.y-skew*(p.x-.5)})));
+        }
+        return variations.map(pts=>({...t,normalized:norm(sample(pts))}));
+      });
+      const known=prototypeSet;
       return points=>{
         if(points.length<5)return null;
         const raw=[points[0]];for(const p of points.slice(1))if(Math.hypot(p.x-raw[raw.length-1].x,p.y-raw[raw.length-1].y)>1.5)raw.push(p);
