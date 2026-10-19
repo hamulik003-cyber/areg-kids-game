@@ -3224,16 +3224,18 @@
       const simplify=(arr,tol)=>{if(arr.length<3)return arr;const p=arr[0],q=arr[arr.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let index=0,dist=0;for(let i=1;i<arr.length-1;i++){const x=arr[i],u=den?Math.max(0,Math.min(1,((x.x-p.x)*dx+(x.y-p.y)*dy)/den)):0,d=Math.hypot(x.x-p.x-u*dx,x.y-p.y-u*dy);if(d>dist){dist=d;index=i}}if(dist<=tol)return [p,q];const left=simplify(arr.slice(0,index+1),tol),right=simplify(arr.slice(index),tol);return left.slice(0,-1).concat(right)};
       const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,w),y:(p.y-minY)/Math.max(1,h)})):null});
       if(!closed){
-        // Never convert an open handwritten curve into sharp polygon segments.
-        // Straight gestures remain lines; all other open gestures use a smooth spline.
+        // SMART SHAPES DECISION RULES:
+        // 1. Open strokes are NEVER closed or interpreted as polygons.
+        // 2. An unambiguous straight stroke may snap to a straight line.
+        // 3. Open curves, handwriting (including 3), arcs, waves and zigzags
+        //    keep the ORIGINAL drawn path. This prevents forced corners,
+        //    accidental curve rounding, and unwanted shape substitution.
+        // 4. Only closed gestures proceed to circle/polygon recognition.
         const dx=last.x-first.x,dy=last.y-first.y,den=Math.hypot(dx,dy);
         let maxDeviation=0;
         for(const p of filtered){const deviation=den?Math.abs((p.x-first.x)*dy-(p.y-first.y)*dx)/den:Math.hypot(p.x-first.x,p.y-first.y);maxDeviation=Math.max(maxDeviation,deviation)}
-        if(den>diag*.65&&maxDeviation<diag*.055)return pack('line',[first,last]);
-        const smooth=[];
-        for(let i=0;i<filtered.length;i+=2)smooth.push(filtered[i]);
-        if(smooth[smooth.length-1]!==last)smooth.push(last);
-        return pack('smart-curve',smooth);
+        if(den>diag*.8&&maxDeviation<diag*.025)return pack('line',[first,last]);
+        return null;
       }
       if(w<25||h<25)return null;
       const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
