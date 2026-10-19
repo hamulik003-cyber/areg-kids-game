@@ -3330,8 +3330,10 @@
     const controlStrip=document.createElement('div');controlStrip.className='areg-paint-controls';
     controlStrip.style.cssText='height:39px;min-height:39px;flex:none;display:flex;align-items:center;justify-content:center;gap:7px;padding:2px 5px;margin:3px 0 2px;border-radius:11px;background:linear-gradient(180deg,#2f5488,#172e59);border:1px solid #7199c8;box-shadow:inset 0 2px #b4d5ff55,0 2px 5px #0005';
     const controlStyle='position:static;width:43px;min-width:43px;height:32px;min-height:32px;border-radius:9px;font-size:17px;padding:0;background:linear-gradient(#b7d4fa,#466eaa);border:1px solid #d8eaff;box-shadow:0 2px 3px #0006;color:white';
-    ui.querySelector('.frame').insertAdjacentElement('afterend',controlStrip);
+    ui.querySelector('.frame').insertAdjacentElement('beforebegin',controlStrip);
     [pickButton,quickSize,galleryButton,sizeAccess].forEach(button=>{button.style.cssText=controlStyle;controlStrip.appendChild(button);delete button.dataset.aregDockControl});
+    // Prevent old absolutely positioned dock widgets from reappearing on top of the paper.
+    css.textContent += '.art3d .areg-paint-controls{position:relative;z-index:2;width:100%;box-sizing:border-box}.art3d .areg-paint-controls>button{position:static!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;flex:0 0 37px!important;width:37px!important;min-width:37px!important;height:32px!important;min-height:32px!important;margin:0!important}.art3d .areg-paint-controls>div{position:static!important;flex:1;min-width:0;display:flex;justify-content:flex-end}.art3d .areg-paint-controls>div button{min-width:30px!important;height:32px!important;min-height:32px!important;font-size:12px!important;padding:0!important}.art3d .dock>[data-areg-dock-control]{display:none!important}';
     // Canvas zoom: scale the complete paper, including placement previews and handles.
     const frame=ui.querySelector('.frame');frame.style.overflow='hidden';
     paper.style.transformOrigin='center center';
