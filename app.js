@@ -3326,18 +3326,24 @@
     placementLayer.width=W;placementLayer.height=H;
     placementLayer.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3';
     const paper=canvas.parentElement;paper.style.position='relative';paper.appendChild(placementLayer);
+    // A single orderly control strip; keep the original color dock exclusively for pencils.
+    const controlStrip=document.createElement('div');controlStrip.className='areg-paint-controls';
+    controlStrip.style.cssText='height:39px;min-height:39px;flex:none;display:flex;align-items:center;justify-content:center;gap:7px;padding:2px 5px;margin:3px 0 2px;border-radius:11px;background:linear-gradient(180deg,#2f5488,#172e59);border:1px solid #7199c8;box-shadow:inset 0 2px #b4d5ff55,0 2px 5px #0005';
+    const controlStyle='position:static;width:43px;min-width:43px;height:32px;min-height:32px;border-radius:9px;font-size:17px;padding:0;background:linear-gradient(#b7d4fa,#466eaa);border:1px solid #d8eaff;box-shadow:0 2px 3px #0006;color:white';
+    ui.querySelector('.frame').insertAdjacentElement('afterend',controlStrip);
+    [pickButton,quickSize,galleryButton,sizeAccess].forEach(button=>{button.style.cssText=controlStyle;controlStrip.appendChild(button);delete button.dataset.aregDockControl});
     // Canvas zoom: scale the complete paper, including placement previews and handles.
     const frame=ui.querySelector('.frame');frame.style.overflow='hidden';
     paper.style.transformOrigin='center center';
     let zoom=1;
     const zoomControls=document.createElement('div');
-    zoomControls.style.cssText='position:absolute;right:9px;bottom:9px;z-index:8;display:flex;gap:5px';
+    zoomControls.style.cssText='display:flex;gap:4px;margin-left:auto';
     const applyZoom=()=>{paper.style.transform='scale('+zoom+')';zoomReset.textContent=Math.round(zoom*100)+'%'};
-    const zoomButton=(label,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='min-width:37px;height:33px;border-radius:9px;background:linear-gradient(#cce5ff,#4778bc);border:1px solid #e8f6ff;color:white;font-weight:900;box-shadow:0 2px 4px #0005';b.addEventListener('click',action);zoomControls.appendChild(b);return b};
+    const zoomButton=(label,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='min-width:32px;height:32px;min-height:32px;padding:0 3px;border-radius:9px;background:linear-gradient(#cce5ff,#4778bc);border:1px solid #e8f6ff;color:white;font-weight:900;box-shadow:0 2px 4px #0005';b.addEventListener('click',action);zoomControls.appendChild(b);return b};
     zoomButton('−',()=>{zoom=Math.max(1,Math.round((zoom-.25)*4)/4);applyZoom()});
     const zoomReset=zoomButton('100%',()=>{zoom=1;applyZoom()});
     zoomButton('+',()=>{zoom=Math.min(3,Math.round((zoom+.25)*4)/4);applyZoom()});
-    frame.style.position='relative';frame.appendChild(zoomControls);
+    controlStrip.appendChild(zoomControls);
     // Two-finger pinch on empty paper; existing shape-placement pinch keeps precedence.
     const zoomTouches=new Map();let zoomStart=null;
     paper.addEventListener('pointerdown',e=>{if(placement||e.pointerType!=='touch')return;zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(zoomTouches.size===2){const pts=[...zoomTouches.values()];zoomStart={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),zoom};down=false}},true);
