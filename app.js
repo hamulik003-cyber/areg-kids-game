@@ -3279,6 +3279,7 @@
             return {kind:Math.abs(input.w-input.h)/Math.max(input.w,input.h)<.18?'circle':'ellipse',a:{x:left,y:top},b:{x:left+input.w,y:top+input.h},closed:true};
           }
         }
+        let geometricCandidate=null;
         // Detect sharp geometric corners before shape-template fitting.
         // Curved circles are already handled above; polygons must never become circles.
         if(closure<.32&&raw.length>=12){
@@ -3309,7 +3310,7 @@
               if(!hasConcave&&n<=8){
                 const left=Math.min(...ideal.map(p=>p.x)),top=Math.min(...ideal.map(p=>p.y));
                 const right=Math.max(...ideal.map(p=>p.x)),bottom=Math.max(...ideal.map(p=>p.y));
-                return {kind:'smart-polyline',closed:true,a:{x:left,y:top},b:{x:right,y:bottom},vertices:ideal.map(p=>({x:(p.x-left)/(right-left||1),y:(p.y-top)/(bottom-top||1)}))};
+                geometricCandidate={kind:'smart-polyline',closed:true,a:{x:left,y:top},b:{x:right,y:bottom},vertices:ideal.map(p=>({x:(p.x-left)/(right-left||1),y:(p.y-top)/(bottom-top||1)}))};
               }
             }
           }
@@ -3331,7 +3332,8 @@
             }
           }
         }
-        if(!best||best.error>.125)return null;
+        if(!best||best.error>.125)return geometricCandidate;
+        if(geometricCandidate&&best.error>.065)return geometricCandidate;
         const t=best.t,x=Math.min(...raw.map(p=>p.x)),y=Math.min(...raw.map(p=>p.y)),w=Math.max(...raw.map(p=>p.x))-x,h=Math.max(...raw.map(p=>p.y))-y;
         const fitted=norm(t.pts).pts;
         const vertices=fitted.map(p=>({x:p.x/Math.max(1e-5,Math.max(...fitted.map(v=>v.x))),y:p.y/Math.max(1e-5,Math.max(...fitted.map(v=>v.y)))}));
