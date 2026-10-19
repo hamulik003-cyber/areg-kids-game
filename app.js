@@ -3263,6 +3263,19 @@
         const input=norm(sampled),diag=Math.hypot(input.w,input.h);
         if(diag<28)return null;
         const closure=Math.hypot(raw[0].x-raw[raw.length-1].x,raw[0].y-raw[raw.length-1].y)/diag;
+        // Fit a complete circle/ellipse directly before template comparison.
+        // This prevents noisy finger circles being mistaken for angular shapes.
+        if(closure<.32&&input.w>25&&input.h>25){
+          const left=Math.min(...raw.map(p=>p.x)),top=Math.min(...raw.map(p=>p.y));
+          const cx=left+input.w/2,cy=top+input.h/2;
+          const radii=sampled.map(p=>Math.hypot((p.x-cx)/(input.w/2),(p.y-cy)/(input.h/2)));
+          const radialError=radii.reduce((sum,v)=>sum+Math.abs(v-1),0)/radii.length;
+          let arc=0;for(let i=1;i<sampled.length;i++)arc+=Math.hypot(sampled[i].x-sampled[i-1].x,sampled[i].y-sampled[i-1].y);
+          const ellipseLength=Math.PI*(3*(input.w/2+input.h/2)-Math.sqrt((3*input.w/2+input.h/2)*(input.w/2+3*input.h/2)));
+          if(radialError<.16&&Math.abs(arc-ellipseLength)/ellipseLength<.23){
+            return {kind:Math.abs(input.w-input.h)/Math.max(input.w,input.h)<.18?'circle':'ellipse',a:{x:left,y:top},b:{x:left+input.w,y:top+input.h},closed:true};
+          }
+        }
         let best=null;
         for(const t of known){
           if(t.closed&&closure>.28)continue;
