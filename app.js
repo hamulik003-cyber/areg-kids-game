@@ -3214,87 +3214,80 @@
     smartToggle.style.cssText='display:block;margin:2px auto 3px;padding:3px 11px;min-height:27px;font-size:11px;border-radius:11px;background:linear-gradient(#68b9e8,#315a9c);color:#fff';
     hint.parentElement.insertBefore(smartToggle,hint);
     smartToggle.addEventListener('click',()=>{smartShapes=!smartShapes;smartToggle.textContent=smartShapes?'✨ Խելացի ձևեր՝ միացված':'✏️ Խելացի ձևեր՝ անջատված';smartToggle.classList.toggle('on',smartShapes)});
-    const recognizeShape=points=>{
-      // Geometry-only mode: unsupported handwriting and curves are left untouched.
-      if(points.length<8)return null;
-      const filtered=[points[0]];for(const p of points.slice(1))if(Math.hypot(p.x-filtered[filtered.length-1].x,p.y-filtered[filtered.length-1].y)>2)filtered.push(p);
-      if(filtered.length<6)return null;
-      const xs=filtered.map(p=>p.x),ys=filtered.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),w=maxX-minX,h=maxY-minY,diag=Math.hypot(w,h);
-      if(diag<32)return null;
-      const dist=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y),first=filtered[0],last=filtered[filtered.length-1];
-      let length=0;for(let i=1;i<filtered.length;i++)length+=dist(filtered[i],filtered[i-1]);
-      const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,w),y:(p.y-minY)/Math.max(1,h)})):null});
-      const simplify=(arr,tol)=>{if(arr.length<3)return arr;const p=arr[0],q=arr[arr.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let index=0,best=0;for(let i=1;i<arr.length-1;i++){const x=arr[i],u=den?Math.max(0,Math.min(1,((x.x-p.x)*dx+(x.y-p.y)*dy)/den)):0,d=dist(x,{x:p.x+u*dx,y:p.y+u*dy});if(d>best){best=d;index=i}}if(best<=tol)return [p,q];return simplify(arr.slice(0,index+1),tol).slice(0,-1).concat(simplify(arr.slice(index),tol))};
-      const closed=dist(first,last)<diag*.23;
-      if(!closed){
-        const dx=last.x-first.x,dy=last.y-first.y,den=Math.hypot(dx,dy);
-        let deviation=0;for(const p of filtered)deviation=Math.max(deviation,den?Math.abs((p.x-first.x)*dy-(p.y-first.y)*dx)/den:dist(p,first));
-        if(den>diag*.7&&deviation<diag*.035)return pack('line',[first,last]);
-        // Straight-edged open patterns only; handwritten 3, petals and arcs stay as drawn.
-        const v=simplify(filtered,diag*.035);
-        if(v.length<3||v.length>12)return null;
-        let fitted=0,sharp=0;
-        for(let i=1;i<v.length-1;i++){const a=v[i-1],p=v[i],q=v[i+1],ux=p.x-a.x,uy=p.y-a.y,vx=q.x-p.x,vy=q.y-p.y;const dot=(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1),turn=Math.acos(Math.max(-1,Math.min(1,dot)));if(turn>.65)sharp++}
-        for(const p of filtered){let best=Infinity;for(let i=1;i<v.length;i++){const a=v[i-1],q=v[i],dx=q.x-a.x,dy=q.y-a.y,den=dx*dx+dy*dy,t=den?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/den)):0;best=Math.min(best,dist(p,{x:a.x+dx*t,y:a.y+dy*t}))}fitted+=best}
-        if(sharp>=2&&fitted/filtered.length<diag*.028){
-          const gap=dist(v[0],v[v.length-1]),segments=v.slice(1).map((p,i)=>dist(p,v[i]));
-          const typical=segments.slice().sort((x,y)=>x-y)[Math.floor(segments.length/2)]||0;
-          if(v.length>=4&&v.length<=9&&gap>diag*.12&&gap<typical*1.15&&gap<diag*.55){
-            const poly=v.concat([v[0]]),signed=poly.slice(1).reduce((sum,p,i)=>sum+v[i].x*p.y-p.x*v[i].y,0)/2;
-            if(Math.abs(signed)>w*h*.34)return pack('smart-polygon',v);
+    const recognizeShape=(()=>{
+      // Independent template-based recognizer. No old heuristic remains.
+      const N=80;
+      const line=(a,b,n=20)=>Array.from({length:n},(_,i)=>({x:a.x+(b.x-a.x)*i/(n-1),y:a.y+(b.y-a.y)*i/(n-1)}));
+      const polygon=(v,closed=true)=>{const out=[];for(let i=0;i<v.length-(closed?0:1);i++){const p=v[i],q=v[(i+1)%v.length];out.push(...line(p,q,12).slice(0,-1))}out.push(closed?v[0]:v[v.length-1]);return out};
+      const regular=(n,phase=-Math.PI/2)=>polygon(Array.from({length:n},(_,i)=>({x:.5+.46*Math.cos(phase+2*Math.PI*i/n),y:.5+.46*Math.sin(phase+2*Math.PI*i/n)})));
+      const curve=(fn,n=110)=>Array.from({length:n},(_,i)=>fn(i/(n-1)));
+      const templates=[];
+      const add=(name,pts,closed=true,kind='smart-polyline')=>templates.push({name,pts,closed,kind});
+      const poly=(name,v)=>add(name,polygon(v));
+      const rect=(w,h)=>polygon([{x:.5-w/2,y:.5-h/2},{x:.5+w/2,y:.5-h/2},{x:.5+w/2,y:.5+h/2},{x:.5-w/2,y:.5+h/2}]);
+      add('circle',curve(t=>({x:.5+.47*Math.cos(2*Math.PI*t),y:.5+.47*Math.sin(2*Math.PI*t)})),true,'circle');
+      add('ellipse',curve(t=>({x:.5+.47*Math.cos(2*Math.PI*t),y:.5+.32*Math.sin(2*Math.PI*t)})),true,'ellipse');
+      add('vertical-ellipse',curve(t=>({x:.5+.32*Math.cos(2*Math.PI*t),y:.5+.47*Math.sin(2*Math.PI*t)})),true,'ellipse');
+      add('square',rect(.9,.9));add('rectangle',rect(.96,.58));add('tall-rectangle',rect(.58,.96));
+      poly('triangle',[{x:.5,y:.04},{x:.96,y:.95},{x:.04,y:.95}]);
+      poly('right-triangle',[{x:.08,y:.08},{x:.08,y:.94},{x:.95,y:.94}]);
+      poly('inverted-triangle',[{x:.04,y:.05},{x:.96,y:.05},{x:.5,y:.96}]);
+      poly('diamond',[{x:.5,y:.03},{x:.97,y:.5},{x:.5,y:.97},{x:.03,y:.5}]);
+      poly('parallelogram',[{x:.26,y:.08},{x:.97,y:.08},{x:.74,y:.92},{x:.03,y:.92}]);
+      poly('trapezoid',[{x:.27,y:.08},{x:.73,y:.08},{x:.97,y:.92},{x:.03,y:.92}]);
+      for(let n=5;n<=12;n++)add('polygon-'+n,regular(n));
+      const star=(n=5)=>polygon(Array.from({length:2*n},(_,i)=>{const r=i%2?.21:.48,a=-Math.PI/2+i*Math.PI/n;return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}));
+      add('star-5',star(5));add('star-6',star(6));
+      add('heart',curve(t=>{const a=2*Math.PI*t;return {x:.5+(.029*16*Math.pow(Math.sin(a),3)),y:.45-(.029*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a)))}}),true,'smart-closed-curve');
+      poly('plus',[{x:.38,y:.04},{x:.62,y:.04},{x:.62,y:.38},{x:.96,y:.38},{x:.96,y:.62},{x:.62,y:.62},{x:.62,y:.96},{x:.38,y:.96},{x:.38,y:.62},{x:.04,y:.62},{x:.04,y:.38},{x:.38,y:.38}]);
+      poly('cross',[{x:.18,y:.04},{x:.5,y:.36},{x:.82,y:.04},{x:.96,y:.18},{x:.64,y:.5},{x:.96,y:.82},{x:.82,y:.96},{x:.5,y:.64},{x:.18,y:.96},{x:.04,y:.82},{x:.36,y:.5},{x:.04,y:.18}]);
+      poly('right-arrow',[{x:.04,y:.35},{x:.64,y:.35},{x:.64,y:.08},{x:.97,y:.5},{x:.64,y:.92},{x:.64,y:.65},{x:.04,y:.65}]);
+      poly('double-arrow',[{x:.04,y:.5},{x:.28,y:.08},{x:.28,y:.35},{x:.72,y:.35},{x:.72,y:.08},{x:.96,y:.5},{x:.72,y:.92},{x:.72,y:.65},{x:.28,y:.65},{x:.28,y:.92}]);
+      add('semicircle',curve(t=>t<.8?{x:.5+.46*Math.cos(Math.PI-(t/.8)*Math.PI),y:.93-.84*Math.sin(Math.PI*(t/.8))}:{x:.96-(t-.8)/.2*.92,y:.93}),true,'smart-closed-curve');
+      add('wave',curve(t=>({x:.03+.94*t,y:.5-.27*Math.sin(4*Math.PI*t)})),false,'smart-curve');
+      add('zigzag',polygon([{x:.04,y:.72},{x:.2,y:.22},{x:.36,y:.72},{x:.52,y:.22},{x:.68,y:.72},{x:.84,y:.22},{x:.96,y:.72}],false),false);
+      add('line',line({x:.05,y:.5},{x:.95,y:.5}),false);
+      add('vertical-line',line({x:.5,y:.05},{x:.5,y:.95}),false);
+      add('diagonal-line',line({x:.05,y:.05},{x:.95,y:.95}),false);
+      add('reverse-diagonal',line({x:.95,y:.05},{x:.05,y:.95}),false);
+      add('quarter-circle',curve(t=>({x:.05+.9*Math.cos(Math.PI/2*t),y:.95-.9*Math.sin(Math.PI/2*t)})),false,'smart-curve');
+      add('arch',curve(t=>({x:.05+.9*t,y:.95-.88*Math.sin(Math.PI*t)})),false,'smart-curve');
+      const sample=(pts,n=N)=>{const lens=[0];for(let i=1;i<pts.length;i++)lens.push(lens[i-1]+Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y));const total=lens[lens.length-1];if(total<1e-5)return null;let k=1;return Array.from({length:n},(_,i)=>{const d=total*i/(n-1);while(k<lens.length-1&&lens[k]<d)k++;const p=pts[k-1],q=pts[k],f=(d-lens[k-1])/(lens[k]-lens[k-1]||1);return {x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f}})};
+      const norm=pts=>{const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,d=Math.max(w,h);return {pts:pts.map(p=>({x:(p.x-x)/d,y:(p.y-y)/d})),aspect:w/Math.max(h,1e-5),w,h}};
+      const known=templates.map(t=>({...t,normalized:norm(sample(t.pts))}));
+      return points=>{
+        if(points.length<5)return null;
+        const raw=[points[0]];for(const p of points.slice(1))if(Math.hypot(p.x-raw[raw.length-1].x,p.y-raw[raw.length-1].y)>1.5)raw.push(p);
+        if(raw.length<5)return null;
+        const sampled=sample(raw);if(!sampled)return null;
+        const input=norm(sampled),diag=Math.hypot(input.w,input.h);
+        if(diag<28)return null;
+        const closure=Math.hypot(raw[0].x-raw[raw.length-1].x,raw[0].y-raw[raw.length-1].y)/diag;
+        let best=null;
+        for(const t of known){
+          if(t.closed&&closure>.28)continue;
+          if(!t.closed&&closure<.09)continue;
+          const aspect=Math.abs(Math.log(Math.max(.05,input.aspect)/Math.max(.05,t.normalized.aspect)));
+          if(aspect>.58)continue;
+          const target=t.normalized.pts;
+          for(const reversed of [false,true]){
+            const arr=reversed?input.pts.slice().reverse():input.pts;
+            const offsets=t.closed?[0,10,20,30,40,50,60,70]:[0];
+            for(const offset of offsets){
+              let error=0;for(let i=0;i<N;i++){const p=arr[i],q=target[(i+offset)%N];error+=(p.x-q.x)**2+(p.y-q.y)**2}
+              error=Math.sqrt(error/N)+aspect*.045;
+              if(!best||error<best.error)best={t,error};
+            }
           }
-          return pack('smart-polyline',v);
         }
-        return null;
-      }
-      if(w<25||h<25||length<diag*1.6||length>diag*8)return null;
-      const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
-      const radial=filtered.map(p=>Math.hypot((p.x-cx)/(w/2),(p.y-cy)/(h/2)));
-      const radialError=radial.reduce((sum,x)=>sum+Math.abs(x-1),0)/radial.length;
-      // A circle must traverse the full perimeter with consistently rounded turns.
-      // Raw pointer density is uneven on iOS; resample before evaluating curvature.
-      const samples=[];const step=Math.max(2,diag/70);let carry=0;samples.push(filtered[0]);
-      for(let i=1;i<filtered.length;i++){let p=filtered[i-1],q=filtered[i],d=dist(p,q);while(d+carry>=step&&d>0){const t=(step-carry)/d,n={x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t};samples.push(n);p=n;d=dist(p,q);carry=0}carry+=d}
-      const turns=[];const k=3;
-      for(let i=k;i<samples.length-k;i++){const p=samples[i],a=samples[i-k],b=samples[i+k],u={x:p.x-a.x,y:p.y-a.y},v={x:b.x-p.x,y:b.y-p.y};
-        turns.push(Math.acos(Math.max(-1,Math.min(1,(u.x*v.x+u.y*v.y)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)||1)))));
-      }
-      const sorted=turns.slice().sort((x,y)=>x-y),peak=sorted[Math.floor(sorted.length*.92)]||0;
-      const ellipsePerimeter=Math.PI*(3*(w/2+h/2)-Math.sqrt((3*w/2+h/2)*(w/2+3*h/2)));
-      if(radialError<.19&&length>diag*1.85&&length<diag*4.5&&Math.abs(length-ellipsePerimeter)/ellipsePerimeter<.28&&peak<.65)
-        return pack(Math.abs(w-h)/Math.max(w,h)<.16?'circle':'ellipse');
-      let pivot=0;for(let i=1;i<filtered.length;i++)if(dist(filtered[i],{x:cx,y:cy})>dist(filtered[pivot],{x:cx,y:cy}))pivot=i;
-      const cycle=filtered.slice(pivot).concat(filtered.slice(0,pivot+1));
-      let v=simplify(cycle,diag*.065);
-      if(v.length>1&&dist(v[0],v[v.length-1])<diag*.18)v.pop();
-      if(v.length<3||v.length>20)return null;
-      let perimeter=0,area=0;for(let i=0;i<v.length;i++){const p=v[i],q=v[(i+1)%v.length];perimeter+=dist(p,q);area+=p.x*q.y-q.x*p.y}
-      if(Math.abs(area)<w*h*.3||Math.abs(perimeter-length)/length>.23)return null;
-      if(v.length===3){
-        const top=v.reduce((best,p)=>p.y<best.y?p:best,v[0]);
-        const bottom=Math.max(...v.map(p=>p.y)),left=Math.min(...v.map(p=>p.x)),right=Math.max(...v.map(p=>p.x));
-        return pack('smart-polygon',[{x:(left+right)/2,y:top.y},{x:right,y:bottom},{x:left,y:bottom}]);
-      }
-      if(v.length===4){
-        const edges=v.map((p,i)=>{const q=v[(i+1)%4];return {x:q.x-p.x,y:q.y-p.y,l:dist(p,q)}});
-        const parallel=(a,b)=>Math.abs(a.x*b.y-a.y*b.x)/(a.l*b.l||1)<.20;
-        const right=edges.every((e,i)=>Math.abs(e.x*edges[(i+1)%4].x+e.y*edges[(i+1)%4].y)/(e.l*edges[(i+1)%4].l||1)<.22);
-        const lens=edges.map(e=>e.l),equal=Math.min(...lens)/Math.max(...lens)>.82;
-        if(right&&parallel(edges[0],edges[2])&&parallel(edges[1],edges[3]))return pack(equal?'smart-square':'smart-rectangle',v);
-        if(equal&&parallel(edges[0],edges[2])&&parallel(edges[1],edges[3]))return pack('smart-diamond',v);
-        return pack('smart-quadrilateral',v);
-      }
-      // Regular n-gons from 5 to 20: create ideal evenly spaced vertices.
-      const sides=v.map((p,i)=>dist(p,v[(i+1)%v.length])),ratio=Math.min(...sides)/Math.max(...sides);
-      const radii=v.map(p=>dist(p,{x:cx,y:cy})),rRatio=Math.min(...radii)/Math.max(...radii);
-      if(ratio>.67&&rRatio>.69){
-        const n=v.length,angle=Math.atan2(v[0].y-cy,v[0].x-cx),rx=w/2,ry=h/2;
-        const ideal=Array.from({length:n},(_,i)=>({x:cx+rx*Math.cos(angle+i*2*Math.PI/n),y:cy+ry*Math.sin(angle+i*2*Math.PI/n)}));
-        return pack('smart-polygon',ideal);
-      }
-      return null;
-    };
-    const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
+        if(!best||best.error>.125)return null;
+        const t=best.t,x=Math.min(...raw.map(p=>p.x)),y=Math.min(...raw.map(p=>p.y)),w=Math.max(...raw.map(p=>p.x))-x,h=Math.max(...raw.map(p=>p.y))-y;
+        const fitted=norm(t.pts).pts;
+        const vertices=fitted.map(p=>({x:p.x/Math.max(1e-5,Math.max(...fitted.map(v=>v.x))),y:p.y/Math.max(1e-5,Math.max(...fitted.map(v=>v.y)))}));
+        return {kind:t.kind==='circle'||t.kind==='ellipse'?t.kind:t.kind==='smart-closed-curve'?'smart-closed-curve':t.kind==='smart-curve'?'smart-curve':'smart-polyline',a:{x,y},b:{x:x+w,y:y+h},vertices};
+      };
+    })();
+        const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
     const configure=()=>{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=tool==='eraser'?'#fffefa':color;ctx.fillStyle=tool==='eraser'?'#fffefa':color;ctx.lineWidth=tool==='pencil'?Math.max(1,width*.22):tool==='marker'?width*1.3:tool==='pen'?Math.max(1,width*.14):width;ctx.globalAlpha=tool==='marker'?.9:tool==='pencil'?.75:1;ctx.lineCap='round';ctx.lineJoin='round'};
     const stroke=(p,q)=>{ctx.save();configure();if(tool==='spray'||tool==='glitter'){for(let i=0;i<(tool==='spray'?23:9);i++){const ang=Math.random()*6.283,r=Math.sqrt(Math.random())*width*1.5;ctx.beginPath();ctx.arc(p.x+Math.cos(ang)*r,p.y+Math.sin(ang)*r,tool==='spray'?1:Math.random()*2+1,0,6.283);ctx.fill()}}else if(tool==='rainbow'){['#ff4c6e','#ffad40','#ffe26d','#54d887','#4bb7f5','#9a73ed'].forEach((c,i)=>{ctx.strokeStyle=c;ctx.lineWidth=Math.max(2,width/2.8);ctx.beginPath();ctx.moveTo(q.x,q.y+(i-2.5)*width/2.5);ctx.lineTo(p.x,p.y+(i-2.5)*width/2.5);ctx.stroke()})}else{ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();if(p.x===q.x&&p.y===q.y){ctx.beginPath();ctx.arc(p.x,p.y,ctx.lineWidth/2,0,6.283);ctx.fill()}}ctx.restore()};
     const linePatterns={"zigzag":"M5 70 L20 30 L35 70 L50 30 L65 70 L80 30 L95 70","wave":"M5 50 Q16 20 28 50 T51 50 T74 50 T97 50","semicircle":"M10 80 A40 40 0 0 1 90 80","hook":"M50 10 L50 68 Q50 91 27 85 Q12 78 23 62","spiral":"M50 50 C50 40 65 42 64 55 C62 72 32 70 30 49 C27 21 72 15 83 45 C96 80 53 99 26 78","arc":"M10 80 Q50 4 90 80","doublewave":"M5 37 Q16 12 28 37 T51 37 T74 37 T97 37 M5 65 Q16 40 28 65 T51 65 T74 65 T97 65","chevron":"M5 70 L25 30 L45 70 L65 30 L85 70","stairs":"M8 88 L8 70 L28 70 L28 52 L48 52 L48 34 L68 34 L68 16 L92 16","loop":"M7 52 C22 5 40 20 50 50 C60 80 80 95 93 48 C80 10 59 19 50 50 C40 80 19 91 7 52","sline":"M25 15 C88 5 88 43 50 50 C12 57 12 95 75 85","cross":"M50 10 L50 90 M10 50 L90 50","rays":"M50 50 L50 8 M50 50 L80 20 M50 50 L92 50 M50 50 L80 80 M50 50 L50 92 M50 50 L20 80 M50 50 L8 50 M50 50 L20 20","diamondline":"M50 8 L92 50 L50 92 L8 50 Z","curly":"M78 15 Q22 15 48 43 Q62 58 40 64 Q21 70 34 85","mountainline":"M5 82 L28 31 L43 62 L60 15 L95 82","rainbowarc":"M8 85 A42 42 0 0 1 92 85 M20 85 A30 30 0 0 1 80 85 M32 85 A18 18 0 0 1 68 85","dashes":"M5 50 L17 50 M26 50 L38 50 M47 50 L59 50 M68 50 L80 50 M89 50 L96 50","sawtooth":"M5 72 L17 30 L29 72 L41 30 L53 72 L65 30 L77 72 L89 30","squiggle":"M10 75 Q32 8 48 42 T70 55 Q95 88 88 20"};
