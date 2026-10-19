@@ -2,6 +2,7 @@ name: Train Quick Draw AI (trial)
 on:
   push:
     branches:
+      - main
       - trial/areg-test-full-app-20261017
     paths:
       - 'tools/train_quickdraw.py'
