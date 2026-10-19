@@ -3236,22 +3236,36 @@
         let fitted=0,sharp=0;
         for(let i=1;i<v.length-1;i++){const a=v[i-1],p=v[i],q=v[i+1],ux=p.x-a.x,uy=p.y-a.y,vx=q.x-p.x,vy=q.y-p.y;const dot=(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1),turn=Math.acos(Math.max(-1,Math.min(1,dot)));if(turn>.65)sharp++}
         for(const p of filtered){let best=Infinity;for(let i=1;i<v.length;i++){const a=v[i-1],q=v[i],dx=q.x-a.x,dy=q.y-a.y,den=dx*dx+dy*dy,t=den?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/den)):0;best=Math.min(best,dist(p,{x:a.x+dx*t,y:a.y+dy*t}))}fitted+=best}
-        if(sharp>=2&&fitted/filtered.length<diag*.018)return pack('smart-polyline',v);
+        if(sharp>=2&&fitted/filtered.length<diag*.028){
+          const gap=dist(v[0],v[v.length-1]),segments=v.slice(1).map((p,i)=>dist(p,v[i]));
+          const typical=segments.slice().sort((x,y)=>x-y)[Math.floor(segments.length/2)]||0;
+          if(v.length>=4&&v.length<=9&&gap>diag*.12&&gap<typical*1.15&&gap<diag*.55){
+            const poly=v.concat([v[0]]),signed=poly.slice(1).reduce((sum,p,i)=>sum+v[i].x*p.y-p.x*v[i].y,0)/2;
+            if(Math.abs(signed)>w*h*.34)return pack('smart-polygon',v);
+          }
+          return pack('smart-polyline',v);
+        }
         return null;
       }
       if(w<25||h<25||length<diag*1.6||length>diag*8)return null;
       const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
       const radial=filtered.map(p=>Math.hypot((p.x-cx)/(w/2),(p.y-cy)/(h/2)));
       const radialError=radial.reduce((sum,x)=>sum+Math.abs(x-1),0)/radial.length;
-      if(radialError<.14&&length>diag*2)return pack(Math.abs(w-h)/Math.max(w,h)<.14?'circle':'ellipse');
+      const turning=filtered.map((p,i)=>{const k=4;if(i<k||i>=filtered.length-k)return 0;const a=filtered[i-k],b=filtered[i+k],ux=p.x-a.x,uy=p.y-a.y,vx=b.x-p.x,vy=b.y-p.y;return Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1))))});
+      const sharpTurns=turning.filter(t=>t>.52).length/turning.length;
+      if(radialError<.115&&length>diag*2&&sharpTurns<.065)return pack(Math.abs(w-h)/Math.max(w,h)<.14?'circle':'ellipse');
       let pivot=0;for(let i=1;i<filtered.length;i++)if(dist(filtered[i],{x:cx,y:cy})>dist(filtered[pivot],{x:cx,y:cy}))pivot=i;
       const cycle=filtered.slice(pivot).concat(filtered.slice(0,pivot+1));
-      let v=simplify(cycle,diag*.045);
+      let v=simplify(cycle,diag*.065);
       if(v.length>1&&dist(v[0],v[v.length-1])<diag*.18)v.pop();
       if(v.length<3||v.length>20)return null;
       let perimeter=0,area=0;for(let i=0;i<v.length;i++){const p=v[i],q=v[(i+1)%v.length];perimeter+=dist(p,q);area+=p.x*q.y-q.x*p.y}
       if(Math.abs(area)<w*h*.3||Math.abs(perimeter-length)/length>.23)return null;
-      if(v.length===3)return pack('smart-polygon',v);
+      if(v.length===3){
+        const top=v.reduce((best,p)=>p.y<best.y?p:best,v[0]);
+        const bottom=Math.max(...v.map(p=>p.y)),left=Math.min(...v.map(p=>p.x)),right=Math.max(...v.map(p=>p.x));
+        return pack('smart-polygon',[{x:(left+right)/2,y:top.y},{x:right,y:bottom},{x:left,y:bottom}]);
+      }
       if(v.length===4){
         const edges=v.map((p,i)=>{const q=v[(i+1)%4];return {x:q.x-p.x,y:q.y-p.y,l:dist(p,q)}});
         const parallel=(a,b)=>Math.abs(a.x*b.y-a.y*b.x)/(a.l*b.l||1)<.20;
