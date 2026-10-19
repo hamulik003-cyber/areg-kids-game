@@ -3239,7 +3239,7 @@
     const drawPlacement=target=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const oldMode=shapeMode,oldColor=color;shapeMode=placement.kind;color=placement.color;target.save();target.translate(cx,cy);target.rotate(placement.angle);target.translate(-cx,-cy);const main=ctx;ctx=target;try{shape(placement.a,placement.b)}finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
     const renderPlacement=()=>{
       placementCtx.clearRect(0,0,W,H);
-      if(!placement){placementBar.style.display='none';rotateHandle.style.display='none';activePointers.clear();pinchStart=null;return}
+      if(!placement){placementBar.style.display='none';rotateHandle.style.display='none';cornerHandles.forEach(({handle})=>handle.style.display='none');activePointers.clear();pinchStart=null;return}
       drawPlacement(placementCtx);
       const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;
       const w=Math.max(12,Math.abs(placement.a.x-placement.b.x)),h=Math.max(12,Math.abs(placement.a.y-placement.b.y));
@@ -3252,14 +3252,25 @@
       const handleY=cy-(h/2+32)*Math.cos(placement.angle);
       const handleX=cx+(h/2+32)*Math.sin(placement.angle);
       rotateHandle.style.left=(handleX/W*100)+'%';rotateHandle.style.top=(handleY/H*100)+'%';
+      cornerHandles.forEach(({handle,sx,sy})=>{const dx=sx*(w/2+8),dy=sy*(h/2+8),px=cx+dx*Math.cos(placement.angle)-dy*Math.sin(placement.angle),py=cy+dx*Math.sin(placement.angle)+dy*Math.cos(placement.angle);handle.style.left=(px/W*100)+'%';handle.style.top=(py/H*100)+'%';handle.style.display='block'});
       rotateHandle.style.display='block';placementBar.style.display='flex';
       hint.textContent='Մատով տեղափոխիր • 2 մատով չափափոխիր • ⟳ շրջիր • ✓ հաստատիր';
     };
+    // Four draggable corner handles: resize width and height independently in the object's rotated axes.
+    const cornerHandles=[[-1,-1],[1,-1],[-1,1],[1,1]].map(([sx,sy])=>{
+      const handle=document.createElement('div');
+      handle.style.cssText='position:absolute;display:none;z-index:7;width:26px;height:26px;transform:translate(-50%,-50%);touch-action:none;cursor:nwse-resize';
+      handle.innerHTML='<span style="display:block;width:12px;height:12px;margin:7px;background:white;border:2px solid #3299e8;border-radius:2px;box-shadow:0 1px 4px #0006"></span>';
+      paper.appendChild(handle);
+      let resizing=null;
+      handle.addEventListener('pointerdown',e=>{if(!placement)return;e.preventDefault();e.stopPropagation();handle.setPointerCapture(e.pointerId);const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const w=Math.max(12,Math.abs(placement.b.x-placement.a.x)),h=Math.max(12,Math.abs(placement.b.y-placement.a.y));resizing={id:e.pointerId,cx,cy,w,h,angle:placement.angle,sx,sy}});
+      handle.addEventListener('pointermove',e=>{if(!resizing||e.pointerId!==resizing.id||!placement)return;e.preventDefault();const p=point(e),dX=p.x-resizing.cx,dY=p.y-resizing.cy,cos=Math.cos(resizing.angle),sin=Math.sin(resizing.angle),localX=dX*cos+dY*sin,localY=-dX*sin+dY*cos;const fixedX=-resizing.sx*resizing.w/2,fixedY=-resizing.sy*resizing.h/2;const draggedX=resizing.sx===1?Math.max(fixedX+12,localX):Math.min(fixedX-12,localX),draggedY=resizing.sy===1?Math.max(fixedY+12,localY):Math.min(fixedY-12,localY);const centerX=(fixedX+draggedX)/2,centerY=(fixedY+draggedY)/2;const newCx=resizing.cx+centerX*cos-centerY*sin,newCy=resizing.cy+centerX*sin+centerY*cos;const halfW=Math.abs(draggedX-fixedX)/2,halfH=Math.abs(draggedY-fixedY)/2;placement.a={x:newCx-halfW,y:newCy-halfH};placement.b={x:newCx+halfW,y:newCy+halfH};renderPlacement()});
+      for(const ev of ['pointerup','pointercancel','lostpointercapture'])handle.addEventListener(ev,()=>{resizing=null});
+      return {handle,sx,sy};
+    });
     rotateHandle.addEventListener('pointerdown',e=>{if(!placement)return;e.preventDefault();e.stopPropagation();rotateHandle.setPointerCapture(e.pointerId);rotateDrag={id:e.pointerId}});
     rotateHandle.addEventListener('pointermove',e=>{if(!placement||!rotateDrag||rotateDrag.id!==e.pointerId)return;e.preventDefault();const p=point(e),cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;placement.angle=Math.atan2(p.x-cx,cy-p.y);renderPlacement()});
     for(const name of ['pointerup','pointercancel','lostpointercapture'])rotateHandle.addEventListener(name,()=>{rotateDrag=null});
-    placeButton('−','Փոքրացնել',()=>resizePlacement(.85));
-    placeButton('+','Մեծացնել',()=>resizePlacement(1.15));
     placeButton('✕','Չեղարկել',()=>{placement=null;renderPlacement()});
     const confirmPlacement=placeButton('✓','Հաստատել դիրքը',()=>{if(!placement)return;saveStep();const before=snapshot();drawPlacement(ctx);rememberOutline(before);placement=null;renderPlacement()});
     confirmPlacement.style.background='linear-gradient(#54e68c,#178c4d)';
@@ -3273,7 +3284,7 @@
     canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
     const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
     canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',()=>{down=false;base=null;strokeRegion=null;strokeBefore=null});
-    gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();rotateHandle.remove();canvas.width=1;canvas.height=1});
+    gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();rotateHandle.remove();cornerHandles.forEach(({handle})=>handle.remove());canvas.width=1;canvas.height=1});
   }
   function gameStickers(){
     // Self-contained music studio. Do not modify shared header, stars or other activities.
