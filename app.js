@@ -459,7 +459,7 @@
       games:[
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Ստեղծել երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
-        {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
+        {id:'mix',label:'Իմ ավտոլվացումը',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
@@ -3689,9 +3689,9 @@
     frame.title='Իմ ավտոլվացումը 3D';
     frame.src='./car-wash-3d.html?testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
-    activityScreen.classList.add('mind-v4-mode');
+    activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
-    gameCleanup.push(()=>activityScreen.classList.remove('mind-v4-mode'));
+    gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
   }
   function gameBlocks(){
     const s=surface('☝️'),zone=document.createElement('div');zone.className='block-zone';const pad=document.createElement('div');pad.className='tower-pad';zone.appendChild(pad);s.appendChild(zone);let stack=0;
