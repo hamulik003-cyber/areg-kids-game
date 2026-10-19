@@ -3215,34 +3215,47 @@
     hint.parentElement.insertBefore(smartToggle,hint);
     smartToggle.addEventListener('click',()=>{smartShapes=!smartShapes;smartToggle.textContent=smartShapes?'✨ Խելացի ձևեր՝ միացված':'✏️ Խելացի ձևեր՝ անջատված';smartToggle.classList.toggle('on',smartShapes)});
     const recognizeShape=points=>{
-      if(points.length<10)return null;
-      const xs=points.map(p=>p.x),ys=points.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),w=maxX-minX,h=maxY-minY;
-      if(w<32||h<32)return null;
-      const diag=Math.hypot(w,h),first=points[0],last=points[points.length-1];
-      if(Math.hypot(first.x-last.x,first.y-last.y)>diag*.25)return null;
-      let length=0;for(let i=1;i<points.length;i++)length+=Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y);
-      if(length<diag*1.65||length>diag*5)return null;
-      const cx=(minX+maxX)/2,cy=(minY+maxY)/2,rx=w/2,ry=h/2;
-      const radial=points.map(p=>Math.hypot((p.x-cx)/rx,(p.y-cy)/ry));
-      const radialError=radial.reduce((v,x)=>v+Math.abs(x-1),0)/radial.length;
-      if(radialError<.19&&length>diag*2){return {kind:Math.abs(w-h)/Math.max(w,h)<.15?'circle':'ellipse',a:{x:minX,y:minY},b:{x:maxX,y:maxY}}}
-      // Ramer-Douglas-Peucker on a closed gesture, starting at a remote point.
-      const center={x:points.reduce((v,p)=>v+p.x,0)/points.length,y:points.reduce((v,p)=>v+p.y,0)/points.length};
-      let pivot=0;for(let i=1;i<points.length;i++)if(Math.hypot(points[i].x-center.x,points[i].y-center.y)>Math.hypot(points[pivot].x-center.x,points[pivot].y-center.y))pivot=i;
-      const cycle=points.slice(pivot).concat(points.slice(0,pivot+1));
+      if(points.length<7)return null;
+      const filtered=[points[0]];for(const p of points.slice(1))if(Math.hypot(p.x-filtered[filtered.length-1].x,p.y-filtered[filtered.length-1].y)>2)filtered.push(p);
+      if(filtered.length<7)return null;
+      const xs=filtered.map(p=>p.x),ys=filtered.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),w=maxX-minX,h=maxY-minY,diag=Math.hypot(w,h);
+      if(diag<42)return null;
+      const first=filtered[0],last=filtered[filtered.length-1],closed=Math.hypot(first.x-last.x,first.y-last.y)<diag*.23;
       const simplify=(arr,tol)=>{if(arr.length<3)return arr;const p=arr[0],q=arr[arr.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let index=0,dist=0;for(let i=1;i<arr.length-1;i++){const x=arr[i],u=den?Math.max(0,Math.min(1,((x.x-p.x)*dx+(x.y-p.y)*dy)/den)):0,d=Math.hypot(x.x-p.x-u*dx,x.y-p.y-u*dy);if(d>dist){dist=d;index=i}}if(dist<=tol)return [p,q];const left=simplify(arr.slice(0,index+1),tol),right=simplify(arr.slice(index),tol);return left.slice(0,-1).concat(right)};
-      const vertices=simplify(cycle,diag*.075);if(vertices.length>1)vertices.pop();
-      if(vertices.length!==3&&vertices.length!==4)return null;
-      const poly=vertices.concat([vertices[0]]);let perimeter=0;for(let i=1;i<poly.length;i++)perimeter+=Math.hypot(poly[i].x-poly[i-1].x,poly[i].y-poly[i-1].y);
-      if(Math.abs(perimeter-length)/length>.27)return null;
-      if(vertices.length===3)return {kind:'triangle',a:{x:minX,y:minY},b:{x:maxX,y:maxY}};
-      const edge=vertices.map((p,i)=>{const q=vertices[(i+1)%4];return Math.atan2(q.y-p.y,q.x-p.x)});
-      const angleDiff=(x,y)=>Math.abs(Math.atan2(Math.sin(x-y),Math.cos(x-y)));
-      if(angleDiff(edge[0],edge[2])<.28||Math.abs(angleDiff(edge[0],edge[2])-Math.PI)<.28){
-        const square=Math.abs(w-h)/Math.max(w,h)<.15;
-        return {kind:square?'rect':'rect',a:{x:minX,y:minY},b:{x:maxX,y:maxY}};
+      const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,w),y:(p.y-minY)/Math.max(1,h)})):null});
+      if(!closed){
+        const v=simplify(filtered,diag*.055);
+        if(v.length>=4&&v.length<=15){let turns=0;for(let i=1;i<v.length-1;i++){const u=v[i-1],p=v[i],q=v[i+1],cross=(p.x-u.x)*(q.y-p.y)-(p.y-u.y)*(q.x-p.x);if(Math.abs(cross)>diag*diag*.008)turns++}if(turns>=2)return pack('smart-polyline',v)}
+        if(v.length===2)return pack('line',[first,last]);
+        return null;
       }
-      return null;
+      if(w<25||h<25)return null;
+      const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+      const radial=filtered.map(p=>Math.hypot((p.x-cx)/(w/2),(p.y-cy)/(h/2)));
+      const radialError=radial.reduce((sum,x)=>sum+Math.abs(x-1),0)/radial.length;
+      if(radialError<.16)return pack(Math.abs(w-h)/Math.max(w,h)<.16?'circle':'ellipse');
+      // Start polygon simplification at a point far from the centroid, avoiding a duplicated endpoint.
+      let pivot=0;for(let i=1;i<filtered.length;i++)if(Math.hypot(filtered[i].x-cx,filtered[i].y-cy)>Math.hypot(filtered[pivot].x-cx,filtered[pivot].y-cy))pivot=i;
+      const cycle=filtered.slice(pivot).concat(filtered.slice(0,pivot+1));
+      let vertices=simplify(cycle,diag*.048);
+      if(vertices.length>2&&Math.hypot(vertices[0].x-vertices[vertices.length-1].x,vertices[0].y-vertices[vertices.length-1].y)<diag*.08)vertices.pop();
+      // Remove almost-collinear corners.
+      vertices=vertices.filter((p,i,arr)=>{const prev=arr[(i+arr.length-1)%arr.length],next=arr[(i+1)%arr.length],u={x:p.x-prev.x,y:p.y-prev.y},v={x:next.x-p.x,y:next.y-p.y};const den=Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y);return den>10&&Math.abs(u.x*v.y-u.y*v.x)/den>.18});
+      if(vertices.length<3||vertices.length>12)return null;
+      if(vertices.length===3)return pack('triangle');
+      if(vertices.length===4){
+        const e=vertices.map((p,i)=>{const q=vertices[(i+1)%4];return {x:q.x-p.x,y:q.y-p.y}});
+        const parallel=(u,v)=>Math.abs(u.x*v.y-u.y*v.x)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)||1);
+        if(parallel(e[0],e[2])<.28&&parallel(e[1],e[3])<.28){
+          const right=e.every((u,i)=>{const v=e[(i+1)%4];return Math.abs(u.x*v.x+u.y*v.y)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)||1)<.28});
+          const lens=e.map(v=>Math.hypot(v.x,v.y)),equal=Math.min(...lens)/Math.max(...lens)>.77;
+          if(right)return pack(equal?'smart-square':'smart-rectangle',vertices);
+          if(equal)return pack('smart-diamond',vertices);
+          return pack('smart-quadrilateral',vertices);
+        }
+        return pack('smart-quadrilateral',vertices);
+      }
+      return pack('smart-polygon',vertices);
     };
     const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
     const configure=()=>{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=tool==='eraser'?'#fffefa':color;ctx.fillStyle=tool==='eraser'?'#fffefa':color;ctx.lineWidth=tool==='pencil'?Math.max(1,width*.22):tool==='marker'?width*1.3:tool==='pen'?Math.max(1,width*.14):width;ctx.globalAlpha=tool==='marker'?.9:tool==='pencil'?.75:1;ctx.lineCap='round';ctx.lineJoin='round'};
@@ -3273,7 +3286,20 @@
     const activePointers=new Map();let pinchStart=null;
     const placeButton=(label,aria,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label',aria);b.style.cssText='min-height:39px;min-width:42px;border:2px solid white;border-radius:12px;background:linear-gradient(#6e93dc,#304a89);color:white;font-size:19px;box-shadow:0 3px 7px #0007';b.addEventListener('click',fn);placementBar.appendChild(b);return b};
     const resizePlacement=factor=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;for(const p of [placement.a,placement.b]){p.x=cx+(p.x-cx)*factor;p.y=cy+(p.y-cy)*factor}renderPlacement()};
-    const drawPlacement=target=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const oldMode=shapeMode,oldColor=color;shapeMode=placement.kind;color=placement.color;target.save();target.translate(cx,cy);target.rotate(placement.angle);target.translate(-cx,-cy);const main=ctx;ctx=target;try{shape(placement.a,placement.b)}finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
+    const drawPlacement=target=>{if(!placement)return;const cx=(placement.a.x+placement.b.x)/2,cy=(placement.a.y+placement.b.y)/2;const oldMode=shapeMode,oldColor=color;shapeMode=placement.kind;color=placement.color;target.save();target.translate(cx,cy);target.rotate(placement.angle);target.translate(-cx,-cy);const main=ctx;ctx=target;try{
+      if(placement.kind.startsWith('smart-')&&placement.vertices){
+        const w=placement.b.x-placement.a.x,h=placement.b.y-placement.a.y;
+        let v=placement.vertices.map(p=>({x:placement.a.x+p.x*w,y:placement.a.y+p.y*h}));
+        if(placement.kind==='smart-square'||placement.kind==='smart-rectangle'){
+          const x=Math.min(...v.map(p=>p.x)),y=Math.min(...v.map(p=>p.y)),right=Math.max(...v.map(p=>p.x)),bottom=Math.max(...v.map(p=>p.y));
+          if(placement.kind==='smart-square'){const side=Math.min(right-x,bottom-y),cx=(x+right)/2,cy=(y+bottom)/2;v=[{x:cx-side/2,y:cy-side/2},{x:cx+side/2,y:cy-side/2},{x:cx+side/2,y:cy+side/2},{x:cx-side/2,y:cy+side/2}]}
+          else v=[{x,y},{x:right,y},{x:right,y:bottom},{x,y:bottom}];
+        }else if(placement.kind==='smart-diamond'){const x=Math.min(...v.map(p=>p.x)),y=Math.min(...v.map(p=>p.y)),right=Math.max(...v.map(p=>p.x)),bottom=Math.max(...v.map(p=>p.y));v=[{x:(x+right)/2,y},{x:right,y:(y+bottom)/2},{x:(x+right)/2,y:bottom},{x,y:(y+bottom)/2}]}
+        target.beginPath();target.moveTo(v[0].x,v[0].y);for(const p of v.slice(1))target.lineTo(p.x,p.y);
+        if(placement.kind!=='smart-polyline')target.closePath();
+        target.strokeStyle=placement.color;target.lineWidth=width;target.lineJoin='round';target.lineCap='round';target.globalAlpha=1;target.stroke();
+      }else shape(placement.a,placement.b)
+    }finally{ctx=main;target.restore();shapeMode=oldMode;color=oldColor}};
     const renderPlacement=()=>{
       placementCtx.clearRect(0,0,W,H);
       if(!placement){placementBar.style.display='none';rotateHandle.style.display='none';cornerHandles.forEach(({handle})=>handle.style.display='none');activePointers.clear();pinchStart=null;return}
