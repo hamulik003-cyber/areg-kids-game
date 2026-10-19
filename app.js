@@ -3214,69 +3214,54 @@
     smartToggle.style.cssText='display:block;margin:2px auto 3px;padding:3px 11px;min-height:27px;font-size:11px;border-radius:11px;background:linear-gradient(#68b9e8,#315a9c);color:#fff';
     hint.parentElement.insertBefore(smartToggle,hint);
     smartToggle.addEventListener('click',()=>{smartShapes=!smartShapes;smartToggle.textContent=smartShapes?'✨ Խելացի ձևեր՝ միացված':'✏️ Խելացի ձևեր՝ անջատված';smartToggle.classList.toggle('on',smartShapes)});
-    const recognizeShape=points=>{
-      // Preserve intent: open handwriting is smoothed, closed shapes are classified
-      // only after geometry checks. Ambiguous closed strokes remain freehand.
-      if(points.length<5)return null;
-      const raw=[points[0]];for(const p of points.slice(1))if(Math.hypot(p.x-raw[raw.length-1].x,p.y-raw[raw.length-1].y)>1.5)raw.push(p);
-      if(raw.length<5)return null;
-      const xs=raw.map(p=>p.x),ys=raw.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),w=maxX-minX,h=maxY-minY,diag=Math.hypot(w,h);
-      if(diag<20)return null;
-      const dist=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y);
-      let length=0;for(let i=1;i<raw.length;i++)length+=dist(raw[i],raw[i-1]);
-      if(length<diag*.7)return null;
-      const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,w),y:(p.y-minY)/Math.max(1,h)})):null});
-      // Arc-length resampling makes recognition independent of pointer event frequency.
-      const resample=(pts,step)=>{const out=[pts[0]];let carry=0;for(let i=1;i<pts.length;i++){let p=pts[i-1],q=pts[i],d=dist(p,q);while(d+carry>=step&&d>0){const t=(step-carry)/d;const v={x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t};out.push(v);p=v;d=dist(p,q);carry=0}carry+=d}if(dist(out[out.length-1],pts[pts.length-1])>1)out.push(pts[pts.length-1]);return out};
-      const sampled=resample(raw,Math.max(2,diag/65)),first=sampled[0],last=sampled[sampled.length-1];
-      const closed=dist(first,last)<Math.min(diag*.16,length*.075);
-      const simplify=(arr,tol)=>{if(arr.length<3)return arr;const p=arr[0],q=arr[arr.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let idx=0,best=0;for(let i=1;i<arr.length-1;i++){const x=arr[i],u=den?Math.max(0,Math.min(1,((x.x-p.x)*dx+(x.y-p.y)*dy)/den)):0,d=Math.hypot(x.x-p.x-u*dx,x.y-p.y-u*dy);if(d>best){best=d;idx=i}}if(best<=tol)return [p,q];return simplify(arr.slice(0,idx+1),tol).slice(0,-1).concat(simplify(arr.slice(idx),tol))};
-      const smooth=pts=>pts.map((p,i)=>{if(i===0||i===pts.length-1)return p;const a=pts[Math.max(0,i-2)],b=pts[Math.min(pts.length-1,i+2)];return {x:p.x*.74+(a.x+b.x)*.13,y:p.y*.74+(a.y+b.y)*.13}});
-      if(!closed){
-        const dx=last.x-first.x,dy=last.y-first.y,den=Math.hypot(dx,dy);let deviation=0;
-        for(const p of sampled)deviation=Math.max(deviation,den?Math.abs((p.x-first.x)*dy-(p.y-first.y)*dx)/den:dist(p,first));
-        if(den>diag*.75&&deviation<diag*.027)return pack('line',[first,last]);
-        // Detect true corners by comparing tangent direction over a meaningful arc distance.
-        const corners=[];const reach=Math.max(3,Math.floor(sampled.length*.045));
-        for(let i=reach;i<sampled.length-reach;i++){const a=sampled[i-reach],p=sampled[i],b=sampled[i+reach],ux=p.x-a.x,uy=p.y-a.y,vx=b.x-p.x,vy=b.y-p.y;
-          const dot=(ux*vx+uy*vy)/(Math.hypot(ux,uy)*Math.hypot(vx,vy)||1);
-          const angle=Math.acos(Math.max(-1,Math.min(1,dot)));
-          if(angle>1.04&&(!corners.length||i-corners[corners.length-1].index>reach*2))corners.push({index:i,angle});
-        }
-        const poly=simplify(sampled,diag*.025);
-        const cornerQuality=poly.length>=4&&poly.length<=13&&corners.length>=2&&corners.length>=poly.length-3;
-        if(cornerQuality)return pack('smart-polyline',poly);
-        return pack('smart-curve',smooth(sampled));
-      }
-      if(w<20||h<20)return pack('smart-closed-curve',smooth(sampled));
-      // Circle/ellipse fit: reject polygons by their radial deviation.
-      const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
-      const radial=sampled.map(p=>Math.hypot((p.x-cx)/(w/2),(p.y-cy)/(h/2)));
+    const recognizeClosedShape=points=>{
+      if(points.length<10)return null;
+      const xs=points.map(p=>p.x),ys=points.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),w=maxX-minX,h=maxY-minY;
+      if(w<32||h<32)return null;
+      const diag=Math.hypot(w,h),first=points[0],last=points[points.length-1];
+      if(Math.hypot(first.x-last.x,first.y-last.y)>diag*.25)return null;
+      let length=0;for(let i=1;i<points.length;i++)length+=Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y);
+      if(length<diag*1.65||length>diag*5)return null;
+      const cx=(minX+maxX)/2,cy=(minY+maxY)/2,rx=w/2,ry=h/2;
+      const radial=points.map(p=>Math.hypot((p.x-cx)/rx,(p.y-cy)/ry));
       const radialError=radial.reduce((v,x)=>v+Math.abs(x-1),0)/radial.length;
-      if(radialError<.115&&length>diag*2.05&&length<diag*3.8)return pack(Math.abs(w-h)/Math.max(w,h)<.13?'circle':'ellipse');
-      // RDP on the closed loop: rotate to a remote point and evaluate corner count.
-      let pivot=0;for(let i=1;i<sampled.length;i++)if(dist(sampled[i],{x:cx,y:cy})>dist(sampled[pivot],{x:cx,y:cy}))pivot=i;
-      const cycle=sampled.slice(pivot).concat(sampled.slice(0,pivot+1));
-      let vertices=simplify(cycle,diag*.038);
-      if(vertices.length>1&&dist(vertices[0],vertices[vertices.length-1])<diag*.1)vertices.pop();
-      const area=vertices.reduce((v,p,i)=>{const q=vertices[(i+1)%vertices.length];return v+p.x*q.y-q.x*p.y},0)/2;
-      if(vertices.length<3||vertices.length>12||Math.abs(area)<w*h*.28)return pack('smart-closed-curve',smooth(sampled));
-      let polyLength=0;for(let i=0;i<vertices.length;i++)polyLength+=dist(vertices[i],vertices[(i+1)%vertices.length]);
-      if(Math.abs(polyLength-length)/length>.19)return pack('smart-closed-curve',smooth(sampled));
-      if(vertices.length===3)return pack('triangle');
-      if(vertices.length===4){
-        const e=vertices.map((p,i)=>{const q=vertices[(i+1)%4];return {x:q.x-p.x,y:q.y-p.y}});
-        const cross=(u,v)=>Math.abs(u.x*v.y-u.y*v.x)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)||1);
-        const parallel=cross(e[0],e[2])<.22&&cross(e[1],e[3])<.22;
-        const right=e.every((u,i)=>{const v=e[(i+1)%4];return Math.abs(u.x*v.x+u.y*v.y)/(Math.hypot(u.x,u.y)*Math.hypot(v.x,v.y)||1)<.22});
-        const lens=e.map(v=>Math.hypot(v.x,v.y)),equal=Math.min(...lens)/Math.max(...lens)>.82;
-        if(parallel&&right)return pack(equal?'smart-square':'smart-rectangle',vertices);
-        if(parallel&&equal)return pack('smart-diamond',vertices);
-        return pack('smart-quadrilateral',vertices);
+      if(radialError<.19&&length>diag*2){return {kind:Math.abs(w-h)/Math.max(w,h)<.15?'circle':'ellipse',a:{x:minX,y:minY},b:{x:maxX,y:maxY}}}
+      // Ramer-Douglas-Peucker on a closed gesture, starting at a remote point.
+      const center={x:points.reduce((v,p)=>v+p.x,0)/points.length,y:points.reduce((v,p)=>v+p.y,0)/points.length};
+      let pivot=0;for(let i=1;i<points.length;i++)if(Math.hypot(points[i].x-center.x,points[i].y-center.y)>Math.hypot(points[pivot].x-center.x,points[pivot].y-center.y))pivot=i;
+      const cycle=points.slice(pivot).concat(points.slice(0,pivot+1));
+      const simplify=(arr,tol)=>{if(arr.length<3)return arr;const p=arr[0],q=arr[arr.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let index=0,dist=0;for(let i=1;i<arr.length-1;i++){const x=arr[i],u=den?Math.max(0,Math.min(1,((x.x-p.x)*dx+(x.y-p.y)*dy)/den)):0,d=Math.hypot(x.x-p.x-u*dx,x.y-p.y-u*dy);if(d>dist){dist=d;index=i}}if(dist<=tol)return [p,q];const left=simplify(arr.slice(0,index+1),tol),right=simplify(arr.slice(index),tol);return left.slice(0,-1).concat(right)};
+      const vertices=simplify(cycle,diag*.075);if(vertices.length>1)vertices.pop();
+      if(vertices.length!==3&&vertices.length!==4)return null;
+      const poly=vertices.concat([vertices[0]]);let perimeter=0;for(let i=1;i<poly.length;i++)perimeter+=Math.hypot(poly[i].x-poly[i-1].x,poly[i].y-poly[i-1].y);
+      if(Math.abs(perimeter-length)/length>.27)return null;
+      if(vertices.length===3)return {kind:'triangle',a:{x:minX,y:minY},b:{x:maxX,y:maxY}};
+      const edge=vertices.map((p,i)=>{const q=vertices[(i+1)%4];return Math.atan2(q.y-p.y,q.x-p.x)});
+      const angleDiff=(x,y)=>Math.abs(Math.atan2(Math.sin(x-y),Math.cos(x-y)));
+      if(angleDiff(edge[0],edge[2])<.28||Math.abs(angleDiff(edge[0],edge[2])-Math.PI)<.28){
+        const square=Math.abs(w-h)/Math.max(w,h)<.15;
+        return {kind:square?'rect':'rect',a:{x:minX,y:minY},b:{x:maxX,y:maxY}};
       }
-      return pack('smart-polygon',vertices);
+      return null;
     };
-    const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
+const recognizeShape=points=>{
+      // Two independent paths: complete closed geometry -> ideal template;
+      // open handwriting -> smooth curve, never a polygon.
+      if(points.length<5)return null;
+      const xs=points.map(p=>p.x),ys=points.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+      const diag=Math.hypot(maxX-minX,maxY-minY),first=points[0],last=points[points.length-1];
+      const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,maxX-minX),y:(p.y-minY)/Math.max(1,maxY-minY)})):null});
+      if(diag<22)return null;
+      if(Math.hypot(first.x-last.x,first.y-last.y)>diag*.24){
+        const dx=last.x-first.x,dy=last.y-first.y,den=Math.hypot(dx,dy);let deviation=0;
+        for(const p of points)deviation=Math.max(deviation,den?Math.abs((p.x-first.x)*dy-(p.y-first.y)*dx)/den:Math.hypot(p.x-first.x,p.y-first.y));
+        if(den>diag*.75&&deviation<diag*.025)return pack('line',[first,last]);
+        const smooth=points.filter((_,i)=>i%2===0);if(smooth[smooth.length-1]!==last)smooth.push(last);
+        return pack('smart-curve',smooth);
+      }
+      return recognizeClosedShape(points);
+    };
+        const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
     const configure=()=>{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=tool==='eraser'?'#fffefa':color;ctx.fillStyle=tool==='eraser'?'#fffefa':color;ctx.lineWidth=tool==='pencil'?Math.max(1,width*.22):tool==='marker'?width*1.3:tool==='pen'?Math.max(1,width*.14):width;ctx.globalAlpha=tool==='marker'?.9:tool==='pencil'?.75:1;ctx.lineCap='round';ctx.lineJoin='round'};
     const stroke=(p,q)=>{ctx.save();configure();if(tool==='spray'||tool==='glitter'){for(let i=0;i<(tool==='spray'?23:9);i++){const ang=Math.random()*6.283,r=Math.sqrt(Math.random())*width*1.5;ctx.beginPath();ctx.arc(p.x+Math.cos(ang)*r,p.y+Math.sin(ang)*r,tool==='spray'?1:Math.random()*2+1,0,6.283);ctx.fill()}}else if(tool==='rainbow'){['#ff4c6e','#ffad40','#ffe26d','#54d887','#4bb7f5','#9a73ed'].forEach((c,i)=>{ctx.strokeStyle=c;ctx.lineWidth=Math.max(2,width/2.8);ctx.beginPath();ctx.moveTo(q.x,q.y+(i-2.5)*width/2.5);ctx.lineTo(p.x,p.y+(i-2.5)*width/2.5);ctx.stroke()})}else{ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();if(p.x===q.x&&p.y===q.y){ctx.beginPath();ctx.arc(p.x,p.y,ctx.lineWidth/2,0,6.283);ctx.fill()}}ctx.restore()};
     const linePatterns={"zigzag":"M5 70 L20 30 L35 70 L50 30 L65 70 L80 30 L95 70","wave":"M5 50 Q16 20 28 50 T51 50 T74 50 T97 50","semicircle":"M10 80 A40 40 0 0 1 90 80","hook":"M50 10 L50 68 Q50 91 27 85 Q12 78 23 62","spiral":"M50 50 C50 40 65 42 64 55 C62 72 32 70 30 49 C27 21 72 15 83 45 C96 80 53 99 26 78","arc":"M10 80 Q50 4 90 80","doublewave":"M5 37 Q16 12 28 37 T51 37 T74 37 T97 37 M5 65 Q16 40 28 65 T51 65 T74 65 T97 65","chevron":"M5 70 L25 30 L45 70 L65 30 L85 70","stairs":"M8 88 L8 70 L28 70 L28 52 L48 52 L48 34 L68 34 L68 16 L92 16","loop":"M7 52 C22 5 40 20 50 50 C60 80 80 95 93 48 C80 10 59 19 50 50 C40 80 19 91 7 52","sline":"M25 15 C88 5 88 43 50 50 C12 57 12 95 75 85","cross":"M50 10 L50 90 M10 50 L90 50","rays":"M50 50 L50 8 M50 50 L80 20 M50 50 L92 50 M50 50 L80 80 M50 50 L50 92 M50 50 L20 80 M50 50 L8 50 M50 50 L20 20","diamondline":"M50 8 L92 50 L50 92 L8 50 Z","curly":"M78 15 Q22 15 48 43 Q62 58 40 64 Q21 70 34 85","mountainline":"M5 82 L28 31 L43 62 L60 15 L95 82","rainbowarc":"M8 85 A42 42 0 0 1 92 85 M20 85 A30 30 0 0 1 80 85 M32 85 A18 18 0 0 1 68 85","dashes":"M5 50 L17 50 M26 50 L38 50 M47 50 L59 50 M68 50 L80 50 M89 50 L96 50","sawtooth":"M5 72 L17 30 L29 72 L41 30 L53 72 L65 30 L77 72 L89 30","squiggle":"M10 75 Q32 8 48 42 T70 55 Q95 88 88 20"};
