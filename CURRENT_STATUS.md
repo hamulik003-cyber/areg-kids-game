@@ -1,3 +1,7 @@
+## 2026-10-20 — Production drawing cache refresh (pending CI)
+- After approved painting PR #116 merged as `67b7660a0dc00aa759dd31f028351826e79719cf`, user's DotKiosk screenshot still displayed the old 7-color drawing UI and star button. Production `app.js` already contained the new `gamePaint()`, but `index.html` and service-worker.js retained the old `app.js?v=300` and `areg-v300-*` caches, risking stale offline asset reuse.
+- Focused branch `release/paint-cache-refresh-20261020` updates only index.html to app.js?v=301 and service-worker.js core/runtime cache names to areg-v301 plus matching app.js precache URL. No drawing logic, UI, stars, audio, or other gameplay changes. Await CI, merge and Pages deployment; user must verify DotKiosk refresh.
+
 ## 2026-10-20 — User-approved finger painting release (pending CI and merge)
 - User explicitly approved the AREG TEST «Մատով նկարչություն» after fixing two-finger pinch accidentally placing a star and locking drawing. Exact approved trial source commit: `ccc73abdd7cd43d9a5bd11be808136c42f896839`.
 - Focused release branch `release/paint-approved-20261020` replaces only the `gamePaint()` function in production `app.js` with the approved trial implementation. All other production game functions, headers, PWA files, jigsaw, audio and assets remain unchanged. Do NOT merge broad PR #104 or trial-only Render/PWA infrastructure.
