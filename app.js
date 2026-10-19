@@ -3224,19 +3224,16 @@
       const simplify=(arr,tol)=>{if(arr.length<3)return arr;const p=arr[0],q=arr[arr.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let index=0,dist=0;for(let i=1;i<arr.length-1;i++){const x=arr[i],u=den?Math.max(0,Math.min(1,((x.x-p.x)*dx+(x.y-p.y)*dy)/den)):0,d=Math.hypot(x.x-p.x-u*dx,x.y-p.y-u*dy);if(d>dist){dist=d;index=i}}if(dist<=tol)return [p,q];const left=simplify(arr.slice(0,index+1),tol),right=simplify(arr.slice(index),tol);return left.slice(0,-1).concat(right)};
       const pack=(kind,vertices)=>({kind,a:{x:minX,y:minY},b:{x:maxX,y:maxY},vertices:vertices?vertices.map(p=>({x:(p.x-minX)/Math.max(1,w),y:(p.y-minY)/Math.max(1,h)})):null});
       if(!closed){
-        const v=simplify(filtered,diag*.055);
-        if(v.length>=4&&v.length<=15){
-          // Corners have concentrated direction changes; curved handwriting spreads turns
-          // over many short segments. Do not turn a handwritten 3 into a sharp zigzag.
-          const sampled=[];const step=Math.max(7,diag*.045);
-          for(let i=1;i<filtered.length-1;i++){const prev=filtered[Math.max(0,i-3)],next=filtered[Math.min(filtered.length-1,i+3)];const u={x:filtered[i].x-prev.x,y:filtered[i].y-prev.y},z={x:next.x-filtered[i].x,y:next.y-filtered[i].y};const den=Math.hypot(u.x,u.y)*Math.hypot(z.x,z.y);if(den>1)sampled.push(Math.acos(Math.max(-1,Math.min(1,(u.x*z.x+u.y*z.y)/den))))}
-          const sharp=sampled.filter(x=>x>1.05).length;
-          const avg=sampled.length?sampled.reduce((x,y)=>x+y,0)/sampled.length:0;
-          if(sharp>=2&&avg>.22)return pack('smart-polyline',v);
-          return pack('smart-curve',filtered.filter((_,i)=>i%3===0).concat([last]));
-        }
-        if(v.length===2)return pack('line',[first,last]);
-        return null;
+        // Never convert an open handwritten curve into sharp polygon segments.
+        // Straight gestures remain lines; all other open gestures use a smooth spline.
+        const dx=last.x-first.x,dy=last.y-first.y,den=Math.hypot(dx,dy);
+        let maxDeviation=0;
+        for(const p of filtered){const deviation=den?Math.abs((p.x-first.x)*dy-(p.y-first.y)*dx)/den:Math.hypot(p.x-first.x,p.y-first.y);maxDeviation=Math.max(maxDeviation,deviation)}
+        if(den>diag*.65&&maxDeviation<diag*.055)return pack('line',[first,last]);
+        const smooth=[];
+        for(let i=0;i<filtered.length;i+=2)smooth.push(filtered[i]);
+        if(smooth[smooth.length-1]!==last)smooth.push(last);
+        return pack('smart-curve',smooth);
       }
       if(w<25||h<25)return null;
       const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
