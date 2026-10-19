@@ -3302,6 +3302,23 @@
     placementLayer.width=W;placementLayer.height=H;
     placementLayer.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3';
     const paper=canvas.parentElement;paper.style.position='relative';paper.appendChild(placementLayer);
+    // Canvas zoom: scale the complete paper, including placement previews and handles.
+    const frame=ui.querySelector('.frame');frame.style.overflow='hidden';
+    paper.style.transformOrigin='center center';
+    let zoom=1;
+    const zoomControls=document.createElement('div');
+    zoomControls.style.cssText='position:absolute;right:9px;bottom:9px;z-index:8;display:flex;gap:5px';
+    const applyZoom=()=>{paper.style.transform='scale('+zoom+')';zoomReset.textContent=Math.round(zoom*100)+'%'};
+    const zoomButton=(label,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='min-width:37px;height:33px;border-radius:9px;background:linear-gradient(#cce5ff,#4778bc);border:1px solid #e8f6ff;color:white;font-weight:900;box-shadow:0 2px 4px #0005';b.addEventListener('click',action);zoomControls.appendChild(b);return b};
+    zoomButton('−',()=>{zoom=Math.max(1,Math.round((zoom-.25)*4)/4);applyZoom()});
+    const zoomReset=zoomButton('100%',()=>{zoom=1;applyZoom()});
+    zoomButton('+',()=>{zoom=Math.min(3,Math.round((zoom+.25)*4)/4);applyZoom()});
+    frame.style.position='relative';frame.appendChild(zoomControls);
+    // Two-finger pinch on empty paper; existing shape-placement pinch keeps precedence.
+    const zoomTouches=new Map();let zoomStart=null;
+    paper.addEventListener('pointerdown',e=>{if(placement||e.pointerType!=='touch')return;zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(zoomTouches.size===2){const pts=[...zoomTouches.values()];zoomStart={distance:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y),zoom};down=false}},true);
+    paper.addEventListener('pointermove',e=>{if(!zoomTouches.has(e.pointerId))return;zoomTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(zoomStart&&zoomTouches.size===2){e.preventDefault();e.stopPropagation();const pts=[...zoomTouches.values()],distance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);zoom=Math.max(1,Math.min(3,zoomStart.zoom*distance/Math.max(1,zoomStart.distance)));applyZoom()}},true);
+    for(const name of ['pointerup','pointercancel'])paper.addEventListener(name,e=>{zoomTouches.delete(e.pointerId);if(zoomTouches.size<2)zoomStart=null},true);
     const placementCtx=placementLayer.getContext('2d');
     const placementBar=document.createElement('div');
     placementBar.style.cssText='position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:none;gap:7px;z-index:5;align-items:center;white-space:nowrap';
