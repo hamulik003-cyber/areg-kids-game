@@ -1,3 +1,8 @@
+## 2026-10-18 — TRIAL: Creativity / Finger Painting (NOT RELEASED)
+- User requested first playable game under Creativity → Մատով նկարչություն, inspired by supplied video: when child first touches the drawing, its dotted outline automatically traces with smooth marker movement; after tracing, child selects colors and paints by moving finger, with a matching smoothly following marker. Keep production game unchanged until explicit approval.
+- Created isolated branch `trial/finger-paint-marker-20261018` from approved production commit `89ec450bd54d7d49fb2db3dd7a1fb1b9c2920290`. New `create-finger-paint.html` contains five drawings, guided 2.6-second automatic contour trace, color palette, pointer-driven freehand marker painting clipped to artwork, progress bar, animated completion and next image. `app.js` changes only `gamePaint()` to embed the game in approved full-app shell and forward theme/back navigation. No edits to main, PWA, service worker, other games or existing media.
+- Test in direct Safari preview and in full app's Creativity menu (iPhone touch, iframe, header, color strokes, theme, back navigation, DotKiosk-sized viewport). This is an initial playable trial, NOT user-approved or production-ready. Do not merge without user visual approval and green CI.
+
 ## 2026-10-18 — PR #109 delayed WebKit sample correction
 - Run #821: ios-pwa-music, assets-and-code passed. ios-webkit again hit V277, now first WAAPI sample at 308ms due to heavy CI scheduling; native animation states/durations were correct and completion sampled at 1865ms. Extended sparse first-sample gate to <600ms while still requiring three running paused decoys and a later completed fade/hero transform; no gameplay/animation changes. Await complete CI.
 
