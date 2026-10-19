@@ -3207,149 +3207,7 @@
     const swatches=[];const setColor=c=>{shapeMode=null;color=c;picker.value=c;swatches.forEach(([b,v])=>b.classList.toggle('on',v===c))};
     ['#222936','#ff934c','#ffdc4c','#7cda74','#39d6bf','#4bafff','#8274e9','#d675e9','#ffffff','#242b4b','#a76b46','#e7b8a3','#83d7ff','#afeb90','#ffaecb','#777777','#ff3e35','#f5f0da'].forEach(c=>{const b=button('','swatch',()=>setColor(c));b.style.background=c;b.setAttribute('aria-label','Գույն '+c);palette.appendChild(b);swatches.push([b,c])});setColor(color);
     picker.addEventListener('input',()=>{shapeMode=null;setColor(picker.value);activeColor=inks.length-1;Array.from(dock.children).forEach((x,i)=>x.classList.toggle('on',i===activeColor))});range.addEventListener('input',()=>{width=Number(range.value);num.textContent=width});
-    // Optional on-device Smart Shapes; no network or AI service.
-    let smartShapes=true,smartStroke=[];
-    const smartToggle=document.createElement('button');
-    smartToggle.type='button';smartToggle.textContent='✨ Խելացի ձևեր՝ միացված';
-    smartToggle.style.cssText='display:block;margin:2px auto 3px;padding:3px 11px;min-height:27px;font-size:11px;border-radius:11px;background:linear-gradient(#68b9e8,#315a9c);color:#fff';
-    hint.parentElement.insertBefore(smartToggle,hint);
-    smartToggle.addEventListener('click',()=>{smartShapes=!smartShapes;smartToggle.textContent=smartShapes?'✨ Խելացի ձևեր՝ միացված':'✏️ Խելացի ձևեր՝ անջատված';smartToggle.classList.toggle('on',smartShapes)});
-    const recognizeShape=(()=>{
-      // Independent template-based recognizer. No old heuristic remains.
-      const N=80;
-      const line=(a,b,n=20)=>Array.from({length:n},(_,i)=>({x:a.x+(b.x-a.x)*i/(n-1),y:a.y+(b.y-a.y)*i/(n-1)}));
-      const polygon=(v,closed=true)=>{const out=[];for(let i=0;i<v.length-(closed?0:1);i++){const p=v[i],q=v[(i+1)%v.length];out.push(...line(p,q,12).slice(0,-1))}out.push(closed?v[0]:v[v.length-1]);return out};
-      const regular=(n,phase=-Math.PI/2)=>polygon(Array.from({length:n},(_,i)=>({x:.5+.46*Math.cos(phase+2*Math.PI*i/n),y:.5+.46*Math.sin(phase+2*Math.PI*i/n)})));
-      const curve=(fn,n=110)=>Array.from({length:n},(_,i)=>fn(i/(n-1)));
-      const templates=[];
-      const add=(name,pts,closed=true,kind='smart-polyline')=>templates.push({name,pts,closed,kind});
-      const poly=(name,v)=>add(name,polygon(v));
-      const rect=(w,h)=>polygon([{x:.5-w/2,y:.5-h/2},{x:.5+w/2,y:.5-h/2},{x:.5+w/2,y:.5+h/2},{x:.5-w/2,y:.5+h/2}]);
-      add('circle',curve(t=>({x:.5+.47*Math.cos(2*Math.PI*t),y:.5+.47*Math.sin(2*Math.PI*t)})),true,'circle');
-      add('ellipse',curve(t=>({x:.5+.47*Math.cos(2*Math.PI*t),y:.5+.32*Math.sin(2*Math.PI*t)})),true,'ellipse');
-      add('vertical-ellipse',curve(t=>({x:.5+.32*Math.cos(2*Math.PI*t),y:.5+.47*Math.sin(2*Math.PI*t)})),true,'ellipse');
-      add('square',rect(.9,.9));add('rectangle',rect(.96,.58));add('tall-rectangle',rect(.58,.96));
-      poly('triangle',[{x:.5,y:.04},{x:.96,y:.95},{x:.04,y:.95}]);
-      poly('right-triangle',[{x:.08,y:.08},{x:.08,y:.94},{x:.95,y:.94}]);
-      poly('inverted-triangle',[{x:.04,y:.05},{x:.96,y:.05},{x:.5,y:.96}]);
-      poly('diamond',[{x:.5,y:.03},{x:.97,y:.5},{x:.5,y:.97},{x:.03,y:.5}]);
-      poly('parallelogram',[{x:.26,y:.08},{x:.97,y:.08},{x:.74,y:.92},{x:.03,y:.92}]);
-      poly('trapezoid',[{x:.27,y:.08},{x:.73,y:.08},{x:.97,y:.92},{x:.03,y:.92}]);
-      for(let n=5;n<=12;n++)add('polygon-'+n,regular(n));
-      const star=(n=5)=>polygon(Array.from({length:2*n},(_,i)=>{const r=i%2?.21:.48,a=-Math.PI/2+i*Math.PI/n;return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}));
-      add('star-5',star(5));add('star-6',star(6));
-      add('heart',curve(t=>{const a=2*Math.PI*t;return {x:.5+(.029*16*Math.pow(Math.sin(a),3)),y:.45-(.029*(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a)))}}),true,'smart-closed-curve');
-      // Smooth flower outlines are recognized as curves, not jagged polygons.
-      add('flower-5',curve(t=>{const a=2*Math.PI*t,r=.32+.14*Math.cos(5*a);return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}),true,'smart-closed-curve');
-      add('flower-6',curve(t=>{const a=2*Math.PI*t,r=.32+.14*Math.cos(6*a);return {x:.5+r*Math.cos(a),y:.5+r*Math.sin(a)}}),true,'smart-closed-curve');
-      poly('plus',[{x:.38,y:.04},{x:.62,y:.04},{x:.62,y:.38},{x:.96,y:.38},{x:.96,y:.62},{x:.62,y:.62},{x:.62,y:.96},{x:.38,y:.96},{x:.38,y:.62},{x:.04,y:.62},{x:.04,y:.38},{x:.38,y:.38}]);
-      poly('cross',[{x:.18,y:.04},{x:.5,y:.36},{x:.82,y:.04},{x:.96,y:.18},{x:.64,y:.5},{x:.96,y:.82},{x:.82,y:.96},{x:.5,y:.64},{x:.18,y:.96},{x:.04,y:.82},{x:.36,y:.5},{x:.04,y:.18}]);
-      poly('right-arrow',[{x:.04,y:.35},{x:.64,y:.35},{x:.64,y:.08},{x:.97,y:.5},{x:.64,y:.92},{x:.64,y:.65},{x:.04,y:.65}]);
-      poly('double-arrow',[{x:.04,y:.5},{x:.28,y:.08},{x:.28,y:.35},{x:.72,y:.35},{x:.72,y:.08},{x:.96,y:.5},{x:.72,y:.92},{x:.72,y:.65},{x:.28,y:.65},{x:.28,y:.92}]);
-      add('semicircle',curve(t=>t<.8?{x:.5+.46*Math.cos(Math.PI-(t/.8)*Math.PI),y:.93-.84*Math.sin(Math.PI*(t/.8))}:{x:.96-(t-.8)/.2*.92,y:.93}),true,'smart-closed-curve');
-      add('wave',curve(t=>({x:.03+.94*t,y:.5-.27*Math.sin(4*Math.PI*t)})),false,'smart-curve');
-      add('zigzag',polygon([{x:.04,y:.72},{x:.2,y:.22},{x:.36,y:.72},{x:.52,y:.22},{x:.68,y:.72},{x:.84,y:.22},{x:.96,y:.72}],false),false);
-      add('line',line({x:.05,y:.5},{x:.95,y:.5}),false);
-      add('vertical-line',line({x:.5,y:.05},{x:.5,y:.95}),false);
-      add('diagonal-line',line({x:.05,y:.05},{x:.95,y:.95}),false);
-      add('reverse-diagonal',line({x:.95,y:.05},{x:.05,y:.95}),false);
-      add('quarter-circle',curve(t=>({x:.05+.9*Math.cos(Math.PI/2*t),y:.95-.9*Math.sin(Math.PI/2*t)})),false,'smart-curve');
-      add('arch',curve(t=>({x:.05+.9*t,y:.95-.88*Math.sin(Math.PI*t)})),false,'smart-curve');
-      const sample=(pts,n=N)=>{const lens=[0];for(let i=1;i<pts.length;i++)lens.push(lens[i-1]+Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y));const total=lens[lens.length-1];if(total<1e-5)return null;let k=1;return Array.from({length:n},(_,i)=>{const d=total*i/(n-1);while(k<lens.length-1&&lens[k]<d)k++;const p=pts[k-1],q=pts[k],f=(d-lens[k-1])/(lens[k]-lens[k-1]||1);return {x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f}})};
-      const norm=pts=>{const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),w=Math.max(...xs)-x,h=Math.max(...ys)-y,d=Math.max(w,h);return {pts:pts.map(p=>({x:(p.x-x)/d,y:(p.y-y)/d})),aspect:w/Math.max(h,1e-5),w,h}};
-      // Multi-prototype nearest-neighbor classification, inspired by sketch recognizers.
-      // Augmented prototypes make matching tolerant of finger jitter and skew.
-      const prototypeSet=templates.flatMap(t=>{
-        const variations=[t.pts];
-        for(const skew of [-.12,.12]){
-          variations.push(t.pts.map(p=>({x:p.x+skew*(p.y-.5),y:p.y-skew*(p.x-.5)})));
-        }
-        return variations.map(pts=>({...t,normalized:norm(sample(pts))}));
-      });
-      const known=prototypeSet;
-      return points=>{
-        if(points.length<5)return null;
-        const raw=[points[0]];for(const p of points.slice(1))if(Math.hypot(p.x-raw[raw.length-1].x,p.y-raw[raw.length-1].y)>1.5)raw.push(p);
-        if(raw.length<5)return null;
-        const sampled=sample(raw);if(!sampled)return null;
-        const input=norm(sampled),diag=Math.hypot(input.w,input.h);
-        if(diag<28)return null;
-        const closure=Math.hypot(raw[0].x-raw[raw.length-1].x,raw[0].y-raw[raw.length-1].y)/diag;
-        // Fit a complete circle/ellipse directly before template comparison.
-        // This prevents noisy finger circles being mistaken for angular shapes.
-        if(closure<.32&&input.w>25&&input.h>25){
-          const left=Math.min(...raw.map(p=>p.x)),top=Math.min(...raw.map(p=>p.y));
-          const cx=left+input.w/2,cy=top+input.h/2;
-          const radii=sampled.map(p=>Math.hypot((p.x-cx)/(input.w/2),(p.y-cy)/(input.h/2)));
-          const radialError=radii.reduce((sum,v)=>sum+Math.abs(v-1),0)/radii.length;
-          let arc=0;for(let i=1;i<sampled.length;i++)arc+=Math.hypot(sampled[i].x-sampled[i-1].x,sampled[i].y-sampled[i-1].y);
-          const ellipseLength=Math.PI*(3*(input.w/2+input.h/2)-Math.sqrt((3*input.w/2+input.h/2)*(input.w/2+3*input.h/2)));
-          if(radialError<.075&&Math.abs(arc-ellipseLength)/ellipseLength<.16){
-            return {kind:Math.abs(input.w-input.h)/Math.max(input.w,input.h)<.18?'circle':'ellipse',a:{x:left,y:top},b:{x:left+input.w,y:top+input.h},closed:true};
-          }
-        }
-        let geometricCandidate=null;
-        // Detect sharp geometric corners before shape-template fitting.
-        // Curved circles are already handled above; polygons must never become circles.
-        if(closure<.32&&raw.length>=12){
-          const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-          const cx=raw.reduce((v,p)=>v+p.x,0)/raw.length,cy=raw.reduce((v,p)=>v+p.y,0)/raw.length;
-          let pivot=0;for(let i=1;i<raw.length;i++)if(dist(raw[i],{x:cx,y:cy})>dist(raw[pivot],{x:cx,y:cy}))pivot=i;
-          const cycle=raw.slice(pivot).concat(raw.slice(0,pivot+1));
-          const rdp=(v,tol)=>{if(v.length<3)return v;const p=v[0],q=v[v.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let k=0,max=0;for(let i=1;i<v.length-1;i++){const a=v[i],f=den?Math.max(0,Math.min(1,((a.x-p.x)*dx+(a.y-p.y)*dy)/den)):0,d=dist(a,{x:p.x+dx*f,y:p.y+dy*f});if(d>max){max=d;k=i}}if(max<=tol)return [p,q];return rdp(v.slice(0,k+1),tol).slice(0,-1).concat(rdp(v.slice(k),tol))};
-          let vertices=rdp(cycle,diag*.055);if(vertices.length>1&&dist(vertices[0],vertices[vertices.length-1])<diag*.17)vertices.pop();
-          if(vertices.length>=3&&vertices.length<=12){
-            const edges=vertices.map((p,i)=>dist(p,vertices[(i+1)%vertices.length]));
-            const minEdge=Math.min(...edges),maxEdge=Math.max(...edges);
-            let polyLength=edges.reduce((a,b)=>a+b,0),strokeLength=0;
-            for(let i=1;i<raw.length;i++)strokeLength+=dist(raw[i],raw[i-1]);
-            let area=0;for(let i=0;i<vertices.length;i++){const p=vertices[i],q=vertices[(i+1)%vertices.length];area+=p.x*q.y-q.x*p.y}
-            if(minEdge>diag*.13&&Math.abs(area)>input.w*input.h*.27&&Math.abs(polyLength-strokeLength)/strokeLength<.22){
-              const n=vertices.length;
-              const turns=vertices.map((p,i)=>{const prev=vertices[(i+n-1)%n],next=vertices[(i+1)%n];return (p.x-prev.x)*(next.y-p.y)-(p.y-prev.y)*(next.x-p.x)});
-              const hasConcave=turns.some(t=>t>diag*diag*.025)&&turns.some(t=>t< -diag*diag*.025);
-              let ideal=vertices;
-              if(!hasConcave&&n>=5&&minEdge/maxEdge>.68){
-                const center={x:vertices.reduce((a,p)=>a+p.x,0)/n,y:vertices.reduce((a,p)=>a+p.y,0)/n};
-                const phase=Math.atan2(vertices[0].y-center.y,vertices[0].x-center.x);
-                const direction=area>=0?1:-1;
-                const radius=vertices.reduce((a,p)=>a+dist(p,center),0)/n;
-                ideal=Array.from({length:n},(_,i)=>({x:center.x+radius*Math.cos(phase+direction*2*Math.PI*i/n),y:center.y+radius*Math.sin(phase+direction*2*Math.PI*i/n)}));
-              }
-              if(!hasConcave&&n<=8){
-                const left=Math.min(...ideal.map(p=>p.x)),top=Math.min(...ideal.map(p=>p.y));
-                const right=Math.max(...ideal.map(p=>p.x)),bottom=Math.max(...ideal.map(p=>p.y));
-                geometricCandidate={kind:'smart-polyline',closed:true,a:{x:left,y:top},b:{x:right,y:bottom},vertices:ideal.map(p=>({x:(p.x-left)/(right-left||1),y:(p.y-top)/(bottom-top||1)}))};
-              }
-            }
-          }
-        }
-        let best=null;
-        for(const t of known){
-          if(t.closed&&closure>.28)continue;
-          if(!t.closed&&closure<.09)continue;
-          const aspect=Math.abs(Math.log(Math.max(.05,input.aspect)/Math.max(.05,t.normalized.aspect)));
-          if(aspect>.58)continue;
-          const target=t.normalized.pts;
-          for(const reversed of [false,true]){
-            const arr=reversed?input.pts.slice().reverse():input.pts;
-            const offsets=t.closed?Array.from({length:N},(_,i)=>i):[0];
-            for(const offset of offsets){
-              let error=0;for(let i=0;i<N;i++){const p=arr[i],q=target[(i+offset)%N];error+=(p.x-q.x)**2+(p.y-q.y)**2}
-              error=Math.sqrt(error/N)+aspect*.045;
-              if(!best||error<best.error)best={t,error};
-            }
-          }
-        }
-        if(!best||best.error>.125)return geometricCandidate;
-        if(geometricCandidate&&best.error>.065)return geometricCandidate;
-        const t=best.t,x=Math.min(...raw.map(p=>p.x)),y=Math.min(...raw.map(p=>p.y)),w=Math.max(...raw.map(p=>p.x))-x,h=Math.max(...raw.map(p=>p.y))-y;
-        const fitted=norm(t.pts).pts;
-        const vertices=fitted.map(p=>({x:p.x/Math.max(1e-5,Math.max(...fitted.map(v=>v.x))),y:p.y/Math.max(1e-5,Math.max(...fitted.map(v=>v.y)))}));
-        return {kind:t.kind==='circle'||t.kind==='ellipse'?t.kind:t.kind==='smart-closed-curve'?'smart-closed-curve':t.kind==='smart-curve'?'smart-curve':'smart-polyline',a:{x,y},b:{x:x+w,y:y+h},vertices,closed:t.closed};
-      };
-    })();
-        const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
+    const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
     const configure=()=>{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=tool==='eraser'?'#fffefa':color;ctx.fillStyle=tool==='eraser'?'#fffefa':color;ctx.lineWidth=tool==='pencil'?Math.max(1,width*.22):tool==='marker'?width*1.3:tool==='pen'?Math.max(1,width*.14):width;ctx.globalAlpha=tool==='marker'?.9:tool==='pencil'?.75:1;ctx.lineCap='round';ctx.lineJoin='round'};
     const stroke=(p,q)=>{ctx.save();configure();if(tool==='spray'||tool==='glitter'){for(let i=0;i<(tool==='spray'?23:9);i++){const ang=Math.random()*6.283,r=Math.sqrt(Math.random())*width*1.5;ctx.beginPath();ctx.arc(p.x+Math.cos(ang)*r,p.y+Math.sin(ang)*r,tool==='spray'?1:Math.random()*2+1,0,6.283);ctx.fill()}}else if(tool==='rainbow'){['#ff4c6e','#ffad40','#ffe26d','#54d887','#4bb7f5','#9a73ed'].forEach((c,i)=>{ctx.strokeStyle=c;ctx.lineWidth=Math.max(2,width/2.8);ctx.beginPath();ctx.moveTo(q.x,q.y+(i-2.5)*width/2.5);ctx.lineTo(p.x,p.y+(i-2.5)*width/2.5);ctx.stroke()})}else{ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();if(p.x===q.x&&p.y===q.y){ctx.beginPath();ctx.arc(p.x,p.y,ctx.lineWidth/2,0,6.283);ctx.fill()}}ctx.restore()};
     const linePatterns={"zigzag":"M5 70 L20 30 L35 70 L50 30 L65 70 L80 30 L95 70","wave":"M5 50 Q16 20 28 50 T51 50 T74 50 T97 50","semicircle":"M10 80 A40 40 0 0 1 90 80","hook":"M50 10 L50 68 Q50 91 27 85 Q12 78 23 62","spiral":"M50 50 C50 40 65 42 64 55 C62 72 32 70 30 49 C27 21 72 15 83 45 C96 80 53 99 26 78","arc":"M10 80 Q50 4 90 80","doublewave":"M5 37 Q16 12 28 37 T51 37 T74 37 T97 37 M5 65 Q16 40 28 65 T51 65 T74 65 T97 65","chevron":"M5 70 L25 30 L45 70 L65 30 L85 70","stairs":"M8 88 L8 70 L28 70 L28 52 L48 52 L48 34 L68 34 L68 16 L92 16","loop":"M7 52 C22 5 40 20 50 50 C60 80 80 95 93 48 C80 10 59 19 50 50 C40 80 19 91 7 52","sline":"M25 15 C88 5 88 43 50 50 C12 57 12 95 75 85","cross":"M50 10 L50 90 M10 50 L90 50","rays":"M50 50 L50 8 M50 50 L80 20 M50 50 L92 50 M50 50 L80 80 M50 50 L50 92 M50 50 L20 80 M50 50 L8 50 M50 50 L20 20","diamondline":"M50 8 L92 50 L50 92 L8 50 Z","curly":"M78 15 Q22 15 48 43 Q62 58 40 64 Q21 70 34 85","mountainline":"M5 82 L28 31 L43 62 L60 15 L95 82","rainbowarc":"M8 85 A42 42 0 0 1 92 85 M20 85 A30 30 0 0 1 80 85 M32 85 A18 18 0 0 1 68 85","dashes":"M5 50 L17 50 M26 50 L38 50 M47 50 L59 50 M68 50 L80 50 M89 50 L96 50","sawtooth":"M5 72 L17 30 L29 72 L41 30 L53 72 L65 30 L77 72 L89 30","squiggle":"M10 75 Q32 8 48 42 T70 55 Q95 88 88 20"};
@@ -3447,10 +3305,10 @@
       else if(activePointers.size===1){for(const v of [placement.a,placement.b]){v.x+=p.x-prev.x;v.y+=p.y-prev.y}}
       renderPlacement()});
     for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(!placement)return;e.stopImmediatePropagation();activePointers.delete(e.pointerId);pinchStart=null;placementDrag=activePointers.size===1?[...activePointers.values()][0]:null});
-    canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);smartStroke=smartShapes&&!shapeMode&&['marker','pencil','pen','brush'].includes(tool)?[{...last}]:[];saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
-    canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(smartStroke.length&&smartStroke.length<1500&&Math.hypot(p.x-smartStroke[smartStroke.length-1].x,p.y-smartStroke[smartStroke.length-1].y)>2)smartStroke.push({...p});if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
-    const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}else if(e&&smartStroke.length){smartStroke.push(point(e));const match=recognizeShape(smartStroke);if(match&&undo.length){restore(undo[undo.length-1]);placement={...match,angle:0,color};renderPlacement()}}smartStroke=[];base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
-    canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',()=>{down=false;base=null;smartStroke=[];strokeRegion=null;strokeBefore=null});
+    canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
+    canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
+    const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
+    canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',()=>{down=false;base=null;strokeRegion=null;strokeBefore=null});
     gameCleanup.push(()=>{clearTimeout(closeTimer);down=false;placement=null;placementLayer.remove();placementBar.remove();rotateHandle.remove();cornerHandles.forEach(({handle})=>handle.remove());canvas.width=1;canvas.height=1});
   }
   function gameStickers(){
