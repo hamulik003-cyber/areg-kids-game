@@ -3241,10 +3241,11 @@
         ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
         if(length<.5){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,6.283);ctx.fill()}
       }else if(tool==='marker'){
-        // Felt-tip marker: wide saturated body with soft translucent edge.
+        // Opaque, continuous felt-tip stroke; no translucent layers or overlapping dabs.
         const size=Math.max(3,width*1.3);
-        ctx.lineWidth=size+1.5;ctx.globalAlpha=.16;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
-        ctx.lineWidth=size;ctx.globalAlpha=.87;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+        ctx.globalAlpha=1;ctx.lineWidth=size;ctx.lineCap='round';ctx.lineJoin='round';
+        ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+        if(length<.5){ctx.beginPath();ctx.arc(p.x,p.y,size/2,0,Math.PI*2);ctx.fill()}
       }else if(tool==='pen'){
         // Ballpoint: crisp fine line, subtle ink pooling at the start/end.
         const size=Math.max(.85,width*.15);
