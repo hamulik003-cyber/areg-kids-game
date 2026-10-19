@@ -3222,6 +3222,14 @@
     const swatches=[];const setColor=c=>{color=c;picker.value=c;swatches.forEach(([b,v])=>b.classList.toggle('on',v===c))};
     ['#222936','#ff934c','#ffdc4c','#7cda74','#39d6bf','#4bafff','#8274e9','#d675e9','#ffffff','#242b4b','#a76b46','#e7b8a3','#83d7ff','#afeb90','#ffaecb','#777777','#ff3e35','#f5f0da'].forEach(c=>{const b=button('','swatch',()=>{if(shapeMode){shapeMode=null;tool='marker';updateToolTab()}setColor(c)});b.style.background=c;b.setAttribute('aria-label','Գույն '+c);palette.appendChild(b);swatches.push([b,c])});setColor(color);
     picker.addEventListener('input',()=>{if(shapeMode){shapeMode=null;tool='marker';updateToolTab()}setColor(picker.value);activeColor=inks.length-1;Array.from(dock.children).forEach((x,i)=>x.classList.toggle('on',i===activeColor))});range.addEventListener('input',()=>{width=Number(range.value);num.textContent=width});
+    // Eyedropper: sample a painted pixel without changing the canvas or undo history.
+    let eyedropper=false;
+    const pickButton=document.createElement('button');
+    pickButton.type='button';pickButton.textContent='🎯';pickButton.title='Վերցնել նկարի գույնը';
+    pickButton.setAttribute('aria-label','Պիպետկա՝ վերցնել նկարի գույնը');
+    pickButton.style.cssText='position:absolute;left:3px;top:-19px;width:31px;height:28px;min-height:28px;border-radius:9px;font-size:17px;padding:0;background:linear-gradient(#b7d4fa,#466eaa);z-index:4;border:1px solid #d8eaff;box-shadow:0 2px 4px #0006';
+    dock.appendChild(pickButton);
+    pickButton.addEventListener('click',()=>{eyedropper=!eyedropper;pickButton.style.outline=eyedropper?'3px solid #ffdc62':'none';hint.textContent=eyedropper?'Դիպչիր նկարված գույնին':'Ընտրիր գույնը'});
     const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,(e.clientX-r.left)*W/r.width)),y:Math.max(0,Math.min(H-1,(e.clientY-r.top)*H/r.height))}};
     const configure=()=>{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=tool==='eraser'?'#fffefa':color;ctx.fillStyle=tool==='eraser'?'#fffefa':color;ctx.lineWidth=tool==='pencil'?Math.max(1,width*.22):tool==='marker'?width*1.3:tool==='pen'?Math.max(1,width*.14):width;ctx.globalAlpha=tool==='marker'?.9:tool==='pencil'?.75:1;ctx.lineCap='round';ctx.lineJoin='round'};
     // Each drawing instrument has its own ink deposition and texture.
@@ -3367,6 +3375,7 @@
       else if(activePointers.size===1){for(const v of [placement.a,placement.b]){v.x+=p.x-prev.x;v.y+=p.y-prev.y}}
       renderPlacement()});
     for(const eventName of ['pointerup','pointercancel'])canvas.addEventListener(eventName,e=>{if(!placement)return;e.stopImmediatePropagation();activePointers.delete(e.pointerId);pinchStart=null;placementDrag=activePointers.size===1?[...activePointers.values()][0]:null});
+    canvas.addEventListener('pointerdown',e=>{if(!eyedropper)return;e.preventDefault();e.stopImmediatePropagation();const p=point(e);const rgba=ctx.getImageData(Math.floor(p.x),Math.floor(p.y),1,1).data;if(rgba[3]>20){const hex='#'+[rgba[0],rgba[1],rgba[2]].map(n=>n.toString(16).padStart(2,'0')).join('');setColor(hex);activeColor=inks.length-1;tool='marker';shapeMode=null;updateToolTab();toolButtons.forEach((button,id)=>button.classList.toggle('on',id===tool));hint.textContent='Գույնն ընտրված է'}else hint.textContent='Դիպչիր գունավոր հատվածին';eyedropper=false;pickButton.style.outline='none'},true);
     canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}down=true;last=start=point(e);saveStep();base=(shapeMode||shapes.has(tool))?snapshot():null;strokeRegion=(!base&&tool!=='bucket'&&barriers.some(v=>v!==0))?regionAt(last):null;strokeBefore=strokeRegion?snapshot():null;if(tool==='bucket'){bucket(last.x,last.y);down=false;return}if(!(shapeMode||shapes.has(tool))){stroke(last,last);protectRegion()}});
     canvas.addEventListener('pointermove',e=>{if(!down)return;e.preventDefault();const p=point(e);if(shapeMode||shapes.has(tool)){restore(base);shape(p,start)}else{stroke(p,last);protectRegion()}last=p});
     const finish=e=>{if(!down)return;down=false;if((shapeMode||shapes.has(tool))&&e){restore(base);placement={a:{...start},b:point(e),angle:0,kind:shapeMode||tool,color};renderPlacement()}base=null;strokeRegion=null;strokeBefore=null;last=null;start=null};
