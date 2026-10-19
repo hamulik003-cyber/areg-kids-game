@@ -25,3 +25,10 @@ License: CC0. This is environment lighting, NOT a fully navigable photorealistic
 5. User must explicitly approve before merge.
 
 Current prototype car-wash-3d.html is rejected. This file is only asset research; no asset is yet installed, no live visual change.
+
+## First gate — vehicle selection status (2026-10-20)
+- Prioritize an **intact** vehicle with downloadable GLB/glTF, UV-mapped PBR paint, transparent windows, recognizable tires, and license compatible with redistribution in a public web game.
+- Reject the damaged/rusted car as the *sole* base model: washing cannot repair dents or rust, so it cannot deliver a believable clean result.
+- The Urban '10 candidate is intact but labeled low-poly; do not treat it as screenshot-quality without examining its actual textures and silhouette.
+- **Blocker:** candidate archive bytes and license metadata have not yet been downloaded and inspected. No honest asset approval or game integration can be claimed yet.
+- Next: acquire a suitable permitted model archive, verify geometry and textures, then integrate into AREG TEST. Do not replace the current car with another procedural placeholder.
