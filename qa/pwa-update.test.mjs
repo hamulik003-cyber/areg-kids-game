@@ -106,7 +106,7 @@ try{
       controller:navigator.serviceWorker.controller?.scriptURL||''};
   });
   if(fresh.oldMarker||fresh.cacheStillStale||!fresh.revalidated||
-     fresh.wallet!=='17'||!fresh.controller.includes('v=300'))
+     fresh.wallet!=='17'||!fresh.controller.includes('v=301'))
     throw Error('V285 ONLINE did not replace stale cached homepage '+JSON.stringify(fresh));
   await page.locator('.section-card[data-section="space"]').click();
   try{
@@ -384,7 +384,7 @@ try{
   // The actual SW controller, CORE cache and persisted data are asserted above.
   const relevantErrors=errors.filter(message=>!(
     webkitMode && offlineSignal===false &&
-    /service-worker\\.js\\?v=300 due to access control checks\\./.test(message)
+    /service-worker\\.js\\?v=301 due to access control checks\\./.test(message)
   ));
   if(relevantErrors.length)throw Error('Page JS errors '+JSON.stringify(relevantErrors));
   console.log('V285 SW ONLINE FRESH + TWO TITLES + OFFLINE RECOVERY + WALLET PASS',
