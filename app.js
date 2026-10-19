@@ -3306,7 +3306,7 @@
                 const radius=vertices.reduce((a,p)=>a+dist(p,center),0)/n;
                 ideal=Array.from({length:n},(_,i)=>({x:center.x+radius*Math.cos(phase+direction*2*Math.PI*i/n),y:center.y+radius*Math.sin(phase+direction*2*Math.PI*i/n)}));
               }
-              if(!hasConcave){
+              if(!hasConcave&&n<=8){
                 const left=Math.min(...ideal.map(p=>p.x)),top=Math.min(...ideal.map(p=>p.y));
                 const right=Math.max(...ideal.map(p=>p.x)),bottom=Math.max(...ideal.map(p=>p.y));
                 return {kind:'smart-polyline',closed:true,a:{x:left,y:top},b:{x:right,y:bottom},vertices:ideal.map(p=>({x:(p.x-left)/(right-left||1),y:(p.y-top)/(bottom-top||1)}))};
