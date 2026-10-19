@@ -3276,6 +3276,41 @@
             return {kind:Math.abs(input.w-input.h)/Math.max(input.w,input.h)<.18?'circle':'ellipse',a:{x:left,y:top},b:{x:left+input.w,y:top+input.h},closed:true};
           }
         }
+        // Detect sharp geometric corners before shape-template fitting.
+        // Curved circles are already handled above; polygons must never become circles.
+        if(closure<.32&&raw.length>=12){
+          const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+          const cx=raw.reduce((v,p)=>v+p.x,0)/raw.length,cy=raw.reduce((v,p)=>v+p.y,0)/raw.length;
+          let pivot=0;for(let i=1;i<raw.length;i++)if(dist(raw[i],{x:cx,y:cy})>dist(raw[pivot],{x:cx,y:cy}))pivot=i;
+          const cycle=raw.slice(pivot).concat(raw.slice(0,pivot+1));
+          const rdp=(v,tol)=>{if(v.length<3)return v;const p=v[0],q=v[v.length-1],dx=q.x-p.x,dy=q.y-p.y,den=dx*dx+dy*dy;let k=0,max=0;for(let i=1;i<v.length-1;i++){const a=v[i],f=den?Math.max(0,Math.min(1,((a.x-p.x)*dx+(a.y-p.y)*dy)/den)):0,d=dist(a,{x:p.x+dx*f,y:p.y+dy*f});if(d>max){max=d;k=i}}if(max<=tol)return [p,q];return rdp(v.slice(0,k+1),tol).slice(0,-1).concat(rdp(v.slice(k),tol))};
+          let vertices=rdp(cycle,diag*.055);if(vertices.length>1&&dist(vertices[0],vertices[vertices.length-1])<diag*.17)vertices.pop();
+          if(vertices.length>=3&&vertices.length<=12){
+            const edges=vertices.map((p,i)=>dist(p,vertices[(i+1)%vertices.length]));
+            const minEdge=Math.min(...edges),maxEdge=Math.max(...edges);
+            let polyLength=edges.reduce((a,b)=>a+b,0),strokeLength=0;
+            for(let i=1;i<raw.length;i++)strokeLength+=dist(raw[i],raw[i-1]);
+            let area=0;for(let i=0;i<vertices.length;i++){const p=vertices[i],q=vertices[(i+1)%vertices.length];area+=p.x*q.y-q.x*p.y}
+            if(minEdge>diag*.13&&Math.abs(area)>input.w*input.h*.27&&Math.abs(polyLength-strokeLength)/strokeLength<.22){
+              const n=vertices.length;
+              const turns=vertices.map((p,i)=>{const prev=vertices[(i+n-1)%n],next=vertices[(i+1)%n];return (p.x-prev.x)*(next.y-p.y)-(p.y-prev.y)*(next.x-p.x)});
+              const hasConcave=turns.some(t=>t>diag*diag*.025)&&turns.some(t=>t< -diag*diag*.025);
+              let ideal=vertices;
+              if(!hasConcave&&n>=5&&minEdge/maxEdge>.68){
+                const center={x:vertices.reduce((a,p)=>a+p.x,0)/n,y:vertices.reduce((a,p)=>a+p.y,0)/n};
+                const phase=Math.atan2(vertices[0].y-center.y,vertices[0].x-center.x);
+                const direction=area>=0?1:-1;
+                const radius=vertices.reduce((a,p)=>a+dist(p,center),0)/n;
+                ideal=Array.from({length:n},(_,i)=>({x:center.x+radius*Math.cos(phase+direction*2*Math.PI*i/n),y:center.y+radius*Math.sin(phase+direction*2*Math.PI*i/n)}));
+              }
+              if(!hasConcave||n>=8){
+                const left=Math.min(...ideal.map(p=>p.x)),top=Math.min(...ideal.map(p=>p.y));
+                const right=Math.max(...ideal.map(p=>p.x)),bottom=Math.max(...ideal.map(p=>p.y));
+                return {kind:'smart-polyline',closed:true,a:{x:left,y:top},b:{x:right,y:bottom},vertices:ideal.map(p=>({x:(p.x-left)/(right-left||1),y:(p.y-top)/(bottom-top||1)}))};
+              }
+            }
+          }
+        }
         let best=null;
         for(const t of known){
           if(t.closed&&closure>.28)continue;
