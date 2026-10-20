@@ -3682,8 +3682,16 @@
     gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
-    const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
-    colors.forEach(([c,k])=>{const b=document.createElement('button');b.className='paint-drop';b.style.background=c;b.addEventListener('click',()=>{if(selected.includes(k))return;selected.push(k);b.style.boxShadow='0 0 0 5px #fff,0 6px 0 rgba(75,39,17,.16)';if(selected.length===2){const key=[...selected].sort().join('');$('.mix-liquid',bowl).style.background=mix[key]||'#795548';found.add(key);setTimeout(()=>{$$('.paint-drop',drops).forEach(x=>x.style.boxShadow='');selected=[];if(found.size>=3)reward()},700)}});drops.appendChild(b)})
+    // AREG TEST only: interactive WebGL car wash; reuse the existing parent navigation/header.
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Իմ ավտոլվացումը 3D';
+    frame.src='./car-wash-3d.html?testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+    frame.setAttribute('loading','eager');
+    activityScreen.classList.add('areg-car-wash-mode');
+    activityContent.append(frame);
+    gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
   }
   function gameBlocks(){
     const s=surface('☝️'),zone=document.createElement('div');zone.className='block-zone';const pad=document.createElement('div');pad.className='tower-pad';zone.appendChild(pad);s.appendChild(zone);let stack=0;
