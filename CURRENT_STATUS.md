@@ -1,3 +1,7 @@
+## 2026-10-23 — Long canyon adventure candidate (TRIAL, NOT APPROVED)
+- User requested direct implementation of a longer meaningful canyon level, not a conceptual scenario. Trial-only `areg-starlight-adventure.html` expanded to 4350 world units with original moving-log crossing, crate pressure-plate bridge, additional stepping-stone river, two stompable patrolling guardians, final ground lever bridge, seven stars, key at 4080 and exit at 4240. Twilight canyon palette and distant fortress. Latest app iframe cache refresh commit `0e46a0e20c81e227e9ca08ccd15f01de00e9f7e6`.
+- JavaScript syntax check passed; device gameplay, balance, collisions and deployment still need verification. Do NOT merge to main without user approval.
+
 ## 2026-10-22 — Starlight Canyon whole-pose running candidate (TRIAL, NOT APPROVED)
 - User requests a natural run for the exact approved Areg character; explicitly permits animation frames/sprite sheets. Never promote to main without separate approval. Production main observed at `57c47a9b3f018a05cd2d0b607ebab26f2f19ba95`; trial starting HEAD `9dbdc9b20fbb9066156f28d055a8828ab429678c`, PR #104 open/unmerged.
 - Public Render version JSON returned `9dbdc9b20fbb9066156f28d055a8828ab429678c`; served `areg-starlight-adventure.html` was byte-identical to trial. Thus server contained `06d2a75` hip/knee attempt plus later iframe cache query. Actual iPhone content is unverified. Original requested deployment ID `dep-dbd1dbss728c738ida2g` has NOT been verified through Render API.
