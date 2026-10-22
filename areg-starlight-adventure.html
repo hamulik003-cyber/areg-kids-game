@@ -20,11 +20,13 @@ function drawAreg(){
  const ready=runAtlases.every(im=>im.complete&&im.naturalWidth>0);
  // Stride follows world distance, independent of refresh rate. A jump uses the
  // untouched approved full PNG; loading/error also falls back to that image.
- if(grounded&&ready){
-  const index=Math.floor(scroll/8.5)%runFrames.length,pose=runFrames[index];
+ if(ready){
+  // Keep the same face and hair artwork in the air as on the ground.
+  // Freeze on one whole-body running pose while airborne; never swap to the separate original PNG.
+  const index=grounded?Math.floor(scroll/8.5)%runFrames.length:1,pose=runFrames[index];
   const im=runAtlases[pose.atlas],cw=im.naturalWidth/4,ch=pose.atlas===0?im.naturalHeight/2:im.naturalHeight;
   g.drawImage(im,pose.col*cw,0,cw,ch,-pose.anchor*pose.scale,36-pose.foot*pose.scale,cw*pose.scale,ch*pose.scale);
-  c.dataset.aregPose=String(index);
+  c.dataset.aregPose=grounded?String(index):'jump-same-atlas';
  }else if(aregSprite.complete&&aregSprite.naturalWidth>0){
   g.drawImage(aregSprite,-35,-54,70,90);
   c.dataset.aregPose=grounded?'fallback':'air-or-idle';
