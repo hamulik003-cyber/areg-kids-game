@@ -3682,12 +3682,12 @@
     gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
   function gameMix(){
-    // AREG TEST only: interactive WebGL car wash; reuse the existing parent navigation/header.
+    // AREG TEST only: Starlight Canyon trial, preserve the canonical parent header.
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
-    frame.title='Իմ ավտոլվացումը 3D';
-    frame.src='./car-wash-3d.html?testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+    frame.title='Աստղերի կիրճ';
+    frame.src='./areg-starlight-adventure.html?testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
