@@ -3687,7 +3687,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Աստղերի կիրճ';
-    frame.src='./areg-starlight-adventure.html?forest_build=20261022-lavender-1b4124b&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+    frame.src='./areg-starlight-adventure.html?forest_build=20261022-world1-819129e&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
