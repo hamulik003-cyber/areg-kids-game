@@ -3,7 +3,7 @@
 const c=document.querySelector('#game'),g=c.getContext('2d'),overlay=document.querySelector('#overlay'),btn=document.querySelector('#start'),points=document.querySelector('#points'),health=document.querySelector('#health');
 let w=0,h=0,dpr=1,ground=0,heroY=0,vy=0,scroll=0,playerX=0,moveAxis=0,runDistance=0,facing=1,score=0,hp=3,playing=false,last=0,tt=0,stage=0,invincible=0,powerMode=0,win=false;
 let stars=[],enemies=[],platforms=[],sparks=[],pits=[],lifts=[],switches=[],gateOpen=[false,false,false],log={x:315,y:0,w:100,afloat:false},coyote=0,jumpBuffer=0,stone={x:1030,y:0,w:65},bridgeReady=false,bridgeProgress=0,checkpointX=70,hasKey=false,keyItem={x:1710,y:0},actionHeld=false,soundOn=true,audioCtx=null,musicTimer=0,musicStep=0,prevX=0;
-const LEVEL_END=1920, gatePositions=[], checkpointPositions=[0];
+const LEVEL_END=3100, gatePositions=[], checkpointPositions=[0];
 const aregSprite=new Image();aregSprite.src='./a_high_resolution_cutout_png_style_illustration_on.png';
 // Whole-pose atlas playback: never cut the approved photograph into limbs.
 // Source rectangles contain complete characters; each pose has a calibrated head anchor.
