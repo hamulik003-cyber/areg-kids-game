@@ -3687,7 +3687,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Անապատի գաղտնիքը · Փուլ 2';
-    frame.src='./areg-stone-valley-3d.html?engine=threejs-newgame-048a20a&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial')+''+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+    frame.src='./areg-stone-valley-3d.html?engine=threejs-newgame-048a20a&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
