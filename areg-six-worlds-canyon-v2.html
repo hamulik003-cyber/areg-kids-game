@@ -20,11 +20,11 @@ const mechanisms=[{x:1210,y:476,on:false,label:'I'},{x:3520,y:476,on:false,label
 const gates=[{x:1520,y:G-145,w:45,h:145,need:0},{x:3860,y:G-145,w:45,h:145,need:1}];
 const seals=[{x:1350,y:G-36,active:false},{x:3660,y:G-36,active:false}];
 const fragilePlatforms=[{x:2710,y:G-120,w:100,h:22,trigger:0,collapsed:false},{x:3140,y:G-155,w:95,h:22,trigger:0,collapsed:false}];
-const bridgeSupports=[{x:450,y:G-22,w:90,h:22},{x:685,y:G-83,w:80,h:22},{x:910,y:G-60,w:70,h:22},{x:1520,y:G-22,w:85,h:22},{x:1740,y:G-73,w:90,h:22},{x:1985,y:G-50,w:105,h:22},{x:2710,y:G-22,w:80,h:22},{x:2920,y:G-82,w:70,h:22},{x:3140,y:G-75,w:90,h:22},{x:3860,y:G-22,w:85,h:22},{x:4105,y:G-85,w:80,h:22},{x:4345,y:G-60,w:90,h:22}];
+const bridgeSupports=[{x:450,y:G-22,w:90,h:22},{x:685,y:G-83,w:80,h:22},{x:910,y:G-60,w:70,h:22},{x:1740,y:G-73,w:90,h:22},{x:1985,y:G-50,w:105,h:22},{x:2710,y:G-22,w:80,h:22},{x:2920,y:G-82,w:70,h:22},{x:3140,y:G-75,w:90,h:22},{x:4105,y:G-85,w:80,h:22},{x:4345,y:G-60,w:90,h:22}];
 const worldSafety={requiredStars:8,requiredCrystals:2,requiredMechanisms:2};
 const windZones=[{x:2280,y:G-180,w:350,h:180,force:-600,phase:0},{x:4500,y:G-190,w:390,h:190,force:650,phase:1.2}];
 const hazards=[{x:2340,y:G-30,w:45,h:30,base:2340,phase:0},{x:4780,y:G-30,w:45,h:30,base:4780,phase:1.7}];
-const pedestals=[{x:1160,y:G-30,lit:false},{x:3480,y:G-30,lit:false}];const puzzleOrder=[0,1];let puzzleStep=0;const bridges=[{x:1510,y:G-22,w:112,h:24,need:0},{x:3860,y:G-22,w:100,h:24,need:1}];
+const pedestals=[{x:1160,y:G-30,lit:false},{x:3480,y:G-30,lit:false}];const puzzleOrder=[0,1];let puzzleStep=0;const bridges=[{x:1520,y:G-22,w:85,h:24,need:0},{x:3860,y:G-22,w:85,h:24,need:1}];
 const hero=new Image();hero.src='./a_high_resolution_cutout_png_style_illustration_on.png';
 const atlas=['stride-front-v1.png','stride-recovery-v1.png'].map(n=>{const im=new Image();im.src='./assets/areg-run/'+n;return im});
 const particles=[];let cameraTarget=0;
