@@ -3694,8 +3694,15 @@
     gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
   }
   function gameBlocks(){
-    const s=surface('☝️'),zone=document.createElement('div');zone.className='block-zone';const pad=document.createElement('div');pad.className='tower-pad';zone.appendChild(pad);s.appendChild(zone);let stack=0;
-    ['#ef5350','#42a5f5','#ffca28','#66bb6a'].forEach((c,i)=>{const b=document.createElement('div');b.className='drag-piece block';b.style.background=c;b.style.left=`${8+i*21}%`;b.style.top='12%';zone.appendChild(b);makeDrag(b,{container:zone,onDrop:()=>{const zr=zone.getBoundingClientRect(),br=b.getBoundingClientRect(),cx=br.left+br.width/2-zr.left;if(Math.abs(cx-zr.width/2)<110){b.style.left=(zr.width/2-36)+'px';b.style.top=(zr.height-60-72*(stack+1))+'px';b.style.pointerEvents='none';stack++;if(stack===4)reward()}else shake(b)}})})
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Կառուցիր աշտարակ · Խելառ աշտարակ';
+    frame.src='./funny-tower.html?testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+    frame.setAttribute('loading','eager');
+    activityScreen.classList.add('areg-car-wash-mode');
+    activityContent.append(frame);
+    gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
   }
 
   /* MAGIC */
