@@ -13,7 +13,7 @@ const platforms=[
 {x:1605,y:G-50,w:135,h:28},{x:1830,y:G-105,w:155,h:28},{x:2090,y:G,w:620,h:170},
 {x:2790,y:G-50,w:130,h:28},{x:2990,y:G-105,w:150,h:28},{x:3230,y:G,w:630,h:170},
 {x:3945,y:G-60,w:160,h:28},{x:4185,y:G-115,w:160,h:28},{x:4435,y:G,w:1065,h:170}];
-const moving=[{x:1120,y:G-170,w:128,h:24,base:1120,phase:0},{x:3450,y:G-168,w:126,h:24,base:3450,phase:2}];
+const moving=[{x:1120,y:G-170,w:128,h:24,base:1120,phase:0,prevX:1120},{x:3450,y:G-168,w:126,h:24,base:3450,phase:2,prevX:3450}];
 const stars=[{x:310,y:430},{x:610,y:365},{x:825,y:315},{x:1310,y:425},{x:1940,y:310},{x:2490,y:425},{x:3560,y:330},{x:4650,y:430}].map(s=>({...s,taken:false}));
 const crystals=[{x:1440,y:425,taken:false},{x:3710,y:420,taken:false}];
 const mechanisms=[{x:1210,y:476,on:false,label:'I'},{x:3520,y:476,on:false,label:'II'}];
@@ -41,13 +41,13 @@ function executeJump(){p.vy=-525;p.grounded=false;p.air=1;coyote=0;jumpBuffer=0;
 function interact(){if(!playing)return;for(let i=0;i<seals.length;i++){const seal=seals[i];if(Math.abs(p.x-seal.x)<88&&Math.abs(p.y+p.h-seal.y)<100){if(!crystals[i].taken){notice('Կնիքը պահանջում է լուսային բյուրեղ');sound(190);return}seal.active=true;persist();burst(seal.x,seal.y);notice('Լուսային կնիքը ակտիվացավ');sound(900);return}}for(let i=0;i<mechanisms.length;i++){const m=mechanisms[i];if(Math.abs(p.x-m.x)<95&&Math.abs(p.y+p.h-m.y)<110){if(!crystals[i].taken||!seals[i].active){notice('Նախ գտիր բյուրեղը և ակտիվացրու լուսային կնիքը');sound(190);return}if(puzzleStep!==i){notice('Մեխանիզմները պետք է գործարկել հերթականությամբ՝ I, հետո II');sound(190);return}if(!m.on){m.on=true;puzzleStep++;persist();burst(m.x,m.y);sound(850);notice('Մեխանիզմ '+(i+1)+' գործարկված է։ Դարպասը բացվեց։');hud()}return}}}
 function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
 function respawn(){p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;p.air=1;coyote=0;jumpBuffer=0;sound(170)}
-function tick(dt){clock+=dt;for(const zone of windZones)zone.phase+=dt*1.8;jumpBuffer=Math.max(0,jumpBuffer-dt);for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
+function tick(dt){clock+=dt;for(const zone of windZones)zone.phase+=dt*1.8;jumpBuffer=Math.max(0,jumpBuffer-dt);for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.prevX=m.x;m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
 if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;const wind=windZones.find(z=>p.x+p.w>z.x&&p.x<z.x+z.w&&p.y+p.h>z.y&&p.y<z.y+z.h&&Math.sin(z.phase)>.1);if(wind){p.vx+=wind.force*dt;p.vx=Math.max(-300,Math.min(300,p.vx))}
 const wasGrounded=p.grounded;if(wasGrounded)coyote=.11;else coyote=Math.max(0,coyote-dt);const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
 const solids=[...platforms,...moving,...fragilePlatforms.filter(b=>!b.collapsed),...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
 for(const b of solids)if(overlap(p,b)&&previous.x+previous.w<=b.x+5&&p.vx>0){p.x=b.x-p.w;p.vx=0}else if(overlap(p,b)&&previous.x>=b.x+b.w-5&&p.vx<0){p.x=b.x+b.w;p.vx=0}
 p.y+=p.vy*dt;p.grounded=false;
-for(const b of solids)if(overlap(p,b)){if(previous.y+previous.h<=b.y+7&&p.vy>=0){p.y=b.y-p.h;p.vy=0;p.grounded=true;if(moving.includes(b))p.x+=Math.cos(b.phase)*55*.6*dt}else if(previous.y>=b.y+b.h-7&&p.vy<0){p.y=b.y+b.h;p.vy=0}}
+for(const b of solids)if(overlap(p,b)){if(previous.y+previous.h<=b.y+7&&p.vy>=0){p.y=b.y-p.h;p.vy=0;p.grounded=true;if(moving.includes(b))p.x+=b.x-b.prevX}else if(previous.y>=b.y+b.h-7&&p.vy<0){p.y=b.y+b.h;p.vy=0}}
 if(p.grounded){p.air=0;if(jumpBuffer>0)executeJump()}else p.air+=dt;
 for(const b of fragilePlatforms){if(b.collapsed)continue;if(p.grounded&&Math.abs(p.y+p.h-b.y)<2&&p.x+p.w>b.x&&p.x<b.x+b.w){b.trigger+=dt;if(b.trigger>.85){b.collapsed=true;notice('Փխրուն կամուրջը փլվեց․ արագ անցիր');sound(180)}}else b.trigger=Math.max(0,b.trigger-dt*.3)}
 if(p.y>G+280){respawn()}
@@ -89,9 +89,9 @@ else{circle(0,-22,19,'#e7b38e');rect(-19,-3,38,46,'#69a3b8')}
 g.restore();
 for(const a of particles){g.globalAlpha=Math.max(0,a.life/.8);circle(a.x,a.y,3,'#ffe6aa')}g.globalAlpha=1;
 g.restore();if(noticeTime>0){g.fillStyle='#0b1739d9';g.fillRect(Math.max(10,vw/2-235),90,Math.min(470,vw-20),58);g.fillStyle='#fff1c7';g.font='bold 16px system-ui';g.textAlign='center';g.fillText(noticeText,vw/2,125,Math.max(200,vw-40));g.textAlign='left'}g.restore()}
-function frame(t){const dt=Math.min(.035,(t-last)/1000||.016);last=t;tick(dt);render();requestAnimationFrame(frame)}requestAnimationFrame(frame);
+let accumulator=0;const STEP=1/120;function frame(t){const dt=Math.min(.05,(t-last)/1000||.016);last=t;accumulator+=dt;let count=0;while(accumulator>=STEP&&count<6){tick(STEP);accumulator-=STEP;count++}if(count===6)accumulator=0;render();requestAnimationFrame(frame)}requestAnimationFrame(frame);
 for(const b of document.querySelectorAll('[data-dir]')){const key=b.dataset.dir==='-1'?'left':'right';b.addEventListener('pointerdown',e=>{e.preventDefault();keys[key]=true;b.setPointerCapture(e.pointerId)});for(const type of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(type,()=>keys[key]=false)}
 document.querySelector('#jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});document.querySelector('#action').addEventListener('pointerdown',e=>{e.preventDefault();interact()});start.addEventListener('click',()=>{if(!finished&&resume())return;reset()});
-addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;if(e.key==='ArrowRight'||e.key==='d')keys.right=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='e')interact()});addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;if(e.key==='ArrowRight'||e.key==='d')keys.right=false});addEventListener('blur',()=>{keys.left=keys.right=false});
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;if(e.key==='ArrowRight'||e.key==='d')keys.right=true;if(e.code==='Space'){e.preventDefault();jump()}if(e.key==='e')interact()});addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;if(e.key==='ArrowRight'||e.key==='d')keys.right=false});addEventListener('blur',()=>{keys.left=keys.right=false;last=0;accumulator=0});document.addEventListener('visibilitychange',()=>{if(document.hidden){keys.left=keys.right=false;last=0;accumulator=0;persist()}});
 })();
 </script></body></html>
