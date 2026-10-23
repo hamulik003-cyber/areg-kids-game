@@ -4,7 +4,7 @@
 <script>
 (()=>{'use strict';
 const c=document.querySelector('#scene'),g=c.getContext('2d'),modal=document.querySelector('#modal'),progress=document.querySelector('#progress'),title=document.querySelector('#title'),description=document.querySelector('#description'),start=document.querySelector('#start');
-let width=0,height=0,dpr=1,zoom=1,cam=0,clock=0,last=0,playing=false,finished=false,checkpoint=85;
+let width=0,height=0,dpr=1,zoom=1,cam=0,clock=0,last=0,playing=false,finished=false,checkpoint=85,noticeTime=0,noticeText='';
 const WORLD=5500,G=510,keys={left:false,right:false},p={x:85,y:420,w:43,h:76,vx:0,vy:0,grounded:false,face:1,run:0,air:0};
 const platforms=[
 {x:0,y:G,w:450,h:170},{x:540,y:G-62,w:145,h:28},{x:765,y:G-122,w:145,h:28},{x:980,y:G,w:540,h:170},
@@ -16,6 +16,7 @@ const stars=[{x:310,y:430},{x:610,y:365},{x:825,y:315},{x:1310,y:425},{x:1940,y:
 const crystals=[{x:1440,y:425,taken:false},{x:3710,y:420,taken:false}];
 const mechanisms=[{x:1210,y:476,on:false,label:'I'},{x:3520,y:476,on:false,label:'II'}];
 const gates=[{x:1520,y:G-145,w:45,h:145,need:0},{x:3860,y:G-145,w:45,h:145,need:1}];
+const pedestals=[{x:1160,y:G-30,lit:false},{x:3480,y:G-30,lit:false}];const puzzleOrder=[0,1];let puzzleStep=0;const bridges=[{x:1510,y:G-22,w:112,h:24,need:0},{x:3860,y:G-22,w:100,h:24,need:1}];
 const hero=new Image();hero.src='./a_high_resolution_cutout_png_style_illustration_on.png';
 const atlas=['stride-front-v1.png','stride-recovery-v1.png'].map(n=>{const im=new Image();im.src='./assets/areg-run/'+n;return im});
 const particles=[];let cameraTarget=0;
@@ -24,15 +25,16 @@ function rect(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
 function text(t,x,y,size,color){g.font='bold '+size+'px system-ui';g.fillStyle=color;g.fillText(t,x,y)}
 function circle(x,y,r,col){g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fillStyle=col;g.fill()}
 function sound(freq){try{const a=sound.ctx||(sound.ctx=new(window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();const o=a.createOscillator(),v=a.createGain();o.type='sine';o.frequency.value=freq;v.gain.setValueAtTime(.04,a.currentTime);v.gain.exponentialRampToValueAtTime(.001,a.currentTime+.22);o.connect(v);v.connect(a.destination);o.start();o.stop(a.currentTime+.23)}catch(e){}}
+function notice(t){noticeText=t;noticeTime=3.8}
 function hud(){progress.textContent='✦ '+stars.filter(s=>s.taken).length+'/8 · Բյուրեղներ '+crystals.filter(s=>s.taken).length+'/2 · Մեխանիզմներ '+mechanisms.filter(s=>s.on).length+'/2'}
-function reset(){p.x=85;p.y=G-p.h;p.vx=p.vy=0;p.grounded=false;checkpoint=85;cam=0;finished=false;playing=true;keys.left=keys.right=false;stars.forEach(s=>s.taken=false);crystals.forEach(s=>s.taken=false);mechanisms.forEach(s=>s.on=false);modal.style.display='none';hud()}
+function reset(){p.x=85;p.y=G-p.h;p.vx=p.vy=0;p.grounded=false;checkpoint=85;cam=0;puzzleStep=0;noticeTime=0;finished=false;playing=true;keys.left=keys.right=false;stars.forEach(s=>s.taken=false);crystals.forEach(s=>s.taken=false);mechanisms.forEach(s=>s.on=false);modal.style.display='none';hud()}
 function jump(){if(!playing||finished)return;if(p.grounded||p.air<.11){p.vy=-525;p.grounded=false;p.air=1;sound(390)}}
-function interact(){if(!playing)return;for(const m of mechanisms)if(Math.abs(p.x-m.x)<95&&Math.abs(p.y+p.h-m.y)<110){m.on=!m.on;sound(m.on?700:320);hud();return}}
+function interact(){if(!playing)return;for(let i=0;i<mechanisms.length;i++){const m=mechanisms[i];if(Math.abs(p.x-m.x)<95&&Math.abs(p.y+p.h-m.y)<110){if(!crystals[i].taken){notice('Նախ գտիր այս հատվածի լուսային բյուրեղը');sound(190);return}if(puzzleStep!==i){notice('Մեխանիզմները պետք է գործարկել հերթականությամբ՝ I, հետո II');sound(190);return}if(!m.on){m.on=true;puzzleStep++;burst(m.x,m.y);sound(850);notice('Մեխանիզմ '+(i+1)+' գործարկված է։ Դարպասը բացվեց։');hud()}return}}}
 function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
-function tick(dt){clock+=dt;for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
+function tick(dt){clock+=dt;noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
 if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;
 const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
-const solids=[...platforms,...moving,...gates.filter(ga=>!mechanisms[ga.need].on)];
+const solids=[...platforms,...moving,...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
 for(const b of solids)if(overlap(p,b)&&previous.x+previous.w<=b.x+5&&p.vx>0){p.x=b.x-p.w;p.vx=0}else if(overlap(p,b)&&previous.x>=b.x+b.w-5&&p.vx<0){p.x=b.x+b.w;p.vx=0}
 p.y+=p.vy*dt;p.grounded=false;
 for(const b of solids)if(overlap(p,b)){if(previous.y+previous.h<=b.y+7&&p.vy>=0){p.y=b.y-p.h;p.vy=0;p.grounded=true;if(moving.includes(b))p.x+=Math.cos(b.phase)*55*.6*dt}else if(previous.y>=b.y+b.h-7&&p.vy<0){p.y=b.y+b.h;p.vy=0}}
@@ -41,7 +43,7 @@ if(p.y>G+280){p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;sound(170)}
 if(p.x>2200&&checkpoint<2200)checkpoint=2190;if(p.x>4460&&checkpoint<4460)checkpoint=4490;
 for(const s of stars)if(!s.taken&&Math.hypot(p.x+p.w/2-s.x,p.y+p.h/2-s.y)<60){s.taken=true;sound(780);burst(s.x,s.y);hud()}
 for(const s of crystals)if(!s.taken&&Math.hypot(p.x+p.w/2-s.x,p.y+p.h/2-s.y)<68){s.taken=true;sound(950);burst(s.x,s.y);hud()}
-if(p.x>5340){if(stars.every(s=>s.taken)&&crystals.every(s=>s.taken)&&mechanisms.every(s=>s.on)){playing=false;finished=true;title.textContent='✦ Առաջին ճանապարհն անցար';description.textContent='Աստղերի կիրճի փորձնական երկար ճանապարհը հաղթահարված է։ Հաջորդիվ՝ նոր հատվածներ և գլուխկոտրուկներ։';start.textContent='Նորից խաղալ ▶';modal.style.display='grid';sound(1050)}else{p.x=5310;p.vx=0}}
+if(p.x>5340){if(stars.every(s=>s.taken)&&crystals.every(s=>s.taken)&&mechanisms.every(s=>s.on)){playing=false;finished=true;title.textContent='✦ Առաջին ճանապարհն անցար';description.textContent='Դու հավաքեցիր բոլոր աստղերն ու բյուրեղները և ճիշտ հերթականությամբ գործարկեցիր երկու մեխանիզմները։ Սա առաջին աշխարհի զարգացման փորձնական հատվածն է։';start.textContent='Նորից խաղալ ▶';modal.style.display='grid';sound(1050)}else{p.x=5310;p.vx=0}}
 p.run+=Math.abs(p.vx)*dt/30;cameraTarget=Math.max(0,Math.min(WORLD-width/zoom,p.x-width/zoom*.34));cam+=(cameraTarget-cam)*Math.min(1,dt*5.5);
 for(const a of particles){a.x+=a.vx*dt;a.y+=a.vy*dt;a.vy+=160*dt;a.life-=dt}for(let i=particles.length-1;i>=0;i--)if(particles[i].life<=0)particles.splice(i,1)}
 function burst(x,y){for(let i=0;i<16;i++){const angle=i*Math.PI/8;particles.push({x,y,vx:Math.cos(angle)*100,vy:Math.sin(angle)*100,life:.8})}}
@@ -54,6 +56,7 @@ mountainLayer(.12,420,'#313960',130);mountainLayer(.26,500,'#424064',110);mounta
 g.save();g.translate(-cam,0);
 for(let x=0;x<WORLD;x+=250){const h=40+Math.sin(x*.005)*20;rect(x,G+75,140,h,'#29334e');circle(x+80,G+90,10,'#f2c68e22')}
 for(const b of platforms){rect(b.x+10,b.y+12,b.w,b.h,'#111b37aa');const grad=g.createLinearGradient(0,b.y,0,b.y+80);grad.addColorStop(0,'#99809a');grad.addColorStop(1,'#403c60');rect(b.x,b.y,b.w,b.h,grad);rect(b.x,b.y,b.w,11,'#d4c1a2');for(let x=b.x+25;x<b.x+b.w;x+=55)circle(x,b.y+15,5,'#d5b584')}
+for(const b of bridges)if(mechanisms[b.need].on){rect(b.x,b.y,b.w,b.h,'#6f9b9a');rect(b.x,b.y,b.w,7,'#d2fff0')}
 for(const b of moving){rect(b.x,b.y,b.w,b.h,'#8a708b');rect(b.x,b.y,b.w,9,'#f6d59d');circle(b.x+b.w/2,b.y+17,6,'#fff1a0')}
 for(const s of stars)if(!s.taken){g.shadowColor='#ffe28d';g.shadowBlur=18;text('✦',s.x-19,s.y+13,40,'#ffe9a3');g.shadowBlur=0}
 for(const s of crystals)if(!s.taken){g.shadowColor='#93d9ff';g.shadowBlur=24;text('◆',s.x-25,s.y+17,49,'#9eeaff');g.shadowBlur=0}
@@ -66,7 +69,7 @@ else if(hero.complete&&hero.naturalWidth>0){g.drawImage(hero,-39,-58+bob,78,113)
 else{circle(0,-22,19,'#e7b38e');rect(-19,-3,38,46,'#69a3b8')}
 g.restore();
 for(const a of particles){g.globalAlpha=Math.max(0,a.life/.8);circle(a.x,a.y,3,'#ffe6aa')}g.globalAlpha=1;
-g.restore();g.restore()}
+g.restore();if(noticeTime>0){g.fillStyle='#0b1739d9';g.fillRect(Math.max(10,vw/2-235),90,Math.min(470,vw-20),58);g.fillStyle='#fff1c7';g.font='bold 16px system-ui';g.textAlign='center';g.fillText(noticeText,vw/2,125,Math.max(200,vw-40));g.textAlign='left'}g.restore()}
 function frame(t){const dt=Math.min(.035,(t-last)/1000||.016);last=t;tick(dt);render();requestAnimationFrame(frame)}requestAnimationFrame(frame);
 for(const b of document.querySelectorAll('[data-dir]')){const key=b.dataset.dir==='-1'?'left':'right';b.addEventListener('pointerdown',e=>{e.preventDefault();keys[key]=true;b.setPointerCapture(e.pointerId)});for(const type of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(type,()=>keys[key]=false)}
 document.querySelector('#jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});document.querySelector('#action').addEventListener('pointerdown',e=>{e.preventDefault();interact()});start.addEventListener('click',reset);
