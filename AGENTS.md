@@ -1,3 +1,10 @@
+## 2026-10-23 — STAGE 2 SOLID OVERHEAD PLATFORM RULE (USER CONFIRMED)
+- Every suspended ledge/platform (including moving ones) must have its bottom edge above standing Areg's head, except explicitly designed physical obstacles.
+- Areg cannot pass through any solid platform from underneath or from the sides; jumping upward hits the underside, landing from above supports Areg, moving platforms carry Areg when standing still.
+- Preserve already built and approved level sections; new level expansions must be appended, not replace earlier work.
+- Stage 2 trial implementation: areg-desert-stage2.html, expanded world 6300 (formerly 3100), new obstacles in world x>3050. Key location not chosen yet; do not place a key or unlock final door until user specifies.
+- Test ONLY on trial branch / AREG TEST, never merge main without explicit user approval. Validate JavaScript parse before publishing and verify Render live before claiming deployed.
+
 ## 2026-10-23 — USER-APPROVED LOCK: final fairy door cinematic for ALL subsequent stages
 - User explicitly approved the current trial door-entry animation and ordered: DO NOT CHANGE this animation; reuse it in every subsequent level/stage.
 - Exact immutable sequence: (1) Areg stops a little before the door; (2) door opens slowly and smoothly while Areg stays still; (3) only after the door is fully open, Areg automatically walks into the exact center of the doorway; (4) only once centered, Areg smoothly fades away; (5) door closes slowly and smoothly; (6) only after closing, next-stage completion/transition modal appears.
