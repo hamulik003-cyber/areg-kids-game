@@ -19,6 +19,7 @@ const crystals=[{x:1440,y:425,taken:false},{x:3710,y:420,taken:false}];
 const mechanisms=[{x:1210,y:476,on:false,label:'I'},{x:3520,y:476,on:false,label:'II'}];
 const gates=[{x:1520,y:G-145,w:45,h:145,need:0},{x:3860,y:G-145,w:45,h:145,need:1}];
 const seals=[{x:1350,y:G-36,active:false},{x:3660,y:G-36,active:false}];
+const windZones=[{x:2280,y:G-180,w:350,h:180,force:-600,phase:0},{x:4500,y:G-190,w:390,h:190,force:650,phase:1.2}];
 const hazards=[{x:2340,y:G-30,w:45,h:30,base:2340,phase:0},{x:4780,y:G-30,w:45,h:30,base:4780,phase:1.7}];
 const pedestals=[{x:1160,y:G-30,lit:false},{x:3480,y:G-30,lit:false}];const puzzleOrder=[0,1];let puzzleStep=0;const bridges=[{x:1510,y:G-22,w:112,h:24,need:0},{x:3860,y:G-22,w:100,h:24,need:1}];
 const hero=new Image();hero.src='./a_high_resolution_cutout_png_style_illustration_on.png';
@@ -39,8 +40,8 @@ function executeJump(){p.vy=-525;p.grounded=false;p.air=1;coyote=0;jumpBuffer=0;
 function interact(){if(!playing)return;for(let i=0;i<seals.length;i++){const seal=seals[i];if(Math.abs(p.x-seal.x)<88&&Math.abs(p.y+p.h-seal.y)<100){if(!crystals[i].taken){notice('Կնիքը պահանջում է լուսային բյուրեղ');sound(190);return}seal.active=true;persist();burst(seal.x,seal.y);notice('Լուսային կնիքը ակտիվացավ');sound(900);return}}for(let i=0;i<mechanisms.length;i++){const m=mechanisms[i];if(Math.abs(p.x-m.x)<95&&Math.abs(p.y+p.h-m.y)<110){if(!crystals[i].taken||!seals[i].active){notice('Նախ գտիր բյուրեղը և ակտիվացրու լուսային կնիքը');sound(190);return}if(puzzleStep!==i){notice('Մեխանիզմները պետք է գործարկել հերթականությամբ՝ I, հետո II');sound(190);return}if(!m.on){m.on=true;puzzleStep++;persist();burst(m.x,m.y);sound(850);notice('Մեխանիզմ '+(i+1)+' գործարկված է։ Դարպասը բացվեց։');hud()}return}}}
 function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
 function respawn(){p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;p.air=1;coyote=0;jumpBuffer=0;sound(170)}
-function tick(dt){clock+=dt;jumpBuffer=Math.max(0,jumpBuffer-dt);for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
-if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;
+function tick(dt){clock+=dt;for(const zone of windZones)zone.phase+=dt*1.8;jumpBuffer=Math.max(0,jumpBuffer-dt);for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
+if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;const wind=windZones.find(z=>p.x+p.w>z.x&&p.x<z.x+z.w&&p.y+p.h>z.y&&p.y<z.y+z.h&&Math.sin(z.phase)>.1);if(wind){p.vx+=wind.force*dt;p.vx=Math.max(-300,Math.min(300,p.vx))}
 const wasGrounded=p.grounded;if(wasGrounded)coyote=.11;else coyote=Math.max(0,coyote-dt);const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
 const solids=[...platforms,...moving,...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
 for(const b of solids)if(overlap(p,b)&&previous.x+previous.w<=b.x+5&&p.vx>0){p.x=b.x-p.w;p.vx=0}else if(overlap(p,b)&&previous.x>=b.x+b.w-5&&p.vx<0){p.x=b.x+b.w;p.vx=0}
@@ -50,6 +51,7 @@ if(p.grounded){p.air=0;if(jumpBuffer>0)executeJump()}else p.air+=dt;
 if(p.y>G+280){respawn()}
 for(const h of hazards)if(overlap(p,h)){respawn();notice('Զգույշ․ խուսափիր շարժվող պահապաններից');break}
 const currentSection=sections.reduce((n,s,i)=>p.x>=s.at?i:n,0);if(currentSection!==section){section=currentSection;notice('Հատված '+(section+1)+'/5 · '+sections[section].name)}
+if(p.x>2250&&p.x<2300&&section===2&&noticeTime<.2)notice('Քամին պարբերաբար ուժեղանում է․ սպասիր ճիշտ պահին');
 if(p.x>2200&&checkpoint<2200){checkpoint=2190;persist();notice('✓ Առաջընթացը պահպանվեց')}if(p.x>4460&&checkpoint<4460){checkpoint=4490;persist();notice('✓ Առաջընթացը պահպանվեց')}
 for(const s of stars)if(!s.taken&&Math.hypot(p.x+p.w/2-s.x,p.y+p.h/2-s.y)<60){s.taken=true;persist();sound(780);burst(s.x,s.y);hud()}
 for(const s of crystals)if(!s.taken&&Math.hypot(p.x+p.w/2-s.x,p.y+p.h/2-s.y)<68){s.taken=true;persist();sound(950);burst(s.x,s.y);hud()}
@@ -66,6 +68,7 @@ mountainLayer(.12,420,'#313960',130);mountainLayer(.26,500,'#424064',110);mounta
 for(let i=0;i<24;i++){const x=i*260-cam*.55;g.fillStyle='#ad7a8a55';g.beginPath();g.moveTo(x+70,510);g.lineTo(x+90,370-(i%3)*30);g.lineTo(x+110,510);g.fill();g.fillStyle='#f4c7a622';g.beginPath();g.arc(x+90,375-(i%3)*30,12,0,Math.PI*2);g.fill()}
 g.save();g.translate(-cam,0);
 for(let x=0;x<WORLD;x+=250){const h=40+Math.sin(x*.005)*20;rect(x,G+75,140,h,'#29334e');circle(x+80,G+90,10,'#f2c68e22')}
+for(const z of windZones){const active=Math.sin(z.phase)>.1;g.globalAlpha=active?.46:.14;rect(z.x,z.y,z.w,z.h,'#8cd4e8');g.globalAlpha=active?.85:.3;for(let j=0;j<7;j++){const xx=z.x+((clock*110*(z.force>0?1:-1)+j*67)%z.w+z.w)%z.w;const yy=z.y+24+j*23;text(z.force>0?'➜':'⬅',xx,yy,26,'#d3f6ff')}g.globalAlpha=1}
 for(const b of platforms){rect(b.x+10,b.y+12,b.w,b.h,'#111b37aa');const grad=g.createLinearGradient(0,b.y,0,b.y+80);grad.addColorStop(0,'#99809a');grad.addColorStop(1,'#403c60');rect(b.x,b.y,b.w,b.h,grad);rect(b.x,b.y,b.w,11,'#d4c1a2');for(let x=b.x+25;x<b.x+b.w;x+=55)circle(x,b.y+15,5,'#d5b584')}
 for(const b of bridges)if(mechanisms[b.need].on){rect(b.x,b.y,b.w,b.h,'#6f9b9a');rect(b.x,b.y,b.w,7,'#d2fff0')}
 for(const b of moving){rect(b.x,b.y,b.w,b.h,'#8a708b');rect(b.x,b.y,b.w,9,'#f6d59d');circle(b.x+b.w/2,b.y+17,6,'#fff1a0')}
