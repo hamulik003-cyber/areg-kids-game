@@ -4,7 +4,7 @@
 <script>
 (()=>{'use strict';
 const c=document.querySelector('#scene'),g=c.getContext('2d'),modal=document.querySelector('#modal'),progress=document.querySelector('#progress'),title=document.querySelector('#title'),description=document.querySelector('#description'),start=document.querySelector('#start');
-let width=0,height=0,dpr=1,zoom=1,cam=0,clock=0,last=0,playing=false,finished=false,checkpoint=85,noticeTime=0,noticeText='',section=-1;
+let width=0,height=0,dpr=1,zoom=1,cam=0,clock=0,last=0,playing=false,finished=false,checkpoint=85,noticeTime=0,noticeText='',section=-1,coyote=0,jumpBuffer=0;
 const sections=[{at:0,name:'Լուսավոր մուտք'},{at:980,name:'Կախված քարեր'},{at:2090,name:'Արձագանքի հովիտ'},{at:3230,name:'Երկրորդ բյուրեղ'},{at:4435,name:'Աստղային դարպաս'}];
 const SAVE_KEY='areg-six-worlds-canyon-trial-v1';const COMPLETE_KEY='areg-six-worlds-canyon-complete-v1';
 const WORLD=5500,G=510,keys={left:false,right:false},p={x:85,y:420,w:43,h:76,vx:0,vy:0,grounded:false,face:1,run:0,air:0};
@@ -33,19 +33,20 @@ function notice(t){noticeText=t;noticeTime=3.8}
 function hud(){progress.textContent='✦ '+stars.filter(s=>s.taken).length+'/8 · Բյուրեղներ '+crystals.filter(s=>s.taken).length+'/2 · Կնիքներ '+seals.filter(s=>s.active).length+'/2 · Մեխանիզմներ '+mechanisms.filter(s=>s.on).length+'/2'}
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:1,checkpoint,stars:stars.map(s=>s.taken),crystals:crystals.map(s=>s.taken),seals:seals.map(s=>s.active),mechanisms:mechanisms.map(s=>s.on),puzzleStep}))}catch(e){}}
 function resume(){try{const data=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!data||data.version!==1)return false;checkpoint=[85,2190,4490].includes(data.checkpoint)?data.checkpoint:85;p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;p.air=1;for(const [arr,flags,prop] of [[stars,data.stars,'taken'],[crystals,data.crystals,'taken'],[seals,data.seals,'active'],[mechanisms,data.mechanisms,'on']])if(Array.isArray(flags)&&flags.length===arr.length)arr.forEach((item,i)=>item[prop]=flags[i]===true);puzzleStep=mechanisms.filter(m=>m.on).length;playing=true;finished=false;section=-1;modal.style.display='none';hud();notice('Շարունակում ենք վերջին պահպանված կետից');return true}catch(e){return false}}
-function reset(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}p.x=85;p.y=G-p.h;p.vx=p.vy=0;p.grounded=false;checkpoint=85;cam=0;section=-1;puzzleStep=0;noticeTime=0;finished=false;playing=true;keys.left=keys.right=false;stars.forEach(s=>s.taken=false);crystals.forEach(s=>s.taken=false);mechanisms.forEach(s=>s.on=false);seals.forEach(s=>s.active=false);modal.style.display='none';hud()}
-function jump(){if(!playing||finished)return;if(p.grounded||p.air<.11){p.vy=-525;p.grounded=false;p.air=1;sound(390)}}
+function reset(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}p.x=85;p.y=G-p.h;p.vx=p.vy=0;p.grounded=false;checkpoint=85;cam=0;section=-1;puzzleStep=0;noticeTime=0;coyote=0;jumpBuffer=0;finished=false;playing=true;keys.left=keys.right=false;stars.forEach(s=>s.taken=false);crystals.forEach(s=>s.taken=false);mechanisms.forEach(s=>s.on=false);seals.forEach(s=>s.active=false);modal.style.display='none';hud()}
+function jump(){if(!playing||finished)return;jumpBuffer=.12;if(p.grounded||coyote>0){executeJump()}}
+function executeJump(){p.vy=-525;p.grounded=false;p.air=1;coyote=0;jumpBuffer=0;sound(390)}
 function interact(){if(!playing)return;for(let i=0;i<seals.length;i++){const seal=seals[i];if(Math.abs(p.x-seal.x)<88&&Math.abs(p.y+p.h-seal.y)<100){if(!crystals[i].taken){notice('Կնիքը պահանջում է լուսային բյուրեղ');sound(190);return}seal.active=true;persist();burst(seal.x,seal.y);notice('Լուսային կնիքը ակտիվացավ');sound(900);return}}for(let i=0;i<mechanisms.length;i++){const m=mechanisms[i];if(Math.abs(p.x-m.x)<95&&Math.abs(p.y+p.h-m.y)<110){if(!crystals[i].taken||!seals[i].active){notice('Նախ գտիր բյուրեղը և ակտիվացրու լուսային կնիքը');sound(190);return}if(puzzleStep!==i){notice('Մեխանիզմները պետք է գործարկել հերթականությամբ՝ I, հետո II');sound(190);return}if(!m.on){m.on=true;puzzleStep++;persist();burst(m.x,m.y);sound(850);notice('Մեխանիզմ '+(i+1)+' գործարկված է։ Դարպասը բացվեց։');hud()}return}}}
 function overlap(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
-function respawn(){p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;p.air=1;sound(170)}
-function tick(dt){clock+=dt;for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
+function respawn(){p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;p.air=1;coyote=0;jumpBuffer=0;sound(170)}
+function tick(dt){clock+=dt;jumpBuffer=Math.max(0,jumpBuffer-dt);for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
 if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;
-const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
+const wasGrounded=p.grounded;if(wasGrounded)coyote=.11;else coyote=Math.max(0,coyote-dt);const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
 const solids=[...platforms,...moving,...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
 for(const b of solids)if(overlap(p,b)&&previous.x+previous.w<=b.x+5&&p.vx>0){p.x=b.x-p.w;p.vx=0}else if(overlap(p,b)&&previous.x>=b.x+b.w-5&&p.vx<0){p.x=b.x+b.w;p.vx=0}
 p.y+=p.vy*dt;p.grounded=false;
 for(const b of solids)if(overlap(p,b)){if(previous.y+previous.h<=b.y+7&&p.vy>=0){p.y=b.y-p.h;p.vy=0;p.grounded=true;if(moving.includes(b))p.x+=Math.cos(b.phase)*55*.6*dt}else if(previous.y>=b.y+b.h-7&&p.vy<0){p.y=b.y+b.h;p.vy=0}}
-if(p.grounded)p.air=0;else p.air+=dt;
+if(p.grounded){p.air=0;if(jumpBuffer>0)executeJump()}else p.air+=dt;
 if(p.y>G+280){respawn()}
 for(const h of hazards)if(overlap(p,h)){respawn();notice('Զգույշ․ խուսափիր շարժվող պահապաններից');break}
 const currentSection=sections.reduce((n,s,i)=>p.x>=s.at?i:n,0);if(currentSection!==section){section=currentSection;notice('Հատված '+(section+1)+'/5 · '+sections[section].name)}
