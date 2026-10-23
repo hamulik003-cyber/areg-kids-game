@@ -6,7 +6,7 @@
 const c=document.querySelector('#scene'),g=c.getContext('2d'),modal=document.querySelector('#modal'),progress=document.querySelector('#progress'),title=document.querySelector('#title'),description=document.querySelector('#description'),start=document.querySelector('#start');
 let width=0,height=0,dpr=1,zoom=1,cam=0,clock=0,last=0,playing=false,finished=false,checkpoint=85,noticeTime=0,noticeText='',section=-1;
 const sections=[{at:0,name:'Լուսավոր մուտք'},{at:980,name:'Կախված քարեր'},{at:2090,name:'Արձագանքի հովիտ'},{at:3230,name:'Երկրորդ բյուրեղ'},{at:4435,name:'Աստղային դարպաս'}];
-const SAVE_KEY='areg-six-worlds-canyon-trial-v1';
+const SAVE_KEY='areg-six-worlds-canyon-trial-v1';const COMPLETE_KEY='areg-six-worlds-canyon-complete-v1';
 const WORLD=5500,G=510,keys={left:false,right:false},p={x:85,y:420,w:43,h:76,vx:0,vy:0,grounded:false,face:1,run:0,air:0};
 const platforms=[
 {x:0,y:G,w:450,h:170},{x:540,y:G-62,w:145,h:28},{x:765,y:G-122,w:145,h:28},{x:980,y:G,w:540,h:170},
@@ -52,7 +52,7 @@ const currentSection=sections.reduce((n,s,i)=>p.x>=s.at?i:n,0);if(currentSection
 if(p.x>2200&&checkpoint<2200){checkpoint=2190;persist();notice('✓ Առաջընթացը պահպանվեց')}if(p.x>4460&&checkpoint<4460){checkpoint=4490;persist();notice('✓ Առաջընթացը պահպանվեց')}
 for(const s of stars)if(!s.taken&&Math.hypot(p.x+p.w/2-s.x,p.y+p.h/2-s.y)<60){s.taken=true;persist();sound(780);burst(s.x,s.y);hud()}
 for(const s of crystals)if(!s.taken&&Math.hypot(p.x+p.w/2-s.x,p.y+p.h/2-s.y)<68){s.taken=true;persist();sound(950);burst(s.x,s.y);hud()}
-if(p.x>5340){if(stars.every(s=>s.taken)&&crystals.every(s=>s.taken)&&mechanisms.every(s=>s.on)){playing=false;finished=true;title.textContent='✦ Առաջին ճանապարհն անցար';description.textContent='Դու հավաքեցիր բոլոր աստղերն ու բյուրեղները և ճիշտ հերթականությամբ գործարկեցիր երկու մեխանիզմները։ Սա առաջին աշխարհի զարգացման փորձնական հատվածն է։';start.textContent='Նորից խաղալ ▶';modal.style.display='grid';sound(1050)}else{p.x=5310;p.vx=0}}
+if(p.x>5340){if(stars.every(s=>s.taken)&&crystals.every(s=>s.taken)&&mechanisms.every(s=>s.on)){playing=false;finished=true;try{localStorage.setItem(COMPLETE_KEY,JSON.stringify({completed:true,stars:stars.filter(s=>s.taken).length,at:new Date().toISOString()}));localStorage.removeItem(SAVE_KEY)}catch(e){}title.textContent='✦ Առաջին ճանապարհն անցար';description.textContent='Դու հավաքեցիր բոլոր աստղերն ու բյուրեղները և ճիշտ հերթականությամբ գործարկեցիր երկու մեխանիզմները։ Սա առաջին աշխարհի զարգացման փորձնական հատվածն է։';start.textContent='Նորից խաղալ ▶';modal.style.display='grid';sound(1050)}else{p.x=5310;p.vx=0;notice('Դարպասը բացելու համար հավաքիր 8 աստղ, 2 բյուրեղ և գործարկիր 2 մեխանիզմ')}}
 p.run+=Math.abs(p.vx)*dt/30;cameraTarget=Math.max(0,Math.min(WORLD-width/zoom,p.x-width/zoom*.34));cam+=(cameraTarget-cam)*Math.min(1,dt*5.5);
 for(const a of particles){a.x+=a.vx*dt;a.y+=a.vy*dt;a.vy+=160*dt;a.life-=dt}for(let i=particles.length-1;i>=0;i--)if(particles[i].life<=0)particles.splice(i,1)}
 function burst(x,y){for(let i=0;i<16;i++){const angle=i*Math.PI/8;particles.push({x,y,vx:Math.cos(angle)*100,vy:Math.sin(angle)*100,life:.8})}}
