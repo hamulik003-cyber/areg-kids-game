@@ -3687,7 +3687,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Անապատի գաղտնիքը · Փուլ 2';
-    frame.src='./areg-desert-stage2.html?desert_build=20261023-liftcarry-719451&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+    frame.src='./areg-desert-stage2.html?desert_build=20261023-solid-platforms-c3362c8&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
