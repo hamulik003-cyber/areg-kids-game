@@ -20,6 +20,7 @@ const mechanisms=[{x:1210,y:476,on:false,label:'I'},{x:3520,y:476,on:false,label
 const gates=[{x:1520,y:G-145,w:45,h:145,need:0},{x:3860,y:G-145,w:45,h:145,need:1}];
 const seals=[{x:1350,y:G-36,active:false},{x:3660,y:G-36,active:false}];
 const fragilePlatforms=[{x:2710,y:G-120,w:100,h:22,trigger:0,collapsed:false},{x:3140,y:G-155,w:95,h:22,trigger:0,collapsed:false}];
+const bridgeSupports=[{x:450,y:G-22,w:90,h:22},{x:685,y:G-83,w:80,h:22},{x:910,y:G-60,w:70,h:22},{x:1520,y:G-22,w:85,h:22},{x:1740,y:G-73,w:90,h:22},{x:1985,y:G-50,w:105,h:22},{x:2710,y:G-22,w:80,h:22},{x:2920,y:G-82,w:70,h:22},{x:3140,y:G-75,w:90,h:22},{x:3860,y:G-22,w:85,h:22},{x:4105,y:G-85,w:80,h:22},{x:4345,y:G-60,w:90,h:22}];
 const worldSafety={requiredStars:8,requiredCrystals:2,requiredMechanisms:2};
 const windZones=[{x:2280,y:G-180,w:350,h:180,force:-600,phase:0},{x:4500,y:G-190,w:390,h:190,force:650,phase:1.2}];
 const hazards=[{x:2340,y:G-30,w:45,h:30,base:2340,phase:0},{x:4780,y:G-30,w:45,h:30,base:4780,phase:1.7}];
@@ -46,7 +47,7 @@ function respawn(){p.x=checkpoint;p.y=G-p.h-80;p.vx=p.vy=0;p.grounded=false;p.ai
 function tick(dt){clock+=dt;for(const zone of windZones)zone.phase+=dt*1.8;jumpBuffer=Math.max(0,jumpBuffer-dt);for(const h of hazards){h.phase+=dt*1.3;h.x=h.base+Math.sin(h.phase)*95}noticeTime=Math.max(0,noticeTime-dt);for(const m of moving){m.prevX=m.x;m.phase+=dt*.6;m.x=m.base+Math.sin(m.phase)*55}
 if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;const wind=windZones.find(z=>p.x+p.w>z.x&&p.x<z.x+z.w&&p.y+p.h>z.y&&p.y<z.y+z.h&&Math.sin(z.phase)>.1);if(wind){p.vx+=wind.force*dt;p.vx=Math.max(-300,Math.min(300,p.vx))}
 const wasGrounded=p.grounded;if(wasGrounded)coyote=.11;else coyote=Math.max(0,coyote-dt);const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
-const solids=[...platforms,...moving,...fragilePlatforms.filter(b=>!b.collapsed),...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
+const solids=[...platforms,...bridgeSupports,...moving,...fragilePlatforms.filter(b=>!b.collapsed),...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
 for(const b of solids)if(overlap(p,b)&&previous.x+previous.w<=b.x+5&&p.vx>0){p.x=b.x-p.w;p.vx=0}else if(overlap(p,b)&&previous.x>=b.x+b.w-5&&p.vx<0){p.x=b.x+b.w;p.vx=0}
 p.y+=p.vy*dt;p.grounded=false;
 for(const b of solids){const horizontal=p.x+p.w>b.x&&p.x<b.x+b.w;if(!horizontal)continue;const oldBottom=previous.y+previous.h,newBottom=p.y+p.h;if(p.vy>=0&&oldBottom<=b.y+2&&newBottom>=b.y){p.y=b.y-p.h;p.vy=0;p.grounded=true;if(moving.includes(b))p.x+=b.x-b.prevX;break}else if(p.vy<0&&previous.y>=b.y+b.h-2&&p.y<=b.y+b.h){p.y=b.y+b.h;p.vy=0;break}}
@@ -74,6 +75,7 @@ g.save();g.translate(-cam,0);
 for(let x=0;x<WORLD;x+=250){const h=40+Math.sin(x*.005)*20;rect(x,G+75,140,h,'#29334e');circle(x+80,G+90,10,'#f2c68e22')}
 for(const z of windZones){const active=Math.sin(z.phase)>.1;g.globalAlpha=active?.46:.14;rect(z.x,z.y,z.w,z.h,'#8cd4e8');g.globalAlpha=active?.85:.3;for(let j=0;j<7;j++){const xx=z.x+((clock*110*(z.force>0?1:-1)+j*67)%z.w+z.w)%z.w;const yy=z.y+24+j*23;text(z.force>0?'➜':'⬅',xx,yy,26,'#d3f6ff')}g.globalAlpha=1}
 for(const b of platforms){rect(b.x+10,b.y+12,b.w,b.h,'#111b37aa');const grad=g.createLinearGradient(0,b.y,0,b.y+80);grad.addColorStop(0,'#99809a');grad.addColorStop(1,'#403c60');rect(b.x,b.y,b.w,b.h,grad);rect(b.x,b.y,b.w,11,'#d4c1a2');for(let x=b.x+25;x<b.x+b.w;x+=55)circle(x,b.y+15,5,'#d5b584')}
+for(const b of bridgeSupports){rect(b.x,b.y+7,b.w,b.h,'#293d5d');rect(b.x,b.y,b.w,7,'#d5bba1')}
 for(const b of bridges)if(mechanisms[b.need].on){rect(b.x,b.y,b.w,b.h,'#6f9b9a');rect(b.x,b.y,b.w,7,'#d2fff0')}
 for(const b of fragilePlatforms)if(!b.collapsed){const shake=b.trigger>.45?Math.sin(clock*36)*2:0;rect(b.x,b.y+shake,b.w,b.h,'#b99d84');rect(b.x,b.y+shake,b.w,7,'#f3dcab');for(let i=1;i<4;i++)rect(b.x+i*b.w/4,b.y+shake+8,2,13,'#574968')}
 for(const b of moving){rect(b.x,b.y,b.w,b.h,'#8a708b');rect(b.x,b.y,b.w,9,'#f6d59d');circle(b.x+b.w/2,b.y+17,6,'#fff1a0')}
