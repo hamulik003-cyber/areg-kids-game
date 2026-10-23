@@ -48,7 +48,7 @@ function tick(dt){clock+=dt;for(const zone of windZones)zone.phase+=dt*1.8;jumpB
 if(!playing)return;const dir=(keys.right?1:0)-(keys.left?1:0);p.vx+=dir*1450*dt;if(!dir){const f=Math.min(Math.abs(p.vx),1950*dt);p.vx-=Math.sign(p.vx)*f}p.vx=Math.max(-260,Math.min(260,p.vx));if(dir)p.face=dir;const wind=windZones.find(z=>p.x+p.w>z.x&&p.x<z.x+z.w&&p.y+p.h>z.y&&p.y<z.y+z.h&&Math.sin(z.phase)>.1);if(wind){p.vx+=wind.force*dt;p.vx=Math.max(-300,Math.min(300,p.vx))}
 const wasGrounded=p.grounded;if(wasGrounded)coyote=.11;else coyote=Math.max(0,coyote-dt);const previous={x:p.x,y:p.y,w:p.w,h:p.h};p.vy=Math.min(950,p.vy+1150*dt);p.x=Math.max(0,Math.min(WORLD-p.w,p.x+p.vx*dt));
 const solids=[...platforms,...bridgeSupports,...moving,...fragilePlatforms.filter(b=>!b.collapsed),...gates.filter(ga=>!mechanisms[ga.need].on),...bridges.filter(br=>mechanisms[br.need].on)];
-for(const b of solids)if(overlap(p,b)&&previous.x+previous.w<=b.x+5&&p.vx>0){p.x=b.x-p.w;p.vx=0}else if(overlap(p,b)&&previous.x>=b.x+b.w-5&&p.vx<0){p.x=b.x+b.w;p.vx=0}
+for(const b of solids){const verticallyAligned=p.y+p.h>b.y&&p.y<b.y+b.h;if(!verticallyAligned)continue;if(p.vx>0&&previous.x+previous.w<=b.x+2&&p.x+p.w>=b.x){p.x=b.x-p.w;p.vx=0}else if(p.vx<0&&previous.x>=b.x+b.w-2&&p.x<=b.x+b.w){p.x=b.x+b.w;p.vx=0}}
 p.y+=p.vy*dt;p.grounded=false;
 for(const b of solids){const horizontal=p.x+p.w>b.x&&p.x<b.x+b.w;if(!horizontal)continue;const oldBottom=previous.y+previous.h,newBottom=p.y+p.h;if(p.vy>=0&&oldBottom<=b.y+2&&newBottom>=b.y){p.y=b.y-p.h;p.vy=0;p.grounded=true;if(moving.includes(b))p.x+=b.x-b.prevX;break}else if(p.vy<0&&previous.y>=b.y+b.h-2&&p.y<=b.y+b.h){p.y=b.y+b.h;p.vy=0;break}}
 if(p.grounded){p.air=0;if(jumpBuffer>0)executeJump()}else p.air+=dt;
