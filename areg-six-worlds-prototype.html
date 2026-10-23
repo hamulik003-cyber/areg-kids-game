@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Արեգ — Վեց աշխարհների գաղտնիքը · փորձնական</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10192d;font-family:system-ui;touch-action:none}canvas{display:block;width:100%;height:100%;touch-action:none}#hud{position:fixed;top:env(safe-area-inset-top);left:12px;color:#fff0c6;text-shadow:0 2px 3px #000;font-weight:700;pointer-events:none}button{touch-action:none;user-select:none;-webkit-user-select:none;border:2px solid #e7c98c;background:#49375cdd;color:#fff4cd;border-radius:18px;font-size:23px;font-weight:800;padding:12px}#controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 15px);left:16px;right:16px;display:flex;justify-content:space-between;pointer-events:none}#controls>div{display:flex;gap:10px;pointer-events:auto}#controls button{width:65px;height:65px}#jump{width:76px!important}#message{position:fixed;top:20%;left:10%;right:10%;background:#171e3ce8;color:#fff5d8;padding:20px;border:2px solid #d9b679;border-radius:18px;text-align:center;display:none}#message button{margin-top:12px}</style></head><body><canvas id="game"></canvas><div id="hud">Աստղերի կիրճ · Փորձնական փուլ 1<br><span id="status">✦ 0/5 · Բյուրեղը գտիր</span></div><div id="controls"><div><button data-key="left" aria-label="Ձախ">◀</button><button data-key="right" aria-label="Աջ">▶</button></div><div><button id="action" aria-label="Գործարկել">⚙</button><button id="jump" aria-label="Ցատկել">↑</button></div></div><div id="message"><div id="messageText"></div><button id="again">Կրկին խաղալ</button></div>
+<script>
+(()=>{'use strict';
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d'),status=document.querySelector('#status');
+const W=2600,GROUND=450,keys={left:false,right:false},player={x:60,y:GROUND-66,w:38,h:66,vx:0,vy:0,onGround:false};
+const platforms=[{x:0,y:GROUND,w:340,h:130},{x:445,y:GROUND-38,w:130,h:24},{x:655,y:GROUND-82,w:125,h:24},{x:860,y:GROUND,w:270,h:130},{x:1220,y:GROUND-65,w:145,h:24},{x:1445,y:GROUND-105,w:140,h:24},{x:1690,y:GROUND,w:270,h:130},{x:2040,y:GROUND-65,w:160,h:24},{x:2300,y:GROUND,w:300,h:130}];
+const stars=[250,520,720,1010,1810].map((x,i)=>({x,y:[380,335,290,385,380][i],taken:false}));
+const switches=[{x:1060,y:GROUND-34,on:false},{x:1850,y:GROUND-34,on:false}];
+let viewW=0,viewH=0,scale=1,cam=0,last=0,won=false,checkpoint=60,attempts=0;
+const sprite=new Image();sprite.src='./a_high_resolution_cutout_png_style_illustration_on.png';
+const gate={x:2460,y:GROUND-130,w:84,h:130};
+function resize(){const dpr=Math.min(2,devicePixelRatio||1);viewW=innerWidth;viewH=innerHeight;canvas.width=viewW*dpr;canvas.height=viewH*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);scale=Math.min(viewW/900,viewH/550);scale=Math.max(.5,scale)}addEventListener('resize',resize);resize();
+function jump(){if(player.onGround&&!won){player.vy=-475;player.onGround=false}}
+function action(){if(won)return;for(const s of switches)if(Math.abs(player.x-s.x)<95){s.on=!s.on;updateHud();return}}
+function updateHud(){status.textContent='✦ '+stars.filter(s=>s.taken).length+'/5 · Մեխանիզմներ '+switches.filter(s=>s.on).length+'/2'}
+function reset(){player.x=60;player.y=GROUND-66;player.vx=player.vy=0;checkpoint=60;attempts=0;won=false;stars.forEach(s=>s.taken=false);switches.forEach(s=>s.on=false);document.querySelector('#message').style.display='none';updateHud()}
+function update(dt){if(won)return;const dir=(keys.right?1:0)-(keys.left?1:0);const accel=1600,drag=2000;player.vx+=dir*accel*dt;if(!dir){const v=Math.min(Math.abs(player.vx),drag*dt);player.vx-=Math.sign(player.vx)*v}player.vx=Math.max(-245,Math.min(245,player.vx));const oldBottom=player.y+player.h;player.vy=Math.min(900,player.vy+1150*dt);player.x=Math.max(0,Math.min(W-player.w,player.x+player.vx*dt));player.y+=player.vy*dt;player.onGround=false;
+for(const p of platforms){if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldBottom<=p.y+7&&player.y+player.h>=p.y&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.onGround=true}}
+if(player.y>GROUND+260){attempts++;player.x=checkpoint;player.y=GROUND-150;player.vx=player.vy=0}
+if(player.x>1700)checkpoint=1720;
+for(const s of stars)if(!s.taken&&Math.abs(player.x+player.w/2-s.x)<40&&Math.abs(player.y+30-s.y)<55){s.taken=true;updateHud()}
+if(player.x>gate.x-45){if(stars.every(s=>s.taken)&&switches.every(s=>s.on)){won=true;document.querySelector('#messageText').textContent='Ապրես։ Առաջին փորձնական ճանապարհն անցար։ Սա դեռ ամբողջ աշխարհը չէ։';document.querySelector('#message').style.display='block'}else{player.x=gate.x-55;player.vx=0}}
+}
+function rect(x,y,w,h,fill){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h)}
+function draw(){ctx.clearRect(0,0,viewW,viewH);const worldView=viewW/scale,worldHeight=viewH/scale;cam=Math.max(0,Math.min(W-worldView,player.x-worldView*.32));ctx.save();ctx.translate(0,viewH*.5-worldHeight*.5*scale);ctx.scale(scale,scale);
+const bg=ctx.createLinearGradient(0,0,0,worldHeight);bg.addColorStop(0,'#111c43');bg.addColorStop(1,'#694766');rect(0,0,worldView,worldHeight,bg);
+for(let i=0;i<90;i++){const x=((i*137+17)%3200-cam*.22)%(worldView+150),y=(i*89)%370;ctx.fillStyle='#ffecbc';ctx.globalAlpha=.2+(i%5)*.12;ctx.beginPath();ctx.arc(x,y,1+(i%3)*.5,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+ctx.save();ctx.translate(-cam,0);
+for(const p of platforms){rect(p.x,p.y,p.w,p.h,'#5b4960');rect(p.x,p.y,p.w,10,'#d3b77d');rect(p.x+7,p.y+13,p.w-14,3,'#8c7890')}
+for(const s of stars)if(!s.taken){ctx.fillStyle='#ffe185';ctx.font='32px system-ui';ctx.fillText('✦',s.x-14,s.y+10)}
+for(const s of switches){rect(s.x-22,s.y-12,44,36,s.on?'#53bca8':'#aa7655');ctx.fillStyle='#fff0b0';ctx.font='22px system-ui';ctx.fillText('⚙',s.x-12,s.y+14)}
+rect(gate.x,gate.y,gate.w,gate.h,switches.every(s=>s.on)?'#b58dcd':'#4a3d64');rect(gate.x+10,gate.y+14,gate.w-20,gate.h-14,'#161f43');ctx.fillStyle='#ffe0a5';ctx.font='28px system-ui';ctx.fillText('✦',gate.x+28,gate.y+72);
+if(sprite.complete&&sprite.naturalWidth){ctx.drawImage(sprite,player.x-16,player.y-17,player.w+32,player.h+18)}else{rect(player.x,player.y,player.w,player.h,'#e6b873');ctx.fillStyle='#42385d';ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+12,16,0,Math.PI*2);ctx.fill()}
+ctx.restore();ctx.restore()}
+function frame(t){const dt=Math.min(.033,(t-last)/1000||.016);last=t;update(dt);draw();requestAnimationFrame(frame)}requestAnimationFrame(frame);
+document.querySelectorAll('[data-key]').forEach(b=>{const key=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[key]=true;b.setPointerCapture(e.pointerId)});for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,()=>keys[key]=false)});
+document.querySelector('#jump').addEventListener('pointerdown',e=>{e.preventDefault();jump()});document.querySelector('#action').addEventListener('pointerdown',e=>{e.preventDefault();action()});document.querySelector('#again').addEventListener('click',reset);
+addEventListener('keydown',e=>{if(['ArrowLeft','a'].includes(e.key))keys.left=true;if(['ArrowRight','d'].includes(e.key))keys.right=true;if(e.code==='Space')jump();if(e.key==='e')action()});addEventListener('keyup',e=>{if(['ArrowLeft','a'].includes(e.key))keys.left=false;if(['ArrowRight','d'].includes(e.key))keys.right=false});addEventListener('blur',()=>{keys.left=keys.right=false});
+})();
+</script></body></html>
