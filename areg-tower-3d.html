@@ -29,6 +29,11 @@ for(let j=0;j<10;j++){const angle=-Math.PI/2+j*Math.PI/5,rad=j%2===0?1:.46;const
 starOutline.closePath();
 // Fourteen deliberately spaced accents: five stars, four cubes, five spheres.
 // Keep them smaller than the board details and distribute them across the full backdrop.
+const glowCanvas=document.createElement('canvas');glowCanvas.width=64;glowCanvas.height=64;
+const glowCtx=glowCanvas.getContext('2d'),glowGradient=glowCtx.createRadialGradient(32,32,1,32,32,32);
+glowGradient.addColorStop(0,'rgba(255,255,255,.95)');glowGradient.addColorStop(.22,'rgba(255,255,255,.48)');glowGradient.addColorStop(1,'rgba(255,255,255,0)');
+glowCtx.fillStyle=glowGradient;glowCtx.fillRect(0,0,64,64);
+const glowTexture=new T.CanvasTexture(glowCanvas);
 const fleckKinds=[0,2,1,0,2,1,0,2,1,0,2,1,0,2];
 const fleckPositions=[[-5.3,-5.4],[-2.4,-5.8],[.7,-5.5],[3.4,-5.8],[5.4,-4.4],[-5.5,-2.5],[5.5,-1.7],[-5.6,.4],[5.5,1.2],[-5.3,3.2],[5.2,3.8],[-3.2,5.3],[.4,5.5],[3.4,5.2]];
 for(let i=0;i<fleckKinds.length;i++){
@@ -36,10 +41,10 @@ for(let i=0;i<fleckKinds.length;i++){
  const geometry=kind===0?new T.ExtrudeGeometry(starOutline,{depth:.12,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:1,steps:1,curveSegments:2}):kind===1?new T.BoxGeometry(size*1.55,size*1.55,size*1.55):new T.SphereGeometry(size,12,10);
  const f=new T.Mesh(geometry,new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,depthWrite:false}));
  if(kind===0){f.scale.setScalar(size);f.rotation.x=-Math.PI/2}
- const halo=new T.Sprite(new T.SpriteMaterial({color:0xffffff,transparent:true,opacity:.2,depthWrite:false,blending:T.AdditiveBlending}));
+ const halo=new T.Sprite(new T.SpriteMaterial({map:glowTexture,color:0xffffff,transparent:true,opacity:.2,depthWrite:false,blending:T.AdditiveBlending}));
  halo.scale.set(size*5.2,size*5.2,1);f.add(halo);
  // Soft, larger RGB light bloom without additional realtime lights.
- const glow=new T.Sprite(new T.SpriteMaterial({color:0xffffff,transparent:true,opacity:.2,depthWrite:false,blending:T.AdditiveBlending}));
+ const glow=new T.Sprite(new T.SpriteMaterial({map:glowTexture,color:0xffffff,transparent:true,opacity:.2,depthWrite:false,blending:T.AdditiveBlending}));
  glow.scale.set(size*9,size*9,1);f.add(glow);
  const [x,z]=fleckPositions[i];f.position.set(x,-.48,z);scene.add(f);
  backgroundFlecks.push({mesh:f,glow,halo,x,z,phase:i*1.31,kind});
