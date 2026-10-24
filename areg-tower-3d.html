@@ -224,15 +224,15 @@ if(t.kind==='start'){// Rounded groove start, full channel width and a clean sem
  trackShape.absarc(0,zBottom,w,Math.PI,0,false);
  trackShape.lineTo(w,zTop);trackShape.closePath();
  const track=mesh(new T.ShapeGeometry(trackShape,32),steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
- const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,-.27);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
+ const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,-.40);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
 if(t.kind==='goal'){
  // A recessed fixed steel channel runs from the board edge into the lock.
  // Local +Z is the outward edge for the same orientation mapping as start.
- const grooveWidth=.67,grooveLength=cell/2+.10;
+ const grooveWidth=.67,grooveLength=cell/2-.32;
  const goalChannel=mesh(new T.PlaneGeometry(grooveWidth,grooveLength),steelDark);
- goalChannel.rotation.x=-Math.PI/2;goalChannel.position.set(0,.493,(cell/2-.10)/2);g.add(goalChannel);
+ goalChannel.rotation.x=-Math.PI/2;goalChannel.position.set(0,.493,(cell/2+.32)/2);g.add(goalChannel);
  const goalInset=mesh(new T.PlaneGeometry(grooveWidth*.82,grooveLength),material(0x30343d,.78,.18));
- goalInset.rotation.x=-Math.PI/2;goalInset.position.set(0,.498,(cell/2-.10)/2);g.add(goalInset);
+ goalInset.rotation.x=-Math.PI/2;goalInset.position.set(0,.498,(cell/2+.32)/2);g.add(goalInset);
  const lockVisual=new T.Group();g.add(lockVisual);t.lockVisual=lockVisual;
  // Familiar closed padlock silhouette: thick U-shaped steel shackle above a rounded lock body.
  const shacklePath=new T.CatmullRomCurve3([
