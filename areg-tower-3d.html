@@ -55,16 +55,16 @@ if(t.key){
  // Reference-video skeleton key: small circular bow, slender vertical shaft,
  // two distinct side teeth. All three share precisely the same dimensions.
  const key=new T.Group();
- const ring=mesh(new T.TorusGeometry(.103,.027,12,32),gold);
+ const ring=mesh(new T.TorusGeometry(.103,.033,12,32),gold);
  ring.rotation.x=Math.PI/2;ring.position.z=-.16;key.add(ring);
- const neck=mesh(new T.BoxGeometry(.07,.047,.065),gold);
+ const neck=mesh(new T.BoxGeometry(.083,.055,.075),gold);
  neck.position.z=-.04;key.add(neck);
- const shaft=mesh(new T.CylinderGeometry(.027,.027,.34,12),gold);
+ const shaft=mesh(new T.CylinderGeometry(.034,.034,.34,12),gold);
  shaft.rotation.x=Math.PI/2;shaft.position.z=.16;key.add(shaft);
- const tip=mesh(new T.BoxGeometry(.065,.045,.055),gold);
+ const tip=mesh(new T.BoxGeometry(.077,.053,.065),gold);
  tip.position.z=.34;key.add(tip);
  for(const z of [.23,.31]){
-  const tooth=mesh(new T.BoxGeometry(.115,.046,.045),gold);
+  const tooth=mesh(new T.BoxGeometry(.127,.054,.052),gold);
   tooth.position.set(.058,0,z);key.add(tooth);
  }
  // The group origin is the geometric midpoint, so the visible key stays
