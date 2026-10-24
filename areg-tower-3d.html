@@ -54,7 +54,12 @@ const surface=mesh(new T.PlaneGeometry(size,size),new T.MeshBasicMaterial({map:s
 if(t.key){const key=new T.Group();const ring=mesh(new T.TorusGeometry(.145,.047,12,32),gold);ring.rotation.x=Math.PI/2;ring.position.x=-.19;key.add(ring);const shaft=mesh(new T.CylinderGeometry(.047,.047,.43,16),gold);shaft.rotation.z=Math.PI/2;shaft.position.x=.11;key.add(shaft);for(const z of [-.09,.075]){const tooth=mesh(new T.BoxGeometry(.065,.075,.11),gold);tooth.position.set(.28,.005,z);key.add(tooth)}// All three keys use identical geometry, scale and rotation phase. The group origin is the red-dot pivot.
  key.scale.set(1,1,1);key.position.set(0,.57,0);
  if(t.id===0)key.position.set(.22,.57,.08);
- else if(t.id===9)key.position.set(-.12,.57,-.06);
+ else if(t.id===9){
+  // The visible ring, not the key group's old origin, must sit on the marked center.
+  // Shift every child equally so the ring's own center becomes the rotation pivot.
+  for(const part of key.children)part.position.x+=.19;
+  key.position.set(.08,.57,.12);
+ }
  g.add(key);t.keySpinner=key;t.keySpinOffset=0;t.keyCollected=false}
 if(t.fixed){const plate=mesh(new T.BoxGeometry(cell-.095,.12,cell-.095),steel);plate.position.y=.405;g.add(plate);const inset=mesh(new T.BoxGeometry(cell-.19,.018,cell-.19),material(0x747784,.55,.35));inset.position.y=.473;g.add(inset);for(const xx of [-.64,.64])for(const zz of [-.64,.64]){const screw=mesh(new T.CylinderGeometry(.105,.105,.035,20),material(0xa7a9b2,.36,.62));screw.position.set(xx,.504,zz);g.add(screw);const slot=mesh(new T.BoxGeometry(.125,.012,.027),steelDark);slot.position.set(xx,.528,zz);slot.rotation.y=Math.PI/4;g.add(slot);const slot2=mesh(new T.BoxGeometry(.125,.012,.027),steelDark);slot2.position.set(xx,.53,zz);slot2.rotation.y=-Math.PI/4;g.add(slot2)}
 if(t.kind==='start'){// Rounded groove start, full channel width and a clean semicircular cap.
