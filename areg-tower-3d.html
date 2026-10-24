@@ -313,13 +313,13 @@ const PROGRESS_KEY='areg-tower-level-progress-v1';
 let unlockedLevel=1,pickerPage=0;
 try{unlockedLevel=Math.max(1,Math.min(LEVEL_COUNT,Number(localStorage.getItem(PROGRESS_KEY))||1))}catch(_e){}
 function renderLevelPicker(){
- levelGrid.replaceChildren();
+ if(levelGrid.children.length!==Math.min(20,LEVEL_COUNT-pickerPage*20)||Number(levelGrid.firstElementChild?.getAttribute('data-stage'))!==pickerPage*20+1){levelGrid.replaceChildren();}
  for(let n=pickerPage*20+1;n<=Math.min(LEVEL_COUNT,(pickerPage+1)*20);n++){
   const button=document.createElement('button');button.className='level-cell'+(n>unlockedLevel?' locked':n===unlockedLevel?' current':' completed');
   button.type='button';button.disabled=n>unlockedLevel;button.setAttribute('aria-label','Փուլ '+n+(n>unlockedLevel?'՝ փակ':''));
   button.textContent=n>unlockedLevel?'🔒':String(n);
   if(n<unlockedLevel){const star=document.createElement('span');star.className='mini-star';star.textContent='★';button.appendChild(star)}
-  button.onclick=()=>{level=n-1;picker.classList.add('hidden');setup()};levelGrid.appendChild(button);
+  button.onclick=()=>{level=n-1;picker.classList.add('hidden');setup()};const existing=levelGrid.children[n-pickerPage*20-1];if(existing){existing.replaceWith(button)}else{levelGrid.appendChild(button)}button.setAttribute('data-stage',String(n));
  }
  document.getElementById('pageLabel').textContent=(pickerPage+1)+' / '+Math.ceil(LEVEL_COUNT/20);
  document.getElementById('pagePrev').disabled=pickerPage===0;
