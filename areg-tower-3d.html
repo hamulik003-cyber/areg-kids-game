@@ -35,7 +35,7 @@ glowGradient.addColorStop(0,'rgba(255,255,255,.95)');glowGradient.addColorStop(.
 glowCtx.fillStyle=glowGradient;glowCtx.fillRect(0,0,64,64);
 const glowTexture=new T.CanvasTexture(glowCanvas);
 const fleckKinds=[0,2,1,0,2,1,0,2,1,0,2,1,0,2,0,1,2,0,1,2,0,2,1,0];
-const fleckPositions=[[-5.1,-5.6],[-2.8,-4.6],[.3,-5.8],[3.1,-4.8],[5.2,-5.8],[-5.2,-3.3],[5.1,-2.5],[-4.8,-.8],[5.1,.4],[-5.1,2.3],[4.8,2.7],[-3.4,4.8],[-.2,5.6],[3.3,4.6],[-4.1,-6.4],[-1.4,-6.1],[1.7,-6.3],[4.2,-6.2],[-5.1,6.1],[-2.3,6.4],[.9,6.1],[4.8,6.3],[-5.3,4.2],[5.3,-4.1]];
+const fleckPositions=[[-3.8,-8.5],[-1.5,-7.6],[1.2,-8.7],[3.6,-7.7],[0,-6.4],[-3.7,-5.7],[3.5,-5.9],[-3.9,6.2],[-1.7,7.2],[0.7,6.3],[3.5,7.2],[0,8.5],[-3.4,8.8],[3.7,8.7],[-2.9,-6.6],[2.4,-8.1],[-0.5,-8.9],[3.9,-6.6],[-3.7,7.8],[-1.5,8.8],[1.7,7.7],[3.3,6.3],[-0.5,5.9],[1.6,8.9]];
 for(let i=0;i<fleckKinds.length;i++){
  const kind=fleckKinds[i],size=(i<14?.25:.18)+(i%5)*.055;
  const geometry=kind===0?new T.ExtrudeGeometry(starOutline,{depth:.12,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:1,steps:1,curveSegments:2}):kind===1?new T.BoxGeometry(size*1.55,size*1.55,size*1.55):(i%4===1?new T.TorusGeometry(size*.85,size*.24,10,24):new T.SphereGeometry(size,20,16));
@@ -53,7 +53,7 @@ for(let i=0;i<fleckKinds.length;i++){
 const backdropDust=[];
 for(let i=0;i<34;i++){
  const a=i*2.399963,rad=2.2+(i%9)*.62;
- const x=Math.cos(a)*rad,z=Math.sin(a)*rad;
+ const x=Math.cos(a)*rad,z=(i%3===0?1:-1)*(5.4+(i%7)*.58);
  const dot=new T.Sprite(new T.SpriteMaterial({map:glowTexture,color:0xffffff,transparent:true,opacity:.32,depthWrite:false,blending:T.AdditiveBlending}));
  const d=.045+(i%4)*.024;dot.scale.set(d,d,1);dot.position.set(x,-.46,z);scene.add(dot);
  backdropDust.push({mesh:dot,x,z,phase:i*.71});
