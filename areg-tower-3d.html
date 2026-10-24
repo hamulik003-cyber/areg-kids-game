@@ -21,17 +21,24 @@ const dirs={U:[-1,0],D:[1,0],L:[0,-1],R:[0,1]},op={U:'D',D:'U',L:'R',R:'L'};let 
 function roundedPath(points,radius=.3){const curve=new T.CatmullRomCurve3(points.map(([x,z])=>new T.Vector3(x,.415,z)),false,'centripetal');return mesh(new T.TubeGeometry(curve,28,radius,12,false),groove)}
 function lineChannel(g,a,b){const [ax,az]=a,[bx,bz]=b;const center=mesh(new T.BoxGeometry(Math.abs(bx-ax)+.58,.028,Math.abs(bz-az)+.58),groove);center.position.set((ax+bx)/2,.404,(az+bz)/2);g.add(center)}
 function makeTile(t){const g=new T.Group();
-const top=mesh(new T.BoxGeometry(cell-.075,.25,cell-.075),new T.MeshStandardMaterial({map:woodTexture('#c38b53','#714025',t.id+21),roughness:.72}));top.position.y=.23;g.add(top);
+const top=mesh(new T.BoxGeometry(cell-.075,.22,cell-.075),side);top.position.y=.205;g.add(top);
 const edging=mesh(new T.BoxGeometry(cell-.06,.09,cell-.06),side);edging.position.y=.095;g.add(edging);
-const channelWidth=.57,edgeWidth=.72;
-function strip(d,width,height,m,y){const horiz=d==='L'||d==='R',length=.98;const seg=mesh(new T.BoxGeometry(horiz?length:width,height,horiz?width:length),m);seg.position.set(d==='L'?-.48:d==='R'?.48:0,y,d==='U'?-.48:d==='D'?.48:0);g.add(seg)}
-const centerLip=mesh(new T.CylinderGeometry(edgeWidth/2,edgeWidth/2,.024,40),bevel);centerLip.position.y=.366;g.add(centerLip);
-for(const d of t.d)strip(d,edgeWidth,.025,bevel,.367);
-const centerDark=mesh(new T.CylinderGeometry(channelWidth/2,channelWidth/2,.028,40),groove);centerDark.position.y=.39;g.add(centerDark);
-for(const d of t.d)strip(d,channelWidth,.028,groove,.39);
-const centerInside=mesh(new T.CylinderGeometry(.225,.225,.009,36),channel);centerInside.position.y=.408;g.add(centerInside);
-for(const d of t.d)strip(d,.44,.009,channel,.411);
-if(t.kind==='start'){const orb=mesh(new T.SphereGeometry(.245,32,24),material(0xf2eee2,.12,.65));orb.position.y=.57;g.add(orb);const glow=mesh(new T.TorusGeometry(.33,.035,10,40),gold);glow.rotation.x=Math.PI/2;glow.position.y=.428;g.add(glow)}
+// Actual recessed 3D channel: the timber surface is cut away, not painted over.
+const size=cell-.075,res=36,step=size/res,half=size/2,depth=.19,topY=.361,bottomY=topY-depth,channelRadius=.33;
+const inside=(x,z)=>{if(x*x+z*z<channelRadius*channelRadius)return true;for(const d of t.d){if(d==='L'&&x<=0&&Math.abs(z)<channelRadius)return true;if(d==='R'&&x>=0&&Math.abs(z)<channelRadius)return true;if(d==='U'&&z<=0&&Math.abs(x)<channelRadius)return true;if(d==='D'&&z>=0&&Math.abs(x)<channelRadius)return true}return false};
+const mask=Array.from({length:res},(_,j)=>Array.from({length:res},(_,i)=>inside(-half+(i+.5)*step,-half+(j+.5)*step)));
+const verts=[],uv=[],inds=[];function quad(a,b,c,d){const k=verts.length/3;for(const p of [a,b,c,d]){verts.push(...p);uv.push(p[0]/size+.5,p[2]/size+.5)}inds.push(k,k+1,k+2,k,k+2,k+3)}
+for(let j=0;j<res;j++)for(let i=0;i<res;i++){const x=-half+i*step,z=-half+j*step,x2=x+step,z2=z+step;if(!mask[j][i]){quad([x,topY,z],[x,topY,z2],[x2,topY,z2],[x2,topY,z]);continue}
+const neighbor=(ii,jj)=>ii>=0&&ii<res&&jj>=0&&jj<res&&mask[jj][ii];
+if(!neighbor(i-1,j))quad([x,bottomY,z],[x,bottomY,z2],[x,topY,z2],[x,topY,z]);
+if(!neighbor(i+1,j))quad([x2,bottomY,z2],[x2,bottomY,z],[x2,topY,z],[x2,topY,z2]);
+if(!neighbor(i,j-1))quad([x2,bottomY,z],[x,bottomY,z],[x,topY,z],[x2,topY,z]);
+if(!neighbor(i,j+1))quad([x,bottomY,z2],[x2,bottomY,z2],[x2,topY,z2],[x,topY,z2]);
+}
+const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(verts,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(inds);geo.computeVertexNormals();const surface=mesh(geo,new T.MeshStandardMaterial({map:woodTexture('#c88a50','#774323',t.id+41),roughness:.68,side:T.DoubleSide}));g.add(surface);
+const darkBase=mesh(new T.BoxGeometry(size-.01,.025,size-.01),groove);darkBase.position.y=bottomY-.014;g.add(darkBase);
+const baseInset=mesh(new T.BoxGeometry(size-.01,.009,size-.01),channel);baseInset.position.y=bottomY+.002;g.add(baseInset);
+if(t.kind==='start'){const orb=mesh(new T.SphereGeometry(.245,32,24),material(0xf2eee2,.12,.65));orb.position.y=.58;g.add(orb);const glow=mesh(new T.TorusGeometry(.33,.035,10,40),gold);glow.rotation.x=Math.PI/2;glow.position.y=.428;g.add(glow)}
 if(t.kind==='goal'){const ring=mesh(new T.TorusGeometry(.31,.07,12,40),goalMat);ring.rotation.x=Math.PI/2;ring.position.y=.435;g.add(ring)}
 if(t.id===7||t.id===9){const key=new T.Group(),stem=mesh(new T.BoxGeometry(.37,.065,.075),gold);stem.position.x=.15;key.add(stem);const head=mesh(new T.TorusGeometry(.12,.04,8,20),gold);head.rotation.x=Math.PI/2;head.position.x=-.08;key.add(head);const tooth=mesh(new T.BoxGeometry(.055,.07,.12),gold);tooth.position.set(.3,0,.08);key.add(tooth);key.position.set(0,.465,0);g.add(key)}
 if(t.id===14){const plate=mesh(new T.BoxGeometry(.9,.045,.94),steel);plate.position.y=.47;g.add(plate);for(const xx of [-.36,.36])for(const zz of [-.37,.37]){const rivet=mesh(new T.SphereGeometry(.045,10,8),steelDark);rivet.position.set(xx,.508,zz);g.add(rivet)}const lock=mesh(new T.BoxGeometry(.42,.09,.38),steelDark);lock.position.y=.54;g.add(lock);const shackle=mesh(new T.TorusGeometry(.18,.045,8,20,Math.PI),steel);shackle.rotation.x=Math.PI/2;shackle.position.set(0,.58,-.18);g.add(shackle)}
