@@ -1,3 +1,12 @@
+## 2026-10-24 — ԽԻՍՏ ՊԱՐՏԱԴԻՐ ՈՐԱԿԻ ԵՎ ՍՏՈՒԳՄԱՆ ԿԱՆՈՆ (USER EXPLICITLY APPROVED)
+- Նախ վերլուծել խնդրի արմատական պատճառը և ուսումնասիրել առնչվող ամբողջ կոդը, հետո միայն փոփոխել։ Չկիրառել պատահական գունային/երկրաչափական կարկատումներ՝ իբրև վերջնական լուծում։
+- «Կառուցիր աշտարակը» փայտե սահող խողովակների խաղի տեսողական միակ չափանիշը օգտատիրոջ ուղարկած reference screenshot-ն է։ Նկար գեներացնելը ՉԻ փոխարինում իրական աշխատող խաղի կոդին։ Նմանությունը չհաստատել առանց իրական տեսողական համեմատության։
+- Ամեն փոփոխությունից առաջ սահմանել ստուգելի ընդունման պայմաններ (գույն, կլոր կորերի անընդհատ հաստություն, երեք պտտվող բանալիներ, անշարժ պտուտակված մետաղական սալիկներ, տեսանելի կողպեք/3, մատին հետևող սահք, գնդիկի շարունակական շարժում)։
+- Պարտադիր՝ syntax/static ստուգումներ, առկա հնարավորության դեպքում ավտոմատ render/screenshot և visual diff, կառավարում/խաղային տրամաբանության regression ստուգում։ Եթե սարքային կամ տեսողական ստուգումը հնարավոր չէ, դա հստակ ասել. չգրել «պատրաստ է», «մեկին մեկ է», «iPhone-ում ստուգված է»։
+- Փոփոխել միայն համապատասխան trial ֆայլերը։ Պահպանել հիմնական հաստատված խաղը, UI header/back/stars, PWA/DotKiosk, ձայները, քեշն ու մյուս խաղերը։ main և production չփոխել առանց օգտատիրոջ հստակ հաստատման։
+- Հրապարակման մասին խոսել միայն իրական Render status-ի ստուգումից հետո։ GitHub commit-ը ≠ live deploy ≠ օգտատիրոջ հաստատում։ Ձախողված տարբերակը չհամարել հաստատված։
+- Յուրաքանչյուր հաջորդ զրույցում այս կանոնը կարդալ AGENTS.md-ից և հետևել առանց շեղման։
+
 ## 2026-10-23 — STAGE 2 SOLID OVERHEAD PLATFORM RULE (USER CONFIRMED)
 - Every suspended ledge/platform (including moving ones) must have its bottom edge above standing Areg's head, except explicitly designed physical obstacles.
 - Areg cannot pass through any solid platform from underneath or from the sides; jumping upward hits the underside, landing from above supports Areg, moving platforms carry Areg when standing still.
