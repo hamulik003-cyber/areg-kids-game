@@ -52,22 +52,31 @@ if(t.d.length&&!t.fixed){
 const surfaceTexture=new T.CanvasTexture(cv);surfaceTexture.colorSpace=T.SRGBColorSpace;surfaceTexture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),8);
 const surface=mesh(new T.PlaneGeometry(size,size),new T.MeshBasicMaterial({map:surfaceTexture,side:T.DoubleSide}));surface.rotation.x=-Math.PI/2;surface.position.y=.371;g.add(surface);
 if(t.key){
- // One identical full-size key model for all three grooves. Ring is the pivot.
+ // Identical antique skeleton keys: ornate bow, long stem, double-bit teeth.
+ // Pivot is the center of the bow, placed on the channel centerline.
  const key=new T.Group();
- const ring=mesh(new T.TorusGeometry(.145,.047,12,32),gold);
- ring.rotation.x=Math.PI/2;ring.position.set(0,0,0);key.add(ring);
- const shaft=mesh(new T.CylinderGeometry(.047,.047,.43,16),gold);
- shaft.rotation.z=Math.PI/2;shaft.position.x=.11;key.add(shaft);
- for(const z of [-.09,.075]){
-  const tooth=mesh(new T.BoxGeometry(.065,.075,.11),gold);
-  tooth.position.set(.28,.005,z);key.add(tooth);
+ const bow=mesh(new T.TorusGeometry(.155,.041,12,40),gold);
+ bow.rotation.x=Math.PI/2;key.add(bow);
+ // Small decorative collar around the antique key's bow.
+ for(const xx of [-.145,.145]){
+  const stud=mesh(new T.SphereGeometry(.036,12,10),gold);
+  stud.position.set(xx,.008,0);key.add(stud);
  }
- // Place each ring on its channel centerline, including both curved grooves.
+ const neck=mesh(new T.BoxGeometry(.12,.075,.105),gold);
+ neck.position.x=.205;key.add(neck);
+ const shaft=mesh(new T.CylinderGeometry(.042,.042,.43,16),gold);
+ shaft.rotation.z=Math.PI/2;shaft.position.x=.39;key.add(shaft);
+ const end=mesh(new T.SphereGeometry(.049,12,10),gold);
+ end.position.x=.60;key.add(end);
+ for(const [x,z] of [[.52,-.085],[.60,-.085],[.60,.075]]){
+  const tooth=mesh(new T.BoxGeometry(.075,.073,.10),gold);
+  tooth.position.set(x,.006,z);key.add(tooth);
+ }
  const cornerMid=.53*(1-Math.SQRT1_2);
  key.position.set(0,.57,0);
  if(t.id===0)key.position.set(cornerMid,.57,cornerMid);
  else if(t.id===9)key.position.set(-cornerMid,.57,cornerMid);
- // Rock within the channel instead of sweeping the long shaft through the timber.
+ // Align long key shafts along the dark channels, with only a gentle motion.
  t.keyBaseAngle=t.id===0?-2.35:t.id===9?2.35:0;
  key.rotation.y=t.keyBaseAngle;
  key.scale.set(1,1,1);g.add(key);
