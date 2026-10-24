@@ -59,10 +59,11 @@ for(let i=0;i<34;i++){
  backdropDust.push({mesh:dot,x,z,phase:i*.71});
 }
 // The board uses one CSS wooden surround matching the field frame; no additional 3D rail layers.
+const N=4;
 const slots=[];for(let row=0;row<N;row++)for(let col=0;col<N;col++){const p=mesh(new T.BoxGeometry(cell-.04,.04,cell-.04),material(0x6b4129));p.position.set(col*cell-off,.025,row*cell-off);scene.add(p);slots.push(p)}
 // Deterministic, independently solvable trial levels. Construct a valid connected
 // three-key route first, then scramble movable tiles via real legal slide moves.
-const N=4,LEVEL_COUNT=5;
+const LEVEL_COUNT=5;
 function seededRandom(seed){let n=seed>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296}}
 const steps=[[-1,0,'U','D'],[1,0,'D','U'],[0,-1,'L','R'],[0,1,'R','L']];
 function generateTrialLevel(index){
