@@ -60,10 +60,66 @@ for(let i=0;i<34;i++){
 }
 // The board uses one CSS wooden surround matching the field frame; no additional 3D rail layers.
 const slots=[];for(let row=0;row<N;row++)for(let col=0;col<N;col++){const p=mesh(new T.BoxGeometry(cell-.04,.04,cell-.04),material(0x6b4129));p.position.set(col*cell-off,.025,row*cell-off);scene.add(p);slots.push(p)}
-const configs=[
-[{id:0,r:0,c:0,kind:'corner',d:['R','D'],key:true},{id:1,r:0,c:2,kind:'straight',d:['L','R']},{id:2,r:0,c:3,kind:'corner',d:['L','D']},{id:3,r:1,c:0,kind:'straight',d:['U','D']},{id:4,r:1,c:2,kind:'straight',d:['L','R'],key:true},{id:5,r:1,c:3,kind:'goal',d:['U'],fixed:true},{id:6,r:2,c:0,kind:'corner',d:['U','R']},{id:7,r:2,c:2,kind:'corner',d:['L','D']},{id:8,r:2,c:3,kind:'blank',d:[]},{id:9,r:3,c:0,kind:'corner',d:['L','D'],key:true},{id:10,r:3,c:1,kind:'start',d:['U'],fixed:true},{id:11,r:3,c:2,kind:'blank',d:[]},{id:12,r:3,c:3,kind:'blank',d:[]}],
-[{id:0,r:0,c:0,kind:'corner',d:['R','D'],key:true},{id:1,r:0,c:2,kind:'straight',d:['L','R']},{id:2,r:0,c:3,kind:'corner',d:['L','D']},{id:3,r:1,c:0,kind:'straight',d:['U','D']},{id:4,r:1,c:2,kind:'straight',d:['L','R'],key:true},{id:5,r:1,c:3,kind:'goal',d:['U'],fixed:true},{id:6,r:2,c:0,kind:'corner',d:['U','R']},{id:7,r:2,c:2,kind:'corner',d:['L','D']},{id:8,r:2,c:3,kind:'blank',d:[]},{id:9,r:3,c:0,kind:'corner',d:['L','D'],key:true},{id:10,r:3,c:1,kind:'start',d:['U'],fixed:true},{id:11,r:3,c:2,kind:'blank',d:[]},{id:12,r:3,c:3,kind:'blank',d:[]}]
-];
+// Deterministic, independently solvable trial levels. Construct a valid connected
+// three-key route first, then scramble movable tiles via real legal slide moves.
+const N=4,LEVEL_COUNT=5;
+function seededRandom(seed){let n=seed>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296}}
+const steps=[[-1,0,'U','D'],[1,0,'D','U'],[0,-1,'L','R'],[0,1,'R','L']];
+function generateTrialLevel(index){
+ const rand=seededRandom(0xA83C11+index*10007);
+ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ const neighbors=p=>shuffle(steps.map(([dr,dc,d,back])=>({r:p.r+dr,c:p.c+dc,d,back})).filter(q=>q.r>=0&&q.r<N&&q.c>=0&&q.c<N));
+ let path=null;
+ for(let attempt=0;attempt<180&&!path;attempt++){
+  const first={r:Math.floor(rand()*N),c:Math.floor(rand()*N)};
+  const wanted=9+Math.floor(rand()*4),seen=new Set([first.r*4+first.c]),chain=[first];
+  function walk(){
+   if(chain.length===wanted){const end=chain[chain.length-1];return Math.abs(end.r-first.r)+Math.abs(end.c-first.c)>=3}
+   for(const n of neighbors(chain[chain.length-1])){
+    const k=n.r*4+n.c;if(seen.has(k))continue;
+    seen.add(k);chain.push({r:n.r,c:n.c});
+    if(walk())return true;
+    chain.pop();seen.delete(k);
+   }
+   return false;
+  }
+  if(walk())path=chain.slice();
+ }
+ if(!path)throw Error('Unable to construct trial route '+index);
+ const keyIndexes=shuffle(Array.from({length:path.length-2},(_,i)=>i+1)).slice(0,3);
+ const used=new Set(path.map(p=>p.r*4+p.c));
+ const tiles=path.map((p,i)=>{
+  const connections=[];
+  for(const adj of [path[i-1],path[i+1]]){
+   if(!adj)continue;
+   const d=steps.find(([dr,dc])=>p.r+dr===adj.r&&p.c+dc===adj.c);
+   connections.push(d[2]);
+  }
+  return {id:i,r:p.r,c:p.c,kind:i===0?'start':i===path.length-1?'goal':connections[0]=== 'U'&&connections[1]==='D'||connections[0]==='D'&&connections[1]==='U'||connections[0]==='L'&&connections[1]==='R'||connections[0]==='R'&&connections[1]==='L'?'straight':'corner',d:connections,fixed:i===0||i===path.length-1,key:keyIndexes.includes(i)};
+ });
+ const free=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!used.has(r*4+c))free.push({r,c});
+ shuffle(free);
+ // Leave three empty slots so the player can slide pieces around the fixed endpoints.
+ for(const p of free.slice(3))tiles.push({id:tiles.length,r:p.r,c:p.c,kind:'blank',d:[]});
+ const original=tiles.map(t=>({r:t.r,c:t.c}));
+ const occupied=()=>new Set(tiles.map(t=>t.r*4+t.c));
+ let lastId=-1;
+ const scrambleCount=18+index*7;
+ for(let i=0;i<scrambleCount;i++){
+  const occ=occupied(),moves=[];
+  for(const t of tiles)if(!t.fixed)for(const [dr,dc] of steps){
+   const rr=t.r+dr,cc=t.c+dc;
+   if(rr>=0&&rr<N&&cc>=0&&cc<N&&!occ.has(rr*4+cc))moves.push({t,rr,cc});
+  }
+  const choices=moves.filter(m=>m.t.id!==lastId);
+  const pick=(choices.length?choices:moves)[Math.floor(rand()*(choices.length||moves.length))];
+  if(!pick)throw Error('No legal scramble move');
+  lastId=pick.t.id;pick.t.r=pick.rr;pick.t.c=pick.cc;
+ }
+ if(tiles.every((t,i)=>t.r===original[i].r&&t.c===original[i].c))throw Error('Scramble unchanged');
+ return tiles;
+}
+const configs=Array.from({length:LEVEL_COUNT},(_,i)=>generateTrialLevel(i));
 const dirs={U:[-1,0],D:[1,0],L:[0,-1],R:[0,1]},op={U:'D',D:'U',L:'R',R:'L'};let level=0,tiles=[],moves=0,animating=false,ball=null,ballPath=[],ballT=0,ballCurve=null,ballDistance=0,ballLength=0,won=false,collectedKeys=0,unlockTime=0,ballReturning=false,lastAttempt='';const ray=new T.Raycaster(),pointer=new T.Vector2();function xyz(r,c){return [c*cell-off,r*cell-off]}
 function roundedPath(points,radius=.3){const curve=new T.CatmullRomCurve3(points.map(([x,z])=>new T.Vector3(x,.415,z)),false,'centripetal');return mesh(new T.TubeGeometry(curve,28,radius,12,false),groove)}
 function lineChannel(g,a,b){const [ax,az]=a,[bx,bz]=b;const center=mesh(new T.BoxGeometry(Math.abs(bx-ax)+.58,.028,Math.abs(bz-az)+.58),groove);center.position.set((ax+bx)/2,.404,(az+bz)/2);g.add(center)}
