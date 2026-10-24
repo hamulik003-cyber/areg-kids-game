@@ -37,7 +37,7 @@ if(t.d.length&&!t.fixed){
  if(t.d.length===2&&((t.d.includes('L')||t.d.includes('R'))&&(t.d.includes('U')||t.d.includes('D')))){
   const h=t.d.includes('L')?-1:1,v=t.d.includes('U')?-1:1,r=.53;
   cx.moveTo(px(h*half),px(0));cx.lineTo(px(h*r),px(0));
-  cx.quadraticCurveTo(px(0),px(0),px(0),px(v*r));
+  const k=.5522847498;cx.bezierCurveTo(px(h*r*(1-k)),px(0),px(0),px(v*r*(1-k)),px(0),px(v*r));
   cx.lineTo(px(0),px(v*half));
  }else if(t.d.length===2){
   const p=ends[t.d[0]],q=ends[t.d[1]];cx.moveTo(px(p[0]),px(p[1]));cx.lineTo(px(q[0]),px(q[1]));
