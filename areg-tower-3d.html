@@ -28,26 +28,15 @@ for(let i=0;i<36;i++){
  f.castShadow=false;f.receiveShadow=false;scene.add(f);
  backgroundFlecks.push({mesh:f,x,z,phase:i*1.31,kind});
 }
-// Rounded, layered timber frame based on the reference: a generous dark inset
-// separates the wooden tiles from the warm, rounded outer rim.
-function roundedPath(path,x,y,w,h,r){
- path.moveTo(x+r,y);path.lineTo(x+w-r,y);path.quadraticCurveTo(x+w,y,x+w,y+r);
- path.lineTo(x+w,y+h-r);path.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
- path.lineTo(x+r,y+h);path.quadraticCurveTo(x,y+h,x,y+h-r);
- path.lineTo(x,y+r);path.quadraticCurveTo(x,y,x+r,y);
+// Stable low-poly timber rails. Keep frame geometry independent of tile rendering.
+const boardFrame=[];
+for(let i=0;i<4;i++){
+ const horizontal=i<2,side=i%2===0?-1:1;
+ for(const [thickness,height,color,y] of [[.30,.18,0x8a4b24,-.24],[.22,.16,0xd79653,-.13],[.09,.07,0xf3c788,-.035]]){
+  const rail=mesh(new T.BoxGeometry(horizontal?8.54:thickness,height,horizontal?thickness:8.54),material(color,.64));
+  rail.position.set(horizontal?0:side*4.27,y,horizontal?side*4.27:0);scene.add(rail);boardFrame.push(rail);
+ }
 }
-function boardRim(outer,inner,outerRadius,innerRadius,y,color){
- const shape=new T.Shape();roundedPath(shape,-outer/2,-outer/2,outer,outer,outerRadius);
- const hole=new T.Path();roundedPath(hole,-inner/2,-inner/2,inner,inner,innerRadius);shape.holes.push(hole);
- const surface=new T.Mesh(new T.ShapeGeometry(shape,12),new T.MeshStandardMaterial({color,roughness:.57,metalness:0,side:T.DoubleSide}));
- surface.rotation.x=-Math.PI/2;surface.position.y=y;surface.receiveShadow=false;scene.add(surface);return surface;
-}
-const boardFrame=[
- boardRim(8.85,7.92,.43,.13,-.18,0x83431f),
- boardRim(8.76,8.02,.39,.16,-.10,0xc88746),
- boardRim(8.61,8.16,.34,.16,-.035,0xf0bd78),
- boardRim(8.25,8.06,.17,.08,-.018,0x6d361d)
-];
 const borderBeads=[];for(let i=0;i<4;i++){const rail=mesh(new T.BoxGeometry(i<2?8.12:.17,.14,i<2?.17:8.12),rim);rail.position.set(i===2?-4.02:i===3?4.02:0,-.14,i===0?-4.02:i===1?4.02:0);scene.add(rail);borderBeads.push(rail)}
 const slots=[];for(let row=0;row<N;row++)for(let col=0;col<N;col++){const p=mesh(new T.BoxGeometry(cell-.04,.04,cell-.04),material(0x6b4129));p.position.set(col*cell-off,.025,row*cell-off);scene.add(p);slots.push(p)}
 const configs=[
