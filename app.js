@@ -3710,7 +3710,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Կառուցիր աշտարակը 3D';
-    frame.src='./areg-tower-3d.html?testv=fixed-picker-d3d3b32';
+    frame.src='./areg-tower-3d.html?testv=stable-grid-b498620';
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
