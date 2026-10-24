@@ -52,33 +52,27 @@ if(t.d.length&&!t.fixed){
 const surfaceTexture=new T.CanvasTexture(cv);surfaceTexture.colorSpace=T.SRGBColorSpace;surfaceTexture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),8);
 const surface=mesh(new T.PlaneGeometry(size,size),new T.MeshBasicMaterial({map:surfaceTexture,side:T.DoubleSide}));surface.rotation.x=-Math.PI/2;surface.position.y=.371;g.add(surface);
 if(t.key){
- // Identical antique skeleton keys: ornate bow, long stem, double-bit teeth.
- // Pivot is the center of the bow, placed on the channel centerline.
+ // Reference-video skeleton key: small circular bow, slender vertical shaft,
+ // two distinct side teeth. All three share precisely the same dimensions.
  const key=new T.Group();
- const bow=mesh(new T.TorusGeometry(.155,.041,12,40),gold);
- bow.rotation.x=Math.PI/2;key.add(bow);
- // Small decorative collar around the antique key's bow.
- for(const xx of [-.145,.145]){
-  const stud=mesh(new T.SphereGeometry(.036,12,10),gold);
-  stud.position.set(xx,.008,0);key.add(stud);
+ const ring=mesh(new T.TorusGeometry(.103,.027,12,32),gold);
+ ring.rotation.x=Math.PI/2;ring.position.z=-.16;key.add(ring);
+ const neck=mesh(new T.BoxGeometry(.07,.047,.065),gold);
+ neck.position.z=-.04;key.add(neck);
+ const shaft=mesh(new T.CylinderGeometry(.027,.027,.34,12),gold);
+ shaft.rotation.x=Math.PI/2;shaft.position.z=.16;key.add(shaft);
+ const tip=mesh(new T.BoxGeometry(.065,.045,.055),gold);
+ tip.position.z=.34;key.add(tip);
+ for(const z of [.23,.31]){
+  const tooth=mesh(new T.BoxGeometry(.115,.046,.045),gold);
+  tooth.position.set(.058,0,z);key.add(tooth);
  }
- const neck=mesh(new T.BoxGeometry(.12,.075,.105),gold);
- neck.position.x=.205;key.add(neck);
- const shaft=mesh(new T.CylinderGeometry(.042,.042,.43,16),gold);
- shaft.rotation.z=Math.PI/2;shaft.position.x=.39;key.add(shaft);
- const end=mesh(new T.SphereGeometry(.049,12,10),gold);
- end.position.x=.60;key.add(end);
- for(const [x,z] of [[.52,-.085],[.60,-.085],[.60,.075]]){
-  const tooth=mesh(new T.BoxGeometry(.075,.073,.10),gold);
-  tooth.position.set(x,.006,z);key.add(tooth);
- }
+ // The group origin is the geometric midpoint, so the visible key stays
+ // centered on its groove regardless of animation phase.
  const cornerMid=.53*(1-Math.SQRT1_2);
  key.position.set(0,.57,0);
  if(t.id===0)key.position.set(cornerMid,.57,cornerMid);
  else if(t.id===9)key.position.set(-cornerMid,.57,cornerMid);
- // Align long key shafts along the dark channels, with only a gentle motion.
- t.keyBaseAngle=t.id===0?-2.35:t.id===9?2.35:0;
- key.rotation.y=t.keyBaseAngle;
  key.scale.set(1,1,1);g.add(key);
  t.keySpinner=key;t.keySpinOffset=t.id*1.7;t.keyCollected=false;
 }
@@ -123,6 +117,6 @@ renderer.domElement.addEventListener('pointerup',e=>releaseDrag(e));renderer.dom
 function route(){const start=tiles.find(t=>t.kind==='start'),goal=tiles.find(t=>t.kind==='goal');if(!start||!goal)return null;const q=[[start,[start]]],seen=new Set([start.id]);while(q.length){const [t,path]=q.shift();if(t===goal)return path;for(const d of t.d){const [dr,dc]=dirs[d],n=find(t.r+dr,t.c+dc);if(n&&n.d.includes(op[d])&&!seen.has(n.id)){seen.add(n.id);q.push([n,[...path,n]])}}}return null}
 function launch(){if(animating||won)return;const path=route();if(!path){document.getElementById('msg').textContent='Ճանապարհը դեռ փակ է․ միացրու խողովակները';return}if(path.filter(t=>t.key).length!==3){document.getElementById('msg').textContent='Ճանապարհը պետք է անցնի բոլոր 3 բանալիներով';return}collectedKeys=0;unlockTime=0;for(const t of tiles)if(t.key){t.keyCollected=false;t.keySpinner.visible=true}document.getElementById('msg').textContent='Հավաքիր 3 բանալիները…';ballPath=path;ballT=0;ballDistance=0;const points=[];for(let i=0;i<path.length;i++){const [x,z]=xyz(path[i].r,path[i].c);points.push(new T.Vector3(x,.75,z))}ballCurve=new T.CatmullRomCurve3(points,false,'centripetal',.5);ballLength=ballCurve.getLength();animating=true;ball=mesh(new T.SphereGeometry(.295,40,30),material(0xf5f0e6,.12,.7));ball.castShadow=false;ball.receiveShadow=false;scene.add(ball);const [x,z]=xyz(path[0].r,path[0].c);ball.position.set(x,.75,z);document.getElementById('run').disabled=true}
 document.getElementById('run').onclick=launch;document.getElementById('reset').onclick=setup;document.getElementById('next').onclick=()=>{level++;setup()};
-function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);camera.aspect=w/h;camera.fov=34;const aspect=w/h;const targetWidth=8.5;const dist=Math.max(13.2,targetWidth/(2*Math.tan(camera.fov*Math.PI/360)*aspect));camera.position.set(0,dist,0.01);camera.lookAt(0,0,0);camera.updateProjectionMatrix();renderer.setSize(w,h,true)}addEventListener('resize',resize);resize();setup();let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000,.04);last=now;warmAccent.intensity=.6+.16*Math.sin(now*.00055);for(const t of tiles){if(t.keySpinner)t.keySpinner.rotation.y=t.keyBaseAngle+.12*Math.sin(now*.0014+t.keySpinOffset);if(t.slide){const slide=t.slide;slide.elapsed=Math.min(slide.duration,slide.elapsed+dt);const p=slide.elapsed/slide.duration;const eased=p*p*(3-2*p);t.group.position.lerpVectors(slide.from,slide.to,eased);if(p>=1){t.group.position.copy(slide.to);t.slide=null}}}if(animating&&ball&&ballCurve){ballDistance=Math.min(ballLength,ballDistance+dt*3.8);const u=ballLength>0?ballDistance/ballLength:1;ball.position.copy(ballCurve.getPointAt(u));ball.rotation.z-=dt*8;for(const t of ballPath){if(t.key&&!t.keyCollected){const [x,z]=xyz(t.r,t.c);if(Math.hypot(ball.position.x-x,ball.position.z-z)<.39){t.keyCollected=true;t.keySpinner.visible=false;collectedKeys++;document.getElementById('msg').textContent='Բանալիներ՝ '+collectedKeys+'/3'}}}
+function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);camera.aspect=w/h;camera.fov=34;const aspect=w/h;const targetWidth=8.5;const dist=Math.max(13.2,targetWidth/(2*Math.tan(camera.fov*Math.PI/360)*aspect));camera.position.set(0,dist,0.01);camera.lookAt(0,0,0);camera.updateProjectionMatrix();renderer.setSize(w,h,true)}addEventListener('resize',resize);resize();setup();let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000,.04);last=now;warmAccent.intensity=.6+.16*Math.sin(now*.00055);for(const t of tiles){if(t.keySpinner)t.keySpinner.position.y=.57+.018*Math.sin(now*.002+t.keySpinOffset);if(t.slide){const slide=t.slide;slide.elapsed=Math.min(slide.duration,slide.elapsed+dt);const p=slide.elapsed/slide.duration;const eased=p*p*(3-2*p);t.group.position.lerpVectors(slide.from,slide.to,eased);if(p>=1){t.group.position.copy(slide.to);t.slide=null}}}if(animating&&ball&&ballCurve){ballDistance=Math.min(ballLength,ballDistance+dt*3.8);const u=ballLength>0?ballDistance/ballLength:1;ball.position.copy(ballCurve.getPointAt(u));ball.rotation.z-=dt*8;for(const t of ballPath){if(t.key&&!t.keyCollected){const [x,z]=xyz(t.r,t.c);if(Math.hypot(ball.position.x-x,ball.position.z-z)<.39){t.keyCollected=true;t.keySpinner.visible=false;collectedKeys++;document.getElementById('msg').textContent='Բանալիներ՝ '+collectedKeys+'/3'}}}
  if(u>=1){animating=false;if(collectedKeys===3){const goal=tiles.find(t=>t.kind==='goal');if(goal){goal.lockBody.material.color.setHex(0x16a765);goal.lockFront.material.color.setHex(0x36d98d);goal.lockShackle.position.x=.25;goal.lockShackle.rotation.y=-.34}unlockTime=now+1100;document.getElementById('msg').textContent='🔓 Կողպեքը բացվեց';}else{document.getElementById('msg').textContent='Պետք է հավաքել բոլոր 3 բանալիները';document.getElementById('run').disabled=false}}}if(unlockTime&&now>=unlockTime){unlockTime=0;won=true;document.getElementById('modal').classList.add('show')}renderer.render(scene,camera)}requestAnimationFrame(loop);
 </script></body></html>
