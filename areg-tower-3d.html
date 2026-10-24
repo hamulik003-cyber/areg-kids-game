@@ -168,6 +168,7 @@ function setup(){
    t.r=initial.r;t.c=initial.c;t.d=[...initial.d];
    const [x,z]=xyz(t.r,t.c);t.group.position.set(x,0,z);
    t.target=t.group.position.clone();t.slide=null;t.keyCollected=false;
+   if(t.startOrb)t.startOrb.visible=true;
    if(t.keySpinner)t.keySpinner.visible=true;
    if(t.kind==='goal'){
     t.lockBody.material.color.setHex(0x252a36);
