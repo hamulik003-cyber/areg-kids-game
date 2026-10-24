@@ -174,8 +174,11 @@ if(t.key){
  // centered on its groove regardless of animation phase.
  const cornerMid=.53*(1-Math.SQRT1_2);
  key.position.set(0,.57,0);
- if(t.id===0)key.position.set(cornerMid,.57,cornerMid);
- else if(t.id===9)key.position.set(-cornerMid,.57,cornerMid);
+ if(t.kind==='corner'){
+  const x=t.d.includes('R')?cornerMid:-cornerMid;
+  const z=t.d.includes('D')?cornerMid:-cornerMid;
+  key.position.set(x,.57,z);
+ }
  key.scale.set(1,1,1);g.add(key);
  t.keySpinner=key;t.keySpinOffset=t.id*1.7;t.keyCollected=false;
 }
@@ -205,7 +208,10 @@ if(t.kind==='goal'){
  const number=mesh(new T.PlaneGeometry(.55,.55),new T.MeshBasicMaterial({map:labelTex,transparent:true,depthWrite:false}));number.rotation.x=-Math.PI/2;number.position.set(0,.791,.13);number.castShadow=false;g.add(number);
 }
 }
-const [x,z]=xyz(t.r,t.c);g.position.set(x,0,z);g.traverse(o=>{if(o.isMesh)o.userData.tile=t});scene.add(g);t.group=g;t.target=g.position.clone();t.slide=null}
+const [x,z]=xyz(t.r,t.c);g.position.set(x,0,z);
+// Fixed start and goal channels must face their actual generated neighbor.
+if(t.fixed)g.rotation.y=({U:0,D:Math.PI,L:Math.PI/2,R:-Math.PI/2})[t.d[0]]||0;
+g.traverse(o=>{if(o.isMesh)o.userData.tile=t});scene.add(g);t.group=g;t.target=g.position.clone();t.slide=null}
 function clear(){for(const t of tiles)scene.remove(t.group);tiles=[];if(ball){scene.remove(ball);ball=null}won=false;animating=false;ballPath=[];ballT=0;ballCurve=null;ballDistance=0;ballLength=0;collectedKeys=0;unlockTime=0;ballReturning=false;lastAttempt=''}
 const cachedLevelTiles=new Map();
 function setup(){
