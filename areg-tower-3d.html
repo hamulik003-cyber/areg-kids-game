@@ -25,7 +25,7 @@ const top=mesh(new T.BoxGeometry(cell-.075,.22,cell-.075),side);top.position.y=.
 const edging=mesh(new T.BoxGeometry(cell-.06,.09,cell-.06),side);edging.position.y=.095;g.add(edging);
 // Actual recessed 3D channel: the timber surface is cut away, not painted over.
 const size=cell-.075,res=36,step=size/res,half=size/2,depth=.19,topY=.361,bottomY=topY-depth,channelRadius=.33;
-const inside=(x,z)=>{if(x*x+z*z<channelRadius*channelRadius)return true;for(const d of t.d){if(d==='L'&&x<=0&&Math.abs(z)<channelRadius)return true;if(d==='R'&&x>=0&&Math.abs(z)<channelRadius)return true;if(d==='U'&&z<=0&&Math.abs(x)<channelRadius)return true;if(d==='D'&&z>=0&&Math.abs(x)<channelRadius)return true}return false};
+const inside=(x,z)=>{if(!t.d.length||t.fixed)return false;if(x*x+z*z<channelRadius*channelRadius)return true;for(const d of t.d){if(d==='L'&&x<=0&&Math.abs(z)<channelRadius)return true;if(d==='R'&&x>=0&&Math.abs(z)<channelRadius)return true;if(d==='U'&&z<=0&&Math.abs(x)<channelRadius)return true;if(d==='D'&&z>=0&&Math.abs(x)<channelRadius)return true}return false};
 const mask=Array.from({length:res},(_,j)=>Array.from({length:res},(_,i)=>inside(-half+(i+.5)*step,-half+(j+.5)*step)));
 const verts=[],uv=[],inds=[];function quad(a,b,c,d){const k=verts.length/3;for(const p of [a,b,c,d]){verts.push(...p);uv.push(p[0]/size+.5,p[2]/size+.5)}inds.push(k,k+1,k+2,k,k+2,k+3)}
 for(let j=0;j<res;j++)for(let i=0;i<res;i++){const x=-half+i*step,z=-half+j*step,x2=x+step,z2=z+step;if(!mask[j][i]){quad([x,topY,z],[x,topY,z2],[x2,topY,z2],[x2,topY,z]);continue}
