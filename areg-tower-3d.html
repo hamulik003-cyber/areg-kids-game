@@ -62,7 +62,7 @@ for(let i=0;i<34;i++){
 const slots=[];for(let row=0;row<N;row++)for(let col=0;col<N;col++){const p=mesh(new T.BoxGeometry(cell-.04,.04,cell-.04),material(0x6b4129));p.position.set(col*cell-off,.025,row*cell-off);scene.add(p);slots.push(p)}
 // Deterministic, independently solvable trial levels. Construct a valid connected
 // three-key route first, then scramble movable tiles via real legal slide moves.
-const LEVEL_COUNT=5;
+const LEVEL_COUNT=50;
 function seededRandom(seed){let n=seed>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296}}
 const steps=[[-1,0,'U','D'],[1,0,'D','U'],[0,-1,'L','R'],[0,1,'R','L']];
 function generateTrialLevel(index){
@@ -105,7 +105,7 @@ function generateTrialLevel(index){
  const scrambleHistory=[];
  const occupied=()=>new Set(tiles.map(t=>t.r*4+t.c));
  let lastId=-1;
- const scrambleCount=18+index*7;
+ const scrambleCount=18+Math.floor(index*1.6);
  for(let i=0;i<scrambleCount;i++){
   const occ=occupied(),moves=[];
   for(const t of tiles)if(!t.fixed)for(const [dr,dc] of steps){
@@ -129,7 +129,19 @@ function generateTrialLevel(index){
  if(!check.every((t,i)=>t.r===original[i].r&&t.c===original[i].c))throw Error('Puzzle not reversible');
  return tiles;
 }
-const configs=Array.from({length:LEVEL_COUNT},(_,i)=>generateTrialLevel(i));
+const configs=[];
+const levelSignatures=new Set();
+for(let i=0;i<LEVEL_COUNT;i++){
+ let candidate=null,signature='';
+ for(let attempt=0;attempt<80;attempt++){
+  candidate=generateTrialLevel(i+attempt*LEVEL_COUNT);
+  signature=candidate.map(t=>[t.r,t.c,t.kind,t.d.join(''),t.key?1:0].join(':')).sort().join('|');
+  if(!levelSignatures.has(signature))break;
+ }
+ if(levelSignatures.has(signature))throw Error('Duplicate trial level '+i);
+ levelSignatures.add(signature);
+ configs.push(candidate);
+}
 const dirs={U:[-1,0],D:[1,0],L:[0,-1],R:[0,1]},op={U:'D',D:'U',L:'R',R:'L'};let level=0,tiles=[],moves=0,animating=false,ball=null,ballPath=[],ballT=0,ballCurve=null,ballDistance=0,ballLength=0,won=false,collectedKeys=0,unlockTime=0,ballReturning=false,lastAttempt='';const ray=new T.Raycaster(),pointer=new T.Vector2();function xyz(r,c){return [c*cell-off,r*cell-off]}
 function roundedPath(points,radius=.3){const curve=new T.CatmullRomCurve3(points.map(([x,z])=>new T.Vector3(x,.415,z)),false,'centripetal');return mesh(new T.TubeGeometry(curve,28,radius,12,false),groove)}
 function lineChannel(g,a,b){const [ax,az]=a,[bx,bz]=b;const center=mesh(new T.BoxGeometry(Math.abs(bx-ax)+.58,.028,Math.abs(bz-az)+.58),groove);center.position.set((ax+bx)/2,.404,(az+bz)/2);g.add(center)}
