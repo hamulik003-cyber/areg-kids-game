@@ -252,7 +252,7 @@ if(t.kind==='goal'){
 }
 const [x,z]=xyz(t.r,t.c);g.position.set(x,0,z);
 // Fixed start and goal channels must face their actual generated neighbor.
-if(t.fixed)g.rotation.y=({U:0,D:Math.PI,L:Math.PI/2,R:-Math.PI/2})[t.d[0]]||0;
+if(t.fixed)g.rotation.y=({D:0,U:Math.PI,L:-Math.PI/2,R:Math.PI/2})[t.d[0]]||0;
 g.traverse(o=>{if(o.isMesh)o.userData.tile=t});scene.add(g);t.group=g;t.target=g.position.clone();t.slide=null}
 function clear(){for(const t of tiles)scene.remove(t.group);tiles=[];if(ball){scene.remove(ball);ball=null}won=false;animating=false;ballPath=[];ballT=0;ballCurve=null;ballDistance=0;ballLength=0;collectedKeys=0;unlockTime=0;ballReturning=false;lastAttempt=''}
 const cachedLevelTiles=new Map();
