@@ -3712,9 +3712,21 @@
     frame.title='Կառուցիր աշտարակը 3D';
     frame.src='./areg-tower-3d.html?testv=stable-grid-b498620';
     frame.setAttribute('loading','eager');
+    // Do not reveal the iframe until the stage picker has completed layout.
+    // This prevents iOS WebKit from showing an intermediate, reflowing picker.
+    frame.style.opacity='0';
+    frame.style.transition='none';
+    const onTowerReady=(event)=>{
+      if(event.source!==frame.contentWindow||event.data?.type!=='areg-tower-picker-ready')return;
+      window.removeEventListener('message',onTowerReady);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        if(frame.isConnected)frame.style.opacity='1';
+      }));
+    };
+    window.addEventListener('message',onTowerReady);
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
-    gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
+    gameCleanup.push(()=>{window.removeEventListener('message',onTowerReady);activityScreen.classList.remove('areg-car-wash-mode')});
   }
 
   /* MAGIC */
