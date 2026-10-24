@@ -252,6 +252,22 @@ function setup(){
   tiles=configs[levelIndex].map(t=>({...t,d:[...t.d]}));
   for(const t of tiles)makeTile(t);
   cachedLevelTiles.set(levelIndex,tiles);
+  // Keep only two levels' expensive canvas textures in mobile memory.
+  if(cachedLevelTiles.size>2){
+   const oldest=cachedLevelTiles.keys().next().value;
+   for(const oldTile of cachedLevelTiles.get(oldest)){
+    oldTile.group.traverse(o=>{
+     if(o.isMesh){
+      o.geometry?.dispose();
+      const mats=Array.isArray(o.material)?o.material:[o.material];
+      for(const mat of mats)if(mat?.map&&![
+       wood.map,rim.map
+      ].includes(mat.map)){mat.map.dispose()}
+     }
+    });
+   }
+   cachedLevelTiles.delete(oldest);
+  }
  }
  document.getElementById('msg').textContent='Սահեցրու սալիկները դեպի դատարկ վանդակը';
 }
