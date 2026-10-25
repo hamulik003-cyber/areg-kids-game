@@ -3516,4 +3516,4 @@ html[data-theme^="photo-user-"] .section-dim{
 
 /* Secret Paths iframe layout: retain the activity header and fill the panel. */
 .activity-screen.areg-car-wash-mode .activity-content{padding:0;border:0;border-radius:22px;box-shadow:none;overflow:hidden;background:transparent}
-.activity-screen.areg-car-wash-mode .mind-v4-frame{display:block;width:100%;height:100%;border:0;background:transparent}
+.activity-screen.areg-car-wash-mode .mind-v4-frame{display:block;position:absolute;inset:0;width:100%;height:100%;min-width:0;min-height:0;border:0;background:transparent}
