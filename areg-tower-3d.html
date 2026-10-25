@@ -66,7 +66,7 @@ for(let i=0;i<34;i++){
  backdropDust.push({mesh:dot,x,z,phase:i*.71});
 }
 // The board uses one CSS wooden surround matching the field frame; no additional 3D rail layers.
-const slots=[];for(let row=0;row<N;row++)for(let col=0;col<N;col++){const p=mesh(new T.BoxGeometry(cell-.04,.04,cell-.04),material(0x6b4129));p.position.set(col*cell-off,.025,row*cell-off);scene.add(p);slots.push(p)}
+const slots=[];for(let row=0;row<N;row++)for(let col=0;col<N;col++){const p=mesh(new T.BoxGeometry(cell-.04,.04,cell-.04),material(0x24130f));p.position.set(col*cell-off,.025,row*cell-off);scene.add(p);slots.push(p)}
 // Deterministic, independently solvable trial levels. Construct a valid connected
 // three-key route first, then scramble movable tiles via real legal slide moves.
 const LEVEL_COUNT=50;
