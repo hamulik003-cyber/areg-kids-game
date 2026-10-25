@@ -38,6 +38,11 @@ for(let ri=0;ri<designRegions.length;ri++){
  if(ri===0&&designRegions.length>1){const exclusions=designRegions.slice(1).map(part=>part.shape).join(' ');shape.setAttribute('d',data.shape+' '+exclusions);shape.setAttribute('clip-rule','evenodd');shape.setAttribute('fill-rule','evenodd')}clip.append(shape);def.append(clip);
  const canvas=document.createElement('canvas');canvas.width=640;canvas.height=640;
  const ctx=canvas.getContext('2d');ctx.setTransform(2,0,0,2,0,0);
+ // The canvas itself clips all brush strokes and auto-completion to this one region.
+ // Exclude every child detail from the main region, even when the marker crosses it.
+ const maskPath=new Path2D(data.shape);
+ if(ri===0&&designRegions.length>1)for(const child of designRegions.slice(1))maskPath.addPath(new Path2D(child.shape));
+ ctx.beginPath();ctx.clip(maskPath,ri===0&&designRegions.length>1?'evenodd':'nonzero');
  const image=node('image',{x:0,y:0,width:320,height:320,preserveAspectRatio:'none'});
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===0)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
