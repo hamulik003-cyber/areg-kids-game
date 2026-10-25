@@ -11,13 +11,13 @@ const levels=[
 {name:'Փուչիկ',shape:'M160 44 C89 44 78 134 112 188 Q132 224 160 245 Q189 223 207 188 C244 134 232 44 160 44 Z',details:['M150 246 L170 246 L160 261 Z','M160 261 Q135 279 164 300'],regions:[{shape:'M150 246 L170 246 L160 261 Z',name:'կապիչը'}]},
 {"name":"Տանձ","shape":"M160 65 C126 65 133 108 111 137 C91 159 76 184 84 217 C93 264 222 269 237 219 C245 190 222 157 206 136 C190 110 194 65 160 65 Z","details":["M160 66 Q153 43 165 30","M165 49 Q192 24 224 42 Q206 65 165 49 Z"],"regions":[{"shape":"M165 49 Q192 24 224 42 Q206 65 165 49 Z","name":"տերևը"}]},
 {"name":"Գազար","shape":"M113 83 Q161 57 207 91 Q198 147 160 265 Q118 150 113 83 Z","details":["M160 79 Q121 47 138 25 Q160 34 160 79","M160 79 Q167 32 192 29 Q201 51 160 79"]},
-{"name":"Ձուկ","shape":"M83 157 Q126 78 220 118 L270 88 L256 157 L270 226 L220 196 Q126 236 83 157 Z","details":["M126 137 A7 7 0 1 1 125.9 137 Z","M220 118 Q235 155 220 196"]},
+{"name":"Ձուկ","shape":"M83 157 Q126 78 220 118 L270 88 L256 157 L270 226 L220 196 Q126 236 83 157 Z","details":["M126 137 A7 7 0 1 1 125.9 137 Z","M220 118 Q235 155 220 196"],"regions":[{"shape":"M220 118 L270 88 L256 157 L270 226 L220 196 Q235 155 220 118 Z","name":"պոչը"},{"shape":"M119 137 A7 7 0 1 1 133 137 A7 7 0 1 1 119 137 Z","name":"աչքը"}]},
 {"name":"Թիթեռ","shape":"M160 144 C117 57 52 71 70 133 Q78 161 131 168 C62 174 69 253 113 243 Q151 233 160 181 C169 233 207 253 247 243 Q291 174 189 168 C242 161 250 133 250 116 C247 64 190 60 160 144 Z","details":["M160 143 L160 210","M160 145 Q146 114 137 108","M160 145 Q174 114 183 108"]},
 {"name":"Ամպ","shape":"M80 223 C45 213 48 166 82 155 C77 115 112 91 149 106 C168 57 238 76 246 129 C293 135 297 205 256 222 Q174 242 80 223 Z"},
 {"name":"Աստղ","shape":"M160 42 L192 116 L273 126 L211 178 L229 263 L160 221 L91 263 L109 178 L47 126 L128 116 Z"},
 {"name":"Ծաղիկ","shape":"M160 105 C122 52 83 75 104 128 C52 109 38 170 94 187 C67 234 113 268 160 219 C207 268 253 234 226 187 C282 170 268 109 216 128 C237 75 198 52 160 105 Z","details":["M160 139 A25 25 0 1 1 159.9 139 Z"],"regions":[{"shape":"M160 139 A25 25 0 1 1 159.9 139 Z","name":"կենտրոնը"}]},
 {"name":"Տուն","shape":"M87 142 L160 78 L233 142 L233 263 L87 263 Z","details":["M70 148 L160 65 L250 148","M139 263 L139 190 L181 190 L181 263"]},
-{"name":"Սունկ","shape":"M132 165 Q104 217 124 266 L197 266 Q216 217 188 165 C272 160 245 73 160 73 C75 73 48 160 132 165 Z","details":["M132 165 L188 165","M143 111 A9 9 0 1 1 142.9 111 Z","M185 120 A10 10 0 1 1 184.9 120 Z"]},
+{"name":"Սունկ","shape":"M132 165 Q104 217 124 266 L197 266 Q216 217 188 165 C272 160 245 73 160 73 C75 73 48 160 132 165 Z","details":["M132 165 L188 165","M143 111 A9 9 0 1 1 142.9 111 Z","M185 120 A10 10 0 1 1 142.9 111 Z"],"regions":[{"shape":"M132 165 L188 165 Q216 217 197 266 L124 266 Q104 217 132 165 Z","name":"ոտքը"}]},
 {"name":"Կրիա","shape":"M80 188 C72 121 114 88 169 91 C218 93 247 128 240 188 L268 197 Q277 220 246 223 L223 215 L213 248 Q194 263 184 227 L124 227 Q114 262 94 248 L94 218 L69 222 Q43 213 54 195 Z","details":["M108 186 Q165 115 223 186","M239 153 Q253 141 267 151"]}
 ];const colors=['#f34d64','#ffcf39','#65b66a','#5eafea','#ae80ef'];let level=0,stage='outline',part=0,progress=0,active=false,needRelease=false,inkPaths=[],shapePath,paintLayer,strokeGroup,selected=colors[0],paintLength=0,previous=null,audio=null,last=0,coverageCells=[],coveredCount=0,coverageTotal=0,coverageCanvas=document.createElement('canvas'),coverageCtx=coverageCanvas.getContext('2d'),paintImage=null,shape2d=null,completionReady=false,finishTimer=null,paintRegions=[],activeRegion=-1,colorStage=0,paintSession=false,brushAudio=null,checkTimer=null,strokeStart=0,strokeDistance=0;
 function node(tag,attrs){const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e}
@@ -43,7 +43,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  // sampled the wrong positions and made the check threshold unreachable.
  const hitCanvas=document.createElement('canvas');hitCanvas.width=320;hitCanvas.height=320;
  const hitCtx=hitCanvas.getContext('2d');
- for(let y=3;y<317;y+=3)for(let x=3;x<317;x+=3)if(hitCtx.isPointInPath(path,x,y)&&hitCtx.isPointInPath(path,x+2,y)&&hitCtx.isPointInPath(path,x-2,y)&&hitCtx.isPointInPath(path,x,y+2)&&hitCtx.isPointInPath(path,x,y-2))cells.push({x,y,done:false});
+ for(let y=3;y<317;y+=3)for(let x=3;x<317;x+=3)if(hitCtx.isPointInPath(path,x,y)&&hitCtx.isPointInPath(path,x+2,y)&&hitCtx.isPointInPath(path,x-2,y)&&hitCtx.isPointInPath(path,x,y+2)&&hitCtx.isPointInPath(path,x,y-2)&&!(ri===0&&designRegions.slice(1).some(part=>hitCtx.isPointInPath(new Path2D(part.shape),x,y))))cells.push({x,y,done:false});
  paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,lockedColor:null,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
@@ -56,7 +56,7 @@ const allPaths=[segment(0,mid),segment(mid,fullLength),...details];
 for(const d of allPaths){const ink=node('path',{d,fill:'none',stroke:'#242024','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round'});strokeGroup.append(ink);const length=ink.getTotalLength();ink.style.strokeDasharray=length;ink.style.strokeDashoffset=length;inkPaths.push({ink,length})}
 const first=inkPaths[0].ink.getPointAtLength(0);requestAnimationFrame(()=>setCursor(first));
 for(const color of colors){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Գույն '+color);btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{const current=paintRegions[colorStage];if(stage!=='color'||current?.lockedColor)return;selected=color;palette.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b===btn));sound(360)});palette.append(btn)}}
-function refreshPalette(){const subset=[colors[colorStage%colors.length],colors[(colorStage+1)%colors.length],colors[(colorStage+2)%colors.length]];palette.replaceChildren();for(const color of subset){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Ընտրել գույն');btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{const current=paintRegions[colorStage];if(stage!=='color'||current?.lockedColor)return;selected=color;refreshPalette();sound(380)});palette.append(btn)}}
+function refreshPalette(){const subset=colors;palette.replaceChildren();for(const color of subset){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Ընտրել գույն');btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{const current=paintRegions[colorStage];if(stage!=='color'||current?.lockedColor)return;selected=color;refreshPalette();sound(380)});palette.append(btn)}}
 function trace(dt){if(stage!=='outline'||!active)return;const item=inkPaths[part];progress=Math.min(item.length,progress+dt*245);item.ink.style.strokeDashoffset=item.length-progress;setCursor(item.ink.getPointAtLength(progress));if(progress>=item.length){active=false;brushStop();needRelease=true;sound(480);if(part<inkPaths.length-1){part++;progress=0;instruction.textContent=part===1?'Հանիր մատդ, հետո նորից դիր՝ երկրորդ 50%-ը նկարելու համար':'Հանիր մատդ և նորից դիր՝ մնացած մանրամասները նկարելու համար';setCursor(inkPaths[part].ink.getPointAtLength(0))}else{stage='color';tip.style.display='none';palette.hidden=false;refreshPalette();instruction.textContent='Ընտրիր գույնը և ներկիր առաջին հատվածը';sound(630)}}}
 function regionAt(p){
  // Small details must remain touchable on an iPhone even when the finger is wider than the leaf.
@@ -136,7 +136,7 @@ function confirmCurrentColor(){
   if(colorStage!==index)return;
   colorStage=index+1;
   if(colorStage>=paintRegions.length){completionReady=true;stage='color';finish();return}
-  selected=colors[colorStage%colors.length];refreshPalette();stage='color';
+  refreshPalette();stage='color';
   instruction.textContent='Հիմա ներկիր '+(paintRegions[colorStage]?.name||'հաջորդ հատվածը');
  });
 }
