@@ -26,7 +26,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  const image=node('image',{x:0,y:0,width:320,height:320,preserveAspectRatio:'none'});
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===designRegions.length-1)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
- for(let y=8;y<312;y+=8)for(let x=8;x<312;x+=8)if(ctx.isPointInPath(path,x,y))cells.push({x,y,done:false});
+ for(let y=4;y<316;y+=4)for(let x=4;x<316;x+=4)if(ctx.isPointInPath(path,x,y))cells.push({x,y,done:false});
  paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
@@ -52,16 +52,15 @@ function paint(e){const p=coords(e);if(!p)return;setCursor(p);tip.style.setPrope
 if(activeRegion<0){activeRegion=colorStage; if(!paintRegions[activeRegion])return}
 const region=paintRegions[activeRegion];if(activeRegion!==colorStage){instruction.textContent='Սկզբում ներկիր լուսավորված հատվածը';return}if(region.complete){instruction.textContent='Այս հատվածն արդեն ներկված է։ Ընտրիր մյուս մասը';return}
 if(!previous){previous=p;strokeStart=performance.now();strokeDistance=0}
-const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/5));strokeDistance+=distance;if(distance>0&&distance<110){region.movement+=distance;region.painted=true;}
+const radius=region.cells.length<180?7:12;const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/3));strokeDistance+=distance;if(distance>0&&distance<110){region.movement+=distance;region.painted=true;}
 for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=previous.y+(p.y-previous.y)*t;
- let near=false;for(const cell of region.cells){if(Math.hypot(cell.x-x,cell.y-y)<=18){near=true;if(!cell.done){cell.done=true;region.covered++}}}if(near&&i>0)region.travel+=distance/steps}
-region.ctx.beginPath();region.ctx.moveTo(previous.x,previous.y);region.ctx.lineTo(p.x,p.y);region.ctx.strokeStyle=selected;region.ctx.lineWidth=36;region.ctx.lineCap='round';region.ctx.lineJoin='round';region.ctx.stroke();
-if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,18,0,Math.PI*2);region.ctx.fillStyle=selected;region.ctx.fill()}
+ let near=false;for(const cell of region.cells){if(Math.hypot(cell.x-x,cell.y-y)<=radius){near=true;if(!cell.done){cell.done=true;region.covered++}}}if(near&&i>0)region.travel+=distance/steps}
+region.ctx.beginPath();region.ctx.moveTo(previous.x,previous.y);region.ctx.lineTo(p.x,p.y);region.ctx.strokeStyle=selected;region.ctx.lineWidth=radius*2;region.ctx.lineCap='round';region.ctx.lineJoin='round';region.ctx.stroke();
+if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2);region.ctx.fillStyle=selected;region.ctx.fill()}
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
-if(region.painted&&region.movement>=(region.cells.length<65?12:85)){
- completeCurrentRegion(region);
- instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
-}
+// Never auto-fill while the child is painting. Completion is evaluated on release.
+const ratio=region.covered/Math.max(1,region.cells.length);
+if(ratio>=.92)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){
@@ -90,15 +89,14 @@ function release(){
  if(stage!=='color'||!wasActive)return;
  const index=colorStage,region=paintRegions[index];
  if(!region)return;
- // A genuine drag is required. A tap never fills the region.
- if(!region.complete){
-  const minimum=region.cells.length<65?12:85;
-  if(!region.painted||region.movement<minimum){
-   instruction.textContent='Ներկիր մատով՝ շարժելով ֆլոմաստերը';
-   return;
-  }
-  completeCurrentRegion(region);
+ // Only complete when the child has actually painted almost the entire region.
+ // Coverage persists across finger lifts, so several strokes can be used.
+ const ratio=region.covered/Math.max(1,region.cells.length);
+ if(ratio<.92){
+  instruction.textContent='Շարունակիր ներկել՝ մինչև սպիտակ մասերը վերանան';
+  return;
  }
+ completeCurrentRegion(region);
  showCheck(()=>{
   if(colorStage!==index)return;
   colorStage=index+1;
