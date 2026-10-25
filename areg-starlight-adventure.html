@@ -82,6 +82,22 @@ function canyonLayout(){
 
 let doorOpening=0,doorClosing=0,doorSequence=false,doorPhase='idle',doorFade=0;// Validate a generated layout before exposing it to the runtime. The existing
 // authored puzzle corridors are reserved and must remain unobstructed.
+// Conservative jump-envelope reachability audit for generated optional ledges.
+// Never make these ledges mandatory: authored bridges and puzzle paths stay fixed.
+function auditCanyonRoute(v){
+ const speed=205,gravity=1130,jumpSpeed=520;
+ const airTime=2*jumpSpeed/gravity,maxJump=speed*airTime;
+ const anchors=[1740,2110,3850];
+ if(maxJump<175)return false;
+ for(let i=0;i<anchors.length;i++){
+  const p=v.bonusPlatforms[i],x=anchors[i]+p.x;
+  if(x<0||x+p.width>=4195||p.height>35||p.width<85)return false;
+  // Each optional platform is placed on an authored solid-ground interval.
+  const onPit=[[470,900],[1370,1630],[2540,2900],[3610,3860]].some(([lo,hi])=>x<hi&&x+p.width>lo);
+  if(onPit)return false;
+ }
+ return true;
+}
 function validateCanyonVariation(v){
  if(v.bonusPlatforms.length!==3||v.enemySpeeds.length!==4)return false;
  if(!v.bonusPlatforms.every(p=>p.width>=85&&p.width<=125&&Math.abs(p.x)<=35&&p.height>=0&&p.height<=35))return false;
@@ -93,7 +109,7 @@ function validateCanyonVariation(v){
  }
  return true;
 }
-function makeWorld(){const variation=canyonLayout();if(!validateCanyonVariation(variation))throw Error('Canyon generation failed validation');stars=[{x:220,y:ground-175,taken:false},{x:690,y:ground-165,taken:false},{x:1000,y:ground-175,taken:false},{x:2130,y:ground-120,taken:false},{x:2828,y:ground-214,taken:false},{x:3160,y:ground-155,taken:false},{x:3960,y:ground-115,taken:false}];enemies=[{x:1900,start:1840,end:2070,dir:1,alive:true},{x:2310,start:2240,end:2450,dir:-1,alive:true},{x:2960,start:2900,end:3070,dir:1,alive:true},{x:3280,start:3190,end:3410,dir:-1,alive:true}];platforms=[{x:170,y:ground-125,len:120},{x:930,y:ground-108,len:150},{x:2520,y:ground-108,len:120},{x:2790,y:ground-151,len:95}];pits=[{x:470,len:430},{x:1370,len:260},{x:2540,len:360},{x:3610,len:250}];lifts=[];switches=[];gateOpen=[false,false,false];stars.forEach((item,i)=>{item.x+=variation.starOffsets[i];item.y+=variation.starHeights[i]});enemies.forEach((item,i)=>{item.x+=variation.enemyOffsets[i]});platforms.forEach((item,i)=>{item.y+=variation.platformHeights[i]});
+function makeWorld(){const variation=canyonLayout();if(!validateCanyonVariation(variation)||!auditCanyonRoute(variation))throw Error('Canyon generation failed validation');stars=[{x:220,y:ground-175,taken:false},{x:690,y:ground-165,taken:false},{x:1000,y:ground-175,taken:false},{x:2130,y:ground-120,taken:false},{x:2828,y:ground-214,taken:false},{x:3160,y:ground-155,taken:false},{x:3960,y:ground-115,taken:false}];enemies=[{x:1900,start:1840,end:2070,dir:1,alive:true},{x:2310,start:2240,end:2450,dir:-1,alive:true},{x:2960,start:2900,end:3070,dir:1,alive:true},{x:3280,start:3190,end:3410,dir:-1,alive:true}];platforms=[{x:170,y:ground-125,len:120},{x:930,y:ground-108,len:150},{x:2520,y:ground-108,len:120},{x:2790,y:ground-151,len:95}];pits=[{x:470,len:430},{x:1370,len:260},{x:2540,len:360},{x:3610,len:250}];lifts=[];switches=[];gateOpen=[false,false,false];stars.forEach((item,i)=>{item.x+=variation.starOffsets[i];item.y+=variation.starHeights[i]});enemies.forEach((item,i)=>{item.x+=variation.enemyOffsets[i]});platforms.forEach((item,i)=>{item.y+=variation.platformHeights[i]});
  const bonusAnchors=[1740,2110,3850];
  variation.bonusPlatforms.forEach((p,i)=>platforms.push({x:bonusAnchors[i]+p.x,y:ground-95-p.height,len:p.width}));
  enemies.forEach((enemy,i)=>enemy.speed=variation.enemySpeeds[i]);
