@@ -27,7 +27,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===designRegions.length-1)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
  for(let y=8;y<312;y+=8)for(let x=8;x<312;x+=8)if(ctx.isPointInPath(path,x,y))cells.push({x,y,done:false});
- paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,name:data.name,complete:false});
+ paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
 strokeGroup=node('g',{});art.append(strokeGroup);inkPaths=[];
@@ -52,13 +52,16 @@ function paint(e){const p=coords(e);if(!p)return;setCursor(p);tip.style.setPrope
 if(activeRegion<0){activeRegion=colorStage; if(!paintRegions[activeRegion])return}
 const region=paintRegions[activeRegion];if(activeRegion!==colorStage){instruction.textContent='Սկզբում ներկիր լուսավորված հատվածը';return}if(region.complete){instruction.textContent='Այս հատվածն արդեն ներկված է։ Ընտրիր մյուս մասը';return}
 if(!previous){previous=p;strokeStart=performance.now();strokeDistance=0}
-const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/5));strokeDistance+=distance;if(distance>0&&distance<110)region.movement+=distance;
+const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/5));strokeDistance+=distance;if(distance>0&&distance<110){region.movement+=distance;region.painted=true;}
 for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=previous.y+(p.y-previous.y)*t;
  let near=false;for(const cell of region.cells){if(Math.hypot(cell.x-x,cell.y-y)<=18){near=true;if(!cell.done){cell.done=true;region.covered++}}}if(near&&i>0)region.travel+=distance/steps}
 region.ctx.beginPath();region.ctx.moveTo(previous.x,previous.y);region.ctx.lineTo(p.x,p.y);region.ctx.strokeStyle=selected;region.ctx.lineWidth=36;region.ctx.lineCap='round';region.ctx.lineJoin='round';region.ctx.stroke();
 if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,18,0,Math.PI*2);region.ctx.fillStyle=selected;region.ctx.fill()}
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
-if(region.movement>=(region.cells.length<65?14:70)&&region.covered/Math.max(1,region.cells.length)>=.55){completeCurrentRegion(region);instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար'}
+if(region.painted&&region.movement>=(region.cells.length<65?12:85)){
+ completeCurrentRegion(region);
+ instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
+}
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){if(stage!=='color'||!completionReady||active||finishTimer!==null)return;stage='waiting';cursor.style.display='none';instruction.textContent='Ապրե՛ս։ Նայիր քո գունավորած նկարին';finishTimer=setTimeout(()=>{finishTimer=null;if(stage!=='waiting')return;stage='done';celebrate.classList.add('show');sound(850);try{localStorage.setItem('areg-coloring-asmr-level',String((level+1)%levels.length))}catch(e){}},2000)}
@@ -66,25 +69,34 @@ paper.addEventListener('pointerdown',e=>{if(e.target.closest('#celebrate'))retur
 paper.addEventListener('pointermove',e=>{if(active&&stage==='color')paint(e)});
 function showCheck(next){stage='check';stageCheck.classList.remove('show');void stageCheck.offsetWidth;stageCheck.classList.add('show');sound(760);checkTimer=setTimeout(()=>{checkTimer=null;stageCheck.classList.remove('show');next()},900)}
 function completeCurrentRegion(region){if(!region||region.complete)return;region.complete=true;region.ctx.save();region.ctx.fillStyle=selected;region.ctx.fill(region.path);region.ctx.restore();region.image.setAttribute('href',region.canvas.toDataURL('image/png'))}
-function release(){brushStop();if(needRelease)needRelease=false;
-const wasActive=active;active=false;previous=null;activeRegion=-1;cursor.style.display='none';
-if(stage!=='color'||!wasActive)return;
-const index=colorStage,region=paintRegions[index];if(!region)return;
-// iOS may dispatch lostpointercapture immediately after pointerup. Guard using stage='check'.
-if(!region.complete){
- // Completion is based on genuine finger movement, accumulated across strokes.
- // Coverage sampling is unreliable for small SVG shapes on iOS Safari.
- const small=region.cells.length<65;
- const minimum=small?14:70;
- if(region.movement>=minimum)completeCurrentRegion(region);
- else{instruction.textContent='Շարժիր ֆլոմաստերը պատկերի վրայով՝ շարունակելու համար';return}
+function release(){
+ brushStop();
+ if(needRelease)needRelease=false;
+ const wasActive=active;
+ active=false;previous=null;activeRegion=-1;cursor.style.display='none';
+ if(stage!=='color'||!wasActive)return;
+ const index=colorStage,region=paintRegions[index];
+ if(!region)return;
+ // A genuine drag is required. A tap never fills the region.
+ if(!region.complete){
+  const minimum=region.cells.length<65?12:85;
+  if(!region.painted||region.movement<minimum){
+   instruction.textContent='Ներկիր մատով՝ շարժելով ֆլոմաստերը';
+   return;
+  }
+  completeCurrentRegion(region);
+ }
+ showCheck(()=>{
+  if(colorStage!==index)return;
+  colorStage=index+1;
+  if(colorStage>=paintRegions.length){
+   completionReady=true;stage='color';finish();return;
+  }
+  selected=colors[colorStage%colors.length];
+  refreshPalette();stage='color';
+  instruction.textContent='Հիմա ներկիր '+(paintRegions[colorStage]?.name||'հաջորդ հատվածը');
+ });
 }
-completionReady=paintRegions.every(r=>r.complete);
-showCheck(()=>{
- if(completionReady){stage='color';finish();return}
- colorStage=index+1;selected=colors[colorStage%colors.length];refreshPalette();
- stage='color';instruction.textContent='Հիմա ներկիր '+(paintRegions[colorStage]?.name||'հաջորդ հատվածը');
-})}
 paper.addEventListener('pointerup',release);
 paper.addEventListener('pointercancel',release);
 paper.addEventListener('lostpointercapture',release);
