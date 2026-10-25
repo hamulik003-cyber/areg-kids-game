@@ -282,7 +282,7 @@ const water=grad(ground,h-ground,'#73d5d5','#145b8c');box(wx,ground,ww,h-ground,
 g.save();g.beginPath();g.rect(wx,ground,ww,h-ground);g.clip();
 for(let j=0;j<26;j++){const x=wx+j*34+Math.sin(tt*1.5+j)*10,y=ground+9+Math.sin(tt*2+j*.8)*6;g.strokeStyle=j%3===0?'#effff2b9':'#b8fff3a0';g.lineWidth=2.4;g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+12,y-4,x+28,y);g.stroke()}
 for(let j=0;j<15;j++){const x=wx+j*57+Math.sin(tt+j)*5,y=ground+32+j%3*21;circle(x,y,1.7,'#dcffff77')}g.restore();
-for(let i=0;i<3;i++){
+if(puzzleSolved)for(let i=0;i<3;i++){
  const p=waterLifts[i],x=p.x-scroll,y=waterLiftY(i);
  g.save();g.shadowColor='#133e4c88';g.shadowBlur=17;
  rr(x,y,p.w,19,7,grad(y,19,'#f3d49b','#9c6b46'));g.fillStyle='#524751';g.beginPath();g.moveTo(x+5,y+19);g.lineTo(x+p.w-5,y+19);g.lineTo(x+p.w-16,y+38);g.lineTo(x+16,y+38);g.closePath();g.fill();g.shadowBlur=0;
