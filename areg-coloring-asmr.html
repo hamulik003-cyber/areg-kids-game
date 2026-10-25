@@ -16,7 +16,7 @@ function brushStop(){if(!brushAudio)return;try{brushAudio.src.stop();brushAudio.
 function setCursor(p){const m=art.getScreenCTM();if(!m)return;const q=new DOMPoint(p.x,p.y).matrixTransform(m),r=paper.getBoundingClientRect();tip.style.left=(q.x-r.left)+'px';tip.style.top=(q.y-r.top)+'px';tip.style.display='block'}
 function load(){if(typeof confirmCheck!=='undefined')confirmCheck.style.display='none';brushStop();if(checkTimer!==null){clearTimeout(checkTimer);checkTimer=null}stageCheck.classList.remove('show');if(finishTimer!==null){clearTimeout(finishTimer);finishTimer=null}completionReady=false;paintRegions=[];activeRegion=-1;colorStage=0;paintSession=false;strokeStart=0;strokeDistance=0;art.replaceChildren();palette.replaceChildren();level=level%levels.length;stage='outline';part=0;progress=0;active=false;needRelease=false;paintLength=0;previous=null;coveredCount=0;coverageCells=[];coverageTotal=0;celebrate.classList.remove('show');tip.style.display='block';cursor.style.display='none';palette.hidden=true;counter.textContent=(level+1)+' / '+levels.length;instruction.textContent='Մատդ պահիր նկարի վրա՝ առաջին կեսը նկարելու համար';
 const def=node('defs',{});art.append(def);
-const designRegions=[...(levels[level].regions||[]),{shape:levels[level].shape,name:'հիմնական մասը'}];
+const designRegions=[{shape:levels[level].shape,name:'հիմնական մասը'},...(levels[level].regions||[])];
 paintLayer=node('g',{});art.append(paintLayer);
 for(let ri=0;ri<designRegions.length;ri++){
  const data=designRegions[ri],clip=node('clipPath',{id:'paint-region-'+ri}),shape=node('path',{d:data.shape,fill:'white'});
@@ -24,14 +24,14 @@ for(let ri=0;ri<designRegions.length;ri++){
  const canvas=document.createElement('canvas');canvas.width=640;canvas.height=640;
  const ctx=canvas.getContext('2d');ctx.setTransform(2,0,0,2,0,0);
  const image=node('image',{x:0,y:0,width:320,height:320,preserveAspectRatio:'none'});
- const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===designRegions.length-1)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
+ const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===0)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
  // Hit testing must use the same 320x320 SVG coordinate space as pointer positions.
  // The paint canvas is 640x640 with a 2x transform; using it for hit testing
  // sampled the wrong positions and made the check threshold unreachable.
  const hitCanvas=document.createElement('canvas');hitCanvas.width=320;hitCanvas.height=320;
  const hitCtx=hitCanvas.getContext('2d');
- for(let y=4;y<316;y+=4)for(let x=4;x<316;x+=4)if(hitCtx.isPointInPath(path,x,y))cells.push({x,y,done:false});
+ for(let y=3;y<317;y+=3)for(let x=3;x<317;x+=3)if(hitCtx.isPointInPath(path,x,y)&&hitCtx.isPointInPath(path,x+2,y)&&hitCtx.isPointInPath(path,x-2,y)&&hitCtx.isPointInPath(path,x,y+2)&&hitCtx.isPointInPath(path,x,y-2))cells.push({x,y,done:false});
  paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,lockedColor:null,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
@@ -66,7 +66,7 @@ if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2)
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
 // Never auto-fill while the child is painting. Completion is evaluated on release.
 const ratio=region.covered/Math.max(1,region.cells.length);
-if(ratio>=.86)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
+if(ratio>=.99)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){
@@ -129,7 +129,7 @@ function release(){
  // Show confirmation after a real brush gesture; the child chooses when to finish.
  // Coverage is sampled only inside this region. Finger travel cannot unlock a check.
  const paintedFraction=actualPaintCoverage(region);
- const canConfirm=paintedFraction>=.86;
+ const canConfirm=paintedFraction>=.99;
  if(canConfirm){
   confirmCheck.style.display='grid';confirmCheck.style.placeItems='center';
   instruction.textContent='Ապրե՛ս։ Սեղմիր կանաչ ✓-ը՝ շարունակելու համար';
