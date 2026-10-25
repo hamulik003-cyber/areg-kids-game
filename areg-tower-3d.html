@@ -60,7 +60,7 @@ glowCtx.fillStyle=glowGradient;glowCtx.fillRect(0,0,64,64);
 const glowTexture=new T.CanvasTexture(glowCanvas);
 const rayCanvas=document.createElement('canvas');rayCanvas.width=128;rayCanvas.height=128;
 const rayCtx=rayCanvas.getContext('2d');rayCtx.translate(64,64);
-for(let j=0;j<12;j++){const a=j*Math.PI/6;rayCtx.save();rayCtx.rotate(a);const grad=rayCtx.createLinearGradient(0,-16,0,-60);grad.addColorStop(0,'rgba(255,255,255,0)');grad.addColorStop(.27,'rgba(255,255,255,.38)');grad.addColorStop(1,'rgba(255,255,255,0)');rayCtx.fillStyle=grad;rayCtx.beginPath();rayCtx.moveTo(-4,-19);rayCtx.lineTo(0,-60);rayCtx.lineTo(4,-19);rayCtx.closePath();rayCtx.fill();rayCtx.restore()}
+const haze=rayCtx.createRadialGradient(0,0,16,0,0,64);haze.addColorStop(0,'rgba(255,255,255,0)');haze.addColorStop(.35,'rgba(255,255,255,.3)');haze.addColorStop(.7,'rgba(255,255,255,.14)');haze.addColorStop(1,'rgba(255,255,255,0)');rayCtx.fillStyle=haze;rayCtx.fillRect(-64,-64,128,128);
 const rayTexture=new T.CanvasTexture(rayCanvas);
 
 const fleckKinds=[0,2,1,0,2,1,0,2,1,0,2,1,0,2,0,1,2,0,1,2,0,2,1,0];
