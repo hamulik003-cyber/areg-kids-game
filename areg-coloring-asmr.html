@@ -61,7 +61,7 @@ if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2)
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
 // Never auto-fill while the child is painting. Completion is evaluated on release.
 const ratio=region.covered/Math.max(1,region.cells.length);
-if(ratio>=.72)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
+if(ratio>=.86)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){
@@ -122,12 +122,9 @@ function release(){
  // The check becomes available after real coloring; it never paints automatically.
  // The previous pixel coverage gate prevented the check even on visibly complete drawings.
  // Show confirmation after a real brush gesture; the child chooses when to finish.
- const smallRegion=region.cells.length<180;
+ // Coverage is sampled only inside this region. Finger travel cannot unlock a check.
  const paintedFraction=actualPaintCoverage(region);
- // Tiny leaves need very little travel; use visible paint coverage as a fallback.
- const canConfirm=smallRegion
-  ? (paintedFraction>=.30 || (region.painted&&region.movement>=5))
-  : (region.painted&&region.movement>=12);
+ const canConfirm=paintedFraction>=.86;
  if(canConfirm){
   confirmCheck.style.display='grid';confirmCheck.style.placeItems='center';
   instruction.textContent='Ապրե՛ս։ Սեղմիր կանաչ ✓-ը՝ շարունակելու համար';
