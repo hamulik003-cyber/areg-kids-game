@@ -114,6 +114,19 @@ function desertMovingPlatformAudit(samples=720){
  return {passed:issues.length===0,samples,movingLiftWindows,waterWindows,issues};
 }
 const desertMovingQa=desertMovingPlatformAudit();
+// Opt-in read-only QA snapshot. No gameplay state is changed by inspection.
+// In a browser console: window.__aregDesertQA.snapshot()
+if(new URLSearchParams(window.location.search).get('desert_qa')==='1'){
+ window.__aregDesertQA=Object.freeze({snapshot:()=>({
+  seed:desertSeed,layout:JSON.parse(JSON.stringify(desertLayout)),
+  generation:desertGenerationSelfTest(10000),
+  progression:desertProgressionAudit(),jump:desertJumpAudit(),
+  height:desertHeightAudit(),moving:desertMovingPlatformAudit(),
+  runtime:{heroX,heroY,vy,ready,gate,bridgeProgress,puzzleStep,puzzleSolved,won,
+   starsTaken:stars.filter(s=>s.taken).length,guardianHits,checkpoint}
+ })});
+}
+
 
 
 const desertQa=desertGenerationSelfTest(1000);
