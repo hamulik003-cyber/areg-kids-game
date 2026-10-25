@@ -27,7 +27,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===designRegions.length-1)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
  for(let y=8;y<312;y+=8)for(let x=8;x<312;x+=8)if(ctx.isPointInPath(path,x,y))cells.push({x,y,done:false});
- paintRegions.push({ctx,canvas,image,path,cells,covered:0,name:data.name,complete:false});
+ paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
 strokeGroup=node('g',{});art.append(strokeGroup);inkPaths=[];
@@ -54,11 +54,11 @@ const region=paintRegions[activeRegion];if(activeRegion!==colorStage){instructio
 if(!previous){previous=p;strokeStart=performance.now();strokeDistance=0}
 const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/5));strokeDistance+=distance;
 for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=previous.y+(p.y-previous.y)*t;
- for(const cell of region.cells)if(!cell.done&&Math.hypot(cell.x-x,cell.y-y)<=18){cell.done=true;region.covered++}}
+ let near=false;for(const cell of region.cells){if(Math.hypot(cell.x-x,cell.y-y)<=18){near=true;if(!cell.done){cell.done=true;region.covered++}}}if(near&&i>0)region.travel+=distance/steps}
 region.ctx.beginPath();region.ctx.moveTo(previous.x,previous.y);region.ctx.lineTo(p.x,p.y);region.ctx.strokeStyle=selected;region.ctx.lineWidth=36;region.ctx.lineCap='round';region.ctx.lineJoin='round';region.ctx.stroke();
 if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,18,0,Math.PI*2);region.ctx.fillStyle=selected;region.ctx.fill()}
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
-if(region.cells.length&&region.covered/region.cells.length>=.80&&strokeDistance>=24){completeCurrentRegion(region);instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար'}
+if(region.cells.length&&region.covered/region.cells.length>=.80&&region.travel>=16){completeCurrentRegion(region);instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար'}
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){if(stage!=='color'||!completionReady||active||finishTimer!==null)return;stage='waiting';cursor.style.display='none';instruction.textContent='Ապրե՛ս։ Նայիր քո գունավորած նկարին';finishTimer=setTimeout(()=>{finishTimer=null;if(stage!=='waiting')return;stage='done';celebrate.classList.add('show');sound(850);try{localStorage.setItem('areg-coloring-asmr-level',String((level+1)%levels.length))}catch(e){}},2000)}
@@ -73,13 +73,13 @@ const index=colorStage,region=paintRegions[index];if(!region)return;
 // iOS may dispatch lostpointercapture immediately after pointerup. Guard using stage='check'.
 if(!region.complete){
  const ratio=region.covered/Math.max(1,region.cells.length);
- // A small leaf has too few sample cells to ever reach the same threshold as the apple.
- // Require real dragging, but scale the coverage requirement to the region size.
  const small=region.cells.length<65;
- const enoughPaint=ratio>=(small?.30:.52);
- const enoughMotion=strokeDistance>=(small?22:95);
- if(enoughPaint&&enoughMotion)completeCurrentRegion(region);
- else{instruction.textContent='Շարժիր ֆլոմաստերը պատկերի վրայով՝ մնացած մասը ներկելու համար';return}
+ // Progress is accumulated across gestures, not reset when the finger lifts.
+ // Actual movement across the region is required; taps cannot complete it.
+ const requiredTravel=small?24:135;
+ const requiredCoverage=small?.20:.42;
+ if(region.travel>=requiredTravel&&ratio>=requiredCoverage)completeCurrentRegion(region);
+ else{instruction.textContent='Շարժիր ֆլոմաստերը նկարի վրայով՝ շարունակելու համար';return}
 }
 completionReady=paintRegions.every(r=>r.complete);
 showCheck(()=>{
