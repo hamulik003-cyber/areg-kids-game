@@ -92,32 +92,39 @@ function actualPaintCoverage(region){
  }
  return painted/Math.max(1,region.cells.length);
 }
-function release(){
- brushStop();
- if(needRelease)needRelease=false;
- const wasActive=active;
- active=false;previous=null;activeRegion=-1;cursor.style.display='none';
- if(stage!=='color'||!wasActive)return;
+// A visible, tappable confirmation is deliberately separate from brush gestures.
+const confirmCheck=document.createElement('button');
+confirmCheck.type='button';confirmCheck.textContent='✓';
+confirmCheck.setAttribute('aria-label','Ավարտել ներկումը և անցնել հաջորդ հատվածին');
+Object.assign(confirmCheck.style,{position:'absolute',right:'18px',bottom:'22px',width:'76px',height:'76px',borderRadius:'50%',border:'5px solid white',background:'#29b95d',color:'white',fontSize:'50px',fontWeight:'900',boxShadow:'0 6px 20px #1e7b4266',zIndex:'12',display:'none',touchAction:'manipulation'});
+paper.append(confirmCheck);
+confirmCheck.addEventListener('pointerdown',e=>e.stopPropagation());
+function confirmCurrentColor(){
+ if(stage!=='color'||active||confirmCheck.style.display==='none')return;
  const index=colorStage,region=paintRegions[index];
  if(!region)return;
- // Only complete when the child has actually painted almost the entire region.
- // Coverage persists across finger lifts, so several strokes can be used.
- const ratio=actualPaintCoverage(region);
- if(ratio<.72){
-  instruction.textContent='Շարունակիր ներկել՝ մինչև նկարի մեծ մասը գունավորվի';
-  return;
- }
+ confirmCheck.style.display='none';
  completeCurrentRegion(region);
  showCheck(()=>{
   if(colorStage!==index)return;
   colorStage=index+1;
-  if(colorStage>=paintRegions.length){
-   completionReady=true;stage='color';finish();return;
-  }
-  selected=colors[colorStage%colors.length];
-  refreshPalette();stage='color';
+  if(colorStage>=paintRegions.length){completionReady=true;stage='color';finish();return}
+  selected=colors[colorStage%colors.length];refreshPalette();stage='color';
   instruction.textContent='Հիմա ներկիր '+(paintRegions[colorStage]?.name||'հաջորդ հատվածը');
  });
+}
+confirmCheck.addEventListener('click',e=>{e.stopPropagation();confirmCurrentColor()});
+function release(){
+ brushStop();if(needRelease)needRelease=false;
+ const wasActive=active;active=false;previous=null;activeRegion=-1;cursor.style.display='none';
+ if(stage!=='color'||!wasActive)return;
+ const region=paintRegions[colorStage];if(!region)return;
+ // The check becomes available after real coloring; it never paints automatically.
+ const ratio=actualPaintCoverage(region);
+ if(ratio>=.42&&region.movement>=18){
+  confirmCheck.style.display='block';
+  instruction.textContent='Ապրե՛ս։ Սեղմիր կանաչ ✓-ը՝ շարունակելու համար';
+ }else instruction.textContent='Շարունակիր ներկել պատկերը';
 }
 paper.addEventListener('pointerup',release);
 paper.addEventListener('pointercancel',release);
