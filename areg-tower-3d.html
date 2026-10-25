@@ -112,7 +112,7 @@ function generateTrialLevel(index){
  const scrambleHistory=[];
  const occupied=()=>new Set(tiles.map(t=>t.r*4+t.c));
  let lastId=-1;
- const scrambleCount=18+Math.floor(index*1.6);
+ const scrambleCount=5+Math.floor(index*.78);
  for(let i=0;i<scrambleCount;i++){
   const occ=occupied(),moves=[];
   for(const t of tiles)if(!t.fixed)for(const [dr,dc] of steps){
@@ -223,8 +223,8 @@ if(t.kind==='start'){// Rounded groove start, full channel width and a clean sem
  trackShape.moveTo(-w,zTop);trackShape.lineTo(-w,zBottom);
  trackShape.absarc(0,zBottom,w,Math.PI,0,false);
  trackShape.lineTo(w,zTop);trackShape.closePath();
- const track=mesh(new T.ShapeGeometry(trackShape,32),steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
- const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,-.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
+ const trackGeometry=new T.ShapeGeometry(trackShape,32);trackGeometry.scale(1,-1,1);const track=mesh(trackGeometry,steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
+ const trackInnerGeometry=new T.ShapeGeometry(trackShape,32);trackInnerGeometry.scale(1,-1,1);const trackInner=mesh(trackInnerGeometry,material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,-.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
 if(t.kind==='goal'){
  // A recessed fixed steel channel runs from the board edge into the lock.
  // Local +Z is the outward edge for the same orientation mapping as start.
@@ -232,14 +232,17 @@ if(t.kind==='goal'){
  // Round the inner end of the short goal channel, preserving its outer-edge opening.
  const goalShape=new T.Shape();
  const halfWidth=grooveWidth/2,outerZ=cell/2,innerZ=outerZ-grooveLength;
+ const tipRadius=Math.min(halfWidth*.65,grooveLength*.28);
  goalShape.moveTo(-halfWidth,outerZ);
- goalShape.lineTo(-halfWidth,innerZ+halfWidth);
- goalShape.absarc(0,innerZ+halfWidth,halfWidth,Math.PI,0,false);
+ goalShape.lineTo(-halfWidth,innerZ+tipRadius);
+ goalShape.quadraticCurveTo(-halfWidth,innerZ,-tipRadius,innerZ);
+ goalShape.quadraticCurveTo(0,innerZ-tipRadius*.12,tipRadius,innerZ);
+ goalShape.quadraticCurveTo(halfWidth,innerZ,halfWidth,innerZ+tipRadius);
  goalShape.lineTo(halfWidth,outerZ);
  goalShape.closePath();
- const goalChannel=mesh(new T.ShapeGeometry(goalShape,24),steelDark);
+ const goalGeometry=new T.ShapeGeometry(goalShape,24);goalGeometry.scale(1,-1,1);const goalChannel=mesh(goalGeometry,steelDark);
  goalChannel.rotation.x=-Math.PI/2;goalChannel.position.y=.493;g.add(goalChannel);
- const goalInset=mesh(new T.ShapeGeometry(goalShape,24),material(0x30343d,.78,.18));
+ const goalInsetGeometry=new T.ShapeGeometry(goalShape,24);goalInsetGeometry.scale(1,-1,1);const goalInset=mesh(goalInsetGeometry,material(0x30343d,.78,.18));
  goalInset.scale.set(.84,.98,1);
  goalInset.rotation.x=-Math.PI/2;goalInset.position.y=.498;g.add(goalInset);
  const lockVisual=new T.Group();g.add(lockVisual);t.lockVisual=lockVisual;
