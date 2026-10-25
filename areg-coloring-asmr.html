@@ -61,7 +61,7 @@ if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2)
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
 // Never auto-fill while the child is painting. Completion is evaluated on release.
 const ratio=region.covered/Math.max(1,region.cells.length);
-if(ratio>=.70)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
+if(ratio>=.48)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){
@@ -93,8 +93,8 @@ function release(){
  // Only complete when the child has actually painted almost the entire region.
  // Coverage persists across finger lifts, so several strokes can be used.
  const ratio=region.covered/Math.max(1,region.cells.length);
- if(ratio<.70){
-  instruction.textContent='Շարունակիր ներկել՝ մինչև սպիտակ մասերը վերանան';
+ if(ratio<.48){
+  instruction.textContent='Շարունակիր ներկել՝ մինչև նկարի մեծ մասը գունավորվի';
   return;
  }
  completeCurrentRegion(region);
