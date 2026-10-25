@@ -460,7 +460,7 @@
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Երաժշտական աշխարհ 3D',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
-        {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
+        {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
     magic:{
@@ -3672,8 +3672,27 @@
     colors.forEach(([c,k])=>{const b=document.createElement('button');b.className='paint-drop';b.style.background=c;b.addEventListener('click',()=>{if(selected.includes(k))return;selected.push(k);b.style.boxShadow='0 0 0 5px #fff,0 6px 0 rgba(75,39,17,.16)';if(selected.length===2){const key=[...selected].sort().join('');$('.mix-liquid',bowl).style.background=mix[key]||'#795548';found.add(key);setTimeout(()=>{$$('.paint-drop',drops).forEach(x=>x.style.boxShadow='');selected=[];if(found.size>=3)reward()},700)}});drops.appendChild(b)})
   }
   function gameBlocks(){
-    const s=surface('☝️'),zone=document.createElement('div');zone.className='block-zone';const pad=document.createElement('div');pad.className='tower-pad';zone.appendChild(pad);s.appendChild(zone);let stack=0;
-    ['#ef5350','#42a5f5','#ffca28','#66bb6a'].forEach((c,i)=>{const b=document.createElement('div');b.className='drag-piece block';b.style.background=c;b.style.left=`${8+i*21}%`;b.style.top='12%';zone.appendChild(b);makeDrag(b,{container:zone,onDrop:()=>{const zr=zone.getBoundingClientRect(),br=b.getBoundingClientRect(),cx=br.left+br.width/2-zr.left;if(Math.abs(cx-zr.width/2)<110){b.style.left=(zr.width/2-36)+'px';b.style.top=(zr.height-60-72*(stack+1))+'px';b.style.pointerEvents='none';stack++;if(stack===4)reward()}else shake(b)}})})
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Գաղտնի ուղիներ';
+    frame.src='./areg-tower-3d.html?testv=secret-paths-name';
+    frame.setAttribute('loading','eager');
+    // Do not reveal the iframe until the stage picker has completed layout.
+    // This prevents iOS WebKit from showing an intermediate, reflowing picker.
+    frame.style.opacity='0';
+    frame.style.transition='none';
+    const onTowerReady=(event)=>{
+      if(event.source!==frame.contentWindow||event.data?.type!=='areg-tower-picker-ready')return;
+      window.removeEventListener('message',onTowerReady);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        if(frame.isConnected)frame.style.opacity='1';
+      }));
+    };
+    window.addEventListener('message',onTowerReady);
+    activityScreen.classList.add('areg-car-wash-mode');
+    activityContent.append(frame);
+    gameCleanup.push(()=>{window.removeEventListener('message',onTowerReady);activityScreen.classList.remove('areg-car-wash-mode')});
   }
 
   /* MAGIC */
