@@ -58,7 +58,7 @@ for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=prev
 region.ctx.beginPath();region.ctx.moveTo(previous.x,previous.y);region.ctx.lineTo(p.x,p.y);region.ctx.strokeStyle=selected;region.ctx.lineWidth=36;region.ctx.lineCap='round';region.ctx.lineJoin='round';region.ctx.stroke();
 if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,18,0,Math.PI*2);region.ctx.fillStyle=selected;region.ctx.fill()}
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
-if(region.cells.length&&region.covered/region.cells.length>=.80&&region.travel>=16){completeCurrentRegion(region);instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար'}
+if(region.cells.length&&region.covered/region.cells.length>=.80&&region.travel>=20){completeCurrentRegion(region);instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար'}
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){if(stage!=='color'||!completionReady||active||finishTimer!==null)return;stage='waiting';cursor.style.display='none';instruction.textContent='Ապրե՛ս։ Նայիր քո գունավորած նկարին';finishTimer=setTimeout(()=>{finishTimer=null;if(stage!=='waiting')return;stage='done';celebrate.classList.add('show');sound(850);try{localStorage.setItem('areg-coloring-asmr-level',String((level+1)%levels.length))}catch(e){}},2000)}
@@ -76,8 +76,8 @@ if(!region.complete){
  const small=region.cells.length<65;
  // Progress is accumulated across gestures, not reset when the finger lifts.
  // Actual movement across the region is required; taps cannot complete it.
- const requiredTravel=small?24:135;
- const requiredCoverage=small?.20:.42;
+ const requiredTravel=small?12:105;
+ const requiredCoverage=small?.08:.34;
  if(region.travel>=requiredTravel&&ratio>=requiredCoverage)completeCurrentRegion(region);
  else{instruction.textContent='Շարժիր ֆլոմաստերը նկարի վրայով՝ շարունակելու համար';return}
 }
