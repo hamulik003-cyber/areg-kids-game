@@ -51,11 +51,22 @@ function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
  currentStroke.setAttribute('d',currentStrokeD);
  const cells=regionCells[activeRegion],covered=regionCovered[activeRegion],dx=p.x-a.x,dy=p.y-a.y,den=dx*dx+dy*dy;
  for(let j=0;j<cells.length;j++){if(covered.has(j))continue;const c=cells[j],t=den?Math.max(0,Math.min(1,((c.x-a.x)*dx+(c.y-a.y)*dy)/den)):0;if(Math.hypot(c.x-(a.x+t*dx),c.y-(a.y+t*dy))<=13)covered.add(j)}
- if(!regionComplete.has(activeRegion)&&cells.length&&covered.size/cells.length>=.78){regionComplete.add(activeRegion);beep(640);if(guide){guide.remove();guide=null}if(regionComplete.size===parts.length){phase='complete';hint.textContent='Ապրե՛ս, նկարը պատրաստ է!';next.style.display='block';beep(880);setTimeout(()=>beep(1080),160)}else{targetRegion++;showTarget()}}
+ // Do not complete mid-stroke: the child must be allowed to finish coloring.\n status.textContent='Ներկվում է '+(targetRegion+1)+' / '+parts.length+' հատվածը՝ '+Math.round(100*covered.size/Math.max(1,cells.length))+'%';
  lastPoint=p;
 }
 function beginColor(e){if(phase!=='color'||colorPointer!==null)return;const p=pos(e),i=getRegion(p);if(i!==targetRegion)return;e.preventDefault();colorPointer=e.pointerId;activeRegion=i;lastPoint=null;currentStroke=null;currentStrokeD='';board.setPointerCapture(e.pointerId);setMarker(e);drawColorStroke(p)}
 function moveColor(e){if(colorPointer!==e.pointerId||phase!=='color')return;e.preventDefault();setMarker(e);const p=pos(e);drawColorStroke(p)}
-function endColor(e){if(colorPointer!==e.pointerId)return;colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';marker.style.display='none'}
+function endColor(e){if(colorPointer!==e.pointerId)return;
+ const i=activeRegion,cells=regionCells[i]||[],covered=regionCovered[i]||new Set();
+ colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';marker.style.display='none';
+ // Finish only after the finger lifts, with almost the entire area covered.
+ if(phase==='color'&&!regionComplete.has(i)&&cells.length&&covered.size/cells.length>=.96){
+  regionComplete.add(i);beep(640);if(guide){guide.remove();guide=null}
+  // Seal the few remaining edge pixels behind the child's visible brush strokes.
+  parts[i].setAttribute('fill',selected);
+  if(regionComplete.size===parts.length){phase='complete';hint.textContent='Ապրե՛ս, նկարը պատրաստ է!';next.style.display='block';beep(880);setTimeout(()=>beep(1080),160)}
+  else{targetRegion++;showTarget()}
+ }else if(phase==='color')showTarget();
+}
 board.addEventListener('pointerdown',e=>{if(phase==='color'){beginColor(e);return}if(phase!=='trace'||drawing)return;e.preventDefault();drawing=true;pointerId=e.pointerId;board.setPointerCapture(e.pointerId);lastFrame=0;const p=tracePath.getPointAtLength(progress),q=p.matrixTransform(svg.getScreenCTM()),rect=board.getBoundingClientRect();marker.style.left=(q.x-rect.left-12)+'px';marker.style.top=(q.y-rect.top-10)+'px';marker.style.display='block';frame=requestAnimationFrame(autoTrace)});board.addEventListener('pointermove',e=>{if(phase==='color'){moveColor(e);return}if(phase==='trace'&&drawing)e.preventDefault()});board.addEventListener('pointerup',e=>{if(colorPointer===e.pointerId){endColor(e);return}if(e.pointerId===pointerId)stopAuto()});board.addEventListener('pointercancel',e=>{if(colorPointer===e.pointerId){endColor(e);return}if(e.pointerId===pointerId)stopAuto()});board.addEventListener('lostpointercapture',()=>{if(drawing)stopAuto();if(colorPointer!==null){colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';marker.style.display='none'}});next.onclick=()=>{index=(index+1)%levels.length;load()};document.getElementById('reset').onclick=load;document.getElementById('back').onclick=()=>{index=(index+levels.length-1)%levels.length;load()};load();
 </script></body></html>
