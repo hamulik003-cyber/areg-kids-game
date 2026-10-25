@@ -223,8 +223,8 @@ if(t.kind==='start'){// Rounded groove start, full channel width and a clean sem
  trackShape.moveTo(-w,zTop);trackShape.lineTo(-w,zBottom);
  trackShape.absarc(0,zBottom,w,Math.PI,0,false);
  trackShape.lineTo(w,zTop);trackShape.closePath();
- const track=mesh(new T.ShapeGeometry(trackShape,32),steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
- const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.32,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
+ const track=mesh(new T.ShapeGeometry(trackShape,32),material(0x2a160e,.94));track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
+ const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x402316,.94,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.32,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
 if(t.kind==='goal'){
  // A short, visible entry slot on the steel plate. Its OPEN end is at
  // local -Z, so the existing U/D/L/R tile rotation points it at t.d[0].
@@ -235,7 +235,7 @@ if(t.kind==='goal'){
  entryShape.absarc(0,cap,gw,Math.PI,0,false);
  entryShape.lineTo(gw,edge);
  entryShape.closePath();
- const entrySlot=mesh(new T.ShapeGeometry(entryShape,24),new T.MeshBasicMaterial({color:0x30333c,side:T.DoubleSide,depthWrite:false}));
+ const entrySlot=mesh(new T.ShapeGeometry(entryShape,24),new T.MeshBasicMaterial({color:0x2a160e,side:T.DoubleSide,depthWrite:false}));
  entrySlot.rotation.x=-Math.PI/2;
  entrySlot.position.y=.493;
  entrySlot.renderOrder=3;
