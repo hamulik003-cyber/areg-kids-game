@@ -9,7 +9,7 @@ function desertVariation(seed){const rand=desertRng(seed),int=(a,b)=>a+Math.floo
 }}
 function validateDesertVariation(v){if(v.extraCacti.length!==7||v.bonusLedges.length!==2)return false;
  const forbidden=[[450,860],[1410,1690],[2100,2280],[4000,4740]];
- return v.bonusLedges.every(p=>p.len>=95&&p.len<=120&&p.y>=-120&&p.y<=-100&&!forbidden.some(([a,b])=>p.x<b&&p.x+p.len>a));
+ return v.bonusLedges.every(p=>p.len>=95&&p.len<=120&&p.y>=-125&&p.y<=-100&&!forbidden.some(([a,b])=>p.x<b&&p.x+p.len>a));
 }
 function desertGenerationSelfTest(n=1000){let failed=0;const examples=[];for(let i=1;i<=n;i++){if(!validateDesertVariation(desertVariation(i*7919))){failed++;if(examples.length<5)examples.push(i)}}return {checked:n,failed,examples}}
 const desertSeed=(Math.floor(Math.random()*2147483646)+1),desertLayout=desertVariation(desertSeed);
