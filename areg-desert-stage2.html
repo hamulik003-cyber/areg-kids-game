@@ -1,5 +1,218 @@
 <!doctype html><html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Արեգ — Անապատի գաղտնիքը · Փուլ 2</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e7b66b;font-family:system-ui;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}*,*::before,*::after{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent}canvas{width:100%;height:100%;display:block}#gpu-landscape{position:absolute;inset:0;z-index:0;pointer-events:none}#scene{position:absolute;inset:0;z-index:1}#hud{z-index:2}#end{z-index:3}#hud{position:absolute;inset:0;pointer-events:none;color:#fff7d7;font-weight:900;text-shadow:0 2px 6px #65381c}#status{position:absolute;top:14px;left:16px;font-size:15px}#stick{position:absolute;bottom:20px;left:18px;width:116px;height:116px;border:3px solid #fff2ca99;border-radius:50%;background:#76513955;pointer-events:auto;display:grid;place-items:center;touch-action:none}#knob{width:55px;height:55px;border-radius:50%;border:3px solid #fff2ce;background:radial-gradient(circle at 30% 20%,#ffe8a2,#b97938);box-shadow:0 3px 12px #0006;pointer-events:none}#jump,#act{position:absolute;bottom:22px;right:18px;width:76px;height:76px;border-radius:50%;border:3px solid #fff0c5;background:linear-gradient(#ffe3a2,#d79448);color:#6b3d20;font-size:29px;font-weight:900;pointer-events:auto}#act{right:106px;bottom:35px;width:62px;height:62px;font-size:24px}#message{position:absolute;left:50%;top:14%;transform:translateX(-50%);text-align:center;max-width:90%;font-size:18px;white-space:nowrap}#end{position:absolute;inset:0;background:#281b34bd;display:none;place-items:center;color:white;text-align:center}#end article{background:linear-gradient(#72517b,#302d4f);border:3px solid #f6d494;border-radius:22px;padding:24px;max-width:88%}#end button{background:#f8d68a;color:#5c361e;border:0;border-radius:14px;padding:14px 24px;font-weight:900;font-size:18px}</style></head><body><canvas id="scene"></canvas><div id="hud"><div id="status">☀ Փուլ 2 · Անապատի գաղտնիքը <span style="display:inline-block;margin-left:6px;padding:3px 7px;border-radius:7px;background:#103d4c;color:#c8fff5;font-size:11px;vertical-align:middle;text-shadow:none">WEBGL TEST 2</span></div><div id="message"></div><div id="stick"><div id="knob"></div></div><button id="act" aria-label="Գործարկել">⚙</button><button id="jump" aria-label="Ցատկել">↑</button></div><div id="end"><article><h2>🌟 Ապրես, Արեգ</h2><p>Անապատի դարպասը բացվեց։</p><button onclick="location.reload()">Կրկին խաղալ ▶</button></article></div><script>
-(()=>{'use strict';const canvas=document.querySelector('#scene'),g=canvas.getContext('2d'),message=document.querySelector('#message'),knob=document.querySelector('#knob');let w=0,h=0,dpr=1,ground=0,tt=0,last=0,scroll=0,heroX=135,heroY=0,vy=0,axis=0,face=1,run=0,ready=false,opening=0,arrival=0,closing=0,intro='opening',jumpBuffer=0,coyote=0,checkpoint=135,gate=false,plate=false,bridgeProgress=0,bridgeSoundStep=0,won=false,guardianHits=0,puzzleStep=0,puzzleSolved=false,liftClock=0;const WIDTH=5050,doorX=60,BRIDGE_X=2100,BRIDGE_LENGTH=180,BRIDGE_PIECES=9;let audio=null;let ambienceStarted=false;function startAmbience(){if(ambienceStarted)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();const noise=audio.createBuffer(1,audio.sampleRate*2,audio.sampleRate),a=noise.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*.25;const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();src.buffer=noise;src.loop=true;filter.type='lowpass';filter.frequency.value=260;gain.gain.value=.018;src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();ambienceStarted=true}catch(e){}}function sound(type){startAmbience();try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),v=audio.createGain(),now=audio.currentTime;const tones={jump:[250,520,.18],land:[130,80,.13],star:[660,1100,.3],switch:[320,690,.38],build:[170,390,.16],hit:[120,55,.3],win:[480,1050,.65]};const p=tones[type]||tones.land;o.type=type==='hit'?'sawtooth':'sine';o.frequency.setValueAtTime(p[0],now);o.frequency.exponentialRampToValueAtTime(p[1],now+p[2]);v.gain.setValueAtTime(.0001,now);v.gain.exponentialRampToValueAtTime(.11,now+.012);v.gain.exponentialRampToValueAtTime(.0001,now+p[2]);o.connect(v);v.connect(audio.destination);o.start(now);o.stop(now+p[2]+.02)}catch(e){}}const sprite=new Image();sprite.src='./a_high_resolution_cutout_png_style_illustration_on.png';const atlases=['./assets/areg-run/stride-front-v1.png','./assets/areg-run/stride-recovery-v1.png'].map(src=>{const im=new Image();im.src=src;return im});const poses=[{a:0,c:0,s:.18,anchor:235,foot:500},{a:0,c:1,s:.18,anchor:226,foot:500},{a:1,c:0,s:.135,anchor:310,foot:660},{a:1,c:1,s:.135,anchor:310,foot:660},{a:1,c:2,s:.135,anchor:300,foot:660},{a:1,c:3,s:.135,anchor:300,foot:660},{a:0,c:2,s:.18,anchor:227,foot:500},{a:0,c:3,s:.18,anchor:235,foot:500}];const ledges=[{x:510,y:-75,len:160},{x:690,y:-145,len:160},{x:1860,y:-125,len:150},{x:2320,y:-125,len:150}],gaps=[{x:450,len:410},{x:1410,len:280},{x:2100,len:180}],stars=[{x:585,y:-125},{x:765,y:-195},{x:1160,y:-140},{x:1670,y:-128},{x:1930,y:-174},{x:2390,y:-140}].map(s=>({...s,taken:false}));const guardians=[3030,3280,3530],waterStart=4000,waterEnd=4740,waterLifts=[{x:4040,w:155,y:-100},{x:4280,w:155,y:-133},{x:4520,w:155,y:-166}];gaps.push({x:waterStart,len:waterEnd-waterStart});const cacti=[{x:310,h:75,kind:0},{x:1735,h:89,kind:3},{x:2020,h:112,kind:4},{x:2475,h:70,kind:5},{x:2630,h:95,kind:6},{x:2900,h:81,kind:7}];function drawCactus(c){const x=c.x-scroll,y=ground-105-(c.kind%3)*24,h=c.h*.72;if(x<-70||x>w+70)return;g.save();g.translate(x,y);const shades=['#39835b','#32785d','#518c62','#29735a','#4b916b','#34765a','#518466','#3c8865'];const color=shades[c.kind];g.lineCap='round';g.strokeStyle='#235f4c';g.lineWidth=17;g.beginPath();g.moveTo(0,0);g.lineTo(0,-h);g.stroke();g.strokeStyle=color;g.lineWidth=12;g.stroke();if(c.kind!==2){const left=-1*(15+(c.kind%3)*6),right=14+(c.kind%2)*9;g.strokeStyle=color;g.lineWidth=10;g.beginPath();g.moveTo(0,-h*.4);g.quadraticCurveTo(left,-h*.38,left,-h*(.66+(c.kind%2)*.12));g.stroke();if(c.kind!==5){g.beginPath();g.moveTo(0,-h*.58);g.quadraticCurveTo(right,-h*.53,right,-h*(.78-(c.kind%3)*.05));g.stroke()}}g.strokeStyle='#b5d99a99';g.lineWidth=1.5;for(let j=-4;j<=4;j+=4){g.beginPath();g.moveTo(j,-8);g.lineTo(j,-h+7);g.stroke()}if(c.kind===2||c.kind===6){circle(0,-h-3,5,c.kind===2?'#f5d08a':'#e8a5a1')}g.restore()}const mounds=[{x:1260,w:145,top:-94},{x:1690,w:155,top:-118}];function moundHeight(x,m){const u=(x-m.x)/m.w;if(u<0||u>1)return ground;return ground+m.top*Math.sin(Math.PI*u)}function drawMounds(){for(const m of mounds){const x=m.x-scroll;g.beginPath();g.moveTo(x,ground+3);for(let k=0;k<=m.w;k+=4)g.lineTo(x+k,moundHeight(m.x+k,m));g.lineTo(x+m.w,ground+3);g.closePath();const mg=g.createLinearGradient(0,ground+m.top,0,ground+20);mg.addColorStop(0,'#d7c9b8');mg.addColorStop(.55,'#a3a0a0');mg.addColorStop(1,'#586d78');g.fillStyle=mg;g.fill();g.save();g.clip();g.globalAlpha=.18;g.strokeStyle='#6a736d';g.lineWidth=1;for(let t=0;t<9;t++){const yy=ground+m.top+t*14;g.beginPath();g.moveTo(x-10,yy);g.bezierCurveTo(x+m.w*.28,yy+6,x+m.w*.65,yy-7,x+m.w+10,yy+4);g.stroke()}g.restore();g.strokeStyle='#f3e4cc';g.lineWidth=6;g.beginPath();for(let k=0;k<=m.w;k+=4){const y=moundHeight(m.x+k,m);if(k===0)g.moveTo(x+k,y);else g.lineTo(x+k,y)}g.stroke()}}function scorpionX(){return 1510+Math.sin(tt*1.2)*80}function walkerX(){return 1000+Math.sin(tt*1.35)*94}function drawWalker(){const x=walkerX()-scroll,y=ground-18;g.save();g.translate(x,y);g.scale(Math.cos(tt*1.35)>=0?1:-1,1);g.fillStyle='#694a7e';g.beginPath();g.ellipse(0,0,19,15,0,0,Math.PI*2);g.fill();g.fillStyle='#8e6ba0';g.beginPath();g.ellipse(-3,-5,12,9,0,0,Math.PI*2);g.fill();for(let i=-1;i<=1;i++){g.strokeStyle='#563665';g.lineWidth=4;g.beginPath();g.moveTo(i*9,8);g.lineTo(i*9-4,15+Math.sin(tt*9+i)*3);g.stroke()}circle(5,-6,3,'#fff6e1');circle(6,-6,1.5,'#24223d');g.strokeStyle='#f4c17d';g.lineWidth=3;g.beginPath();g.moveTo(14,-7);g.lineTo(23,-12);g.stroke();g.restore()}function drawScorpion(){const x=scorpionX()-scroll,y=ground+45;g.save();g.translate(x,y);g.strokeStyle='#47263b';g.lineWidth=5;g.lineCap='round';g.beginPath();g.moveTo(7,-8);g.bezierCurveTo(25,-31,40,-38,35,-9);g.stroke();circle(35,-8,6,'#5d2e44');g.fillStyle='#673548';g.beginPath();g.ellipse(0,0,20,11,0,0,Math.PI*2);g.fill();for(const side of [-1,1])for(let k=0;k<3;k++){g.strokeStyle='#6d3849';g.lineWidth=3;g.beginPath();g.moveTo(side*9,-3+k*3);g.lineTo(side*(24+k*3),-12+k*8);g.stroke()}circle(-5,-5,2,'#f3c18b');circle(5,-5,2,'#f3c18b');g.restore()}let movingX=1460;function resize(){const old=ground;w=canvas.clientWidth;h=canvas.clientHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);g.setTransform(dpr,0,0,dpr,0,0);ground=h*.77;if(old)heroY+=ground-old;else heroY=ground-36}addEventListener('resize',resize);resize();heroX=doorX+42;heroY=ground-36;function circle(x,y,r,c){g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()}function box(x,y,a,b,c){g.fillStyle=c;g.fillRect(x,y,a,b)}function dune(offset,speed,base,color,amp){g.beginPath();g.moveTo(-50,h);for(let x=-50;x<=w+60;x+=8){const world=x+scroll*speed+offset;const yy=base+Math.sin(world/260)*amp+Math.sin(world/113+1.5)*amp*.22;g.lineTo(x,yy)}g.lineTo(w+60,h);g.closePath();g.fillStyle=color;g.fill()}function drawDoor(x,op){const y=ground;g.save();g.translate(x,0);g.fillStyle='#ac7858';g.beginPath();g.moveTo(-16,y);g.lineTo(-16,y-148);g.quadraticCurveTo(42,y-237,100,y-148);g.lineTo(100,y);g.closePath();g.fill();g.strokeStyle='#f4d49a';g.lineWidth=5;g.stroke();g.fillStyle='#3e4c65';g.beginPath();g.moveTo(0,y);g.lineTo(0,y-143);g.quadraticCurveTo(42,y-203,84,y-143);g.lineTo(84,y);g.fill();g.save();g.translate(42+op*33,0);g.scale(Math.max(.07,1-op*.9),1);g.fillStyle='#32778b';g.beginPath();g.moveTo(-40,y);g.lineTo(-40,y-143);g.quadraticCurveTo(0,y-194,40,y-143);g.lineTo(40,y);g.closePath();g.fill();g.strokeStyle='#f5d79a';g.lineWidth=3;g.stroke();circle(23,y-65,4,'#f6d07c');g.restore();g.restore()}function drawHero(){g.save();g.translate(heroX-scroll,heroY+36);if(face<0)g.scale(-1,1);const loaded=atlases.every(im=>im.complete&&im.naturalWidth>0);if(loaded){const i=Math.abs(axis)>.08&&ready&&vy===0?Math.floor(run/8.5)%poses.length:1,p=poses[i],im=atlases[p.a],cw=im.naturalWidth/4,ch=p.a===0?im.naturalHeight/2:im.naturalHeight;g.drawImage(im,p.c*cw,0,cw,ch,-p.anchor*p.s,-ch*p.s,cw*p.s,ch*p.s)}else if(sprite.complete&&sprite.naturalWidth)g.drawImage(sprite,-35,-90,70,90);g.restore()}function update(dt){tt+=dt;const previousLiftX=movingX,previousLiftY=ground-120+Math.sin((tt-dt)*1.7)*28;movingX=1470+Math.sin(tt*1.1)*92;const nextLiftY=ground-120+Math.sin(tt*1.7)*28;if(ready&&!won&&vy===0&&heroX>previousLiftX-8&&heroX<previousLiftX+128&&Math.abs(heroY+36-previousLiftY)<12){heroX+=movingX-previousLiftX;heroY+=nextLiftY-previousLiftY;}if(intro!=='done'){if(intro==='opening'){opening=Math.min(1,opening+dt*.5);if(opening===1)intro='appearing'}else if(intro==='appearing'){arrival=Math.min(1,arrival+dt*.65);if(arrival===1)intro='walking'}else if(intro==='walking'){heroX=Math.min(doorX+140,heroX+dt*43);run+=dt*43;if(heroX>=doorX+140)intro='closing'}else if(intro==='closing'){closing=Math.min(1,closing+dt*.55);if(closing===1){intro='done';ready=true;message.textContent='Գործարկիր կամրջի կոճակը և գտիր բանալին';setTimeout(()=>message.textContent='',3500)}}return}if(won)return;if(puzzleSolved)liftClock+=dt;if(gate&&bridgeProgress<BRIDGE_PIECES){bridgeProgress=Math.min(BRIDGE_PIECES,bridgeProgress+dt*2.5);const built=Math.floor(bridgeProgress);if(built>bridgeSoundStep){bridgeSoundStep=built;sound('build')}}const oldY=heroY,oldX=heroX;heroX=Math.max(30,Math.min(WIDTH-80,heroX+axis*200*dt));if(axis){face=Math.sign(axis);run+=Math.abs(heroX-oldX)}vy+=1100*dt;heroY+=vy*dt;const heroHeadOffset=54;if(vy<0){const oldHead=oldY-heroHeadOffset,newHead=heroY-heroHeadOffset;const ceilings=ledges.map(p=>({x:p.x,w:p.len,bottom:ground+p.y+19}));ceilings.push({x:movingX,w:120,bottom:nextLiftY+16});for(let i=0;i<3;i++){const p=waterLifts[i],y=waterLiftY(i);ceilings.push({x:p.x,w:p.w,bottom:y+18})}for(const ceiling of ceilings){if(heroX+18>ceiling.x&&heroX-18<ceiling.x+ceiling.w&&oldHead>=ceiling.bottom-3&&newHead<=ceiling.bottom){heroY=ceiling.bottom+heroHeadOffset;vy=0;break}}}let surface=ground-36;for(const m of mounds){const mh=moundHeight(heroX,m)-36;if(mh<surface&&oldY<=mh+16&&vy>=0)surface=mh}for(const p of ledges){const y=ground+p.y;if(heroX>p.x-18&&heroX<p.x+p.len+18&&oldY+36<=y+10&&heroY+36>=y&&vy>=0)surface=Math.min(surface,y-36)}const my=ground-120+Math.sin(tt*1.7)*28;if(heroX>movingX-22&&heroX<movingX+120&&oldY+36<=my+14&&heroY+36>=my&&vy>=0)surface=Math.min(surface,my-36);for(let i=0;i<3;i++){const p=waterLifts[i],y=waterLiftY(i);if(heroX>p.x-18&&heroX<p.x+p.w+18&&oldY+36<=y+12&&heroY+36>=y&&vy>=0)surface=Math.min(surface,y-36)}const builtLength=Math.floor(bridgeProgress)*BRIDGE_LENGTH/BRIDGE_PIECES;const onBuiltBridge=heroX>=BRIDGE_X+7&&heroX<=BRIDGE_X+builtLength-7;const overGap=gaps.some(p=>heroX>p.x+7&&heroX<p.x+p.len-7)&&!onBuiltBridge;if(heroY>=surface&&vy>=0&&(!overGap||surface<ground-36)){if(vy>85&&oldY<surface-2)sound('land');heroY=surface;vy=0;coyote=.12}else coyote=Math.max(0,coyote-dt);if(jumpBuffer>0&&coyote>0){vy=-520;jumpBuffer=0;coyote=0;sound('jump')}jumpBuffer=Math.max(0,jumpBuffer-dt);if(Math.abs(heroX-walkerX())<34&&Math.abs(heroY-(ground-36))<39){heroX=checkpoint;heroY=ground-36;vy=0;axis=0;sound('hit');message.textContent='Զգույշ՝ շարժվող խոչընդոտ';setTimeout(()=>message.textContent='',1200)}if(Math.abs(heroX-scorpionX())<33&&Math.abs(heroY-(ground+25))<48){heroX=checkpoint;heroY=ground-36;vy=0;axis=0;sound('hit');message.textContent='🦂 Զգույշ՝ կարիճ';setTimeout(()=>message.textContent='',1200)}if(heroY>h+80){heroX=checkpoint;heroY=ground-36;vy=0}if(heroX>waterStart&&heroX<waterEnd&&heroY>ground-4){heroX=3920;heroY=ground-36;vy=0;axis=0;sound('hit')}for(const gx of guardians){if(Math.abs(heroX-gx)<32&&heroY>ground-122&&heroY<ground+12){heroX=2860;heroY=ground-36;vy=0;axis=0;guardianHits++;sound('hit');break}}if(heroX>1500)checkpoint=1490;if(heroX>2300)checkpoint=2300;if(heroX>2860)checkpoint=2860;if(heroX>3710)checkpoint=3710;if(heroX>3910)checkpoint=3910;if(heroX>4780)checkpoint=4780;for(const s of stars){if(!s.taken&&Math.abs(heroX-s.x)<35&&Math.abs(heroY-(ground+s.y))<55){s.taken=true;sound('star')}}scroll+=(Math.max(0,Math.min(WIDTH-w,heroX-w*.3))-scroll)*Math.min(1,dt*4)}const terrainNoise=(()=>{const c=document.createElement('canvas');c.width=192;c.height=192;const q=c.getContext('2d');const im=q.createImageData(192,192);let seed=932847;for(let i=0;i<im.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const v=seed>>>24;im.data[i]=245;im.data[i+1]=224;im.data[i+2]=197;im.data[i+3]=Math.floor(v*.14)}q.putImageData(im,0,0);return c})();
+(()=>{'use strict';const canvas=document.querySelector('#scene'),g=canvas.getContext('2d'),message=document.querySelector('#message'),knob=document.querySelector('#knob');let w=0,h=0,dpr=1,ground=0,tt=0,last=0,scroll=0,heroX=135,heroY=0,vy=0,axis=0,face=1,run=0,ready=false,opening=0,arrival=0,closing=0,intro='opening',jumpBuffer=0,coyote=0,checkpoint=135,gate=false,plate=false,bridgeProgress=0,bridgeSoundStep=0,won=false,guardianHits=0,puzzleStep=0,puzzleSolved=false,liftClock=0;const WIDTH=5050,doorX=60,BRIDGE_X=2100,BRIDGE_LENGTH=180,BRIDGE_PIECES=9;let audio=null;let ambienceStarted=false;function startAmbience(){if(ambienceStarted)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();const noise=audio.createBuffer(1,audio.sampleRate*2,audio.sampleRate),a=noise.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*.25;const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();src.buffer=noise;src.loop=true;filter.type='lowpass';filter.frequency.value=260;gain.gain.value=.018;src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start();ambienceStarted=true}catch(e){}}function sound(type){startAmbience();try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),v=audio.createGain(),now=audio.currentTime;const tones={jump:[250,520,.18],land:[130,80,.13],star:[660,1100,.3],switch:[320,690,.38],build:[170,390,.16],hit:[120,55,.3],win:[480,1050,.65]};const p=tones[type]||tones.land;o.type=type==='hit'?'sawtooth':'sine';o.frequency.setValueAtTime(p[0],now);o.frequency.exponentialRampToValueAtTime(p[1],now+p[2]);v.gain.setValueAtTime(.0001,now);v.gain.exponentialRampToValueAtTime(.11,now+.012);v.gain.exponentialRampToValueAtTime(.0001,now+p[2]);o.connect(v);v.connect(audio.destination);o.start(now);o.stop(now+p[2]+.02)}catch(e){}}const sprite=new Image();sprite.src='./a_high_resolution_cutout_png_style_illustration_on.png';const atlases=['./assets/areg-run/stride-front-v1.png','./assets/areg-run/stride-recovery-v1.png'].map(src=>{const im=new Image();im.src=src;return im});const poses=[{a:0,c:0,s:.18,anchor:235,foot:500},{a:0,c:1,s:.18,anchor:226,foot:500},{a:1,c:0,s:.135,anchor:310,foot:660},{a:1,c:1,s:.135,anchor:310,foot:660},{a:1,c:2,s:.135,anchor:300,foot:660},{a:1,c:3,s:.135,anchor:300,foot:660},{a:0,c:2,s:.18,anchor:227,foot:500},{a:0,c:3,s:.18,anchor:235,foot:500}];const ledges=[{x:510,y:-75,len:160},{x:690,y:-145,len:160},{x:1860,y:-125,len:150},{x:2320,y:-125,len:150}],gaps=[{x:450,len:410},{x:1410,len:280},{x:2100,len:180}],stars=[{x:585,y:-125},{x:765,y:-195},{x:1160,y:-140},{x:1670,y:-128},{x:1930,y:-174},{x:2390,y:-140}].map(s=>({...s,taken:false}));const guardians=[3030,3280,3530],waterStart=4000,waterEnd=4740,waterLifts=[{x:4040,w:155,y:-100},{x:4280,w:155,y:-133},{x:4520,w:155,y:-166}];gaps.push({x:waterStart,len:waterEnd-waterStart});// Second-world procedural variation. Puzzle-critical ledges, gaps and gates
+// remain fixed; randomized additions are optional and collision-free.
+function desertRng(seed){let x=seed|0;return ()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return (x>>>0)/4294967296}}
+function desertVariation(seed){const rand=desertRng(seed),int=(a,b)=>a+Math.floor(rand()*(b-a+1));return {
+ extraCacti:[320,1140,1730,2520,2750,3730,4840].map(base=>({x:base+int(-55,55),h:int(48,90),kind:int(0,7)})),
+ bonusLedges:[{x:1230+int(-22,22),y:-105-int(0,20),len:int(95,120)},{x:2650+int(-22,22),y:-100-int(0,20),len:int(95,120)}],
+ seed
+}}
+function validateDesertVariation(v){if(v.extraCacti.length!==7||v.bonusLedges.length!==2)return false;
+ const forbidden=[[450,860],[1410,1690],[2100,2280],[4000,4740]];
+ return v.bonusLedges.every(p=>p.len>=95&&p.len<=120&&p.y>=-125&&p.y<=-100&&!forbidden.some(([a,b])=>p.x<b&&p.x+p.len>a)
+  // Keep the required collectible route unobstructed: stars must not be
+  // buried inside an optional solid platform.
+  &&!stars.some(st=>st.x>p.x-18&&st.x<p.x+p.len+18&&Math.abs(st.y-p.y)<65));
+}
+function desertGenerationSelfTest(n=1000){let failed=0;const examples=[];for(let i=1;i<=n;i++){if(!validateDesertVariation(desertVariation(i*7919))){failed++;if(examples.length<5)examples.push(i)}}return {checked:n,failed,examples}}
+// Reject invalid random layouts instead of aborting the entire game at load.
+function chooseDesertLayout(){
+ // A seed in the URL lets QA reproduce exactly the same generated level.
+ // Ignore malformed and out-of-range values instead of crashing the game.
+ const requested=new URLSearchParams(window.location.search).get('desert_seed');
+ if(requested&&/^[1-9]\d{0,9}$/.test(requested)){
+  const n=Number(requested);
+  if(Number.isSafeInteger(n)&&n<=2147483646){
+   const replay=desertVariation(n);
+   if(validateDesertVariation(replay))return replay;
+  }
+ }
+ for(let attempt=0;attempt<100;attempt++){
+ const seed=Math.floor(Math.random()*2147483646)+1,v=desertVariation(seed);
+ if(validateDesertVariation(v))return v;
+ }
+ const fallback=desertVariation(7919);
+ if(!validateDesertVariation(fallback))throw Error('Desert fallback layout invalid');
+ return fallback;
+}
+const desertLayout=chooseDesertLayout(),desertSeed=desertLayout.seed;
+document.documentElement.dataset.desertSeed=String(desertSeed);
+// Additional invariant checks for the authored mandatory crossings.
+function desertProgressionAudit(){
+ const required=[[450,860],[1410,1690],[2100,2280],[4000,4740]];
+ const crossings=required.every(([a,b])=>gaps.some(p=>p.x<=a&&p.x+p.len>=b));
+ const bridge=BRIDGE_X===2100&&BRIDGE_LENGTH===180&&BRIDGE_PIECES===9;
+ const water=waterLifts.length===3&&waterLifts.every(p=>p.x>=waterStart&&p.x+p.w<=waterEnd);
+ const collectibles=stars.length===6&&stars.every(p=>p.x>0&&p.x<WIDTH);
+ const guardiansValid=guardians.length===3&&guardians.every(x=>x>2800&&x<3700);
+ return {crossings,bridge,water,collectibles,guardiansValid,passed:crossings&&bridge&&water&&collectibles&&guardiansValid};
+}
+// Conservative horizontal reachability audit using the actual movement constants
+// in update(): 200 units/s horizontal, 520 jump impulse, 1100 gravity.
+function desertJumpAudit(){
+ const jumpRange=200*(2*520/1100),margin=18;
+ const spans=[
+  {name:'first chasm',start:450,end:860,steps:[{x:510,len:160},{x:690,len:160}]},
+  {name:'moving lift chasm',start:1410,end:1690,steps:[{x:1470-92,len:120},{x:1470+92,len:120}]},
+  {name:'built bridge',start:2100,end:2280,steps:[{x:2100,len:180}]},
+  {name:'water crossing',start:4000,end:4740,steps:waterLifts.map(p=>({x:p.x,len:p.w}))}
+ ];
+ const failures=[];
+ for(const span of spans){
+  const steps=span.steps.sort((a,b)=>a.x-b.x);
+  let edge=span.start;
+  for(const p of steps){
+   if(p.x-edge>jumpRange+margin)failures.push({name:span.name,from:edge,to:p.x,missing:p.x-edge});
+   edge=Math.max(edge,p.x+p.len);
+  }
+  if(span.end-edge>jumpRange+margin)failures.push({name:span.name,from:edge,to:span.end,missing:span.end-edge});
+ }
+ return {passed:failures.length===0,jumpRange,failures};
+}
+const desertJumpQa=desertJumpAudit();
+// A height-aware jump envelope: the horizontal audit alone is insufficient.
+// Positive rise means the destination platform is higher than the launch.
+function desertHeightAudit(){
+ const speed=200,impulse=520,gravity=1100;
+ const maxRise=impulse*impulse/(2*gravity);
+ function reach(dx,rise){
+  if(rise>maxRise)return false;
+  const discriminant=impulse*impulse-2*gravity*rise;
+  const latestLanding=(impulse+Math.sqrt(Math.max(0,discriminant)))/gravity;
+  return dx<=speed*latestLanding+18;
+ }
+ const checks=[
+  {name:'first ledge',dx:60,rise:75},
+  {name:'second ledge',dx:20,rise:70},
+  {name:'return to ground',dx:10,rise:-145},
+  {name:'first water lift',dx:40,rise:100},
+  {name:'water lift 1 to 2',dx:85,rise:33},
+  {name:'water lift 2 to 3',dx:85,rise:33},
+  {name:'water exit',dx:65,rise:-166}
+ ];
+ const failures=checks.filter(c=>!reach(c.dx,c.rise));
+ return {passed:failures.length===0,maxRise,checks:checks.length,failures};
+}
+const desertHeightQa=desertHeightAudit();
+// Sample moving-platform phases, including their actual vertical oscillation.
+// This is a temporal geometry audit, not a player-input simulation.
+function desertMovingPlatformAudit(samples=720){
+ const speed=200,impulse=520,gravity=1100,maxRise=impulse*impulse/(2*gravity);
+ const issues=[];let movingLiftWindows=0,waterWindows=0;
+ for(let i=0;i<samples;i++){
+  const t=i*20/samples;
+  const movingXAt=1470+Math.sin(t*1.1)*92;
+  const movingRise=120-Math.sin(t*1.7)*28;
+  const movingReach=movingRise<=maxRise&&Math.max(0,movingXAt-1410)<=speed*(impulse+Math.sqrt(Math.max(0,impulse*impulse-2*gravity*movingRise)))/gravity+18;
+  if(movingReach)movingLiftWindows++;
+  const ys=waterLifts.map((p,j)=>p.y+Math.sin(t*1.55-j*.7)*19);
+  const riseFirst=-ys[0],riseSecond=ys[0]-ys[1],riseThird=ys[1]-ys[2];
+  if([riseFirst,riseSecond,riseThird].every(v=>v<=maxRise))waterWindows++;
+ }
+ if(!movingLiftWindows)issues.push('moving lift has no reachable sampled phase');
+ if(!waterWindows)issues.push('water lifts have no jointly climbable sampled phase');
+ return {passed:issues.length===0,samples,movingLiftWindows,waterWindows,issues};
+}
+const desertMovingQa=desertMovingPlatformAudit();
+// Shared predicate for gameplay and regression tests: incomplete objectives
+// must never trigger the stage completion overlay.
+function desertCanFinish(x,solved,bridgeEnabled,built){return x>=WIDTH-100&&solved===true&&bridgeEnabled===true&&built>=BRIDGE_PIECES}
+function desertFinishAudit(){const cases=[
+ [WIDTH-100,true,true,BRIDGE_PIECES,true],
+ [WIDTH-101,true,true,BRIDGE_PIECES,false],
+ [WIDTH-100,false,true,BRIDGE_PIECES,false],
+ [WIDTH-100,true,false,BRIDGE_PIECES,false],
+ [WIDTH-100,true,true,BRIDGE_PIECES-1,false]
+ ];return {passed:cases.every(([x,p,g,b,w])=>desertCanFinish(x,p,g,b)===w),checked:cases.length}}
+const desertFinishQa=desertFinishAudit();
+// Integration-style progression smoke test of the exact bridge build rate,
+// three-step symbol sequence and final completion predicate.
+function desertObjectiveFlowAudit(){
+ let gateOn=false,built=0,step=0,solved=false,wonAtStart=false;
+ const rate=2.5,dt=1/60;
+ for(let i=0;i<240;i++)built=Math.min(BRIDGE_PIECES,built+(gateOn?rate*dt:0));
+ const blockedBeforeGate=!desertCanFinish(WIDTH-80,solved,gateOn,built);
+ gateOn=true;
+ for(let i=0;i<240;i++)built=Math.min(BRIDGE_PIECES,built+rate*dt);
+ const bridgeComplete=built>=BRIDGE_PIECES;
+ const blockedBeforePuzzle=!desertCanFinish(WIDTH-80,solved,gateOn,built);
+ for(const pressed of [0,1,2]){if(pressed===step)step++;else step=0;if(step===3)solved=true}
+ const blockedBeforeExit=!desertCanFinish(WIDTH-101,solved,gateOn,built);
+ const winsAtExit=desertCanFinish(WIDTH-80,solved,gateOn,built);
+ return {passed:blockedBeforeGate&&bridgeComplete&&blockedBeforePuzzle&&solved&&blockedBeforeExit&&winsAtExit,
+  blockedBeforeGate,bridgeComplete,blockedBeforePuzzle,solved,blockedBeforeExit,winsAtExit};
+}
+const desertFlowQa=desertObjectiveFlowAudit();
+function desertWaterActivationAudit(){
+ const platformCollisionActive=solved=>solved===true;
+ return {passed:!platformCollisionActive(false)&&platformCollisionActive(true),
+  inactiveBeforePuzzle:!platformCollisionActive(false),activeAfterPuzzle:platformCollisionActive(true)};
+}
+const desertWaterQa=desertWaterActivationAudit();
+// Numerically integrate the game's actual jump impulse, gravity and 60fps
+// movement to verify landing windows, rather than only comparing ranges.
+function desertBallisticAudit(){
+ const dt=1/60,speed=200,gravity=1100,impulse=-520;
+ function landing(dx,rise){let x=0,y=0,vy=impulse,wasAbove=false;
+  for(let i=0;i<120;i++){
+   const oldY=y;x+=speed*dt;vy+=gravity*dt;y+=vy*dt;
+   if(oldY<=-rise&&y>=-rise&&vy>=0){return {x,reachable:x>=dx-18&&x<=dx+120+18,frame:i+1}}
+  }return {x,reachable:false,frame:-1};
+ }
+ const cases=[
+  {name:'first ledge',dx:60,rise:75},
+  {name:'second ledge',dx:20,rise:70},
+  {name:'first water lift',dx:40,rise:100},
+  {name:'water lift 1 to 2',dx:85,rise:33},
+  {name:'water lift 2 to 3',dx:85,rise:33}
+ ];
+ const results=cases.map(c=>({...c,...landing(c.dx,c.rise)}));
+ return {passed:results.every(c=>c.reachable),results};
+}
+const desertBallisticQa=desertBallisticAudit();
+// Frame-by-frame moving-platform approach: simulate a timed jump from the
+// edge of the second chasm, using the same 200px/s, -520px/s and 1100px/s².
+function desertMovingLandingAudit(){
+ const dt=1/60,platformWidth=120,results=[];
+ for(let phase=0;phase<120;phase++){
+  let t=phase/6,x=1400,y=0,vy=-520,landed=false;
+  for(let frame=0;frame<65;frame++){
+   const prev=y;t+=dt;x+=200*dt;vy+=1100*dt;y+=vy*dt;
+   const px=1470+Math.sin(t*1.1)*92;
+   const py=-120+Math.sin(t*1.7)*28;
+   if(vy>=0&&x>px-18&&x<px+platformWidth+18&&prev<=py+10&&y>=py){landed=true;break}
+  }
+  if(landed)results.push(phase);
+ }
+ return {passed:results.length>0,phasesChecked:120,landingPhases:results.length,
+  firstLandingPhase:results.length?results[0]:null};
+}
+const desertMovingLandingQa=desertMovingLandingAudit();
+
+
+
+
+
+// Opt-in read-only QA snapshot. No gameplay state is changed by inspection.
+// In a browser console: window.__aregDesertQA.snapshot()
+if(new URLSearchParams(window.location.search).get('desert_qa')==='1'){
+ window.__aregDesertQA=Object.freeze({snapshot:()=>({
+  seed:desertSeed,layout:JSON.parse(JSON.stringify(desertLayout)),
+  generation:desertGenerationSelfTest(10000),
+  progression:desertProgressionAudit(),jump:desertJumpAudit(),
+  height:desertHeightAudit(),moving:desertMovingPlatformAudit(),
+  runtime:{heroX,heroY,vy,ready,gate,bridgeProgress,puzzleStep,puzzleSolved,won,
+   starsTaken:stars.filter(s=>s.taken).length,guardianHits,checkpoint}
+ })});
+}
+
+
+
+const desertQa=desertGenerationSelfTest(1000);
+const desertProgression=desertProgressionAudit();
+document.documentElement.dataset.desertQa=desertQa.failed||!desertProgression.passed||!desertJumpQa.passed||!desertHeightQa.passed||!desertMovingQa.passed||!desertFinishQa.passed||!desertFlowQa.passed||!desertWaterQa.passed||!desertBallisticQa.passed||!desertMovingLandingQa.passed?'fail':'pass';
+ledges.push(...desertLayout.bonusLedges);
+const cacti=[{x:310,h:75,kind:0},{x:1735,h:89,kind:3},{x:2020,h:112,kind:4},{x:2475,h:70,kind:5},{x:2630,h:95,kind:6},{x:2900,h:81,kind:7},...desertLayout.extraCacti];function drawCactus(c){const x=c.x-scroll,y=ground-105-(c.kind%3)*24,h=c.h*.72;if(x<-70||x>w+70)return;g.save();g.translate(x,y);const shades=['#39835b','#32785d','#518c62','#29735a','#4b916b','#34765a','#518466','#3c8865'];const color=shades[c.kind];g.lineCap='round';g.strokeStyle='#235f4c';g.lineWidth=17;g.beginPath();g.moveTo(0,0);g.lineTo(0,-h);g.stroke();g.strokeStyle=color;g.lineWidth=12;g.stroke();if(c.kind!==2){const left=-1*(15+(c.kind%3)*6),right=14+(c.kind%2)*9;g.strokeStyle=color;g.lineWidth=10;g.beginPath();g.moveTo(0,-h*.4);g.quadraticCurveTo(left,-h*.38,left,-h*(.66+(c.kind%2)*.12));g.stroke();if(c.kind!==5){g.beginPath();g.moveTo(0,-h*.58);g.quadraticCurveTo(right,-h*.53,right,-h*(.78-(c.kind%3)*.05));g.stroke()}}g.strokeStyle='#b5d99a99';g.lineWidth=1.5;for(let j=-4;j<=4;j+=4){g.beginPath();g.moveTo(j,-8);g.lineTo(j,-h+7);g.stroke()}if(c.kind===2||c.kind===6){circle(0,-h-3,5,c.kind===2?'#f5d08a':'#e8a5a1')}g.restore()}const mounds=[{x:1260,w:145,top:-94},{x:1690,w:155,top:-118}];function moundHeight(x,m){const u=(x-m.x)/m.w;if(u<0||u>1)return ground;return ground+m.top*Math.sin(Math.PI*u)}function drawMounds(){for(const m of mounds){const x=m.x-scroll;g.beginPath();g.moveTo(x,ground+3);for(let k=0;k<=m.w;k+=4)g.lineTo(x+k,moundHeight(m.x+k,m));g.lineTo(x+m.w,ground+3);g.closePath();const mg=g.createLinearGradient(0,ground+m.top,0,ground+20);mg.addColorStop(0,'#d7c9b8');mg.addColorStop(.55,'#a3a0a0');mg.addColorStop(1,'#586d78');g.fillStyle=mg;g.fill();g.save();g.clip();g.globalAlpha=.18;g.strokeStyle='#6a736d';g.lineWidth=1;for(let t=0;t<9;t++){const yy=ground+m.top+t*14;g.beginPath();g.moveTo(x-10,yy);g.bezierCurveTo(x+m.w*.28,yy+6,x+m.w*.65,yy-7,x+m.w+10,yy+4);g.stroke()}g.restore();g.strokeStyle='#f3e4cc';g.lineWidth=6;g.beginPath();for(let k=0;k<=m.w;k+=4){const y=moundHeight(m.x+k,m);if(k===0)g.moveTo(x+k,y);else g.lineTo(x+k,y)}g.stroke()}}function scorpionX(){return 1510+Math.sin(tt*1.2)*80}function walkerX(){return 1000+Math.sin(tt*1.35)*94}function drawWalker(){const x=walkerX()-scroll,y=ground-18;g.save();g.translate(x,y);g.scale(Math.cos(tt*1.35)>=0?1:-1,1);g.fillStyle='#694a7e';g.beginPath();g.ellipse(0,0,19,15,0,0,Math.PI*2);g.fill();g.fillStyle='#8e6ba0';g.beginPath();g.ellipse(-3,-5,12,9,0,0,Math.PI*2);g.fill();for(let i=-1;i<=1;i++){g.strokeStyle='#563665';g.lineWidth=4;g.beginPath();g.moveTo(i*9,8);g.lineTo(i*9-4,15+Math.sin(tt*9+i)*3);g.stroke()}circle(5,-6,3,'#fff6e1');circle(6,-6,1.5,'#24223d');g.strokeStyle='#f4c17d';g.lineWidth=3;g.beginPath();g.moveTo(14,-7);g.lineTo(23,-12);g.stroke();g.restore()}function drawScorpion(){const x=scorpionX()-scroll,y=ground+45;g.save();g.translate(x,y);g.strokeStyle='#47263b';g.lineWidth=5;g.lineCap='round';g.beginPath();g.moveTo(7,-8);g.bezierCurveTo(25,-31,40,-38,35,-9);g.stroke();circle(35,-8,6,'#5d2e44');g.fillStyle='#673548';g.beginPath();g.ellipse(0,0,20,11,0,0,Math.PI*2);g.fill();for(const side of [-1,1])for(let k=0;k<3;k++){g.strokeStyle='#6d3849';g.lineWidth=3;g.beginPath();g.moveTo(side*9,-3+k*3);g.lineTo(side*(24+k*3),-12+k*8);g.stroke()}circle(-5,-5,2,'#f3c18b');circle(5,-5,2,'#f3c18b');g.restore()}let movingX=1460;function resize(){const old=ground;w=canvas.clientWidth;h=canvas.clientHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);g.setTransform(dpr,0,0,dpr,0,0);ground=h*.77;if(old)heroY+=ground-old;else heroY=ground-36}addEventListener('resize',resize);resize();heroX=doorX+42;heroY=ground-36;function circle(x,y,r,c){g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()}function box(x,y,a,b,c){g.fillStyle=c;g.fillRect(x,y,a,b)}function dune(offset,speed,base,color,amp){g.beginPath();g.moveTo(-50,h);for(let x=-50;x<=w+60;x+=8){const world=x+scroll*speed+offset;const yy=base+Math.sin(world/260)*amp+Math.sin(world/113+1.5)*amp*.22;g.lineTo(x,yy)}g.lineTo(w+60,h);g.closePath();g.fillStyle=color;g.fill()}function drawDoor(x,op){const y=ground;g.save();g.translate(x,0);g.fillStyle='#ac7858';g.beginPath();g.moveTo(-16,y);g.lineTo(-16,y-148);g.quadraticCurveTo(42,y-237,100,y-148);g.lineTo(100,y);g.closePath();g.fill();g.strokeStyle='#f4d49a';g.lineWidth=5;g.stroke();g.fillStyle='#3e4c65';g.beginPath();g.moveTo(0,y);g.lineTo(0,y-143);g.quadraticCurveTo(42,y-203,84,y-143);g.lineTo(84,y);g.fill();g.save();g.translate(42+op*33,0);g.scale(Math.max(.07,1-op*.9),1);g.fillStyle='#32778b';g.beginPath();g.moveTo(-40,y);g.lineTo(-40,y-143);g.quadraticCurveTo(0,y-194,40,y-143);g.lineTo(40,y);g.closePath();g.fill();g.strokeStyle='#f5d79a';g.lineWidth=3;g.stroke();circle(23,y-65,4,'#f6d07c');g.restore();g.restore()}function drawHero(){g.save();g.translate(heroX-scroll,heroY+36);if(face<0)g.scale(-1,1);const loaded=atlases.every(im=>im.complete&&im.naturalWidth>0);if(loaded){const i=Math.abs(axis)>.08&&ready&&vy===0?Math.floor(run/8.5)%poses.length:1,p=poses[i],im=atlases[p.a],cw=im.naturalWidth/4,ch=p.a===0?im.naturalHeight/2:im.naturalHeight;g.drawImage(im,p.c*cw,0,cw,ch,-p.anchor*p.s,-ch*p.s,cw*p.s,ch*p.s)}else if(sprite.complete&&sprite.naturalWidth)g.drawImage(sprite,-35,-90,70,90);g.restore()}function update(dt){tt+=dt;const previousLiftX=movingX,previousLiftY=ground-120+Math.sin((tt-dt)*1.7)*28;movingX=1470+Math.sin(tt*1.1)*92;const nextLiftY=ground-120+Math.sin(tt*1.7)*28;if(ready&&!won&&vy===0&&heroX>previousLiftX-8&&heroX<previousLiftX+128&&Math.abs(heroY+36-previousLiftY)<12){heroX+=movingX-previousLiftX;heroY+=nextLiftY-previousLiftY;}if(intro!=='done'){if(intro==='opening'){opening=Math.min(1,opening+dt*.5);if(opening===1)intro='appearing'}else if(intro==='appearing'){arrival=Math.min(1,arrival+dt*.65);if(arrival===1)intro='walking'}else if(intro==='walking'){heroX=Math.min(doorX+140,heroX+dt*43);run+=dt*43;if(heroX>=doorX+140)intro='closing'}else if(intro==='closing'){closing=Math.min(1,closing+dt*.55);if(closing===1){intro='done';ready=true;message.textContent='Գործարկիր կամրջի կոճակը և գտիր բանալին';setTimeout(()=>message.textContent='',3500)}}return}if(won)return;if(puzzleSolved)liftClock+=dt;if(gate&&bridgeProgress<BRIDGE_PIECES){bridgeProgress=Math.min(BRIDGE_PIECES,bridgeProgress+dt*2.5);const built=Math.floor(bridgeProgress);if(built>bridgeSoundStep){bridgeSoundStep=built;sound('build')}}const oldY=heroY,oldX=heroX;heroX=Math.max(30,Math.min(WIDTH-80,heroX+axis*200*dt));if(axis){face=Math.sign(axis);run+=Math.abs(heroX-oldX)}vy+=1100*dt;heroY+=vy*dt;const heroHeadOffset=54;if(vy<0){const oldHead=oldY-heroHeadOffset,newHead=heroY-heroHeadOffset;const ceilings=ledges.map(p=>({x:p.x,w:p.len,bottom:ground+p.y+19}));ceilings.push({x:movingX,w:120,bottom:nextLiftY+16});if(puzzleSolved)for(let i=0;i<3;i++){const p=waterLifts[i],y=waterLiftY(i);ceilings.push({x:p.x,w:p.w,bottom:y+18})}for(const ceiling of ceilings){if(heroX+18>ceiling.x&&heroX-18<ceiling.x+ceiling.w&&oldHead>=ceiling.bottom-3&&newHead<=ceiling.bottom){heroY=ceiling.bottom+heroHeadOffset;vy=0;break}}}let surface=ground-36;for(const m of mounds){const mh=moundHeight(heroX,m)-36;if(mh<surface&&oldY<=mh+16&&vy>=0)surface=mh}for(const p of ledges){const y=ground+p.y;if(heroX>p.x-18&&heroX<p.x+p.len+18&&oldY+36<=y+10&&heroY+36>=y&&vy>=0)surface=Math.min(surface,y-36)}const my=ground-120+Math.sin(tt*1.7)*28;if(heroX>movingX-22&&heroX<movingX+120&&oldY+36<=my+14&&heroY+36>=my&&vy>=0)surface=Math.min(surface,my-36);if(puzzleSolved)for(let i=0;i<3;i++){const p=waterLifts[i],y=waterLiftY(i);if(heroX>p.x-18&&heroX<p.x+p.w+18&&oldY+36<=y+12&&heroY+36>=y&&vy>=0)surface=Math.min(surface,y-36)}const builtLength=Math.floor(bridgeProgress)*BRIDGE_LENGTH/BRIDGE_PIECES;const onBuiltBridge=heroX>=BRIDGE_X+7&&heroX<=BRIDGE_X+builtLength-7;const overGap=gaps.some(p=>heroX>p.x+7&&heroX<p.x+p.len-7)&&!onBuiltBridge;if(heroY>=surface&&vy>=0&&(!overGap||surface<ground-36)){if(vy>85&&oldY<surface-2)sound('land');heroY=surface;vy=0;coyote=.12}else coyote=Math.max(0,coyote-dt);if(jumpBuffer>0&&coyote>0){vy=-520;jumpBuffer=0;coyote=0;sound('jump')}jumpBuffer=Math.max(0,jumpBuffer-dt);if(Math.abs(heroX-walkerX())<34&&Math.abs(heroY-(ground-36))<39){heroX=checkpoint;heroY=ground-36;vy=0;axis=0;sound('hit');message.textContent='Զգույշ՝ շարժվող խոչընդոտ';setTimeout(()=>message.textContent='',1200)}if(Math.abs(heroX-scorpionX())<33&&Math.abs(heroY-(ground+25))<48){heroX=checkpoint;heroY=ground-36;vy=0;axis=0;sound('hit');message.textContent='🦂 Զգույշ՝ կարիճ';setTimeout(()=>message.textContent='',1200)}if(heroY>h+80){heroX=checkpoint;heroY=ground-36;vy=0}if(heroX>waterStart&&heroX<waterEnd&&heroY>ground-4){heroX=3920;heroY=ground-36;vy=0;axis=0;sound('hit')}for(const gx of guardians){if(Math.abs(heroX-gx)<32&&heroY>ground-122&&heroY<ground+12){heroX=2860;heroY=ground-36;vy=0;axis=0;guardianHits++;sound('hit');break}}if(heroX>1500)checkpoint=1490;if(heroX>2300)checkpoint=2300;if(heroX>2860)checkpoint=2860;if(heroX>3710)checkpoint=3710;if(heroX>3910)checkpoint=3910;if(heroX>4780)checkpoint=4780;for(const s of stars){if(!s.taken&&Math.abs(heroX-s.x)<35&&Math.abs(heroY-(ground+s.y))<55){s.taken=true;sound('star')}}if(desertCanFinish(heroX,puzzleSolved,gate,bridgeProgress)){won=true;axis=0;document.querySelector('#end').style.display='grid';sound('star')}scroll+=(Math.max(0,Math.min(WIDTH-w,heroX-w*.3))-scroll)*Math.min(1,dt*4)}const terrainNoise=(()=>{const c=document.createElement('canvas');c.width=192;c.height=192;const q=c.getContext('2d');const im=q.createImageData(192,192);let seed=932847;for(let i=0;i<im.data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const v=seed>>>24;im.data[i]=245;im.data[i+1]=224;im.data[i+2]=197;im.data[i+3]=Math.floor(v*.14)}q.putImageData(im,0,0);return c})();
 function terrainGrain(){g.save();g.globalAlpha=.45;const pattern=g.createPattern(terrainNoise,'repeat');if(pattern){g.fillStyle=pattern;g.translate(-(scroll*.22)%192,0);g.fillRect(-192,ground-7,w+384,h-ground+7)}g.restore()}
 function terrainRocks(){g.save();for(let i=Math.floor(scroll/66)-1;i<(scroll+w)/66+2;i++){const x=i*66-scroll;if(x<-25||x>w+25)continue;const r=2+(i*17%5),y=ground+19+(i*29%Math.max(35,Math.floor(h-ground-30)));g.fillStyle='#3c4c4966';g.beginPath();g.ellipse(x+2,y+3,r*1.8,r*.6,0,0,Math.PI*2);g.fill();g.fillStyle=i%2?'#d5c7a9':'#8b8d7c';g.beginPath();g.moveTo(x-r,y);g.lineTo(x-r*.25,y-r*.9);g.lineTo(x+r*.9,y-r*.5);g.lineTo(x+r,y+1);g.closePath();g.fill();g.strokeStyle='#e6d8bf';g.lineWidth=.7;g.beginPath();g.moveTo(x-r*.5,y-r*.35);g.lineTo(x+r*.4,y-r*.45);g.stroke()}g.restore()}
 
@@ -110,7 +323,7 @@ const water=grad(ground,h-ground,'#73d5d5','#145b8c');box(wx,ground,ww,h-ground,
 g.save();g.beginPath();g.rect(wx,ground,ww,h-ground);g.clip();
 for(let j=0;j<26;j++){const x=wx+j*34+Math.sin(tt*1.5+j)*10,y=ground+9+Math.sin(tt*2+j*.8)*6;g.strokeStyle=j%3===0?'#effff2b9':'#b8fff3a0';g.lineWidth=2.4;g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+12,y-4,x+28,y);g.stroke()}
 for(let j=0;j<15;j++){const x=wx+j*57+Math.sin(tt+j)*5,y=ground+32+j%3*21;circle(x,y,1.7,'#dcffff77')}g.restore();
-for(let i=0;i<3;i++){
+if(puzzleSolved)for(let i=0;i<3;i++){
  const p=waterLifts[i],x=p.x-scroll,y=waterLiftY(i);
  g.save();g.shadowColor='#133e4c88';g.shadowBlur=17;
  rr(x,y,p.w,19,7,grad(y,19,'#f3d49b','#9c6b46'));g.fillStyle='#524751';g.beginPath();g.moveTo(x+5,y+19);g.lineTo(x+p.w-5,y+19);g.lineTo(x+p.w-16,y+38);g.lineTo(x+16,y+38);g.closePath();g.fill();g.shadowBlur=0;
