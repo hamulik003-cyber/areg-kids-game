@@ -96,8 +96,8 @@ function actualPaintCoverage(region){
 const confirmCheck=document.createElement('button');
 confirmCheck.type='button';confirmCheck.textContent='✓';
 confirmCheck.setAttribute('aria-label','Ավարտել ներկումը և անցնել հաջորդ հատվածին');
-Object.assign(confirmCheck.style,{position:'absolute',right:'18px',bottom:'22px',width:'76px',height:'76px',borderRadius:'50%',border:'5px solid white',background:'#29b95d',color:'white',fontSize:'50px',fontWeight:'900',boxShadow:'0 6px 20px #1e7b4266',zIndex:'12',display:'none',touchAction:'manipulation'});
-paper.append(confirmCheck);
+Object.assign(confirmCheck.style,{position:'fixed',right:'22px',bottom:'135px',width:'76px',height:'76px',borderRadius:'50%',border:'5px solid white',background:'#29b95d',color:'white',fontSize:'50px',fontWeight:'900',boxShadow:'0 6px 20px #1e7b4266',zIndex:'12',display:'none',touchAction:'manipulation'});
+document.body.append(confirmCheck);
 confirmCheck.addEventListener('pointerdown',e=>e.stopPropagation());
 function confirmCurrentColor(){
  if(stage!=='color'||active||confirmCheck.style.display==='none')return;
@@ -120,9 +120,10 @@ function release(){
  if(stage!=='color'||!wasActive)return;
  const region=paintRegions[colorStage];if(!region)return;
  // The check becomes available after real coloring; it never paints automatically.
- const ratio=actualPaintCoverage(region);
- if(ratio>=.42&&region.movement>=18){
-  confirmCheck.style.display='block';
+ // The previous pixel coverage gate prevented the check even on visibly complete drawings.
+ // Show confirmation after a real brush gesture; the child chooses when to finish.
+ if(region.painted&&region.movement>=12){
+  confirmCheck.style.display='grid';confirmCheck.style.placeItems='center';
   instruction.textContent='Ապրե՛ս։ Սեղմիր կանաչ ✓-ը՝ շարունակելու համար';
  }else instruction.textContent='Շարունակիր ներկել պատկերը';
 }
