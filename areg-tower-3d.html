@@ -226,6 +226,7 @@ if(t.kind==='start'){// Rounded groove start, full channel width and a clean sem
  const track=mesh(new T.ShapeGeometry(trackShape,32),steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
  const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,.27);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
 if(t.kind==='goal'){
+ const lockVisual=new T.Group();g.add(lockVisual);t.lockVisual=lockVisual;
  // Familiar closed padlock silhouette: thick U-shaped steel shackle above a rounded lock body.
  const shacklePath=new T.CatmullRomCurve3([
   new T.Vector3(-.29,.605,-.03),new T.Vector3(-.29,.605,-.29),
@@ -233,19 +234,21 @@ if(t.kind==='goal'){
   new T.Vector3(0,.605,-.555),new T.Vector3(.12,.605,-.54),
   new T.Vector3(.245,.605,-.46),new T.Vector3(.29,.605,-.29),
   new T.Vector3(.29,.605,-.03)],false,'centripetal');
- const shackle=mesh(new T.TubeGeometry(shacklePath,48,.065,12,false),material(0xbcc1cc,.32,.7));g.add(shackle);t.lockShackle=shackle;
- const shackleInner=mesh(new T.TubeGeometry(shacklePath,48,.035,10,false),material(0x737b8a,.48,.65));shackleInner.position.y=.01;g.add(shackleInner);
- const lockBody=mesh(new T.BoxGeometry(.91,.19,.70),material(0x252a36,.37,.58));lockBody.position.set(0,.675,.12);g.add(lockBody);t.lockBody=lockBody;
- const front=mesh(new T.BoxGeometry(.80,.018,.58),material(0x353c4c,.42,.45));front.position.set(0,.779,.12);g.add(front);t.lockFront=front;
+ const shackle=mesh(new T.TubeGeometry(shacklePath,48,.065,12,false),material(0xbcc1cc,.32,.7));lockVisual.add(shackle);t.lockShackle=shackle;
+ const shackleInner=mesh(new T.TubeGeometry(shacklePath,48,.035,10,false),material(0x737b8a,.48,.65));shackleInner.position.y=.01;lockVisual.add(shackleInner);
+ const lockBody=mesh(new T.BoxGeometry(.91,.19,.70),material(0x252a36,.37,.58));lockBody.position.set(0,.675,.12);lockVisual.add(lockBody);t.lockBody=lockBody;
+ const front=mesh(new T.BoxGeometry(.80,.018,.58),material(0x353c4c,.42,.45));front.position.set(0,.779,.12);lockVisual.add(front);t.lockFront=front;
  const labelCanvas=document.createElement('canvas');labelCanvas.width=256;labelCanvas.height=256;
  const ctx=labelCanvas.getContext('2d');ctx.clearRect(0,0,256,256);ctx.fillStyle='#fff';ctx.font='bold 205px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('3',128,139);
  const labelTex=new T.CanvasTexture(labelCanvas);labelTex.colorSpace=T.SRGBColorSpace;
- const number=mesh(new T.PlaneGeometry(.55,.55),new T.MeshBasicMaterial({map:labelTex,transparent:true,depthWrite:false}));number.rotation.x=-Math.PI/2;number.position.set(0,.791,.13);number.castShadow=false;g.add(number);
+ const number=mesh(new T.PlaneGeometry(.55,.55),new T.MeshBasicMaterial({map:labelTex,transparent:true,depthWrite:false}));number.rotation.x=-Math.PI/2;number.position.set(0,.791,.13);number.castShadow=false;lockVisual.add(number);
 }
 }
 const [x,z]=xyz(t.r,t.c);g.position.set(x,0,z);
 // Fixed start and goal channels must face their actual generated neighbor.
 if(t.fixed)g.rotation.y=({U:0,D:Math.PI,L:Math.PI/2,R:-Math.PI/2})[t.d[0]]||0;
+// The steel entry groove rotates with the tile; the lock face stays upright.
+if(t.lockVisual)t.lockVisual.rotation.y=-g.rotation.y;
 g.traverse(o=>{if(o.isMesh)o.userData.tile=t});scene.add(g);t.group=g;t.target=g.position.clone();t.slide=null}
 function clear(){for(const t of tiles)scene.remove(t.group);tiles=[];if(ball){scene.remove(ball);ball=null}won=false;animating=false;ballPath=[];ballT=0;ballCurve=null;ballDistance=0;ballLength=0;collectedKeys=0;unlockTime=0;ballReturning=false;lastAttempt=''}
 const cachedLevelTiles=new Map();
