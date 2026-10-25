@@ -16,7 +16,18 @@ function validateDesertVariation(v){if(v.extraCacti.length!==7||v.bonusLedges.le
 }
 function desertGenerationSelfTest(n=1000){let failed=0;const examples=[];for(let i=1;i<=n;i++){if(!validateDesertVariation(desertVariation(i*7919))){failed++;if(examples.length<5)examples.push(i)}}return {checked:n,failed,examples}}
 // Reject invalid random layouts instead of aborting the entire game at load.
-function chooseDesertLayout(){for(let attempt=0;attempt<100;attempt++){
+function chooseDesertLayout(){
+ // A seed in the URL lets QA reproduce exactly the same generated level.
+ // Ignore malformed and out-of-range values instead of crashing the game.
+ const requested=new URLSearchParams(window.location.search).get('desert_seed');
+ if(requested&&/^[1-9]\\d{0,9}$/.test(requested)){
+  const n=Number(requested);
+  if(Number.isSafeInteger(n)&&n<=2147483646){
+   const replay=desertVariation(n);
+   if(validateDesertVariation(replay))return replay;
+  }
+ }
+ for(let attempt=0;attempt<100;attempt++){
  const seed=Math.floor(Math.random()*2147483646)+1,v=desertVariation(seed);
  if(validateDesertVariation(v))return v;
  }
