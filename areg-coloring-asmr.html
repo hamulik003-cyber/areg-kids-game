@@ -56,8 +56,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  // The canvas itself clips all brush strokes and auto-completion to this one region.
  // Exclude every child detail from the main region, even when the marker crosses it.
  const maskPath=new Path2D(data.shape);
- if(ri===0&&designRegions.length>1)for(const child of designRegions.slice(1))maskPath.addPath(new Path2D(child.shape));
- ctx.beginPath();ctx.clip(maskPath,ri===0&&designRegions.length>1?'evenodd':'nonzero');
+ ctx.clip(maskPath); // Safari-safe: no Path2D.addPath or evenodd dependency.
  const image=node('image',{x:0,y:0,width:320,height:320,preserveAspectRatio:'none'});
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===0)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
@@ -67,7 +66,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  const hitCanvas=document.createElement('canvas');hitCanvas.width=320;hitCanvas.height=320;
  const hitCtx=hitCanvas.getContext('2d');
  for(let y=3;y<317;y+=3)for(let x=3;x<317;x+=3)if(hitCtx.isPointInPath(path,x,y)&&hitCtx.isPointInPath(path,x+2,y)&&hitCtx.isPointInPath(path,x-2,y)&&hitCtx.isPointInPath(path,x,y+2)&&hitCtx.isPointInPath(path,x,y-2)&&!(ri===0&&designRegions.slice(1).some(part=>hitCtx.isPointInPath(new Path2D(part.shape),x,y))))cells.push({x,y,done:false});
- paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,lockedColor:null,name:data.name,complete:false});
+ paintRegions.push({ctx,canvas,image,path,exclusions:ri===0?designRegions.slice(1).map(part=>new Path2D(part.shape)):[],cells,covered:0,travel:0,movement:0,painted:false,lockedColor:null,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
 strokeGroup=node('g',{});art.append(strokeGroup);inkPaths=[];
@@ -88,6 +87,12 @@ function regionAt(p){
  for(let i=paintRegions.length-1;i>=1;i--){const region=paintRegions[i];for(const cell of region.cells){const d=Math.hypot(cell.x-p.x,cell.y-p.y);if(d<best){best=d;closest=i}}}
  return best<=34?closest:-1;
 }
+function eraseOtherParts(region){
+ if(!region.exclusions.length)return;
+ region.ctx.save();region.ctx.globalCompositeOperation='destination-out';
+ for(const excluded of region.exclusions)region.ctx.fill(excluded);
+ region.ctx.restore();
+}
 function paint(e){const p=coords(e);if(!p)return;setCursor(p);tip.style.setProperty('--marker-color',selected);
 if(activeRegion<0){activeRegion=colorStage; if(!paintRegions[activeRegion])return}
 const region=paintRegions[activeRegion];if(activeRegion!==colorStage){instruction.textContent='Սկզբում ներկիր լուսավորված հատվածը';return}if(region.complete){instruction.textContent='Այս հատվածն արդեն ներկված է։ Ընտրիր մյուս մասը';return}
@@ -98,7 +103,7 @@ for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=prev
  let near=false;for(const cell of region.cells){if(Math.hypot(cell.x-x,cell.y-y)<=radius){near=true;if(!cell.done){cell.done=true;region.covered++}}}if(near&&i>0)region.travel+=distance/steps}
 region.ctx.beginPath();region.ctx.moveTo(previous.x,previous.y);region.ctx.lineTo(p.x,p.y);region.ctx.strokeStyle=selected;region.ctx.lineWidth=radius*2;region.ctx.lineCap='round';region.ctx.lineJoin='round';region.ctx.stroke();
 if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2);region.ctx.fillStyle=selected;region.ctx.fill()}
-region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
+eraseOtherParts(region);region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
 // Never auto-fill while the child is painting. Completion is evaluated on release.
 const ratio=region.covered/Math.max(1,region.cells.length);
 if(ratio>=.99)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
@@ -129,6 +134,7 @@ function completeCurrentRegion(region){
  region.ctx.fillStyle=color;
  region.ctx.fill(region.path);
  region.ctx.restore();
+ eraseOtherParts(region);
  region.image.setAttribute('href',region.canvas.toDataURL('image/png'));
  region.complete=true;
 }
@@ -173,6 +179,7 @@ function release(){
  // The previous pixel coverage gate prevented the check even on visibly complete drawings.
  // Show confirmation after a real brush gesture; the child chooses when to finish.
  // Coverage is sampled only inside this region. Finger travel cannot unlock a check.
+ eraseOtherParts(region);
  const paintedFraction=actualPaintCoverage(region);
  const canConfirm=paintedFraction>=.99;
  if(canConfirm){
