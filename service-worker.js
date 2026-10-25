@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v302-core';
-const RUNTIME_CACHE='areg-v302-runtime';
+const CORE_CACHE='areg-v303-core';
+const RUNTIME_CACHE='areg-v303-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
@@ -7,7 +7,7 @@ const CORE=[
   './launcher.html',
   './constellation-quest-v246.js?v=287',
   './space-finding-session.js?v=285',
-  './styles.css?v=299',
+  './styles.css?v=303',
   './space-3d-games.css?v=287',
   './app.js?v=302',
   './areg-tower-3d.html',
