@@ -461,7 +461,7 @@
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Ստեղծել երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Իմ ավտոլվացումը',thumb:'create-game-3.jpg',kind:'mix'},
-        {id:'blocks',label:'Կառուցիր աշտարակ',thumb:'create-game-4.jpg',kind:'blocks'}
+        {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
     magic:{
@@ -3709,8 +3709,8 @@
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
-    frame.title='Կառուցիր աշտարակը 3D';
-    frame.src='./areg-tower-3d.html?testv=tiny-organic-ee88d6';
+    frame.title='Գաղտնի ուղիներ';
+    frame.src='./areg-tower-3d.html?testv=secret-paths-name';
     frame.setAttribute('loading','eager');
     // Do not reveal the iframe until the stage picker has completed layout.
     // This prevents iOS WebKit from showing an intermediate, reflowing picker.
