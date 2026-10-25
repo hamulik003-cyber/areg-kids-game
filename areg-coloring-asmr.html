@@ -14,6 +14,11 @@ html,body{background:#f6f0e8;color:#49374e}#app{background:radial-gradient(ellip
 .tip .marker-grip{position:absolute;left:18px;top:153px;width:25px;height:99px;border-radius:15px;background:#070812;z-index:2;box-shadow:-4px 0 0 #ffffff75}
 .tip .marker-shine{position:absolute;left:7px;top:145px;width:7px;height:97px;border-radius:8px;background:#ffffff55;z-index:2}
 @media(max-width:390px){.tip{scale:.82}}
+
+/* Exact uploaded transparent 3D marker asset; its nib is aligned to pointer position. */
+.tip{width:184px!important;height:276px!important;transform:translate(-14px,-11px)!important;transform-origin:top left!important;scale:1!important;filter:drop-shadow(5px 10px 5px #33334430)!important;background:url('assets/areg_marker_3d.png') 0 0/100% 100% no-repeat!important;pointer-events:none!important}
+.tip:before,.tip:after,.tip .marker-neck,.tip .marker-bands,.tip .marker-grip,.tip .marker-shine{display:none!important;content:none!important}
+@media(max-width:390px){.tip{scale:1!important}}
 </style></head><body><main id="app"><header><h1>🎨 Գունավորիր · ASMR</h1><span id="counter"></span></header><section class="paper" id="paper"><svg id="art" viewBox="0 0 320 320" aria-label="Գունավորման պատկեր"></svg><div class="tip" id="tip"><i class="marker-neck"></i><i class="marker-bands"></i><i class="marker-grip"></i><i class="marker-shine"></i></div><div id="stageCheck" aria-hidden="true">✓</div><div id="celebrate"><span id="spark">✨🌟✨</span><span>Ապրե՛ս, Արեգ</span><button id="next">Հաջորդ նկարը →</button></div></section><section class="controls"><div id="instruction">Մատդ պահիր նկարի վրա՝ գծելու համար</div><div class="palette" id="palette" hidden></div></section></main><script>(()=>{'use strict';
 const NS='http://www.w3.org/2000/svg',art=document.querySelector('#art'),paper=document.querySelector('#paper'),tip=document.querySelector('#tip'),palette=document.querySelector('#palette'),instruction=document.querySelector('#instruction'),celebrate=document.querySelector('#celebrate'),counter=document.querySelector('#counter'),cursor=tip,stageCheck=document.querySelector('#stageCheck');
 const levels=[
