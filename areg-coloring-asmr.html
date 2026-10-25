@@ -22,7 +22,22 @@ const levels=[
 {"name":"Տուն","shape":"M87 142 L160 78 L233 142 L233 263 L87 263 Z","details":["M70 148 L160 65 L250 148","M139 263 L139 190 L181 190 L181 263"]},
 {"name":"Սունկ","shape":"M132 165 Q104 217 124 266 L197 266 Q216 217 188 165 C272 160 245 73 160 73 C75 73 48 160 132 165 Z","details":["M132 165 L188 165","M143 111 A9 9 0 1 1 142.9 111 Z","M185 120 A10 10 0 1 1 184.9 120 Z"],"regions":[{"shape":"M132 165 L188 165 Q216 217 197 266 L124 266 Q104 217 132 165 Z","name":"ոտքը"}]},
 {"name":"Կրիա","shape":"M80 188 C72 121 114 88 169 91 C218 93 247 128 240 188 L268 197 Q277 220 246 223 L223 215 L213 248 Q194 263 184 227 L124 227 Q114 262 94 248 L94 218 L69 222 Q43 213 54 195 Z","details":["M108 186 Q165 115 223 186","M239 153 Q253 141 267 151"]}
-];const colors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#000000','#ffffff','#00bcd4','#8bc34a'];let level=0,stage='outline',part=0,progress=0,active=false,needRelease=false,inkPaths=[],shapePath,paintLayer,strokeGroup,selected=colors[0],paintLength=0,previous=null,audio=null,last=0,coverageCells=[],coveredCount=0,coverageTotal=0,coverageCanvas=document.createElement('canvas'),coverageCtx=coverageCanvas.getContext('2d'),paintImage=null,shape2d=null,completionReady=false,finishTimer=null,paintRegions=[],activeRegion=-1,colorStage=0,paintSession=false,brushAudio=null,checkTimer=null,strokeStart=0,strokeDistance=0;
+];
+// Universal region definitions: every independently colorable part is a closed path.
+// Rendering, brush clipping and 99% coverage all consume the same regions array.
+const extraRegions={
+ 'Գազար':[{name:'ձախ տերևը',shape:'M160 79 Q121 47 138 25 Q160 34 160 79 Z'},{name:'աջ տերևը',shape:'M160 79 Q167 32 192 29 Q201 51 160 79 Z'}],
+ 'Թիթեռ':[
+ {name:'ձախ վերևի թևը',shape:'M160 144 C117 57 52 71 70 133 Q78 161 131 168 L160 168 Z'},
+ {name:'աջ վերևի թևը',shape:'M160 144 C190 60 247 64 250 116 Q250 157 189 168 L160 168 Z'},
+ {name:'ձախ ներքևի թևը',shape:'M131 168 C62 174 69 253 113 243 Q151 233 160 181 L160 168 Z'},
+ {name:'աջ ներքևի թևը',shape:'M189 168 C291 174 268 245 247 243 Q207 253 160 181 L160 168 Z'}],
+ 'Տուն':[{name:'դուռը',shape:'M139 263 L139 190 L181 190 L181 263 Z'}],
+ 'Սունկ':[{name:'ձախ կետը',shape:'M134 111 A9 9 0 1 1 152 111 A9 9 0 1 1 134 111 Z'},{name:'աջ կետը',shape:'M175 120 A10 10 0 1 1 195 120 A10 10 0 1 1 175 120 Z'}],
+ 'Կրիա':[{name:'պատյանը',shape:'M80 188 C72 121 114 88 169 91 C218 93 247 128 240 188 L223 215 L124 227 L94 218 Z'}]
+};
+for(const picture of levels)if(extraRegions[picture.name])picture.regions=[...(picture.regions||[]),...extraRegions[picture.name]];
+const colors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#000000','#ffffff','#00bcd4','#8bc34a'];let level=0,stage='outline',part=0,progress=0,active=false,needRelease=false,inkPaths=[],shapePath,paintLayer,strokeGroup,selected=colors[0],paintLength=0,previous=null,audio=null,last=0,coverageCells=[],coveredCount=0,coverageTotal=0,coverageCanvas=document.createElement('canvas'),coverageCtx=coverageCanvas.getContext('2d'),paintImage=null,shape2d=null,completionReady=false,finishTimer=null,paintRegions=[],activeRegion=-1,colorStage=0,paintSession=false,brushAudio=null,checkTimer=null,strokeStart=0,strokeDistance=0;
 function node(tag,attrs){const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e}
 function sound(freq=170){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.024,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.09);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+.1)}catch(e){}}
 function coords(e){const m=art.getScreenCTM();if(!m)return null;const p=art.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(m.inverse())}
