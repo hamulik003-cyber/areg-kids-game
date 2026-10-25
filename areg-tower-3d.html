@@ -63,10 +63,10 @@ const rayCtx=rayCanvas.getContext('2d');rayCtx.translate(64,64);
 const haze=rayCtx.createRadialGradient(0,0,16,0,0,64);haze.addColorStop(0,'rgba(255,255,255,0)');haze.addColorStop(.35,'rgba(255,255,255,.3)');haze.addColorStop(.7,'rgba(255,255,255,.14)');haze.addColorStop(1,'rgba(255,255,255,0)');rayCtx.fillStyle=haze;rayCtx.fillRect(-64,-64,128,128);
 const rayTexture=new T.CanvasTexture(rayCanvas);
 
-const fleckKinds=[0,2,1,0,2,1,0,2,1,0,2,1];
-const fleckPositions=[[-3.8,-8.5],[-1.1,-7.2],[2.5,-8.5],[-3.7,-5.6],[.6,-5.9],[3.6,-5.7],[-3.7,6.3],[-.8,7.5],[2.7,6.3],[-3.5,8.9],[.7,8.9],[3.6,8.7]];
+const fleckKinds=[0,2,1,0,2,1,0,2,1,0,2,1,2,0,1,2,0];
+const fleckPositions=[[-3.8,-8.5],[-1.1,-7.2],[2.5,-8.5],[-3.7,-5.6],[.6,-5.9],[3.6,-5.7],[-3.7,6.3],[-.8,7.5],[2.7,6.3],[-3.5,8.9],[.7,8.9],[3.6,8.7],[-2.6,-9.6],[1.2,-9.6],[-2.2,5.3],[1.5,5.3],[2.2,9.7]];
 for(let i=0;i<fleckKinds.length;i++){
- const kind=fleckKinds[i],size=(i<14?.25:.18)+(i%5)*.055;
+ const kind=fleckKinds[i],size=i>=12?.105+(i%3)*.018:.25+(i%5)*.055;
  const geometry=new T.SphereGeometry(size,24,18);
  const attr=geometry.attributes.position;
  for(let k=0;k<attr.count;k++){
@@ -398,7 +398,8 @@ function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientH
 }))})();let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min(Math.max((now-last)/1000,0),.09);last=now;warmAccent.intensity=.6+.16*Math.sin(now*.00055);const nightHue=(now*.000035)%1;grainFloor.material.color.setHSL(nightHue,.68,.115);scene.background.setHSL((nightHue+.018)%1,.68,.095);const floatTargets=backgroundFlecks.map(f=>({f,x:f.x+.58*Math.sin(now*.00025+f.phase),z:f.z+.58*Math.cos(now*.00021+f.phase)}));
 for(let pass=0;pass<5;pass++)for(let i=0;i<floatTargets.length;i++)for(let j=i+1;j<floatTargets.length;j++){
  const a=floatTargets[i],b=floatTargets[j],dx=b.x-a.x,dz=b.z-a.z,dist=Math.hypot(dx,dz);
- if(dist<1.4){const p=(1.4-dist)*.3,nx=dist>.001?dx/dist:1,nz=dist>.001?dz/dist:0;a.x-=nx*p;a.z-=nz*p;b.x+=nx*p;b.z+=nz*p;}
+ const gap=(a.f.index>=12||b.f.index>=12)?1.02:1.4;
+ if(dist<gap){const p=(gap-dist)*.3,nx=dist>.001?dx/dist:1,nz=dist>.001?dz/dist:0;a.x-=nx*p;a.z-=nz*p;b.x+=nx*p;b.z+=nz*p;}
 }
 for(const target of floatTargets){const f=target.f;
  const period=11000,elapsed=now+f.index*1730,cycle=Math.floor(elapsed/period),u=(elapsed%period)/period;
