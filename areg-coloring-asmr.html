@@ -64,7 +64,20 @@ if(region.painted&&region.movement>=(region.cells.length<65?12:85)){
 }
 completionReady=paintRegions.every(r=>r.complete);
 }
-function finish(){if(stage!=='color'||!completionReady||active||finishTimer!==null)return;stage='waiting';cursor.style.display='none';instruction.textContent='Ապրե՛ս։ Նայիր քո գունավորած նկարին';finishTimer=setTimeout(()=>{finishTimer=null;if(stage!=='waiting')return;stage='done';celebrate.classList.add('show');sound(850);try{localStorage.setItem('areg-coloring-asmr-level',String((level+1)%levels.length))}catch(e){}},2000)}
+function finish(){
+ if(stage!=='color'||!completionReady||active||finishTimer!==null)return;
+ stage='waiting';cursor.style.display='none';
+ instruction.textContent='Ապրե՛ս։ Նայիր քո գունավորած նկարին';
+ // The final green check has already been shown. Keep the finished picture visible,
+ // then advance to the next outline automatically, without another tap.
+ finishTimer=setTimeout(()=>{
+  finishTimer=null;
+  if(stage!=='waiting')return;
+  const nextLevel=(level+1)%levels.length;
+  try{localStorage.setItem('areg-coloring-asmr-level',String(nextLevel))}catch(e){}
+  level=nextLevel;load();
+ },2000);
+}
 paper.addEventListener('pointerdown',e=>{if(e.target.closest('#celebrate'))return;e.preventDefault();if(stage==='outline'){if(needRelease)return;active=true;paper.setPointerCapture(e.pointerId);brushStart()}else if(stage==='color'){active=true;previous=null;activeRegion=-1;paper.setPointerCapture(e.pointerId);paint(e);brushStart()}});
 paper.addEventListener('pointermove',e=>{if(active&&stage==='color')paint(e)});
 function showCheck(next){stage='check';stageCheck.classList.remove('show');void stageCheck.offsetWidth;stageCheck.classList.add('show');sound(760);checkTimer=setTimeout(()=>{checkTimer=null;stageCheck.classList.remove('show');next()},900)}
