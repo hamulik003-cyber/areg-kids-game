@@ -26,7 +26,12 @@ for(let ri=0;ri<designRegions.length;ri++){
  const image=node('image',{x:0,y:0,width:320,height:320,preserveAspectRatio:'none'});
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===designRegions.length-1)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
- for(let y=4;y<316;y+=4)for(let x=4;x<316;x+=4)if(ctx.isPointInPath(path,x,y))cells.push({x,y,done:false});
+ // Hit testing must use the same 320x320 SVG coordinate space as pointer positions.
+ // The paint canvas is 640x640 with a 2x transform; using it for hit testing
+ // sampled the wrong positions and made the check threshold unreachable.
+ const hitCanvas=document.createElement('canvas');hitCanvas.width=320;hitCanvas.height=320;
+ const hitCtx=hitCanvas.getContext('2d');
+ for(let y=4;y<316;y+=4)for(let x=4;x<316;x+=4)if(hitCtx.isPointInPath(path,x,y))cells.push({x,y,done:false});
  paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,lockedColor:null,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
