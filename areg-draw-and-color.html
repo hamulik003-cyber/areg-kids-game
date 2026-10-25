@@ -23,7 +23,7 @@ function stopAuto(){drawing=false;pointerId=null;lastFrame=0;if(frame)cancelAnim
 function autoTrace(t){if(!drawing||phase!=='trace')return;
  const dt=lastFrame?Math.min((t-lastFrame)/1000,.05):0;lastFrame=t;
  // While a finger stays on screen, the pen follows the line automatically.
- progress=Math.min(traceLength,progress+Math.max(0,dt)*105);
+ progress=Math.min(traceLength,progress+Math.max(0,dt)*165);
  tracePath.style.strokeDashoffset=Math.max(0,traceLength-progress);
  const p=tracePath.getPointAtLength(progress),screen=p.matrixTransform(svg.getScreenCTM()),rect=board.getBoundingClientRect();
  marker.style.left=(screen.x-rect.left-12)+'px';marker.style.top=(screen.y-rect.top-10)+'px';marker.style.display='block';
