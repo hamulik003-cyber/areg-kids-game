@@ -122,7 +122,13 @@ function release(){
  // The check becomes available after real coloring; it never paints automatically.
  // The previous pixel coverage gate prevented the check even on visibly complete drawings.
  // Show confirmation after a real brush gesture; the child chooses when to finish.
- if(region.painted&&region.movement>=12){
+ const smallRegion=region.cells.length<180;
+ const paintedFraction=actualPaintCoverage(region);
+ // Tiny leaves need very little travel; use visible paint coverage as a fallback.
+ const canConfirm=smallRegion
+  ? (paintedFraction>=.30 || (region.painted&&region.movement>=5))
+  : (region.painted&&region.movement>=12);
+ if(canConfirm){
   confirmCheck.style.display='grid';confirmCheck.style.placeItems='center';
   instruction.textContent='Ապրե՛ս։ Սեղմիր կանաչ ✓-ը՝ շարունակելու համար';
  }else instruction.textContent='Շարունակիր ներկել պատկերը';
