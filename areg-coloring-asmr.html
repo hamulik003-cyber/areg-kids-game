@@ -27,7 +27,7 @@ for(let ri=0;ri<designRegions.length;ri++){
  const group=node('g',{'clip-path':'url(#paint-region-'+ri+')'});group.append(image);if(ri===designRegions.length-1)paintLayer.insertBefore(group,paintLayer.firstChild);else paintLayer.append(group);
  const path=new Path2D(data.shape),cells=[];
  for(let y=4;y<316;y+=4)for(let x=4;x<316;x+=4)if(ctx.isPointInPath(path,x,y))cells.push({x,y,done:false});
- paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,name:data.name,complete:false});
+ paintRegions.push({ctx,canvas,image,path,cells,covered:0,travel:0,movement:0,painted:false,lockedColor:null,name:data.name,complete:false});
 }
 shapePath=node('path',{d:levels[level].shape,fill:'white'});
 strokeGroup=node('g',{});art.append(strokeGroup);inkPaths=[];
@@ -38,8 +38,8 @@ function segment(from,to){const steps=Math.max(24,Math.ceil((to-from)/3));let d=
 const allPaths=[segment(0,mid),segment(mid,fullLength),...details];
 for(const d of allPaths){const ink=node('path',{d,fill:'none',stroke:'#242024','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round'});strokeGroup.append(ink);const length=ink.getTotalLength();ink.style.strokeDasharray=length;ink.style.strokeDashoffset=length;inkPaths.push({ink,length})}
 const first=inkPaths[0].ink.getPointAtLength(0);requestAnimationFrame(()=>setCursor(first));
-for(const color of colors){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Գույն '+color);btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{selected=color;palette.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b===btn));sound(360)});palette.append(btn)}}
-function refreshPalette(){const subset=[colors[colorStage%colors.length],colors[(colorStage+1)%colors.length],colors[(colorStage+2)%colors.length]];palette.replaceChildren();for(const color of subset){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Ընտրել գույն');btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{selected=color;refreshPalette();sound(380)});palette.append(btn)}}
+for(const color of colors){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Գույն '+color);btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{const current=paintRegions[colorStage];if(stage!=='color'||current?.lockedColor)return;selected=color;palette.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b===btn));sound(360)});palette.append(btn)}}
+function refreshPalette(){const subset=[colors[colorStage%colors.length],colors[(colorStage+1)%colors.length],colors[(colorStage+2)%colors.length]];palette.replaceChildren();for(const color of subset){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Ընտրել գույն');btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{const current=paintRegions[colorStage];if(stage!=='color'||current?.lockedColor)return;selected=color;refreshPalette();sound(380)});palette.append(btn)}}
 function trace(dt){if(stage!=='outline'||!active)return;const item=inkPaths[part];progress=Math.min(item.length,progress+dt*245);item.ink.style.strokeDashoffset=item.length-progress;setCursor(item.ink.getPointAtLength(progress));if(progress>=item.length){active=false;brushStop();needRelease=true;sound(480);if(part<inkPaths.length-1){part++;progress=0;instruction.textContent=part===1?'Հանիր մատդ, հետո նորից դիր՝ երկրորդ 50%-ը նկարելու համար':'Հանիր մատդ և նորից դիր՝ մնացած մանրամասները նկարելու համար';setCursor(inkPaths[part].ink.getPointAtLength(0))}else{stage='color';tip.style.display='none';palette.hidden=false;refreshPalette();instruction.textContent='Ընտրիր գույնը և ներկիր առաջին հատվածը';sound(630)}}}
 function regionAt(p){
  // Small details must remain touchable on an iPhone even when the finger is wider than the leaf.
@@ -51,6 +51,7 @@ function regionAt(p){
 function paint(e){const p=coords(e);if(!p)return;setCursor(p);tip.style.setProperty('--marker-color',selected);
 if(activeRegion<0){activeRegion=colorStage; if(!paintRegions[activeRegion])return}
 const region=paintRegions[activeRegion];if(activeRegion!==colorStage){instruction.textContent='Սկզբում ներկիր լուսավորված հատվածը';return}if(region.complete){instruction.textContent='Այս հատվածն արդեն ներկված է։ Ընտրիր մյուս մասը';return}
+if(!region.lockedColor)region.lockedColor=selected;selected=region.lockedColor;
 if(!previous){previous=p;strokeStart=performance.now();strokeDistance=0}
 const radius=region.cells.length<180?7:12;const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/3));strokeDistance+=distance;if(distance>0&&distance<110){region.movement+=distance;region.painted=true;}
 for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=previous.y+(p.y-previous.y)*t;
@@ -60,7 +61,7 @@ if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2)
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
 // Never auto-fill while the child is painting. Completion is evaluated on release.
 const ratio=region.covered/Math.max(1,region.cells.length);
-if(ratio>=.92)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
+if(ratio>=.70)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){
@@ -92,7 +93,7 @@ function release(){
  // Only complete when the child has actually painted almost the entire region.
  // Coverage persists across finger lifts, so several strokes can be used.
  const ratio=region.covered/Math.max(1,region.cells.length);
- if(ratio<.92){
+ if(ratio<.70){
   instruction.textContent='Շարունակիր ներկել՝ մինչև սպիտակ մասերը վերանան';
   return;
  }
