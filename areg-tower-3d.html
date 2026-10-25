@@ -71,11 +71,10 @@ for(let i=0;i<fleckKinds.length;i++){
  const f=new T.Mesh(geometry,new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8,depthWrite:false}));
  if(kind===0){f.scale.setScalar(size);f.rotation.x=-Math.PI/2}else if(kind===2&&i%4===1){f.rotation.x=-Math.PI/3}
  // Independent back-facing light rays: no central flash and no rotation with the mesh.
- const rim=new T.Mesh(geometry,new T.MeshBasicMaterial({color:0xffffff,side:T.BackSide,transparent:true,opacity:.25,depthWrite:false}));
- rim.scale.copy(f.scale).multiplyScalar(1.23);rim.rotation.copy(f.rotation);rim.renderOrder=0;scene.add(rim);
+ const rimLayers=[1.13,1.26,1.43,1.65].map((scale,j)=>{const layer=new T.Mesh(geometry,new T.MeshBasicMaterial({color:0xffffff,side:T.BackSide,transparent:true,opacity:.2,depthWrite:false,depthTest:false}));layer.scale.copy(f.scale).multiplyScalar(scale);layer.rotation.copy(f.rotation);layer.renderOrder=-4+j;scene.add(layer);return layer});
  f.renderOrder=1;
- const [x,z]=fleckPositions[i];f.position.set(x,-.48,z);rim.position.copy(f.position);scene.add(f);
- backgroundFlecks.push({mesh:f,rim,x,z,phase:i*1.31,kind,index:i,cycle:-1});
+ const [x,z]=fleckPositions[i];f.position.set(x,-.48,z);rimLayers.forEach(layer=>layer.position.copy(f.position));scene.add(f);
+ backgroundFlecks.push({mesh:f,rimLayers,x,z,phase:i*1.31,kind,index:i,cycle:-1});
 }
 // Tiny drifting RGB dust is separate from the larger decorative 3D shapes.
 const backdropDust=[];
@@ -399,10 +398,10 @@ function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientH
  f.mesh.position.x=f.x+.42*Math.sin(t*2.1+f.kind);
  f.mesh.position.z=f.z+.44*Math.cos(t*1.7+f.phase*.3);
  f.mesh.position.y=-.48+.09*Math.sin(t*3);
- f.rim.position.copy(f.mesh.position);f.rim.rotation.copy(f.mesh.rotation);
+ for(const layer of f.rimLayers){layer.position.copy(f.mesh.position);layer.rotation.copy(f.mesh.rotation)}
  const hue=(now*.000022+f.phase*.247+f.kind*.21)%1;
  f.mesh.material.color.setHSL(hue,1,.42);f.mesh.material.opacity=.9*visibility;
- f.rim.material.color.setHSL(hue,1,.58);f.rim.material.opacity=.34*visibility;
+ f.rimLayers.forEach((layer,j)=>{layer.material.color.setHSL(hue,1,.58);layer.material.opacity=[.28,.17,.09,.035][j]*visibility});
  }for(const d of backdropDust){const t=now*.00021+d.phase;d.mesh.position.x=d.x+.28*Math.sin(t*1.1);d.mesh.position.z=d.z+.32*Math.cos(t*.9);d.mesh.material.color.setHSL((now*.000016+d.phase*.17)%1,1,.46);d.mesh.material.opacity=.12+.22*(.5+.5*Math.sin(t*1.7))}for(const t of tiles){if(t.keySpinner)t.keySpinner.rotation.y=now*.0013+t.keySpinOffset;if(t.slide){const slide=t.slide;slide.elapsed=Math.min(slide.duration,slide.elapsed+dt);const p=slide.elapsed/slide.duration;const eased=p*p*(3-2*p);t.group.position.lerpVectors(slide.from,slide.to,eased);if(p>=1){t.group.position.copy(slide.to);t.slide=null}}}if(!animating&&!won&&!tiles.some(t=>t.slide)&&!touchStart){const ready=route();if(ready){const signature=ready.map(t=>t.id+':'+t.r+','+t.c).join('|');if(signature!==lastAttempt){lastAttempt=signature;launch(ready)}}}if(animating&&ball&&ballCurve){ballDistance=ballReturning?Math.max(0,ballDistance-dt*7.0):Math.min(ballLength,ballDistance+dt*7.0);const u=ballLength>0?ballDistance/ballLength:1;ball.position.copy(ballCurve.getPointAt(u));ball.rotation.z-=dt*8;if(!ballReturning)for(const t of ballPath){if(t.key&&!t.keyCollected){const [x,z]=xyz(t.r,t.c);if(Math.hypot(ball.position.x-x,ball.position.z-z)<.39){t.keyCollected=true;t.keySpinner.visible=false;collectedKeys++;soundFx('key');document.getElementById('msg').textContent='Բանալիներ՝ '+collectedKeys+'/3'}}}
  if(!ballReturning&&u>=1){if(collectedKeys===3){soundFx('unlock');animating=false;const goal=tiles.find(t=>t.kind==='goal');if(goal){goal.lockBody.material.color.setHex(0x16a765);goal.lockFront.material.color.setHex(0x36d98d);goal.lockShackle.position.x=.25;goal.lockShackle.rotation.y=-.34}unlockTime=now+1100;document.getElementById('msg').textContent='🔓 Կողպեքը բացվեց';}else{soundFx('return');ballReturning=true;document.getElementById('msg').textContent='🔒 Հավաքիր բոլոր 3 բանալիները․ գնդիկը վերադառնում է';}}if(ballReturning&&ballDistance<=0){ballReturning=false;animating=false;scene.remove(ball);ball=null;for(const t of tiles)if(t.key){t.keyCollected=false;t.keySpinner.visible=true}collectedKeys=0;const startTile=tiles.find(t=>t.kind==='start');if(startTile?.startOrb)startTile.startOrb.visible=true;document.getElementById('msg').textContent='🔑 Կողպեքը բացելու համար պետք է 3 բանալի';document.getElementById('run').disabled=false}}if(unlockTime&&now>=unlockTime){unlockTime=0;won=true;if(level+2>unlockedLevel){unlockedLevel=Math.min(LEVEL_COUNT,level+2);try{localStorage.setItem(PROGRESS_KEY,String(unlockedLevel))}catch(_e){}}document.getElementById('modal').classList.add('show')}renderer.render(scene,camera)}requestAnimationFrame(loop);
 </script></body></html>
