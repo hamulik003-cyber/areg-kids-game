@@ -70,13 +70,14 @@ function release(){brushStop();if(needRelease)needRelease=false;const wasActive=
 if(stage!=='color'||!wasActive)return;
 const region=paintRegions[colorStage];if(!region)return;
 const progress=region.covered/Math.max(1,region.cells.length);
-if(!region.complete&&(progress>=.25||(region.covered>0&&strokeDistance>=18)))completeCurrentRegion(region);
+// The current region is the only paintable one. Once the child has painted it, release commits the color.
+if(!region.complete&&region.covered>0)completeCurrentRegion(region);
 if(!region.complete)return;
 completionReady=paintRegions.every(r=>r.complete);
 showCheck(()=>{
  if(completionReady){stage='color';finish();return}
  colorStage++;selected=colors[colorStage%colors.length];refreshPalette();stage='color';
- instruction.textContent='Ընտրիր գույնը և ներկիր '+(paintRegions[colorStage]?.name||'հաջորդ հատվածը');
+ instruction.textContent='Հիմա ներկիր '+(paintRegions[colorStage]?.name||'հաջորդ հատվածը');
 })}
 paper.addEventListener('pointerup',release);paper.addEventListener('pointercancel',release);paper.addEventListener('lostpointercapture',release);
 document.querySelector('#next').addEventListener('click',()=>{level=(level+1)%levels.length;load()});
