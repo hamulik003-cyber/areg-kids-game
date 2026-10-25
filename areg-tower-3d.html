@@ -398,11 +398,11 @@ function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientH
 }))})();let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min(Math.max((now-last)/1000,0),.09);last=now;warmAccent.intensity=.6+.16*Math.sin(now*.00055);const nightHue=(now*.000035)%1;grainFloor.material.color.setHSL(nightHue,.68,.115);scene.background.setHSL((nightHue+.018)%1,.68,.095);for(const f of backgroundFlecks){
  const period=11000,elapsed=now+f.index*1730,cycle=Math.floor(elapsed/period),u=(elapsed%period)/period;
  const fadeIn=Math.min(1,u/.18),fadeOut=Math.min(1,(1-u)/.18),visibility=Math.max(0,Math.min(fadeIn,fadeOut));
- if(f.cycle!==cycle){f.cycle=cycle;const spot=fleckPositions[(f.index+cycle*7)%fleckPositions.length];f.x=spot[0];f.z=spot[1]}
+ if(f.cycle!==cycle){f.cycle=cycle;const spot=fleckPositions[f.index];f.x=spot[0]+.12*Math.sin(cycle+f.index);f.z=spot[1]+.12*Math.cos(cycle+f.index)}
  const t=now*.00012+f.phase;
  f.mesh.rotation.y=now*.00035+f.phase;f.mesh.rotation.z=now*.0002+f.phase;
- f.mesh.position.x=f.x+.42*Math.sin(t*2.1+f.kind);
- f.mesh.position.z=f.z+.44*Math.cos(t*1.7+f.phase*.3);
+ f.mesh.position.x=f.x+.14*Math.sin(t*2.1+f.kind);
+ f.mesh.position.z=f.z+.14*Math.cos(t*1.7+f.phase*.3);
  f.mesh.position.y=-.48+.09*Math.sin(t*3);
  f.auraLayers.forEach(layer=>{layer.position.copy(f.mesh.position);layer.rotation.copy(f.mesh.rotation)})
  const hue=(now*.000022+f.phase*.247+f.kind*.21)%1;
