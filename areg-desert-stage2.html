@@ -4,7 +4,7 @@
 function desertRng(seed){let x=seed|0;return ()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return (x>>>0)/4294967296}}
 function desertVariation(seed){const rand=desertRng(seed),int=(a,b)=>a+Math.floor(rand()*(b-a+1));return {
  extraCacti:[320,1140,1730,2520,2750,3730,4840].map(base=>({x:base+int(-55,55),h:int(48,90),kind:int(0,7)})),
- bonusLedges:[{x:1100+int(-22,22),y:-105-int(0,20),len:int(95,120)},{x:2650+int(-22,22),y:-100-int(0,20),len:int(95,120)}],
+ bonusLedges:[{x:1230+int(-22,22),y:-105-int(0,20),len:int(95,120)},{x:2650+int(-22,22),y:-100-int(0,20),len:int(95,120)}],
  seed
 }}
 function validateDesertVariation(v){if(v.extraCacti.length!==7||v.bonusLedges.length!==2)return false;
