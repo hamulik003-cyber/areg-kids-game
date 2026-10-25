@@ -396,9 +396,9 @@ function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientH
  if(f.cycle!==cycle){f.cycle=cycle;const spot=fleckPositions[(f.index+cycle*7)%fleckPositions.length];f.x=spot[0];f.z=spot[1]}
  const t=now*.00012+f.phase;
  f.mesh.rotation.y=now*.00035+f.phase;f.mesh.rotation.z=now*.0002+f.phase;
- f.mesh.position.x=f.x+.12*Math.sin(t*2.1+f.kind);
- f.mesh.position.z=f.z+.12*Math.cos(t*1.7+f.phase*.3);
- f.mesh.position.y=-.48+.04*Math.sin(t*3);
+ f.mesh.position.x=f.x+.42*Math.sin(t*2.1+f.kind);
+ f.mesh.position.z=f.z+.44*Math.cos(t*1.7+f.phase*.3);
+ f.mesh.position.y=-.48+.09*Math.sin(t*3);
  f.rim.position.copy(f.mesh.position);f.rim.rotation.copy(f.mesh.rotation);
  const hue=(now*.000022+f.phase*.247+f.kind*.21)%1;
  f.mesh.material.color.setHSL(hue,1,.42);f.mesh.material.opacity=.9*visibility;
