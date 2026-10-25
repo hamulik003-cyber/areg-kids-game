@@ -1,3 +1,14 @@
+## 2026-10-25 — Reference-first game creation (user instruction)
+- A supplied game video or screenshot with “make this game” is the primary visual and functional specification. Inspect all visible elements and behaviors before implementation.
+- Preserve reference fidelity: do not replace 3D with 2D, simplify premium materials, substitute mechanics, or redesign visible elements without explicit permission.
+- Distinguish observable details from unknown internal logic; ask only for genuinely missing essential information.
+- Plan the complete gameplay loop and architecture before coding: input, motion, physics, sound, stages, win/lose, next level, persistence, mobile embedding.
+- Deliver a playable, integrated, reference-faithful first version rather than an unrelated rough prototype. If limitations prevent fidelity, disclose them before proceeding.
+- Define acceptance criteria and verify visual similarity, mechanics, touch, performance, syntax and regression as tools permit. Never claim device testing or exact fidelity without evidence.
+- Preserve all approved features. Make focused changes on trial branches; protect main and production until explicit approval.
+- Report precisely what was implemented, what differs, what was tested, commit and live deployment status.
+- These rules supplement all existing repository safeguards and apply to every new game in this repository.
+
 ## 2026-10-24 — ԽԻՍՏ ՊԱՐՏԱԴԻՐ ՈՐԱԿԻ ԵՎ ՍՏՈՒԳՄԱՆ ԿԱՆՈՆ (USER EXPLICITLY APPROVED)
 - Նախ վերլուծել խնդրի արմատական պատճառը և ուսումնասիրել առնչվող ամբողջ կոդը, հետո միայն փոփոխել։ Չկիրառել պատահական գունային/երկրաչափական կարկատումներ՝ իբրև վերջնական լուծում։
 - «Կառուցիր աշտարակը» փայտե սահող խողովակների խաղի տեսողական միակ չափանիշը օգտատիրոջ ուղարկած reference screenshot-ն է։ Նկար գեներացնելը ՉԻ փոխարինում իրական աշխատող խաղի կոդին։ Նմանությունը չհաստատել առանց իրական տեսողական համեմատության։
