@@ -181,11 +181,7 @@ if(t.d.length&&!t.fixed){
   const p=ends[t.d[0]],q=ends[t.d[1]];cx.moveTo(px(p[0]),px(p[1]));cx.lineTo(px(q[0]),px(q[1]));
  }else{const p=ends[t.d[0]];cx.moveTo(px(0),px(0));cx.lineTo(px(p[0]),px(p[1]))}
  const width=.67/size*1024;
- cx.strokeStyle='#512d1b';cx.lineWidth=width+26;cx.shadowColor='#24120a';cx.shadowBlur=23;cx.stroke();cx.shadowBlur=0;
- cx.strokeStyle='#2a160e';cx.lineWidth=width+7;cx.stroke();
- cx.strokeStyle='#402316';cx.lineWidth=width-18;cx.stroke();
- cx.strokeStyle='#57331e';cx.lineWidth=width-54;cx.stroke();
- cx.globalAlpha=.36;cx.strokeStyle='#140b08';cx.lineWidth=width-80;cx.stroke();cx.restore();
+ cx.strokeStyle='#24130f';cx.lineWidth=width;cx.shadowColor='#170c0a';cx.shadowBlur=10;cx.stroke();cx.restore();
 }
 const surfaceTexture=new T.CanvasTexture(cv);surfaceTexture.colorSpace=T.SRGBColorSpace;surfaceTexture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),8);
 const surface=mesh(new T.PlaneGeometry(size,size),new T.MeshBasicMaterial({map:surfaceTexture,side:T.DoubleSide}));surface.rotation.x=-Math.PI/2;surface.position.y=.371;g.add(surface);
@@ -223,8 +219,8 @@ if(t.kind==='start'){// Rounded groove start, full channel width and a clean sem
  trackShape.moveTo(-w,zTop);trackShape.lineTo(-w,zBottom);
  trackShape.absarc(0,zBottom,w,Math.PI,0,false);
  trackShape.lineTo(w,zTop);trackShape.closePath();
- const track=mesh(new T.ShapeGeometry(trackShape,32),material(0x2a160e,.94));track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
- const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x402316,.94,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.32,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
+ const track=mesh(new T.ShapeGeometry(trackShape,32),new T.MeshBasicMaterial({color:0x24130f,side:T.DoubleSide}));track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
+ const trackInner=mesh(new T.ShapeGeometry(trackShape,32),new T.MeshBasicMaterial({color:0x24130f,side:T.DoubleSide}));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.32,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
 if(t.kind==='goal'){
  // A short, visible entry slot on the steel plate. Its OPEN end is at
  // local -Z, so the existing U/D/L/R tile rotation points it at t.d[0].
@@ -235,7 +231,7 @@ if(t.kind==='goal'){
  entryShape.absarc(0,cap,gw,Math.PI,0,false);
  entryShape.lineTo(gw,edge);
  entryShape.closePath();
- const entrySlot=mesh(new T.ShapeGeometry(entryShape,24),new T.MeshBasicMaterial({color:0x2a160e,side:T.DoubleSide,depthWrite:false}));
+ const entrySlot=mesh(new T.ShapeGeometry(entryShape,24),new T.MeshBasicMaterial({color:0x24130f,side:T.DoubleSide,depthWrite:false}));
  entrySlot.rotation.x=-Math.PI/2;
  entrySlot.position.y=.493;
  entrySlot.renderOrder=3;
