@@ -112,7 +112,7 @@ function generateTrialLevel(index){
  const scrambleHistory=[];
  const occupied=()=>new Set(tiles.map(t=>t.r*4+t.c));
  let lastId=-1;
- const scrambleCount=5+Math.floor(index*.78);
+ const scrambleCount=18+Math.floor(index*1.6);
  for(let i=0;i<scrambleCount;i++){
   const occ=occupied(),moves=[];
   for(const t of tiles)if(!t.fixed)for(const [dr,dc] of steps){
@@ -219,33 +219,13 @@ if(t.key){
 }
 if(t.fixed){const plate=mesh(new T.BoxGeometry(cell-.095,.12,cell-.095),steel);plate.position.y=.405;g.add(plate);const inset=mesh(new T.BoxGeometry(cell-.19,.018,cell-.19),material(0x747784,.55,.35));inset.position.y=.473;g.add(inset);for(const xx of [-.64,.64])for(const zz of [-.64,.64]){const screw=mesh(new T.CylinderGeometry(.105,.105,.035,20),material(0xa7a9b2,.36,.62));screw.position.set(xx,.504,zz);g.add(screw);const slot=mesh(new T.BoxGeometry(.125,.012,.027),steelDark);slot.position.set(xx,.528,zz);slot.rotation.y=Math.PI/4;g.add(slot);const slot2=mesh(new T.BoxGeometry(.125,.012,.027),steelDark);slot2.position.set(xx,.53,zz);slot2.rotation.y=-Math.PI/4;g.add(slot2)}
 if(t.kind==='start'){// Rounded groove start, full channel width and a clean semicircular cap.
- const trackShape=new T.Shape();const w=.335,zTop=cell/2+.035,zBottom=-.43;
+ const trackShape=new T.Shape();const w=.335,zTop=.82,zBottom=-.43;
  trackShape.moveTo(-w,zTop);trackShape.lineTo(-w,zBottom);
  trackShape.absarc(0,zBottom,w,Math.PI,0,false);
  trackShape.lineTo(w,zTop);trackShape.closePath();
- const trackGeometry=new T.ShapeGeometry(trackShape,32);const track=mesh(trackGeometry,steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
- const trackInnerGeometry=new T.ShapeGeometry(trackShape,32);const trackInner=mesh(trackInnerGeometry,material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,-.43);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
+ const track=mesh(new T.ShapeGeometry(trackShape,32),steelDark);track.rotation.x=-Math.PI/2;track.position.y=.489;g.add(track);
+ const trackInner=mesh(new T.ShapeGeometry(trackShape,32),material(0x30343d,.78,.18));trackInner.scale.set(.86,.98,1);trackInner.rotation.x=-Math.PI/2;trackInner.position.y=.498;g.add(trackInner);const orb=mesh(new T.SphereGeometry(.295,40,30),material(0xfaf7f0,.1,.45));orb.position.set(0,.71,.27);orb.castShadow=false;orb.receiveShadow=false;g.add(orb);t.startOrb=orb}
 if(t.kind==='goal'){
- // A recessed fixed steel channel runs from the board edge into the lock.
- // Local +Z is the outward edge for the same orientation mapping as start.
- const grooveWidth=.67,grooveLength=.42;
- // Round the inner end of the short goal channel, preserving its outer-edge opening.
- const goalShape=new T.Shape();
- const halfWidth=grooveWidth/2,outerZ=cell/2,innerZ=outerZ-grooveLength;
- const tipRadius=Math.min(halfWidth*.65,grooveLength*.28);
- goalShape.moveTo(-halfWidth,outerZ);
- goalShape.lineTo(-halfWidth,innerZ+tipRadius);
- goalShape.quadraticCurveTo(-halfWidth,innerZ,-tipRadius,innerZ);
- goalShape.quadraticCurveTo(0,innerZ-tipRadius*.12,tipRadius,innerZ);
- goalShape.quadraticCurveTo(halfWidth,innerZ,halfWidth,innerZ+tipRadius);
- goalShape.lineTo(halfWidth,outerZ);
- goalShape.closePath();
- const goalGeometry=new T.ShapeGeometry(goalShape,24);const goalChannel=mesh(goalGeometry,steelDark);
- goalChannel.rotation.x=-Math.PI/2;goalChannel.position.y=.493;g.add(goalChannel);
- const goalInsetGeometry=new T.ShapeGeometry(goalShape,24);const goalInset=mesh(goalInsetGeometry,material(0x30343d,.78,.18));
- goalInset.scale.set(.84,.98,1);
- goalInset.rotation.x=-Math.PI/2;goalInset.position.y=.498;g.add(goalInset);
- const lockVisual=new T.Group();g.add(lockVisual);t.lockVisual=lockVisual;
  // Familiar closed padlock silhouette: thick U-shaped steel shackle above a rounded lock body.
  const shacklePath=new T.CatmullRomCurve3([
   new T.Vector3(-.29,.605,-.03),new T.Vector3(-.29,.605,-.29),
@@ -253,20 +233,19 @@ if(t.kind==='goal'){
   new T.Vector3(0,.605,-.555),new T.Vector3(.12,.605,-.54),
   new T.Vector3(.245,.605,-.46),new T.Vector3(.29,.605,-.29),
   new T.Vector3(.29,.605,-.03)],false,'centripetal');
- const shackle=mesh(new T.TubeGeometry(shacklePath,48,.065,12,false),material(0xbcc1cc,.32,.7));lockVisual.add(shackle);t.lockShackle=shackle;
- const shackleInner=mesh(new T.TubeGeometry(shacklePath,48,.035,10,false),material(0x737b8a,.48,.65));shackleInner.position.y=.01;lockVisual.add(shackleInner);
- const lockBody=mesh(new T.BoxGeometry(.91,.19,.70),material(0x252a36,.37,.58));lockBody.position.set(0,.675,.12);lockVisual.add(lockBody);t.lockBody=lockBody;
- const front=mesh(new T.BoxGeometry(.80,.018,.58),material(0x353c4c,.42,.45));front.position.set(0,.779,.12);lockVisual.add(front);t.lockFront=front;
+ const shackle=mesh(new T.TubeGeometry(shacklePath,48,.065,12,false),material(0xbcc1cc,.32,.7));g.add(shackle);t.lockShackle=shackle;
+ const shackleInner=mesh(new T.TubeGeometry(shacklePath,48,.035,10,false),material(0x737b8a,.48,.65));shackleInner.position.y=.01;g.add(shackleInner);
+ const lockBody=mesh(new T.BoxGeometry(.91,.19,.70),material(0x252a36,.37,.58));lockBody.position.set(0,.675,.12);g.add(lockBody);t.lockBody=lockBody;
+ const front=mesh(new T.BoxGeometry(.80,.018,.58),material(0x353c4c,.42,.45));front.position.set(0,.779,.12);g.add(front);t.lockFront=front;
  const labelCanvas=document.createElement('canvas');labelCanvas.width=256;labelCanvas.height=256;
  const ctx=labelCanvas.getContext('2d');ctx.clearRect(0,0,256,256);ctx.fillStyle='#fff';ctx.font='bold 205px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('3',128,139);
  const labelTex=new T.CanvasTexture(labelCanvas);labelTex.colorSpace=T.SRGBColorSpace;
- const number=mesh(new T.PlaneGeometry(.55,.55),new T.MeshBasicMaterial({map:labelTex,transparent:true,depthWrite:false}));number.rotation.x=-Math.PI/2;number.position.set(0,.791,.13);number.castShadow=false;lockVisual.add(number);
+ const number=mesh(new T.PlaneGeometry(.55,.55),new T.MeshBasicMaterial({map:labelTex,transparent:true,depthWrite:false}));number.rotation.x=-Math.PI/2;number.position.set(0,.791,.13);number.castShadow=false;g.add(number);
 }
 }
 const [x,z]=xyz(t.r,t.c);g.position.set(x,0,z);
 // Fixed start and goal channels must face their actual generated neighbor.
-if(t.fixed)g.rotation.y=({D:0,U:Math.PI,L:-Math.PI/2,R:Math.PI/2})[t.d[0]]||0;
-if(t.lockVisual)t.lockVisual.rotation.y=-g.rotation.y;
+if(t.fixed)g.rotation.y=({U:0,D:Math.PI,L:Math.PI/2,R:-Math.PI/2})[t.d[0]]||0;
 g.traverse(o=>{if(o.isMesh)o.userData.tile=t});scene.add(g);t.group=g;t.target=g.position.clone();t.slide=null}
 function clear(){for(const t of tiles)scene.remove(t.group);tiles=[];if(ball){scene.remove(ball);ball=null}won=false;animating=false;ballPath=[];ballT=0;ballCurve=null;ballDistance=0;ballLength=0;collectedKeys=0;unlockTime=0;ballReturning=false;lastAttempt=''}
 const cachedLevelTiles=new Map();
@@ -327,7 +306,7 @@ renderer.domElement.addEventListener('pointermove',e=>{const d=touchStart;if(!d)
 function releaseDrag(e,cancel=false){const d=touchStart;if(!d)return;touchStart=null;const t=d.tile;const [x,z]=xyz(t.r,t.c);if(cancel){t.slide={from:t.group.position.clone(),to:new T.Vector3(x,0,z),elapsed:0,duration:.11};return}if(!d.axis){const choice=d.options[0];move(t,...choice);return}const elapsed=Math.max(1,performance.now()-d.downAt);const projected=d.amount;const shouldCommit=projected>cell*.24||(projected>cell*.09&&elapsed<210);if(shouldCommit){move(t,...d.axis)}else{t.slide={from:t.group.position.clone(),to:new T.Vector3(x,0,z),elapsed:0,duration:.11}}}
 renderer.domElement.addEventListener('pointerup',e=>releaseDrag(e));renderer.domElement.addEventListener('pointercancel',e=>releaseDrag(e,true));
 function route(){const start=tiles.find(t=>t.kind==='start'),goal=tiles.find(t=>t.kind==='goal');if(!start||!goal)return null;const q=[[start,[start]]],seen=new Set([start.id]);while(q.length){const [t,path]=q.shift();if(t===goal)return path;for(const d of t.d){const [dr,dc]=dirs[d],n=find(t.r+dr,t.c+dc);if(n&&n.d.includes(op[d])&&!seen.has(n.id)){seen.add(n.id);q.push([n,[...path,n]])}}}return null}
-function launch(pathOverride){if(animating||won)return;const path=Array.isArray(pathOverride)?pathOverride:route();if(!path){document.getElementById('msg').textContent='Ճանապարհը դեռ փակ է․ միացրու խողովակները';return}collectedKeys=0;unlockTime=0;ballReturning=false;const startTile=tiles.find(t=>t.kind==='start');if(startTile?.startOrb)startTile.startOrb.visible=false;if(ball){scene.remove(ball);ball=null}for(const t of tiles)if(t.key){t.keyCollected=false;t.keySpinner.visible=true}document.getElementById('msg').textContent='Հավաքիր 3 բանալիները…';ballPath=path;ballT=0;ballDistance=0;const points=[];if(startTile){const p=new T.Vector3(0,.75,-.43);p.applyAxisAngle(new T.Vector3(0,1,0),startTile.group.rotation.y);const [sx,sz]=xyz(startTile.r,startTile.c);points.push(new T.Vector3(sx+p.x,.75,sz+p.z))}for(let i=0;i<path.length;i++){const [x,z]=xyz(path[i].r,path[i].c);points.push(new T.Vector3(x,.75,z))}ballCurve=new T.CatmullRomCurve3(points,false,'centripetal',.5);ballLength=ballCurve.getLength();animating=true;ball=mesh(new T.SphereGeometry(.295,40,30),material(0xf5f0e6,.12,.7));ball.castShadow=false;ball.receiveShadow=false;scene.add(ball);ball.position.copy(points[0]);document.getElementById('run').disabled=true}
+function launch(pathOverride){if(animating||won)return;const path=Array.isArray(pathOverride)?pathOverride:route();if(!path){document.getElementById('msg').textContent='Ճանապարհը դեռ փակ է․ միացրու խողովակները';return}collectedKeys=0;unlockTime=0;ballReturning=false;const startTile=tiles.find(t=>t.kind==='start');if(startTile?.startOrb)startTile.startOrb.visible=false;if(ball){scene.remove(ball);ball=null}for(const t of tiles)if(t.key){t.keyCollected=false;t.keySpinner.visible=true}document.getElementById('msg').textContent='Հավաքիր 3 բանալիները…';ballPath=path;ballT=0;ballDistance=0;const points=[];for(let i=0;i<path.length;i++){const [x,z]=xyz(path[i].r,path[i].c);points.push(new T.Vector3(x,.75,z))}ballCurve=new T.CatmullRomCurve3(points,false,'centripetal',.5);ballLength=ballCurve.getLength();animating=true;ball=mesh(new T.SphereGeometry(.295,40,30),material(0xf5f0e6,.12,.7));ball.castShadow=false;ball.receiveShadow=false;scene.add(ball);const [x,z]=xyz(path[0].r,path[0].c);ball.position.set(x,.75,z);document.getElementById('run').disabled=true}
 
 const picker=document.getElementById('levelPicker'),levelGrid=document.getElementById('levelGrid');
 const PROGRESS_KEY='areg-tower-level-progress-v1';
