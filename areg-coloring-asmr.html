@@ -61,7 +61,7 @@ if(distance<1){region.ctx.beginPath();region.ctx.arc(p.x,p.y,radius,0,Math.PI*2)
 region.image.setAttribute('href',region.canvas.toDataURL('image/png'));previous=p;
 // Never auto-fill while the child is painting. Completion is evaluated on release.
 const ratio=region.covered/Math.max(1,region.cells.length);
-if(ratio>=.48)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
+if(ratio>=.72)instruction.textContent='Ապրե՛ս։ Հանիր մատդ՝ շարունակելու համար';
 completionReady=paintRegions.every(r=>r.complete);
 }
 function finish(){
@@ -82,6 +82,16 @@ paper.addEventListener('pointerdown',e=>{if(e.target.closest('#celebrate'))retur
 paper.addEventListener('pointermove',e=>{if(active&&stage==='color')paint(e)});
 function showCheck(next){stage='check';stageCheck.classList.remove('show');void stageCheck.offsetWidth;stageCheck.classList.add('show');sound(760);checkTimer=setTimeout(()=>{checkTimer=null;stageCheck.classList.remove('show');next()},900)}
 function completeCurrentRegion(region){if(!region||region.complete)return;region.complete=true;/* Do not fill the path: preserve only the child's actual brush strokes. */}
+function actualPaintCoverage(region){
+ // Measure pixels that were really painted on the canvas rather than unreliable pointer proximity.
+ const data=region.ctx.getImageData(0,0,640,640).data;
+ let painted=0;
+ for(const cell of region.cells){
+  const x=Math.min(639,Math.round(cell.x*2)),y=Math.min(639,Math.round(cell.y*2));
+  if(data[(y*640+x)*4+3]>20)painted++;
+ }
+ return painted/Math.max(1,region.cells.length);
+}
 function release(){
  brushStop();
  if(needRelease)needRelease=false;
@@ -92,8 +102,8 @@ function release(){
  if(!region)return;
  // Only complete when the child has actually painted almost the entire region.
  // Coverage persists across finger lifts, so several strokes can be used.
- const ratio=region.covered/Math.max(1,region.cells.length);
- if(ratio<.48){
+ const ratio=actualPaintCoverage(region);
+ if(ratio<.72){
   instruction.textContent='Շարունակիր ներկել՝ մինչև նկարի մեծ մասը գունավորվի';
   return;
  }
