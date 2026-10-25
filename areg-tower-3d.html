@@ -232,9 +232,14 @@ if(t.kind==='goal'){
  // Round the inner end of the short goal channel, preserving its outer-edge opening.
  const goalShape=new T.Shape();
  const halfWidth=grooveWidth/2,outerZ=cell/2,innerZ=outerZ-grooveLength;
+ // A short channel cannot use a semicircle wider than its length.
+ // The tip remains entirely inside the lock tile, with softened shoulders.
+ const tipRadius=Math.min(halfWidth*.65,grooveLength*.32);
  goalShape.moveTo(-halfWidth,outerZ);
- goalShape.lineTo(-halfWidth,innerZ+halfWidth);
- goalShape.absarc(0,innerZ+halfWidth,halfWidth,Math.PI,0,false);
+ goalShape.lineTo(-halfWidth,innerZ+tipRadius*1.2);
+ goalShape.quadraticCurveTo(-halfWidth,innerZ,-tipRadius,innerZ);
+ goalShape.quadraticCurveTo(0,innerZ-tipRadius*.12,tipRadius,innerZ);
+ goalShape.quadraticCurveTo(halfWidth,innerZ,halfWidth,innerZ+tipRadius*1.2);
  goalShape.lineTo(halfWidth,outerZ);
  goalShape.closePath();
  const goalChannel=mesh(new T.ShapeGeometry(goalShape,24),steelDark);
@@ -324,7 +329,20 @@ renderer.domElement.addEventListener('pointermove',e=>{const d=touchStart;if(!d)
 function releaseDrag(e,cancel=false){const d=touchStart;if(!d)return;touchStart=null;const t=d.tile;const [x,z]=xyz(t.r,t.c);if(cancel){t.slide={from:t.group.position.clone(),to:new T.Vector3(x,0,z),elapsed:0,duration:.11};return}if(!d.axis){const choice=d.options[0];move(t,...choice);return}const elapsed=Math.max(1,performance.now()-d.downAt);const projected=d.amount;const shouldCommit=projected>cell*.24||(projected>cell*.09&&elapsed<210);if(shouldCommit){move(t,...d.axis)}else{t.slide={from:t.group.position.clone(),to:new T.Vector3(x,0,z),elapsed:0,duration:.11}}}
 renderer.domElement.addEventListener('pointerup',e=>releaseDrag(e));renderer.domElement.addEventListener('pointercancel',e=>releaseDrag(e,true));
 function route(){const start=tiles.find(t=>t.kind==='start'),goal=tiles.find(t=>t.kind==='goal');if(!start||!goal)return null;const q=[[start,[start]]],seen=new Set([start.id]);while(q.length){const [t,path]=q.shift();if(t===goal)return path;for(const d of t.d){const [dr,dc]=dirs[d],n=find(t.r+dr,t.c+dc);if(n&&n.d.includes(op[d])&&!seen.has(n.id)){seen.add(n.id);q.push([n,[...path,n]])}}}return null}
-function launch(pathOverride){if(animating||won)return;const path=Array.isArray(pathOverride)?pathOverride:route();if(!path){document.getElementById('msg').textContent='Ճանապարհը դեռ փակ է․ միացրու խողովակները';return}collectedKeys=0;unlockTime=0;ballReturning=false;const startTile=tiles.find(t=>t.kind==='start');if(startTile?.startOrb)startTile.startOrb.visible=false;if(ball){scene.remove(ball);ball=null}for(const t of tiles)if(t.key){t.keyCollected=false;t.keySpinner.visible=true}document.getElementById('msg').textContent='Հավաքիր 3 բանալիները…';ballPath=path;ballT=0;ballDistance=0;const points=[];if(startTile){const p=new T.Vector3(0,.75,-.43);p.applyAxisAngle(new T.Vector3(0,1,0),startTile.group.rotation.y);const [sx,sz]=xyz(startTile.r,startTile.c);points.push(new T.Vector3(sx+p.x,.75,sz+p.z))}for(let i=0;i<path.length;i++){const [x,z]=xyz(path[i].r,path[i].c);points.push(new T.Vector3(x,.75,z))}ballCurve=new T.CatmullRomCurve3(points,false,'centripetal',.5);ballLength=ballCurve.getLength();animating=true;ball=mesh(new T.SphereGeometry(.295,40,30),material(0xf5f0e6,.12,.7));ball.castShadow=false;ball.receiveShadow=false;scene.add(ball);ball.position.copy(points[0]);document.getElementById('run').disabled=true}
+function launch(pathOverride){if(animating||won)return;const path=Array.isArray(pathOverride)?pathOverride:route();if(!path){document.getElementById('msg').textContent='Ճանապարհը դեռ փակ է․ միացրու խողովակները';return}collectedKeys=0;unlockTime=0;ballReturning=false;const startTile=tiles.find(t=>t.kind==='start');if(startTile?.startOrb)startTile.startOrb.visible=false;if(ball){scene.remove(ball);ball=null}for(const t of tiles)if(t.key){t.keyCollected=false;t.keySpinner.visible=true}document.getElementById('msg').textContent='Հավաքիր 3 բանալիները…';ballPath=path;ballT=0;ballDistance=0;const points=[];if(startTile){const p=new T.Vector3(0,.75,-.43).applyAxisAngle(new T.Vector3(0,1,0),startTile.group.rotation.y);const [sx,sz]=xyz(startTile.r,startTile.c);points.push(new T.Vector3(sx+p.x,.75,sz+p.z))}
+ // Keep both endpoints on their actual grooves. Never travel through the back
+ // of the fixed start tile or through the upright padlock.
+ const goalTile=path[path.length-1];
+ for(let i=0;i<path.length;i++){
+  const t=path[i],[x,z]=xyz(t.r,t.c);
+  if(t.kind==='goal'){
+   const entry=new T.Vector3(0,.75,cell/2).applyAxisAngle(new T.Vector3(0,1,0),t.group.rotation.y);
+   const tip=new T.Vector3(0,.75,cell/2-.42+.08).applyAxisAngle(new T.Vector3(0,1,0),t.group.rotation.y);
+   points.push(new T.Vector3(x+entry.x,.75,z+entry.z),new T.Vector3(x+tip.x,.75,z+tip.z));
+  }else points.push(new T.Vector3(x,.75,z));
+ }
+ // Explicit endpoint tangents prevent Catmull-Rom overshoot behind the start cap.
+ ballCurve=new T.CatmullRomCurve3(points,false,'centripetal',.5);ballLength=ballCurve.getLength();animating=true;ball=mesh(new T.SphereGeometry(.295,40,30),material(0xf5f0e6,.12,.7));ball.castShadow=false;ball.receiveShadow=false;scene.add(ball);ball.position.copy(points[0]);document.getElementById('run').disabled=true}
 
 const picker=document.getElementById('levelPicker'),levelGrid=document.getElementById('levelGrid');
 const PROGRESS_KEY='areg-tower-level-progress-v1';
