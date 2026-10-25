@@ -229,7 +229,7 @@ if(t.kind==='goal'){
  // A short, visible entry slot on the steel plate. Its OPEN end is at
  // local -Z, so the existing U/D/L/R tile rotation points it at t.d[0].
  // Keep this separate from lockVisual: only the groove rotates.
- const entryShape=new T.Shape(),gw=.29,edge=.82,cap=.36;
+ const entryShape=new T.Shape(),gw=.29,edge=1.0,cap=.36;
  entryShape.moveTo(-gw,edge);
  entryShape.lineTo(-gw,cap);
  entryShape.absarc(0,cap,gw,Math.PI,0,false);
