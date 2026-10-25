@@ -37,10 +37,16 @@ for(const d of allPaths){const ink=node('path',{d,fill:'none',stroke:'#242024','
 const first=inkPaths[0].ink.getPointAtLength(0);requestAnimationFrame(()=>setCursor(first));
 for(const color of colors){const btn=document.createElement('button');btn.className='swatch'+(selected===color?' selected':'');btn.style.background=color;btn.setAttribute('aria-label','Գույն '+color);btn.addEventListener('pointerdown',e=>e.stopPropagation());btn.addEventListener('click',()=>{selected=color;palette.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b===btn));sound(360)});palette.append(btn)}}
 function trace(dt){if(stage!=='outline'||!active)return;const item=inkPaths[part];progress=Math.min(item.length,progress+dt*245);item.ink.style.strokeDashoffset=item.length-progress;setCursor(item.ink.getPointAtLength(progress));if(progress>=item.length){active=false;needRelease=true;sound(480);if(part<inkPaths.length-1){part++;progress=0;instruction.textContent=part===1?'Հանիր մատդ, հետո նորից դիր՝ երկրորդ 50%-ը նկարելու համար':'Հանիր մատդ և նորից դիր՝ մնացած մանրամասները նկարելու համար';setCursor(inkPaths[part].ink.getPointAtLength(0))}else{stage='color';tip.style.display='none';palette.hidden=false;instruction.textContent='Ընտրիր գույնը և ներկիր ամբողջ պատկերը';sound(630)}}}
-function regionAt(p){for(let i=paintRegions.length-1;i>=0;i--)if(paintRegions[i].ctx.isPointInPath(paintRegions[i].path,p.x,p.y))return i;return -1}
+function regionAt(p){
+ // Small details must remain touchable on an iPhone even when the finger is wider than the leaf.
+ for(let i=paintRegions.length-1;i>=0;i--){const region=paintRegions[i];if(region.ctx.isPointInPath(region.path,p.x,p.y))return i}
+ let closest=-1,best=Infinity;
+ for(let i=paintRegions.length-1;i>=1;i--){const region=paintRegions[i];for(const cell of region.cells){const d=Math.hypot(cell.x-p.x,cell.y-p.y);if(d<best){best=d;closest=i}}}
+ return best<=34?closest:-1;
+}
 function paint(e){const p=coords(e);if(!p)return;setCursor(p);tip.style.setProperty('--marker-color',selected);
 if(activeRegion<0){activeRegion=regionAt(p);if(activeRegion<0)return}
-const region=paintRegions[activeRegion];if(region.complete)return;
+const region=paintRegions[activeRegion];if(region.complete){instruction.textContent='Այս հատվածն արդեն ներկված է։ Ընտրիր մյուս մասը';return}
 if(!previous)previous=p;
 const distance=Math.hypot(p.x-previous.x,p.y-previous.y),steps=Math.max(1,Math.ceil(distance/5));
 for(let i=0;i<=steps;i++){const t=i/steps,x=previous.x+(p.x-previous.x)*t,y=previous.y+(p.y-previous.y)*t;
