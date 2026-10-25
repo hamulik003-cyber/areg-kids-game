@@ -80,7 +80,7 @@ function finish(){
 paper.addEventListener('pointerdown',e=>{if(e.target.closest('#celebrate'))return;e.preventDefault();if(stage==='outline'){if(needRelease)return;active=true;paper.setPointerCapture(e.pointerId);brushStart()}else if(stage==='color'){active=true;previous=null;activeRegion=-1;paper.setPointerCapture(e.pointerId);paint(e);brushStart()}});
 paper.addEventListener('pointermove',e=>{if(active&&stage==='color')paint(e)});
 function showCheck(next){stage='check';stageCheck.classList.remove('show');void stageCheck.offsetWidth;stageCheck.classList.add('show');sound(760);checkTimer=setTimeout(()=>{checkTimer=null;stageCheck.classList.remove('show');next()},900)}
-function completeCurrentRegion(region){if(!region||region.complete)return;region.complete=true;region.ctx.save();region.ctx.fillStyle=selected;region.ctx.fill(region.path);region.ctx.restore();region.image.setAttribute('href',region.canvas.toDataURL('image/png'))}
+function completeCurrentRegion(region){if(!region||region.complete)return;region.complete=true;/* Do not fill the path: preserve only the child's actual brush strokes. */}
 function release(){
  brushStop();
  if(needRelease)needRelease=false;
