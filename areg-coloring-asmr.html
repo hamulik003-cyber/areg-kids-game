@@ -143,7 +143,7 @@ function release(){
  if(canConfirm){
   confirmCheck.style.display='grid';confirmCheck.style.placeItems='center';
   instruction.textContent='Ապրե՛ս։ Սեղմիր կանաչ ✓-ը՝ շարունակելու համար';
- }else instruction.textContent='Շարունակիր ներկել պատկերը';
+ }else instruction.textContent='Ներկված է '+Math.floor(paintedFraction*100)+'%։ Կանաչ ✓-ը կհայտնվի 99%-ին';
 }
 paper.addEventListener('pointerup',release);
 paper.addEventListener('pointercancel',release);
