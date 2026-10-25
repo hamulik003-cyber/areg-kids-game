@@ -15,8 +15,16 @@ function validateDesertVariation(v){if(v.extraCacti.length!==7||v.bonusLedges.le
   &&!stars.some(st=>st.x>p.x-18&&st.x<p.x+p.len+18&&Math.abs(st.y-p.y)<65));
 }
 function desertGenerationSelfTest(n=1000){let failed=0;const examples=[];for(let i=1;i<=n;i++){if(!validateDesertVariation(desertVariation(i*7919))){failed++;if(examples.length<5)examples.push(i)}}return {checked:n,failed,examples}}
-const desertSeed=(Math.floor(Math.random()*2147483646)+1),desertLayout=desertVariation(desertSeed);
-if(!validateDesertVariation(desertLayout))throw Error('Invalid desert layout');
+// Reject invalid random layouts instead of aborting the entire game at load.
+function chooseDesertLayout(){for(let attempt=0;attempt<100;attempt++){
+ const seed=Math.floor(Math.random()*2147483646)+1,v=desertVariation(seed);
+ if(validateDesertVariation(v))return v;
+ }
+ const fallback=desertVariation(7919);
+ if(!validateDesertVariation(fallback))throw Error('Desert fallback layout invalid');
+ return fallback;
+}
+const desertLayout=chooseDesertLayout(),desertSeed=desertLayout.seed;
 document.documentElement.dataset.desertSeed=String(desertSeed);
 // Additional invariant checks for the authored mandatory crossings.
 function desertProgressionAudit(){
