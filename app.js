@@ -3710,7 +3710,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Կառուցիր աշտարակը 3D';
-    frame.src='./areg-tower-3d.html?testv=no-flashing-halos-6d817f4';
+    frame.src='./areg-tower-3d.html?testv=soft-rgb-halo-ffa525e';
     frame.setAttribute('loading','eager');
     // Do not reveal the iframe until the stage picker has completed layout.
     // This prevents iOS WebKit from showing an intermediate, reflowing picker.
