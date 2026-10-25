@@ -229,10 +229,19 @@ if(t.kind==='goal'){
  // A recessed fixed steel channel runs from the board edge into the lock.
  // Local +Z is the outward edge for the same orientation mapping as start.
  const grooveWidth=.67,grooveLength=.42;
- const goalChannel=mesh(new T.PlaneGeometry(grooveWidth,grooveLength),steelDark);
- goalChannel.rotation.x=-Math.PI/2;goalChannel.position.set(0,.493,cell/2-.21);g.add(goalChannel);
- const goalInset=mesh(new T.PlaneGeometry(grooveWidth*.82,grooveLength),material(0x30343d,.78,.18));
- goalInset.rotation.x=-Math.PI/2;goalInset.position.set(0,.498,cell/2-.21);g.add(goalInset);
+ // Round the inner end of the short goal channel, preserving its outer-edge opening.
+ const goalShape=new T.Shape();
+ const halfWidth=grooveWidth/2,outerZ=cell/2,innerZ=outerZ-grooveLength;
+ goalShape.moveTo(-halfWidth,outerZ);
+ goalShape.lineTo(-halfWidth,innerZ+halfWidth);
+ goalShape.absarc(0,innerZ+halfWidth,halfWidth,Math.PI,0,false);
+ goalShape.lineTo(halfWidth,outerZ);
+ goalShape.closePath();
+ const goalChannel=mesh(new T.ShapeGeometry(goalShape,24),steelDark);
+ goalChannel.rotation.x=-Math.PI/2;goalChannel.position.y=.493;g.add(goalChannel);
+ const goalInset=mesh(new T.ShapeGeometry(goalShape,24),material(0x30343d,.78,.18));
+ goalInset.scale.set(.84,.98,1);
+ goalInset.rotation.x=-Math.PI/2;goalInset.position.y=.498;g.add(goalInset);
  const lockVisual=new T.Group();g.add(lockVisual);t.lockVisual=lockVisual;
  // Familiar closed padlock silhouette: thick U-shaped steel shackle above a rounded lock body.
  const shacklePath=new T.CatmullRomCurve3([
