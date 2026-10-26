@@ -451,8 +451,7 @@
         {id:'puzzle',label:'Գտիր ճիշտ ձևը',thumb:'mind-game-1.jpg',kind:'mindShapesV4'},
         {id:'sizes',label:'Գտիր զույգը',thumb:'mind-game-2.jpg',kind:'mindPairs'},
         {id:'pattern',label:'Ո՞ւմ ստվերն է',thumb:'mind-game-3.jpg',kind:'pattern'},
-        {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'},
-        {id:'color-blast',label:'Գունավոր պայթյուն',thumb:'mind-game-2.jpg',kind:'colorBlast'}
+        {id:'numbers',label:'Հավաքիր պատկերը',thumb:'mind-game-4.jpg',kind:'cups'}
       ]
     },
     create:{
