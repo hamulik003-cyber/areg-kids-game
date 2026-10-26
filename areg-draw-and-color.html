@@ -276,14 +276,23 @@ function tone(freq,duration=.09,volume=.045,shape='sine',offset=0,endFreq=0){
  g.gain.exponentialRampToValueAtTime(.0001,t+duration);
  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.01);
 }
+// Soft wooden-marimba-like completion cues: low-volume, rounded attacks, no piercing highs.
+function gentleNote(freq,at=0,duration=.22,volume=.017){
+ const c=audioContext();if(!c)return;
+ const t=c.currentTime+at,o=c.createOscillator(),g=c.createGain();
+ o.type='sine';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*.985,t+duration);
+ g.gain.setValueAtTime(.00001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),t+.018);
+ g.gain.exponentialRampToValueAtTime(.00001,t+duration);
+ o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.015);
+}
 function sound(event){
- if(event==='brush'){const now=performance.now();if(now-lastBrushSound<130)return;lastBrushSound=now;tone(370,.045,.012,'triangle',0,310)}
- else if(event==='pick'){tone(600,.075,.036,'sine',0,790)}
- else if(event==='trace'){tone(510,.09,.045,'sine');tone(700,.12,.04,'sine',.08)}
- else if(event==='ready'){tone(670,.09,.05,'sine');tone(900,.15,.05,'sine',.09)}
- else if(event==='confirm'){tone(620,.09,.04,'sine');tone(840,.16,.04,'sine',.09)}
- else if(event==='finish'){tone(520,.12,.055);tone(660,.12,.055,'sine',.12);tone(880,.24,.055,'sine',.24)}
- else if(event==='next'){tone(460,.07,.03,'triangle',0,620)}
+ if(event==='brush')return;
+ if(event==='pick')gentleNote(420,0,.11,.012);
+ else if(event==='trace')gentleNote(392,0,.17,.014);
+ else if(event==='ready'){gentleNote(392,0,.20,.015);gentleNote(523,.105,.26,.015)}
+ else if(event==='confirm'){gentleNote(349,0,.16,.014);gentleNote(440,.09,.24,.014)}
+ else if(event==='finish'){gentleNote(349,0,.22,.017);gentleNote(440,.14,.23,.017);gentleNote(523,.28,.34,.018)}
+ else if(event==='next')gentleNote(392,0,.12,.012);
 }
 function beep(f=520){sound(f>=850?'finish':f>=750?'ready':f>=680?'trace':'confirm')}
 // Quiet continuous marker-on-paper texture; starts and stops with actual drawing.
