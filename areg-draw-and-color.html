@@ -254,6 +254,13 @@ levels.unshift({
  ],colors:['#eee4dc','#eee4dc','#f4b7c4','#f4b7c4','#fff0e3','#f5e5d6','#f4e6d8','#f7e9df','#f9ede4','#f9ede4','#f9e8df','#f9e8df','#24252b','#24252b','#e9a3ac']
 });
 
+// User-approved trial shortlist: retain only these 19 stages, in requested order.
+const retainedNames=["Ձուկ","Թիթեռիկ","Տուն","Ծաղիկ","Խնձոր","Տանձ","Գազար","Արև","Ամպ","Ծառ","Տնակ՝ ծխնելույզով","Ավտոմեքենա","Օդապարիկ","Սրտիկ","Շնիկ","Կատվի ձագ","Նապաստակ՝ քո նկարով (փորձնական)","Ճուտիկ","Նավակ"];
+const selectedLevels=retainedNames.map(name=>levels.find(level=>level.name===name));
+if(selectedLevels.some(level=>!level))throw new Error('Missing requested coloring stage');
+selectedLevels[16].name='Նապաստակ';
+levels.splice(0,levels.length,...selectedLevels);
+
 const paletteColors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#111111','#ffffff','#00bcd4','#8bc34a'];
 const svg=document.getElementById('drawing'),board=document.getElementById('board'),marker=document.getElementById('marker'),palette=document.getElementById('palette'),hint=document.getElementById('hint'),next=document.getElementById('next'),status=document.getElementById('status');let index=0,phase='trace',step=0,progress=0,selected=paletteColors[0],drawing=false,tracePath=null,traceLength=0,parts=[],filled=new Set(),soundCtx;
 function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in attrs)n.setAttribute(k,attrs[k]);return n}
