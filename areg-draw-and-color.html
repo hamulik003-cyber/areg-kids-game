@@ -400,7 +400,7 @@ function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in at
 // Soft, event-specific sound palette inspired by the supplied gameplay reference.
 // All audio is generated locally and works offline in iPhone PWA after first touch.
 let audioEnabled=true, lastBrushSound=0;
-function audioContext(){try{soundCtx??=new(window.AudioContext||window.webkitAudioContext)();if(soundCtx.state==='suspended')soundCtx.resume();return soundCtx}catch(e){return null}}
+function audioContext(){try{soundCtx??=new(window.AudioContext||window.webkitAudioContext)();if(soundCtx.state!=='running')soundCtx.resume().catch(()=>{});return soundCtx}catch(e){return null}}
 function tone(freq,duration=.09,volume=.045,shape='sine',offset=0,endFreq=0){
  if(!audioEnabled)return;const c=audioContext();if(!c)return;
  const t=c.currentTime+offset,o=c.createOscillator(),g=c.createGain();o.type=shape;
@@ -453,7 +453,7 @@ function preparePenSound(){
  // Smooth colored noise: paper friction rather than a musical beep.
  let smooth=0;for(let i=0;i<data.length;i++){smooth=smooth*.91+(Math.random()*2-1)*.09;data[i]=smooth*.40}
  penNoise=c.createBufferSource();penNoise.buffer=buf;penNoise.loop=true;
- penFilter=c.createBiquadFilter();penFilter.type='lowpass';penFilter.frequency.value=510;penFilter.Q.value=.5;
+ penFilter=c.createBiquadFilter();penFilter.type='lowpass';penFilter.frequency.value=900;penFilter.Q.value=.5;
  penGain=c.createGain();penGain.gain.value=0;
  penNoise.connect(penFilter);penFilter.connect(penGain);penGain.connect(c.destination);penNoise.start();
  return true;
@@ -466,18 +466,18 @@ function ensureColorSound(){
  const buffer=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=buffer.getChannelData(0);
  let low=0;for(let i=0;i<d.length;i++){low=low*.95+(Math.random()*2-1)*.05;d[i]=low*.48}
  colorSoundNode=c.createBufferSource();colorSoundNode.buffer=buffer;colorSoundNode.loop=true;
- colorSoundFilter=c.createBiquadFilter();colorSoundFilter.type='lowpass';colorSoundFilter.frequency.value=410;
+ colorSoundFilter=c.createBiquadFilter();colorSoundFilter.type='lowpass';colorSoundFilter.frequency.value=900;
  colorSoundGain=c.createGain();colorSoundGain.gain.value=0;
  colorSoundNode.connect(colorSoundFilter);colorSoundFilter.connect(colorSoundGain);colorSoundGain.connect(c.destination);colorSoundNode.start();
  return true;
 }
-function startColorSound(){if(!ensureColorSound())return;colorSoundActive=true;const t=soundCtx.currentTime;colorSoundGain.gain.cancelScheduledValues(t);colorSoundGain.gain.setTargetAtTime(.055,t,.035)}
+function startColorSound(){if(!ensureColorSound())return;colorSoundActive=true;const t=soundCtx.currentTime;colorSoundGain.gain.cancelScheduledValues(t);colorSoundGain.gain.setTargetAtTime(.16,t,.018)}
 function stopColorSound(){colorSoundActive=false;if(!colorSoundGain||!soundCtx)return;const t=soundCtx.currentTime;colorSoundGain.gain.cancelScheduledValues(t);colorSoundGain.gain.setTargetAtTime(0,t,.016)}
 function startRealTraceSound(){
  if(!preparePenSound())return;
  penActive=true;const c=audioContext();if(!c)return;
  penGain.gain.cancelScheduledValues(c.currentTime);
- penGain.gain.setTargetAtTime(.07,c.currentTime,.035);
+ penGain.gain.setTargetAtTime(.16,c.currentTime,.018);
 }
 function stopRealTraceSound(){
  penActive=false;if(!penGain)return;
@@ -547,7 +547,7 @@ function startPointForRegion(i){const cells=regionCells[i],b=parts[i].getBBox(),
 function limitToRegion(p,from){const shape=parts[targetRegion];if(shape.isPointInFill(new DOMPoint(p.x,p.y)))return p;let a=from,b=p;for(let k=0;k<7;k++){const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};if(shape.isPointInFill(new DOMPoint(mid.x,mid.y)))a=mid;else b=mid}return a}
 function beginColor(e){if(phase!=='color'||colorPointer!==null||e.target.closest('button, #palette, input, label, select'))return;startColorSound();
  e.preventDefault();colorPointer=e.pointerId;activeRegion=targetRegion;lastPoint=null;currentStroke=null;currentStrokeD='';strokePoints=0;
- colorFingerStart=pos(e);colorPenStart=startPointForRegion(targetRegion);colorPenPosition={...colorPenStart};
+ colorFingerStart=pos(e);colorPenStart={...colorFingerStart};colorPenPosition={...colorFingerStart};
  board.setPointerCapture(e.pointerId);markerMatrix=svg.getScreenCTM();markerRect=board.getBoundingClientRect();markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
 function flushColorFrame(){colorFrame=0;if(!pendingColorPoint||colorPointer===null||phase!=='color')return;
  const desired=pendingColorPoint;pendingColorPoint=null;
@@ -555,7 +555,7 @@ function flushColorFrame(){colorFrame=0;if(!pendingColorPoint||colorPointer===nu
  colorPenPosition=desired;markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)
 }
 function moveColor(e){if(colorPointer!==e.pointerId||phase!=='color')return;e.preventDefault();
- const finger=pos(e);pendingColorPoint={x:colorPenStart.x+finger.x-colorFingerStart.x,y:colorPenStart.y+finger.y-colorFingerStart.y};
+ const finger=pos(e);pendingColorPoint=finger;
  if(!colorFrame)colorFrame=requestAnimationFrame(flushColorFrame)
 }
 function endColor(e){if(colorPointer!==e.pointerId)return;if(colorFrame){cancelAnimationFrame(colorFrame);colorFrame=0}if(pendingColorPoint)flushColorFrame();pendingColorPoint=null;markerMatrix=null;markerRect=null;stopColorSound();
