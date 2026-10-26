@@ -286,9 +286,38 @@ function sound(event){
  else if(event==='next'){tone(460,.07,.03,'triangle',0,620)}
 }
 function beep(f=520){sound(f>=850?'finish':f>=750?'ready':f>=680?'trace':'confirm')}
-const realTraceSound=new Audio('data:audio/mpeg;base64,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');realTraceSound.loop=true;realTraceSound.preload='auto';realTraceSound.volume=.85;
-function startRealTraceSound(){try{realTraceSound.currentTime=0;const p=realTraceSound.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
-function stopRealTraceSound(){realTraceSound.pause();try{realTraceSound.currentTime=0}catch(e){}}
+// Quiet continuous marker-on-paper texture; starts and stops with actual drawing.
+let penNoise=null,penGain=null,penFilter=null,penActive=false,penLast=0;
+function preparePenSound(){
+ const c=audioContext();if(!c)return false;
+ if(penNoise)return true;
+ const buf=c.createBuffer(1,c.sampleRate*2,c.sampleRate),data=buf.getChannelData(0);
+ // Smooth colored noise: paper friction rather than a musical beep.
+ let smooth=0;for(let i=0;i<data.length;i++){smooth=smooth*.68+(Math.random()*2-1)*.32;data[i]=smooth*.55}
+ penNoise=c.createBufferSource();penNoise.buffer=buf;penNoise.loop=true;
+ penFilter=c.createBiquadFilter();penFilter.type='bandpass';penFilter.frequency.value=920;penFilter.Q.value=.65;
+ penGain=c.createGain();penGain.gain.value=0;
+ penNoise.connect(penFilter);penFilter.connect(penGain);penGain.connect(c.destination);penNoise.start();
+ return true;
+}
+function startRealTraceSound(){
+ if(!preparePenSound())return;
+ penActive=true;const c=audioContext();if(!c)return;
+ penGain.gain.cancelScheduledValues(c.currentTime);
+ penGain.gain.setTargetAtTime(.11,c.currentTime,.018);
+}
+function stopRealTraceSound(){
+ penActive=false;if(!penGain)return;
+ const c=soundCtx;if(!c)return;
+ penGain.gain.cancelScheduledValues(c.currentTime);
+ penGain.gain.setTargetAtTime(0,c.currentTime,.012);
+}
+function updatePenSound(dt){
+ if(!penActive||!penFilter||!penGain||!soundCtx)return;
+ // Subtle fluctuations follow each rendered stroke rather than a looping recording.
+ const t=soundCtx.currentTime;
+ penFilter.frequency.setTargetAtTime(800+Math.min(220,Math.max(0,dt)*3400),t,.045);
+}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRealTraceSound()});
 function setMarker(e){const r=board.getBoundingClientRect();marker.style.left=(e.clientX-r.left-12)+'px';marker.style.top=(e.clientY-r.top-10)+'px';marker.style.display='block'}
 function choose(c){if(selected!==c)sound('pick');selected=c;[...palette.children].forEach(b=>b.classList.toggle('chosen',b.dataset.color===c))}
@@ -302,7 +331,7 @@ function stopAuto(){stopRealTraceSound();drawing=false;pointerId=null;lastFrame=
 function autoTrace(t){if(!drawing||phase!=='trace')return;
  const dt=lastFrame?Math.min((t-lastFrame)/1000,.05):0;lastFrame=t;
  // While a finger stays on screen, the pen follows the line automatically.
- progress=Math.min(traceLength,progress+Math.max(0,dt)*245);
+ progress=Math.min(traceLength,progress+Math.max(0,dt)*245);updatePenSound(dt);
  tracePath.style.strokeDashoffset=Math.max(0,traceLength-progress);
  const p=tracePath.getPointAtLength(progress),screen=p.matrixTransform(svg.getScreenCTM()),rect=board.getBoundingClientRect();
  marker.style.left=(screen.x-rect.left-12)+'px';marker.style.top=(screen.y-rect.top-10)+'px';marker.style.display='block';
