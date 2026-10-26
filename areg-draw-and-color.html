@@ -327,7 +327,7 @@ levels.push(
 {"name":"Կիսալուսին","paths":["M204 93 C138 107 91 164 91 232 C91 300 142 352 209 352 C249 352 275 332 289 305 C264 322 234 326 209 314 C166 294 146 254 150 215 C153 169 173 124 204 93 Z","M100 133 L109 152 L130 155 L115 169 L118 191 L100 181 L82 191 L85 169 L70 155 L91 152 Z","M248 143 L254 157 L269 159 L258 169 L260 185 L248 177 L236 185 L238 169 L227 159 L242 157 Z","M260 224 L266 235 L279 237 L270 247 L272 260 L260 253 L248 260 L250 247 L241 237 L254 235 Z"],"colors":["#f8dc86","#f8e6ad","#d1e6f8","#f2e2a7"]}
 );
 levels.splice(0,levels.length,...levels.filter(level=>!['Փետուր','Չուպա-չուպս','Ձյան փաթիլ'].includes(level.name)));
-const paletteColors=['#ff303f','#ff8b1a','#ffe028','#21cf62','#198cff','#974aff','#ff38ad','#9c5837','#252638','#ffffff','#03d5e5','#a3e52b'];
+const paletteColors=['#ff303f','#ff8b1a','#ffe028','#21cf62','#198cff','#974aff','#ff38ad','#9c5837','#252638','#ff6bca','#03d5e5','#a3e52b'];
 const svg=document.getElementById('drawing'),board=document.getElementById('board'),marker=document.getElementById('marker'),palette=document.getElementById('palette'),hint=document.getElementById('hint'),next=document.getElementById('next'),status=document.getElementById('status');let index=0,phase='trace',step=0,progress=0,selected=paletteColors[0],drawing=false,tracePath=null,traceLength=0,parts=[],filled=new Set(),soundCtx;
 function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in attrs)n.setAttribute(k,attrs[k]);return n}
 // Soft, event-specific sound palette inspired by the supplied gameplay reference.
@@ -344,38 +344,37 @@ function tone(freq,duration=.09,volume=.045,shape='sine',offset=0,endFreq=0){
 }
 // Soft wooden-marimba-like completion cues: low-volume, rounded attacks, no piercing highs.
 // A cohesive, quiet set of rounded toy-chime cues for each game action.
-// Completely new soft tactile sound family: felt, puff and wooden pop (no note sequences).
-let softSamples={};
-function softSample(kind){
- const c=audioContext();if(!c)return null;
- if(softSamples[kind])return softSamples[kind];
- const spec={pick:[.095,280,.018],trace:[.13,200,.018],ready:[.25,360,.026],confirm:[.17,260,.022],finish:[.40,330,.030],next:[.20,230,.022]}[kind]||[.12,250,.018];
- const [duration,center,volume]=spec,rate=c.sampleRate,len=Math.ceil(rate*duration),buffer=c.createBuffer(1,len,rate),d=buffer.getChannelData(0);
- let low=0,low2=0;
- for(let i=0;i<len;i++){
-   const t=i/rate,u=i/len,noise=Math.random()*2-1;
-   low=low*.92+noise*.08;low2=low2*.965+low*.035;
-   const envelope=Math.pow(Math.min(1,t/.025),1.5)*Math.pow(1-u,kind==='finish'?2:3);
-   const wobble=Math.sin(2*Math.PI*(center*t-60*t*t))*Math.exp(-t*15);
-   d[i]=(low*.70+low2*.75+wobble*.09)*envelope*volume;
- }
- softSamples[kind]=buffer;return buffer;
-}
-function softTap(kind,offset=0){
- const c=audioContext(),buffer=softSample(kind);if(!c||!buffer)return;
- const src=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();
- src.buffer=buffer;filter.type='lowpass';filter.frequency.value=kind==='finish'?580:kind==='ready'?520:420;
- gain.gain.value=.65;src.connect(filter);filter.connect(gain);gain.connect(c.destination);
- src.start(c.currentTime+offset);
+// Playful cartoon boings, bubbles and pops, with soft volume and no external assets.
+function cartoonSound(kind,delay=0){
+ const c=audioContext();if(!c)return;
+ const settings={
+ pick:[410,650,.115,.045,'sine'],
+ trace:[340,470,.16,.04,'sine'],
+ ready:[310,570,.24,.055,'triangle'],
+ confirm:[520,370,.19,.05,'sine'],
+ finish:[290,680,.34,.065,'sine'],
+ next:[560,320,.23,.05,'triangle']
+ };
+ const [from,to,duration,volume,wave]=settings[kind]||settings.pick;
+ const t=c.currentTime+delay,osc=c.createOscillator(),gain=c.createGain(),filter=c.createBiquadFilter();
+ osc.type=wave;osc.frequency.setValueAtTime(from,t);
+ osc.frequency.exponentialRampToValueAtTime(to,t+duration*.70);
+ osc.frequency.exponentialRampToValueAtTime(Math.max(100,to*.92),t+duration);
+ filter.type='lowpass';filter.frequency.value=1000;filter.Q.value=.5;
+ gain.gain.setValueAtTime(.00001,t);
+ gain.gain.exponentialRampToValueAtTime(volume,t+.022);
+ gain.gain.exponentialRampToValueAtTime(.00001,t+duration);
+ osc.connect(filter);filter.connect(gain);gain.connect(c.destination);
+ osc.start(t);osc.stop(t+duration+.02);
 }
 function sound(event){
  if(event==='brush')return;
- if(event==='pick')softTap('pick');
- else if(event==='trace')softTap('trace');
- else if(event==='ready')softTap('ready');
- else if(event==='confirm')softTap('confirm');
- else if(event==='finish'){softTap('ready');softTap('finish',.16)}
- else if(event==='next')softTap('next');
+ if(event==='pick')cartoonSound('pick');
+ else if(event==='trace')cartoonSound('trace');
+ else if(event==='ready'){cartoonSound('ready');cartoonSound('pick',.16)}
+ else if(event==='confirm')cartoonSound('confirm');
+ else if(event==='finish'){cartoonSound('ready');cartoonSound('finish',.19);cartoonSound('pick',.43)}
+ else if(event==='next')cartoonSound('next');
 }
 function beep(f=520){sound(f>=850?'finish':f>=750?'ready':f>=680?'trace':'confirm')}
 // Quiet continuous marker-on-paper texture; starts and stops with actual drawing.
@@ -387,7 +386,7 @@ function preparePenSound(){
  // Smooth colored noise: paper friction rather than a musical beep.
  let smooth=0;for(let i=0;i<data.length;i++){smooth=smooth*.91+(Math.random()*2-1)*.09;data[i]=smooth*.40}
  penNoise=c.createBufferSource();penNoise.buffer=buf;penNoise.loop=true;
- penFilter=c.createBiquadFilter();penFilter.type='lowpass';penFilter.frequency.value=360;penFilter.Q.value=.5;
+ penFilter=c.createBiquadFilter();penFilter.type='lowpass';penFilter.frequency.value=510;penFilter.Q.value=.5;
  penGain=c.createGain();penGain.gain.value=0;
  penNoise.connect(penFilter);penFilter.connect(penGain);penGain.connect(c.destination);penNoise.start();
  return true;
@@ -400,7 +399,7 @@ function ensureColorSound(){
  const buffer=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=buffer.getChannelData(0);
  let low=0;for(let i=0;i<d.length;i++){low=low*.95+(Math.random()*2-1)*.05;d[i]=low*.48}
  colorSoundNode=c.createBufferSource();colorSoundNode.buffer=buffer;colorSoundNode.loop=true;
- colorSoundFilter=c.createBiquadFilter();colorSoundFilter.type='lowpass';colorSoundFilter.frequency.value=290;
+ colorSoundFilter=c.createBiquadFilter();colorSoundFilter.type='lowpass';colorSoundFilter.frequency.value=410;
  colorSoundGain=c.createGain();colorSoundGain.gain.value=0;
  colorSoundNode.connect(colorSoundFilter);colorSoundFilter.connect(colorSoundGain);colorSoundGain.connect(c.destination);colorSoundNode.start();
  return true;
@@ -411,7 +410,7 @@ function startRealTraceSound(){
  if(!preparePenSound())return;
  penActive=true;const c=audioContext();if(!c)return;
  penGain.gain.cancelScheduledValues(c.currentTime);
- penGain.gain.setTargetAtTime(.06,c.currentTime,.035);
+ penGain.gain.setTargetAtTime(.07,c.currentTime,.035);
 }
 function stopRealTraceSound(){
  penActive=false;if(!penGain)return;
@@ -423,7 +422,7 @@ function updatePenSound(dt){
  if(!penActive||!penFilter||!penGain||!soundCtx)return;
  // Subtle fluctuations follow each rendered stroke rather than a looping recording.
  const t=soundCtx.currentTime;
- penFilter.frequency.setTargetAtTime(330+Math.min(70,Math.max(0,dt)*1200),t,.045);
+ penFilter.frequency.setTargetAtTime(480+Math.min(90,Math.max(0,dt)*1200),t,.045);
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopRealTraceSound();stopColorSound()}});
 function setMarker(e){const r=board.getBoundingClientRect();marker.style.left=(e.clientX-r.left-12)+'px';marker.style.top=(e.clientY-r.top-10)+'px';marker.style.display='block'}
