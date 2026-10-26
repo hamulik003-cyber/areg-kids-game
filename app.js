@@ -460,8 +460,7 @@
         {id:'paint',label:'Գունավորիր · ASMR',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Ստեղծել երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Իմ ավտոլվացումը',thumb:'create-game-3.jpg',kind:'mix'},
-        {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'},
-        {id:'little-mechanic',label:'Փոքրիկ մեխանիկ',thumb:'create-game-2.jpg',kind:'littleMechanic'}
+        {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
     magic:{
@@ -1768,7 +1767,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,colorBlast:gameColorBlast,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,drawColor:gameDrawColor,littleMechanic:gameLittleMechanic,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,colorBlast:gameColorBlast,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,drawColor:gameDrawColor,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
