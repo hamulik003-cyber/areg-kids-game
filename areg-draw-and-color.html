@@ -523,8 +523,8 @@ function startColor(){stopAuto();marker.style.left='0';marker.style.top='0';mark
  const g=el('g',{'clip-path':'url(#color-mask-'+i+')'});svg.append(g);regionStrokes.push(g);
  const outline=el('path',{d,class:'outline'});svg.append(outline);
  const b=shape.getBBox(),cells=[];for(let y=b.y+5;y<b.y+b.height;y+=12)for(let x=b.x+5;x<b.x+b.width;x+=12){if(shape.isPointInFill(new DOMPoint(x,y)))cells.push({x,y})}regionCells.push(cells);regionCovered.push(new Set());const bins=new Map();cells.forEach((c,j)=>{const key=Math.floor(c.x/32)+','+Math.floor(c.y/32);if(!bins.has(key))bins.set(key,[]);bins.get(key).push(j)});regionCellBins.push(bins);
- });palette.style.visibility='visible';showTarget();}
-function showTarget(){if(guide){guide.remove();guide=null}if(targetRegion>=parts.length)return;const shape=parts[targetRegion],b=shape.getBBox();guide=el('path',{d:levels[index].paths[targetRegion],fill:'#ffde66','fill-opacity':'.18',stroke:'#ffb400','stroke-width':'5','stroke-dasharray':'9 9','stroke-linecap':'round','pointer-events':'none'});guide.classList.add('color-guide');svg.append(guide);hint.textContent='Ընտրիր գույնը, մատդ դիր ցանկացած տեղ և շարժիր';status.textContent='Հերթը՝ '+(targetRegion+1)+' / '+parts.length+' հատված';}
+ });for(const layer of regionStrokes)svg.append(layer);palette.style.visibility='visible';showTarget();}
+function showTarget(){if(guide){guide.remove();guide=null}if(targetRegion>=parts.length)return;const shape=parts[targetRegion],b=shape.getBBox();guide=el('path',{d:levels[index].paths[targetRegion],fill:'none',stroke:'#ffb400','stroke-width':'5','stroke-dasharray':'9 9','stroke-linecap':'round','pointer-events':'none'});guide.classList.add('color-guide');svg.insertBefore(guide,regionStrokes[0]||null);hint.textContent='Ընտրիր գույնը, մատդ դիր ցանկացած տեղ և շարժիր';status.textContent='Հերթը՝ '+(targetRegion+1)+' / '+parts.length+' հատված';}
 function getRegion(p){for(let i=parts.length-1;i>=0;i--)if(parts[i].isPointInFill(new DOMPoint(p.x,p.y)))return i;return -1}
 function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
  // Update ONE continuous SVG stroke per touch, avoiding iOS WebKit seams
