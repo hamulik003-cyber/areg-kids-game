@@ -542,17 +542,19 @@ function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
  if(phase==='color'&&readyRegion!==targetRegion&&cells.length&&covered.size/cells.length>=.90){readyRegion=targetRegion;readyColor=selected;confirmColor.classList.add('ready');hint.textContent='Ապրե՛ս։ Սեղմիր կանաչ նշանը՝ շարունակելու համար';beep(760)}
  lastPoint=p;
 }
-function markerAtSvg(p){const q=new DOMPoint(p.x,p.y).matrixTransform(markerMatrix||svg.getScreenCTM()),r=markerRect||board.getBoundingClientRect();marker.style.transform='translate3d('+(q.x-r.left-12)+'px,'+(q.y-r.top-10)+'px,0)';marker.style.display='block'}
+function markerAtSvg(p){const q=new DOMPoint(p.x,p.y).matrixTransform(markerMatrix||svg.getScreenCTM()),r=markerRect||board.getBoundingClientRect();marker.style.left='0';marker.style.top='0';marker.style.transform='translate3d('+(q.x-r.left-12)+'px,'+(q.y-r.top-10)+'px,0)';marker.style.display='block'}
 function startPointForRegion(i){const cells=regionCells[i],b=parts[i].getBBox(),cx=b.x+b.width/2,cy=b.y+b.height/2;let best=null,dist=Infinity;for(const c of cells){const d=Math.hypot(c.x-cx,c.y-cy);if(d<dist){dist=d;best=c}}return best||{x:cx,y:cy}}
 function limitToRegion(p,from){const shape=parts[targetRegion];if(shape.isPointInFill(new DOMPoint(p.x,p.y)))return p;let a=from,b=p;for(let k=0;k<7;k++){const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};if(shape.isPointInFill(new DOMPoint(mid.x,mid.y)))a=mid;else b=mid}return a}
+function nearestRegionPoint(p){const shape=parts[targetRegion];if(shape.isPointInFill(new DOMPoint(p.x,p.y)))return p;const cells=regionCells[targetRegion]||[];let best=null,dist=Infinity;for(const c of cells){const d=(c.x-p.x)**2+(c.y-p.y)**2;if(d<dist){dist=d;best=c}}return best||startPointForRegion(targetRegion)}
+function confineRegionPoint(p,previous){const shape=parts[targetRegion];if(shape.isPointInFill(new DOMPoint(p.x,p.y)))return p;const start=previous&&shape.isPointInFill(new DOMPoint(previous.x,previous.y))?previous:nearestRegionPoint(p);let a=start,b=p;for(let k=0;k<12;k++){const m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};if(shape.isPointInFill(new DOMPoint(m.x,m.y)))a=m;else b=m}return a}
 function beginColor(e){if(phase!=='color'||colorPointer!==null||e.target.closest('button, #palette, input, label, select'))return;startColorSound();
  e.preventDefault();colorPointer=e.pointerId;activeRegion=targetRegion;lastPoint=null;currentStroke=null;currentStrokeD='';strokePoints=0;
- colorFingerStart=pos(e);colorPenStart={...colorFingerStart};colorPenPosition={...colorFingerStart};
+ colorFingerStart=pos(e);colorPenStart={...colorFingerStart};colorPenPosition=nearestRegionPoint(colorFingerStart);
  board.setPointerCapture(e.pointerId);markerMatrix=svg.getScreenCTM();markerRect=board.getBoundingClientRect();markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
 function flushColorFrame(){colorFrame=0;if(!pendingColorPoint||colorPointer===null||phase!=='color')return;
  const desired=pendingColorPoint;pendingColorPoint=null;
  // The clipPath confines paint; never magnetically clamp the pen to a region edge.
- colorPenPosition=desired;markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)
+ colorPenPosition=confineRegionPoint(desired,colorPenPosition);markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)
 }
 function moveColor(e){if(colorPointer!==e.pointerId||phase!=='color')return;e.preventDefault();
  const finger=pos(e);pendingColorPoint=finger;
