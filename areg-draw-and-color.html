@@ -264,9 +264,30 @@ levels.splice(0,levels.length,...selectedLevels);
 const paletteColors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#111111','#ffffff','#00bcd4','#8bc34a'];
 const svg=document.getElementById('drawing'),board=document.getElementById('board'),marker=document.getElementById('marker'),palette=document.getElementById('palette'),hint=document.getElementById('hint'),next=document.getElementById('next'),status=document.getElementById('status');let index=0,phase='trace',step=0,progress=0,selected=paletteColors[0],drawing=false,tracePath=null,traceLength=0,parts=[],filled=new Set(),soundCtx;
 function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in attrs)n.setAttribute(k,attrs[k]);return n}
-function beep(f=520){try{soundCtx??=new(window.AudioContext||window.webkitAudioContext)();const o=soundCtx.createOscillator(),g=soundCtx.createGain();o.type='sine';o.frequency.setValueAtTime(f,soundCtx.currentTime);g.gain.setValueAtTime(.06,soundCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,soundCtx.currentTime+.13);o.connect(g);g.connect(soundCtx.destination);o.start();o.stop(soundCtx.currentTime+.14)}catch(e){}}
+// Soft, event-specific sound palette inspired by the supplied gameplay reference.
+// All audio is generated locally and works offline in iPhone PWA after first touch.
+let audioEnabled=true, lastBrushSound=0;
+function audioContext(){try{soundCtx??=new(window.AudioContext||window.webkitAudioContext)();if(soundCtx.state==='suspended')soundCtx.resume();return soundCtx}catch(e){return null}}
+function tone(freq,duration=.09,volume=.045,shape='sine',offset=0,endFreq=0){
+ if(!audioEnabled)return;const c=audioContext();if(!c)return;
+ const t=c.currentTime+offset,o=c.createOscillator(),g=c.createGain();o.type=shape;
+ o.frequency.setValueAtTime(freq,t);if(endFreq)o.frequency.exponentialRampToValueAtTime(Math.max(50,endFreq),t+duration);
+ g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(volume,t+.008);
+ g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+ o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.01);
+}
+function sound(event){
+ if(event==='brush'){const now=performance.now();if(now-lastBrushSound<130)return;lastBrushSound=now;tone(370,.045,.012,'triangle',0,310)}
+ else if(event==='pick'){tone(600,.075,.036,'sine',0,790)}
+ else if(event==='trace'){tone(510,.09,.045,'sine');tone(700,.12,.04,'sine',.08)}
+ else if(event==='ready'){tone(670,.09,.05,'sine');tone(900,.15,.05,'sine',.09)}
+ else if(event==='confirm'){tone(620,.09,.04,'sine');tone(840,.16,.04,'sine',.09)}
+ else if(event==='finish'){tone(520,.12,.055);tone(660,.12,.055,'sine',.12);tone(880,.24,.055,'sine',.24)}
+ else if(event==='next'){tone(460,.07,.03,'triangle',0,620)}
+}
+function beep(f=520){sound(f>=850?'finish':f>=750?'ready':f>=680?'trace':'confirm')}
 function setMarker(e){const r=board.getBoundingClientRect();marker.style.left=(e.clientX-r.left-12)+'px';marker.style.top=(e.clientY-r.top-10)+'px';marker.style.display='block'}
-function choose(c){selected=c;[...palette.children].forEach(b=>b.classList.toggle('chosen',b.dataset.color===c))}
+function choose(c){if(selected!==c)sound('pick');selected=c;[...palette.children].forEach(b=>b.classList.toggle('chosen',b.dataset.color===c))}
 paletteColors.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.dataset.color=c;b.style.background=c;b.setAttribute('aria-label','Ընտրել գույն');b.addEventListener('click',()=>choose(c));palette.append(b)});choose(selected);
 function centerArtwork(){const paths=levels[index].paths;let bounds={x:Infinity,y:Infinity,right:-Infinity,bottom:-Infinity};const probe=el('g');svg.append(probe);for(const d of paths){const p=el('path',{d});probe.append(p);const b=p.getBBox();bounds.x=Math.min(bounds.x,b.x);bounds.y=Math.min(bounds.y,b.y);bounds.right=Math.max(bounds.right,b.x+b.width);bounds.bottom=Math.max(bounds.bottom,b.y+b.height)}probe.remove();const w=bounds.right-bounds.x,h=bounds.bottom-bounds.y;const frameW=300,frameH=405;const cx=(bounds.x+bounds.right)/2,cy=(bounds.y+bounds.bottom)/2;svg.setAttribute('viewBox',[cx-frameW/2,cy-frameH/2,frameW,frameH].join(' '));svg.setAttribute('preserveAspectRatio','xMidYMid meet')}
 function load(){document.getElementById('stageJump').value=String(index);stopAuto();colorPointer=null;activeRegion=-1;readyRegion=-1;confirmColor.classList.remove('ready');phase='trace';step=0;progress=0;filled.clear();parts=[];svg.replaceChildren();next.style.display='none';palette.style.visibility='hidden';marker.style.display='none';document.getElementById('levelLabel').textContent='ՓՈՒԼ '+(index+1);hint.textContent='Հետևիր կետագծին՝ ֆլոմաստերով';status.textContent=levels[index].name;centerArtwork();startTrace()}
@@ -277,7 +298,7 @@ function stopAuto(){drawing=false;pointerId=null;lastFrame=0;if(frame)cancelAnim
 function autoTrace(t){if(!drawing||phase!=='trace')return;
  const dt=lastFrame?Math.min((t-lastFrame)/1000,.05):0;lastFrame=t;
  // While a finger stays on screen, the pen follows the line automatically.
- progress=Math.min(traceLength,progress+Math.max(0,dt)*245);
+ progress=Math.min(traceLength,progress+Math.max(0,dt)*245);if(dt>0)sound('brush');
  tracePath.style.strokeDashoffset=Math.max(0,traceLength-progress);
  const p=tracePath.getPointAtLength(progress),screen=p.matrixTransform(svg.getScreenCTM()),rect=board.getBoundingClientRect();
  marker.style.left=(screen.x-rect.left-12)+'px';marker.style.top=(screen.y-rect.top-10)+'px';marker.style.display='block';
@@ -296,7 +317,7 @@ function startColor(){stopAuto();phase='color';svg.replaceChildren();parts=[];re
  });palette.style.visibility='visible';showTarget();}
 function showTarget(){if(guide){guide.remove();guide=null}if(targetRegion>=parts.length)return;const shape=parts[targetRegion],b=shape.getBBox();guide=el('path',{d:levels[index].paths[targetRegion],fill:'#ffde66','fill-opacity':'.18',stroke:'#ffb400','stroke-width':'5','stroke-dasharray':'9 9','stroke-linecap':'round','pointer-events':'none'});guide.classList.add('color-guide');svg.append(guide);hint.textContent='Ընտրիր գույնը, մատդ դիր ցանկացած տեղ և շարժիր';status.textContent='Հերթը՝ '+(targetRegion+1)+' / '+parts.length+' հատված';}
 function getRegion(p){for(let i=parts.length-1;i>=0;i--)if(parts[i].isPointInFill(new DOMPoint(p.x,p.y)))return i;return -1}
-function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
+function drawColorStroke(p){if(activeRegion<0)return;sound('brush');const a=lastPoint||p;
  // Update ONE continuous SVG stroke per touch, avoiding iOS WebKit seams
  // caused by hundreds of overlapping tiny clipped paths.
  if(!currentStroke){currentStroke=el('path',{fill:'none',stroke:selected,'stroke-width':'26','stroke-linecap':'round','stroke-linejoin':'round'});regionStrokes[activeRegion].append(currentStroke);currentStrokeD='M'+p.x.toFixed(2)+' '+p.y.toFixed(2)+' L'+p.x.toFixed(2)+' '+p.y.toFixed(2)}
@@ -328,14 +349,14 @@ confirmColor.addEventListener('click',e=>{e.stopPropagation();
  // A second finger may tap the check while the painting finger is still down.
  if(colorPointer!==null){try{board.releasePointerCapture(colorPointer)}catch(e){}colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none'}
  const i=readyRegion;confirmColor.classList.remove('ready');readyRegion=-1;
- regionComplete.add(i);beep(690);if(guide){guide.remove();guide=null}
+ regionComplete.add(i);sound('confirm');if(guide){guide.remove();guide=null}
  parts[i].setAttribute('fill',readyColor||selected);
- if(regionComplete.size===parts.length){phase='complete';hint.textContent='Ապրե՛ս, նկարը պատրաստ է!';next.style.display='block';beep(880);setTimeout(()=>beep(1080),160)}
+ if(regionComplete.size===parts.length){phase='complete';hint.textContent='Ապրե՛ս, նկարը պատրաստ է!';next.style.display='block';sound('finish')}
  else{targetRegion++;showTarget()}
 });
 document.addEventListener('selectstart',e=>e.preventDefault());document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});board.addEventListener('pointerdown',e=>{if(phase==='color')return;if(phase!=='trace'||drawing)return;e.preventDefault();drawing=true;pointerId=e.pointerId;board.setPointerCapture(e.pointerId);lastFrame=0;const p=tracePath.getPointAtLength(progress),q=p.matrixTransform(svg.getScreenCTM()),rect=board.getBoundingClientRect();marker.style.left=(q.x-rect.left-12)+'px';marker.style.top=(q.y-rect.top-10)+'px';marker.style.display='block';frame=requestAnimationFrame(autoTrace)});board.addEventListener('pointermove',e=>{if(phase==='color')return;if(phase==='trace'&&drawing)e.preventDefault()});board.addEventListener('pointerup',e=>{if(colorPointer===e.pointerId){endColor(e);return}if(e.pointerId===pointerId)stopAuto()});board.addEventListener('pointercancel',e=>{if(colorPointer===e.pointerId){endColor(e);return}if(e.pointerId===pointerId)stopAuto()});board.addEventListener('lostpointercapture',()=>{if(drawing)stopAuto();if(colorPointer!==null)endColor({pointerId:colorPointer})});
 document.addEventListener('pointerdown',e=>{if(phase==='color')beginColor(e)},{passive:false});
 document.addEventListener('pointermove',e=>{if(phase==='color')moveColor(e)},{passive:false});
 document.addEventListener('pointerup',e=>{if(colorPointer===e.pointerId)endColor(e)});
-document.addEventListener('pointercancel',e=>{if(colorPointer===e.pointerId)endColor(e)});const stageJump=document.getElementById('stageJump');levels.forEach((l,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=(i+1)+'. '+l.name;stageJump.append(o)});stageJump.onchange=()=>{index=Number(stageJump.value);load()};next.onclick=()=>{index=(index+1)%levels.length;load()};document.getElementById('reset').onclick=load;document.getElementById('back').onclick=()=>{index=(index+levels.length-1)%levels.length;load()};load();
+document.addEventListener('pointercancel',e=>{if(colorPointer===e.pointerId)endColor(e)});const stageJump=document.getElementById('stageJump');levels.forEach((l,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=(i+1)+'. '+l.name;stageJump.append(o)});stageJump.onchange=()=>{sound('next');index=Number(stageJump.value);load()};next.onclick=()=>{sound('next');index=(index+1)%levels.length;load()};document.getElementById('reset').onclick=load;document.getElementById('back').onclick=()=>{index=(index+levels.length-1)%levels.length;load()};load();
 </script></body></html>
