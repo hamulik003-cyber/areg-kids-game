@@ -3183,18 +3183,6 @@
     gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
   }
 
-  function gameLittleMechanic(){
-    activityContent.replaceChildren();
-    const frame=document.createElement('iframe');
-    frame.className='mind-v4-frame';
-    frame.title='Փոքրիկ մեխանիկ';
-    frame.src='./areg-little-mechanic.html?v=1';
-    frame.setAttribute('loading','eager');
-    activityScreen.classList.add('areg-car-wash-mode');
-    activityContent.append(frame);
-    gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
-  }
-
   /* CREATIVITY */
   function gamePaint(){
     { const coloringFrame=document.createElement('iframe');
