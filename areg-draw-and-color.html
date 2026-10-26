@@ -499,7 +499,7 @@ const customWrap=document.createElement('label');customWrap.className='swatch rg
 const customInput=document.createElement('input');customInput.type='color';customInput.value='#a3e52b';customInput.setAttribute('aria-label','RGB գույնի ընտրություն');customInput.addEventListener('pointerdown',e=>{e.stopPropagation();marker.style.display='none'});customInput.addEventListener('pointermove',e=>e.stopPropagation());customInput.addEventListener('input',()=>{customWrap.dataset.color=customInput.value;choose(customInput.value)});customInput.addEventListener('change',()=>choose(customInput.value));
 customWrap.dataset.color=customInput.value;customWrap.addEventListener('pointerdown',e=>{e.stopPropagation();marker.style.display='none'});customWrap.append(customInput);palette.append(customWrap);choose(selected);
 function centerArtwork(){const paths=levels[index].paths;let bounds={x:Infinity,y:Infinity,right:-Infinity,bottom:-Infinity};const probe=el('g');svg.append(probe);for(const d of paths){const p=el('path',{d});probe.append(p);const b=p.getBBox();bounds.x=Math.min(bounds.x,b.x);bounds.y=Math.min(bounds.y,b.y);bounds.right=Math.max(bounds.right,b.x+b.width);bounds.bottom=Math.max(bounds.bottom,b.y+b.height)}probe.remove();const w=bounds.right-bounds.x,h=bounds.bottom-bounds.y;const frameW=300,frameH=405;const cx=(bounds.x+bounds.right)/2,cy=(bounds.y+bounds.bottom)/2;svg.setAttribute('viewBox',[cx-frameW/2,cy-frameH/2,frameW,frameH].join(' '));svg.setAttribute('preserveAspectRatio','xMidYMid meet')}
-function load(){stopColorSound();document.getElementById('stageJump').value=String(index);stopAuto();colorPointer=null;activeRegion=-1;readyRegion=-1;confirmColor.classList.remove('ready');phase='trace';step=0;progress=0;filled.clear();parts=[];svg.replaceChildren();next.style.display='none';palette.style.visibility='hidden';marker.style.display='none';document.getElementById('levelLabel').textContent='ՓՈՒԼ '+(index+1);hint.textContent='Հետևիր կետագծին՝ ֆլոմաստերով';status.textContent=levels[index].name;centerArtwork();startTrace()}
+function load(){if(colorFrame)cancelAnimationFrame(colorFrame);colorFrame=0;pendingColorPoint=null;markerMatrix=null;markerRect=null;stopColorSound();document.getElementById('stageJump').value=String(index);stopAuto();colorPointer=null;activeRegion=-1;readyRegion=-1;confirmColor.classList.remove('ready');phase='trace';step=0;progress=0;filled.clear();parts=[];svg.replaceChildren();next.style.display='none';palette.style.visibility='hidden';marker.style.display='none';document.getElementById('levelLabel').textContent='ՓՈՒԼ '+(index+1);hint.textContent='Հետևիր կետագծին՝ ֆլոմաստերով';status.textContent=levels[index].name;centerArtwork();startTrace()}
 function startTrace(){svg.replaceChildren();const paths=levels[index].paths;paths.forEach((d,i)=>{if(i<step)svg.append(el('path',{d,class:'outline'}))});const d=paths[step];tracePath=el('path',{d,class:'ghost'});svg.append(tracePath);const overlay=el('path',{d,class:'done'});svg.append(overlay);traceLength=overlay.getTotalLength();overlay.style.strokeDasharray=traceLength;overlay.style.strokeDashoffset=traceLength;tracePath=overlay;progress=0;const p=overlay.getPointAtLength(0);svg.append(el('circle',{id:'startDot',cx:p.x,cy:p.y,r:8}));hint.textContent='Պահիր մատդ էկրանին՝ ֆլոմաստերը ինքնուրույն կնկարի';status.textContent=(step+1)+' / '+paths.length+' ուրվագիծ'}
 function pos(e){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
 let frame=0,lastFrame=0,pointerId=null;
@@ -515,8 +515,8 @@ function autoTrace(t){if(!drawing||phase!=='trace')return;
  if(progress>=traceLength){stopRealTraceSound();beep(690);step++;if(step>=levels[index].paths.length){stopAuto();phase='traceReady';readyRegion=-2;confirmColor.classList.add('ready');hint.textContent='Գծագիրը պատրաստ է։ Սեղմիր կանաչ նշանը՝ ներկելու համար';status.textContent='Ուրվագիծն ավարտված է';return}startTrace();if(drawing)startRealTraceSound()}
  frame=requestAnimationFrame(autoTrace)
 }
-const confirmColor=document.getElementById('confirmColor');let readyRegion=-1,readyColor=null;let colorPointer=null,activeRegion=-1,lastPoint=null,brushLayer=null,regionMasks=[],regionStrokes=[],regionCells=[],regionCovered=[],regionComplete=new Set(),currentStroke=null,currentStrokeD='',targetRegion=0,guide=null,colorFingerStart=null,colorPenStart=null,colorPenPosition=null;
-function startColor(){stopAuto();phase='color';svg.replaceChildren();parts=[];regionMasks=[];regionStrokes=[];regionCells=[];regionCovered=[];regionComplete.clear();targetRegion=0;guide=null;readyRegion=-1;confirmColor.classList.remove('ready');
+const confirmColor=document.getElementById('confirmColor');let readyRegion=-1,readyColor=null;let colorPointer=null,activeRegion=-1,lastPoint=null,brushLayer=null,regionMasks=[],regionStrokes=[],regionCells=[],regionCovered=[],regionComplete=new Set(),currentStroke=null,currentStrokeD='',strokePoints=0,colorFrame=0,pendingColorPoint=null,markerMatrix=null,markerRect=null,targetRegion=0,guide=null,colorFingerStart=null,colorPenStart=null,colorPenPosition=null;
+function startColor(){stopAuto();marker.style.left='0';marker.style.top='0';marker.style.willChange='transform';phase='color';svg.replaceChildren();parts=[];regionMasks=[];regionStrokes=[];regionCells=[];regionCovered=[];regionComplete.clear();targetRegion=0;guide=null;readyRegion=-1;confirmColor.classList.remove('ready');
  const defs=el('defs');svg.append(defs);const paths=levels[index].paths;
  paths.forEach((d,i)=>{const cp=el('clipPath',{id:'color-mask-'+i,clipPathUnits:'userSpaceOnUse'});cp.append(el('path',{d}));defs.append(cp);
  const shape=el('path',{d,class:'area',fill:'#fff'});svg.append(shape);parts.push(shape);
@@ -529,8 +529,12 @@ function getRegion(p){for(let i=parts.length-1;i>=0;i--)if(parts[i].isPointInFil
 function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
  // Update ONE continuous SVG stroke per touch, avoiding iOS WebKit seams
  // caused by hundreds of overlapping tiny clipped paths.
- if(!currentStroke){currentStroke=el('path',{fill:'none',stroke:selected,'stroke-width':'26','stroke-linecap':'round','stroke-linejoin':'round'});regionStrokes[activeRegion].append(currentStroke);currentStrokeD='M'+p.x.toFixed(2)+' '+p.y.toFixed(2)+' L'+p.x.toFixed(2)+' '+p.y.toFixed(2)}
- else currentStrokeD+=' L'+p.x.toFixed(2)+' '+p.y.toFixed(2);
+ if(!currentStroke){currentStroke=el('path',{fill:'none',stroke:selected,'stroke-width':'26','stroke-linecap':'round','stroke-linejoin':'round'});regionStrokes[activeRegion].append(currentStroke);currentStrokeD='M'+p.x.toFixed(1)+' '+p.y.toFixed(1)+' L'+p.x.toFixed(1)+' '+p.y.toFixed(1);strokePoints=1}
+ else{
+  // Keep SVG paths short: Safari gets progressively slower when rewriting a huge d attribute.
+  if(strokePoints>=32){currentStroke=el('path',{fill:'none',stroke:selected,'stroke-width':'26','stroke-linecap':'round','stroke-linejoin':'round'});regionStrokes[activeRegion].append(currentStroke);currentStrokeD='M'+a.x.toFixed(1)+' '+a.y.toFixed(1);strokePoints=0}
+  currentStrokeD+=' L'+p.x.toFixed(1)+' '+p.y.toFixed(1);strokePoints++;
+ }
  currentStroke.setAttribute('d',currentStrokeD);
  const cells=regionCells[activeRegion],covered=regionCovered[activeRegion],dx=p.x-a.x,dy=p.y-a.y,den=dx*dx+dy*dy;
  for(let j=0;j<cells.length;j++){if(covered.has(j))continue;const c=cells[j],t=den?Math.max(0,Math.min(1,((c.x-a.x)*dx+(c.y-a.y)*dy)/den)):0;if(Math.hypot(c.x-(a.x+t*dx),c.y-(a.y+t*dy))<=13)covered.add(j)}
@@ -538,25 +542,30 @@ function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
  if(phase==='color'&&readyRegion!==targetRegion&&cells.length&&covered.size/cells.length>=.90){readyRegion=targetRegion;readyColor=selected;confirmColor.classList.add('ready');hint.textContent='Ապրե՛ս։ Սեղմիր կանաչ նշանը՝ շարունակելու համար';beep(760)}
  lastPoint=p;
 }
-function markerAtSvg(p){const q=new DOMPoint(p.x,p.y).matrixTransform(svg.getScreenCTM()),r=board.getBoundingClientRect();marker.style.left=(q.x-r.left-12)+'px';marker.style.top=(q.y-r.top-10)+'px';marker.style.display='block'}
+function markerAtSvg(p){const q=new DOMPoint(p.x,p.y).matrixTransform(markerMatrix||svg.getScreenCTM()),r=markerRect||board.getBoundingClientRect();marker.style.transform='translate3d('+(q.x-r.left-12)+'px,'+(q.y-r.top-10)+'px,0)';marker.style.display='block'}
 function startPointForRegion(i){const cells=regionCells[i],b=parts[i].getBBox(),cx=b.x+b.width/2,cy=b.y+b.height/2;let best=null,dist=Infinity;for(const c of cells){const d=Math.hypot(c.x-cx,c.y-cy);if(d<dist){dist=d;best=c}}return best||{x:cx,y:cy}}
 function limitToRegion(p,from){const shape=parts[targetRegion];if(shape.isPointInFill(new DOMPoint(p.x,p.y)))return p;let a=from,b=p;for(let k=0;k<16;k++){const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};if(shape.isPointInFill(new DOMPoint(mid.x,mid.y)))a=mid;else b=mid}return a}
 function beginColor(e){if(phase!=='color'||colorPointer!==null||e.target.closest('button, #palette, input, label, select'))return;startColorSound();
- e.preventDefault();colorPointer=e.pointerId;activeRegion=targetRegion;lastPoint=null;currentStroke=null;currentStrokeD='';
+ e.preventDefault();colorPointer=e.pointerId;activeRegion=targetRegion;lastPoint=null;currentStroke=null;currentStrokeD='';strokePoints=0;
  colorFingerStart=pos(e);colorPenStart=startPointForRegion(targetRegion);colorPenPosition={...colorPenStart};
- board.setPointerCapture(e.pointerId);markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
+ board.setPointerCapture(e.pointerId);markerMatrix=svg.getScreenCTM();markerRect=board.getBoundingClientRect();markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
+function flushColorFrame(){colorFrame=0;if(!pendingColorPoint||colorPointer===null||phase!=='color')return;
+ const desired=pendingColorPoint;pendingColorPoint=null;
+ colorPenPosition=limitToRegion(desired,colorPenPosition);markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)
+}
 function moveColor(e){if(colorPointer!==e.pointerId||phase!=='color')return;e.preventDefault();
- const finger=pos(e),desired={x:colorPenStart.x+finger.x-colorFingerStart.x,y:colorPenStart.y+finger.y-colorFingerStart.y};
- colorPenPosition=limitToRegion(desired,colorPenPosition);markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
-function endColor(e){if(colorPointer!==e.pointerId)return;stopColorSound();
- colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none';
+ const finger=pos(e);pendingColorPoint={x:colorPenStart.x+finger.x-colorFingerStart.x,y:colorPenStart.y+finger.y-colorFingerStart.y};
+ if(!colorFrame)colorFrame=requestAnimationFrame(flushColorFrame)
+}
+function endColor(e){if(colorPointer!==e.pointerId)return;if(colorFrame){cancelAnimationFrame(colorFrame);colorFrame=0}if(pendingColorPoint)flushColorFrame();pendingColorPoint=null;markerMatrix=null;markerRect=null;stopColorSound();
+ colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';strokePoints=0;colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none';
  if(phase==='color'&&readyRegion!==targetRegion)showTarget();
 }
 confirmColor.addEventListener('click',e=>{e.stopPropagation();
  if(phase==='traceReady'){confirmColor.classList.remove('ready');readyRegion=-1;startColor();return}
  if(phase!=='color'||readyRegion!==targetRegion)return;
  // A second finger may tap the check while the painting finger is still down.
- if(colorPointer!==null){stopColorSound();try{board.releasePointerCapture(colorPointer)}catch(e){}colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none'}
+ if(colorPointer!==null){if(colorFrame)cancelAnimationFrame(colorFrame);colorFrame=0;pendingColorPoint=null;markerMatrix=null;markerRect=null;stopColorSound();try{board.releasePointerCapture(colorPointer)}catch(e){}colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none'}
  const i=readyRegion;confirmColor.classList.remove('ready');readyRegion=-1;
  regionComplete.add(i);sound('confirm');if(guide){guide.remove();guide=null}
  parts[i].setAttribute('fill',readyColor||selected);
