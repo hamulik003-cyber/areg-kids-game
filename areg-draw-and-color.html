@@ -230,6 +230,30 @@ families.forEach((family,fi)=>family.names.forEach((name,v)=>{
 }));
 })();
 
+
+// Trial reference bunny based on the user-supplied seated rabbit illustration.
+// Deliberately distinct from the older generic rabbit; large independent paint areas.
+levels.unshift({
+ name:'Նապաստակ՝ քո նկարով (փորձնական)',
+ paths:[
+ 'M106 134 C69 99 37 26 56 12 C77 -3 121 68 137 125 Z',
+ 'M195 128 C209 64 257 1 276 18 C296 42 256 105 225 139 Z',
+ 'M98 117 C77 89 66 42 76 38 C91 36 116 92 118 126 Z',
+ 'M218 123 C233 77 264 40 274 47 C282 62 249 109 230 136 Z',
+ 'M138 121 C157 112 184 112 201 123 C238 132 260 167 262 206 C264 251 240 271 204 274 C172 285 122 279 93 261 C59 244 58 200 77 164 C92 138 110 124 138 121 Z',
+ 'M113 258 C89 280 78 312 82 351 C88 388 124 400 150 383 C163 366 162 334 143 310 Z',
+ 'M202 256 C228 276 254 311 266 354 C280 397 253 419 212 407 C180 395 172 370 179 336 Z',
+ 'M252 351 C274 332 295 351 283 370 C306 367 302 397 279 407 C289 425 264 437 248 418 Z',
+ 'M100 369 C79 368 65 383 70 400 C82 413 126 411 154 402 L151 380 Z',
+ 'M179 386 C193 378 213 384 228 402 C241 419 215 432 184 425 C169 423 165 403 179 386 Z',
+ 'M122 269 C130 277 138 285 145 292 C159 305 149 333 130 334 C113 330 106 309 106 290 Z',
+ 'M169 271 C179 283 179 298 164 312 C152 325 145 339 155 350 C178 352 199 329 207 312 Z',
+ 'M114 194 C118 182 134 182 138 194 C141 212 136 225 126 225 C115 223 111 209 114 194 Z',
+ 'M198 194 C202 182 218 182 222 194 C225 212 220 225 210 225 C199 223 195 209 198 194 Z',
+ 'M154 226 Q166 218 177 226 Q172 241 165 241 Q157 240 154 226 Z'
+ ],colors:['#eee4dc','#eee4dc','#f4b7c4','#f4b7c4','#fff0e3','#f5e5d6','#f4e6d8','#f7e9df','#f9ede4','#f9ede4','#f9e8df','#f9e8df','#24252b','#24252b','#e9a3ac']
+});
+
 const paletteColors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#111111','#ffffff','#00bcd4','#8bc34a'];
 const svg=document.getElementById('drawing'),board=document.getElementById('board'),marker=document.getElementById('marker'),palette=document.getElementById('palette'),hint=document.getElementById('hint'),next=document.getElementById('next'),status=document.getElementById('status');let index=0,phase='trace',step=0,progress=0,selected=paletteColors[0],drawing=false,tracePath=null,traceLength=0,parts=[],filled=new Set(),soundCtx;
 function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in attrs)n.setAttribute(k,attrs[k]);return n}
