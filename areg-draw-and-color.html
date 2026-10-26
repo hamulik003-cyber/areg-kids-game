@@ -29,7 +29,7 @@ function autoTrace(t){if(!drawing||phase!=='trace')return;
  const p=tracePath.getPointAtLength(progress),screen=p.matrixTransform(svg.getScreenCTM()),rect=board.getBoundingClientRect();
  marker.style.left=(screen.x-rect.left-12)+'px';marker.style.top=(screen.y-rect.top-10)+'px';marker.style.display='block';
  const dot=svg.querySelector('#startDot');if(dot){dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y)}
- if(progress>=traceLength){beep(690);step++;if(step>=levels[index].paths.length){stopAuto();startColor();return}startTrace()}
+ if(progress>=traceLength){beep(690);step++;if(step>=levels[index].paths.length){stopAuto();phase='traceReady';readyRegion=-2;confirmColor.classList.add('ready');hint.textContent='Գծագիրը պատրաստ է։ Սեղմիր կանաչ նշանը՝ ներկելու համար';status.textContent='Ուրվագիծն ավարտված է';return}startTrace()}
  frame=requestAnimationFrame(autoTrace)
 }
 const confirmColor=document.getElementById('confirmColor');let readyRegion=-1,readyColor=null;let colorPointer=null,activeRegion=-1,lastPoint=null,brushLayer=null,regionMasks=[],regionStrokes=[],regionCells=[],regionCovered=[],regionComplete=new Set(),currentStroke=null,currentStrokeD='',targetRegion=0,guide=null,colorFingerStart=null,colorPenStart=null,colorPenPosition=null;
@@ -51,7 +51,8 @@ function drawColorStroke(p){if(activeRegion<0)return;const a=lastPoint||p;
  currentStroke.setAttribute('d',currentStrokeD);
  const cells=regionCells[activeRegion],covered=regionCovered[activeRegion],dx=p.x-a.x,dy=p.y-a.y,den=dx*dx+dy*dy;
  for(let j=0;j<cells.length;j++){if(covered.has(j))continue;const c=cells[j],t=den?Math.max(0,Math.min(1,((c.x-a.x)*dx+(c.y-a.y)*dy)/den)):0;if(Math.hypot(c.x-(a.x+t*dx),c.y-(a.y+t*dy))<=13)covered.add(j)}
- // Do not complete mid-stroke: the child must be allowed to finish coloring.\n status.textContent='Ներկվում է '+(targetRegion+1)+' / '+parts.length+' հատվածը՝ '+Math.round(100*covered.size/Math.max(1,cells.length))+'%';
+ status.textContent='Ներկվում է '+(targetRegion+1)+' / '+parts.length+' հատվածը՝ '+Math.round(100*covered.size/Math.max(1,cells.length))+'%';
+ if(phase==='color'&&readyRegion!==targetRegion&&cells.length&&covered.size/cells.length>=.90){readyRegion=targetRegion;readyColor=selected;confirmColor.classList.add('ready');hint.textContent='Ապրե՛ս։ Սեղմիր կանաչ նշանը՝ շարունակելու համար';beep(760)}
  lastPoint=p;
 }
 function markerAtSvg(p){const q=new DOMPoint(p.x,p.y).matrixTransform(svg.getScreenCTM()),r=board.getBoundingClientRect();marker.style.left=(q.x-r.left-12)+'px';marker.style.top=(q.y-r.top-10)+'px';marker.style.display='block'}
@@ -65,14 +66,14 @@ function moveColor(e){if(colorPointer!==e.pointerId||phase!=='color')return;e.pr
  const finger=pos(e),desired={x:colorPenStart.x+finger.x-colorFingerStart.x,y:colorPenStart.y+finger.y-colorFingerStart.y};
  colorPenPosition=limitToRegion(desired,colorPenPosition);markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
 function endColor(e){if(colorPointer!==e.pointerId)return;
- const i=activeRegion,cells=regionCells[i]||[],covered=regionCovered[i]||new Set();
  colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none';
- // Reaching 96% reveals a confirmation button, but never auto-advances.
- if(phase==='color'&&i===targetRegion&&cells.length&&covered.size/cells.length>=.96){
-  readyRegion=i;readyColor=selected;confirmColor.classList.add('ready');hint.textContent='Ապրե՛ս։ Սեղմիր կանաչ նշանը՝ շարունակելու համար';beep(760);
- }else if(phase==='color')showTarget();
+ if(phase==='color'&&readyRegion!==targetRegion)showTarget();
 }
-confirmColor.addEventListener('click',e=>{e.stopPropagation();if(phase!=='color'||readyRegion!==targetRegion||colorPointer!==null)return;
+confirmColor.addEventListener('click',e=>{e.stopPropagation();
+ if(phase==='traceReady'){confirmColor.classList.remove('ready');readyRegion=-1;startColor();return}
+ if(phase!=='color'||readyRegion!==targetRegion)return;
+ // A second finger may tap the check while the painting finger is still down.
+ if(colorPointer!==null){try{board.releasePointerCapture(colorPointer)}catch(e){}colorPointer=null;activeRegion=-1;lastPoint=null;currentStroke=null;currentStrokeD='';colorFingerStart=null;colorPenStart=null;colorPenPosition=null;marker.style.display='none'}
  const i=readyRegion;confirmColor.classList.remove('ready');readyRegion=-1;
  regionComplete.add(i);beep(690);if(guide){guide.remove();guide=null}
  parts[i].setAttribute('fill',readyColor||selected);
