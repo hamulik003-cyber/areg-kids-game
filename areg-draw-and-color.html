@@ -7,6 +7,14 @@ html,body,#app,#board,#drawing,#marker,#status,#hint,header,h1{user-select:none!
 .swatch.chosen{outline:3px solid #ffad42!important;outline-offset:2px;transform:translateY(-5px) scale(1.07)!important;box-shadow:0 6px 0 #d5a44b,0 10px 15px #ffad4255,inset 0 3px 7px #ffffff80!important}
 .swatch:active{transform:scale(.93)}
 .rgb-swatch{background:conic-gradient(#ff3939,#ffda2b,#34ce69,#26b7ff,#a84aff,#ff3939)!important;display:grid;place-items:center;cursor:pointer;position:relative}.rgb-swatch::before{display:none!important}.rgb-swatch::after{inset:7px!important;background:#fff;opacity:.88;border-radius:50%;content:'RGB';display:grid;place-items:center;font-size:clamp(9px,2.7vw,14px);font-weight:900;color:#34313b;letter-spacing:-.4px}.rgb-swatch input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0;z-index:2}.rgb-swatch.chosen{outline:3px solid #ffad42!important;outline-offset:2px}
+
+/* AREG TEST: large warm layered wooden frame inspired by Secret Paths */
+html,body{background:#3b284c}
+#app{position:relative;isolation:isolate;width:100%;max-width:620px;margin:auto;padding:18px 16px 18px;gap:9px;background:linear-gradient(145deg,#ffe2a6 0%,#e6a45e 28%,#b96c32 58%,#f4c27e 78%,#a45b2b 100%);border:5px solid #8b4c26;border-radius:clamp(28px,7vw,46px);box-shadow:inset 0 0 0 3px #ffdfa0,inset 0 0 0 8px #c57e3f,inset 0 0 0 11px #ffdfa7,0 7px 0 #814522,0 14px 22px #1e102b50}
+#app::before{content:'';position:absolute;inset:12px;border:5px solid #38233c;border-radius:clamp(19px,5vw,33px);background:linear-gradient(#fff,#fff);box-shadow:0 0 0 3px #f4bd7d,inset 0 0 0 2px #f7e5c7;z-index:-1;pointer-events:none}
+#app>header,#app>#stageJump,#app>#hint,#app>#board,#app>#status,#app>#palette,#app>#toolbar{position:relative}
+#board{width:100%;max-width:100%;padding:0 3px 8px}
+@media(max-height:700px){#app{padding-top:14px;padding-bottom:12px;gap:5px}}
 </style></head><body><div id="app"><header><button class="btn" id="back" aria-label="Նախորդ փուլ">‹</button><h1 id="levelLabel">ՓՈՒԼ 1</h1><button class="btn" id="reset" aria-label="Կրկնել">↻</button></header><select id="stageJump" aria-label="Ընտրել գծագիրը"></select><div id="hint">Հետևիր կետագծին՝ ֆլոմաստերով</div><div id="board"><svg id="drawing" viewBox="0 0 320 430" aria-label="Նկարելու խաղ"></svg><div id="marker"></div><button id="confirmColor" aria-label="Ավարտել ներկումը" type="button"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 33 L26 45 L52 17" fill="none" stroke="#237a38" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 30 L26 42 L52 14" fill="none" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="status"></div><div id="palette"></div><div id="toolbar"><button id="next" class="btn">Հաջորդ նկարը ›</button></div></div><script>
 const NS='http://www.w3.org/2000/svg';
 const levels=[
