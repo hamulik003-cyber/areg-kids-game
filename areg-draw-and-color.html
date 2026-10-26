@@ -26,6 +26,44 @@ levels.push(
 {"name":"Օդապարիկ","paths":["M160 99 C91 99 90 181 124 230 L149 267 L171 267 L196 230 C232 181 229 99 160 99 Z","M146 107 Q123 160 150 266 L171 266 Q199 160 174 107 Z","M139 284 L181 284 L174 327 L146 327 Z"],"colors":["#f7b66a","#8bc5e8","#b78857"]},
 {"name":"Սրտիկ","paths":["M160 312 C136 287 74 235 74 185 C74 132 133 119 160 161 C187 119 246 132 246 185 C246 235 184 287 160 312 Z"],"colors":["#f284a4"]}
 );
+
+// Revised recognizable silhouettes: large non-decorative regions and child-friendly proportions.
+levels[4]={name:'Ծաղիկ',paths:[
+'M160 161 C133 120 103 139 113 170 C79 175 83 213 119 218 C108 250 142 266 160 236 C178 266 213 250 201 218 C237 211 239 176 205 169 C217 137 185 120 160 161 Z',
+'M160 178 A31 31 0 1 1 160 240 A31 31 0 1 1 160 178 Z',
+'M151 239 L169 239 L169 331 L151 331 Z',
+'M151 294 C124 262 95 274 91 297 C108 317 131 318 151 307 Z',
+'M169 294 C192 263 224 271 232 294 C211 317 188 318 169 307 Z'
+],colors:['#f28cba','#f4cf5c','#6bbb71','#70c879','#70c879']};
+levels[7]={name:'Գազար',paths:[
+'M116 170 Q159 148 203 170 C203 217 177 282 159 329 C140 282 116 216 116 170 Z',
+'M154 169 C127 145 126 110 138 95 C161 108 166 140 164 166 Z',
+'M164 169 C165 127 187 100 206 100 C207 133 192 156 173 169 Z'
+],colors:['#f5a04b','#62be74','#72cc80']};
+levels[13]={name:'Զատիկ',paths:[
+'M159 168 C111 168 90 204 105 255 C116 291 137 310 159 317 Z',
+'M161 168 C209 168 230 204 215 255 C204 291 183 310 161 317 Z',
+'M124 167 C128 125 191 125 196 167 Q160 189 124 167 Z',
+'M129 215 A13 13 0 1 1 129 241 A13 13 0 1 1 129 215 Z',
+'M191 215 A13 13 0 1 1 191 241 A13 13 0 1 1 191 215 Z'
+],colors:['#e95554','#e95554','#30343b','#30343b','#30343b']};
+levels[14]={name:'Մեղու',paths:[
+'M104 199 C115 168 207 168 219 199 C238 245 211 281 162 281 C113 281 85 245 104 199 Z',
+'M126 184 Q147 181 156 183 L156 277 Q140 274 126 263 Z',
+'M180 183 Q195 185 208 192 L209 266 Q196 276 180 279 Z',
+'M133 184 C95 174 91 122 123 116 C154 114 169 150 159 183 Z',
+'M166 183 C157 143 177 114 206 120 C237 130 225 177 190 187 Z',
+'M214 213 L244 231 L217 246 Z'
+],colors:['#f7d05e','#36373d','#36373d','#b9e3f0','#b9e3f0','#34343a']};
+levels[15]={name:'Թռչնակ',paths:[
+'M111 209 C105 167 142 144 176 157 C215 170 228 215 209 252 C189 288 137 286 118 257 C111 246 108 228 111 209 Z',
+'M136 220 C149 194 184 195 195 219 C185 251 152 259 136 237 Z',
+'M210 197 L247 216 L210 231 Z',
+'M180 179 A10 10 0 1 1 180 199 A10 10 0 1 1 180 179 Z',
+'M136 270 L148 270 L148 298 L136 298 Z',
+'M173 272 L185 272 L185 298 L173 298 Z'
+],colors:['#8fd0ef','#6bc5ab','#f4ac56','#30343b','#c28b5d','#c28b5d']};
+
 const paletteColors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#111111','#ffffff','#00bcd4','#8bc34a'];
 const svg=document.getElementById('drawing'),board=document.getElementById('board'),marker=document.getElementById('marker'),palette=document.getElementById('palette'),hint=document.getElementById('hint'),next=document.getElementById('next'),status=document.getElementById('status');let index=0,phase='trace',step=0,progress=0,selected=paletteColors[0],drawing=false,tracePath=null,traceLength=0,parts=[],filled=new Set(),soundCtx;
 function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in attrs)n.setAttribute(k,attrs[k]);return n}
