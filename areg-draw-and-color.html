@@ -551,7 +551,8 @@ function beginColor(e){if(phase!=='color'||colorPointer!==null||e.target.closest
  board.setPointerCapture(e.pointerId);markerMatrix=svg.getScreenCTM();markerRect=board.getBoundingClientRect();markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)}
 function flushColorFrame(){colorFrame=0;if(!pendingColorPoint||colorPointer===null||phase!=='color')return;
  const desired=pendingColorPoint;pendingColorPoint=null;
- colorPenPosition=limitToRegion(desired,colorPenPosition);markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)
+ // The clipPath confines paint; never magnetically clamp the pen to a region edge.
+ colorPenPosition=desired;markerAtSvg(colorPenPosition);drawColorStroke(colorPenPosition)
 }
 function moveColor(e){if(colorPointer!==e.pointerId||phase!=='color')return;e.preventDefault();
  const finger=pos(e);pendingColorPoint={x:colorPenStart.x+finger.x-colorFingerStart.x,y:colorPenStart.y+finger.y-colorFingerStart.y};
