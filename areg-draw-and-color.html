@@ -1,6 +1,12 @@
 <!doctype html><html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Նկարիր և գունավորիր</title><style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;touch-action:none;font-family:system-ui,-apple-system,sans-serif;background:#fff;color:#302d39}#app{height:100dvh;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 12px);gap:12px}header{width:100%;max-width:570px;display:flex;align-items:center;justify-content:space-between}h1{font-size:clamp(20px,5vw,29px);margin:0;font-weight:900;letter-spacing:.4px}.btn{border:2px solid #34313b;background:#fff;border-radius:18px;padding:9px 15px;font-weight:800;box-shadow:0 4px 0 #dedbe2;font-size:20px}#stageJump{width:min(100%,390px);max-height:42px;padding:7px 12px;border:2px solid #d9d4e0;border-radius:12px;background:white;font-size:15px;font-weight:700;color:#3a3442;flex-shrink:0}#hint{display:none!important;text-align:center;font-size:clamp(15px,4vw,20px);font-weight:750;min-height:48px;display:grid;place-items:center;color:#514a5e}#board{width:min(100%,570px);flex:1;min-height:0;position:relative;display:grid;place-items:center;touch-action:none;padding-bottom:12px}svg{height:100%;max-height:100%;width:100%;overflow:visible;touch-action:none}#drawing{height:100%;width:100%;max-height:100%;align-self:center;justify-self:center;overflow:visible;transform:translateY(-32px)}.outline{fill:none;stroke:#14131b;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.ghost{fill:none;stroke:#a4a4aa;stroke-width:5;stroke-dasharray:1 11;stroke-linecap:round}.done{fill:none;stroke:#15151b;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.area{stroke:#14131b;stroke-width:7;stroke-linejoin:round;transition:fill .2s}.area.active{filter:drop-shadow(0 0 5px #ffd36b)}.color-guide{animation:guidePulse 1.4s ease-in-out infinite}@keyframes guidePulse{0%,100%{stroke-opacity:.45;fill-opacity:.09}50%{stroke-opacity:1;fill-opacity:.23}}#palette{position:relative;z-index:10;flex-shrink:0;display:grid;grid-template-columns:repeat(6,1fr);gap:9px;width:min(100%,390px);margin:0 auto 8px}.swatch{width:100%;aspect-ratio:1;border:4px solid #fff;border-radius:13px;box-shadow:0 2px 0 #d8d2d9,0 0 0 1px #d5d0d7}.swatch.chosen{outline:3px solid #34313b;transform:translateY(-3px)}#marker{position:absolute;width:155px;height:245px;background:url('assets/areg_marker_3d.png') center/contain no-repeat;pointer-events:none;display:none;z-index:5;filter:drop-shadow(6px 10px 5px #0002)}#status{position:relative;z-index:10;font-size:13px;color:#77717f;min-height:20px}#next{display:none;background:#66d895;color:#153b28;font-size:20px;padding:12px 30px}#toolbar{position:relative;z-index:10;flex-shrink:0;width:100%;max-width:570px;display:flex;justify-content:center;align-items:center;gap:12px}#confirmColor{position:absolute;left:50%;bottom:4%;transform:translateX(-50%) scale(.25);opacity:0;visibility:hidden;width:78px;height:78px;border:0;border-radius:50%;background:radial-gradient(circle at 32% 22%,#adff8a 0%,#78e85b 52%,#49bf40 100%);box-shadow:inset 0 -5px 0 #318a39,0 5px 0 #206c34,0 9px 18px #2d883b45;z-index:12;display:grid;place-items:center;touch-action:manipulation;cursor:pointer;transition:opacity .18s,transform .28s cubic-bezier(.18,1.6,.36,1),visibility .18s}#confirmColor.ready{visibility:visible;opacity:1;transform:translateX(-50%) scale(1)}#confirmColor svg{width:54px;height:54px;filter:drop-shadow(0 2px 1px #2b7b3544)}#confirmColor:active{transform:translateX(-50%) scale(.9)}#startDot{fill:#15151b}#board svg{user-select:none;-webkit-user-select:none}@media(prefers-reduced-motion:reduce){.area,.swatch{transition:none}}
-html,body,#app,#board,#drawing,#marker,#status,#hint,header,h1{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important}</style></head><body><div id="app"><header><button class="btn" id="back" aria-label="Նախորդ փուլ">‹</button><h1 id="levelLabel">ՓՈՒԼ 1</h1><button class="btn" id="reset" aria-label="Կրկնել">↻</button></header><select id="stageJump" aria-label="Ընտրել գծագիրը"></select><div id="hint">Հետևիր կետագծին՝ ֆլոմաստերով</div><div id="board"><svg id="drawing" viewBox="0 0 320 430" aria-label="Նկարելու խաղ"></svg><div id="marker"></div><button id="confirmColor" aria-label="Ավարտել ներկումը" type="button"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 33 L26 45 L52 17" fill="none" stroke="#237a38" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 30 L26 42 L52 14" fill="none" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="status"></div><div id="palette"></div><div id="toolbar"><button id="next" class="btn">Հաջորդ նկարը ›</button></div></div><script>
+html,body,#app,#board,#drawing,#marker,#status,#hint,header,h1{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important}#palette{padding:10px 9px 13px;background:linear-gradient(180deg,#fff9fd,#f4eaff);border:2px solid #fff;border-radius:24px;box-shadow:0 7px 19px #b26bb125;gap:8px!important;width:min(100%,405px)!important}
+.swatch{position:relative;isolation:isolate;overflow:visible;border:3px solid #fff!important;border-radius:50%!important;aspect-ratio:1;box-shadow:0 4px 0 #d7bfd9,0 7px 11px #7e4b8624,inset 0 3px 6px #ffffff6e!important;transition:transform .16s,box-shadow .16s;touch-action:manipulation}
+.swatch::before{content:'';position:absolute;left:19%;top:12%;width:39%;height:19%;border-radius:50%;background:#ffffffa8;transform:rotate(-30deg);pointer-events:none}
+.swatch::after{content:'';position:absolute;inset:6px;border:1.5px solid #ffffff90;border-radius:50%;pointer-events:none}
+.swatch.chosen{outline:3px solid #ffad42!important;outline-offset:2px;transform:translateY(-5px) scale(1.07)!important;box-shadow:0 6px 0 #d5a44b,0 10px 15px #ffad4255,inset 0 3px 7px #ffffff80!important}
+.swatch:active{transform:scale(.93)}
+</style></head><body><div id="app"><header><button class="btn" id="back" aria-label="Նախորդ փուլ">‹</button><h1 id="levelLabel">ՓՈՒԼ 1</h1><button class="btn" id="reset" aria-label="Կրկնել">↻</button></header><select id="stageJump" aria-label="Ընտրել գծագիրը"></select><div id="hint">Հետևիր կետագծին՝ ֆլոմաստերով</div><div id="board"><svg id="drawing" viewBox="0 0 320 430" aria-label="Նկարելու խաղ"></svg><div id="marker"></div><button id="confirmColor" aria-label="Ավարտել ներկումը" type="button"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 33 L26 45 L52 17" fill="none" stroke="#237a38" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 30 L26 42 L52 14" fill="none" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="status"></div><div id="palette"></div><div id="toolbar"><button id="next" class="btn">Հաջորդ նկարը ›</button></div></div><script>
 const NS='http://www.w3.org/2000/svg';
 const levels=[
 {name:'Տեղորոշման նշան',paths:['M160 320 C136 289 91 242 91 186 A69 69 0 1 1 229 186 C229 242 184 289 160 320 Z','M160 235 A48 48 0 1 0 160 139 A48 48 0 1 0 160 235 Z','M160 159 C170 137 180 153 174 169 C194 161 202 179 183 191 C198 208 182 223 165 207 C152 226 133 212 140 193 C117 187 127 164 148 172 C143 161 151 153 160 159 Z','M115 331 C131 321 190 321 205 331 C225 346 187 355 160 355 C130 355 96 347 115 331 Z'],colors:['#379de7','#7cdd49','#ef5ba9','#b8794c']},
@@ -321,7 +327,7 @@ levels.push(
 {"name":"Կիսալուսին","paths":["M204 93 C138 107 91 164 91 232 C91 300 142 352 209 352 C249 352 275 332 289 305 C264 322 234 326 209 314 C166 294 146 254 150 215 C153 169 173 124 204 93 Z","M100 133 L109 152 L130 155 L115 169 L118 191 L100 181 L82 191 L85 169 L70 155 L91 152 Z","M248 143 L254 157 L269 159 L258 169 L260 185 L248 177 L236 185 L238 169 L227 159 L242 157 Z","M260 224 L266 235 L279 237 L270 247 L272 260 L260 253 L248 260 L250 247 L241 237 L254 235 Z"],"colors":["#f8dc86","#f8e6ad","#d1e6f8","#f2e2a7"]}
 );
 levels.splice(0,levels.length,...levels.filter(level=>!['Փետուր','Չուպա-չուպս','Ձյան փաթիլ'].includes(level.name)));
-const paletteColors=['#f44336','#ff9800','#ffeb3b','#4caf50','#2196f3','#9c27b0','#e91e63','#795548','#111111','#ffffff','#00bcd4','#8bc34a'];
+const paletteColors=['#ff303f','#ff8b1a','#ffe028','#21cf62','#198cff','#974aff','#ff38ad','#9c5837','#252638','#ffffff','#03d5e5','#a3e52b'];
 const svg=document.getElementById('drawing'),board=document.getElementById('board'),marker=document.getElementById('marker'),palette=document.getElementById('palette'),hint=document.getElementById('hint'),next=document.getElementById('next'),status=document.getElementById('status');let index=0,phase='trace',step=0,progress=0,selected=paletteColors[0],drawing=false,tracePath=null,traceLength=0,parts=[],filled=new Set(),soundCtx;
 function el(tag,attrs={}){let n=document.createElementNS(NS,tag);for(let k in attrs)n.setAttribute(k,attrs[k]);return n}
 // Soft, event-specific sound palette inspired by the supplied gameplay reference.
@@ -337,22 +343,25 @@ function tone(freq,duration=.09,volume=.045,shape='sine',offset=0,endFreq=0){
  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.01);
 }
 // Soft wooden-marimba-like completion cues: low-volume, rounded attacks, no piercing highs.
-function gentleNote(freq,at=0,duration=.22,volume=.017){
- const c=audioContext();if(!c)return;
- const t=c.currentTime+at,o=c.createOscillator(),g=c.createGain();
- o.type='sine';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*.985,t+duration);
- g.gain.setValueAtTime(.00001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),t+.018);
- g.gain.exponentialRampToValueAtTime(.00001,t+duration);
- o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.015);
+// A cohesive, quiet set of rounded toy-chime cues for each game action.
+function playChime(frequency,offset=0,duration=.20,volume=.018){
+ const c=audioContext();if(!c)return;const t=c.currentTime+offset;
+ const osc=c.createOscillator(),gain=c.createGain(),filter=c.createBiquadFilter();
+ osc.type='sine';osc.frequency.setValueAtTime(frequency,t);
+ osc.frequency.exponentialRampToValueAtTime(frequency*.992,t+duration);
+ filter.type='lowpass';filter.frequency.value=1100;
+ gain.gain.setValueAtTime(.00001,t);gain.gain.exponentialRampToValueAtTime(Math.max(.0001,volume),t+.025);
+ gain.gain.exponentialRampToValueAtTime(.00001,t+duration);
+ osc.connect(filter);filter.connect(gain);gain.connect(c.destination);osc.start(t);osc.stop(t+duration+.02);
 }
 function sound(event){
  if(event==='brush')return;
- if(event==='pick')gentleNote(420,0,.11,.012);
- else if(event==='trace')gentleNote(392,0,.17,.014);
- else if(event==='ready'){gentleNote(392,0,.20,.015);gentleNote(523,.105,.26,.015)}
- else if(event==='confirm'){gentleNote(349,0,.16,.014);gentleNote(440,.09,.24,.014)}
- else if(event==='finish'){gentleNote(349,0,.22,.017);gentleNote(440,.14,.23,.017);gentleNote(523,.28,.34,.018)}
- else if(event==='next')gentleNote(392,0,.12,.012);
+ if(event==='pick'){playChime(520,0,.13,.012)}
+ else if(event==='trace'){playChime(440,0,.19,.014)}
+ else if(event==='ready'){playChime(440,0,.21,.017);playChime(554,.12,.27,.016)}
+ else if(event==='confirm'){playChime(494,0,.17,.015);playChime(587,.10,.24,.015)}
+ else if(event==='finish'){playChime(392,0,.25,.018);playChime(494,.13,.27,.017);playChime(587,.28,.38,.018)}
+ else if(event==='next'){playChime(587,0,.14,.013);playChime(440,.09,.19,.012)}
 }
 function beep(f=520){sound(f>=850?'finish':f>=750?'ready':f>=680?'trace':'confirm')}
 // Quiet continuous marker-on-paper texture; starts and stops with actual drawing.
@@ -364,7 +373,7 @@ function preparePenSound(){
  // Smooth colored noise: paper friction rather than a musical beep.
  let smooth=0;for(let i=0;i<data.length;i++){smooth=smooth*.68+(Math.random()*2-1)*.32;data[i]=smooth*.55}
  penNoise=c.createBufferSource();penNoise.buffer=buf;penNoise.loop=true;
- penFilter=c.createBiquadFilter();penFilter.type='bandpass';penFilter.frequency.value=920;penFilter.Q.value=.65;
+ penFilter=c.createBiquadFilter();penFilter.type='bandpass';penFilter.frequency.value=680;penFilter.Q.value=.48;
  penGain=c.createGain();penGain.gain.value=0;
  penNoise.connect(penFilter);penFilter.connect(penGain);penGain.connect(c.destination);penNoise.start();
  return true;
@@ -377,18 +386,18 @@ function ensureColorSound(){
  const buffer=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=buffer.getChannelData(0);
  let low=0;for(let i=0;i<d.length;i++){low=low*.89+(Math.random()*2-1)*.11;d[i]=low*.6}
  colorSoundNode=c.createBufferSource();colorSoundNode.buffer=buffer;colorSoundNode.loop=true;
- colorSoundFilter=c.createBiquadFilter();colorSoundFilter.type='lowpass';colorSoundFilter.frequency.value=430;
+ colorSoundFilter=c.createBiquadFilter();colorSoundFilter.type='lowpass';colorSoundFilter.frequency.value=540;
  colorSoundGain=c.createGain();colorSoundGain.gain.value=0;
  colorSoundNode.connect(colorSoundFilter);colorSoundFilter.connect(colorSoundGain);colorSoundGain.connect(c.destination);colorSoundNode.start();
  return true;
 }
-function startColorSound(){if(!ensureColorSound())return;colorSoundActive=true;const t=soundCtx.currentTime;colorSoundGain.gain.cancelScheduledValues(t);colorSoundGain.gain.setTargetAtTime(.055,t,.025)}
+function startColorSound(){if(!ensureColorSound())return;colorSoundActive=true;const t=soundCtx.currentTime;colorSoundGain.gain.cancelScheduledValues(t);colorSoundGain.gain.setTargetAtTime(.065,t,.025)}
 function stopColorSound(){colorSoundActive=false;if(!colorSoundGain||!soundCtx)return;const t=soundCtx.currentTime;colorSoundGain.gain.cancelScheduledValues(t);colorSoundGain.gain.setTargetAtTime(0,t,.016)}
 function startRealTraceSound(){
  if(!preparePenSound())return;
  penActive=true;const c=audioContext();if(!c)return;
  penGain.gain.cancelScheduledValues(c.currentTime);
- penGain.gain.setTargetAtTime(.11,c.currentTime,.018);
+ penGain.gain.setTargetAtTime(.085,c.currentTime,.025);
 }
 function stopRealTraceSound(){
  penActive=false;if(!penGain)return;
@@ -400,7 +409,7 @@ function updatePenSound(dt){
  if(!penActive||!penFilter||!penGain||!soundCtx)return;
  // Subtle fluctuations follow each rendered stroke rather than a looping recording.
  const t=soundCtx.currentTime;
- penFilter.frequency.setTargetAtTime(800+Math.min(220,Math.max(0,dt)*3400),t,.045);
+ penFilter.frequency.setTargetAtTime(620+Math.min(160,Math.max(0,dt)*2500),t,.045);
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopRealTraceSound();stopColorSound()}});
 function setMarker(e){const r=board.getBoundingClientRect();marker.style.left=(e.clientX-r.left-12)+'px';marker.style.top=(e.clientY-r.top-10)+'px';marker.style.display='block'}
