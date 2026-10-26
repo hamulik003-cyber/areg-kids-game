@@ -4,50 +4,74 @@
 #instruction{font-weight:750}.tool{transition:transform .13s;touch-action:none}.tool.active{transform:scale(1.12);background:#fff8bf}.toy{overflow:visible}.hotspot{position:absolute;border:3px dashed #fff3a5;border-radius:16px;box-shadow:0 0 0 4px #5b9a9b55;display:grid;place-items:center;font-size:clamp(20px,6vw,34px);background:#ffffff36;touch-action:none;user-select:none;z-index:3}.hotspot.ready{border-style:solid;background:#d5ffd3aa}.tool.used{opacity:.4}.tool small{position:absolute;bottom:2px;font-size:10px;font-weight:700;color:#6a5034}.tool span{display:none}.feedback{position:absolute;left:8%;right:8%;bottom:4%;font-size:15px;font-weight:850;text-align:center;color:#754a25;text-shadow:0 1px #fff}.hood{position:absolute;left:19%;top:23%;width:62%;height:25%;background:linear-gradient(#ffdf8a,#d67d37);border:5px solid #a55e31;border-radius:30px 30px 8px 8px;z-index:2;transform-origin:50% 95%;transition:transform .45s}.hood.open{transform:rotateX(67deg) translateY(-16px)}.engine{position:absolute;left:34%;top:30%;width:34%;height:24%;border-radius:9px;background:repeating-linear-gradient(90deg,#566e78 0 12px,#9fb7bd 12px 18px);border:4px solid #364b54;z-index:1}.screw{position:absolute;z-index:4;bottom:12%;left:27%;width:14%;aspect-ratio:1;border-radius:50%;background:#c4c9c8;border:4px solid #647079;display:grid;place-items:center;color:#47515a;font-size:24px;touch-action:none}.screw.turn{animation:turn .5s linear}@keyframes turn{to{transform:rotate(360deg)}}.testdrive{animation:drive 1.8s ease-in-out both!important}@keyframes drive{0%{transform:translateX(0)}50%{transform:translateX(30%) rotate(-3deg)}100%{transform:translateX(0)}}.statusdots{display:flex;gap:7px;justify-content:center;margin:5px}.statusdots i{height:8px;width:26px;background:#cab9a1;border-radius:8px}.statusdots i.on{background:#59b880}.scene{touch-action:none}.tool[data-tool]{font-size:36px}
 </style></head><body><main id="app"><div class="heading">🔧 Փոքրիկ մեխանիկ</div><div class="sub" id="instruction" aria-live="polite"></div><section class="workshop" id="workshop"><div class="peg a">🪛</div><div class="peg b">🔨</div><div class="shelf"></div><div class="scene" id="scene"></div><div class="bench"></div></section><div class="tray" id="tray"></div></main><script>
 'use strict';
-const scene=document.getElementById('scene'),tray=document.getElementById('tray'),instruction=document.getElementById('instruction'),workshop=document.getElementById('workshop');
-const levels=[
- {title:'Փոքրիկ ավտոսպասարկում',steps:[
- {msg:'Բացի՛ր մեքենայի կապոտը',action:'tap',target:'hood',tools:[]},
- {msg:'Գտի՛ր և հանի՛ր վնասված մարտկոցը',action:'drag',target:'battery',tools:[['🔋','battery','Մարտկոց']]},
- {msg:'Տեղադրի՛ր նոր մարտկոցը',action:'drag',target:'engine',tools:[['🔋','newbattery','Նոր մարտկոց'],['🛞','wheel','Անիվ']]},
- {msg:'Փակի՛ր կապոտը',action:'tap',target:'hood',tools:[]},
- {msg:'Պտտի՛ր անիվի պտուտակը',action:'rotate',target:'screw',tools:[['🔧','wrench','Բանալին'],['🖌️','brush','Վրձին']]},
- {msg:'Փորձարկի՛ր մեքենան',action:'tap',target:'test',tools:[]}]},
- {title:'Ռոբոտի արհեստանոց',steps:[
- {msg:'Հանի՛ր վնասված ձեռքը',action:'tap',target:'arm',tools:[]},
- {msg:'Տեղադրի՛ր նոր ձեռքը',action:'drag',target:'arm',tools:[['🦾','arm','Ձեռք'],['🛞','wheel','Անիվ']]},
- {msg:'Տեղադրի՛ր մարտկոցը',action:'drag',target:'power',tools:[['🔋','newbattery','Մարտկոց'],['🔩','screw','Պտուտակ']]},
- {msg:'Միացրո՛ւ ռոբոտին',action:'tap',target:'power',tools:[]}]},
- {title:'Ինքնաթիռի արհեստանոց',steps:[
- {msg:'Ստուգի՛ր թևը',action:'tap',target:'wing',tools:[]},
- {msg:'Տեղադրի՛ր նոր թևը',action:'drag',target:'wing',tools:[['🪽','wing','Թև'],['🛞','wheel','Անիվ']]},
- {msg:'Ամրացրո՛ւ պտուտակը',action:'rotate',target:'screw',tools:[['🪛','driver','Պտուտակահան'],['🔋','battery','Մարտկոց']]},
- {msg:'Փորձարկի՛ր ինքնաթիռը',action:'tap',target:'test',tools:[]}]}];
-let level=0,step=0,busy=false,drag=null,rotation=0;
-function car(){return '<div class="toy" id="toy"><div class="car-roof"></div><div class="window"></div><div class="car-body"></div><div class="engine"></div><div class="hood '+(step>=1&&step<=2?'open':'')+'"></div><div class="wheel left"></div><div class="wheel right"></div><div class="screw">✚</div></div>'}
-function robot(){return '<div class="toy" id="toy"><div class="robot"><div class="robot-head"><div class="robot-eye"></div></div><div class="robot-body"></div><div class="robot-arm left"></div>'+(step!==1?'<div class="robot-arm right"></div>':'')+'<div class="robot-leg left"></div><div class="robot-leg right"></div><div class="bolt">'+(step>=3?'💚':'⚡')+'</div></div></div>'}
-function plane(){return '<div class="toy" id="toy"><div class="plane">✈️</div></div>'}
-const positions=[{hood:[24,23,52,27],battery:[41,38,20,23],engine:[41,38,20,23],screw:[24,69,22,26],test:[30,28,40,48]},{arm:[66,39,19,40],power:[42,51,17,23]},{wing:[39,41,25,29],screw:[51,54,18,24],test:[29,28,42,45]}];
-function render(){
- busy=false;rotation=0;const cfg=levels[level].steps[step];scene.innerHTML=[car,robot,plane][level]();instruction.textContent=cfg.msg;tray.replaceChildren();
- const toy=scene.querySelector('#toy');const pos=positions[level][cfg.target]||[35,35,30,30];
- const target=document.createElement('div');target.className='hotspot';target.id='target';Object.assign(target.style,{left:pos[0]+'%',top:pos[1]+'%',width:pos[2]+'%',height:pos[3]+'%'});
- target.textContent=cfg.action==='tap'?(cfg.target==='test'?'▶':cfg.target==='hood'?'👆':cfg.target==='arm'?'🦾':'⚡'):(cfg.action==='rotate'?'↻':'');
- toy.append(target);
- if(cfg.action==='tap'){target.addEventListener('click',()=>success());tray.innerHTML='<div style="font-size:16px;font-weight:800;text-align:center">👆 Հպի՛ր նշված հատվածին</div>'}
- else {for(const [emoji,id,label] of cfg.tools){const b=document.createElement('button');b.className='tool';b.dataset.tool=id;b.setAttribute('aria-label',label);b.innerHTML=emoji+'<small>'+label+'</small>';tray.append(b);bindTool(b,id,cfg)}}
- const dots=document.createElement('div');dots.className='statusdots';for(let i=0;i<levels[level].steps.length;i++){const d=document.createElement('i');if(i<=step)d.className='on';dots.append(d)}tray.append(dots);
+const scene=document.querySelector('#scene'),tray=document.querySelector('#tray'),instruction=document.querySelector('#instruction'),workshop=document.querySelector('#workshop');
+const jobs=[
+ {name:'Մեքենայի վերանորոգում',steps:[
+ {action:'tap',target:'hood',say:'Բացի՛ր կապոտը',icon:'👆'},
+ {action:'drag',target:'engine',tool:'🔋',wrong:'🛞',say:'Տեղադրի՛ր նոր մարտկոցը'},
+ {action:'tap',target:'hood',say:'Փակի՛ր կապոտը',icon:'👆'},
+ {action:'drag',target:'wheel',tool:'🛞',wrong:'🪽',say:'Տեղադրի՛ր նոր անիվը'},
+ {action:'rotate',target:'bolt',tool:'🔧',wrong:'🖌️',say:'Պտտի՛ր պտուտակը'},
+ {action:'tap',target:'test',say:'Փորձարկի՛ր մեքենան',icon:'▶️'}]},
+ {name:'Ռոբոտի վերանորոգում',steps:[
+ {action:'tap',target:'arm',say:'Ստուգի՛ր ռոբոտի ձեռքը',icon:'👆'},
+ {action:'drag',target:'arm',tool:'🦾',wrong:'🛞',say:'Տեղադրի՛ր նոր ձեռքը'},
+ {action:'drag',target:'power',tool:'🔋',wrong:'🪛',say:'Տեղադրի՛ր մարտկոցը'},
+ {action:'rotate',target:'bolt',tool:'🔧',wrong:'🖌️',say:'Ամրացրո՛ւ պտուտակը'},
+ {action:'tap',target:'test',say:'Միացրո՛ւ ռոբոտին',icon:'▶️'}]},
+ {name:'Ինքնաթիռի վերանորոգում',steps:[
+ {action:'tap',target:'wing',say:'Ստուգի՛ր թևը',icon:'👆'},
+ {action:'drag',target:'wing',tool:'🪽',wrong:'🛞',say:'Տեղադրի՛ր թևը'},
+ {action:'rotate',target:'bolt',tool:'🪛',wrong:'🔋',say:'Ամրացրո՛ւ պտուտակը'},
+ {action:'tap',target:'test',say:'Փորձարկի՛ր ինքնաթիռը',icon:'▶️'}]}];
+const locations=[
+ {hood:[27,27,46,27],engine:[41,42,21,22],wheel:[14,66,28,30],bolt:[23,70,20,24],test:[29,26,44,48]},
+ {arm:[68,36,19,43],power:[40,52,19,23],bolt:[40,52,19,23],test:[29,24,44,51]},
+ {wing:[37,37,29,33],bolt:[47,53,20,24],test:[27,24,48,52]}];
+let job=0,stage=0,locked=false,rotateProgress=0,selected=false,activeDrag=null,feedbackTimer=0,doneJobs=0;
+function shape(){
+ if(job===0){return '<div class="toy mechanic-toy"><div class="car-roof"></div><div class="window"></div><div class="car-body"></div><div class="engine"></div><div class="hood '+(stage===1||stage===2?'open':'')+'"></div><div class="wheel right"></div><div class="wheel left '+(stage<4?'missing':'')+'"></div><div class="screw">✚</div></div>'}
+ if(job===1){return '<div class="toy mechanic-toy"><div class="robot"><div class="robot-head"><div class="robot-eye"></div></div><div class="robot-body"></div><div class="robot-arm left"></div>'+(stage>=2?'<div class="robot-arm right"></div>':'')+'<div class="robot-leg left"></div><div class="robot-leg right"></div><div class="bolt">'+(stage>=3?'💚':'⚡')+'</div></div></div>'}
+ return '<div class="toy mechanic-toy"><div class="plane">✈️</div></div>';
 }
-function hint(msg){instruction.textContent=msg;setTimeout(()=>{if(!busy)instruction.textContent=levels[level].steps[step].msg},1000)}
-function bindTool(button,id,cfg){
- button.addEventListener('pointerdown',e=>{if(busy)return;drag={id:e.pointerId,tool:id,x:e.clientX,y:e.clientY,angle:0};button.classList.add('active');button.setPointerCapture(e.pointerId)});
- button.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;button.style.transform='translate('+Math.max(-150,Math.min(150,dx))+'px,'+Math.max(-220,Math.min(80,dy))+'px) scale(1.06)';if(cfg.action==='rotate'&&Math.hypot(dx,dy)>15)rotation+=Math.abs(dx)+Math.abs(dy)});
- button.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;button.classList.remove('active');button.style.transform='';const t=document.getElementById('target').getBoundingClientRect(),inTarget=e.clientX>=t.left-22&&e.clientX<=t.right+22&&e.clientY>=t.top-22&&e.clientY<=t.bottom+22;const dist=Math.hypot(e.clientX-drag.x,e.clientY-drag.y);drag=null;
- if(cfg.action==='drag'){if(id!==cfg.tools[0][1])return hint('Փորձի՛ր մյուս գործիքը');if(inTarget&&dist>20)success();else hint('Տա՛ր գործիքը լուսավորված հատվածի վրա')}
- else if(cfg.action==='rotate'){if(id!==cfg.tools[0][1])return hint('Ընտրի՛ր ճիշտ գործիքը');if(inTarget&&dist>20){rotation+=90;if(rotation>=180)success();else hint('Շարունակի՛ր պտտել')}else hint('Տա՛ր գործիքը պտուտակի վրա և շարժի՛ր')}}
- );button.addEventListener('pointercancel',()=>{drag=null;button.classList.remove('active');button.style.transform=''})}
-function success(){if(busy)return;busy=true;instruction.textContent='Ապրե՛ս, ստացվեց։';const target=document.getElementById('target');if(target){target.classList.add('ready');target.textContent='✓'}const toy=document.getElementById('toy');if(toy&&levels[level].steps[step].target==='test')toy.classList.add('testdrive');
- setTimeout(()=>{step++;if(step>=levels[level].steps.length)complete();else render()},levels[level].steps[step].target==='test'?1900:620)}
-function complete(){scene.innerHTML=[car,robot,plane][level]();tray.replaceChildren();const panel=document.createElement('div');panel.className='done';panel.innerHTML='<div class="done-card"><div class="star">🌟</div><h2>Ապրե՛ս, վարպետ</h2><p>Վերանորոգումն ավարտված է։</p><button class="next">Հաջորդ խաղալիքը ▶</button><div class="counter">'+(level+1)+' / '+levels.length+'</div></div>';workshop.append(panel);panel.querySelector('button').onclick=()=>{panel.remove();level=(level+1)%levels.length;step=0;render()}}
+function getTarget(){return scene.querySelector('.mechanic-target')}
+function getConfig(){return jobs[job].steps[stage]}
+function message(str){clearTimeout(feedbackTimer);instruction.textContent=str;feedbackTimer=setTimeout(()=>{if(!locked)instruction.textContent=getConfig().say},1300)}
+function makeButton(icon,correct){const b=document.createElement('button');b.type='button';b.className='tool';b.textContent=icon;b.setAttribute('aria-label',correct?'Ճիշտ գործիք':'Այլ գործիք');b.dataset.correct=String(correct);tray.append(b);return b}
+function render(){
+ locked=false;selected=false;rotateProgress=0;activeDrag=null;
+ const config=getConfig();scene.innerHTML=shape();tray.replaceChildren();instruction.textContent=config.say;
+ const toy=scene.querySelector('.mechanic-toy'),p=locations[job][config.target];
+ const t=document.createElement('div');t.className='hotspot mechanic-target';Object.assign(t.style,{left:p[0]+'%',top:p[1]+'%',width:p[2]+'%',height:p[3]+'%'});
+ t.textContent=config.action==='tap'?config.icon:config.action==='rotate'?'↻':'✦';toy.append(t);
+ if(config.action==='tap'){t.style.cursor='pointer';t.addEventListener('click',finish);const prompt=document.createElement('div');prompt.textContent='👆 Հպի՛ր լուսավորված հատվածին';prompt.style.cssText='font-weight:800;text-align:center;font-size:14px';tray.append(prompt)}
+ if(config.action==='drag'){
+  makeButton(config.wrong,false);makeButton(config.tool,true);
+  for(const b of tray.querySelectorAll('.tool'))enableDrag(b);
+ }
+ if(config.action==='rotate'){
+  makeButton(config.wrong,false);makeButton(config.tool,true);
+  for(const b of tray.querySelectorAll('.tool'))b.addEventListener('click',()=>{if(b.dataset.correct==='false'){message('Փորձի՛ր մյուս գործիքը');return}selected=true;b.classList.add('active');message('Պտտի՛ր լուսավորված պտուտակը');t.textContent='↻';});
+  let angle=null;
+  t.addEventListener('pointerdown',e=>{if(!selected||locked)return;t.setPointerCapture(e.pointerId);const r=t.getBoundingClientRect();angle=Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2));e.preventDefault()});
+  t.addEventListener('pointermove',e=>{if(angle===null||locked)return;const r=t.getBoundingClientRect(),next=Math.atan2(e.clientY-(r.top+r.height/2),e.clientX-(r.left+r.width/2));let delta=next-angle;while(delta>Math.PI)delta-=2*Math.PI;while(delta< -Math.PI)delta+=2*Math.PI;angle=next;rotateProgress+=Math.abs(delta);t.style.transform='rotate('+Math.round(rotateProgress*180/Math.PI)+'deg)';if(rotateProgress>=Math.PI*1.3)finish()});
+  t.addEventListener('pointerup',()=>angle=null);t.addEventListener('pointercancel',()=>angle=null);
+ }
+ const dots=document.createElement('div');dots.className='statusdots';for(let i=0;i<jobs[job].steps.length;i++){const d=document.createElement('i');if(i<=stage)d.classList.add('on');dots.append(d)}tray.append(dots);
+}
+function enableDrag(button){
+ button.addEventListener('pointerdown',e=>{if(locked)return;const rect=button.getBoundingClientRect();activeDrag={id:e.pointerId,button,correct:button.dataset.correct==='true',x:e.clientX,y:e.clientY,left:rect.left,top:rect.top};button.setPointerCapture(e.pointerId);button.classList.add('active');e.preventDefault()});
+ button.addEventListener('pointermove',e=>{if(!activeDrag||activeDrag.id!==e.pointerId||activeDrag.button!==button)return;button.style.transform='translate('+(e.clientX-activeDrag.x)+'px,'+(e.clientY-activeDrag.y)+'px) scale(1.13)';button.style.zIndex='12'});
+ button.addEventListener('pointerup',e=>{if(!activeDrag||activeDrag.id!==e.pointerId)return;const drag=activeDrag;activeDrag=null;button.style.transform='';button.style.zIndex='';button.classList.remove('active');const rect=getTarget().getBoundingClientRect();const inside=e.clientX>=rect.left-28&&e.clientX<=rect.right+28&&e.clientY>=rect.top-28&&e.clientY<=rect.bottom+28;if(!drag.correct){message('Այս գործիքը չի համապատասխանում');return}if(inside)finish();else message('Տա՛ր գործիքը լուսավորված տեղը')});
+ button.addEventListener('pointercancel',()=>{activeDrag=null;button.style.transform='';button.classList.remove('active')});
+}
+function finish(){
+ if(locked)return;locked=true;clearTimeout(feedbackTimer);instruction.textContent='Հրաշալի՜ է։';const t=getTarget();if(t){t.classList.add('ready');t.textContent='✓';t.style.transform='scale(1.08)'}
+ const toy=scene.querySelector('.mechanic-toy'),test=getConfig().target==='test';if(test)toy.classList.add('testdrive');else{toy.style.transition='filter .3s';toy.style.filter='drop-shadow(0 0 12px #fff0a0)'}
+ setTimeout(()=>{stage++;if(stage>=jobs[job].steps.length)complete();else render()},test?1900:650);
+}
+function complete(){
+ locked=true;doneJobs=Math.max(doneJobs,job+1);scene.innerHTML=shape();tray.replaceChildren();const panel=document.createElement('div');panel.className='done';panel.innerHTML='<div class="done-card"><div class="star">🌟</div><h2>Ապրե՛ս, վարպետ</h2><p>'+jobs[job].name+'ն ավարտված է։</p><button class="next">Հաջորդ խաղալիքը ▶</button><div class="counter">'+doneJobs+' / '+jobs.length+'</div></div>';workshop.append(panel);panel.querySelector('button').addEventListener('click',()=>{panel.remove();job=(job+1)%jobs.length;stage=0;render()});
+}
 render();
 </script></body></html>
