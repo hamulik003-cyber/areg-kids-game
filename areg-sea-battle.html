@@ -36,13 +36,13 @@ function framedBoard(b,opts={}){const frame=document.createElement('div');frame.
 
 function shell(title,subtitle=''){view.innerHTML='';const head=document.createElement('div');head.className='board-title';head.innerHTML='<span>'+title+'</span><span class="badge">'+subtitle+'</span>';const wrap=document.createElement('div');wrap.className='board-wrap';wrap.append(head);view.append(wrap);return wrap}
 function renderPlace(){
- phase='place';view.innerHTML='';const b=currentPlaceBoard(),len=FLEET[placeIndex];const f=framedBoard(b,{title:'⚓ ՔՈ ՆԱՎԵՐԸ',subtitle:(placeIndex)+' / '+FLEET.length,place:true});
+ phase='place';view.innerHTML='';const b=currentPlaceBoard(),len=FLEET[placeIndex]||0;const f=framedBoard(b,{title:'⚓ ՔՈ ՆԱՎԵՐԸ',subtitle:(placeIndex)+' / '+FLEET.length,place:true});
  view.append(f);const board=f.querySelector('.board');
  let drag=null,hover=-1,ghost=[];
- function drawGhost(i){hover=i;ghost=i<0?[]:(canPut(b,i,len,orientation)||ghostCells(i,len,orientation));const valid=i>=0&&!!canPut(b,i,len,orientation);board.querySelectorAll('.cell').forEach((c,j)=>{c.classList.toggle('ghost',ghost.includes(j)&&valid);c.classList.toggle('invalid',ghost.includes(j)&&!valid)})}
- function place(i){const cells=canPut(b,i,len,orientation);if(!cells)return false;b.ships.push(cells);placeIndex++;selected=null;beep('place');if(placeIndex===FLEET.length){if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()}else renderPlace();return true}
- board.querySelectorAll('.cell').forEach(c=>{c.onclick=()=>{if(drag)return;place(+c.dataset.i)}});
- const status=document.createElement('div');status.className='placement-status';status.textContent='Նավը ներքևից քաշի՛ր դեպի ծովը';view.append(status);
+ function drawGhost(i){hover=i;ghost=i<0||!len?[]:(canPut(b,i,len,orientation)||ghostCells(i,len,orientation));const valid=i>=0&&!!len&&!!canPut(b,i,len,orientation);board.querySelectorAll('.cell').forEach((c,j)=>{c.classList.toggle('ghost',ghost.includes(j)&&valid);c.classList.toggle('invalid',ghost.includes(j)&&!valid)})}
+ function place(i){if(!len)return false;const cells=canPut(b,i,len,orientation);if(!cells)return false;b.ships.push(cells);placeIndex++;selected=null;beep('place');renderPlace();return true}
+ board.querySelectorAll('.cell').forEach(c=>{c.onclick=()=>{if(drag)return;const i=+c.dataset.i,shipIndex=b.ships.findIndex(ship=>ship.includes(i));if(shipIndex>=0){b.ships.splice(shipIndex,1);b.ships=[];placeIndex=0;renderPlace();return}place(i)}});
+ const status=document.createElement('div');status.className='placement-status';status.textContent=placeIndex===FLEET.length?'Բոլոր նավերը տեղադրված են։ Սեղմի՛ր «Պատրաստ է»':'Նավը ներքևից քաշի՛ր դեպի ծովը';view.append(status);
  const dock=document.createElement('div');dock.className='dock';dock.innerHTML='<div class="dock-label">🚢 ՆԱՎԵՐԻ ՆԱՎԱՀԱՆԳԻՍՏ · Քաշի՛ր և տեղադրի՛ր</div>';
  const dockShips=document.createElement('div');dockShips.className='dock-ships';
  FLEET.forEach((n,k)=>{const token=document.createElement('div');token.className='ship-token '+(k<placeIndex?'used':k===placeIndex?'active':'');token.dataset.len=n;token.innerHTML=Array.from({length:n},()=>'<span></span>').join('')+'<b class="ship-art">⚓</b>';if(k===placeIndex){
@@ -58,9 +58,9 @@ function renderPlace(){
  }dockShips.append(token)});
  dock.append(dockShips);view.append(dock);
  function move(e){const el=document.elementFromPoint(e.clientX,e.clientY);const cell=el?.closest('.cell');const i=cell&&board.contains(cell)?+cell.dataset.i:-1;drawGhost(i)}
- const actions=document.createElement('div');actions.className='placement-actions';actions.innerHTML='<button class="secondary" id="rotate">↻ Պտտել նավը</button><button class="secondary" id="auto">🎲 Ավտոմատ դասավորել</button>';view.append(actions);
+ const actions=document.createElement('div');actions.className='placement-actions';actions.innerHTML='<button class="secondary" id="rotate">↻ Պտտել նավը</button><button class="secondary" id="auto">🎲 Ավտոմատ դասավորել</button>'+(placeIndex===FLEET.length?'<button class="primary" id="ready">ՊԱՏՐԱՍՏ Է ✓</button>':'');view.append(actions);
  actions.querySelector('#rotate').onclick=()=>{orientation=1-orientation;drawGhost(-1);status.textContent=orientation?'Ուղղահայաց նավ':'Հորիզոնական նավ'};
- actions.querySelector('#auto').onclick=()=>{b.ships=randomBoard().ships;placeIndex=FLEET.length;beep('place');if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()};
+ actions.querySelector('#auto').onclick=()=>{b.ships=randomBoard().ships;placeIndex=FLEET.length;beep('place');renderPlace()};const ready=actions.querySelector('#ready');if(ready)ready.onclick=()=>{if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()};
  footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=confirmExit
 }
 
