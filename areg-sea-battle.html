@@ -23,6 +23,25 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app.combat-mode .battle-separator{width:min(calc(100vw - 12px),calc((100dvh - 110px)/2));max-width:480px;flex:0 0 auto;padding:3px 6px;min-height:23px;font-size:12px;gap:3px}
 #app.combat-mode .battle-separator .count{padding:1px 7px}
 @media(max-height:670px){#app.combat-mode .top h1{font-size:16px;line-height:18px}#app.combat-mode .battle-view{gap:1px}#app.combat-mode .battle-separator{min-height:19px;padding:1px 4px}}
+
+/* Symmetric 3-control combat bar, designed to stay out of the grids. */
+#app.combat-mode .top{padding:0 4px!important;margin:0}
+#app.combat-mode .top h1{font-size:16px!important;line-height:19px!important;margin:0}
+#app.combat-mode .game{padding:0 3px 0!important}
+#app.combat-mode .battle-view{justify-content:center!important;gap:2px!important}
+#app.combat-mode .battle-view .board-wrap{width:min(calc(100vw - 6px),calc((100dvh - 70px)/2))!important;max-width:510px!important}
+#app.combat-mode .battle-view .board-row .board{width:calc(100% - 18px)!important}
+#app.combat-mode .battle-view .coord-left{width:18px!important}
+#app.combat-mode .battle-view .coord-top{margin-left:18px!important;width:calc(100% - 18px)!important;line-height:13px!important;padding:0 3px!important}
+#app.combat-mode .battle-separator{width:min(calc(100vw - 6px),calc((100dvh - 70px)/2))!important;max-width:510px!important;display:grid!important;grid-template-columns:1fr 2.1fr 1fr;gap:6px!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0 1px!important;height:31px!important;min-height:31px!important;align-items:stretch}
+#app.combat-mode .combat-chip{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;border:2px solid #3ec7d9;border-radius:8px;background:linear-gradient(180deg,#0f7e90,#053c64);box-shadow:inset 0 1px 0 #8ff7ff55,0 2px 0 #021e3e,0 0 8px #12b9e644;font-size:clamp(11px,3vw,15px);font-weight:950;color:#edffff;white-space:nowrap}
+#app.combat-mode .combat-chip-left{border-color:#3da5ce}
+#app.combat-mode .combat-chip-center{background:linear-gradient(180deg,#16a8a3,#086c81);border-color:#48f0e2;clip-path:polygon(6% 0,94% 0,100% 25%,100% 75%,94% 100%,6% 100%,0 75%,0 25%)}
+#app.combat-mode .combat-chip-right{border-color:#3da5ce}
+#app.combat-mode .combat-icon{font-size:clamp(15px,4vw,19px);line-height:1}
+#app.combat-mode .combat-status-icon{font-size:18px;line-height:1;filter:drop-shadow(0 0 4px #9af9ff)}
+#app.combat-mode .combat-count{font-variant-numeric:tabular-nums}
+@media(max-height:670px){#app.combat-mode .top h1{font-size:14px!important;line-height:16px!important}#app.combat-mode .battle-separator{height:25px!important;min-height:25px!important}#app.combat-mode .combat-chip{border-width:1px}}
 </style></head><body><div id="app"><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
@@ -117,8 +136,10 @@ function renderBattle(animate=false){
  const stage=document.createElement('div');stage.className='battle-view'+(animate?' enter':'');
  stage.append(framedBoard(my,{compact:true,show:true}));
  const separator=document.createElement('div');separator.className='battle-separator '+((mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1)?'enemy-turn':'own-turn');
- separator.innerHTML='<span class="count">🎯 '+opponent.shots.filter(i=>opponent.ships.some(s=>s.includes(i))).length+'</span><span></span><span class="count">⚓ '+FLEET.length+'</span>';
- separator.children[1].textContent='⚔';
+ const sunkMine=my.ships.filter(ship=>ship.every(i=>my.shots.includes(i))).length;
+ const sunkEnemy=opponent.ships.filter(ship=>ship.every(i=>opponent.shots.includes(i))).length;
+ const enemyTurn=(mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1);
+ separator.innerHTML='<div class="combat-chip combat-chip-left"><span class="combat-icon">◎</span><span class="combat-count">'+sunkEnemy+'/'+FLEET.length+'</span></div><div class="combat-chip combat-chip-center" aria-label="Մարտի ընթացքը"><span class="combat-status-icon">'+(enemyTurn?'⌛':'🎯')+'</span></div><div class="combat-chip combat-chip-right"><span class="combat-icon">⚓</span><span class="combat-count">'+(FLEET.length-sunkMine)+'/'+FLEET.length+'</span></div>';
  stage.append(separator);
  stage.append(framedBoard(opponent,{compact:true,show:false,click:canFire?fire:null}));
  view.append(stage);footer.innerHTML='';
