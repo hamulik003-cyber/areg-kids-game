@@ -139,6 +139,34 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 @keyframes seaPulse{0%{transform:translate3d(-9px,10px,0) scale(.65);opacity:0}45%{opacity:.52}100%{transform:translate3d(12px,-14px,0) scale(1.4);opacity:0}}
 @keyframes seaRays{from{transform:translate3d(-10px,-12px,0) rotate(-2deg)}to{transform:translate3d(12px,14px,0) rotate(2deg)}}
 @media(prefers-reduced-motion:reduce){#app .sea-ambience *,#app .sea-ambience:before{animation:none!important}#app .sea-ambience .sea-object{opacity:.12;transform:translateY(-30vh)}#app .sea-ambience .sea-glow{opacity:.18}}
+
+/* Brighter underwater palette: readable turquoise sea depth inside the wood rim.
+   Ambient movement remains behind the opaque 10x10 boards and never blocks touch. */
+#app{background:linear-gradient(180deg,#16769a 0%,#126d94 24%,#105c85 55%,#0b426c 100%)!important}
+#app::before{opacity:.2!important}
+#app .sea-ambience{
+ background:
+ radial-gradient(ellipse 95% 34% at 52% 1%,#9eeaff5c 0%,#42b6d837 45%,transparent 100%),
+ radial-gradient(ellipse 70% 38% at 7% 47%,#34b4d23b,transparent 90%),
+ radial-gradient(ellipse 75% 40% at 93% 80%,#2bafc83d,transparent 90%),
+ linear-gradient(180deg,#228eae 0%,#167c9f 32%,#126a91 67%,#0c4d77 100%)!important;
+ box-shadow:inset 0 0 28px #073e6a40!important
+}
+#app .sea-ambience::before{
+ background:
+ repeating-linear-gradient(110deg,transparent 0 56px,#b5f7ff19 58px 62px,transparent 65px 118px),
+ radial-gradient(ellipse 70% 40% at 50% 0%,#c0faff3a,transparent 90%)!important;
+ opacity:.8!important
+}
+#app .sea-ambience::after{
+ background:
+ radial-gradient(circle at 25% 19%,#d5ffff65 0 2px,transparent 5px),
+ radial-gradient(circle at 77% 46%,#b7f4ff4d 0 2px,transparent 5px),
+ radial-gradient(circle at 51% 82%,#d5ffff60 0 2px,transparent 5px)!important;
+ background-size:140px 190px!important;opacity:.8!important
+}
+#app .sea-ambience .sea-object{border-color:#d4faffb0!important;box-shadow:inset -2px -3px 5px #19799a40,0 0 11px #b1f8ff66!important}
+#app .sea-ambience .sea-glow{background:radial-gradient(circle,#adfaff75 0%,#5ddaff32 38%,transparent 74%)!important}
 </style></head><body><div id="app"><div class="sea-ambience" aria-hidden="true"><i class="sea-object" style="--x:8%;--s:7px;--d:16s;--delay:-5s;--drift:18px"></i><i class="sea-object" style="--x:21%;--s:12px;--d:21s;--delay:-14s;--drift:-23px"></i><i class="sea-object" style="--x:37%;--s:5px;--d:17s;--delay:-8s;--drift:14px"></i><i class="sea-object" style="--x:52%;--s:9px;--d:24s;--delay:-19s;--drift:-12px"></i><i class="sea-object" style="--x:69%;--s:6px;--d:19s;--delay:-3s;--drift:22px"></i><i class="sea-object" style="--x:83%;--s:13px;--d:26s;--delay:-12s;--drift:-19px"></i><i class="sea-object" style="--x:94%;--s:5px;--d:18s;--delay:-15s;--drift:-14px"></i><i class="sea-object" style="--x:16%;--s:4px;--d:23s;--delay:-18s;--drift:10px"></i><i class="sea-object" style="--x:75%;--s:8px;--d:28s;--delay:-22s;--drift:16px"></i><i class="sea-glow" style="--x:6%;--y:15%;--d:9s;--delay:-4s"></i><i class="sea-glow" style="--x:81%;--y:28%;--d:13s;--delay:-8s"></i><i class="sea-glow" style="--x:14%;--y:70%;--d:15s;--delay:-11s"></i><i class="sea-glow" style="--x:75%;--y:87%;--d:12s;--delay:-6s"></i></div><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
