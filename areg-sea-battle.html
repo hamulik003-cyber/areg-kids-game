@@ -41,7 +41,7 @@ function renderPlace(){
  let drag=null,hover=-1,ghost=[];
  function drawGhost(i){hover=i;ghost=i<0||!len?[]:(canPut(b,i,len,orientation)||ghostCells(i,len,orientation));const valid=i>=0&&!!len&&!!canPut(b,i,len,orientation);board.querySelectorAll('.cell').forEach((c,j)=>{c.classList.toggle('ghost',ghost.includes(j)&&valid);c.classList.toggle('invalid',ghost.includes(j)&&!valid)})}
  function place(i){if(!len)return false;const cells=canPut(b,i,len,orientation);if(!cells)return false;b.ships.push(cells);placeIndex++;selected=null;beep('place');renderPlace();return true}
- board.querySelectorAll('.cell').forEach(c=>{c.onclick=()=>{if(drag)return;const i=+c.dataset.i,shipIndex=b.ships.findIndex(ship=>ship.includes(i));if(shipIndex>=0){b.ships.splice(shipIndex,1);b.ships=[];placeIndex=0;renderPlace();return}place(i)}});
+ board.querySelectorAll('.cell').forEach(c=>{c.onclick=()=>{if(drag)return;const i=+c.dataset.i,shipIndex=b.ships.findIndex(ship=>ship.includes(i));if(shipIndex>=0){if(shipIndex===b.ships.length-1){b.ships.pop();placeIndex--;renderPlace()}else status.textContent='Վերջին դրված նավը սեղմի՛ր՝ տեղափոխելու համար';return}place(i)}});
  const status=document.createElement('div');status.className='placement-status';status.textContent=placeIndex===FLEET.length?'Բոլոր նավերը տեղադրված են։ Սեղմի՛ր «Պատրաստ է»':'Նավը ներքևից քաշի՛ր դեպի ծովը';view.append(status);
  const dock=document.createElement('div');dock.className='dock';dock.innerHTML='<div class="dock-label">🚢 ՆԱՎԵՐԻ ՆԱՎԱՀԱՆԳԻՍՏ · Քաշի՛ր և տեղադրի՛ր</div>';
  const dockShips=document.createElement('div');dockShips.className='dock-ships';
