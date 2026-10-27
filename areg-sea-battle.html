@@ -36,7 +36,7 @@ function framedBoard(b,opts={}){const frame=document.createElement('div');frame.
 
 function shell(title,subtitle=''){view.innerHTML='';const head=document.createElement('div');head.className='board-title';head.innerHTML='<span>'+title+'</span><span class="badge">'+subtitle+'</span>';const wrap=document.createElement('div');wrap.className='board-wrap';wrap.append(head);view.append(wrap);return wrap}
 function renderPlace(){
- phase='place';view.innerHTML='';const b=currentPlaceBoard(),len=FLEET[placeIndex]||0;const f=framedBoard(b,{title:'⚓ ՔՈ ՆԱՎԵՐԸ',subtitle:(placeIndex)+' / '+FLEET.length,place:true});
+ phase='place';view.innerHTML='';const b=currentPlaceBoard(),len=FLEET[placeIndex]||0;const f=framedBoard(b,{title:'⚓ ՔՈ ՆԱՎԵՐԸ',subtitle:(placeIndex)+' / '+FLEET.length,place:true,show:true});
  view.append(f);const board=f.querySelector('.board');
  let drag=null,hover=-1,ghost=[],suppressPlacementClickUntil=0;
  function drawGhost(i){hover=i;/* Never paint valid/invalid placement cells: only the actual ship follows the finger. */}
