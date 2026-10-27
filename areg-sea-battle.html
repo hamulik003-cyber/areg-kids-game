@@ -341,11 +341,16 @@ function renderBattle(animate=false){
   if(!separator.isConnected)return;
   const sea=stage.querySelector('.board-row .board');
   if(!sea)return;
+  // The separator survives renders. Reset its previous offset BEFORE measuring,
+  // otherwise every shot accumulates an extra left/right translation.
+  separator.style.transform='none';
+  separator.style.setProperty('width','auto','important');
   const seaRect=sea.getBoundingClientRect();
-  const barRect=separator.getBoundingClientRect();
   separator.style.setProperty('width',seaRect.width+'px','important');
   separator.style.maxWidth='none';
-  separator.style.transform='translateX('+((seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2))+'px)';
+  const barRect=separator.getBoundingClientRect();
+  const offset=(seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2);
+  separator.style.transform='translate3d('+offset+'px,0,0)';
  };
  alignCombatBar();
 }
