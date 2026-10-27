@@ -82,6 +82,40 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 }
 #app{box-shadow:inset 0 0 0 2px #fff0c788,inset 0 0 0 9px #5a2f2080,0 7px 0 #7c4628,0 13px 20px #0007}
 @media(max-width:360px){#app::after{inset:1px;border-width:4px}}
+
+/* Frame-safe combat layout: keep heading, controls and final coordinate row
+   entirely inside the gold wooden rim. Match both board widths. */
+#app{padding:11px 9px 13px!important}
+#app.combat-mode .top{padding:1px 4px 5px!important;min-height:25px;z-index:2}
+#app.combat-mode .top h1{line-height:22px!important;font-size:17px!important}
+#app.combat-mode .game{padding:2px 0 5px!important;overflow:hidden;min-height:0}
+#app.combat-mode .battle-view{gap:3px!important;overflow:visible!important;justify-content:center!important}
+#app.combat-mode .battle-view .board-wrap{
+ width:min(calc(100vw - 28px),calc((100dvh - 132px)/2))!important;
+ max-width:510px!important;overflow:visible!important;flex-shrink:0!important;
+}
+#app.combat-mode .battle-view .board-row{overflow:visible!important}
+#app.combat-mode .battle-view .board-wrap:last-child .coord-top{
+ margin-top:4px!important;margin-bottom:3px!important;
+ line-height:18px!important;min-height:18px!important;
+ align-items:center!important;overflow:visible!important;
+}
+#app.combat-mode .battle-view .board-wrap:first-child .coord-top{
+ line-height:16px!important;min-height:16px!important;
+}
+#app.combat-mode .battle-view .battle-separator{
+ height:32px!important;min-height:32px!important;
+ margin:3px 0!important;padding:1px!important;
+ overflow:visible!important;z-index:3;
+}
+#app.combat-mode .combat-chip{height:100%;min-height:0;overflow:hidden}
+@media(max-height:740px){
+ #app.combat-mode .battle-view .board-wrap{
+ width:min(calc(100vw - 28px),calc((100dvh - 126px)/2))!important;
+ }
+ #app.combat-mode .battle-view .battle-separator{height:27px!important;min-height:27px!important}
+ #app.combat-mode .top{min-height:22px}
+}
 </style></head><body><div id="app"><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
