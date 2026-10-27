@@ -42,6 +42,14 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app.combat-mode .combat-status-icon{font-size:18px;line-height:1;filter:drop-shadow(0 0 4px #9af9ff)}
 #app.combat-mode .combat-count{font-variant-numeric:tabular-nums}
 @media(max-height:670px){#app.combat-mode .top h1{font-size:14px!important;line-height:16px!important}#app.combat-mode .battle-separator{height:25px!important;min-height:25px!important}#app.combat-mode .combat-chip{border-width:1px}}
+
+/* Upper grid ends directly above the indicator bar; lower grid begins directly below it.
+   Enemy numbers belong beneath the enemy grid, never between the boards. */
+#app.combat-mode .battle-view{gap:0!important}
+#app.combat-mode .battle-view .board-wrap{gap:0!important}
+#app.combat-mode .battle-view .battle-separator{margin:0!important;padding:0 1px!important}
+#app.combat-mode .battle-view .board-wrap:last-child .coord-top{margin-top:1px!important;margin-bottom:0!important}
+#app.combat-mode .battle-view .board-wrap:first-child .coord-top{margin-bottom:1px!important}
 </style></head><body><div id="app"><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
@@ -68,7 +76,7 @@ function boardHTML(b,opts={}){
  cell.disabled=shot||(!click&&!opts.place);if(click)cell.onclick=()=>click(i);board.append(cell)}
  return board
 }
-function framedBoard(b,opts={}){const frame=document.createElement('div');frame.className='board-wrap';if(!opts.compact){const title=document.createElement('div');title.className='board-title';title.innerHTML='<span></span><span class="badge"></span>';title.children[0].textContent=opts.title||'';title.children[1].textContent=opts.subtitle||'';frame.append(title)}const coords=document.createElement('div');coords.className='coord-top';for(let n=1;n<=N;n++){const el=document.createElement('span');el.textContent=n;coords.append(el)}frame.append(coords);const row=document.createElement('div');row.className='board-row';const letters=document.createElement('div');letters.className='coord-left';for(let n=0;n<N;n++){const el=document.createElement('span');el.textContent=String.fromCharCode(65+n);letters.append(el)}row.append(letters,boardHTML(b,opts));frame.append(row);return frame}
+function framedBoard(b,opts={}){const frame=document.createElement('div');frame.className='board-wrap';if(!opts.compact){const title=document.createElement('div');title.className='board-title';title.innerHTML='<span></span><span class="badge"></span>';title.children[0].textContent=opts.title||'';title.children[1].textContent=opts.subtitle||'';frame.append(title)}const coords=document.createElement('div');coords.className='coord-top';for(let n=1;n<=N;n++){const el=document.createElement('span');el.textContent=n;coords.append(el)}if(!opts.coordsBottom)frame.append(coords);const row=document.createElement('div');row.className='board-row';const letters=document.createElement('div');letters.className='coord-left';for(let n=0;n<N;n++){const el=document.createElement('span');el.textContent=String.fromCharCode(65+n);letters.append(el)}row.append(letters,boardHTML(b,opts));frame.append(row);if(opts.coordsBottom)frame.append(coords);return frame}
 
 function shell(title,subtitle=''){view.innerHTML='';const head=document.createElement('div');head.className='board-title';head.innerHTML='<span>'+title+'</span><span class="badge">'+subtitle+'</span>';const wrap=document.createElement('div');wrap.className='board-wrap';wrap.append(head);view.append(wrap);return wrap}
 function renderPlace(){
@@ -141,7 +149,7 @@ function renderBattle(animate=false){
  const enemyTurn=(mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1);
  separator.innerHTML='<div class="combat-chip combat-chip-left"><span class="combat-icon">◎</span><span class="combat-count">'+sunkEnemy+'/'+FLEET.length+'</span></div><div class="combat-chip combat-chip-center" aria-label="Մարտի ընթացքը"><span class="combat-status-icon">'+(enemyTurn?'⌛':'🎯')+'</span></div><div class="combat-chip combat-chip-right"><span class="combat-icon">⚓</span><span class="combat-count">'+(FLEET.length-sunkMine)+'/'+FLEET.length+'</span></div>';
  stage.append(separator);
- stage.append(framedBoard(opponent,{compact:true,show:false,click:canFire?fire:null}));
+ stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
  view.append(stage);footer.innerHTML='';
 }
 function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
