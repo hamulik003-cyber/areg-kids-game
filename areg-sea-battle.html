@@ -57,12 +57,16 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
   box-sizing:border-box!important;
   width:calc(min(calc(100vw - 6px),calc((100dvh - 70px)/2),510px) - 18px)!important;
   max-width:492px!important;
-  margin-left:18px!important;
+  margin-left:0!important;
   margin-right:0!important;
   align-self:center!important;
   position:relative;
-  left:9px;
+  left:0!important;
+  transform:none;
 }
+
+/* JS measures the exact grid; prevent older CSS from forcing bar width. */
+#app.combat-mode .battle-view .battle-separator{width:auto!important;max-width:none!important;min-width:0!important}
 </style></head><body><div id="app"><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
@@ -164,6 +168,19 @@ function renderBattle(animate=false){
  stage.append(separator);
  stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
  view.append(stage);footer.innerHTML='';
+ // Align to the blue 10x10 grid's measured edges, never to the A-J label gutter.
+ // Do not guess pixel offsets: the outer PWA frame and viewport may vary.
+ const alignCombatBar=()=>{
+  if(!separator.isConnected)return;
+  const sea=stage.querySelector('.board-row .board');
+  if(!sea)return;
+  const seaRect=sea.getBoundingClientRect();
+  const barRect=separator.getBoundingClientRect();
+  separator.style.setProperty('width',seaRect.width+'px','important');
+  separator.style.maxWidth='none';
+  separator.style.transform='translateX('+((seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2))+'px)';
+ };
+ requestAnimationFrame(()=>requestAnimationFrame(alignCombatBar));
 }
 function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
  const frames=view.querySelectorAll('.board'),board=frames[boardIndex],cell=board?.querySelectorAll('.cell')[cellIndex];
