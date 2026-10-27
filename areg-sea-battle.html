@@ -116,7 +116,30 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  #app.combat-mode .battle-view .battle-separator{height:27px!important;min-height:27px!important}
  #app.combat-mode .top{min-height:22px}
 }
-</style></head><body><div id="app"><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
+
+/* Calm underwater ambience inside the golden wooden frame, behind BOTH boards.
+   Pure transform/opacity animations: no canvas loop, no layout thrashing. */
+#app .sea-ambience{position:absolute;inset:13px 11px 15px;border-radius:16px;overflow:hidden;pointer-events:none;z-index:0;contain:paint;background:
+ radial-gradient(ellipse 35% 23% at 18% 28%,#1684a018,transparent 90%),
+ radial-gradient(ellipse 40% 30% at 88% 73%,#127dbe18,transparent 90%),
+ linear-gradient(160deg,#0d365b24,#03172e10 55%,#11517b24)}
+#app .sea-ambience:before{content:"";position:absolute;inset:-20%;background:
+ repeating-linear-gradient(115deg,transparent 0 65px,#6bc8f207 67px 69px,transparent 72px 145px);
+ opacity:.65;animation:seaRays 28s ease-in-out infinite alternate}
+#app .sea-ambience:after{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 25% 19%,#7ce9ff13 0 2px,transparent 4px),
+ radial-gradient(circle at 77% 46%,#7ce9ff18 0 2px,transparent 5px),
+ radial-gradient(circle at 51% 82%,#7ce9ff13 0 2px,transparent 5px);background-size:140px 190px;opacity:.7}
+#app .sea-ambience .sea-object{position:absolute;bottom:-12%;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;border:1px solid #b8efff65;background:radial-gradient(circle at 32% 26%,#dcfbff70 0 6%,#7ac7ed28 20%,#3a9ac010 65%,transparent 85%);box-shadow:inset -2px -3px 5px #0d4c7540,0 0 9px #4bcbf51a;opacity:0;animation:seaFloat var(--d) linear var(--delay) infinite;will-change:transform,opacity}
+#app .sea-ambience .sea-object:nth-child(3n){border-color:#91ddf94d;filter:blur(.4px)}
+#app .sea-ambience .sea-object:nth-child(5n){border-color:#91ddf92e;filter:blur(1px)}
+#app .sea-ambience .sea-glow{position:absolute;width:65px;height:65px;left:var(--x);top:var(--y);border-radius:50%;background:radial-gradient(circle,#45c9ff30 0%,#42aef010 34%,transparent 72%);opacity:0;animation:seaPulse var(--d) ease-in-out var(--delay) infinite alternate;will-change:transform,opacity}
+#app>.top,#app>.game,#app>.bottom{z-index:1}
+@keyframes seaFloat{0%{transform:translate3d(0,0,0) scale(.7);opacity:0}12%{opacity:.48}55%{opacity:.24}88%{opacity:.42}100%{transform:translate3d(var(--drift),-105dvh,0) scale(1.14);opacity:0}}
+@keyframes seaPulse{0%{transform:translate3d(-9px,10px,0) scale(.65);opacity:0}45%{opacity:.52}100%{transform:translate3d(12px,-14px,0) scale(1.4);opacity:0}}
+@keyframes seaRays{from{transform:translate3d(-10px,-12px,0) rotate(-2deg)}to{transform:translate3d(12px,14px,0) rotate(2deg)}}
+@media(prefers-reduced-motion:reduce){#app .sea-ambience *,#app .sea-ambience:before{animation:none!important}#app .sea-ambience .sea-object{opacity:.12;transform:translateY(-30vh)}#app .sea-ambience .sea-glow{opacity:.18}}
+</style></head><body><div id="app"><div class="sea-ambience" aria-hidden="true"><i class="sea-object" style="--x:8%;--s:7px;--d:16s;--delay:-5s;--drift:18px"></i><i class="sea-object" style="--x:21%;--s:12px;--d:21s;--delay:-14s;--drift:-23px"></i><i class="sea-object" style="--x:37%;--s:5px;--d:17s;--delay:-8s;--drift:14px"></i><i class="sea-object" style="--x:52%;--s:9px;--d:24s;--delay:-19s;--drift:-12px"></i><i class="sea-object" style="--x:69%;--s:6px;--d:19s;--delay:-3s;--drift:22px"></i><i class="sea-object" style="--x:83%;--s:13px;--d:26s;--delay:-12s;--drift:-19px"></i><i class="sea-object" style="--x:94%;--s:5px;--d:18s;--delay:-15s;--drift:-14px"></i><i class="sea-object" style="--x:16%;--s:4px;--d:23s;--delay:-18s;--drift:10px"></i><i class="sea-object" style="--x:75%;--s:8px;--d:28s;--delay:-22s;--drift:16px"></i><i class="sea-glow" style="--x:6%;--y:15%;--d:9s;--delay:-4s"></i><i class="sea-glow" style="--x:81%;--y:28%;--d:13s;--delay:-8s"></i><i class="sea-glow" style="--x:14%;--y:70%;--d:15s;--delay:-11s"></i><i class="sea-glow" style="--x:75%;--y:87%;--d:12s;--delay:-6s"></i></div><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
 const N=10,FLEET=[5,4,3,3,2],$=s=>document.querySelector(s),view=$('#view'),footer=$('#footer');
