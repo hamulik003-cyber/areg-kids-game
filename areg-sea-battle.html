@@ -50,6 +50,19 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app.combat-mode .battle-view .battle-separator{margin:0!important;padding:0 1px!important}
 #app.combat-mode .battle-view .board-wrap:last-child .coord-top{margin-top:1px!important;margin-bottom:0!important}
 #app.combat-mode .battle-view .board-wrap:first-child .coord-top{margin-bottom:1px!important}
+
+/* Align the indicator strictly to the 10x10 sea grid, excluding the A–J label gutter.
+   The bar's left and right edges now match the blue grid edges. */
+#app.combat-mode .battle-view .battle-separator{
+  box-sizing:border-box!important;
+  width:calc(min(calc(100vw - 6px),calc((100dvh - 70px)/2),510px) - 18px)!important;
+  max-width:492px!important;
+  margin-left:18px!important;
+  margin-right:0!important;
+  align-self:center!important;
+  position:relative;
+  left:9px;
+}
 </style></head><body><div id="app"><header class="top"><h1>⚓ Ծովամարտ</h1><small>Գտի՛ր հակառակորդի նավերը</small></header><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
