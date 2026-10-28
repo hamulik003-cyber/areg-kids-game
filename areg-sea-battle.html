@@ -229,6 +229,11 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 }
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
+/* Keep the same sea background behind the bottom menu on every screen. */
+#app{background:linear-gradient(180deg,#16769a 0%,#167c9f 50%,#126a91 100%)!important}
+#app .sea-ambience{inset:13px 11px 0!important;border-radius:16px 16px 0 0!important}
+#app>.bottom{background:linear-gradient(180deg,#126a91,#126a91)!important;border:0!important;box-shadow:none!important}
+
 #app .battle-view .board{background:#178fce!important}
 #app.combat-mode .battle-separator,#app.combat-mode .combat-chip{animation:none!important;transition:none!important}
 
