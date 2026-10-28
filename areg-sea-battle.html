@@ -232,7 +232,11 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 /* Keep the same sea background behind the bottom menu on every screen. */
 #app{background:linear-gradient(180deg,#16769a 0%,#167c9f 50%,#126a91 100%)!important}
 #app .sea-ambience{inset:13px 11px 0!important;border-radius:16px 16px 0 0!important}
-#app>.bottom{background:linear-gradient(180deg,#126a91,#126a91)!important;border:0!important;box-shadow:none!important}
+/* The footer no longer occupies a separate horizontal band. The sea itself
+   continues behind the menu control; only the button is drawn. */
+#app>.bottom{position:absolute!important;left:0;right:0;bottom:0;z-index:5!important;background:none!important;border:0!important;box-shadow:none!important;padding:8px 10px max(11px,env(safe-area-inset-bottom))!important;min-height:0!important;pointer-events:none}
+#app>.bottom button{pointer-events:auto}
+#app>.game{padding-bottom:max(64px,calc(53px + env(safe-area-inset-bottom)))!important}
 
 #app .battle-view .board{background:#178fce!important}
 #app.combat-mode .battle-separator,#app.combat-mode .combat-chip{animation:none!important;transition:none!important}
