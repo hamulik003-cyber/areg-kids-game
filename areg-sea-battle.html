@@ -436,6 +436,19 @@ function renderPlace(){
  let drag=null,hover=-1,ghost=[],suppressPlacementClickUntil=0;
  // Existing ships remain editable until the player explicitly confirms readiness.
  let editShip=-1,editStart=-1,editMoved=false,livePreview=null,lastShipTap={k:-1,time:0};
+ function refreshPlacedShips(){
+  const fresh=boardHTML(b,{show:true,place:true});
+  const cells=board.querySelectorAll('.cell'),newCells=fresh.querySelectorAll('.cell');
+  cells.forEach((cell,i)=>{
+   cell.querySelectorAll('.ship-photo-tile').forEach(el=>el.remove());
+   cell.classList.toggle('photo-ship',newCells[i].classList.contains('photo-ship'));
+   cell.classList.toggle('ship',newCells[i].classList.contains('ship'));
+   cell.classList.toggle('vertical',newCells[i].classList.contains('vertical'));
+   const tile=newCells[i].querySelector('.ship-photo-tile');if(tile)cell.append(tile);
+  });
+ }
+ function tapPlacedShip(k){const now=Date.now();if(lastShipTap.k===k&&now-lastShipTap.time<400){lastShipTap={k:-1,time:0};const ship=b.ships[k];if(!moveExisting(k,ship[0],1-shipDirection(ship)))return}else{lastShipTap={k,time:now};editShip=k;selected=k}}
+
  function clearLivePreview(){if(livePreview){livePreview.node.remove();livePreview.hidden.forEach(el=>el.style.visibility='');livePreview=null}}
  function beginLivePreview(k,e){
   clearLivePreview();const ship=b.ships[k],first=board.querySelector('.cell[data-i="'+ship[0]+'"]'),last=board.querySelector('.cell[data-i="'+ship[ship.length-1]+'"]');if(!first||!last)return;
@@ -454,7 +467,7 @@ function renderPlace(){
   const cells=canPut(b,start,FLEET[k],dir);
   b.ships.splice(k,0,cells||original);
   if(!cells)return false;
-  orientation=dir;selected=k;beep('place');renderPlace();return true;
+  orientation=dir;selected=k;editShip=k;beep('place');refreshPlacedShips();return true;
  }
  function shipDirection(ship){return ship.length>1&&ship[1]-ship[0]===N?1:0}
  function shipStartAt(k,i){const ship=b.ships[k],offset=ship.indexOf(i);if(offset<0)return ship[0];return ship[0]-(shipDirection(ship)===0?offset:offset*N)}
@@ -465,20 +478,21 @@ function renderPlace(){
   c.onclick=()=>{
    if(drag||Date.now()<suppressPlacementClickUntil)return;
    const i=+c.dataset.i,k=b.ships.findIndex(ship=>ship.includes(i));
-   if(k>=0){const now=Date.now();if(lastShipTap.k===k&&now-lastShipTap.time<380){lastShipTap={k:-1,time:0};const ship=b.ships[k],dir=1-shipDirection(ship);if(!moveExisting(k,ship[0],dir))status.textContent='Այստեղ պտտելու տեղ չկա․ նախ տեղափոխիր նավը';return}lastShipTap={k,time:now};selected=k;editShip=k;status.textContent='Երկու արագ հպումով պտտիր նավը, կամ մատով տեղափոխիր։';return}
+   if(k>=0){return}
    if(editShip>=0){const k=editShip;const dir=shipDirection(b.ships[k]);if(moveExisting(k,i,dir))return;status.textContent='Այստեղ նավը չի տեղավորվում';return}
    place(i);
   };
   c.addEventListener('pointerdown',e=>{
    const i=+c.dataset.i,k=b.ships.findIndex(ship=>ship.includes(i));if(k<0)return;
-   e.preventDefault();editShip=k;editStart=i;editMoved=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,ship:k,offset:b.ships[k].indexOf(i)};beginLivePreview(k,e);
+   e.preventDefault();editShip=k;editStart=i;editMoved=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,ship:k,offset:b.ships[k].indexOf(i)};
    try{c.setPointerCapture(e.pointerId)}catch(_){}
   });
-  c.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId||drag.ship<0)return;e.preventDefault();editMoved=editMoved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>9;updateLivePreview(e)});
+  c.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId||drag.ship<0)return;e.preventDefault();if(!editMoved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>9){editMoved=true;beginLivePreview(drag.ship,{clientX:drag.x,clientY:drag.y})}if(editMoved)updateLivePreview(e)});
   c.addEventListener('pointerup',e=>{
    if(!drag||drag.id!==e.pointerId||drag.ship<0)return;
    const d=drag;drag=null;clearLivePreview();
-   if(!editMoved)return;
+   if(!editMoved){tapPlacedShip(d.ship);suppressPlacementClickUntil=Date.now()+450;return}
+   lastShipTap={k:-1,time:0};
    suppressPlacementClickUntil=Date.now()+500;
    const rect=board.getBoundingClientRect(),col=Math.floor((e.clientX-rect.left)/rect.width*N),row=Math.floor((e.clientY-rect.top)/rect.height*N);
    if(col<0||col>=N||row<0||row>=N){status.textContent='Նավը տեղափոխիր խաղադաշտի ներսում';return}
@@ -487,7 +501,7 @@ function renderPlace(){
   });
   c.addEventListener('pointercancel',()=>{drag=null;clearLivePreview()});
  });
- const status=document.createElement('div');status.className='placement-status';status.textContent=placeIndex===FLEET.length?'Բոլոր նավերը տեղադրված են։ Կարող ես տեղափոխել կամ պտտել։ Ավարտելուց սեղմիր «Պատրաստ է»':'Նավը ներքևից քաշի՛ր դեպի ծովը։ Դրված նավին սեղմելով կարող ես փոխել դիրքը';view.append(status);
+ const status=document.createElement('div');status.className='placement-status';status.style.display='none';
  const dock=document.createElement('div');dock.className='dock';dock.innerHTML='<div class="dock-label">🚢 ՆԱՎԵՐԻ ՆԱՎԱՀԱՆԳԻՍՏ · Քաշի՛ր և տեղադրի՛ր</div>';
  const dockShips=document.createElement('div');dockShips.className='dock-ships';
  FLEET.forEach((n,k)=>{const token=document.createElement('div');token.className='ship-token '+(k<placeIndex?'used':k===placeIndex?'active':'');token.dataset.len=n;token.innerHTML='<img class="dock-ship-photo" draggable="false" src="'+SHIP_WEBP[k]+'" alt="">';if(k===placeIndex){
