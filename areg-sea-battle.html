@@ -591,13 +591,14 @@ async function initPresence(){
   const p=new Peer(PRESENCE_PREFIX+role,{debug:0});presencePeer=p;
   p.on('connection',c=>{
    c.on('data',d=>{
-    if(!d||d.type!=='family-invite'||!FAMILY_ROLES[d.from]||d.from===role||!/^[A-Z0-9]{6}$/.test(d.room)||phase!=='online')return;
+    if(!d||d.type!=='family-invite'||!FAMILY_ROLES[d.from]||d.from===role||!/^[A-Z0-9]{6}$/.test(d.room)||!['online','room'].includes(phase))return;
+    c.send({type:'family-delivered'});
     const from=FAMILY_ROLES[d.from];
     const overlay=document.createElement('div');overlay.className='overlay';
     overlay.innerHTML='<div class="modal"><div class="big">🚢</div><h2>Հրավեր ծովամարտի</h2><p>'+from+'ը հրավիրում է քեզ խաղալու։</p><div class="row"><button class="secondary" id="declineFamily">Մերժել</button><button class="primary" id="acceptFamily">Ընդունել</button></div></div>';
     document.querySelector('#app').append(overlay);
     overlay.querySelector('#declineFamily').onclick=()=>{c.send({type:'family-reply',accepted:false});overlay.remove()};
-    overlay.querySelector('#acceptFamily').onclick=()=>{c.send({type:'family-reply',accepted:true});overlay.remove();const code=$('#code');if(code)code.value=d.room;connectPeer(false)};
+    overlay.querySelector('#acceptFamily').onclick=()=>{c.send({type:'family-reply',accepted:true});overlay.remove();if(phase!=='online')onlineMenu();const code=$('#code');if(code)code.value=d.room;connectPeer(false)};
    });
   });
   p.on('error',e=>{const el=$('#familyStatus');if(el)el.textContent=e.type==='unavailable-id'?'Այս անունով արդեն մեկ սարք միացված է։ Փակիր մյուս պատուհանը։':'Ընտանեկան կապը հասանելի չէ։'});
@@ -609,11 +610,12 @@ function sendFamilyInvite(target){
  const el=$('#wait');if(el)el.textContent='Փնտրում ենք '+FAMILY_ROLES[target]+'ին…';
  const c=presencePeer?.connect(PRESENCE_PREFIX+target,{reliable:true});
  if(!c){if(el)el.textContent='Ընտանեկան կապը հասանելի չէ';return}
- let answered=false;
- c.on('open',()=>{c.send({type:'family-invite',from:familyRole(),room});if(el)el.textContent='Հրավերն ուղարկված է։ Սպասում ենք պատասխանին…'});
- c.on('data',d=>{if(d?.type==='family-reply'){answered=true;if(el)el.textContent=d.accepted?'Հրավերն ընդունված է։ Միանում ենք…':'Հրավերը մերժվեց';c.close()}});
+ let answered=false,delivered=false;
+ const timeout=setTimeout(()=>{if(!delivered&&!answered){if(el)el.textContent='Քրիստինայի կամ Ալենի խաղը հրավերը չի հաստատել։ Ստուգեք՝ խաղը բաց է և ճիշտ անունն է ընտրված։';try{c.close()}catch(e){}}},8000);
+ c.on('open',()=>{c.send({type:'family-invite',from:familyRole(),room});if(el)el.textContent='Հրավերն ուղարկվում է…'});
+ c.on('data',d=>{if(d?.type==='family-delivered'){delivered=true;clearTimeout(timeout);if(el)el.textContent='Հրավերը հայտնվել է մյուս հեռախոսում։ Սպասում ենք պատասխանին…'}if(d?.type==='family-reply'){answered=true;clearTimeout(timeout);if(el)el.textContent=d.accepted?'Հրավերն ընդունված է։ Միանում ենք…':'Հրավերը մերժվեց';c.close()}});
  c.on('error',()=>{if(el&&!answered)el.textContent='Չհաջողվեց ուղարկել հրավերը'});
- c.on('close',()=>{if(el&&!answered)el.textContent='Ընկերը հասանելի չէ կամ կապն ընդհատվեց'});
+ c.on('close',()=>{clearTimeout(timeout);if(el&&!answered&&!delivered)el.textContent='Ընկերը հասանելի չէ կամ կապն ընդհատվեց'});
 }
 function onlineMenu(inviteCode=''){
  document.querySelector('#app').classList.remove('combat-mode');phase='online';
