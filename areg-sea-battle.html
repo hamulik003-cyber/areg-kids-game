@@ -575,10 +575,28 @@ function aiShot(){if(phase!=='battle'||mode!=='ai')return;const free=Array.from(
 function victory(who){finished=true;shotBusy=false;phase='end';beep('win');modal('🏆',who==='Դու'?'Դու հաղթեցի՜ր':who+' հաղթեց', 'Բոլոր նավերը գտնված են։ Նորից խաղա՞նք։','Նոր խաղ',()=>start(mode),true)}
 function modal(emoji,title,desc,button,action,menu=false){const old=view.querySelector('.overlay');if(old)old.remove();const o=document.createElement('div');o.className='overlay';o.innerHTML='<div class="modal"><div class="big wave">'+emoji+'</div><h2></h2><p></p><button class="primary"></button>'+(menu?'<button class="secondary" id="menuBtn">Գլխավոր մենյու</button>':'')+'</div>';o.querySelector('h2').textContent=title;o.querySelector('p').textContent=desc;o.querySelector('.primary').textContent=button;o.querySelector('.primary').onclick=()=>{o.remove();action()};view.append(o);if(menu)o.querySelector('#menuBtn').onclick=showMenu}
 function confirmExit(){modal('⚓','Դուրս գա՞լ խաղից','Ընթացիկ խաղը կավարտվի։','Այո, մենյու',showMenu,true)}
-function onlineMenu(){document.querySelector('#app').classList.remove('combat-mode');phase='online';view.innerHTML='<section class="panel"><h2>🌐 Առցանց ծովամարտ</h2><p>Երկու հեռախոսն էլ պետք է միացված լինեն ինտերնետին։ Մեկը ստեղծում է սենյակ, մյուսը միանում է կոդով։</p><button class="choice" id="create"><span>➕</span>Ստեղծել սենյակ</button><input class="field" id="code" placeholder="ՍԵՆՅԱԿԻ ԿՈԴԸ" maxlength="10" autocapitalize="characters"><button class="primary" id="join">Միանալ ընկերոջը</button><div class="info" id="netStatus">Կապը հաստատվում է առցանց ծառայության միջոցով։</div></section>';footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;$('#create').onclick=()=>connectPeer(true);$('#join').onclick=()=>connectPeer(false)}
+function onlineMenu(inviteCode=''){
+ document.querySelector('#app').classList.remove('combat-mode');phase='online';
+ view.innerHTML='<section class="panel"><h2>🌐 Առցանց ծովամարտ</h2><p>Ստեղծիր սենյակ և ընկերոջդ ուղարկիր հրավերի հղումը։ Նա կմիանա առանց կոդ գրելու։</p><button class="choice" id="create"><span>🔗</span>Հրավիրել ընկերոջը</button><details><summary>Միանալ կոդով (պահուստային տարբերակ)</summary><input class="field" id="code" placeholder="ՍԵՆՅԱԿԻ ԿՈԴԸ" maxlength="10" autocapitalize="characters"><button class="primary" id="join">Միանալ</button></details><div class="info" id="netStatus">Կապը հաստատվում է առցանց ծառայության միջոցով։</div></section>';
+ footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';
+ $('#home').onclick=showMenu;$('#create').onclick=()=>connectPeer(true);$('#join').onclick=()=>connectPeer(false);
+ if(inviteCode){$('#code').value=inviteCode;$('#netStatus').textContent='Հրավերը բացված է․ միանում ենք ընկերոջդ…';connectPeer(false)}
+}
 function loadPeer(){return new Promise((resolve,reject)=>{if(window.Peer)return resolve();const script=document.createElement('script');script.src='https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js';script.onload=resolve;script.onerror=()=>reject(new Error('Առցանց կապի գրադարանը չբեռնվեց'));document.head.append(script)})}
 async function connectPeer(isHost){const mySession=++session;host=isHost;const status=$('#netStatus');status.textContent='Միանում ենք սերվերին…';try{await loadPeer();if(mySession!==session)return;room=isHost?Math.random().toString(36).slice(2,8).toUpperCase():$('#code').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(room))throw Error('Գրի՛ր 6 նիշանոց սենյակի կոդը');peer=new Peer('areg-sea-'+room+(isHost?'-h':'-g'),{debug:0});peer.on('error',e=>{if(mySession===session)networkError(e.type==='unavailable-id'?'Սենյակն արդեն զբաղված է':'Չհաջողվեց միանալ սերվերին')});peer.on('disconnected',()=>{if(mySession===session&&phase==='battle')networkError('Կապը ընդհատվել է')});peer.on('open',()=>{if(mySession!==session)return;if(isHost){peer.on('connection',c=>setupConnection(c));showRoom()}else{const c=peer.connect('areg-sea-'+room+'-h',{reliable:true});setupConnection(c)}})}catch(e){if(mySession===session)networkError(e.message)}}
-function showRoom(){phase='room';view.innerHTML='<section class="panel"><h2>Սենյակը պատրաստ է</h2><p>Ուղարկի՛ր այս կոդը ընկերոջդ</p><div class="field" id="roomCode"></div><button class="secondary" id="copy">Պատճենել կոդը</button><p id="wait">Սպասում ենք ընկերոջը…</p></section>';$('#roomCode').textContent=room;$('#copy').onclick=()=>{navigator.clipboard?.writeText(room).then(()=>$('#wait').textContent='Կոդը պատճենված է').catch(()=>$('#wait').textContent='Ասա՛ ընկերոջդ կոդը՝ '+room)};footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu}
+function showRoom(){
+ phase='room';
+ // A direct game URL opens the same trial HTML on any phone, even without the installed app.
+ const inviteUrl=new URL('areg-sea-battle.html',location.href);
+ inviteUrl.searchParams.set('invite',room);
+ view.innerHTML='<section class="panel"><h2>🚢 Սենյակը պատրաստ է</h2><p>Ուղարկիր հրավերը Ալենին, Քիսոյին կամ ընկերոջդ։ Հղումը բացելիս նա ինքնաբերաբար կմիանա։</p><button class="primary" id="shareInvite">🔗 Հրավիրել ընկերոջը</button><button class="secondary" id="copyInvite">Պատճենել հրավերի հղումը</button><details><summary>Սենյակի պահուստային կոդը</summary><div class="field" id="roomCode"></div></details><p id="wait">Սպասում ենք ընկերոջը…</p></section>';
+ $('#roomCode').textContent=room;
+ const link=inviteUrl.toString();
+ const copy=async()=>{try{await navigator.clipboard.writeText(link);$('#wait').textContent='Հղումը պատճենված է։ Ուղարկիր ընկերոջդ։'}catch(e){$('#wait').textContent='Պատճենիր հղումը՝ '+link}};
+ $('#copyInvite').onclick=copy;
+ $('#shareInvite').onclick=async()=>{if(navigator.share){try{await navigator.share({title:'Ծովամարտ՝ խաղանք միասին',text:'Միացիր իմ Ծովամարտին 🚢',url:link});return}catch(e){if(e.name==='AbortError')return}}await copy()};
+ footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu
+}
 function setupConnection(c){conn=c;c.on('open',()=>{if(phase==='menu')return;remoteReady=false;localReady=false;mine=empty();theirs=empty();placeIndex=0;orientation=0;selected=null;phase='place';renderPlace()});c.on('data',handleMessage);c.on('close',()=>{if(phase!=='menu'&&phase!=='end')networkError('Ընկերդ անջատվել է')});c.on('error',()=>networkError('Կապի սխալ'))}
 function send(data){if(conn?.open)conn.send(data)}
 function handleMessage(d){
@@ -620,5 +638,6 @@ function handleMessage(d){
 function waitOnline(){phase='waiting';view.innerHTML='<section class="panel"><h2>🚢 Նավերը պատրաստ են</h2><p>Սպասում ենք, մինչև ընկերդ դասավորի իր նավերը։</p><div class="status wave">🌊 Սպասում ենք…</div></section>';footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;if(remoteReady&&localReady)startOnlineBattle()}
 function startOnlineBattle(){phase='battle';remoteTurn=!host;renderBattle(true)}
 function networkError(message){if(phase==='menu')return;phase='error';modal('📡','Առցանց կապի խնդիր',message,'Վերադառնալ',showMenu)}
-showMenu();
+const incomingInvite=new URLSearchParams(location.search).get('invite');
+if(incomingInvite&&/^[A-Z0-9]{6}$/i.test(incomingInvite)){start('online');onlineMenu(incomingInvite.toUpperCase())}else showMenu();
 </script></body></html>
