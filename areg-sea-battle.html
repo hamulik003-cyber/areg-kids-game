@@ -360,7 +360,7 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 <script>
 'use strict';
 const N=10,FLEET=[5,4,3,3,2],$=s=>document.querySelector(s),view=$('#view'),footer=$('#footer');
-let mode='',phase='menu',mine=null,theirs=null,turn=0,placeIndex=0,orientation=0,selected=null,peer=null,conn=null,room='',host=false,remoteReady=false,localReady=false,remoteTurn=false,session=0,aiMemory=[],audio=null,finished=false,shotBusy=false,previewNode=null;
+let mode='',phase='menu',mine=null,theirs=null,turn=0,placeIndex=0,orientation=0,selected=null,peer=null,conn=null,room='',host=false,remoteReady=false,localReady=false,remoteTurn=false,session=0,aiMemory=[],audio=null,finished=false,shotBusy=false,previewNode=null,onlineHits=new Set(),onlineSunkAssets={};
 const clone=o=>JSON.parse(JSON.stringify(o)),rand=n=>Math.floor(Math.random()*n),idx=(x,y)=>y*N+x,xy=i=>[i%N,Math.floor(i/N)];
 function beep(type){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const now=audio.currentTime;const tones=type==='hit'?[140,90,70]:type==='win'?[392,523,659,784]:type==='miss'?[480,310]:type==='launch'?[680,420,240]:type==='sink'?[260,180,100]:type==='place'?[280,410]:[480];tones.forEach((hz,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.type=['hit','launch','sink'].includes(type)?'sawtooth':'sine';o.frequency.value=hz;g.gain.setValueAtTime(.0001,now+i*.1);g.gain.exponentialRampToValueAtTime(type==='hit'?.09:.055,now+i*.1+.01);g.gain.exponentialRampToValueAtTime(.0001,now+i*.1+.22);o.connect(g);g.connect(audio.destination);o.start(now+i*.1);o.stop(now+i*.1+.23)})}catch(e){}}
 function empty(){return {ships:[],shots:[]}}
@@ -369,7 +369,7 @@ function randomBoard(){const b=empty();for(const len of FLEET){let options=[];fo
 function hitAt(b,i){if(b.shots.includes(i))return null;b.shots.push(i);const ship=b.ships.find(s=>s.includes(i));return {hit:!!ship,sunk:!!ship&&ship.every(c=>b.shots.includes(c)),win:b.ships.every(s=>s.every(c=>b.shots.includes(c)))}}
 function allHit(b){return b.ships.every(s=>s.every(c=>b.shots.includes(c)))}
 function showMenu(){document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;view.innerHTML='<section class="panel"><h2>Ընտրի՛ր խաղի ձևը</h2><p>5 նավ • 10×10 ծովային դաշտ • կրակոցներ հերթով</p><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="local"><span>👫</span>Երկուսով՝ մեկ հեռախոսով</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode))}
-function cleanup(){previewNode?.remove();previewNode=null;try{conn?.close()}catch(e){}try{peer?.destroy()}catch(e){}conn=null;peer=null;remoteReady=false;localReady=false;room='';finished=false}
+function cleanup(){onlineHits=new Set();onlineSunkAssets={};previewNode?.remove();previewNode=null;try{conn?.close()}catch(e){}try{peer?.destroy()}catch(e){}conn=null;peer=null;remoteReady=false;localReady=false;room='';finished=false}
 function start(m){cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
 
 /* Aircraft carrier visual prototype: each 5-cell section is an independent SVG
@@ -384,7 +384,7 @@ function carrierTileSVG(segment,vertical){
 }
 
 const SHIP_WEBP=['carrier_5.webp','battleship_4.webp','destroyer_3.webp','corvette_3_prototype.webp','submarine_2.webp'];
-function shipAsset(b,ship){const k=b.ships.indexOf(ship);return SHIP_WEBP[k]||SHIP_WEBP[0]}
+function shipAsset(b,ship){const k=mode==='online'&&b===theirs?onlineSunkAssets[ship.join(',')]:b.ships.indexOf(ship);return SHIP_WEBP[k]||SHIP_WEBP[0]}
 function shipImageTile(b,ship,p){
  const v=ship.length>1&&ship[1]-ship[0]===N,el=document.createElement('span');el.className='ship-photo-tile'+(v?' vertical':'');
  el.style.backgroundImage='url("'+shipAsset(b,ship)+'")';
@@ -404,7 +404,7 @@ function boardHTML(b,opts={}){
  for(let i=0;i<N*N;i++){const cell=document.createElement('button');cell.type='button';cell.className='cell';cell.dataset.i=i;
  const ship=b.ships.find(s=>s.includes(i)),shot=b.shots.includes(i);
  if(ship&&(show||(!show&&ship.every(j=>b.shots.includes(j))))){cell.classList.add('ship');if(!show)cell.classList.add('revealed-enemy-ship');const p=ship.indexOf(i);cell.setAttribute('data-ship-size',ship.length);if(p===0)cell.classList.add('bow');if(p===ship.length-1)cell.classList.add('stern');if(ship.length>1&&ship[1]-ship[0]===N)cell.classList.add('vertical');cell.classList.add('photo-ship');cell.append(shipImageTile(b,ship,p));if(false){const detail=document.createElement('span');detail.className='ship-parts';detail.textContent=ship.length>=4?'⚙':'◆';cell.append(detail)}}
- if(shot){cell.classList.add(ship?'hit':'miss','fired');if(ship&&ship.every(c=>b.shots.includes(c)))cell.classList.add('sunk')}
+ if(shot){cell.classList.add((ship||(mode==='online'&&b===theirs&&onlineHits.has(i)))?'hit':'miss','fired');if(ship&&ship.every(c=>b.shots.includes(c)))cell.classList.add('sunk')}
  if(opts.ghost?.includes(i))cell.classList.add(opts.valid?'ghost':'invalid');
  cell.setAttribute('aria-label',String.fromCharCode(65+i%N)+(Math.floor(i/N)+1)+(shot?', կրակված':''));
  cell.disabled=shot||(!click&&!opts.place);if(click)cell.onclick=()=>click(i);board.append(cell)}
@@ -581,7 +581,42 @@ async function connectPeer(isHost){const mySession=++session;host=isHost;const s
 function showRoom(){phase='room';view.innerHTML='<section class="panel"><h2>Սենյակը պատրաստ է</h2><p>Ուղարկի՛ր այս կոդը ընկերոջդ</p><div class="field" id="roomCode"></div><button class="secondary" id="copy">Պատճենել կոդը</button><p id="wait">Սպասում ենք ընկերոջը…</p></section>';$('#roomCode').textContent=room;$('#copy').onclick=()=>{navigator.clipboard?.writeText(room).then(()=>$('#wait').textContent='Կոդը պատճենված է').catch(()=>$('#wait').textContent='Ասա՛ ընկերոջդ կոդը՝ '+room)};footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu}
 function setupConnection(c){conn=c;c.on('open',()=>{if(phase==='menu')return;remoteReady=false;localReady=false;mine=empty();theirs=empty();placeIndex=0;orientation=0;selected=null;phase='place';renderPlace()});c.on('data',handleMessage);c.on('close',()=>{if(phase!=='menu'&&phase!=='end')networkError('Ընկերդ անջատվել է')});c.on('error',()=>networkError('Կապի սխալ'))}
 function send(data){if(conn?.open)conn.send(data)}
-function handleMessage(d){if(!d||typeof d!=='object')return;if(d.type==='ready'){remoteReady=true;if(localReady&&phase==='waiting')startOnlineBattle()}if(d.type==='shot'){if(phase!=='battle'||!remoteTurn||!Number.isInteger(d.i)||d.i<0||d.i>=100)return;const r=hitAt(mine,d.i);if(!r)return;beep(r.hit?'hit':'miss');send({type:'result',i:d.i,hit:r.hit,sunk:r.sunk,win:r.win});shotBusy=true;animateShot(0,d.i,r.hit,()=>{shotBusy=false;if(r.win)return victory('Ընկերդ');remoteTurn=false;renderBattle()},r.sunk)}if(d.type==='result'){if(phase!=='battle'||!remoteTurn||!Number.isInteger(d.i)||d.i<0||d.i>=100||theirs.shots.includes(d.i))return;theirs.shots.push(d.i);if(d.hit)theirs.ships.push([d.i]);beep(d.hit?'hit':'miss');shotBusy=true;animateShot(1,d.i,!!d.hit,()=>{shotBusy=false;if(d.win)return victory('Դու');remoteTurn=true;renderBattle()},!!d.sunk)}}
+function handleMessage(d){
+ if(!d||typeof d!=='object')return;
+ if(d.type==='ready'){remoteReady=true;if(localReady&&phase==='waiting')startOnlineBattle()}
+ if(d.type==='shot'){
+  if(phase!=='battle'||!remoteTurn||!Number.isInteger(d.i)||d.i<0||d.i>=100)return;
+  const r=hitAt(mine,d.i);if(!r)return;
+  const sunkShip=r.sunk?mine.ships.find(ship=>ship.includes(d.i)):null;
+  // Reveal full ship shape only on the final hit; keep all other ship locations secret.
+  send({type:'result',i:d.i,hit:r.hit,sunk:r.sunk,win:r.win,
+   ...(sunkShip?{shipCells:sunkShip.slice(),shipIndex:mine.ships.indexOf(sunkShip)}:{})});
+  beep(r.hit?'hit':'miss');shotBusy=true;
+  animateShot(0,d.i,r.hit,()=>{shotBusy=false;if(r.win)return victory('Ընկերդ');remoteTurn=false;renderBattle()},r.sunk)
+ }
+ if(d.type==='result'){
+  if(phase!=='battle'||!remoteTurn||!Number.isInteger(d.i)||d.i<0||d.i>=100||theirs.shots.includes(d.i))return;
+  theirs.shots.push(d.i);
+  if(d.hit)onlineHits.add(d.i);
+  if(d.hit&&d.sunk&&Array.isArray(d.shipCells)&&Number.isInteger(d.shipIndex)){
+   const cells=d.shipCells;
+   const valid=FLEET[d.shipIndex]===cells.length&&new Set(cells).size===cells.length&&
+    cells.every(i=>Number.isInteger(i)&&i>=0&&i<100&&(i===d.i||theirs.shots.includes(i))&&onlineHits.has(i))&&
+    cells.includes(d.i)&&!theirs.ships.some(ship=>ship.some(i=>cells.includes(i)));
+   if(valid){
+    const ordered=cells.slice().sort((a,b)=>a-b);
+    const horizontal=ordered.every((i,k)=>k===0||(i===ordered[k-1]+1&&Math.floor(i/N)===Math.floor(ordered[k-1]/N)));
+    const vertical=ordered.every((i,k)=>k===0||i===ordered[k-1]+N);
+    if(horizontal||vertical){
+     theirs.ships.push(ordered);
+     onlineSunkAssets[ordered.join(',')]=d.shipIndex;
+    }
+   }
+  }
+  beep(d.hit?'hit':'miss');shotBusy=true;
+  animateShot(1,d.i,!!d.hit,()=>{shotBusy=false;if(d.win)return victory('Դու');remoteTurn=true;renderBattle()},!!d.sunk)
+ }
+}
 function waitOnline(){phase='waiting';view.innerHTML='<section class="panel"><h2>🚢 Նավերը պատրաստ են</h2><p>Սպասում ենք, մինչև ընկերդ դասավորի իր նավերը։</p><div class="status wave">🌊 Սպասում ենք…</div></section>';footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;if(remoteReady&&localReady)startOnlineBattle()}
 function startOnlineBattle(){phase='battle';remoteTurn=!host;renderBattle(true)}
 function networkError(message){if(phase==='menu')return;phase='error';modal('📡','Առցանց կապի խնդիր',message,'Վերադառնալ',showMenu)}
