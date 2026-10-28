@@ -417,10 +417,48 @@ function renderPlace(){
  document.querySelector('#app').classList.remove('combat-mode');phase='place';view.innerHTML='';const b=currentPlaceBoard(),len=FLEET[placeIndex]||0;const f=framedBoard(b,{title:'⚓ ՔՈ ՆԱՎԵՐԸ',subtitle:(placeIndex)+' / '+FLEET.length,place:true,show:true});
  view.append(f);const board=f.querySelector('.board');
  let drag=null,hover=-1,ghost=[],suppressPlacementClickUntil=0;
+ // Existing ships remain editable until the player explicitly confirms readiness.
+ let editShip=-1,editStart=-1,editMoved=false;
+ function moveExisting(k,start,dir){
+  const original=b.ships[k];if(!original)return false;
+  b.ships.splice(k,1);
+  const cells=canPut(b,start,FLEET[k],dir);
+  b.ships.splice(k,0,cells||original);
+  if(!cells)return false;
+  orientation=dir;selected=k;beep('place');renderPlace();return true;
+ }
+ function shipDirection(ship){return ship.length>1&&ship[1]-ship[0]===N?1:0}
+ function shipStartAt(k,i){const ship=b.ships[k],offset=ship.indexOf(i);if(offset<0)return ship[0];return ship[0]-(shipDirection(ship)===0?offset:offset*N)}
  function drawGhost(i){hover=i;/* Never paint valid/invalid placement cells: only the actual ship follows the finger. */}
  function place(i){if(!len)return false;const cells=canPut(b,i,len,orientation);if(!cells)return false;suppressPlacementClickUntil=Date.now()+500;b.ships.push(cells);placeIndex++;selected=null;beep('place');renderPlace();return true}
- board.querySelectorAll('.cell').forEach(c=>{c.onclick=()=>{if(drag||Date.now()<suppressPlacementClickUntil)return;const i=+c.dataset.i;if(b.ships.some(ship=>ship.includes(i)))return;place(i)}});
- const status=document.createElement('div');status.className='placement-status';status.textContent=placeIndex===FLEET.length?'Բոլոր նավերը տեղադրված են։ Սեղմի՛ր «Պատրաստ է»':'Նավը ներքևից քաշի՛ր դեպի ծովը';view.append(status);
+ board.querySelectorAll('.cell').forEach(c=>{
+  c.style.touchAction='none';
+  c.onclick=()=>{
+   if(drag||Date.now()<suppressPlacementClickUntil)return;
+   const i=+c.dataset.i,k=b.ships.findIndex(ship=>ship.includes(i));
+   if(k>=0){selected=k;editShip=k;status.textContent='Նավն ընտրված է։ Սեղմիր ազատ վանդակ՝ տեղափոխելու, կամ «Պտտել նավը»։';return}
+   if(editShip>=0){const k=editShip;const dir=shipDirection(b.ships[k]);if(moveExisting(k,i,dir))return;status.textContent='Այստեղ նավը չի տեղավորվում';return}
+   place(i);
+  };
+  c.addEventListener('pointerdown',e=>{
+   const i=+c.dataset.i,k=b.ships.findIndex(ship=>ship.includes(i));if(k<0)return;
+   editShip=k;editStart=i;editMoved=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,ship:k,offset:b.ships[k].indexOf(i)};
+   try{c.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  c.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId||drag.ship<0)return;editMoved=editMoved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>9});
+  c.addEventListener('pointerup',e=>{
+   if(!drag||drag.id!==e.pointerId||drag.ship<0)return;
+   const d=drag;drag=null;
+   if(!editMoved)return;
+   suppressPlacementClickUntil=Date.now()+500;
+   const rect=board.getBoundingClientRect(),col=Math.floor((e.clientX-rect.left)/rect.width*N),row=Math.floor((e.clientY-rect.top)/rect.height*N);
+   if(col<0||col>=N||row<0||row>=N){status.textContent='Նավը տեղափոխիր խաղադաշտի ներսում';return}
+   const dir=shipDirection(b.ships[d.ship]),start=idx(col,row)-(dir===0?d.offset:d.offset*N);
+   if(start<0||!moveExisting(d.ship,start,dir))status.textContent='Այստեղ նավը չի տեղավորվում';
+  });
+  c.addEventListener('pointercancel',()=>{drag=null});
+ });
+ const status=document.createElement('div');status.className='placement-status';status.textContent=placeIndex===FLEET.length?'Բոլոր նավերը տեղադրված են։ Կարող ես տեղափոխել կամ պտտել։ Ավարտելուց սեղմիր «Պատրաստ է»':'Նավը ներքևից քաշի՛ր դեպի ծովը։ Դրված նավին սեղմելով կարող ես փոխել դիրքը';view.append(status);
  const dock=document.createElement('div');dock.className='dock';dock.innerHTML='<div class="dock-label">🚢 ՆԱՎԵՐԻ ՆԱՎԱՀԱՆԳԻՍՏ · Քաշի՛ր և տեղադրի՛ր</div>';
  const dockShips=document.createElement('div');dockShips.className='dock-ships';
  FLEET.forEach((n,k)=>{const token=document.createElement('div');token.className='ship-token '+(k<placeIndex?'used':k===placeIndex?'active':'');token.dataset.len=n;token.innerHTML='<img class="dock-ship-photo" draggable="false" src="'+SHIP_WEBP[k]+'" alt="">';if(k===placeIndex){
@@ -461,8 +499,8 @@ function renderPlace(){
   drawGhost(col>=0&&col<N&&row>=0&&row<N?idx(col,row):-1);
 }
  const actions=document.createElement('div');actions.className='placement-actions';actions.innerHTML='<button class="secondary" id="rotate">↻ Պտտել նավը</button><button class="secondary" id="auto">🎲 Ավտոմատ դասավորել</button>'+(placeIndex===FLEET.length?'<button class="primary" id="ready">ՊԱՏՐԱՍՏ Է ✓</button>':'');view.append(actions);
- actions.querySelector('#rotate').onclick=()=>{orientation=1-orientation;drawGhost(-1);status.textContent=orientation?'Ուղղահայաց նավ':'Հորիզոնական նավ'};
- actions.querySelector('#auto').onclick=()=>{b.ships=randomBoard().ships;placeIndex=FLEET.length;beep('place');renderPlace()};const ready=actions.querySelector('#ready');if(ready)ready.onclick=()=>{if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()};
+ actions.querySelector('#rotate').onclick=()=>{if(editShip>=0&&b.ships[editShip]){const k=editShip,ship=b.ships[k],dir=1-shipDirection(ship);if(!moveExisting(k,ship[0],dir))status.textContent='Այստեղ պտտել հնարավոր չէ․ նախ տեղափոխիր նավը';return}orientation=1-orientation;drawGhost(-1);status.textContent=orientation?'Ուղղահայաց նավ':'Հորիզոնական նավ'};
+ actions.querySelector('#auto').onclick=()=>{b.ships=randomBoard().ships;placeIndex=FLEET.length;editShip=-1;beep('place');renderPlace()};const ready=actions.querySelector('#ready');if(ready)ready.onclick=()=>{if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()};
  footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=confirmExit
 }
 
