@@ -454,7 +454,33 @@ function renderPlace(){
    const tile=newCells[i].querySelector('.ship-photo-tile');if(tile)cell.append(tile);
   });
  }
- function tapPlacedShip(k){const now=Date.now();if(lastShipTap.k===k&&now-lastShipTap.time<400){lastShipTap={k:-1,time:0};const ship=b.ships[k];if(!moveExisting(k,ship[0],1-shipDirection(ship)))return}else{lastShipTap={k,time:now};editShip=k;selected=k}}
+ function rotatePlacedShip(k){
+  const ship=b.ships[k];if(!ship)return false;
+  const dir=1-shipDirection(ship),len=ship.length;
+  const centerX=ship.reduce((sum,i)=>sum+i%N,0)/len;
+  const centerY=ship.reduce((sum,i)=>sum+Math.floor(i/N),0)/len;
+  // Search nearest legal position to the original ship center, including edges.
+  const candidates=[];
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+   if((dir===0&&x+len>N)||(dir===1&&y+len>N))continue;
+   const cx=x+(dir===0?(len-1)/2:0);
+   const cy=y+(dir===1?(len-1)/2:0);
+   const distance=(cx-centerX)**2+(cy-centerY)**2;
+   candidates.push({start:idx(x,y),distance});
+  }
+  candidates.sort((a,b)=>a.distance-b.distance||a.start-b.start);
+  const original=b.ships.splice(k,1)[0];
+  let result=null;
+  for(const candidate of candidates){
+   const cells=canPut(b,candidate.start,len,dir);
+   if(cells){result=cells;break}
+  }
+  b.ships.splice(k,0,result||original);
+  if(!result)return false;
+  orientation=dir;selected=k;editShip=k;beep('place');refreshPlacedShips();
+  return true;
+ }
+ function tapPlacedShip(k){const now=Date.now();if(lastShipTap.k===k&&now-lastShipTap.time<400){lastShipTap={k:-1,time:0};rotatePlacedShip(k)}else{lastShipTap={k,time:now};editShip=k;selected=k}}
 
  function clearLivePreview(){if(livePreview){livePreview.node.remove();livePreview.hidden.forEach(el=>el.style.visibility='');livePreview=null}}
  function beginLivePreview(k,e){
