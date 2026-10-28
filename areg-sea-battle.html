@@ -356,6 +356,13 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  filter:drop-shadow(0 0 2px #700000)!important;
  animation:none!important;opacity:1!important;
 }
+/* Disable iOS text selection / lookup on all game surfaces. Keep editable fields usable. */
+html,body,#app,#app *:not(input):not(textarea){
+ -webkit-user-select:none!important;user-select:none!important;
+ -webkit-touch-callout:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+#app input,#app textarea{-webkit-user-select:text!important;user-select:text!important}
 /* iOS: prevent selection, lookup and callout while manipulating the fleet. */
 #app .board,#app .board *,#app .dock,#app .dock *,#app .placement-status{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important}
 #app .board .cell{touch-action:none!important}
@@ -771,6 +778,16 @@ function handleMessage(d){
 function waitOnline(){phase='waiting';view.innerHTML='<section class="panel"><h2>🚢 Նավերը պատրաստ են</h2><p>Սպասում ենք, մինչև ընկերդ դասավորի իր նավերը։</p><div class="status wave">🌊 Սպասում ենք…</div></section>';footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;if(remoteReady&&localReady)startOnlineBattle()}
 function startOnlineBattle(){phase='battle';remoteTurn=!host;renderBattle(true)}
 function networkError(message){if(phase==='menu')return;phase='error';modal('📡','Առցանց կապի խնդիր',message,'Վերադառնալ',showMenu)}
+// iOS Safari may show native selection menus on long presses despite CSS.
+document.addEventListener('contextmenu',e=>{
+ if(e.target.closest('#app')&&!e.target.closest('input,textarea'))e.preventDefault();
+},{capture:true});
+document.addEventListener('selectstart',e=>{
+ if(e.target.closest('#app')&&!e.target.closest('input,textarea'))e.preventDefault();
+},{capture:true});
+document.addEventListener('dragstart',e=>{
+ if(e.target.closest('#app')&&!e.target.closest('input,textarea'))e.preventDefault();
+},{capture:true});
 const incomingInvite=new URLSearchParams(location.search).get('invite');
 if(incomingInvite&&/^[A-Z0-9]{6}$/i.test(incomingInvite)){start('online');onlineMenu(incomingInvite.toUpperCase())}else showMenu();
 </script></body></html>
