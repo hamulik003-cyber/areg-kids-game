@@ -420,7 +420,43 @@ function bassLayer(ctx,at,duration,frequency,volume){
  gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
  osc.connect(gain);gain.connect(ctx.destination);osc.start(at);osc.stop(at+duration+.01);
 }
+// Recorded, offline-cacheable combat effects from the approved trial assets.
+// Decode in advance to avoid waiting for a network request when a shell lands.
+const battleClips={launch:null,hit:null};
+const battleClipFiles={launch:'krakel.mp3',hit:'xpel.mp3'};
+function preloadBattleClips(){
+ try{
+  const ctx=soundContext();
+  for(const key of Object.keys(battleClipFiles)){
+   if(battleClips[key])continue;
+   fetch(battleClipFiles[key]).then(r=>{if(!r.ok)throw Error('audio '+r.status);return r.arrayBuffer()})
+    .then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{battleClips[key]=buffer}).catch(()=>{});
+  }
+ }catch(e){}
+}
+function recordedBattleSound(type){
+ const key=type==='launch'?'launch':type==='hit'||type==='sink'?'hit':null;
+ if(!key||!battleClips[key])return false;
+ try{
+  const ctx=soundContext(),source=ctx.createBufferSource(),gain=ctx.createGain(),now=ctx.currentTime;
+  const buffer=battleClips[key],offset=key==='hit'?.72:0;
+  // Use only the first impactful report, not the later repeated reports / silence.
+  const duration=Math.min(key==='hit'?2.6:2.65,buffer.duration-offset);
+  if(duration<=0)return false;
+  source.buffer=buffer;
+  const volume=key==='hit'?.75:.72;
+  gain.gain.setValueAtTime(volume,now);
+  gain.gain.setValueAtTime(volume,now+Math.max(.05,duration-.23));
+  gain.gain.linearRampToValueAtTime(0,now+duration);
+  source.connect(gain);gain.connect(ctx.destination);
+  source.start(now,offset,duration);
+  return true;
+ }catch(e){return false}
+}
+document.addEventListener('pointerdown',()=>{try{soundContext();preloadBattleClips()}catch(e){}},{capture:true,passive:true});
+preloadBattleClips();
 function beep(type){
+ if(recordedBattleSound(type))return;
  try{
   const ctx=soundContext(),t=ctx.currentTime+.005;
   if(type==='launch'){
@@ -857,7 +893,7 @@ function handleMessage(d){
   // Reveal full ship shape only on the final hit; keep all other ship locations secret.
   send({type:'result',i:d.i,hit:r.hit,sunk:r.sunk,win:r.win,
    ...(sunkShip?{shipCells:sunkShip.slice(),shipIndex:mine.ships.indexOf(sunkShip)}:{})});
-  beep(r.hit?'hit':'miss');shotBusy=true;
+  shotBusy=true;
   animateShot(0,d.i,r.hit,()=>{shotBusy=false;if(r.win)return victory('Ընկերդ');remoteTurn=false;renderBattle()},r.sunk)
  }
  if(d.type==='result'){
@@ -879,7 +915,7 @@ function handleMessage(d){
     }
    }
   }
-  beep(d.hit?'hit':'miss');shotBusy=true;
+  shotBusy=true;
   animateShot(1,d.i,!!d.hit,()=>{shotBusy=false;if(d.win)return victory('Դու');remoteTurn=true;renderBattle()},!!d.sunk)
  }
 }
