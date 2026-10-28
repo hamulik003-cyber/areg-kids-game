@@ -576,10 +576,12 @@ function victory(who){finished=true;shotBusy=false;phase='end';beep('win');modal
 function modal(emoji,title,desc,button,action,menu=false){const old=view.querySelector('.overlay');if(old)old.remove();const o=document.createElement('div');o.className='overlay';o.innerHTML='<div class="modal"><div class="big wave">'+emoji+'</div><h2></h2><p></p><button class="primary"></button>'+(menu?'<button class="secondary" id="menuBtn">Գլխավոր մենյու</button>':'')+'</div>';o.querySelector('h2').textContent=title;o.querySelector('p').textContent=desc;o.querySelector('.primary').textContent=button;o.querySelector('.primary').onclick=()=>{o.remove();action()};view.append(o);if(menu)o.querySelector('#menuBtn').onclick=showMenu}
 function confirmExit(){modal('⚓','Դուրս գա՞լ խաղից','Ընթացիկ խաղը կավարտվի։','Այո, մենյու',showMenu,true)}
 // Trial-only in-app family invitations. Presence works only while this page is open.
-const FAMILY_ROLES={dad:'Հայրիկ',kiso:'Քիսո',alen:'Ալեն'};
+const FAMILY_ROLES={dad:'Հայրիկ',kiso:'Քրիստինա',alen:'Ալեն'};
+const FAMILY_INVITE_LABELS={dad:'Հրավիրել Հայրիկին',kiso:'Հրավիրել Քրիստինային',alen:'Հրավիրել Ալենին'};
 const PRESENCE_PREFIX='areg-test-sea-family-v1-';
 function familyRole(){try{return localStorage.getItem('areg-sea-family-role')||''}catch(e){return ''}}
 function saveFamilyRole(role){try{localStorage.setItem('areg-sea-family-role',role)}catch(e){}}
+function changeFamilyRole(){try{presencePeer?.destroy()}catch(e){}presencePeer=null;saveFamilyRole('');onlineMenu()}
 async function initPresence(){
  const role=familyRole();if(!FAMILY_ROLES[role]||presencePeer)return;
  presenceRole=role;
@@ -617,14 +619,14 @@ function onlineMenu(inviteCode=''){
  document.querySelector('#app').classList.remove('combat-mode');phase='online';
  const role=familyRole();
  if(!FAMILY_ROLES[role]&&!inviteCode){
-  view.innerHTML='<section class="panel"><h2>👨‍👩‍👦 Ընտանեկան խաղ</h2><p>Այս հեռախոսը ո՞ւմն է։ Ընտրիր մեկ անգամ։</p><button class="choice" data-role="dad">👨 Հայրիկ</button><button class="choice" data-role="kiso">👩 Քիսո</button><button class="choice" data-role="alen">👦 Ալեն</button><p>Անունը պահվում է միայն այս հեռախոսում։</p></section>';
+  view.innerHTML='<section class="panel"><h2>👨‍👩‍👦 Ընտանեկան խաղ</h2><p>Այս հեռախոսը ո՞ւմն է։ Ընտրիր մեկ անգամ։</p><button class="choice" data-role="dad">👨 Հայրիկ</button><button class="choice" data-role="kiso">👩 Քրիստինա</button><button class="choice" data-role="alen">👦 Ալեն</button><p>Անունը պահվում է միայն այս հեռախոսում։</p></section>';
   footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;
   view.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{saveFamilyRole(b.dataset.role);onlineMenu()});return;
  }
  view.innerHTML='<section class="panel"><h2>🌐 Առցանց ծովամարտ</h2><p>Երբ երկուսդ այս էջում եք, հրավիրիր անմիջապես խաղի մեջ՝ առանց հղման։</p><div class="info" id="familyStatus">Միանում ենք ընտանեկան կապին…</div><button class="choice" id="create"><span>🚢</span>Հրավիրել խաղի</button><details><summary>Միանալ կոդով (պահուստային տարբերակ)</summary><input class="field" id="code" placeholder="ՍԵՆՅԱԿԻ ԿՈԴԸ" maxlength="10" autocapitalize="characters"><button class="primary" id="join">Միանալ</button></details><div class="info" id="netStatus">Ընտանեկան հրավերները գործում են, երբ խաղը բաց է։</div></section>';
  footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';
  $('#home').onclick=showMenu;$('#create').onclick=()=>connectPeer(true);$('#join').onclick=()=>connectPeer(false);
- if(role)initPresence();
+ if(role){const settings=document.createElement('button');settings.className='secondary';settings.textContent='👤 Ես՝ '+FAMILY_ROLES[role]+' · Փոխել';settings.onclick=changeFamilyRole;view.querySelector('.panel').append(settings);initPresence();}
  if(inviteCode){$('#code').value=inviteCode;$('#netStatus').textContent='Հրավերը բացված է․ միանում ենք ընկերոջդ…';connectPeer(false)}
 }
 function loadPeer(){return new Promise((resolve,reject)=>{if(window.Peer)return resolve();const script=document.createElement('script');script.src='https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js';script.onload=resolve;script.onerror=()=>reject(new Error('Առցանց կապի գրադարանը չբեռնվեց'));document.head.append(script)})}
@@ -638,8 +640,8 @@ function showRoom(){
  $('#roomCode').textContent=room;
  const role=familyRole(),other=Object.keys(FAMILY_ROLES).filter(k=>k!==role);
  const box=document.createElement('div');box.className='row';box.style.flexDirection='column';
- other.forEach(k=>{const b=document.createElement('button');b.className='choice';b.style.width='100%';b.textContent='🎮 Հրավիրել '+FAMILY_ROLES[k]+'ին';b.onclick=()=>sendFamilyInvite(k);box.append(b)});
- if(role&&FAMILY_ROLES[role])view.querySelector('.panel').insertBefore(box,$('#shareInvite'));
+ other.forEach(k=>{const b=document.createElement('button');b.className='choice';b.style.width='100%';b.textContent='🎮 '+FAMILY_INVITE_LABELS[k];b.onclick=()=>sendFamilyInvite(k);box.append(b)});
+ if(role&&FAMILY_ROLES[role]){view.querySelector('.panel').insertBefore(box,$('#shareInvite'));const who=document.createElement('button');who.className='secondary';who.textContent='👤 Ես՝ '+FAMILY_ROLES[role]+' · Փոխել';who.onclick=()=>{cleanup();changeFamilyRole()};view.querySelector('.panel').append(who)}
  const link=inviteUrl.toString();
  const copy=async()=>{try{await navigator.clipboard.writeText(link);$('#wait').textContent='Հղումը պատճենված է։ Ուղարկիր ընկերոջդ։'}catch(e){$('#wait').textContent='Պատճենիր հղումը՝ '+link}};
  $('#copyInvite').onclick=copy;
