@@ -398,11 +398,29 @@ function prepareLocal(player){turn=player;placeIndex=0;orientation=0;selected=nu
 function startBattle(){phase='battle';turn=0;aiMemory=[];if(mode==='local')passTurn();else renderBattle(true)}
 function passTurn(){modal('🔒','Փոխանցի՛ր հեռախոսը','Հիմա խաղում է խաղացող '+(turn+1)+'-ը։ Մյուս խաղացողը թող չնայի էկրանին։','Սկսել հերթը',renderBattle)}
 function renderBattle(animate=false){
- phase='battle';const stableSeparator=view.querySelector('.battle-separator');if(stableSeparator)stableSeparator.remove();view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
+ phase='battle';
+ // Keep the existing player's board and ship image elements mounted across
+ // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
+ const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
+ const stableSeparator=view.querySelector('.battle-separator');if(stableSeparator)stableSeparator.remove();
+ if(stableOwnBoard)stableOwnBoard.remove();
+ view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
  const my=mode==='local'?(turn===0?mine:theirs):mine;
  const canFire=!finished&&!shotBusy&&!(mode==='online'&&remoteTurn)&&!(mode==='ai'&&turn===1);
  const stage=document.createElement('div');stage.className='battle-view'+(animate?' enter':'');
- stage.append(framedBoard(my,{compact:true,show:true}));
+ if(stableOwnBoard){
+  const cells=stableOwnBoard.querySelectorAll('.board .cell');
+  cells.forEach((cell,i)=>{
+   const ship=my.ships.find(parts=>parts.includes(i));
+   const hit=my.shots.includes(i);
+   cell.classList.toggle('hit',!!(hit&&ship));
+   cell.classList.toggle('miss',!!(hit&&!ship));
+   cell.classList.toggle('fired',hit);
+   cell.classList.toggle('sunk',!!(ship&&ship.every(j=>my.shots.includes(j))));
+   cell.disabled=true;
+  });
+  stage.append(stableOwnBoard);
+ }else stage.append(framedBoard(my,{compact:true,show:true}));
  const separator=stableSeparator||document.createElement('div');separator.className='battle-separator '+((mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1)?'enemy-turn':'own-turn');
  const sunkMine=my.ships.filter(ship=>ship.every(i=>my.shots.includes(i))).length;
  const sunkEnemy=opponent.ships.filter(ship=>ship.every(i=>opponent.shots.includes(i))).length;
