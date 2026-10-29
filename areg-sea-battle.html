@@ -419,6 +419,14 @@ html,body,#app,#app *:not(input):not(textarea){
 #app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
 #app:has(.sea-menu-art)>.top small{display:none}
 
+/* First-shot centering: entrance animations must preserve the board's X offset.
+   Their previous translateY-only keyframes overrode translateX(-10.5px) until
+   the first shot rebuilt the battle view without the 'enter' class. */
+@keyframes sea-battle-rise-centered{from{transform:translate(-10.5px,24vh);opacity:.65}to{transform:translate(-10.5px,0);opacity:1}}
+@keyframes sea-battle-appear-centered{from{transform:translate(-10.5px,25vh);opacity:0}to{transform:translate(-10.5px,0);opacity:1}}
+#app.combat-mode .battle-view.enter>.board-wrap:first-child{animation-name:sea-battle-rise-centered}
+#app.combat-mode .battle-view.enter>.board-wrap:last-child{animation-name:sea-battle-appear-centered}
+
 /* Non-destructive image positioning before committing the menu background. */
 #app .sea-wallpaper-editor{position:absolute;inset:0;z-index:60;overflow:hidden;background:#071c2a;touch-action:none}
 #app .sea-wallpaper-preview{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
