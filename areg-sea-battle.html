@@ -478,12 +478,14 @@ html,body,#app,#app *:not(input):not(textarea){
 /* Custom-image mode only: cover the outer image edge with a solid gold rim. */
 #app.custom-sea-bg::after{
  inset:0!important;
- border:9px solid #d8a45e!important;
- border-radius:inherit!important;
- background:none!important;
- -webkit-mask:none!important;
- mask:none!important;
- filter:none!important;
+ border:9px solid transparent!important;
+ border-radius:clamp(22px,5vw,34px)!important;
+ background:linear-gradient(140deg,#ffe1a0 0%,#c48a4b 14%,#8a4c27 28%,#e0ad6b 44%,#a76532 60%,#f3cc85 78%,#99572e 100%) border-box!important;
+ -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;
+ mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0)!important;
+ mask-composite:exclude!important;
+ filter:drop-shadow(0 2px 1px #54321b88)!important;
  box-sizing:border-box!important;
 }
 #app.custom-sea-bg .sea-ambience::before{opacity:0!important}
