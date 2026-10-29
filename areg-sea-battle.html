@@ -525,7 +525,12 @@ html,body,#app,#app *:not(input):not(textarea){
  background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;
  -webkit-text-fill-color:transparent!important;
  filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff66)!important;
- animation:seaTitleColors 10s ease-in-out infinite alternate!important;
+ animation:placementTitleRGB 6s linear infinite!important;
+}
+@keyframes placementTitleRGB{
+ 0%{background-position:0% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff99) hue-rotate(0deg)}
+ 50%{background-position:100% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 8px #63cfff99) hue-rotate(160deg)}
+ 100%{background-position:0% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff99) hue-rotate(360deg)}
 }
 #app:not(.combat-mode):has(.placement-actions) .sea-menu-anchor{
  order:1!important;display:block!important;margin:0 auto!important;
