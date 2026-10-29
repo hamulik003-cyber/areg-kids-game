@@ -226,6 +226,20 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  #app .sea-ambience::before{animation:none!important}
 }
 
+/* Own board only: keep its white 10x10 overlay on a stable composited
+   layer while AI shots update ship pixels underneath it. */
+#app.combat-mode .battle-view > .board-wrap:first-child .board::after{
+ transform:translateZ(0)!important;
+ backface-visibility:hidden!important;
+ will-change:transform;
+ contain:paint;
+}
+#app.combat-mode .battle-view > .board-wrap:first-child .board{
+ isolation:isolate;
+ transform:translateZ(0);
+ backface-visibility:hidden;
+}
+
 /* Combat-only: impact's scale transform repaints 1px white cell borders
    on iOS WebKit. The missile, splash and sound effects remain unchanged. */
 #app.combat-mode .board .cell.hit{animation:none!important}
