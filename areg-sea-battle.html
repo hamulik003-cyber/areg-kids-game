@@ -506,7 +506,7 @@ html,body,#app,#app *:not(input):not(textarea){
 #app.custom-sea-bg .sea-ambience::before{opacity:0!important}
 #app.custom-sea-bg .sea-ambience::after{opacity:0!important}
 .sea-menu-art{overflow:visible}
-.sea-menu-art h2{padding-right:37px}
+.sea-menu-art h2{padding-left:42px;padding-right:42px;text-align:center;box-sizing:border-box}
 .sea-bg-trigger{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:11px;background:#2a7e9d;border:1px solid #a3e5f1;color:white;font-size:21px;z-index:2}
 .sea-bg-trigger{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;line-height:1!important}.sea-bg-trigger svg{display:block;flex:none}
 .sea-bg-editor{position:absolute;inset:0;z-index:150;background:#06243aee;display:flex;align-items:center;justify-content:center;padding:14px}
@@ -741,15 +741,19 @@ function seaMusicSet(blob,name){seaMusic.pause();if(seaMusicURL)URL.revokeObject
 function seaMusicPlay(){if(seaMusicURL&&seaMusic.paused)seaMusic.play().catch(()=>{})}
 async function seaMusicSave(file){if(!file||(!file.type.startsWith('audio/')&&!/\.(mp3|m4a|aac|wav|ogg|opus)$/i.test(file.name)))throw Error('Ընտրիր երաժշտական ֆայլ');if(file.size>45*1024*1024)throw Error('Ընտրիր մինչև 45 ՄԲ երաժշտություն');const db=seaMusicDB||await seaMusicOpenDB();await new Promise((resolve,reject)=>{const q=db.transaction('tracks','readwrite').objectStore('tracks').put({blob:file,name:file.name},'selected');q.onsuccess=resolve;q.onerror=()=>reject(q.error)});seaMusicSet(file,file.name);seaMusicPlay()}
 function seaMusicEditor(){if(document.querySelector('#seaMusicEditor'))return;const box=document.createElement('div');box.id='seaMusicEditor';box.className='sea-music-dialog';box.innerHTML='<div class="sea-music-panel"><h3>♫ Ծովամարտի երաժշտություն</h3><p id="seaMusicInfo"></p><label for="seaMusicFile">♫ Ընտրել կամ փոխել երգը</label><input id="seaMusicFile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg" hidden><button id="seaMusicToggle" type="button">Նվագարկել / Դադարեցնել</button><button id="seaMusicClose" type="button">Փակել</button></div>';document.querySelector('#app').append(box);const info=box.querySelector('#seaMusicInfo');const refresh=()=>{info.textContent=seaMusicName||'Երգ դեռ ընտրված չէ'};refresh();box.querySelector('#seaMusicFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;info.textContent='Պահպանվում է…';try{await seaMusicSave(file);refresh()}catch(err){info.textContent='Չհաջողվեց պահպանել։ '+(err.message||'Փորձիր ավելի փոքր ֆայլ։')}};box.querySelector('#seaMusicToggle').onclick=()=>{if(seaMusic.paused)seaMusicPlay();else seaMusic.pause()};box.querySelector('#seaMusicClose').onclick=()=>box.remove()}
-seaMusicLoad();
-document.addEventListener('pointerdown',()=>{if(document.visibilityState==='visible'&&seaMusicURL&&seaMusic.paused&&seaMusic.currentTime===0)seaMusicPlay()},{once:false});
+let seaMusicLoadReady=false;
+seaMusicLoad().finally(()=>{seaMusicLoadReady=true;seaMusicPlay()});
+/* A user gesture unlocks iOS audio; after that the selected track resumes on game entry. */
+function seaMusicGestureStart(){if(document.visibilityState==='visible'&&seaMusicURL&&seaMusic.paused)seaMusicPlay()}
+document.addEventListener('pointerdown',seaMusicGestureStart,{passive:true});
+document.addEventListener('touchend',seaMusicGestureStart,{passive:true});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)seaMusic.pause()});
 window.addEventListener('pagehide',()=>seaMusic.pause());
 
 function randomizeSeaTitleStart(){document.querySelector('.sea-menu-title').style.setProperty('--sea-title-offset',(-Math.random()*10).toFixed(3)+'s')}
 function showMenu(){randomizeSeaTitleStart();document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;view.innerHTML='<section class="panel sea-menu-art"><h2>Ընտրի՛ր խաղի ձևը</h2><button type="button" class="sea-music-trigger" aria-label="Ընտրել երաժշտություն" title="Երաժշտություն"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button><button type="button" class="sea-bg-trigger" aria-label="Փոխել ծովի ֆոնը" title="Փոխել ֆոնը"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg></button><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));view.querySelector('.sea-bg-trigger').onclick=openSeaBgEditor;view.querySelector('.sea-music-trigger').onclick=seaMusicEditor;seaMusicPlay()}
 function cleanup(){try{presencePeer?.destroy()}catch(e){}presencePeer=null;onlineHits=new Set();onlineSunkAssets={};previewNode?.remove();previewNode=null;try{conn?.close()}catch(e){}try{peer?.destroy()}catch(e){}conn=null;peer=null;remoteReady=false;localReady=false;room='';finished=false}
-function start(m){randomizeSeaTitleStart();cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
+function start(m){seaMusicPlay();randomizeSeaTitleStart();cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
 
 /* Aircraft carrier visual prototype: each 5-cell section is an independent SVG
    tile, so the underlying board, hit detection and grid remain untouched. */
