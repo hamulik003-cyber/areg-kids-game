@@ -17,6 +17,9 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 /* Placement board has a left coordinate gutter; center the blue grid itself. */
 #app:not(.combat-mode) .game>.board-wrap>.board-row,
 #app:not(.combat-mode) .game>.board-wrap>.coord-top{transform:translateX(-11px)}
+/* Keep the fixed horizontal centering transform throughout the opening shot.
+   Entrance keyframes used to override transform, then snap the grid sideways. */
+#app.combat-mode .battle-view.enter>.board-wrap{animation:none!important}
 /* Align the actual 10x10 grid, not its left-side coordinate gutter. */
 #app.combat-mode .battle-view>.board-wrap{transform:translateX(-10.5px)}
 #app.combat-mode .battle-separator{transform:translateX(-10.5px)}
@@ -796,10 +799,10 @@ function renderBattle(animate=false){
  phase='battle';
  // Keep the existing player's board and ship image elements mounted across
  // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
- const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
- const stableEnemyBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:last-child'):null;
+ const stableOwnBoard=(mode==='ai'||mode==='online')?view.querySelector('.battle-view > .board-wrap:first-child'):null;
+ const stableEnemyBoard=(mode==='ai'||mode==='online')?view.querySelector('.battle-view > .board-wrap:last-child'):null;
  const stableSeparator=view.querySelector('.battle-separator');
- const reuseStage=mode==='ai'&&!!stableOwnBoard&&!!stableEnemyBoard&&!!stableSeparator;
+ const reuseStage=(mode==='ai'||mode==='online')&&!!stableOwnBoard&&!!stableEnemyBoard&&!!stableSeparator;
  if(!reuseStage)view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
  const my=mode==='local'?(turn===0?mine:theirs):mine;
  const canFire=!finished&&!shotBusy&&!(mode==='online'&&remoteTurn)&&!(mode==='ai'&&turn===1);
@@ -831,8 +834,9 @@ function renderBattle(animate=false){
   cells.forEach((cell,i)=>{
    const ship=opponent.ships.find(parts=>parts.includes(i));
    const hit=opponent.shots.includes(i);
-   cell.classList.toggle('hit',!!(hit&&ship));
-   cell.classList.toggle('miss',!!(hit&&!ship));
+   const confirmedHit=!!(ship||(mode==='online'&&onlineHits.has(i)));
+   cell.classList.toggle('hit',!!(hit&&confirmedHit));
+   cell.classList.toggle('miss',!!(hit&&!confirmedHit));
    cell.classList.toggle('fired',hit);
    const sunk=!!(ship&&ship.every(j=>opponent.shots.includes(j)));
    cell.classList.toggle('sunk',sunk);
