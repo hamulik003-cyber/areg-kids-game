@@ -3733,7 +3733,9 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Ծովամարտ';
-    frame.src='./areg-sea-battle.html?v=a00dc13c';
+    // The Home Screen PWA can retain a stale iframe document even when Safari is fresh.
+    // Give each Sea Battle launch a unique URL without touching other games or saved data.
+    frame.src='./areg-sea-battle.html?v=a00dc13c&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial')+'&launch='+Date.now();
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
