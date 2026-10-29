@@ -419,6 +419,13 @@ html,body,#app,#app *:not(input):not(textarea){
 #app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
 #app:has(.sea-menu-art)>.top small{display:none}
 
+/* Keep the existing entrance animation centered horizontally and prevent
+   animation transforms from overriding the fixed -10.5px grid alignment. */
+@keyframes sea-battle-centered-rise{from{transform:translate(-10.5px,24vh);opacity:.65}to{transform:translate(-10.5px,0);opacity:1}}
+@keyframes sea-battle-centered-appear{from{transform:translate(-10.5px,25vh);opacity:0}to{transform:translate(-10.5px,0);opacity:1}}
+#app.combat-mode .battle-view.enter>.board-wrap:first-child{animation-name:sea-battle-centered-rise}
+#app.combat-mode .battle-view.enter>.board-wrap:last-child{animation-name:sea-battle-centered-appear}
+
 /* Non-destructive image positioning before committing the menu background. */
 #app .sea-wallpaper-editor{position:absolute;inset:0;z-index:60;overflow:hidden;background:#071c2a;touch-action:none}
 #app .sea-wallpaper-preview{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
@@ -791,13 +798,12 @@ function renderBattle(animate=false){
  // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
  const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
  const stableEnemyBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:last-child'):null;
- const stableSeparator=view.querySelector('.battle-separator');if(stableSeparator)stableSeparator.remove();
- if(stableOwnBoard)stableOwnBoard.remove();
- if(stableEnemyBoard)stableEnemyBoard.remove();
- view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
+ const stableSeparator=view.querySelector('.battle-separator');
+ const reuseStage=mode==='ai'&&!!stableOwnBoard&&!!stableEnemyBoard&&!!stableSeparator;
+ if(!reuseStage)view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
  const my=mode==='local'?(turn===0?mine:theirs):mine;
  const canFire=!finished&&!shotBusy&&!(mode==='online'&&remoteTurn)&&!(mode==='ai'&&turn===1);
- const stage=document.createElement('div');stage.className='battle-view'+(animate?' enter':'');
+ const stage=reuseStage?view.querySelector('.battle-view'):document.createElement('div');if(!reuseStage)stage.className='battle-view'+(animate?' enter':'');
  if(stableOwnBoard){
   const cells=stableOwnBoard.querySelectorAll('.board .cell');
   cells.forEach((cell,i)=>{
@@ -809,7 +815,7 @@ function renderBattle(animate=false){
    cell.classList.toggle('sunk',!!(ship&&ship.every(j=>my.shots.includes(j))));
    cell.disabled=true;
   });
-  stage.append(stableOwnBoard);
+  if(!reuseStage)stage.append(stableOwnBoard);
  }else stage.append(framedBoard(my,{compact:true,show:true}));
  const separator=stableSeparator||document.createElement('div');separator.className='battle-separator '+((mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1)?'enemy-turn':'own-turn');
  const sunkMine=my.ships.filter(ship=>ship.every(i=>my.shots.includes(i))).length;
@@ -819,7 +825,7 @@ function renderBattle(animate=false){
  separator.querySelector('.combat-chip-left .combat-count').textContent=sunkEnemy+'/'+FLEET.length;
  separator.querySelector('.combat-chip-right .combat-count').textContent=(FLEET.length-sunkMine)+'/'+FLEET.length;
  separator.querySelector('.combat-status-icon').textContent=enemyTurn?'⌛':'🎯';
- stage.append(separator);
+ if(!reuseStage)stage.append(separator);
  if(stableEnemyBoard){
   const cells=stableEnemyBoard.querySelectorAll('.board .cell');
   cells.forEach((cell,i)=>{
@@ -838,9 +844,9 @@ function renderBattle(animate=false){
    cell.disabled=hit||!canFire;
    cell.onclick=canFire&&!hit?()=>fire(i):null;
   });
-  stage.append(stableEnemyBoard);
+  if(!reuseStage)stage.append(stableEnemyBoard);
  }else stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
- view.append(stage);footer.innerHTML='';
+ if(!reuseStage){view.append(stage);if(animate)setTimeout(()=>{if(stage.isConnected)stage.classList.remove('enter')},700)}footer.innerHTML='';
  // Align to the blue 10x10 grid's measured edges, never to the A-J label gutter.
  // Do not guess pixel offsets: the outer PWA frame and viewport may vary.
  const alignCombatBar=()=>{
@@ -858,7 +864,7 @@ function renderBattle(animate=false){
   const offset=(seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2);
   separator.style.transform='translate3d('+offset+'px,0,0)';
  };
- alignCombatBar();
+ if(!reuseStage)requestAnimationFrame(alignCombatBar);
 }
 function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
  const frames=view.querySelectorAll('.board'),board=frames[boardIndex],cell=board?.querySelectorAll('.cell')[cellIndex];
