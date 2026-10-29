@@ -230,7 +230,7 @@
   <audio id="menuMusic" src="menu-music.mp3?v=60" loop preload="none"></audio>
   <script>
     (() => {
-      const v=encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+      const v=encodeURIComponent(new URLSearchParams(location.search).get('testv')||'areg-test-302');
       const script=document.createElement('script');
       script.src='app.js?v=301&testv='+v;
       script.async=false;
