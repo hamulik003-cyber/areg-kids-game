@@ -400,7 +400,9 @@ html,body,#app,#app *:not(input):not(textarea){
 
 
 /* Trial-only personal menu wallpaper: behind the existing animated bubbles. */
-#app:has(.sea-menu-art) .sea-ambience{background-image:var(--sea-menu-wallpaper,none);background-size:cover;background-position:center;background-repeat:no-repeat}
+/* Put the photo on the visible game surface; keep the animated bubbles in a transparent overlay above it. */
+#app:has(.sea-menu-art) .game{background-image:var(--sea-menu-wallpaper,none);background-size:cover;background-position:center;background-repeat:no-repeat}
+#app:has(.sea-menu-art) .sea-ambience{z-index:3;background:transparent}
 #app:has(.sea-menu-art) .sea-ambience::before{display:none}
 #app .sea-menu-art{background:transparent;border:0;box-shadow:none;overflow:visible;z-index:2}
 #app .sea-wallpaper-picker{position:absolute;left:14px;top:12px;z-index:12;width:36px;height:36px;border-radius:11px;background:#073653c9;border:1px solid #a5e6f1a8;color:white;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px #002b}
