@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v301-core';
-const RUNTIME_CACHE='areg-v301-runtime';
+const CORE_CACHE='areg-v304-core';
+const RUNTIME_CACHE='areg-v304-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
