@@ -17,6 +17,9 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 /* Placement board has a left coordinate gutter; center the blue grid itself. */
 #app:not(.combat-mode) .game>.board-wrap>.board-row,
 #app:not(.combat-mode) .game>.board-wrap>.coord-top{transform:translateX(-11px)}
+/* Trial-only iOS grid stability: don't animate the boards' compositor layer. */
+#app.combat-mode .battle-view .board-wrap{transition:none!important;animation:none!important;will-change:auto!important}
+#app.combat-mode .battle-view .board{transform:none!important;backface-visibility:hidden}
 /* Keep the fixed horizontal centering transform throughout the opening shot.
    Entrance keyframes used to override transform, then snap the grid sideways. */
 #app.combat-mode .battle-view.enter>.board-wrap{animation:none!important}
@@ -868,6 +871,9 @@ function renderBattle(animate=false){
   const offset=(seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2);
   separator.style.transform='translate3d('+offset+'px,0,0)';
  };
+ // Keep the combat bar in normal layout: repeated pixel translations after shots
+ // force WebKit to re-rasterize the 10x10 white grid at fractional positions.
+ // A single alignment on stage creation is sufficient; reused stages stay fixed.
  if(!reuseStage)requestAnimationFrame(alignCombatBar);
 }
 function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
