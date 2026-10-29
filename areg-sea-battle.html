@@ -262,12 +262,13 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  order:0;
  font-family:inherit!important;
  font-weight:inherit!important;
- background:linear-gradient(110deg,#ffe46a 0%,#ff9e56 12%,#ff73c8 25%,#b888ff 38%,#58cfff 51%,#64f2c7 64%,#f7ff83 77%,#ff8dbb 89%,#ffe46a 100%);
+ background:linear-gradient(110deg,#fff04a 0%,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a 100%);
  background-size:200% 100%;
  -webkit-background-clip:text;background-clip:text;
  -webkit-text-fill-color:transparent;
  filter:drop-shadow(0 2px 1px #123d6e) drop-shadow(0 0 7px #63cfff66);
  animation:seaTitleColors 10s ease-in-out infinite alternate;
+ animation-delay:var(--sea-title-offset,0s);
 }
 @keyframes seaTitleColors{from{background-position:0% 50%}to{background-position:100% 50%}}
 @media(prefers-reduced-motion:reduce){#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title{animation:none}}
@@ -521,11 +522,12 @@ html,body,#app,#app *:not(input):not(textarea){
 }
 #app:not(.combat-mode):has(.placement-actions) .sea-menu-title{
  order:0!important;display:block!important;margin:0 auto!important;
- background:linear-gradient(110deg,#ffe46a 0%,#ff9e56 12%,#ff73c8 25%,#b888ff 38%,#58cfff 51%,#64f2c7 64%,#f7ff83 77%,#ff8dbb 89%,#ffe46a 100%);
+ background:linear-gradient(110deg,#fff04a 0%,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a 100%);
  background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;
  -webkit-text-fill-color:transparent!important;
  filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff66);
  animation:placementTitleRGB 10s linear infinite!important;
+ animation-delay:var(--sea-title-offset,0s)!important;
 }
 @keyframes placementTitleRGB{
  0%{background-position:0% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff99) hue-rotate(0deg)}
@@ -717,9 +719,10 @@ function openSeaBgEditor(){
 }
 applySeaBg();
 
-function showMenu(){document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;view.innerHTML='<section class="panel sea-menu-art"><h2>Ընտրի՛ր խաղի ձևը</h2><button type="button" class="sea-bg-trigger" aria-label="Փոխել ծովի ֆոնը" title="Փոխել ֆոնը"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg></button><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));view.querySelector('.sea-bg-trigger').onclick=openSeaBgEditor}
+function randomizeSeaTitleStart(){document.querySelector('.sea-menu-title').style.setProperty('--sea-title-offset',(-Math.random()*10).toFixed(3)+'s')}
+function showMenu(){randomizeSeaTitleStart();document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;view.innerHTML='<section class="panel sea-menu-art"><h2>Ընտրի՛ր խաղի ձևը</h2><button type="button" class="sea-bg-trigger" aria-label="Փոխել ծովի ֆոնը" title="Փոխել ֆոնը"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg></button><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));view.querySelector('.sea-bg-trigger').onclick=openSeaBgEditor}
 function cleanup(){try{presencePeer?.destroy()}catch(e){}presencePeer=null;onlineHits=new Set();onlineSunkAssets={};previewNode?.remove();previewNode=null;try{conn?.close()}catch(e){}try{peer?.destroy()}catch(e){}conn=null;peer=null;remoteReady=false;localReady=false;room='';finished=false}
-function start(m){cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
+function start(m){randomizeSeaTitleStart();cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
 
 /* Aircraft carrier visual prototype: each 5-cell section is an independent SVG
    tile, so the underlying board, hit detection and grid remain untouched. */
