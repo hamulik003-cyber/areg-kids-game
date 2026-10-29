@@ -234,6 +234,13 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  left:-9px;
 }
 
+/* Draw the white combat grid only once: the board::after overlay
+   already draws all 10x10 dividers, so cell borders duplicate the bottom
+   and side lines. Keep the overlay/compositing flicker fix untouched. */
+#app.combat-mode .battle-view .board .cell{
+ border:0!important;
+}
+
 /* Own board only: keep its white 10x10 overlay on a stable composited
    layer while AI shots update ship pixels underneath it. */
 #app.combat-mode .battle-view > .board-wrap:first-child .board::after{
