@@ -258,7 +258,19 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app:not(.combat-mode):has(.sea-menu-art) .top h1{
  display:flex;flex-direction:column;align-items:center;gap:0;
 }
-#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title{order:0;font-family:'DejaVu Serif',Georgia,serif!important;font-weight:700!important}
+#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title{
+ order:0;
+ font-family:inherit!important;
+ font-weight:inherit!important;
+ background:linear-gradient(110deg,#fff2bb 0%,#fff 20%,#a8eeff 38%,#ffd2ee 55%,#e0ceff 73%,#fff2bb 100%);
+ background-size:200% 100%;
+ -webkit-background-clip:text;background-clip:text;
+ -webkit-text-fill-color:transparent;
+ filter:drop-shadow(0 2px 1px #123d6e) drop-shadow(0 0 7px #63cfff66);
+ animation:seaTitleColors 10s ease-in-out infinite alternate;
+}
+@keyframes seaTitleColors{from{background-position:0% 50%}to{background-position:100% 50%}}
+@media(prefers-reduced-motion:reduce){#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title{animation:none}}
 #app:not(.combat-mode):has(.sea-menu-art) .sea-menu-anchor{
  order:1;font-size:58px;line-height:1;display:block;margin-top:8px;
 }
