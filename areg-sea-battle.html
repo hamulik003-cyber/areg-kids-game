@@ -467,7 +467,14 @@ html,body,#app,#app *:not(input):not(textarea){
 
 
 /* Optional custom sea backdrop, behind all bubbles and gameplay. */
-#app.custom-sea-bg{background-image:var(--sea-custom-image)!important;background-size:100% 100%!important;background-position:center!important}
+/* The visible blue sea is .sea-ambience, not #app.
+   Replace that layer only; animated bubbles remain above its background. */
+#app.custom-sea-bg .sea-ambience{
+ background:var(--sea-custom-image) center center / 100% 100% no-repeat!important;
+ box-shadow:none!important;
+}
+#app.custom-sea-bg .sea-ambience::before{opacity:0!important}
+#app.custom-sea-bg .sea-ambience::after{opacity:0!important}
 .sea-menu-art{overflow:visible}
 .sea-menu-art h2{padding-right:37px}
 .sea-bg-trigger{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:11px;background:#2a7e9d;border:1px solid #a3e5f1;color:white;font-size:21px;z-index:2}
