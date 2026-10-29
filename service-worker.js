@@ -152,6 +152,16 @@ self.addEventListener('fetch',event=>{
     event.respondWith(persistedMedia(request,MEDIA_CACHES[2]));return;
   }
 
+  if(url.pathname.endsWith('/app.js')||url.pathname.endsWith('/areg-test-version.json')){
+    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
+      if(response&&response.ok){
+        const copy=response.clone();
+        event.waitUntil(caches.open(RUNTIME_CACHE).then(cache=>cache.put(request,copy)).catch(()=>{}));
+      }
+      return response;
+    }).catch(()=>caches.match(request,{ignoreSearch:true}).then(hit=>hit||Response.error())));
+    return;
+  }
   if(/\.(?:js|css|png|jpe?g|webp|gif|svg|mp3|wav|json|webmanifest)$/i.test(url.pathname)){
     event.respondWith(cacheFirst(request));
     return;
