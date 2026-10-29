@@ -799,13 +799,15 @@ function renderBattle(animate=false){
  // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
  const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
  const stableEnemyBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:last-child'):null;
- const stableSeparator=view.querySelector('.battle-separator');if(stableSeparator)stableSeparator.remove();
- if(stableOwnBoard)stableOwnBoard.remove();
- if(stableEnemyBoard)stableEnemyBoard.remove();
- view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
+ const stableSeparator=view.querySelector('.battle-separator');
+ // Keep the mounted battle stage intact on each AI turn: detaching both grids
+ // forced iOS WebKit to reflow the square cells, causing white lines to stretch.
+ const reuseStage=mode==='ai'&&!!stableOwnBoard&&!!stableEnemyBoard&&!!stableSeparator;
+ if(!reuseStage)view.innerHTML='';
+ document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
  const my=mode==='local'?(turn===0?mine:theirs):mine;
  const canFire=!finished&&!shotBusy&&!(mode==='online'&&remoteTurn)&&!(mode==='ai'&&turn===1);
- const stage=document.createElement('div');stage.className='battle-view'+(animate?' enter':'');
+ const stage=reuseStage?view.querySelector('.battle-view'):document.createElement('div');if(!reuseStage)stage.className='battle-view'+(animate?' enter':'');
  if(stableOwnBoard){
   const cells=stableOwnBoard.querySelectorAll('.board .cell');
   cells.forEach((cell,i)=>{
@@ -817,7 +819,7 @@ function renderBattle(animate=false){
    cell.classList.toggle('sunk',!!(ship&&ship.every(j=>my.shots.includes(j))));
    cell.disabled=true;
   });
-  stage.append(stableOwnBoard);
+  if(!reuseStage)stage.append(stableOwnBoard);
  }else stage.append(framedBoard(my,{compact:true,show:true}));
  const separator=stableSeparator||document.createElement('div');separator.className='battle-separator '+((mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1)?'enemy-turn':'own-turn');
  const sunkMine=my.ships.filter(ship=>ship.every(i=>my.shots.includes(i))).length;
@@ -827,7 +829,8 @@ function renderBattle(animate=false){
  separator.querySelector('.combat-chip-left .combat-count').textContent=sunkEnemy+'/'+FLEET.length;
  separator.querySelector('.combat-chip-right .combat-count').textContent=(FLEET.length-sunkMine)+'/'+FLEET.length;
  separator.querySelector('.combat-status-icon').textContent=enemyTurn?'⌛':'🎯';
- stage.append(separator);
+ if(!reuseStage)stage.append(separator);
+ separator.className='battle-separator '+(enemyTurn?'enemy-turn':'own-turn');
  if(stableEnemyBoard){
   const cells=stableEnemyBoard.querySelectorAll('.board .cell');
   cells.forEach((cell,i)=>{
@@ -846,9 +849,9 @@ function renderBattle(animate=false){
    cell.disabled=hit||!canFire;
    cell.onclick=canFire&&!hit?()=>fire(i):null;
   });
-  stage.append(stableEnemyBoard);
+  if(!reuseStage)stage.append(stableEnemyBoard);
  }else stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
- view.append(stage);footer.innerHTML='';
+ if(!reuseStage)view.append(stage);footer.innerHTML='';
  // Align to the blue 10x10 grid's measured edges, never to the A-J label gutter.
  // Do not guess pixel offsets: the outer PWA frame and viewport may vary.
  const alignCombatBar=()=>{
