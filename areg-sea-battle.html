@@ -889,7 +889,9 @@ function renderBattle(animate=false){
   const offset=(seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2);
   separator.style.transform='translate3d('+offset+'px,0,0)';
  };
- alignCombatBar();
+ // Measure the bar only when the battle stage is first created. Re-measuring
+ // and resetting its width on every shot caused flexbox to compress the grids.
+ if(!reuseStage)requestAnimationFrame(alignCombatBar);
 }
 function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
  const frames=view.querySelectorAll('.board'),board=frames[boardIndex],cell=board?.querySelectorAll('.cell')[cellIndex];
