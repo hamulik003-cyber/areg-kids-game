@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v302-core';
-const RUNTIME_CACHE='areg-v302-runtime';
+const CORE_CACHE='areg-v303-core';
+const RUNTIME_CACHE='areg-v303-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
@@ -138,6 +138,16 @@ self.addEventListener('fetch',event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
+  // The installed AREG TEST must always check the published Battleship page
+  // and deployment marker online. Never serve a stale cached copy first.
+  if(url.pathname.endsWith('/areg-test-version.json') ||
+     (request.mode==='navigate' && url.pathname.endsWith('/areg-sea-battle.html'))){
+    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
+      if(!response.ok)throw Error('AREG trial refresh unavailable');
+      return response;
+    }).catch(async()=> (await caches.match(request)) || Response.error()));
+    return;
+  }
   if(request.mode==='navigate'){
     event.respondWith(networkNavigation(request,event));
     return;
