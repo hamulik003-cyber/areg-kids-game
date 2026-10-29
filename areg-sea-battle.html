@@ -1062,6 +1062,11 @@ function confirmExit(){
  const old=view.querySelector('.exit-confirm-overlay');if(old){old.remove();return}
  const o=document.createElement('div');o.className='overlay exit-confirm-overlay';
  o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true"></div><div class="big wave">⚓</div><h2>Դուրս գա՞լ խաղից</h2><p>Ընթացիկ խաղը կավարտվի։</p><button class="primary" id="exitYes">Գլխավոր մենյու</button><button class="secondary" id="exitCancel">Չեղարկել</button></div>';
+ const bubbles=o.querySelector('.modal-bubbles');
+ bubbles.innerHTML=Array.from({length:13},(_,i)=>{
+  const x=(i*37+9)%94, size=7+(i*11)%20, duration=7+(i%5)*1.7, delay=-(i*.93), y=8+i*7%85;
+  return '<i style="--x:'+x+'%;--s:'+size+'px;--d:'+duration+'s;--delay:'+delay+'s;--y:'+y+'%"></i>';
+ }).join('');
  o.querySelector('#exitYes').onclick=()=>{o.remove();showMenu()};
  o.querySelector('#exitCancel').onclick=()=>o.remove();
  view.append(o);
