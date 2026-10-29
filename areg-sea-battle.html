@@ -277,7 +277,9 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  background-image:linear-gradient(to right,#e2f9ffdb 1px,transparent 1px),
  linear-gradient(to bottom,#e2f9ffdb 1px,transparent 1px);
  background-size:10% 100%,100% 10%;background-repeat:repeat;
- box-shadow:inset -1px 0 #e2f9ffdb,inset 0 -1px #e2f9ffdb;
+ /* The repeated 10% grid already draws the outer edges. Do not add
+    inset edge shadows: iOS renders them as duplicate bottom lines. */
+ box-shadow:none;
 }
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
