@@ -43,7 +43,7 @@
   </script>
   <script>
     (() => {
-      const v=encodeURIComponent(new URLSearchParams(location.search).get('testv')||String(Date.now()));
+      const v=encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
       ['styles.css?v=299','space-3d-games.css?v=287'].forEach(file=>{
         const link=document.createElement('link');
         link.rel='stylesheet';
