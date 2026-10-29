@@ -401,9 +401,14 @@ html,body,#app,#app *:not(input):not(textarea){
 
 /* Trial-only personal menu wallpaper: behind the existing animated bubbles. */
 /* Put the photo on the visible game surface; keep the animated bubbles in a transparent overlay above it. */
-#app:has(.sea-menu-art) .game{background-image:var(--sea-menu-wallpaper,none);background-size:cover;background-position:center;background-repeat:no-repeat}
-#app:has(.sea-menu-art) .sea-ambience{z-index:3;background:transparent}
+/* Wallpaper spans the whole game frame, including the title/header band. */
+#app:has(.sea-menu-art){background-image:var(--sea-menu-wallpaper,none)!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+#app:has(.sea-menu-art)::before{display:none}
+#app:has(.sea-menu-art) .game{background:transparent!important}
+#app:has(.sea-menu-art) .sea-ambience{z-index:2;background:transparent!important}
 #app:has(.sea-menu-art) .sea-ambience::before{display:none}
+#app:has(.sea-menu-art)>.top,#app:has(.sea-menu-art)>.game{z-index:3}
+#app:has(.sea-menu-art)>.top{background:transparent!important}
 #app .sea-menu-art{background:transparent;border:0;box-shadow:none;overflow:visible;z-index:2}
 #app .sea-wallpaper-picker{position:absolute;left:14px;top:12px;z-index:12;width:36px;height:36px;border-radius:11px;background:#073653c9;border:1px solid #a5e6f1a8;color:white;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px #002b}
 #app .sea-wallpaper-picker:focus-visible{outline:2px solid white;outline-offset:2px}
