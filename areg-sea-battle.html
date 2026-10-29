@@ -419,6 +419,13 @@ html,body,#app,#app *:not(input):not(textarea){
 #app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
 #app:has(.sea-menu-art)>.top small{display:none}
 
+/* The entrance class must not remain on the mounted battle view during
+   subsequent turns. A permanent animation/transform stacking context on
+   each board-wrap makes iOS Safari repaint the grid as its cells change. */
+#app.combat-mode .battle-view:not(.enter)>.board-wrap{animation:none!important;transform:translateX(-10.5px)!important;opacity:1!important}
+#app.combat-mode .battle-view .board{box-sizing:border-box!important;aspect-ratio:1 / 1!important;flex:none!important}
+#app.combat-mode .battle-view .board-row{flex:none!important}
+
 /* Lock 10x10 battle grid tracks and board size while shots animate.
    iOS Safari otherwise briefly re-measures fractional 1fr tracks as the
    shot/splash content and disabled states change, stretching white lines. */
@@ -864,7 +871,7 @@ function renderBattle(animate=false){
   });
   if(!reuseStage)stage.append(stableEnemyBoard);
  }else stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
- if(!reuseStage)view.append(stage);footer.innerHTML='';
+ if(!reuseStage){view.append(stage);if(animate){const enteredStage=stage;setTimeout(()=>{if(enteredStage.isConnected)enteredStage.classList.remove('enter')},700)}}footer.innerHTML='';
  // Align to the blue 10x10 grid's measured edges, never to the A-J label gutter.
  // Do not guess pixel offsets: the outer PWA frame and viewport may vary.
  const alignCombatBar=()=>{
