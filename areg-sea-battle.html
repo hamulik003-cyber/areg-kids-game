@@ -419,6 +419,13 @@ html,body,#app,#app *:not(input):not(textarea){
 #app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
 #app:has(.sea-menu-art)>.top small{display:none}
 
+/* iOS grid stability: never transform individual shot cells or move the
+   grid containers during entrance. A cell scaling above 100% repaints the
+   shared 1px grid boundaries and looks like the white lines collapsing. */
+#app.combat-mode .battle-view .board .cell.hit{animation:none!important;transform:none!important}
+#app.combat-mode .battle-view.enter>.board-wrap{animation:none!important;opacity:1!important;transform:translateX(-10.5px)!important}
+#app.combat-mode .battle-view .board .cell{transition:background-color .16s linear!important}
+
 /* The entrance class must not remain on the mounted battle view during
    subsequent turns. A permanent animation/transform stacking context on
    each board-wrap makes iOS Safari repaint the grid as its cells change. */
