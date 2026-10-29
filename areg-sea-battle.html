@@ -17,12 +17,12 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 /* Placement board has a left coordinate gutter; center the blue grid itself. */
 #app:not(.combat-mode) .game>.board-wrap>.board-row,
 #app:not(.combat-mode) .game>.board-wrap>.coord-top{transform:translateX(-11px)}
-/* Trial-only iOS grid stability: don't animate the boards' compositor layer. */
-#app.combat-mode .battle-view .board-wrap{transition:none!important;animation:none!important;will-change:auto!important}
+/* Trial-only iOS grid stability: avoid shot-time layout transitions, preserve entrance. */
+#app.combat-mode .battle-view .board-wrap{transition:none!important;will-change:auto!important}
 #app.combat-mode .battle-view .board{transform:none!important;backface-visibility:hidden}
 /* Keep the fixed horizontal centering transform throughout the opening shot.
    Entrance keyframes used to override transform, then snap the grid sideways. */
-#app.combat-mode .battle-view.enter>.board-wrap{animation:none!important}
+/* Entrance is intentionally restored below with horizontally centered keyframes. */
 /* Align the actual 10x10 grid, not its left-side coordinate gutter. */
 #app.combat-mode .battle-view>.board-wrap{transform:translateX(-10.5px)}
 #app.combat-mode .battle-separator{transform:translateX(-10.5px)}
@@ -431,6 +431,9 @@ html,body,#app,#app *:not(input):not(textarea){
 @keyframes sea-battle-centered-appear{from{transform:translate(-10.5px,25vh);opacity:0}to{transform:translate(-10.5px,0);opacity:1}}
 #app.combat-mode .battle-view.enter>.board-wrap:first-child{animation-name:sea-battle-centered-rise}
 #app.combat-mode .battle-view.enter>.board-wrap:last-child{animation-name:sea-battle-centered-appear}
+/* Explicitly restore the approved opening rise, without shot-time transitions. */
+#app.combat-mode .battle-view.enter>.board-wrap:first-child{animation:sea-battle-centered-rise .65s ease-out both!important}
+#app.combat-mode .battle-view.enter>.board-wrap:last-child{animation:sea-battle-centered-appear .65s ease-out both!important}
 
 /* Non-destructive image positioning before committing the menu background. */
 #app .sea-wallpaper-editor{position:absolute;inset:0;z-index:60;overflow:hidden;background:#071c2a;touch-action:none}
