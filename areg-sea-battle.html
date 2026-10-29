@@ -226,6 +226,14 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  #app .sea-ambience::before{animation:none!important}
 }
 
+/* Center the actual 10x10 squares, not the square-plus-18px
+   coordinate gutter. Use a static layout offset, never a transform,
+   to preserve the approved non-flickering iOS grid layers. */
+#app.combat-mode .battle-view > .board-wrap{
+ position:relative;
+ left:9px;
+}
+
 /* Own board only: keep its white 10x10 overlay on a stable composited
    layer while AI shots update ship pixels underneath it. */
 #app.combat-mode .battle-view > .board-wrap:first-child .board::after{
