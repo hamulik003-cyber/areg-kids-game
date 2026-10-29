@@ -413,8 +413,11 @@ html,body,#app,#app *:not(input):not(textarea){
 /* Keep both existing mode buttons unchanged; move the whole menu upward, below the photo picker. */
 #app:has(.sea-menu-art) .sea-menu-art{position:absolute;left:8%;right:8%;bottom:4%;margin:0;align-self:auto;width:auto;gap:8px;padding:7px 5px;max-height:56%;}
 @media(max-height:700px){#app:has(.sea-menu-art) .sea-menu-art{bottom:2%;gap:5px;padding:4px}}
-#app .sea-wallpaper-picker{position:absolute;left:14px;top:12px;z-index:12;width:36px;height:36px;border-radius:11px;background:#073653c9;border:1px solid #a5e6f1a8;color:white;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px #002b}
+#app .sea-wallpaper-picker{position:absolute;right:14px;top:12px;z-index:12;width:36px;height:36px;border-radius:11px;background:#073653c9;border:1px solid #a5e6f1a8;color:white;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px #002b}
 #app .sea-wallpaper-picker:focus-visible{outline:2px solid white;outline-offset:2px}
+/* Menu-only title styling; do not change battle screens. */
+#app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
+#app:has(.sea-menu-art)>.top small{display:none}
 
 /* Non-destructive image positioning before committing the menu background. */
 #app .sea-wallpaper-editor{position:absolute;inset:0;z-index:60;overflow:hidden;background:#071c2a;touch-action:none}
@@ -580,7 +583,7 @@ function openSeaWallpaperEditor(image){
  editor.querySelector('[data-action="save"]').onclick=()=>{render();const w=preview.clientWidth,h=preview.clientHeight;const canvas=document.createElement('canvas');const factor=Math.min(1,1600/Math.max(w,h));canvas.width=Math.max(1,Math.round(w*factor));canvas.height=Math.max(1,Math.round(h*factor));const ctx=canvas.getContext('2d');ctx.drawImage(image,(w-baseW*scale)/2*factor+dx*factor,(h-baseH*scale)/2*factor+dy*factor,baseW*scale*factor,baseH*scale*factor);seaMenuWallpaper=canvas.toDataURL('image/jpeg',.85);applySeaMenuWallpaper();try{localStorage.setItem(SEA_MENU_WALLPAPER_KEY,seaMenuWallpaper)}catch(e){alert('Նկարը տեղադրվեց, բայց չի պահպանվել հեռախոսի հիշողության մեջ։')}editor.remove()};
  render();
 }
-function showMenu(){document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;applySeaMenuWallpaper();view.innerHTML='<button class="sea-wallpaper-picker" type="button" aria-label="Ընտրել ֆոնի նկարը" title="Ընտրել ֆոնի նկարը">▧</button><section class="panel sea-menu-art"><h2>Ընտրի՛ր խաղի ձևը</h2><p>5 նավ • 10×10 ծովային դաշտ • կրակոցներ հերթով</p><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelector('.sea-wallpaper-picker').onclick=chooseSeaMenuWallpaper;view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode))}
+function showMenu(){document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;applySeaMenuWallpaper();view.innerHTML='<button class="sea-wallpaper-picker" type="button" aria-label="Ընտրել ֆոնի նկարը" title="Ընտրել ֆոնի նկարը">▧</button><section class="panel sea-menu-art"><h2>Ընտրի՛ր խաղի ձևը</h2><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelector('.sea-wallpaper-picker').onclick=chooseSeaMenuWallpaper;view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode))}
 function cleanup(){try{presencePeer?.destroy()}catch(e){}presencePeer=null;onlineHits=new Set();onlineSunkAssets={};previewNode?.remove();previewNode=null;try{conn?.close()}catch(e){}try{peer?.destroy()}catch(e){}conn=null;peer=null;remoteReady=false;localReady=false;room='';finished=false}
 function start(m){cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
 
