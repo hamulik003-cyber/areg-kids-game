@@ -89,17 +89,10 @@ async function networkNavigation(request,event){
     // Register background revalidation while the fetch event is active;
     // Safari may reject waitUntil if it is first called after an await.
     event.waitUntil(fresh.catch(()=>{}));
-    let handle;
-    try{
-      const response=await Promise.race([
-        fresh,
-        new Promise(resolve=>{handle=setTimeout(()=>resolve(null),1200)})
-      ]);
-      if(response)return response;
-    }catch{}
-    finally{clearTimeout(handle)}
-    if(cached)return cached;
-    try{return await fresh}catch{return Response.error()}
+    // AREG TEST must load the actual published HTML whenever online.
+    // A 1200ms timeout previously served stale cached HTML on slow iPhones.
+    try{return await fresh}
+    catch{return cached||Response.error()}
   }
   try{return await fetch(request)}
   catch{
