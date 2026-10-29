@@ -732,6 +732,42 @@ function startBattle(){phase='battle';turn=0;aiMemory=[];if(mode==='local')passT
 function passTurn(){modal('🔒','Փոխանցի՛ր հեռախոսը','Հիմա խաղում է խաղացող '+(turn+1)+'-ը։ Մյուս խաղացողը թող չնայի էկրանին։','Սկսել հերթը',renderBattle)}
 function renderBattle(animate=false){
  phase='battle';
+ // In AI mode, update the existing cells in place. Never detach or recreate
+ // either 10x10 grid on a shot: iOS WebKit repaints its white grid lines.
+ const mountedStage=mode==='ai'&&!animate?view.querySelector('.battle-view'):null;
+ if(mountedStage){
+  const boards=mountedStage.querySelectorAll(':scope > .board-wrap');
+  const separator=mountedStage.querySelector(':scope > .battle-separator');
+  if(boards.length===2&&separator){
+   const enemyTurn=turn===1;
+   const canFire=!finished&&!shotBusy&&!enemyTurn;
+   [mine,theirs].forEach((boardData,boardIndex)=>{
+    boards[boardIndex].querySelectorAll('.board .cell').forEach((cell,i)=>{
+     const ship=boardData.ships.find(parts=>parts.includes(i));
+     const hit=boardData.shots.includes(i);
+     const sunk=!!(ship&&ship.every(j=>boardData.shots.includes(j)));
+     cell.classList.toggle('hit',!!(hit&&ship));
+     cell.classList.toggle('miss',!!(hit&&!ship));
+     cell.classList.toggle('fired',hit);
+     cell.classList.toggle('sunk',sunk);
+     if(boardIndex===1){
+      if(sunk&&!cell.classList.contains('photo-ship')){
+       cell.classList.add('ship','photo-ship','revealed-enemy-ship');
+       cell.append(shipImageTile(boardData,ship,ship.indexOf(i)));
+      }
+      cell.disabled=hit||!canFire;
+      cell.onclick=canFire&&!hit?()=>fire(i):null;
+     }else cell.disabled=true;
+    });
+   });
+   separator.classList.toggle('enemy-turn',enemyTurn);
+   separator.classList.toggle('own-turn',!enemyTurn);
+   separator.querySelector('.combat-chip-left .combat-count').textContent=theirs.ships.filter(ship=>ship.every(i=>theirs.shots.includes(i))).length+'/'+FLEET.length;
+   separator.querySelector('.combat-chip-right .combat-count').textContent=(FLEET.length-mine.ships.filter(ship=>ship.every(i=>mine.shots.includes(i))).length)+'/'+FLEET.length;
+   separator.querySelector('.combat-status-icon').textContent=enemyTurn?'⌛':'🎯';
+   return;
+  }
+ }
  // Keep the existing player's board and ship image elements mounted across
  // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
  const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
