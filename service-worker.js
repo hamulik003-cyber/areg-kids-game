@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v303-core';
-const RUNTIME_CACHE='areg-v303-runtime';
+const CORE_CACHE='areg-v301-core';
+const RUNTIME_CACHE='areg-v301-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
@@ -138,16 +138,6 @@ self.addEventListener('fetch',event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  // The installed AREG TEST must always check the published Battleship page
-  // and deployment marker online. Never serve a stale cached copy first.
-  if(url.pathname.endsWith('/areg-test-version.json') ||
-     (request.mode==='navigate' && url.pathname.endsWith('/areg-sea-battle.html'))){
-    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
-      if(!response.ok)throw Error('AREG trial refresh unavailable');
-      return response;
-    }).catch(async()=> (await caches.match(request)) || Response.error()));
-    return;
-  }
   if(request.mode==='navigate'){
     event.respondWith(networkNavigation(request,event));
     return;
@@ -162,15 +152,6 @@ self.addEventListener('fetch',event=>{
     event.respondWith(persistedMedia(request,MEDIA_CACHES[2]));return;
   }
 
-  // The installed trial app must fetch its shell JS from the network first.
-  // The old cache-first path could keep app.js?v=301 indefinitely on iOS.
-  if(url.pathname.endsWith('/app.js')){
-    event.respondWith(fetch(request,{cache:'no-store'}).then(async response=>{
-      if(response&&response.ok){const cache=await caches.open(RUNTIME_CACHE);cache.put(request,response.clone()).catch(()=>{});}
-      return response;
-    }).catch(()=>caches.match(request,{ignoreSearch:true}).then(x=>x||Response.error())));
-    return;
-  }
   if(/\.(?:js|css|png|jpe?g|webp|gif|svg|mp3|wav|json|webmanifest)$/i.test(url.pathname)){
     event.respondWith(cacheFirst(request));
     return;
