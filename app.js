@@ -3733,7 +3733,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Ծովամարտ';
-    frame.src='./areg-sea-battle.html?testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||String(Date.now()));
+    frame.src='./areg-sea-battle.html?v=1';
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
