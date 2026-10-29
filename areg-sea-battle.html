@@ -419,6 +419,19 @@ html,body,#app,#app *:not(input):not(textarea){
 #app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
 #app:has(.sea-menu-art)>.top small{display:none}
 
+/* Lock 10x10 battle grid tracks and board size while shots animate.
+   iOS Safari otherwise briefly re-measures fractional 1fr tracks as the
+   shot/splash content and disabled states change, stretching white lines. */
+#app.combat-mode .battle-view>.board-wrap{flex-shrink:0!important}
+#app.combat-mode .battle-view .board-row .board{
+ grid-template-columns:repeat(10,minmax(0,1fr))!important;
+ grid-template-rows:repeat(10,minmax(0,1fr))!important;
+ min-height:0!important;
+ contain:layout!important;
+}
+#app.combat-mode .battle-view .board .cell{min-width:0!important;min-height:0!important}
+#app.combat-mode .battle-view .board .splash{contain:layout paint;pointer-events:none}
+
 /* First-shot centering: entrance animations must preserve the board's X offset.
    Their previous translateY-only keyframes overrode translateX(-10.5px) until
    the first shot rebuilt the battle view without the 'enter' class. */
