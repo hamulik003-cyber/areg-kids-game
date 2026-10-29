@@ -1061,7 +1061,7 @@ function modal(emoji,title,desc,button,action,menu=false){const old=view.querySe
 function confirmExit(){
  const old=view.querySelector('.exit-confirm-overlay');if(old){old.remove();return}
  const o=document.createElement('div');o.className='overlay exit-confirm-overlay';
- o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true"></div><div class="big wave">⚓</div><h2>Դուրս գա՞լ խաղից</h2><p>Ընթացիկ խաղը կավարտվի։</p><button class="primary" id="exitYes">Գլխավոր մենյու</button><button class="secondary" id="exitCancel">Չեղարկել</button></div>';
+ o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true">${Array.from({length:13},(_,i)=>'<i style="--x:'+((i*37+9)%94)+'%;--s:'+(7+(i*11)%20)+'px;--d:'+(7+(i%5)*1.7)+'s;--delay:-'+(i*.93)+'s;--y:'+(8+i*7%85)+'%"></i>').join('')}</div><div class="big wave">⚓</div><h2>Դուրս գա՞լ խաղից</h2><p>Ընթացիկ խաղը կավարտվի։</p><button class="primary" id="exitYes">Գլխավոր մենյու</button><button class="secondary" id="exitCancel">Չեղարկել</button></div>';
  o.querySelector('#exitYes').onclick=()=>{o.remove();showMenu()};
  o.querySelector('#exitCancel').onclick=()=>o.remove();
  view.append(o);
