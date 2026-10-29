@@ -1547,6 +1547,7 @@
   }
   function openGame(section,game,card){
     if(innerGameEntryActive)return;
+    if(game.kind==='seaBattle')battleMusicStart();
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
     if(flight)innerGameEntryActive=true;
@@ -3728,16 +3729,50 @@
     activityContent.append(frame);
     gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
   }
+  /* Battleship music starts in the parent on the user's game-card tap.
+     Its iframe owns the picker, but never starts a second audio player. */
+  const battleMusic=new Audio();battleMusic.loop=true;
+  let battleMusicUrl=null;
+  function battleMusicSet(blob){
+    battleMusic.pause();
+    if(battleMusicUrl)URL.revokeObjectURL(battleMusicUrl);
+    battleMusicUrl=blob?URL.createObjectURL(blob):null;
+    if(battleMusicUrl)battleMusic.src=battleMusicUrl;
+  }
+  function battleMusicStart(){
+    if(!battleMusicUrl)return;
+    battleMusic.play().catch(()=>{});
+  }
+  function battleMusicStop(){battleMusic.pause();battleMusic.currentTime=0}
+  function battleMusicRestore(){
+    try{
+      const req=indexedDB.open('areg-sea-battle-music',1);
+      req.onupgradeneeded=()=>req.result.createObjectStore('tracks');
+      req.onsuccess=()=>{
+        const db=req.result;
+        const q=db.transaction('tracks').objectStore('tracks').get('selected');
+        q.onsuccess=()=>{if(q.result?.blob)battleMusicSet(q.result.blob)};
+      };
+    }catch(e){console.warn('Battleship music load:',e)}
+  }
+  battleMusicRestore();
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.data?.type!=='areg-sea-music-selected')return;
+    if(!event.data.blob)return;
+    battleMusicSet(event.data.blob);
+    battleMusicStart();
+  });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)battleMusic.pause()});
   function gameSeaBattle(){
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Ծովամարտ';
-    frame.src='./areg-sea-battle.html?v=1&testv='+Date.now();
+    frame.src='./areg-sea-battle.html?v=1&parentMusic=1&testv='+Date.now();
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
-    gameCleanup.push(()=>activityScreen.classList.remove('areg-car-wash-mode'));
+    gameCleanup.push(()=>{battleMusicStop();activityScreen.classList.remove('areg-car-wash-mode')});
   }
   function gameBlocks(){
     activityContent.replaceChildren();
