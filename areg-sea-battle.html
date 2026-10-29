@@ -419,41 +419,6 @@ html,body,#app,#app *:not(input):not(textarea){
 #app:has(.sea-menu-art)>.top h1{font-size:clamp(30px,7vw,42px);line-height:1.16}
 #app:has(.sea-menu-art)>.top small{display:none}
 
-/* iOS grid stability: never transform individual shot cells or move the
-   grid containers during entrance. A cell scaling above 100% repaints the
-   shared 1px grid boundaries and looks like the white lines collapsing. */
-#app.combat-mode .battle-view .board .cell.hit{animation:none!important;transform:none!important}
-#app.combat-mode .battle-view.enter>.board-wrap{animation:none!important;opacity:1!important;transform:translateX(-10.5px)!important}
-#app.combat-mode .battle-view .board .cell{transition:background-color .16s linear!important}
-
-/* The entrance class must not remain on the mounted battle view during
-   subsequent turns. A permanent animation/transform stacking context on
-   each board-wrap makes iOS Safari repaint the grid as its cells change. */
-#app.combat-mode .battle-view:not(.enter)>.board-wrap{animation:none!important;transform:translateX(-10.5px)!important;opacity:1!important}
-#app.combat-mode .battle-view .board{box-sizing:border-box!important;aspect-ratio:1 / 1!important;flex:none!important}
-#app.combat-mode .battle-view .board-row{flex:none!important}
-
-/* Lock 10x10 battle grid tracks and board size while shots animate.
-   iOS Safari otherwise briefly re-measures fractional 1fr tracks as the
-   shot/splash content and disabled states change, stretching white lines. */
-#app.combat-mode .battle-view>.board-wrap{flex-shrink:0!important}
-#app.combat-mode .battle-view .board-row .board{
- grid-template-columns:repeat(10,minmax(0,1fr))!important;
- grid-template-rows:repeat(10,minmax(0,1fr))!important;
- min-height:0!important;
- contain:layout!important;
-}
-#app.combat-mode .battle-view .board .cell{min-width:0!important;min-height:0!important}
-#app.combat-mode .battle-view .board .splash{contain:layout paint;pointer-events:none}
-
-/* First-shot centering: entrance animations must preserve the board's X offset.
-   Their previous translateY-only keyframes overrode translateX(-10.5px) until
-   the first shot rebuilt the battle view without the 'enter' class. */
-@keyframes sea-battle-rise-centered{from{transform:translate(-10.5px,24vh);opacity:.65}to{transform:translate(-10.5px,0);opacity:1}}
-@keyframes sea-battle-appear-centered{from{transform:translate(-10.5px,25vh);opacity:0}to{transform:translate(-10.5px,0);opacity:1}}
-#app.combat-mode .battle-view.enter>.board-wrap:first-child{animation-name:sea-battle-rise-centered}
-#app.combat-mode .battle-view.enter>.board-wrap:last-child{animation-name:sea-battle-appear-centered}
-
 /* Non-destructive image positioning before committing the menu background. */
 #app .sea-wallpaper-editor{position:absolute;inset:0;z-index:60;overflow:hidden;background:#071c2a;touch-action:none}
 #app .sea-wallpaper-preview{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
@@ -826,15 +791,13 @@ function renderBattle(animate=false){
  // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
  const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
  const stableEnemyBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:last-child'):null;
- const stableSeparator=view.querySelector('.battle-separator');
- // Keep the mounted battle stage intact on each AI turn: detaching both grids
- // forced iOS WebKit to reflow the square cells, causing white lines to stretch.
- const reuseStage=mode==='ai'&&!!stableOwnBoard&&!!stableEnemyBoard&&!!stableSeparator;
- if(!reuseStage)view.innerHTML='';
- document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
+ const stableSeparator=view.querySelector('.battle-separator');if(stableSeparator)stableSeparator.remove();
+ if(stableOwnBoard)stableOwnBoard.remove();
+ if(stableEnemyBoard)stableEnemyBoard.remove();
+ view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
  const my=mode==='local'?(turn===0?mine:theirs):mine;
  const canFire=!finished&&!shotBusy&&!(mode==='online'&&remoteTurn)&&!(mode==='ai'&&turn===1);
- const stage=reuseStage?view.querySelector('.battle-view'):document.createElement('div');if(!reuseStage)stage.className='battle-view'+(animate?' enter':'');
+ const stage=document.createElement('div');stage.className='battle-view'+(animate?' enter':'');
  if(stableOwnBoard){
   const cells=stableOwnBoard.querySelectorAll('.board .cell');
   cells.forEach((cell,i)=>{
@@ -846,7 +809,7 @@ function renderBattle(animate=false){
    cell.classList.toggle('sunk',!!(ship&&ship.every(j=>my.shots.includes(j))));
    cell.disabled=true;
   });
-  if(!reuseStage)stage.append(stableOwnBoard);
+  stage.append(stableOwnBoard);
  }else stage.append(framedBoard(my,{compact:true,show:true}));
  const separator=stableSeparator||document.createElement('div');separator.className='battle-separator '+((mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1)?'enemy-turn':'own-turn');
  const sunkMine=my.ships.filter(ship=>ship.every(i=>my.shots.includes(i))).length;
@@ -856,8 +819,7 @@ function renderBattle(animate=false){
  separator.querySelector('.combat-chip-left .combat-count').textContent=sunkEnemy+'/'+FLEET.length;
  separator.querySelector('.combat-chip-right .combat-count').textContent=(FLEET.length-sunkMine)+'/'+FLEET.length;
  separator.querySelector('.combat-status-icon').textContent=enemyTurn?'⌛':'🎯';
- if(!reuseStage)stage.append(separator);
- separator.className='battle-separator '+(enemyTurn?'enemy-turn':'own-turn');
+ stage.append(separator);
  if(stableEnemyBoard){
   const cells=stableEnemyBoard.querySelectorAll('.board .cell');
   cells.forEach((cell,i)=>{
@@ -876,9 +838,9 @@ function renderBattle(animate=false){
    cell.disabled=hit||!canFire;
    cell.onclick=canFire&&!hit?()=>fire(i):null;
   });
-  if(!reuseStage)stage.append(stableEnemyBoard);
+  stage.append(stableEnemyBoard);
  }else stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
- if(!reuseStage){view.append(stage);if(animate){const enteredStage=stage;setTimeout(()=>{if(enteredStage.isConnected)enteredStage.classList.remove('enter')},700)}}footer.innerHTML='';
+ view.append(stage);footer.innerHTML='';
  // Align to the blue 10x10 grid's measured edges, never to the A-J label gutter.
  // Do not guess pixel offsets: the outer PWA frame and viewport may vary.
  const alignCombatBar=()=>{
@@ -896,9 +858,7 @@ function renderBattle(animate=false){
   const offset=(seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2);
   separator.style.transform='translate3d('+offset+'px,0,0)';
  };
- // Measure the bar only when the battle stage is first created. Re-measuring
- // and resetting its width on every shot caused flexbox to compress the grids.
- if(!reuseStage)requestAnimationFrame(alignCombatBar);
+ alignCombatBar();
 }
 function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
  const frames=view.querySelectorAll('.board'),board=frames[boardIndex],cell=board?.querySelectorAll('.cell')[cellIndex];
