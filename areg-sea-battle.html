@@ -470,10 +470,21 @@ html,body,#app,#app *:not(input):not(textarea){
 /* The visible blue sea is .sea-ambience, not #app.
    Replace that layer only; animated bubbles remain above its background. */
 #app.custom-sea-bg .sea-ambience{
- inset:0!important;
- border-radius:inherit!important;
+ inset:9px!important;
+ border-radius:clamp(12px,3vw,21px)!important;
  background:var(--sea-custom-image) center center / 100% 100% no-repeat!important;
  box-shadow:none!important;
+}
+/* Custom-image mode only: cover the outer image edge with a solid gold rim. */
+#app.custom-sea-bg::after{
+ inset:0!important;
+ border:9px solid #d8a45e!important;
+ border-radius:inherit!important;
+ background:none!important;
+ -webkit-mask:none!important;
+ mask:none!important;
+ filter:none!important;
+ box-sizing:border-box!important;
 }
 #app.custom-sea-bg .sea-ambience::before{opacity:0!important}
 #app.custom-sea-bg .sea-ambience::after{opacity:0!important}
