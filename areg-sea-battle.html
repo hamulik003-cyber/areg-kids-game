@@ -226,6 +226,11 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  #app .sea-ambience::before{animation:none!important}
 }
 
+/* Combat-only: impact's scale transform repaints 1px white cell borders
+   on iOS WebKit. The missile, splash and sound effects remain unchanged. */
+#app.combat-mode .board .cell.hit{animation:none!important}
+#app.combat-mode .battle-view .board-wrap{transition:none!important}
+
 /* Clear, thin white dividers between every sea cell on both 10x10 boards. */
 #app .board{gap:0!important;background:transparent!important;padding:3px!important}
 #app .board .cell{border:0!important;border-right:1px solid #e0f8ffde!important;border-bottom:1px solid #e0f8ffde!important;border-radius:0}
