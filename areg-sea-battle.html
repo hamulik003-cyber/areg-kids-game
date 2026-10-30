@@ -570,15 +570,6 @@ html,body,#app,#app *:not(input):not(textarea){
 .ship-drag-float.real-ship-preview{display:block!important;gap:0!important;padding:0!important;box-sizing:border-box!important;filter:drop-shadow(0 3px 4px #001c39a8)!important}
 .ship-drag-float.real-ship-preview::after{content:none!important}
 .ship-drag-float.real-ship-preview .real-ship-art{width:100%;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;pointer-events:none}
-
-/* Hull-local grid shield: below the ship art (z11), above board SVG grid (z9).
-   Covers internal seams while leaving water grid outside the hull intact. */
-#app .board .cell.photo-ship .ship-grid-shield{
- position:absolute;left:0;top:0;height:100%;display:block;
- background:#138ad0;z-index:10;pointer-events:none;
- clip-path:polygon(0% 50%,4% 24%,10% 10%,90% 10%,96% 24%,100% 50%,96% 76%,90% 90%,10% 90%,4% 76%);
-}
-
 </style></head><body><div id="app"><div class="sea-ambience" aria-hidden="true"><i class="sea-object" style="--x:8%;--s:4px;--d:14s;--delay:0s;--drift:-40px"></i><i class="sea-object" style="--x:45%;--s:7px;--d:21s;--delay:-11s;--drift:-21px"></i><i class="sea-object" style="--x:82%;--s:11px;--d:28s;--delay:-22s;--drift:-2px"></i><i class="sea-object" style="--x:23%;--s:16px;--d:16s;--delay:-2s;--drift:17px"></i><i class="sea-object" style="--x:60%;--s:5px;--d:23s;--delay:-13s;--drift:36px"></i><i class="sea-object" style="--x:1%;--s:22px;--d:30s;--delay:-24s;--drift:-26px"></i><i class="sea-object" style="--x:38%;--s:9px;--d:18s;--delay:-4s;--drift:-7px"></i><i class="sea-object" style="--x:75%;--s:13px;--d:25s;--delay:-15s;--drift:12px"></i><i class="sea-object" style="--x:16%;--s:6px;--d:32s;--delay:-26s;--drift:31px"></i><i class="sea-object" style="--x:53%;--s:18px;--d:20s;--delay:-6s;--drift:-31px"></i><i class="sea-object" style="--x:90%;--s:8px;--d:27s;--delay:-17s;--drift:-12px"></i><i class="sea-object" style="--x:31%;--s:4px;--d:15s;--delay:-28s;--drift:7px"></i><i class="sea-object" style="--x:68%;--s:7px;--d:22s;--delay:-8s;--drift:26px"></i><i class="sea-object" style="--x:9%;--s:11px;--d:29s;--delay:-19s;--drift:-36px"></i><i class="sea-object" style="--x:46%;--s:16px;--d:17s;--delay:-30s;--drift:-17px"></i><i class="sea-object" style="--x:83%;--s:5px;--d:24s;--delay:-10s;--drift:2px"></i><i class="sea-object" style="--x:24%;--s:22px;--d:31s;--delay:-21s;--drift:21px"></i><i class="sea-object" style="--x:61%;--s:9px;--d:19s;--delay:-1s;--drift:40px"></i><i class="sea-object" style="--x:2%;--s:13px;--d:26s;--delay:-12s;--drift:-22px"></i><i class="sea-object" style="--x:39%;--s:6px;--d:14s;--delay:-23s;--drift:-3px"></i><i class="sea-object" style="--x:76%;--s:18px;--d:21s;--delay:-3s;--drift:16px"></i><i class="sea-object" style="--x:17%;--s:8px;--d:28s;--delay:-14s;--drift:35px"></i><i class="sea-object" style="--x:54%;--s:4px;--d:16s;--delay:-25s;--drift:-27px"></i><i class="sea-object" style="--x:91%;--s:7px;--d:23s;--delay:-5s;--drift:-8px"></i><i class="sea-object" style="--x:32%;--s:11px;--d:30s;--delay:-16s;--drift:11px"></i><i class="sea-object" style="--x:69%;--s:16px;--d:18s;--delay:-27s;--drift:30px"></i><i class="sea-object" style="--x:10%;--s:5px;--d:25s;--delay:-7s;--drift:-32px"></i><i class="sea-object" style="--x:47%;--s:22px;--d:32s;--delay:-18s;--drift:-13px"></i><i class="sea-object" style="--x:84%;--s:9px;--d:20s;--delay:-29s;--drift:6px"></i><i class="sea-mote" style="--x:4%;--y:3%;--s:2px;--d:8s;--delay:0s;--dx:-32px;--dy:-37px"></i><i class="sea-mote" style="--x:33%;--y:44%;--s:3px;--d:13s;--delay:-13s;--dx:-15px;--dy:-14px"></i><i class="sea-mote" style="--x:62%;--y:85%;--s:4px;--d:18s;--delay:-4s;--dx:2px;--dy:9px"></i><i class="sea-mote" style="--x:91%;--y:32%;--s:2px;--d:9s;--delay:-17s;--dx:19px;--dy:32px"></i><i class="sea-mote" style="--x:28%;--y:73%;--s:5px;--d:14s;--delay:-8s;--dx:-29px;--dy:-20px"></i><i class="sea-mote" style="--x:57%;--y:20%;--s:3px;--d:19s;--delay:-21s;--dx:-12px;--dy:3px"></i><i class="sea-mote" style="--x:86%;--y:61%;--s:2px;--d:10s;--delay:-12s;--dx:5px;--dy:26px"></i><i class="sea-mote" style="--x:23%;--y:8%;--s:3px;--d:15s;--delay:-3s;--dx:22px;--dy:-26px"></i><i class="sea-mote" style="--x:52%;--y:49%;--s:4px;--d:20s;--delay:-16s;--dx:-26px;--dy:-3px"></i><i class="sea-mote" style="--x:81%;--y:90%;--s:2px;--d:11s;--delay:-7s;--dx:-9px;--dy:20px"></i><i class="sea-mote" style="--x:18%;--y:37%;--s:5px;--d:16s;--delay:-20s;--dx:8px;--dy:-32px"></i><i class="sea-mote" style="--x:47%;--y:78%;--s:3px;--d:21s;--delay:-11s;--dx:25px;--dy:-9px"></i><i class="sea-mote" style="--x:76%;--y:25%;--s:2px;--d:12s;--delay:-2s;--dx:-23px;--dy:14px"></i><i class="sea-mote" style="--x:13%;--y:66%;--s:3px;--d:17s;--delay:-15s;--dx:-6px;--dy:37px"></i><i class="sea-mote" style="--x:42%;--y:13%;--s:4px;--d:8s;--delay:-6s;--dx:11px;--dy:-15px"></i><i class="sea-mote" style="--x:71%;--y:54%;--s:2px;--d:13s;--delay:-19s;--dx:28px;--dy:8px"></i><i class="sea-mote" style="--x:8%;--y:95%;--s:5px;--d:18s;--delay:-10s;--dx:-20px;--dy:31px"></i><i class="sea-mote" style="--x:37%;--y:42%;--s:3px;--d:9s;--delay:-1s;--dx:-3px;--dy:-21px"></i><i class="sea-mote" style="--x:66%;--y:83%;--s:2px;--d:14s;--delay:-14s;--dx:14px;--dy:2px"></i><i class="sea-mote" style="--x:95%;--y:30%;--s:3px;--d:19s;--delay:-5s;--dx:31px;--dy:25px"></i><i class="sea-mote" style="--x:32%;--y:71%;--s:4px;--d:10s;--delay:-18s;--dx:-17px;--dy:-27px"></i><i class="sea-mote" style="--x:61%;--y:18%;--s:2px;--d:15s;--delay:-9s;--dx:0px;--dy:-4px"></i><i class="sea-mote" style="--x:90%;--y:59%;--s:5px;--d:20s;--delay:0s;--dx:17px;--dy:19px"></i><i class="sea-mote" style="--x:27%;--y:6%;--s:3px;--d:11s;--delay:-13s;--dx:-31px;--dy:-33px"></i><i class="sea-mote" style="--x:56%;--y:47%;--s:2px;--d:16s;--delay:-4s;--dx:-14px;--dy:-10px"></i><i class="sea-mote" style="--x:85%;--y:88%;--s:3px;--d:21s;--delay:-17s;--dx:3px;--dy:13px"></i><i class="sea-mote" style="--x:22%;--y:35%;--s:4px;--d:12s;--delay:-8s;--dx:20px;--dy:36px"></i><i class="sea-glow" style="--x:8%;--y:19%;--d:12s;--delay:-4s"></i><i class="sea-glow" style="--x:78%;--y:31%;--d:17s;--delay:-9s"></i><i class="sea-glow" style="--x:16%;--y:73%;--d:15s;--delay:-12s"></i><i class="sea-glow" style="--x:76%;--y:86%;--d:19s;--delay:-6s"></i></div><header class="top"><h1><span class="sea-menu-anchor">⚓</span><span class="sea-menu-title">Ծովամարտ</span></h1></header><button type="button" id="battleMenuToggle" class="battle-menu-toggle" aria-label="Բացել մենյուն" title="Մենյու">☰</button><button type="button" id="battleSoundToggle" class="battle-sound-toggle" aria-label="Անջատել ձայնը" aria-pressed="false">🔊</button><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
@@ -849,6 +840,9 @@ function shipAsset(b,ship){const k=mode==='online'&&b===theirs?onlineSunkAssets[
 function shipImageTile(b,ship,p){
  const v=ship.length>1&&ship[1]-ship[0]===N,el=document.createElement('span');el.className='ship-photo-tile'+(v?' vertical':'');
  el.style.backgroundImage='url("'+shipAsset(b,ship)+'")';
+ // The carrier's source image contains broad transparent margins: its hull
+ // occupies only 47.8% of the image width. Crop those margins in CSS while
+ // retaining exactly five independent hit-test cells.
  const carrier=ship.length===5;
  const imageCells=carrier?10.46:ship.length;
  el.style.backgroundSize=(imageCells*100)+'% 100%';
@@ -867,21 +861,11 @@ function shipImageTile(b,ship,p){
  }
  return el;
 }
-function attachShipTile(cell,b,ship,p){
- cell.append(shipImageTile(b,ship,p));
- if(p!==0)return;
- const vertical=ship.length>1&&ship[1]-ship[0]===N;
- const shield=document.createElement('span');
- shield.className='ship-grid-shield';
- shield.style.width=(ship.length*100)+'%';
- if(vertical){shield.style.left='100%';shield.style.transform='rotate(90deg)';shield.style.transformOrigin='top left'}
- cell.append(shield);
-}
 function boardHTML(b,opts={}){
  const show=opts.show??false,click=opts.click??null,board=document.createElement('div');board.className='board';board.setAttribute('role','grid');
  for(let i=0;i<N*N;i++){const cell=document.createElement('button');cell.type='button';cell.className='cell';cell.dataset.i=i;
  const ship=b.ships.find(s=>s.includes(i)),shot=b.shots.includes(i);
- if(ship&&(show||(!show&&ship.every(j=>b.shots.includes(j))))){cell.classList.add('ship');if(!show)cell.classList.add('revealed-enemy-ship');const p=ship.indexOf(i);cell.setAttribute('data-ship-size',ship.length);if(p===0)cell.classList.add('bow');if(p===ship.length-1)cell.classList.add('stern');if(ship.length>1&&ship[1]-ship[0]===N)cell.classList.add('vertical');cell.classList.add('photo-ship');attachShipTile(cell,b,ship,p);if(false){const detail=document.createElement('span');detail.className='ship-parts';detail.textContent=ship.length>=4?'⚙':'◆';cell.append(detail)}}
+ if(ship&&(show||(!show&&ship.every(j=>b.shots.includes(j))))){cell.classList.add('ship');if(!show)cell.classList.add('revealed-enemy-ship');const p=ship.indexOf(i);cell.setAttribute('data-ship-size',ship.length);if(p===0)cell.classList.add('bow');if(p===ship.length-1)cell.classList.add('stern');if(ship.length>1&&ship[1]-ship[0]===N)cell.classList.add('vertical');cell.classList.add('photo-ship');cell.append(shipImageTile(b,ship,p));if(false){const detail=document.createElement('span');detail.className='ship-parts';detail.textContent=ship.length>=4?'⚙':'◆';cell.append(detail)}}
  if(shot){cell.classList.add((ship||(mode==='online'&&b===theirs&&onlineHits.has(i)))?'hit':'miss','fired');if(ship&&ship.every(c=>b.shots.includes(c)))cell.classList.add('sunk')}
  if(opts.ghost?.includes(i))cell.classList.add(opts.valid?'ghost':'invalid');
  cell.setAttribute('aria-label',String.fromCharCode(65+i%N)+(Math.floor(i/N)+1)+(shot?', կրակված':''));
@@ -901,11 +885,11 @@ function renderPlace(){
   const fresh=boardHTML(b,{show:true,place:true});
   const cells=board.querySelectorAll('.cell'),newCells=fresh.querySelectorAll('.cell');
   cells.forEach((cell,i)=>{
-   cell.querySelectorAll('.ship-photo-tile,.ship-grid-shield').forEach(el=>el.remove());
+   cell.querySelectorAll('.ship-photo-tile').forEach(el=>el.remove());
    cell.classList.toggle('photo-ship',newCells[i].classList.contains('photo-ship'));
    cell.classList.toggle('ship',newCells[i].classList.contains('ship'));
    cell.classList.toggle('vertical',newCells[i].classList.contains('vertical'));
-   const tile=newCells[i].querySelector('.ship-photo-tile');if(tile){cell.append(tile);const shield=newCells[i].querySelector('.ship-grid-shield');if(shield)cell.append(shield.cloneNode(true));}
+   const tile=newCells[i].querySelector('.ship-photo-tile');if(tile)cell.append(tile);
   });
  }
  function rotatePlacedShip(k){
@@ -1081,7 +1065,7 @@ function renderBattle(animate=false){
      if(boardIndex===1){
       if(sunk&&!cell.classList.contains('photo-ship')){
        cell.classList.add('ship','photo-ship','revealed-enemy-ship');
-       attachShipTile(cell,boardData,ship,ship.indexOf(i));
+       cell.append(shipImageTile(boardData,ship,ship.indexOf(i)));
       }
       cell.disabled=hit||!canFire;
       cell.onclick=canFire&&!hit?()=>fire(i):null;
@@ -1142,7 +1126,7 @@ function renderBattle(animate=false){
    if(sunk&&!cell.classList.contains('photo-ship')){
     const p=ship.indexOf(i);
     cell.classList.add('ship','photo-ship','revealed-enemy-ship');
-    attachShipTile(cell,opponent,ship,p);
+    cell.append(shipImageTile(opponent,ship,p));
    }
    cell.disabled=hit||!canFire;
    cell.onclick=canFire&&!hit?()=>fire(i):null;
