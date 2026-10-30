@@ -1,3 +1,6 @@
+## 2026-10-30 — APPROVED BATTLESHIP TRIAL AND DOTKIOSK
+- Finished «Ծովամարտ» approved in trial (drag fix deeeb560) and main DotKiosk (PR #121, 5ce8cde5); user confirmed production «սախ իդյալականա». Only «Խառնիր գույները» was replaced in main; preserve all other games. Never merge entire trial, which contains unrelated experiments. Protect Battleship visuals, ship placement, music and gameplay. See CURRENT_STATUS.md and NEW_CHAT_HANDOFF.md.
+
 ## 2026-10-25 — Reference-first game creation (user instruction)
 - A supplied game video or screenshot with “make this game” is the primary visual and functional specification. Inspect all visible elements and behaviors before implementation.
 - Preserve reference fidelity: do not replace 3D with 2D, simplify premium materials, substitute mechanics, or redesign visible elements without explicit permission.
