@@ -3550,3 +3550,9 @@ html[data-theme^="photo-user-"] .section-dim{
   92%{opacity:0;transform:translate3d(-5px,-24px,0) rotate(34deg) scale(.82)}
 }
 @media(prefers-reduced-motion:reduce){.areg-animal-particle{animation:none;opacity:.18;will-change:auto}}
+
+
+/* AREG TEST scroll fix: ambient belongs to the fixed gallery viewport, not scroll content. */
+.animal-gallery-mode{position:relative!important;isolation:isolate!important;background:radial-gradient(ellipse at 20% 18%,#364d3d 0%,transparent 46%),radial-gradient(ellipse at 86% 80%,#3b3a2b 0%,transparent 52%),linear-gradient(165deg,#182b27,#26362b 49%,#182421)!important}
+.animal-gallery-mode>.areg-animal-ambient{position:absolute!important;inset:0!important;z-index:0!important;overflow:hidden!important;pointer-events:none!important;contain:paint}
+.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){position:absolute!important;inset:0!important;z-index:1!important;background:transparent!important}
