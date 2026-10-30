@@ -3674,3 +3674,18 @@ html[data-theme^="photo-user-"] .section-dim{
   96%,100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.85)}
 }
 @media(prefers-reduced-motion:reduce){.areg-animal-particle.areg-animal-bokeh{animation:none!important;opacity:.25}}
+
+
+/* Brighter, softer bokeh in gallery margins, fading smoothly while travelling. */
+.areg-animal-particle.areg-animal-bokeh{
+ background:radial-gradient(circle at 42% 38%,rgba(255,255,255,.72),rgba(196,222,255,.47) 43%,rgba(164,200,255,.19) 73%,transparent 95%)!important;
+ box-shadow:0 0 17px 5px rgba(190,215,255,.23)!important;
+ filter:blur(2.3px) hue-rotate(var(--bokeh-hue,0deg))!important;
+}
+@keyframes aregBokehScatter{
+ 0%{opacity:0;transform:translate3d(0,0,0) scale(.75)}
+ 16%{opacity:.57}
+ 40%{opacity:.78;transform:translate3d(calc(var(--dx)*.45),calc(var(--dy)*.45),0) scale(1)}
+ 65%{opacity:.64;transform:translate3d(calc(var(--dx)*.8),calc(var(--dy)*.8),0) scale(1.05)}
+ 92%,100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.85)}
+}
