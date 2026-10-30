@@ -1,0 +1,1325 @@
+<!doctype html><html lang="hy"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>Ծովամարտ</title><style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#071e35;color:#fff;font-family:system-ui,-apple-system,sans-serif;touch-action:manipulation}button,input{font:inherit}button{border:0;cursor:pointer;color:inherit}#app{height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% -10%,#286e92,#0b3657 45%,#071e35 90%)}#app:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(120deg,transparent 0 30px,#ffffff05 31px 32px);pointer-events:none}.top{position:relative;text-align:center;padding:9px 12px 5px;flex-shrink:0}.top h1{font-size:clamp(21px,5vw,29px);margin:0;font-weight:950;letter-spacing:.5px}.top small{color:#b4dce7;font-weight:750}.panel{position:relative;margin:auto 12px;display:flex;flex-direction:column;gap:12px;padding:17px 13px;border:1px solid #9cd9eb55;border-radius:25px;background:linear-gradient(150deg,#174d6fef,#0a2a47f5);box-shadow:0 16px 40px #0017;max-height:calc(100% - 85px);overflow:auto}.panel h2{margin:0;text-align:center;font-size:20px}.panel p{margin:0;text-align:center;color:#d1e9ee;font-size:14px;line-height:1.45}.choice{display:flex;align-items:center;gap:13px;text-align:left;padding:14px 13px;border-radius:17px;background:linear-gradient(130deg,#267a9c,#15506d);border:1px solid #9be5ee66;box-shadow:0 5px #09263b;font-weight:850;font-size:16px}.choice span{font-size:30px}.primary{background:linear-gradient(#ffdd77,#eea83d);color:#533312;font-weight:950;border-radius:15px;padding:13px 16px;box-shadow:0 5px #9d6429}.secondary{background:#256582;border:1px solid #77bcd1aa;border-radius:14px;padding:10px 12px;font-weight:850}.primary:disabled,.secondary:disabled{opacity:.45}.row{display:flex;gap:9px;justify-content:center;align-items:center;flex-wrap:wrap}.row>*{flex:1}.status{text-align:center;font-size:14px;font-weight:850;color:#fff4b7;min-height:25px;padding:3px 9px}.game{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;gap:5px;padding:0 10px 10px}.board-wrap{width:min(100%,min(55dvh,430px));display:flex;flex-direction:column;align-items:center;gap:6px}.board-title{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:850;color:#c5e9f2}.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);gap:2px;padding:6px;background:linear-gradient(135deg,#75c9d8,#246a8b);border:3px solid #a3e7ed;border-radius:14px;box-shadow:0 7px 0 #073049,0 12px 25px #0017}.cell{min-width:0;min-height:0;position:relative;border-radius:5px;background:linear-gradient(140deg,#3197bb,#1b709a);border:1px solid #ffffff24;display:grid;place-items:center;font-size:clamp(12px,4vw,22px);touch-action:manipulation;transition:background .2s}.cell:disabled{cursor:default}.cell.ship{background:linear-gradient(140deg,#becdd3,#667f91);box-shadow:inset 0 2px #ffffff8a,inset 0 -3px #304a60}.cell.hit{background:radial-gradient(circle,#ffcc6b,#d24c36 68%,#753b40);animation:impact .4s both}.cell.miss{background:#195a82}.cell.miss:after{content:"•";color:#e1f7ff;font-size:24px}.cell.sunk{background:#783943}.cell.selected{outline:3px solid #ffda73;z-index:2}.cell.hint{box-shadow:inset 0 0 0 3px #ffe79c}.cell:focus-visible{outline:3px solid #fff}.cell.fired{pointer-events:none}@keyframes impact{from{transform:scale(1.2)}to{transform:scale(1)}}.bottom{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:8px 10px max(11px,env(safe-area-inset-bottom));background:transparent;border-top:0}.bottom button{font-size:13px}.fleet{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}.ship-pill{padding:9px 12px;border:1px solid #9ad5e4;border-radius:13px;background:#245c78;font-weight:850;font-size:15px}.ship-pill.active{background:#e6af54;color:#41290f;border-color:#fff2a2}.ship-pill.done{background:#357b63;color:#dcfff0}.badge{padding:3px 9px;border-radius:10px;background:#143b57;font-size:12px}.overlay{position:absolute;inset:0;z-index:15;background:#041727f0;display:flex;align-items:center;justify-content:center;padding:17px}.modal{width:min(100%,390px);border:2px solid #8cd7e8;border-radius:24px;padding:23px 18px;background:linear-gradient(#1c6381,#0b304e);display:flex;flex-direction:column;gap:13px;text-align:center;box-shadow:0 20px 50px #0009}.modal{position:relative;isolation:isolate;overflow:hidden}
+.modal>*:not(.modal-bubbles){position:relative;z-index:1}
+.modal .modal-bubbles{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.modal .modal-bubbles i{position:absolute;left:var(--x);bottom:-18%;width:var(--s);height:var(--s);border:1px solid #c4f5ff99;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffffffb0 0 5%,#b0efff44 14%,#4ba9ca13 65%,transparent 85%);box-shadow:inset 1px 1px 3px #fff8,0 0 7px #9cecff55;animation:modalBubbleRise var(--d) linear var(--delay) infinite;opacity:0}
+@keyframes modalBubbleRise{0%{transform:translateY(0) scale(.8);opacity:0}12%{opacity:.6}85%{opacity:.5}100%{transform:translateY(-460px) scale(1.12);opacity:0}}
+@media(prefers-reduced-motion:reduce){.modal .modal-bubbles i{animation:none;opacity:.28;bottom:var(--y)}}
+.modal h2{margin:0;font-size:24px}.modal p{margin:0;color:#d2f0f4;line-height:1.5}.modal .big{font-size:60px}.field{padding:12px;border-radius:12px;background:#e8f5f4;color:#0b314c;border:0;width:100%;text-align:center;font-weight:850;font-size:19px;letter-spacing:1px}.hide{display:none!important}.info{font-size:12px;color:#c1dbe2;text-align:center}.turn-tag{font-size:14px;font-weight:850;text-align:center}.wave{animation:wave 1.4s ease-in-out infinite alternate}@keyframes wave{to{transform:translateY(-4px)}}@media(max-height:700px){.top{padding:4px}.top h1{font-size:19px}.game{gap:2px}.board-wrap{width:min(100%,min(51dvh,370px))}.board-title{font-size:11px}.bottom{padding:6px}.panel{gap:9px;padding:12px}}@media(max-height:560px){.board-wrap{width:min(100%,min(46dvh,280px))}.top small{display:none}.board{gap:1px;padding:4px}.bottom button{padding:7px}}
+
+/* 10x10 cinematic naval command UI */
+html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52% 44%,#083d65 0%,#041a34 57%,#020e21 100%)}#app:before{background-image:linear-gradient(115deg,#0b68b022 1px,transparent 1px),linear-gradient(25deg,#0d68a01b 1px,transparent 1px);background-size:47px 47px;opacity:.7}.top{z-index:2;padding:6px 10px 3px}.top h1{font-size:clamp(19px,4.5vw,25px);text-shadow:0 0 18px #24b6ff77}.top small{font-size:11px}.game{justify-content:center;gap:5px;padding:3px 9px 6px}.board-wrap{width:min(100%,min(55dvh,450px));gap:3px}.board-title{color:#d6faff;background:linear-gradient(90deg,#123e5c,#0c2946);border:1px solid #238bc0;border-radius:9px;padding:5px 9px;box-shadow:0 0 13px #0089df44;font-size:12px}.board{position:relative;width:100%;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));gap:1px;padding:5px;border:2px solid #4abfff;border-radius:8px;background:linear-gradient(145deg,#168fe6,#075aab);box-shadow:0 0 0 2px #04304c,0 0 22px #0a8efc66,0 5px 0 #052a4b;touch-action:none;user-select:none}.cell{border-radius:0;background:linear-gradient(135deg,#159ce9,#087acb);border:1px solid #b1ecff48;font-size:clamp(11px,2.7vw,18px);overflow:visible;touch-action:none}.cell:nth-child(even){background:linear-gradient(135deg,#1493e0,#0c7bc8)}.cell.ship{background:linear-gradient(145deg,#c5d8df,#708fa4);box-shadow:inset 0 1px #fff9,inset 0 -2px #3b5b71}.cell.hit{background:radial-gradient(circle,#f22,#8d182a 70%,#3d1a34);color:#fff;text-shadow:0 0 8px red}.cell.sunk{background:#3b172a}.cell.miss{background:linear-gradient(135deg,#157fb9,#105e9b)}.cell.miss:after{content:"◉";font-size:clamp(12px,3.1vw,19px);color:#e9faff;text-shadow:0 0 3px #fff}.cell.hint{box-shadow:inset 0 0 0 2px #ffdb67}.cell.selected{outline:2px solid #ffdc70}.cell.hit:after{content:"✚";position:absolute;z-index:3;font-size:clamp(13px,3.3vw,22px);color:#ff3636;text-shadow:0 0 3px #290000,0 0 10px #ff0000;pointer-events:none}.cell.hit{color:transparent}.coord-top{display:grid;grid-template-columns:repeat(10,1fr);padding:0 6px 1px;margin-left:23px;gap:1px;width:calc(100% - 23px);color:#e7f7ff;font-size:10px;font-weight:900;text-align:center}.board-row{display:flex;width:100%;align-items:stretch;gap:3px}.coord-left{width:20px;flex-shrink:0;display:grid;grid-template-rows:repeat(10,1fr);align-items:center;text-align:center;font-size:10px;font-weight:900;color:#e7f7ff}.board-row .board{width:calc(100% - 23px)}.dock{width:min(100%,450px);border:2px solid #3cb5ed;border-radius:10px;padding:8px;background:linear-gradient(145deg,#0e6aa7,#074677);box-shadow:0 0 14px #0e91ef44;display:flex;flex-direction:column;gap:5px}.dock-label{font-size:12px;font-weight:900;color:#e5faff;text-align:center}.dock-ships{display:flex;justify-content:space-evenly;align-items:center;gap:4px;min-height:48px;flex-wrap:wrap}.ship-token{position:relative;display:flex;gap:1px;padding:5px;border:1px solid #8bdfff99;border-radius:8px;background:linear-gradient(145deg,#4b7186,#1b4059);box-shadow:0 3px #0a2b43;touch-action:none;user-select:none}.ship-token span{display:block;width:clamp(12px,3.4vw,20px);height:clamp(16px,4.1vw,23px);background:linear-gradient(145deg,#e1e8e9,#6d8697);border:1px solid #304c60}.ship-token span:first-child{border-radius:55% 10% 10% 55%}.ship-token span:last-child{border-radius:10% 55% 55% 10%}.ship-token.active{outline:2px solid #ffe482}.ship-token.used{opacity:.22;pointer-events:none}.ship-art{position:absolute;inset:7%;z-index:1;display:flex;align-items:center;justify-content:center;pointer-events:none;color:#1a3445;font-size:clamp(10px,3vw,16px);text-shadow:0 1px #d5e8ec}.battle-view{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;overflow:hidden}.battle-view .board-wrap{width:min(100%,min(42dvh,400px))}.battle-view .board{padding:3px;gap:1px;border-width:2px}.battle-view .board-title{padding:3px 8px}.battle-view .coord-top{font-size:9px}.battle-view .coord-left{font-size:9px}.battle-view .board-row .board{width:calc(100% - 23px)}.battle-view .status{font-size:12px;min-height:18px;padding:1px}.battle-separator{display:flex;align-items:center;justify-content:space-between;gap:6px;width:min(100%,400px);padding:3px 5px;background:linear-gradient(90deg,#03486d,#117c9a,#03486d);border:1px solid #1db0d2;border-radius:8px;box-shadow:0 0 11px #00b1e644;font-weight:950;font-size:11px;text-align:center}.battle-separator span{flex:1}.battle-separator .count{background:#0c3654;border-radius:6px;padding:3px 5px;flex:0 0 auto}.battle-view.enter .board-wrap:first-child{animation:rise .65s ease-out both}.battle-view.enter .board-wrap:last-child{animation:appear .65s ease-out both}@keyframes rise{from{transform:translateY(24vh);opacity:.65}to{transform:translateY(0);opacity:1}}@keyframes appear{from{transform:translateY(25vh);opacity:0}to{transform:translateY(0);opacity:1}}.splash{position:absolute;z-index:5;pointer-events:none;inset:0;display:grid;place-items:center;font-size:clamp(20px,6vw,36px);animation:burst .7s ease-out both}@keyframes burst{0%{transform:scale(.1);opacity:0}30%{opacity:1}100%{transform:scale(1.7);opacity:0}}.bottom{z-index:3;padding:6px 8px max(7px,env(safe-area-inset-bottom));gap:5px}.bottom button{font-size:12px;padding:8px 10px}.placement-status{font-size:12px;font-weight:850;color:#fff1b8;text-align:center}.placement-actions{display:flex;gap:6px;width:min(100%,450px)}.placement-actions button{flex:1}.ship-parts{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:clamp(10px,3vw,18px);color:#183d53;text-shadow:0 1px #e7f8ff}.cell.ship.bow{border-radius:40% 8% 8% 40%}.cell.ship.stern{border-radius:8% 40% 40% 8%}.cell.ship.vertical.bow{border-radius:40% 40% 8% 8%}.cell.ship.vertical.stern{border-radius:8% 8% 40% 40%}@media(max-height:720px){.battle-view .board-wrap{width:min(100%,min(39dvh,360px))}.battle-view{gap:2px}.top{padding:2px}.dock{padding:5px}.dock-ships{min-height:34px}.ship-token{padding:3px}.game{gap:3px}}@media(max-height:600px){.battle-view .board-wrap{width:min(100%,min(37dvh,310px))}.battle-view .coord-top,.battle-view .coord-left{font-size:8px}.top small{display:none}.board-title{font-size:10px}}
+
+/* Naval silhouettes, moving fleet previews, damage and weapon effects */
+.ship-token{border:0;background:transparent;box-shadow:none;padding:4px;filter:drop-shadow(0 2px 2px #001c36)}.ship-token span{background:linear-gradient(180deg,#b5c5cd,#506e7f);border:1px solid #2b455b}.ship-token span:first-child{border-radius:55% 10% 10% 55%}.ship-token span:last-of-type{border-radius:10% 55% 55% 10%}.ship-token .ship-art{font-size:14px;inset:0;display:grid;place-items:center;color:#173f55;text-shadow:0 1px #f4fbff}.ship-token.active{outline:2px solid #d1f8ff;border-radius:7px;background:#24658944}.ship-token.used{opacity:.2}.ship-drag-float{position:fixed;z-index:2147483647;pointer-events:none;display:flex;gap:1px;padding:5px;filter:drop-shadow(0 8px 8px #001c39);transform:translate(-50%,-50%);opacity:1;visibility:visible}.ship-drag-float span{display:block;width:clamp(17px,4.4vw,25px);height:clamp(22px,5.2vw,29px);background:linear-gradient(135deg,#d3e2e6,#627f93);border:1px solid #31516a}.ship-drag-float.vertical{flex-direction:column}.ship-drag-float.vertical span{width:clamp(22px,5.2vw,29px);height:clamp(17px,4.4vw,25px)}.ship-drag-float span:first-child{border-radius:55% 10% 10% 55%}.ship-drag-float span:last-child{border-radius:10% 55% 55% 10%}.ship-drag-float.vertical span:first-child{border-radius:55% 55% 10% 10%}.ship-drag-float.vertical span:last-child{border-radius:10% 10% 55% 55%}.ship-drag-float:after{content:'⚓';position:absolute;inset:0;display:grid;place-items:center;color:#274557;font-size:20px}.cell.ship{background:linear-gradient(145deg,#9baeb9,#526e80);border:1px solid #233f58;box-shadow:inset 0 2px #e3edf0a8,inset 0 -2px #243b50}.cell.ship .ship-parts{font-size:11px}.cell.ship.hit{background:linear-gradient(130deg,#541b2a,#151f30);border-color:#d34545;animation:shipShake .52s ease-out}.cell.ship.sunk{background:#111b28;border-color:#aa2d3b;filter:brightness(.65)}@keyframes shipShake{0%,100%{transform:translateX(0)}15%,55%{transform:translateX(-3px) rotate(-2deg)}30%,70%{transform:translateX(3px) rotate(2deg)}}.cell.shot-pending{outline:2px solid #ffd966;z-index:4}.splash{animation:burst .75s ease-out both;filter:drop-shadow(0 0 8px #ffce63)}.shot-missile{position:fixed;z-index:50;pointer-events:none;width:13px;height:29px;background:linear-gradient(90deg,#5c778c,#fff7d2,#577b96);border-radius:50% 50% 20% 20%;border:1px solid #e2fbff;box-shadow:0 0 16px #ffeb8b,0 0 35px #ffae49;transform-origin:center center;transition:transform .5s cubic-bezier(.25,.6,.35,1),opacity .15s}.shot-trail{position:fixed;z-index:49;pointer-events:none;width:7px;height:7px;background:#ffca70;border-radius:50%;box-shadow:0 0 18px 8px #ff8a2e88;animation:burst .65s ease-out both}.battle-separator.enemy-turn{background:linear-gradient(90deg,#312263,#5739a1,#312263);border-color:#a878f5}.battle-separator.own-turn{background:linear-gradient(90deg,#04606b,#119b9c,#04606b)}.battle-view .board-wrap{transition:transform .4s ease}.cell:active:not(:disabled){filter:brightness(1.3)}.panel .choice:active,.primary:active,.secondary:active{transform:translateY(2px)}
+.cell.ship:not(.hit){background:linear-gradient(155deg,#d8e5e9 0%,#829bab 43%,#405d71 100%)!important;border:1px solid #38576d!important;box-shadow:inset 0 2px 0 #f2fbff88,inset 0 -3px 0 #19374d88,0 0 5px #b6e6f866!important}.cell.ship .ship-parts{z-index:2;color:#173b52!important;font-weight:900}.cell.ship.bow{border-radius:48% 8% 8% 48%!important}.cell.ship.stern{border-radius:8% 48% 48% 8%!important}.cell.ship.vertical.bow{border-radius:48% 48% 8% 8%!important}.cell.ship.vertical.stern{border-radius:8% 8% 48% 48%!important}.battle-view{min-height:0;max-height:100%;overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch;justify-items:center;gap:5px}.battle-view .board-wrap{width:min(100%,min(41dvh,390px));min-height:0;height:100%;display:flex;flex-direction:column;justify-content:center;gap:2px}.battle-view .board-row{min-height:0;flex:1;display:flex;align-items:center;justify-content:center}.battle-view .board-row .board{width:auto!important;height:min(100%,calc(100vw - 53px));max-width:100%;aspect-ratio:1;flex:none}.battle-view .coord-top{flex:none}.battle-view .board-title{flex:none}.battle-view .battle-separator{flex:none;width:min(100%,min(41dvh,390px))}@media(max-height:720px){.battle-view{gap:2px}.battle-view .board-wrap{width:min(100%,min(40dvh,360px))}.battle-view .battle-separator{width:min(100%,min(40dvh,360px))}}@media(max-height:600px){.battle-view .board-wrap{width:min(100%,min(37dvh,310px))}.battle-view .battle-separator{width:min(100%,min(37dvh,310px))}}
+/* Battle: remove redundant text/footer and give both identical, larger square grids. */
+/* Placement board has a left coordinate gutter; center the blue grid itself. */
+#app:not(.combat-mode) .game>.board-wrap>.board-row,
+#app:not(.combat-mode) .game>.board-wrap>.coord-top{transform:translateX(-11px)}
+/* Align the actual 10x10 grid, not its left-side coordinate gutter. */
+#app.combat-mode .battle-view>.board-wrap{transform:translateX(-10.5px)}
+#app.combat-mode .battle-separator{transform:translateX(-10.5px)}
+#app .battle-sound-toggle{display:none;position:absolute;top:12px;right:13px;z-index:20;width:39px;height:39px;padding:0;border:1px solid #a4e7f2a8;border-radius:12px;background:#155c7ca8;color:#fff;font-size:20px;line-height:1;align-items:center;justify-content:center;box-shadow:0 2px 7px #07304955;touch-action:manipulation}
+#app.combat-mode .battle-sound-toggle{display:flex}
+#app .battle-menu-toggle{display:none;position:absolute;top:12px;left:13px;z-index:20;width:39px;height:39px;padding:0;border:1px solid #a4e7f2a8;border-radius:12px;background:#155c7ca8;color:#fff;font-size:20px;line-height:1;align-items:center;justify-content:center;box-shadow:0 2px 7px #07304955;touch-action:manipulation}
+#app.combat-mode .battle-menu-toggle{display:flex}
+#app .battle-menu-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#app .battle-sound-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#app.combat-mode .top small{display:none}
+#app.combat-mode .top{padding:2px 8px 0}
+#app.combat-mode .top h1{font-size:18px;line-height:23px}
+#app.combat-mode .game{padding:0 6px 2px;gap:0}
+#app.combat-mode .bottom{display:none!important}
+#app.combat-mode .battle-view{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#app.combat-mode .battle-view .board-wrap{flex:0 1 auto;min-height:0;height:auto;width:min(calc(100vw - 12px),calc((100dvh - 110px)/2));max-width:480px;gap:1px;display:flex;flex-direction:column;align-items:stretch;justify-content:center}
+#app.combat-mode .battle-view .board-row{width:100%;flex:0 0 auto;min-height:0;align-items:stretch;justify-content:stretch;gap:0}
+#app.combat-mode .battle-view .board-row .board{height:auto!important;width:calc(100% - 21px)!important;max-width:none;aspect-ratio:1/1;flex:0 0 auto;padding:3px;gap:1px}
+#app.combat-mode .battle-view .coord-left{width:21px;display:grid;grid-template-rows:repeat(10,minmax(0,1fr));align-items:stretch;text-align:center;line-height:1}
+#app.combat-mode .battle-view .coord-left span{display:flex;align-items:center;justify-content:center;font-size:clamp(9px,2.4vw,12px)}
+#app.combat-mode .battle-view .coord-top{margin-left:21px;width:calc(100% - 21px);padding:0 3px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:1px;font-size:clamp(9px,2.4vw,12px);line-height:15px;flex:none}
+#app.combat-mode .battle-separator{width:min(calc(100vw - 12px),calc((100dvh - 110px)/2));max-width:480px;flex:0 0 auto;padding:3px 6px;min-height:23px;font-size:12px;gap:3px}
+#app.combat-mode .battle-separator .count{padding:1px 7px}
+@media(max-height:670px){#app.combat-mode .top h1{font-size:16px;line-height:18px}#app.combat-mode .battle-view{gap:1px}#app.combat-mode .battle-separator{min-height:19px;padding:1px 4px}}
+
+/* Symmetric 3-control combat bar, designed to stay out of the grids. */
+#app.combat-mode .top{padding:0 4px!important;margin:0}
+#app.combat-mode .top h1{font-size:16px!important;line-height:19px!important;margin:0}
+#app.combat-mode .game{padding:0 3px 0!important}
+#app.combat-mode .battle-view{justify-content:center!important;gap:2px!important}
+#app.combat-mode .battle-view .board-wrap{width:min(calc(100vw - 6px),calc((100dvh - 70px)/2))!important;max-width:510px!important}
+#app.combat-mode .battle-view .board-row .board{width:calc(100% - 18px)!important}
+#app.combat-mode .battle-view .coord-left{width:18px!important}
+#app.combat-mode .battle-view .coord-top{margin-left:18px!important;width:calc(100% - 18px)!important;line-height:13px!important;padding:0 3px!important}
+#app.combat-mode .battle-separator{width:min(calc(100vw - 6px),calc((100dvh - 70px)/2))!important;max-width:510px!important;display:grid!important;grid-template-columns:1fr 2.1fr 1fr;gap:6px!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0 1px!important;height:31px!important;min-height:31px!important;align-items:stretch}
+#app.combat-mode .combat-chip{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;border:2px solid #3ec7d9;border-radius:8px;background:linear-gradient(180deg,#0f7e90,#053c64);box-shadow:inset 0 1px 0 #8ff7ff55,0 2px 0 #021e3e,0 0 8px #12b9e644;font-size:clamp(11px,3vw,15px);font-weight:950;color:#edffff;white-space:nowrap}
+#app.combat-mode .combat-chip-left{border-color:#3da5ce}
+#app.combat-mode .combat-chip-center{background:linear-gradient(180deg,#16a8a3,#086c81);border-color:#48f0e2;clip-path:polygon(6% 0,94% 0,100% 25%,100% 75%,94% 100%,6% 100%,0 75%,0 25%)}
+#app.combat-mode .combat-chip-right{border-color:#3da5ce}
+#app.combat-mode .combat-icon{font-size:clamp(15px,4vw,19px);line-height:1}
+#app.combat-mode .combat-status-icon{font-size:18px;line-height:1;filter:drop-shadow(0 0 4px #9af9ff)}
+#app.combat-mode .combat-count{font-variant-numeric:tabular-nums}
+@media(max-height:670px){#app.combat-mode .top h1{font-size:14px!important;line-height:16px!important}#app.combat-mode .battle-separator{height:25px!important;min-height:25px!important}#app.combat-mode .combat-chip{border-width:1px}}
+
+/* Upper grid ends directly above the indicator bar; lower grid begins directly below it.
+   Enemy numbers belong beneath the enemy grid, never between the boards. */
+#app.combat-mode .battle-view{gap:0!important}
+#app.combat-mode .battle-view .board-wrap{gap:0!important}
+#app.combat-mode .battle-view .battle-separator{margin:0!important;padding:0 1px!important}
+#app.combat-mode .battle-view .board-wrap:last-child .coord-top{margin-top:1px!important;margin-bottom:0!important}
+#app.combat-mode .battle-view .board-wrap:first-child .coord-top{margin-bottom:1px!important}
+
+/* Align the indicator strictly to the 10x10 sea grid, excluding the A–J label gutter.
+   The bar's left and right edges now match the blue grid edges. */
+#app.combat-mode .battle-view .battle-separator{
+  box-sizing:border-box!important;
+  width:calc(min(calc(100vw - 6px),calc((100dvh - 70px)/2),510px) - 18px)!important;
+  max-width:492px!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  align-self:center!important;
+  position:relative;
+  left:0!important;
+  transform:none;
+}
+
+/* JS measures the exact grid; prevent older CSS from forcing bar width. */
+#app.combat-mode .battle-view .battle-separator{width:auto!important;max-width:none!important;min-width:0!important}
+
+/* AREG family frame: continuous warm golden wooden rim around the entire
+   dark navy Sea Battle scene, not around the individual blue grids. */
+#app{isolation:isolate;border-radius:clamp(18px,4vw,30px)}
+#app::after{
+ content:"";position:absolute;inset:2px;z-index:30;pointer-events:none;
+ border:clamp(4px,1.15vw,8px) solid transparent;
+ border-radius:clamp(18px,4vw,30px);
+ background:linear-gradient(142deg,#ffe5a5 0%,#e6b972 17%,#9d572d 42%,#f6d38e 63%,#bc773c 82%,#ffe2a0 100%) border-box;
+ -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+ -webkit-mask-composite:xor;mask-composite:exclude;
+ filter:drop-shadow(0 3px 1px #4a2518);
+}
+#app{box-shadow:inset 0 0 0 2px #fff0c788,inset 0 0 0 9px #5a2f2080,0 7px 0 #7c4628,0 13px 20px #0007}
+@media(max-width:360px){#app::after{inset:1px;border-width:4px}}
+
+/* Frame-safe combat layout: keep heading, controls and final coordinate row
+   entirely inside the gold wooden rim. Match both board widths. */
+#app{padding:11px 9px 13px!important}
+#app.combat-mode .top{padding:1px 4px 5px!important;min-height:25px;z-index:2}
+#app.combat-mode .top h1{line-height:22px!important;font-size:17px!important}
+#app.combat-mode .game{padding:2px 0 5px!important;overflow:hidden;min-height:0}
+#app.combat-mode .battle-view{gap:3px!important;overflow:visible!important;justify-content:center!important}
+#app.combat-mode .battle-view .board-wrap{
+ width:min(calc(100vw - 28px),calc((100dvh - 132px)/2))!important;
+ max-width:510px!important;overflow:visible!important;flex-shrink:0!important;
+}
+#app.combat-mode .battle-view .board-row{overflow:visible!important}
+#app.combat-mode .battle-view .board-wrap:last-child .coord-top{
+ margin-top:4px!important;margin-bottom:3px!important;
+ line-height:18px!important;min-height:18px!important;
+ align-items:center!important;overflow:visible!important;
+}
+#app.combat-mode .battle-view .board-wrap:first-child .coord-top{
+ line-height:16px!important;min-height:16px!important;
+}
+#app.combat-mode .battle-view .battle-separator{
+ height:32px!important;min-height:32px!important;
+ margin:3px 0!important;padding:1px!important;
+ overflow:visible!important;z-index:3;
+}
+#app.combat-mode .combat-chip{height:100%;min-height:0;overflow:hidden}
+@media(max-height:740px){
+ #app.combat-mode .battle-view .board-wrap{
+ width:min(calc(100vw - 28px),calc((100dvh - 126px)/2))!important;
+ }
+ #app.combat-mode .battle-view .battle-separator{height:27px!important;min-height:27px!important}
+ #app.combat-mode .top{min-height:22px}
+}
+
+/* Calm underwater ambience inside the golden wooden frame, behind BOTH boards.
+   Pure transform/opacity animations: no canvas loop, no layout thrashing. */
+#app .sea-ambience{position:absolute;inset:13px 11px 15px;border-radius:16px;overflow:hidden;pointer-events:none;z-index:0;contain:paint;background:
+ radial-gradient(ellipse 35% 23% at 18% 28%,#1684a018,transparent 90%),
+ radial-gradient(ellipse 40% 30% at 88% 73%,#127dbe18,transparent 90%),
+ linear-gradient(160deg,#0d365b24,#03172e10 55%,#11517b24)}
+#app .sea-ambience:before{content:"";position:absolute;inset:-20%;background:
+ repeating-linear-gradient(115deg,transparent 0 65px,#6bc8f207 67px 69px,transparent 72px 145px);
+ opacity:.65;animation:seaRays 28s ease-in-out infinite alternate}
+#app .sea-ambience:after{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 25% 19%,#7ce9ff13 0 2px,transparent 4px),
+ radial-gradient(circle at 77% 46%,#7ce9ff18 0 2px,transparent 5px),
+ radial-gradient(circle at 51% 82%,#7ce9ff13 0 2px,transparent 5px);background-size:140px 190px;opacity:.7}
+#app .sea-ambience .sea-object{position:absolute;bottom:-12%;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;border:1px solid #b8efff65;background:radial-gradient(circle at 32% 26%,#dcfbff70 0 6%,#7ac7ed28 20%,#3a9ac010 65%,transparent 85%);box-shadow:inset -2px -3px 5px #0d4c7540,0 0 9px #4bcbf51a;opacity:0;animation:seaFloat var(--d) linear var(--delay) infinite;will-change:transform,opacity}
+#app .sea-ambience .sea-object:nth-child(3n){border-color:#91ddf94d;filter:blur(.4px)}
+#app .sea-ambience .sea-object:nth-child(5n){border-color:#91ddf92e;filter:blur(1px)}
+#app .sea-ambience .sea-glow{position:absolute;width:65px;height:65px;left:var(--x);top:var(--y);border-radius:50%;background:radial-gradient(circle,#45c9ff30 0%,#42aef010 34%,transparent 72%);opacity:0;animation:seaPulse var(--d) ease-in-out var(--delay) infinite alternate;will-change:transform,opacity}
+#app>.top,#app>.game,#app>.bottom{z-index:1}
+@keyframes seaFloat{0%{transform:translate3d(0,0,0) scale(.7);opacity:0}12%{opacity:.48}55%{opacity:.24}88%{opacity:.42}100%{transform:translate3d(var(--drift),-105dvh,0) scale(1.14);opacity:0}}
+@keyframes seaPulse{0%{transform:translate3d(-9px,10px,0) scale(.65);opacity:0}45%{opacity:.52}100%{transform:translate3d(12px,-14px,0) scale(1.4);opacity:0}}
+@keyframes seaRays{from{transform:translate3d(-10px,-12px,0) rotate(-2deg)}to{transform:translate3d(12px,14px,0) rotate(2deg)}}
+@media(prefers-reduced-motion:reduce){#app .sea-ambience *,#app .sea-ambience:before{animation:none!important}#app .sea-ambience .sea-object{opacity:.12;transform:translateY(-30vh)}#app .sea-ambience .sea-glow{opacity:.18}}
+
+/* Brighter underwater palette: readable turquoise sea depth inside the wood rim.
+   Ambient movement remains behind the opaque 10x10 boards and never blocks touch. */
+#app{background:linear-gradient(180deg,#16769a 0%,#126d94 24%,#105c85 55%,#0b426c 100%)!important}
+#app::before{opacity:.2!important}
+#app .sea-ambience{
+ background:
+ radial-gradient(ellipse 95% 34% at 52% 1%,#9eeaff5c 0%,#42b6d837 45%,transparent 100%),
+ radial-gradient(ellipse 70% 38% at 7% 47%,#34b4d23b,transparent 90%),
+ radial-gradient(ellipse 75% 40% at 93% 80%,#2bafc83d,transparent 90%),
+ linear-gradient(180deg,#228eae 0%,#167c9f 32%,#126a91 67%,#0c4d77 100%)!important;
+ box-shadow:inset 0 0 28px #073e6a40!important
+}
+#app .sea-ambience::before{
+ background:
+ repeating-linear-gradient(110deg,transparent 0 56px,#b5f7ff19 58px 62px,transparent 65px 118px),
+ radial-gradient(ellipse 70% 40% at 50% 0%,#c0faff3a,transparent 90%)!important;
+ opacity:.8!important
+}
+#app .sea-ambience::after{
+ background:
+ radial-gradient(circle at 25% 19%,#d5ffff65 0 2px,transparent 5px),
+ radial-gradient(circle at 77% 46%,#b7f4ff4d 0 2px,transparent 5px),
+ radial-gradient(circle at 51% 82%,#d5ffff60 0 2px,transparent 5px)!important;
+ background-size:140px 190px!important;opacity:.8!important
+}
+#app .sea-ambience .sea-object{border-color:#d4faffb0!important;box-shadow:inset -2px -3px 5px #19799a40,0 0 11px #b1f8ff66!important}
+#app .sea-ambience .sea-glow{background:radial-gradient(circle,#adfaff75 0%,#5ddaff32 38%,transparent 74%)!important}
+
+/* Underwater v2: no diagonal white lines, no stationary white dots.
+   Only animated bubbles, drifting plankton and soft moving colour blooms. */
+#app .sea-ambience::before{content:"";inset:0!important;opacity:.8!important;background:
+ radial-gradient(ellipse 42% 23% at 16% 18%,#70e8d62c,transparent 95%),
+ radial-gradient(ellipse 45% 26% at 87% 70%,#6db8ff30,transparent 95%)!important;
+ animation:seaColourDrift 19s ease-in-out infinite alternate!important}
+#app .sea-ambience::after{content:none!important;display:none!important}
+#app .sea-ambience .sea-object{
+ border:1.5px solid #d9ffffd9!important;
+ background:radial-gradient(circle at 30% 24%,#ffffffbb 0 5%,#a8f9ff5c 12%,#60c7e31a 37%,transparent 72%)!important;
+ box-shadow:inset -2px -3px 5px #d4fbff48,inset 1px 2px 3px #ffffff9c,0 0 8px #b1f8ff6b!important;
+ animation:seaBubbleRise var(--d) linear var(--delay) infinite!important;
+ filter:none!important
+}
+#app .sea-ambience .sea-object:nth-child(3n){filter:none!important}
+#app .sea-ambience .sea-object:nth-child(5n){filter:none!important}
+#app .sea-ambience .sea-mote{
+ position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);
+ border-radius:50%;background:#c4fbf9;box-shadow:0 0 7px 2px #7cf8ec9c;
+ opacity:0;pointer-events:none;animation:seaMoteWander var(--d) ease-in-out var(--delay) infinite;
+ will-change:transform,opacity
+}
+#app .sea-ambience .sea-mote:nth-child(3n){background:#80e6ff;box-shadow:0 0 6px #a7efff}
+#app .sea-ambience .sea-glow{width:105px!important;height:105px!important;opacity:0;filter:blur(7px);animation:seaPulse var(--d) ease-in-out var(--delay) infinite alternate}
+@keyframes seaBubbleRise{
+ 0%{transform:translate3d(0,20px,0) scale(.75);opacity:0}
+ 10%{opacity:.8}40%{transform:translate3d(calc(var(--drift) * .35),-40dvh,0) scale(.95);opacity:.92}
+ 75%{opacity:.76}100%{transform:translate3d(var(--drift),-115dvh,0) scale(1.1);opacity:0}
+}
+@keyframes seaMoteWander{
+ 0%{transform:translate3d(calc(var(--dx) * -.6),calc(var(--dy) * -.5),0) scale(.5);opacity:0}
+ 20%{opacity:.8}45%{transform:translate3d(var(--dx),var(--dy),0) scale(1.15);opacity:.7}
+ 70%{opacity:.4}100%{transform:translate3d(calc(var(--dx) * -.4),calc(var(--dy) * .8),0) scale(.55);opacity:0}
+}
+@keyframes seaColourDrift{0%{transform:translate3d(-16px,12px,0) scale(1)}100%{transform:translate3d(18px,-18px,0) scale(1.12)}}
+@media(prefers-reduced-motion:reduce){
+ #app .sea-ambience .sea-object,#app .sea-ambience .sea-mote,#app .sea-ambience .sea-glow{animation:none!important;opacity:0!important}
+ #app .sea-ambience::before{animation:none!important}
+}
+
+/* Center the actual 10x10 squares, not the square-plus-18px
+   coordinate gutter. Use a static layout offset, never a transform,
+   to preserve the approved non-flickering iOS grid layers. */
+#app.combat-mode .battle-view > .board-wrap{
+ position:relative;
+ left:-9px;
+}
+
+/* Draw the white combat grid only once: the board::after overlay
+   already draws all 10x10 dividers, so cell borders duplicate the bottom
+   and side lines. Keep the overlay/compositing flicker fix untouched. */
+#app.combat-mode .battle-view .board .cell{
+ border:0!important;
+}
+
+/* Menu heading only: three times larger and slightly lower.
+   Combat/placement headers keep their approved sizes. */
+#app:not(.combat-mode):has(.sea-menu-art) .top{
+ padding-top:28px!important;
+}
+#app:not(.combat-mode):has(.sea-menu-art) .top h1{
+ font-size:clamp(54px,12vw,87px)!important;
+ line-height:1.12!important;
+ letter-spacing:0!important;
+}
+
+/* Main menu only: title above anchor; anchor lower, choice panel lower.
+   No changes to placement or battle layouts. */
+#app:not(.combat-mode):has(.sea-menu-art) .top{padding-top:12px!important}
+#app:not(.combat-mode):has(.sea-menu-art) .top h1{
+ display:flex;flex-direction:column;align-items:center;gap:0;
+}
+#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title{
+ order:0;
+ font-family:inherit!important;
+ font-weight:inherit!important;
+ background:linear-gradient(110deg,#fff04a 0%,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a 100%);
+ background-size:200% 100%;
+ -webkit-background-clip:text;background-clip:text;
+ -webkit-text-fill-color:transparent;
+ filter:drop-shadow(0 2px 1px #123d6e) drop-shadow(0 0 7px #63cfff66);
+ animation:seaTitleColors 7s ease-in-out infinite alternate;
+ animation-delay:var(--sea-title-offset,0s);
+
+
+}
+@keyframes seaTitleColors{from{background-position:0% 50%}to{background-position:100% 50%}}
+@media(prefers-reduced-motion:reduce){#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title{animation:none}}
+#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-anchor{
+ order:1;font-size:58px;line-height:1;display:block;margin-top:8px;
+}
+#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-art{
+ transform:translateY(200px);
+}
+
+/* Placement screen only: the SVG draws the complete grid already.
+   Remove duplicate cell top/left borders (the thick double lines). */
+#app:not(.combat-mode) .board .cell,
+#app:not(.combat-mode) .board .cell:nth-child(-n+10),
+#app:not(.combat-mode) .board .cell:nth-child(10n+1){
+ border:0!important;
+}
+
+/* Own board only: keep its white 10x10 overlay on a stable composited
+   layer while AI shots update ship pixels underneath it. */
+#app.combat-mode .battle-view > .board-wrap:first-child .board::after{
+ transform:translateZ(0)!important;
+ backface-visibility:hidden!important;
+ will-change:transform;
+ contain:paint;
+}
+#app.combat-mode .battle-view > .board-wrap:first-child .board{
+ isolation:isolate;
+ transform:translateZ(0);
+ backface-visibility:hidden;
+}
+
+/* Combat-only: impact's scale transform repaints 1px white cell borders
+   on iOS WebKit. The missile, splash and sound effects remain unchanged. */
+#app.combat-mode .board .cell.hit{animation:none!important}
+#app.combat-mode .battle-view .board-wrap{transition:none!important}
+
+/* Clear, thin white dividers between every sea cell on both 10x10 boards. */
+#app .board{gap:0!important;background:transparent!important;padding:3px!important}
+#app .board .cell{border:0!important;border-right:1px solid #e0f8ffde!important;border-bottom:1px solid #e0f8ffde!important;border-radius:0}
+#app .board .cell:nth-child(-n+10){border-top:1px solid #e0f8ffde!important}
+#app .board .cell:nth-child(10n+1){border-left:1px solid #e0f8ffde!important}
+#app .board .cell.ship{box-shadow:inset 0 2px 0 #f2fbff88,inset 0 -3px 0 #19374d88,0 0 5px #b6e6f866!important}
+#app .board .cell.hit,#app .board .cell.miss,#app .board .cell.sunk{box-shadow:none!important}
+
+/* Grid belongs to the board, not to ship buttons. It always draws over ships. */
+#app .board{position:relative;isolation:isolate}
+#app .board .cell{border:0!important;box-shadow:none!important}
+#app .board .cell.ship{box-shadow:inset 0 2px 0 #f2fbff88,inset 0 -3px 0 #19374d88,0 0 5px #b6e6f866!important}
+#app .board::after{
+ content:"";position:absolute;inset:3px;z-index:9;pointer-events:none;
+ /* One closed 10x10 SVG grid: no repeated gradients or protruding ends. */
+ background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20d%3D%22M0.5%200.5H99.5V99.5H0.5Z%20M10%200V100%20M20%200V100%20M30%200V100%20M40%200V100%20M50%200V100%20M60%200V100%20M70%200V100%20M80%200V100%20M90%200V100%20M0%2010H100%20M0%2020H100%20M0%2030H100%20M0%2040H100%20M0%2050H100%20M0%2060H100%20M0%2070H100%20M0%2080H100%20M0%2090H100%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%221%22%20stroke-width%3D%221%22%20vector-effect%3D%22non-scaling-stroke%22%2F%3E%3C%2Fsvg%3E");
+ background-size:100% 100%;background-repeat:no-repeat;
+ box-shadow:none;
+}
+/* Prevent decorative undersea particles appearing over ship silhouettes. */
+#app .sea-ambience{z-index:0!important}
+/* Keep the same sea background behind the bottom menu on every screen. */
+#app{background:linear-gradient(180deg,#16769a 0%,#167c9f 50%,#126a91 100%)!important}
+#app .sea-ambience{inset:13px 11px 0!important;border-radius:16px 16px 0 0!important}
+/* The footer no longer occupies a separate horizontal band. The sea itself
+   continues behind the menu control; only the button is drawn. */
+#app>.bottom{position:absolute!important;left:0;right:0;bottom:0;z-index:5!important;background:none!important;border:0!important;box-shadow:none!important;padding:8px 10px max(11px,env(safe-area-inset-bottom))!important;min-height:0!important;pointer-events:none}
+#app>.bottom button{pointer-events:auto}
+#app>.game{padding-bottom:max(64px,calc(53px + env(safe-area-inset-bottom)))!important}
+
+#app .battle-view .board{background:#178fce!important}
+#app.combat-mode .battle-separator,#app.combat-mode .combat-chip{animation:none!important;transition:none!important}
+
+/* Carrier tiles are visual-only, preserving the 10x10 grid and input logic. */
+#app .board .cell.carrier-cell{border-radius:0!important;background:#187ca7!important;box-shadow:none!important;overflow:hidden}
+#app .board .cell.carrier-cell .carrier-art{position:absolute;inset:0;z-index:1;display:block;pointer-events:none;transition:filter .24s}
+#app .board .cell.carrier-cell .carrier-art svg{display:block;width:100%;height:100%;overflow:hidden}
+#app .board .cell.carrier-cell.hit .carrier-art{filter:grayscale(.8) brightness(.31) contrast(1.2)}
+#app .board .cell.carrier-cell.sunk .carrier-art{filter:grayscale(1) brightness(.17)}
+#app .board .cell.carrier-cell.hit::before{content:"";position:absolute;inset:18%;z-index:3;pointer-events:none;border-radius:50%;background:radial-gradient(circle,#e9b1a0 0%,#9c3b2f8c 30%,#0a1118d9 55%,transparent 76%)}
+#app .board .cell.carrier-cell.sunk::before{background:radial-gradient(circle,#10191fe8 0%,#192d36c9 45%,transparent 80%)}
+#app .board .cell.carrier-cell.hit{animation:none!important}
+
+/* Image-only fleet skin: no hitAt, turns, placement or grid logic changed. */
+#app .board .cell.photo-ship{background:transparent!important;box-shadow:none!important;border-radius:0!important;overflow:hidden}
+#app .board .cell.photo-ship .ship-photo-tile{position:absolute;inset:0;display:block;pointer-events:none;z-index:1;background-repeat:no-repeat;transition:filter .18s}
+#app .board .cell.photo-ship .ship-photo-tile.vertical{transform:rotate(90deg)}
+#app .board .cell.photo-ship.hit .ship-photo-tile{filter:grayscale(1) brightness(.3)}
+#app .board .cell.photo-ship.sunk .ship-photo-tile{filter:grayscale(1) brightness(.13)}
+#app .board .cell.photo-ship.hit:before{content:"";position:absolute;inset:16%;z-index:3;pointer-events:none;border-radius:50%;background:radial-gradient(circle,#f2b184b0 0%,#222c30c9 43%,transparent 78%)}
+#app .board .cell.photo-ship.sunk:before{background:radial-gradient(circle,#111e27dd,transparent 80%)}
+#app .board .cell.photo-ship.hit{animation:none!important;background:transparent!important}
+#app .board .cell.photo-ship.sunk{background:transparent!important}
+#app .board .cell.photo-ship .ship-photo-tile{background-color:transparent!important}
+#app .ship-token .dock-ship-photo{width:100%;max-width:100%;height:clamp(17px,4.1vw,23px);object-fit:fill;pointer-events:none;display:block}
+#app .ship-token{width:auto;min-width:38px;align-items:center;justify-content:center}
+
+/* Ship artwork sits above the white grid, without opaque or tinted cell patches. */
+#app .board .cell:not(.hit):not(.miss):not(.sunk){background:#138ad0!important}
+#app .board .cell.photo-ship,#app .board .cell.photo-ship.hit,#app .board .cell.photo-ship.sunk{
+ background:#138ad0!important;border:0!important;box-shadow:none!important;
+ filter:none!important;border-radius:0!important;overflow:visible!important;
+}
+#app .board .cell.photo-ship{z-index:10!important}
+#app .board .cell.photo-ship .ship-photo-tile{z-index:11!important}
+#app .board .cell.photo-ship.hit::before{z-index:12!important}
+#app .board .cell.photo-ship.sunk::before{z-index:12!important}
+#app .board .cell.photo-ship.bow,#app .board .cell.photo-ship.stern{border-radius:0!important}
+
+/* Layer correction: sea is painted on the board, ship cells are transparent.
+   Grid overlay z9 stays visible through ship cells; ship pixels at z11
+   cover grid only where the artwork itself is opaque. */
+#app .board{background:#138ad0!important}
+#app .board .cell.photo-ship,
+#app .board .cell.photo-ship.hit,
+#app .board .cell.photo-ship.sunk,
+#app .board .cell.photo-ship:not(.hit):not(.miss):not(.sunk){
+ background:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+#app .board .cell.photo-ship .ship-photo-tile{z-index:11!important}
+
+/* Subtle red X: keep damaged ship surface visible and dark. */
+#app .board .cell.photo-ship.hit::after{
+ content:"×"!important;position:absolute!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-52%)!important;width:auto!important;height:auto!important;
+ z-index:15!important;pointer-events:none!important;background:none!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ color:#f02b30!important;font-family:Arial,sans-serif!important;
+ font-size:clamp(10px,2.2vw,15px)!important;font-weight:900!important;
+ line-height:1!important;text-shadow:0 1px 2px #200000,0 0 2px #ff7777!important;
+ animation:none!important;opacity:1!important;
+}
+#app .board .cell.photo-ship.hit .ship-photo-tile{filter:grayscale(1) brightness(.25)!important}
+#app .board .cell.photo-ship.sunk .ship-photo-tile{filter:grayscale(1) brightness(.12)!important}
+#app .board .cell.hit{animation:none!important}
+
+/* Small red plus on own ship damage, no circle, preserving blackened hull. */
+#app .board .cell.photo-ship.hit::after{
+ content:"+"!important;font-family:Arial,sans-serif!important;
+ font-size:clamp(11px,2.4vw,16px)!important;font-weight:900!important;
+ line-height:1!important;color:#f32b31!important;
+ background:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;text-shadow:0 1px 2px #260000!important;
+ width:auto!important;height:auto!important;
+}
+/* Enemy ship is revealed only after ALL its cells have been hit.
+   Its hull remains dark and red pluses stay visible above it. */
+#app .board .cell.revealed-enemy-ship .ship-photo-tile{
+ filter:grayscale(1) brightness(.19)!important;
+}
+#app .board .cell.revealed-enemy-ship.hit::after{
+ content:"+"!important;position:absolute!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-52%)!important;z-index:16!important;
+ color:#ff3038!important;font:900 clamp(12px,2.7vw,18px)/1 Arial,sans-serif!important;
+ background:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;text-shadow:0 0 3px #3c0505!important;
+ width:auto!important;height:auto!important;pointer-events:none!important;
+ animation:none!important;
+}
+
+/* Own ships retain original color until all segments are destroyed.
+   Existing red plus markers remain visible at every hit. */
+#app .board .cell.photo-ship.hit:not(.sunk):not(.revealed-enemy-ship) .ship-photo-tile{
+ filter:none!important;
+}
+#app .board .cell.photo-ship.sunk .ship-photo-tile{
+ filter:grayscale(1) brightness(.12)!important;
+}
+#app .board .cell.photo-ship.hit:not(.sunk):not(.revealed-enemy-ship)::before{
+ background:none!important;
+}
+#app .board .cell.photo-ship.sunk::before{
+ background:radial-gradient(circle,#10191f9c 0%,transparent 75%)!important;
+}
+
+/* Compact four-arm red targeting sight, matching the supplied reference.
+   Pure CSS artwork; no new images, animations or hit-logic changes. */
+#app .board .cell.photo-ship.hit::after,
+#app .board .cell.revealed-enemy-ship.hit::after{
+ content:""!important;
+ position:absolute!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;
+ width:78%!important;height:78%!important;max-width:none!important;
+ z-index:16!important;pointer-events:none!important;
+ border:0!important;border-radius:0!important;
+ color:transparent!important;text-shadow:none!important;
+ background:
+   radial-gradient(circle at center,#900000 0 18%,#ff0808 20% 26%,#8e0000 29% 33%,transparent 36%),
+   linear-gradient(#fa0808,#fa0808) center / 100% 13% no-repeat,
+   linear-gradient(90deg,#fa0808,#fa0808) center / 13% 100% no-repeat!important;
+ box-shadow:none!important;
+ filter:drop-shadow(0 0 2px #700000)!important;
+ animation:none!important;opacity:1!important;
+}
+/* Disable iOS text selection / lookup on all game surfaces. Keep editable fields usable. */
+html,body,#app,#app *:not(input):not(textarea){
+ -webkit-user-select:none!important;user-select:none!important;
+ -webkit-touch-callout:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+#app input,#app textarea{-webkit-user-select:text!important;user-select:text!important}
+/* iOS: prevent selection, lookup and callout while manipulating the fleet. */
+#app .board,#app .board *,#app .dock,#app .dock *,#app .placement-status{user-select:none!important;-webkit-user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important}
+#app .board .cell{touch-action:none!important}
+#app .ship-live-drag{position:fixed;z-index:9999;pointer-events:none;display:flex;align-items:stretch;justify-content:stretch;filter:drop-shadow(0 3px 5px #001a);will-change:transform;overflow:visible}
+#app .ship-live-drag.vertical{flex-direction:column}
+#app .ship-live-drag .ship-photo-tile{position:relative;display:block;flex:1 1 0;min-width:0;min-height:0;background-repeat:no-repeat;pointer-events:none}
+#app .board .cell.photo-ship{overflow:visible!important}#app .board .cell .ship-photo-tile.vertical-whole{z-index:2!important;pointer-events:none!important}
+
+
+/* Optional custom sea backdrop, behind all bubbles and gameplay. */
+/* The visible blue sea is .sea-ambience, not #app.
+   Replace that layer only; animated bubbles remain above its background. */
+#app.custom-sea-bg .sea-ambience{
+ inset:9px!important;
+ border-radius:clamp(12px,3vw,21px)!important;
+ background:var(--sea-custom-image) center center / 100% 100% no-repeat!important;
+ box-shadow:none!important;
+}
+/* Custom-image mode only: cover the outer image edge with a solid gold rim. */
+#app.custom-sea-bg::after{
+ inset:0!important;
+ border:9px solid transparent!important;
+ border-radius:clamp(22px,5vw,34px)!important;
+ background:linear-gradient(140deg,#ffe1a0 0%,#c48a4b 14%,#8a4c27 28%,#e0ad6b 44%,#a76532 60%,#f3cc85 78%,#99572e 100%) border-box!important;
+ -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0)!important;
+ -webkit-mask-composite:xor!important;
+ mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0)!important;
+ mask-composite:exclude!important;
+ filter:drop-shadow(0 2px 1px #54321b88)!important;
+ box-sizing:border-box!important;
+}
+#app.custom-sea-bg .sea-ambience::before{opacity:0!important}
+#app.custom-sea-bg .sea-ambience::after{opacity:0!important}
+.sea-menu-art{overflow:visible}
+.sea-menu-art h2{padding-left:42px;padding-right:42px;text-align:center;box-sizing:border-box}
+.sea-bg-trigger{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:11px;background:#2a7e9d;border:1px solid #a3e5f1;color:white;font-size:21px;z-index:2}
+.sea-bg-trigger{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;line-height:1!important}.sea-bg-trigger svg{display:block;flex:none}
+.sea-bg-editor{position:absolute;inset:0;z-index:150;background:#06243aee;display:flex;align-items:center;justify-content:center;padding:14px}
+.sea-bg-dialog{width:min(100%,430px);max-height:95%;overflow:auto;border-radius:20px;padding:15px;background:#123d5c;border:1px solid #8dd3e6;color:white;display:flex;flex-direction:column;gap:10px}
+.sea-bg-dialog h3{margin:0;text-align:center}.sea-bg-preview{display:block;width:100%;max-height:56dvh;aspect-ratio:9/16;object-fit:contain;background:#0b3657;border-radius:12px}
+.sea-bg-dialog label{display:flex;align-items:center;gap:8px;font-size:14px}.sea-bg-dialog input[type=range]{flex:1;min-width:0}
+.sea-bg-actions{display:flex;gap:8px}.sea-bg-actions button{flex:1;padding:11px 5px;border-radius:11px;background:#277c9c;font-weight:800}
+.sea-bg-preview{touch-action:none;user-select:none;-webkit-user-select:none}
+#seaBgReset{background:#277c9c!important;color:#fff!important;border:1px solid #7ccce4!important;font-weight:800!important;opacity:1!important;-webkit-text-fill-color:#fff!important;border-radius:11px!important;padding:11px 5px!important;font-size:inherit!important}
+/* Ship-placement screen only: centered title above its anchor. */
+#app:not(.combat-mode):has(.placement-actions) .top{padding-top:9px!important}
+#app:not(.combat-mode):has(.placement-actions) .top h1{
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important;text-align:center!important;
+ font-size:clamp(29px,8vw,44px)!important;line-height:1.05!important;
+}
+#app:not(.combat-mode):has(.placement-actions) .sea-menu-title{
+ order:0!important;display:block!important;margin:0 auto!important;
+ background:linear-gradient(110deg,#fff04a 0%,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a 100%);
+ background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;
+ -webkit-text-fill-color:transparent!important;
+ filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff66);
+ animation:placementTitleRGB 10s linear infinite!important;
+ animation-delay:var(--sea-title-offset,0s)!important;
+
+
+}
+@keyframes placementTitleRGB{
+ 0%{background-position:0% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff99) hue-rotate(0deg)}
+ 25%{background-position:50% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 7px #ff79cfaa) hue-rotate(90deg)}
+ 50%{background-position:100% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 8px #a886ffaa) hue-rotate(180deg)}
+ 75%{background-position:50% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 7px #64f2c7aa) hue-rotate(270deg)}
+ 100%{background-position:0% 50%;filter:drop-shadow(0 1px 1px #123d6e) drop-shadow(0 0 5px #63cfff99) hue-rotate(360deg)}
+}
+#app:not(.combat-mode):has(.placement-actions) .sea-menu-anchor{
+ order:1!important;display:block!important;margin:0 auto!important;
+ font-size:clamp(28px,8vw,39px)!important;line-height:.9!important;
+}
+
+/* Exit confirmation only: preserve visible game background without dark overlay. */
+.exit-confirm-overlay{background:transparent!important}
+/* Battleship-only music upload button, matching background picker. */
+.sea-music-trigger{position:absolute;left:12px;top:12px;width:36px;height:36px;border-radius:11px;background:#2a7e9d;border:1px solid #a3e5f1;color:white;z-index:2;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.sea-music-trigger svg{display:block;flex:none}
+.sea-music-dialog{position:absolute;inset:0;z-index:151;background:#06243acc;display:flex;align-items:center;justify-content:center;padding:16px}
+.sea-music-panel{width:min(100%,390px);border:2px solid #8fd9ed;border-radius:20px;background:linear-gradient(#1c607f,#0b304c);color:white;padding:20px;text-align:center;box-shadow:0 14px 35px #0008}
+.sea-music-panel h3{margin:0 0 14px}.sea-music-panel p{overflow-wrap:anywhere;font-size:14px}
+.sea-music-panel button,.sea-music-panel label{display:block;width:100%;box-sizing:border-box;margin-top:10px;border-radius:12px;padding:12px;border:1px solid #86d2e8;background:#256c89;color:white;font:inherit;font-weight:bold}
+.sea-music-panel label{cursor:pointer;background:#e8b458;color:#432b18;border-color:#ffdf8e}
+/* Music dialog bubbles and independent playback state buttons. */
+.sea-music-panel{position:relative;isolation:isolate;overflow:hidden}
+.sea-music-panel>:not(.sea-music-bubbles){position:relative;z-index:1}
+.sea-music-bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.sea-music-bubbles i{position:absolute;left:var(--x);bottom:-24px;width:var(--s);height:var(--s);border:1px solid #c4f5ff99;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffffffb0 0 5%,#b0efff44 14%,#4ba9ca13 65%,transparent 85%);box-shadow:inset 1px 1px 3px #fff8,0 0 7px #9cecff55;animation:seaMusicBubbleRise var(--d) linear var(--delay) infinite}
+@keyframes seaMusicBubbleRise{0%{transform:translateY(0);opacity:0}15%{opacity:.7}85%{opacity:.5}100%{transform:translateY(-420px);opacity:0}}
+.sea-music-panel .sea-music-controls{display:flex;gap:9px}
+.sea-music-panel .sea-music-controls button{flex:1;min-width:0;font-size:clamp(13px,3.2vw,16px);padding:11px 5px}
+.sea-music-panel .sea-music-controls button.is-active{background:#238c51;border-color:#86e5a4;color:#fff}
+.sea-music-panel .sea-music-controls button:not(.is-active){background:#aa3541;border-color:#f08b93;color:#fff}
+@media(prefers-reduced-motion:reduce){.sea-music-bubbles i{animation:none;opacity:.3}}
+/* Actual selected ship artwork while dragging, not the old segmented placeholder. */
+.ship-drag-float.real-ship-preview{display:block!important;gap:0!important;padding:0!important;box-sizing:border-box!important;filter:drop-shadow(0 3px 4px #001c39a8)!important}
+.ship-drag-float.real-ship-preview::after{content:none!important}
+.ship-drag-float.real-ship-preview .real-ship-art{width:100%;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;pointer-events:none}
+</style></head><body><div id="app"><div class="sea-ambience" aria-hidden="true"><i class="sea-object" style="--x:8%;--s:4px;--d:14s;--delay:0s;--drift:-40px"></i><i class="sea-object" style="--x:45%;--s:7px;--d:21s;--delay:-11s;--drift:-21px"></i><i class="sea-object" style="--x:82%;--s:11px;--d:28s;--delay:-22s;--drift:-2px"></i><i class="sea-object" style="--x:23%;--s:16px;--d:16s;--delay:-2s;--drift:17px"></i><i class="sea-object" style="--x:60%;--s:5px;--d:23s;--delay:-13s;--drift:36px"></i><i class="sea-object" style="--x:1%;--s:22px;--d:30s;--delay:-24s;--drift:-26px"></i><i class="sea-object" style="--x:38%;--s:9px;--d:18s;--delay:-4s;--drift:-7px"></i><i class="sea-object" style="--x:75%;--s:13px;--d:25s;--delay:-15s;--drift:12px"></i><i class="sea-object" style="--x:16%;--s:6px;--d:32s;--delay:-26s;--drift:31px"></i><i class="sea-object" style="--x:53%;--s:18px;--d:20s;--delay:-6s;--drift:-31px"></i><i class="sea-object" style="--x:90%;--s:8px;--d:27s;--delay:-17s;--drift:-12px"></i><i class="sea-object" style="--x:31%;--s:4px;--d:15s;--delay:-28s;--drift:7px"></i><i class="sea-object" style="--x:68%;--s:7px;--d:22s;--delay:-8s;--drift:26px"></i><i class="sea-object" style="--x:9%;--s:11px;--d:29s;--delay:-19s;--drift:-36px"></i><i class="sea-object" style="--x:46%;--s:16px;--d:17s;--delay:-30s;--drift:-17px"></i><i class="sea-object" style="--x:83%;--s:5px;--d:24s;--delay:-10s;--drift:2px"></i><i class="sea-object" style="--x:24%;--s:22px;--d:31s;--delay:-21s;--drift:21px"></i><i class="sea-object" style="--x:61%;--s:9px;--d:19s;--delay:-1s;--drift:40px"></i><i class="sea-object" style="--x:2%;--s:13px;--d:26s;--delay:-12s;--drift:-22px"></i><i class="sea-object" style="--x:39%;--s:6px;--d:14s;--delay:-23s;--drift:-3px"></i><i class="sea-object" style="--x:76%;--s:18px;--d:21s;--delay:-3s;--drift:16px"></i><i class="sea-object" style="--x:17%;--s:8px;--d:28s;--delay:-14s;--drift:35px"></i><i class="sea-object" style="--x:54%;--s:4px;--d:16s;--delay:-25s;--drift:-27px"></i><i class="sea-object" style="--x:91%;--s:7px;--d:23s;--delay:-5s;--drift:-8px"></i><i class="sea-object" style="--x:32%;--s:11px;--d:30s;--delay:-16s;--drift:11px"></i><i class="sea-object" style="--x:69%;--s:16px;--d:18s;--delay:-27s;--drift:30px"></i><i class="sea-object" style="--x:10%;--s:5px;--d:25s;--delay:-7s;--drift:-32px"></i><i class="sea-object" style="--x:47%;--s:22px;--d:32s;--delay:-18s;--drift:-13px"></i><i class="sea-object" style="--x:84%;--s:9px;--d:20s;--delay:-29s;--drift:6px"></i><i class="sea-mote" style="--x:4%;--y:3%;--s:2px;--d:8s;--delay:0s;--dx:-32px;--dy:-37px"></i><i class="sea-mote" style="--x:33%;--y:44%;--s:3px;--d:13s;--delay:-13s;--dx:-15px;--dy:-14px"></i><i class="sea-mote" style="--x:62%;--y:85%;--s:4px;--d:18s;--delay:-4s;--dx:2px;--dy:9px"></i><i class="sea-mote" style="--x:91%;--y:32%;--s:2px;--d:9s;--delay:-17s;--dx:19px;--dy:32px"></i><i class="sea-mote" style="--x:28%;--y:73%;--s:5px;--d:14s;--delay:-8s;--dx:-29px;--dy:-20px"></i><i class="sea-mote" style="--x:57%;--y:20%;--s:3px;--d:19s;--delay:-21s;--dx:-12px;--dy:3px"></i><i class="sea-mote" style="--x:86%;--y:61%;--s:2px;--d:10s;--delay:-12s;--dx:5px;--dy:26px"></i><i class="sea-mote" style="--x:23%;--y:8%;--s:3px;--d:15s;--delay:-3s;--dx:22px;--dy:-26px"></i><i class="sea-mote" style="--x:52%;--y:49%;--s:4px;--d:20s;--delay:-16s;--dx:-26px;--dy:-3px"></i><i class="sea-mote" style="--x:81%;--y:90%;--s:2px;--d:11s;--delay:-7s;--dx:-9px;--dy:20px"></i><i class="sea-mote" style="--x:18%;--y:37%;--s:5px;--d:16s;--delay:-20s;--dx:8px;--dy:-32px"></i><i class="sea-mote" style="--x:47%;--y:78%;--s:3px;--d:21s;--delay:-11s;--dx:25px;--dy:-9px"></i><i class="sea-mote" style="--x:76%;--y:25%;--s:2px;--d:12s;--delay:-2s;--dx:-23px;--dy:14px"></i><i class="sea-mote" style="--x:13%;--y:66%;--s:3px;--d:17s;--delay:-15s;--dx:-6px;--dy:37px"></i><i class="sea-mote" style="--x:42%;--y:13%;--s:4px;--d:8s;--delay:-6s;--dx:11px;--dy:-15px"></i><i class="sea-mote" style="--x:71%;--y:54%;--s:2px;--d:13s;--delay:-19s;--dx:28px;--dy:8px"></i><i class="sea-mote" style="--x:8%;--y:95%;--s:5px;--d:18s;--delay:-10s;--dx:-20px;--dy:31px"></i><i class="sea-mote" style="--x:37%;--y:42%;--s:3px;--d:9s;--delay:-1s;--dx:-3px;--dy:-21px"></i><i class="sea-mote" style="--x:66%;--y:83%;--s:2px;--d:14s;--delay:-14s;--dx:14px;--dy:2px"></i><i class="sea-mote" style="--x:95%;--y:30%;--s:3px;--d:19s;--delay:-5s;--dx:31px;--dy:25px"></i><i class="sea-mote" style="--x:32%;--y:71%;--s:4px;--d:10s;--delay:-18s;--dx:-17px;--dy:-27px"></i><i class="sea-mote" style="--x:61%;--y:18%;--s:2px;--d:15s;--delay:-9s;--dx:0px;--dy:-4px"></i><i class="sea-mote" style="--x:90%;--y:59%;--s:5px;--d:20s;--delay:0s;--dx:17px;--dy:19px"></i><i class="sea-mote" style="--x:27%;--y:6%;--s:3px;--d:11s;--delay:-13s;--dx:-31px;--dy:-33px"></i><i class="sea-mote" style="--x:56%;--y:47%;--s:2px;--d:16s;--delay:-4s;--dx:-14px;--dy:-10px"></i><i class="sea-mote" style="--x:85%;--y:88%;--s:3px;--d:21s;--delay:-17s;--dx:3px;--dy:13px"></i><i class="sea-mote" style="--x:22%;--y:35%;--s:4px;--d:12s;--delay:-8s;--dx:20px;--dy:36px"></i><i class="sea-glow" style="--x:8%;--y:19%;--d:12s;--delay:-4s"></i><i class="sea-glow" style="--x:78%;--y:31%;--d:17s;--delay:-9s"></i><i class="sea-glow" style="--x:16%;--y:73%;--d:15s;--delay:-12s"></i><i class="sea-glow" style="--x:76%;--y:86%;--d:19s;--delay:-6s"></i></div><header class="top"><h1><span class="sea-menu-anchor">⚓</span><span class="sea-menu-title">Ծովամարտ</span></h1></header><button type="button" id="battleMenuToggle" class="battle-menu-toggle" aria-label="Բացել մենյուն" title="Մենյու">☰</button><button type="button" id="battleSoundToggle" class="battle-sound-toggle" aria-label="Անջատել ձայնը" aria-pressed="false">🔊</button><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
+<script>
+'use strict';
+const N=10,FLEET=[5,4,3,3,2],$=s=>document.querySelector(s),view=$('#view'),footer=$('#footer');
+let soundMuted=false;
+const soundButton=document.getElementById('battleSoundToggle');
+document.getElementById('battleMenuToggle').addEventListener('click',()=>confirmExit());
+function updateSoundButton(){soundButton.textContent=soundMuted?'🔇':'🔊';soundButton.setAttribute('aria-label',soundMuted?'Միացնել ձայնը':'Անջատել ձայնը');soundButton.setAttribute('aria-pressed',String(soundMuted))}
+soundButton.addEventListener('click',()=>{
+ soundMuted=!soundMuted;updateSoundButton();
+ try{if(audio){if(soundMuted)audio.suspend().catch(()=>{});else audio.resume().catch(()=>{})}}catch(e){}
+});
+let mode='',phase='menu',mine=null,theirs=null,turn=0,placeIndex=0,orientation=0,selected=null,peer=null,conn=null,room='',host=false,remoteReady=false,localReady=false,remoteTurn=false,session=0,aiMemory=[],audio=null,finished=false,shotBusy=false,previewNode=null,onlineHits=new Set(),onlineSunkAssets={},presencePeer=null,presenceRole='',inviteTarget='';
+const clone=o=>JSON.parse(JSON.stringify(o)),rand=n=>Math.floor(Math.random()*n),idx=(x,y)=>y*N+x,xy=i=>[i%N,Math.floor(i/N)];
+// Offline-capable layered effects: broadband transient, low-frequency cannon
+// pressure wave, explosion debris and filtered water splash (no musical beeps).
+let soundNoise=null;
+function soundContext(){
+ audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+ if(!soundMuted&&audio.state==='suspended')audio.resume().catch(()=>{});
+ if(!soundNoise||soundNoise.sampleRate!==audio.sampleRate){
+  const buffer=audio.createBuffer(1,Math.floor(audio.sampleRate*2),audio.sampleRate);
+  const data=buffer.getChannelData(0);let seed=91357;
+  for(let i=0;i<data.length;i++){seed=(Math.imul(seed,1664525)+1013904223)|0;data[i]=((seed>>>0)/2147483648-1)}
+  soundNoise=buffer;
+ }
+ return audio;
+}
+function noiseLayer(ctx,at,duration,opts={}){
+ const src=ctx.createBufferSource();src.buffer=soundNoise;
+ const filter=ctx.createBiquadFilter();filter.type=opts.filter||'lowpass';filter.frequency.setValueAtTime(opts.freq||900,at);
+ if(opts.endFreq)filter.frequency.exponentialRampToValueAtTime(Math.max(30,opts.endFreq),at+duration);
+ filter.Q.value=opts.q||.65;
+ const gain=ctx.createGain(),peak=Math.max(.0002,opts.gain||.12),attack=opts.attack||.004;
+ gain.gain.setValueAtTime(.0001,at);
+ gain.gain.exponentialRampToValueAtTime(peak,at+attack);
+ gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ src.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+ src.start(at,Math.random()*.6,duration+.01);src.stop(at+duration+.02);
+}
+function bassLayer(ctx,at,duration,frequency,volume){
+ const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='triangle';
+ osc.frequency.setValueAtTime(frequency,at);
+ osc.frequency.exponentialRampToValueAtTime(Math.max(28,frequency*.24),at+duration);
+ gain.gain.setValueAtTime(.0001,at);
+ gain.gain.exponentialRampToValueAtTime(volume,at+.007);
+ gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
+ osc.connect(gain);gain.connect(ctx.destination);osc.start(at);osc.stop(at+duration+.01);
+}
+// Recorded, offline-cacheable combat effects from the approved trial assets.
+// Decode in advance to avoid waiting for a network request when a shell lands.
+const battleClips={launch:null,hit:null};
+const battleClipFiles={launch:'krakel.mp3',hit:'xpel.mp3'};
+function preloadBattleClips(){
+ try{
+  const ctx=soundContext();
+  for(const key of Object.keys(battleClipFiles)){
+   if(battleClips[key])continue;
+   fetch(battleClipFiles[key]).then(r=>{if(!r.ok)throw Error('audio '+r.status);return r.arrayBuffer()})
+    .then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{battleClips[key]=buffer}).catch(()=>{});
+  }
+ }catch(e){}
+}
+function recordedBattleSound(type){
+ const key=type==='launch'?'launch':type==='hit'||type==='sink'?'hit':null;
+ if(!key||!battleClips[key])return false;
+ try{
+  const ctx=soundContext(),source=ctx.createBufferSource(),gain=ctx.createGain(),now=ctx.currentTime;
+  const buffer=battleClips[key],offset=key==='hit'?.72:0;
+  // Use only the first impactful report, not the later repeated reports / silence.
+  const duration=Math.min(key==='hit'?2.6:2.65,buffer.duration-offset);
+  if(duration<=0)return false;
+  source.buffer=buffer;
+  const volume=key==='hit'?.75:.72;
+  gain.gain.setValueAtTime(volume,now);
+  gain.gain.setValueAtTime(volume,now+Math.max(.05,duration-.23));
+  gain.gain.linearRampToValueAtTime(0,now+duration);
+  source.connect(gain);gain.connect(ctx.destination);
+  source.start(now,offset,duration);
+  return true;
+ }catch(e){return false}
+}
+document.addEventListener('pointerdown',()=>{try{soundContext();preloadBattleClips()}catch(e){}},{capture:true,passive:true});
+preloadBattleClips();
+function beep(type){
+ if(soundMuted)return;
+ if(recordedBattleSound(type))return;
+ try{
+  const ctx=soundContext(),t=ctx.currentTime+.005;
+  if(type==='launch'){
+   // Short cannon crack, heavy boom and receding gunpowder rumble.
+   noiseLayer(ctx,t,.12,{filter:'highpass',freq:700,gain:.24});
+   noiseLayer(ctx,t,.67,{freq:440,endFreq:85,gain:.38,attack:.007});
+   noiseLayer(ctx,t+.055,.8,{freq:145,endFreq:48,gain:.19,attack:.015});
+   bassLayer(ctx,t,.53,105,.30);
+  }else if(type==='hit'||type==='sink'){
+   const strong=type==='sink';
+   noiseLayer(ctx,t,.16,{filter:'highpass',freq:560,gain:strong?.29:.25});
+   noiseLayer(ctx,t,.85,{freq:750,endFreq:75,gain:strong?.43:.33,attack:.009});
+   noiseLayer(ctx,t+.09,strong?1.25:.65,{freq:190,endFreq:45,gain:strong?.25:.14,attack:.02});
+   bassLayer(ctx,t,strong?.83:.56,125,strong?.36:.27);
+   for(let i=0;i<(strong?9:5);i++){
+    const delay=.08+i*.048+Math.random()*.045;
+    noiseLayer(ctx,t+delay,.09+Math.random()*.16,{filter:'bandpass',freq:520+Math.random()*1700,q:.8,gain:.025+Math.random()*.036});
+   }
+  }else if(type==='miss'){
+   // Water impact: initial plop, wide splash and softer falling droplets.
+   noiseLayer(ctx,t,.18,{filter:'highpass',freq:480,gain:.19});
+   noiseLayer(ctx,t+.025,.54,{filter:'bandpass',freq:1250,endFreq:320,q:.4,gain:.22,attack:.014});
+   noiseLayer(ctx,t+.08,.48,{freq:600,endFreq:110,gain:.13,attack:.012});
+   bassLayer(ctx,t,.18,165,.10);
+   for(let i=0;i<7;i++){
+    const delay=.16+i*.055+Math.random()*.07;
+    noiseLayer(ctx,t+delay,.055+Math.random()*.1,{filter:'bandpass',freq:900+Math.random()*2400,q:1.3,gain:.015+Math.random()*.025});
+   }
+  }else{
+   // Retain subtle interface feedback for non-combat actions.
+   const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';
+   o.frequency.setValueAtTime(type==='win'?510:320,t);
+   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.035,t+.008);
+   g.gain.exponentialRampToValueAtTime(.0001,t+.14);
+   o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+.15);
+  }
+ }catch(e){}
+}
+function empty(){return {ships:[],shots:[]}}
+function canPut(b,start,len,dir){const [x,y]=xy(start),cells=[];for(let k=0;k<len;k++){const xx=x+(dir===0?k:0),yy=y+(dir===1?k:0);if(xx>=N||yy>=N)return null;cells.push(idx(xx,yy))}for(const ship of b.ships)for(const a of ship){if(cells.includes(a))return null}return cells}
+function randomBoard(){const b=empty();for(const len of FLEET){let options=[];for(let d=0;d<2;d++)for(let i=0;i<100;i++){const cells=canPut(b,i,len,d);if(cells)options.push(cells)}if(!options.length)return randomBoard();b.ships.push(options[rand(options.length)])}return b}
+function hitAt(b,i){if(b.shots.includes(i))return null;b.shots.push(i);const ship=b.ships.find(s=>s.includes(i));return {hit:!!ship,sunk:!!ship&&ship.every(c=>b.shots.includes(c)),win:b.ships.every(s=>s.every(c=>b.shots.includes(c)))}}
+function allHit(b){return b.ships.every(s=>s.every(c=>b.shots.includes(c)))}
+
+/* Background editor is independent of combat and ship placement. */
+const SEA_BG_KEY='areg-sea-battle-backdrop-v1';
+function applySeaBg(){
+ try{const img=localStorage.getItem(SEA_BG_KEY);const app=$('#app');
+ if(img){app.style.setProperty('--sea-custom-image','url("'+img+'")');app.classList.add('custom-sea-bg')}
+ else{app.classList.remove('custom-sea-bg');app.style.removeProperty('--sea-custom-image')}}catch(e){}
+}
+function openSeaBgEditor(){
+ if($('#seaBgEditor'))return;
+ const overlay=document.createElement('div');overlay.id='seaBgEditor';overlay.className='sea-bg-editor';
+ overlay.innerHTML='<div class="sea-bg-dialog"><h3>Փոխել ծովի ֆոնը</h3><input id="seaBgFile" type="file" accept="image/*"><canvas id="seaBgCanvas" class="sea-bg-preview" width="720" height="1280"></canvas><div class="sea-bg-actions"><button id="seaBgCancel">Չեղարկել</button><button id="seaBgSave">Հաստատել</button></div><button id="seaBgReset" type="button">↩ Վերադարձնել կապույտ ֆոնը</button></div>';
+ $('#app').append(overlay);
+ const file=overlay.querySelector('#seaBgFile'),canvas=overlay.querySelector('canvas'),ctx=canvas.getContext('2d');
+ let img=null,objectUrl=null,scale=1,offsetX=0,offsetY=0;
+ const pointers=new Map();let lastPoint=null,lastDistance=0,lastMid=null;
+ const bounds=()=>{if(!img)return;const base=Math.max(canvas.width/img.naturalWidth,canvas.height/img.naturalHeight);
+ const dw=img.naturalWidth*base*scale,dh=img.naturalHeight*base*scale;
+ offsetX=Math.min(0,Math.max(canvas.width-dw,offsetX));offsetY=Math.min(0,Math.max(canvas.height-dh,offsetY))};
+ const draw=()=>{if(!img)return;bounds();ctx.clearRect(0,0,canvas.width,canvas.height);
+ const base=Math.max(canvas.width/img.naturalWidth,canvas.height/img.naturalHeight);
+ ctx.drawImage(img,offsetX,offsetY,img.naturalWidth*base*scale,img.naturalHeight*base*scale)};
+ const point=e=>{const rect=canvas.getBoundingClientRect();return{x:(e.clientX-rect.left)*canvas.width/rect.width,y:(e.clientY-rect.top)*canvas.height/rect.height}};
+ const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+ canvas.addEventListener('pointerdown',e=>{if(!img)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,point(e));const pts=[...pointers.values()];lastPoint=pts[0];if(pts.length>=2){lastDistance=dist(pts[0],pts[1]);lastMid=mid(pts[0],pts[1])}});
+ canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId)||!img)return;e.preventDefault();pointers.set(e.pointerId,point(e));const pts=[...pointers.values()];
+ if(pts.length===1){if(lastPoint){offsetX+=pts[0].x-lastPoint.x;offsetY+=pts[0].y-lastPoint.y}lastPoint=pts[0]}
+ else if(pts.length>=2){const center=mid(pts[0],pts[1]),distance=dist(pts[0],pts[1]);
+ if(lastMid&&lastDistance>0&&distance>0){const oldScale=scale;scale=Math.min(5,Math.max(1,scale*distance/lastDistance));
+ const ratio=scale/oldScale;offsetX=center.x-(lastMid.x-offsetX)*ratio;offsetY=center.y-(lastMid.y-offsetY)*ratio}
+ lastMid=center;lastDistance=distance;lastPoint=null}draw()});
+ const release=e=>{pointers.delete(e.pointerId);const pts=[...pointers.values()];lastPoint=pts.length===1?pts[0]:null;lastDistance=pts.length>=2?dist(pts[0],pts[1]):0;lastMid=pts.length>=2?mid(pts[0],pts[1]):null};
+ canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
+ file.onchange=()=>{const f=file.files&&file.files[0];if(!f||!f.type.startsWith('image/'))return;
+ if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(f);
+ const next=new Image();next.onload=()=>{img=next;scale=1;offsetX=0;offsetY=0;pointers.clear();draw()};next.src=objectUrl};
+ const close=()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);overlay.remove()};
+ overlay.querySelector('#seaBgCancel').onclick=close;
+ overlay.querySelector('#seaBgSave').onclick=()=>{if(!img){alert('Նախ ընտրիր նկարը');return}
+ try{localStorage.setItem(SEA_BG_KEY,canvas.toDataURL('image/jpeg',0.78));applySeaBg();close()}
+ catch(e){alert('Նկարը չպահպանվեց։ Փորձիր ավելի փոքր նկար։')}};
+ overlay.querySelector('#seaBgReset').onclick=()=>{try{localStorage.removeItem(SEA_BG_KEY)}catch(e){}applySeaBg();close()};
+}
+applySeaBg();
+
+/* Music is stored as a Blob in IndexedDB (localStorage is too small for songs).
+   Playback belongs to this Battleship document only. */
+const seaMusic=new Audio();seaMusic.loop=true;seaMusic.preload='none';
+let seaMusicURL=null,seaMusicName='',seaMusicDB=null;
+function seaMusicOpenDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open('areg-sea-battle-music',1);req.onupgradeneeded=()=>req.result.createObjectStore('tracks');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function seaMusicLoad(){try{seaMusicDB=await seaMusicOpenDB();const item=await new Promise((resolve,reject)=>{const q=seaMusicDB.transaction('tracks').objectStore('tracks').get('selected');q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)});if(item&&item.blob){seaMusicSet(item.blob,item.name)}}catch(e){console.warn('Music storage unavailable',e)}}
+function seaMusicSet(blob,name){seaMusic.pause();if(seaMusicURL)URL.revokeObjectURL(seaMusicURL);seaMusicURL=URL.createObjectURL(blob);seaMusic.src=seaMusicURL;seaMusicName=name||'Իմ երաժշտությունը'}
+function seaMusicPlay(){if(new URLSearchParams(location.search).has('parentMusic'))return;if(seaMusicURL&&seaMusic.paused)seaMusic.play().catch(()=>{})}
+async function seaMusicSave(file){if(!file||(!file.type.startsWith('audio/')&&!/\.(mp3|m4a|aac|wav|ogg|opus)$/i.test(file.name)))throw Error('Ընտրիր երաժշտական ֆայլ');if(file.size>45*1024*1024)throw Error('Ընտրիր մինչև 45 ՄԲ երաժշտություն');const db=seaMusicDB||await seaMusicOpenDB();await new Promise((resolve,reject)=>{const q=db.transaction('tracks','readwrite').objectStore('tracks').put({blob:file,name:file.name},'selected');q.onsuccess=resolve;q.onerror=()=>reject(q.error)});seaMusicSet(file,file.name);if(new URLSearchParams(location.search).has('parentMusic'))parent.postMessage({type:'areg-sea-music-selected',blob:file},location.origin);else seaMusicPlay()}
+let seaMusicParentPlaying=false;
+function seaMusicEditor(){
+ if(document.querySelector('#seaMusicEditor'))return;
+ const box=document.createElement('div');box.id='seaMusicEditor';box.className='sea-music-dialog';
+ box.innerHTML='<div class="sea-music-panel"><div class="sea-music-bubbles" aria-hidden="true"></div><h3>♫ Ծովամարտի երաժշտություն</h3><p id="seaMusicInfo"></p><label for="seaMusicFile">♫ Ընտրել կամ փոխել երգը</label><input id="seaMusicFile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg" hidden><div class="sea-music-controls"><button id="seaMusicPlay" type="button">▶ Նվագարկել</button><button id="seaMusicStop" type="button">■ Կանգնեցնել</button></div><button id="seaMusicClose" type="button">Փակել</button></div>';
+ document.querySelector('#app').append(box);
+ const bubbleBox=box.querySelector('.sea-music-bubbles');
+ for(let i=0;i<12;i++){
+  const el=document.createElement('i');
+  el.style.setProperty('--x',((i*37+9)%94)+'%');
+  el.style.setProperty('--s',(7+(i*11)%20)+'px');
+  el.style.setProperty('--d',(7+(i%5)*1.7)+'s');
+  el.style.setProperty('--delay',(-i*.93)+'s');
+  bubbleBox.append(el);
+ }
+ const parentMode=new URLSearchParams(location.search).has('parentMusic');
+ const info=box.querySelector('#seaMusicInfo');
+ const refresh=()=>{info.textContent=seaMusicName||'Երգ դեռ ընտրված չէ'};
+ const update=()=>{
+  const playing=parentMode?seaMusicParentPlaying:!seaMusic.paused;
+  box.querySelector('#seaMusicPlay').classList.toggle('is-active',playing);
+  box.querySelector('#seaMusicStop').classList.toggle('is-active',!playing);
+ };
+ refresh();update();
+ if(parentMode)parent.postMessage({type:'areg-sea-music-query'},location.origin);
+ box.querySelector('#seaMusicFile').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;info.textContent='Պահպանվում է…';
+  try{await seaMusicSave(file);refresh();if(parentMode)seaMusicParentPlaying=true;update()}
+  catch(err){info.textContent='Չհաջողվեց պահպանել։ '+(err.message||'Փորձիր ավելի փոքր ֆայլ։')}
+ };
+ box.querySelector('#seaMusicPlay').onclick=()=>{
+  if(parentMode){parent.postMessage({type:'areg-sea-music-control',action:'play'},location.origin)}
+  else seaMusicPlay();
+  update();
+ };
+ box.querySelector('#seaMusicStop').onclick=()=>{
+  if(parentMode){parent.postMessage({type:'areg-sea-music-control',action:'stop'},location.origin)}
+  else seaMusic.pause();
+  update();
+ };
+ seaMusic.addEventListener('play',update);
+ seaMusic.addEventListener('pause',update);
+ box.querySelector('#seaMusicClose').onclick=()=>{
+  seaMusic.removeEventListener('play',update);seaMusic.removeEventListener('pause',update);box.remove()
+ };
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==parent||event.data?.type!=='areg-sea-music-state')return;
+ seaMusicParentPlaying=!!event.data.playing;
+ const box=document.querySelector('#seaMusicEditor');
+ if(box){
+  box.querySelector('#seaMusicPlay').classList.toggle('is-active',seaMusicParentPlaying);
+  box.querySelector('#seaMusicStop').classList.toggle('is-active',!seaMusicParentPlaying);
+ }
+});
+let seaMusicLoadReady=false;
+seaMusicLoad().finally(()=>{seaMusicLoadReady=true;seaMusicPlay()});
+/* A user gesture unlocks iOS audio; after that the selected track resumes on game entry. */
+function seaMusicGestureStart(){if(document.visibilityState==='visible'&&seaMusicURL&&seaMusic.paused)seaMusicPlay()}
+document.addEventListener('pointerdown',seaMusicGestureStart,{passive:true});
+document.addEventListener('touchend',seaMusicGestureStart,{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)seaMusic.pause()});
+window.addEventListener('pagehide',()=>seaMusic.pause());
+
+function randomizeSeaTitleStart(){document.querySelector('.sea-menu-title').style.setProperty('--sea-title-offset',(-Math.random()*10).toFixed(3)+'s')}
+function showMenu(){randomizeSeaTitleStart();document.querySelector('#app').classList.remove('combat-mode');phase='menu';session++;cleanup();shotBusy=false;view.innerHTML='<section class="panel sea-menu-art"><h2>Ընտրի՛ր խաղի ձևը</h2><button type="button" class="sea-music-trigger" aria-label="Ընտրել երաժշտություն" title="Երաժշտություն"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button><button type="button" class="sea-bg-trigger" aria-label="Փոխել ծովի ֆոնը" title="Փոխել ֆոնը"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg></button><button class="choice" data-mode="ai"><span>🤖</span>Խաղալ համակարգչի դեմ</button><button class="choice" data-mode="online"><span>🌐</span>Երկու հեռախոսով՝ առցանց</button></section>';footer.innerHTML='';view.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));view.querySelector('.sea-bg-trigger').onclick=openSeaBgEditor;view.querySelector('.sea-music-trigger').onclick=seaMusicEditor;seaMusicPlay()}
+function cleanup(){try{presencePeer?.destroy()}catch(e){}presencePeer=null;onlineHits=new Set();onlineSunkAssets={};previewNode?.remove();previewNode=null;try{conn?.close()}catch(e){}try{peer?.destroy()}catch(e){}conn=null;peer=null;remoteReady=false;localReady=false;room='';finished=false}
+function start(m){seaMusicPlay();randomizeSeaTitleStart();cleanup();shotBusy=false;mode=m;mine=empty();theirs=m==='ai'?randomBoard():empty();turn=0;placeIndex=0;orientation=0;selected=null;finished=false;if(m==='online')return onlineMenu();if(m==='local')return prepareLocal(0);phase='place';renderPlace()}
+
+/* Aircraft carrier visual prototype: each 5-cell section is an independent SVG
+   tile, so the underlying board, hit detection and grid remain untouched. */
+function carrierTileSVG(segment,vertical){
+ const path='M22 50 Q28 16 65 13 L435 13 Q473 16 487 50 Q473 84 435 87 L65 87 Q28 84 22 50Z';
+ const plane=(x,y)=>'<g transform="translate('+x+' '+y+')"><path d="M-17 0 L-5 -4 L0 -17 L6 -17 L8 -4 L22 -2 L22 3 L8 5 L4 15 L-1 15 L-5 5 L-17 3Z" fill="#e1ebee" stroke="#496579" stroke-width="1.5"/></g>';
+ const art='<defs><linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dce8ed"/><stop offset=".25" stop-color="#829cae"/><stop offset=".65" stop-color="#526d80"/><stop offset="1" stop-color="#203e54"/></linearGradient><linearGradient id="d" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#91a8b6"/><stop offset="1" stop-color="#496579"/></linearGradient></defs><path d="'+path+'" fill="url(#h)" stroke="#d9edf5" stroke-width="4"/><path d="M39 50 Q42 25 72 23 H432 Q455 25 465 50 Q455 75 432 77 H72 Q42 75 39 50Z" fill="url(#d)" stroke="#253e52" stroke-width="2"/><path d="M63 50 H432" stroke="#f3e5bb" stroke-width="3" stroke-dasharray="22 12"/><path d="M69 31 H420 M69 69 H420" stroke="#e1eef2" stroke-width="2" opacity=".8"/><path d="M74 26 V74 M421 26 V74" stroke="#f1e9cc" stroke-width="2"/><rect x="345" y="14" width="61" height="18" rx="5" fill="#2c4b5f" stroke="#d5e6eb" stroke-width="2"/><rect x="359" y="17" width="35" height="10" rx="2" fill="#8aabbc"/><path d="M377 14 V5 M377 5 H390" stroke="#d4e7ef" stroke-width="3"/>'+plane(135,39)+plane(218,60)+plane(300,39)+'<path d="M91 38 L114 50 L91 62 M410 40 L430 50 L410 60" fill="none" stroke="#d9e8ec" stroke-width="2"/>';
+ const body=vertical?'<g transform="translate(100 0) rotate(90)">'+art+'</g>':art;
+ const view=vertical?'0 '+(segment*100)+' 100 100':(segment*100)+' 0 100 100';
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+view+'" preserveAspectRatio="none" aria-hidden="true">'+body+'</svg>';
+}
+
+const SHIP_WEBP=['carrier_5.webp','battleship_4.webp','destroyer_3.webp','corvette_3_prototype.webp','submarine_2.webp'];
+function shipAsset(b,ship){const k=mode==='online'&&b===theirs?onlineSunkAssets[ship.join(',')]:b.ships.indexOf(ship);return SHIP_WEBP[k]||SHIP_WEBP[0]}
+function shipImageTile(b,ship,p){
+ const v=ship.length>1&&ship[1]-ship[0]===N,el=document.createElement('span');el.className='ship-photo-tile'+(v?' vertical':'');
+ el.style.backgroundImage='url("'+shipAsset(b,ship)+'")';
+ // The carrier's source image contains broad transparent margins: its hull
+ // occupies only 47.8% of the image width. Crop those margins in CSS while
+ // retaining exactly five independent hit-test cells.
+ const carrier=ship.length===5;
+ const imageCells=carrier?10.46:ship.length;
+ el.style.backgroundSize=(imageCells*100)+'% 100%';
+ const offset=carrier?(imageCells-ship.length)/2:0;
+ const pos=(offset+p)/(imageCells-1)*100;
+ el.style.backgroundPosition=pos+'% 50%';
+ if(v){
+  el.classList.remove('vertical');
+  if(p===0){
+   el.classList.add('vertical-whole');
+   el.style.width=(ship.length*100)+'%';el.style.left='100%';el.style.top='0';el.style.height='100%';
+   el.style.transform='rotate(90deg)';el.style.transformOrigin='top left';
+   el.style.backgroundSize=((imageCells/ship.length)*100)+'% 100%';
+   el.style.backgroundPosition='50% 50%';
+  }else el.style.backgroundImage='none';
+ }
+ return el;
+}
+function boardHTML(b,opts={}){
+ const show=opts.show??false,click=opts.click??null,board=document.createElement('div');board.className='board';board.setAttribute('role','grid');
+ for(let i=0;i<N*N;i++){const cell=document.createElement('button');cell.type='button';cell.className='cell';cell.dataset.i=i;
+ const ship=b.ships.find(s=>s.includes(i)),shot=b.shots.includes(i);
+ if(ship&&(show||(!show&&ship.every(j=>b.shots.includes(j))))){cell.classList.add('ship');if(!show)cell.classList.add('revealed-enemy-ship');const p=ship.indexOf(i);cell.setAttribute('data-ship-size',ship.length);if(p===0)cell.classList.add('bow');if(p===ship.length-1)cell.classList.add('stern');if(ship.length>1&&ship[1]-ship[0]===N)cell.classList.add('vertical');cell.classList.add('photo-ship');cell.append(shipImageTile(b,ship,p));if(false){const detail=document.createElement('span');detail.className='ship-parts';detail.textContent=ship.length>=4?'⚙':'◆';cell.append(detail)}}
+ if(shot){cell.classList.add((ship||(mode==='online'&&b===theirs&&onlineHits.has(i)))?'hit':'miss','fired');if(ship&&ship.every(c=>b.shots.includes(c)))cell.classList.add('sunk')}
+ if(opts.ghost?.includes(i))cell.classList.add(opts.valid?'ghost':'invalid');
+ cell.setAttribute('aria-label',String.fromCharCode(65+i%N)+(Math.floor(i/N)+1)+(shot?', կրակված':''));
+ cell.disabled=shot||(!click&&!opts.place);if(click)cell.onclick=()=>click(i);board.append(cell)}
+ return board
+}
+function framedBoard(b,opts={}){const frame=document.createElement('div');frame.className='board-wrap';if(!opts.compact){const title=document.createElement('div');title.className='board-title';title.innerHTML='<span></span><span class="badge"></span>';title.children[0].textContent=opts.title||'';title.children[1].textContent=opts.subtitle||'';frame.append(title)}const coords=document.createElement('div');coords.className='coord-top';for(let n=1;n<=N;n++){const el=document.createElement('span');el.textContent=n;coords.append(el)}if(!opts.coordsBottom)frame.append(coords);const row=document.createElement('div');row.className='board-row';const letters=document.createElement('div');letters.className='coord-left';for(let n=0;n<N;n++){const el=document.createElement('span');el.textContent=String.fromCharCode(65+n);letters.append(el)}row.append(letters,boardHTML(b,opts));frame.append(row);if(opts.coordsBottom)frame.append(coords);return frame}
+
+function shell(title,subtitle=''){view.innerHTML='';const head=document.createElement('div');head.className='board-title';head.innerHTML='<span>'+title+'</span><span class="badge">'+subtitle+'</span>';const wrap=document.createElement('div');wrap.className='board-wrap';wrap.append(head);view.append(wrap);return wrap}
+function renderPlace(){
+ document.querySelector('#app').classList.remove('combat-mode');phase='place';view.innerHTML='';const b=currentPlaceBoard(),len=FLEET[placeIndex]||0;const f=framedBoard(b,{title:'⚓ ՔՈ ՆԱՎԵՐԸ',subtitle:(placeIndex)+' / '+FLEET.length,place:true,show:true});
+ view.append(f);const board=f.querySelector('.board');
+ let drag=null,hover=-1,ghost=[],suppressPlacementClickUntil=0;
+ // Existing ships remain editable until the player explicitly confirms readiness.
+ let editShip=-1,editStart=-1,editMoved=false,livePreview=null,lastShipTap={k:-1,time:0};
+ function refreshPlacedShips(){
+  const fresh=boardHTML(b,{show:true,place:true});
+  const cells=board.querySelectorAll('.cell'),newCells=fresh.querySelectorAll('.cell');
+  cells.forEach((cell,i)=>{
+   cell.querySelectorAll('.ship-photo-tile').forEach(el=>el.remove());
+   cell.classList.toggle('photo-ship',newCells[i].classList.contains('photo-ship'));
+   cell.classList.toggle('ship',newCells[i].classList.contains('ship'));
+   cell.classList.toggle('vertical',newCells[i].classList.contains('vertical'));
+   const tile=newCells[i].querySelector('.ship-photo-tile');if(tile)cell.append(tile);
+  });
+ }
+ function rotatePlacedShip(k){
+  const ship=b.ships[k];if(!ship)return false;
+  const dir=1-shipDirection(ship),len=ship.length;
+  const centerX=ship.reduce((sum,i)=>sum+i%N,0)/len;
+  const centerY=ship.reduce((sum,i)=>sum+Math.floor(i/N),0)/len;
+  // Search nearest legal position to the original ship center, including edges.
+  const candidates=[];
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+   if((dir===0&&x+len>N)||(dir===1&&y+len>N))continue;
+   const cx=x+(dir===0?(len-1)/2:0);
+   const cy=y+(dir===1?(len-1)/2:0);
+   const distance=(cx-centerX)**2+(cy-centerY)**2;
+   candidates.push({start:idx(x,y),distance});
+  }
+  candidates.sort((a,b)=>a.distance-b.distance||a.start-b.start);
+  const original=b.ships.splice(k,1)[0];
+  let result=null;
+  for(const candidate of candidates){
+   const cells=canPut(b,candidate.start,len,dir);
+   if(cells){result=cells;break}
+  }
+  b.ships.splice(k,0,result||original);
+  if(!result)return false;
+  orientation=dir;selected=k;editShip=k;beep('place');refreshPlacedShips();
+  return true;
+ }
+ function tapPlacedShip(k){const now=Date.now();if(lastShipTap.k===k&&now-lastShipTap.time<400){lastShipTap={k:-1,time:0};rotatePlacedShip(k)}else{lastShipTap={k,time:now};editShip=k;selected=k}}
+
+ function clearLivePreview(){if(livePreview){livePreview.node.remove();livePreview.hidden.forEach(el=>el.style.visibility='');livePreview=null}}
+ function beginLivePreview(k,e){
+  clearLivePreview();const ship=b.ships[k],first=board.querySelector('.cell[data-i="'+ship[0]+'"]'),last=board.querySelector('.cell[data-i="'+ship[ship.length-1]+'"]');if(!first||!last)return;
+  const a=first.getBoundingClientRect(),z=last.getBoundingClientRect(),vertical=shipDirection(ship)===1;
+  const node=document.createElement('div');node.className='ship-live-drag'+(vertical?' vertical':'');
+  node.style.left=a.left+'px';node.style.top=a.top+'px';node.style.width=(z.right-a.left)+'px';node.style.height=(z.bottom-a.top)+'px';
+  ship.forEach((_,p)=>node.append(shipImageTile(b,ship,p)));
+  document.querySelector('#app').append(node);
+  const hidden=ship.map(i=>board.querySelector('.cell[data-i="'+i+'"] .ship-photo-tile')).filter(Boolean);hidden.forEach(el=>el.style.visibility='hidden');
+  livePreview={node,hidden,x:e.clientX,y:e.clientY};
+ }
+ function updateLivePreview(e){if(livePreview)livePreview.node.style.transform='translate3d('+(e.clientX-livePreview.x)+'px,'+(e.clientY-livePreview.y)+'px,0)'}
+ function moveExisting(k,start,dir){
+  const original=b.ships[k];if(!original)return false;
+  b.ships.splice(k,1);
+  const cells=canPut(b,start,FLEET[k],dir);
+  b.ships.splice(k,0,cells||original);
+  if(!cells)return false;
+  orientation=dir;selected=k;editShip=k;beep('place');refreshPlacedShips();return true;
+ }
+ function shipDirection(ship){return ship.length>1&&ship[1]-ship[0]===N?1:0}
+ function shipStartAt(k,i){const ship=b.ships[k],offset=ship.indexOf(i);if(offset<0)return ship[0];return ship[0]-(shipDirection(ship)===0?offset:offset*N)}
+ function drawGhost(i){hover=i;/* Never paint valid/invalid placement cells: only the actual ship follows the finger. */}
+ function place(i){if(!len)return false;const cells=canPut(b,i,len,orientation);if(!cells)return false;suppressPlacementClickUntil=Date.now()+500;b.ships.push(cells);placeIndex++;selected=null;beep('place');renderPlace();return true}
+ board.querySelectorAll('.cell').forEach(c=>{
+  c.style.touchAction='none';c.addEventListener('contextmenu',e=>e.preventDefault());c.addEventListener('selectstart',e=>e.preventDefault());
+  c.onclick=()=>{
+   if(drag||Date.now()<suppressPlacementClickUntil)return;
+   const i=+c.dataset.i,k=b.ships.findIndex(ship=>ship.includes(i));
+   if(k>=0){return}
+   if(editShip>=0){const k=editShip;const dir=shipDirection(b.ships[k]);if(moveExisting(k,i,dir))return;status.textContent='Այստեղ նավը չի տեղավորվում';return}
+   place(i);
+  };
+  c.addEventListener('pointerdown',e=>{
+   const i=+c.dataset.i,k=b.ships.findIndex(ship=>ship.includes(i));if(k<0)return;
+   e.preventDefault();editShip=k;editStart=i;editMoved=false;drag={id:e.pointerId,x:e.clientX,y:e.clientY,ship:k,offset:b.ships[k].indexOf(i)};
+   try{c.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  c.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId||drag.ship<0)return;e.preventDefault();if(!editMoved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>9){editMoved=true;beginLivePreview(drag.ship,{clientX:drag.x,clientY:drag.y})}if(editMoved)updateLivePreview(e)});
+  c.addEventListener('pointerup',e=>{
+   if(!drag||drag.id!==e.pointerId||drag.ship<0)return;
+   const d=drag;drag=null;clearLivePreview();
+   if(!editMoved){tapPlacedShip(d.ship);suppressPlacementClickUntil=Date.now()+450;return}
+   lastShipTap={k:-1,time:0};
+   suppressPlacementClickUntil=Date.now()+500;
+   const rect=board.getBoundingClientRect(),col=Math.floor((e.clientX-rect.left)/rect.width*N),row=Math.floor((e.clientY-rect.top)/rect.height*N);
+   if(col<0||col>=N||row<0||row>=N){status.textContent='Նավը տեղափոխիր խաղադաշտի ներսում';return}
+   const dir=shipDirection(b.ships[d.ship]),start=idx(col,row)-(dir===0?d.offset:d.offset*N);
+   if(start<0||!moveExisting(d.ship,start,dir))status.textContent='Այստեղ նավը չի տեղավորվում';
+  });
+  c.addEventListener('pointercancel',()=>{drag=null;clearLivePreview()});
+ });
+ const status=document.createElement('div');status.className='placement-status';status.style.display='none';
+ const dock=document.createElement('div');dock.className='dock';dock.innerHTML='<div class="dock-label">🚢 ՆԱՎԵՐԻ ՆԱՎԱՀԱՆԳԻՍՏ · Քաշի՛ր և տեղադրի՛ր</div>';
+ const dockShips=document.createElement('div');dockShips.className='dock-ships';
+ FLEET.forEach((n,k)=>{const token=document.createElement('div');token.className='ship-token '+(k<placeIndex?'used':k===placeIndex?'active':'');token.dataset.len=n;token.innerHTML='<img class="dock-ship-photo" draggable="false" src="'+SHIP_WEBP[k]+'" alt="">';if(k===placeIndex){
+
+ let lastTap=0;
+ function dragGhost(x,y){
+  if(!previewNode){
+   previewNode=document.createElement('div');
+   previewNode.className='ship-drag-float real-ship-preview';
+   const art=document.createElement('div');art.className='real-ship-art';
+   art.style.backgroundImage='url("'+SHIP_WEBP[placeIndex]+'")';
+   if(len===5)art.style.backgroundSize='209.2% 100%';
+   previewNode.append(art);document.body.append(previewNode);
+  }
+  const rect=board.getBoundingClientRect(),style=getComputedStyle(board);
+  const cellW=(rect.width-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0)-(parseFloat(style.columnGap)||0)*(N-1))/N;
+  const cellH=(rect.height-(parseFloat(style.paddingTop)||0)-(parseFloat(style.paddingBottom)||0)-(parseFloat(style.rowGap)||0)*(N-1))/N;
+  previewNode.style.width=(cellW*len)+'px';previewNode.style.height=cellH+'px';
+  previewNode.style.transform='translate(-50%,-50%)'+(orientation===1?' rotate(90deg)':'');
+  previewNode.style.left=x+'px';previewNode.style.top=y+'px';previewNode.style.visibility='visible';
+ }
+ function clearDrag(){previewNode?.remove();previewNode=null;drag=null;drawGhost(-1)}
+ token.addEventListener('pointerdown',e=>{
+  e.preventDefault();const now=Date.now();
+  if(now-lastTap<330){orientation=1-orientation;status.textContent=orientation?'Նավը՝ ուղղահայաց':'Նավը՝ հորիզոնական';lastTap=0;return}
+  lastTap=now;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};
+  try{token.setPointerCapture(e.pointerId)}catch(_){}
+  dragGhost(e.clientX,e.clientY);beep('place');move(e)
+});
+ token.addEventListener('pointermove',e=>{if(drag?.id!==e.pointerId)return;drag.moved=drag.moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>8;dragGhost(e.clientX,e.clientY);move(e)});
+ token.addEventListener('pointerup',e=>{
+ if(drag?.id!==e.pointerId)return;
+ move(e);const i=hover,wasMoved=drag.moved;clearDrag();
+ if(wasMoved&&i>=0){suppressPlacementClickUntil=Date.now()+500;if(!place(i))status.textContent='Այստեղ նավը չի տեղավորվում'}
+ else if(wasMoved)status.textContent='Քաշի՛ր նավը դեպի կապույտ խաղադաշտ';
+});
+ token.addEventListener('pointercancel',clearDrag);token.style.touchAction='none';
+
+ }dockShips.append(token)});
+ dock.append(dockShips);view.append(dock);
+ function move(e){
+  // Calculate the target from board geometry rather than hit-testing through
+  // iOS pointer capture, the floating ship or nested iframe elements.
+  const rect=board.getBoundingClientRect(),style=getComputedStyle(board);
+  const padL=parseFloat(style.paddingLeft)||0,padT=parseFloat(style.paddingTop)||0;
+  const padR=parseFloat(style.paddingRight)||0,padB=parseFloat(style.paddingBottom)||0;
+  const gap=parseFloat(style.columnGap)||0,rowGap=parseFloat(style.rowGap)||0;
+  const width=(rect.width-padL-padR-gap*(N-1))/N;
+  const height=(rect.height-padT-padB-rowGap*(N-1))/N;
+  const x=e.clientX-rect.left-padL,y=e.clientY-rect.top-padT;
+  const col=Math.floor(x/(width+gap)),row=Math.floor(y/(height+rowGap));
+  if(col<0||col>=N||row<0||row>=N){drawGhost(-1);return}
+  // The floating ship is centered under the finger. Convert that center
+  // to its first occupied cell and clamp to the board's legal edges.
+  const firstCol=orientation===0?Math.max(0,Math.min(N-len,col-Math.floor(len/2))):col;
+  const firstRow=orientation===1?Math.max(0,Math.min(N-len,row-Math.floor(len/2))):row;
+  drawGhost(idx(firstCol,firstRow));
+}
+ const actions=document.createElement('div');actions.className='placement-actions';actions.innerHTML='<button class="secondary" id="auto">🎲 Ավտոմատ դասավորել</button>'+(placeIndex===FLEET.length?'<button class="primary" id="ready">ՊԱՏՐԱՍՏ Է ✓</button>':'');view.append(actions);
+ actions.querySelector('#auto').onclick=()=>{b.ships=randomBoard().ships;placeIndex=FLEET.length;editShip=-1;beep('place');renderPlace()};const ready=actions.querySelector('#ready');if(ready)ready.onclick=()=>{if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()};
+ footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=confirmExit
+}
+
+function ghostCells(start,len,dir){const [x,y]=xy(start),a=[];for(let k=0;k<len;k++){const xx=x+(dir===0?k:0),yy=y+(dir===1?k:0);if(xx<N&&yy<N)a.push(idx(xx,yy))}return a}
+function currentPlaceBoard(){return mode==='local'?turn===0?mine:theirs:mine}
+function prepareLocal(player){turn=player;placeIndex=0;orientation=0;selected=null;modal('🙈','Խաղացող '+(player+1),'Հեռախոսը փոխանցի՛ր խաղացող '+(player+1)+'-ին։ Մի՛ նայիր մյուսի նավերին։','Պատրաստ եմ',()=>{phase='place';renderPlace()})}
+function startBattle(){phase='battle';turn=0;aiMemory=[];if(mode==='local')passTurn();else renderBattle(true)}
+function passTurn(){modal('🔒','Փոխանցի՛ր հեռախոսը','Հիմա խաղում է խաղացող '+(turn+1)+'-ը։ Մյուս խաղացողը թող չնայի էկրանին։','Սկսել հերթը',renderBattle)}
+function renderBattle(animate=false){
+ phase='battle';
+ // In AI mode, update the existing cells in place. Never detach or recreate
+ // either 10x10 grid on a shot: iOS WebKit repaints its white grid lines.
+ const mountedStage=mode==='ai'&&!animate?view.querySelector('.battle-view'):null;
+ if(mountedStage){
+  const boards=mountedStage.querySelectorAll(':scope > .board-wrap');
+  const separator=mountedStage.querySelector(':scope > .battle-separator');
+  if(boards.length===2&&separator){
+   const enemyTurn=turn===1;
+   const canFire=!finished&&!shotBusy&&!enemyTurn;
+   [mine,theirs].forEach((boardData,boardIndex)=>{
+    boards[boardIndex].querySelectorAll('.board .cell').forEach((cell,i)=>{
+     const ship=boardData.ships.find(parts=>parts.includes(i));
+     const hit=boardData.shots.includes(i);
+     const sunk=!!(ship&&ship.every(j=>boardData.shots.includes(j)));
+     cell.classList.toggle('hit',!!(hit&&ship));
+     cell.classList.toggle('miss',!!(hit&&!ship));
+     cell.classList.toggle('fired',hit);
+     cell.classList.toggle('sunk',sunk);
+     if(boardIndex===1){
+      if(sunk&&!cell.classList.contains('photo-ship')){
+       cell.classList.add('ship','photo-ship','revealed-enemy-ship');
+       cell.append(shipImageTile(boardData,ship,ship.indexOf(i)));
+      }
+      cell.disabled=hit||!canFire;
+      cell.onclick=canFire&&!hit?()=>fire(i):null;
+     }else cell.disabled=true;
+    });
+   });
+   separator.classList.toggle('enemy-turn',enemyTurn);
+   separator.classList.toggle('own-turn',!enemyTurn);
+   separator.querySelector('.combat-chip-left .combat-count').textContent=theirs.ships.filter(ship=>ship.every(i=>theirs.shots.includes(i))).length+'/'+FLEET.length;
+   separator.querySelector('.combat-chip-right .combat-count').textContent=(FLEET.length-mine.ships.filter(ship=>ship.every(i=>mine.shots.includes(i))).length)+'/'+FLEET.length;
+   separator.querySelector('.combat-status-icon').textContent=enemyTurn?'⌛':'🎯';
+   return;
+  }
+ }
+ // Keep the existing player's board and ship image elements mounted across
+ // turns. Rebuilding the board on every shot causes WebKit to flash sprites.
+ const stableOwnBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:first-child'):null;
+ const stableEnemyBoard=mode==='ai'?view.querySelector('.battle-view > .board-wrap:last-child'):null;
+ const stableSeparator=view.querySelector('.battle-separator');if(stableSeparator)stableSeparator.remove();
+ if(stableOwnBoard)stableOwnBoard.remove();
+ if(stableEnemyBoard)stableEnemyBoard.remove();
+ view.innerHTML='';document.querySelector('#app').classList.add('combat-mode');const opponent=mode==='local'?(turn===0?theirs:mine):theirs;
+ const my=mode==='local'?(turn===0?mine:theirs):mine;
+ const canFire=!finished&&!shotBusy&&!(mode==='online'&&remoteTurn)&&!(mode==='ai'&&turn===1);
+ const stage=document.createElement('div');stage.className='battle-view'+(animate?' enter':'');
+ if(stableOwnBoard){
+  const cells=stableOwnBoard.querySelectorAll('.board .cell');
+  cells.forEach((cell,i)=>{
+   const ship=my.ships.find(parts=>parts.includes(i));
+   const hit=my.shots.includes(i);
+   cell.classList.toggle('hit',!!(hit&&ship));
+   cell.classList.toggle('miss',!!(hit&&!ship));
+   cell.classList.toggle('fired',hit);
+   cell.classList.toggle('sunk',!!(ship&&ship.every(j=>my.shots.includes(j))));
+   cell.disabled=true;
+  });
+  stage.append(stableOwnBoard);
+ }else stage.append(framedBoard(my,{compact:true,show:true}));
+ const separator=stableSeparator||document.createElement('div');separator.className='battle-separator '+((mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1)?'enemy-turn':'own-turn');
+ const sunkMine=my.ships.filter(ship=>ship.every(i=>my.shots.includes(i))).length;
+ const sunkEnemy=opponent.ships.filter(ship=>ship.every(i=>opponent.shots.includes(i))).length;
+ const enemyTurn=(mode==='online'&&remoteTurn)||(mode==='ai'&&turn===1);
+ if(!separator.children.length)separator.innerHTML='<div class="combat-chip combat-chip-left"><span class="combat-icon">◎</span><span class="combat-count"></span></div><div class="combat-chip combat-chip-center" aria-label="Մարտի ընթացքը"><span class="combat-status-icon"></span></div><div class="combat-chip combat-chip-right"><span class="combat-icon">⚓</span><span class="combat-count"></span></div>';
+ separator.querySelector('.combat-chip-left .combat-count').textContent=sunkEnemy+'/'+FLEET.length;
+ separator.querySelector('.combat-chip-right .combat-count').textContent=(FLEET.length-sunkMine)+'/'+FLEET.length;
+ separator.querySelector('.combat-status-icon').textContent=enemyTurn?'⌛':'🎯';
+ stage.append(separator);
+ if(stableEnemyBoard){
+  const cells=stableEnemyBoard.querySelectorAll('.board .cell');
+  cells.forEach((cell,i)=>{
+   const ship=opponent.ships.find(parts=>parts.includes(i));
+   const hit=opponent.shots.includes(i);
+   cell.classList.toggle('hit',!!(hit&&ship));
+   cell.classList.toggle('miss',!!(hit&&!ship));
+   cell.classList.toggle('fired',hit);
+   const sunk=!!(ship&&ship.every(j=>opponent.shots.includes(j)));
+   cell.classList.toggle('sunk',sunk);
+   if(sunk&&!cell.classList.contains('photo-ship')){
+    const p=ship.indexOf(i);
+    cell.classList.add('ship','photo-ship','revealed-enemy-ship');
+    cell.append(shipImageTile(opponent,ship,p));
+   }
+   cell.disabled=hit||!canFire;
+   cell.onclick=canFire&&!hit?()=>fire(i):null;
+  });
+  stage.append(stableEnemyBoard);
+ }else stage.append(framedBoard(opponent,{compact:true,coordsBottom:true,show:false,click:canFire?fire:null}));
+ view.append(stage);footer.innerHTML='';
+ // Align to the blue 10x10 grid's measured edges, never to the A-J label gutter.
+ // Do not guess pixel offsets: the outer PWA frame and viewport may vary.
+ const alignCombatBar=()=>{
+  if(!separator.isConnected)return;
+  const sea=stage.querySelector('.board-row .board');
+  if(!sea)return;
+  // The separator survives renders. Reset its previous offset BEFORE measuring,
+  // otherwise every shot accumulates an extra left/right translation.
+  separator.style.transform='none';
+  separator.style.setProperty('width','auto','important');
+  const seaRect=sea.getBoundingClientRect();
+  separator.style.setProperty('width',seaRect.width+'px','important');
+  separator.style.maxWidth='none';
+  const barRect=separator.getBoundingClientRect();
+  const offset=(seaRect.left+seaRect.width/2)-(barRect.left+barRect.width/2);
+  separator.style.transform='translate3d('+offset+'px,0,0)';
+ };
+ alignCombatBar();
+}
+function animateShot(boardIndex,cellIndex,hit,callback,sunk=false){
+ const frames=view.querySelectorAll('.board'),board=frames[boardIndex],cell=board?.querySelectorAll('.cell')[cellIndex];
+ if(!cell){callback();return}
+ const from=frames[1-boardIndex]?.getBoundingClientRect(),to=cell.getBoundingClientRect();
+ const x=to.left+to.width/2,y=to.top+to.height/2;
+ const startX=from?from.left+from.width/2:x,startY=from?from.top+from.height/2:y+130;
+ const missile=document.createElement('div');missile.className='shot-missile';missile.style.left=startX+'px';missile.style.top=startY+'px';document.body.append(missile);
+ const dx=x-startX,dy=y-startY,angle=Math.atan2(dy,dx)*180/Math.PI+90;
+ missile.style.transform='rotate('+angle+'deg)';beep('launch');
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{missile.style.transform='translate('+dx+'px,'+dy+'px) rotate('+angle+'deg) scale(.65)'}));
+ setTimeout(()=>{missile.remove();const burst=document.createElement('span');burst.className='splash';burst.textContent=hit?(sunk?'🔥':'💥'):'💦';cell.append(burst);beep(sunk?'sink':hit?'hit':'miss');if(hit&&navigator.vibrate)navigator.vibrate(sunk?[70,45,90]:[45,25,50]);setTimeout(()=>{burst.remove();callback()},360)},510)
+}
+
+function fire(i){
+ if(phase!=='battle'||finished||shotBusy)return;
+ if(mode==='online'){if(remoteTurn||!conn?.open||theirs.shots.includes(i))return;shotBusy=true;send({type:'shot',i});remoteTurn=true;renderBattle();return}
+ const b=mode==='local'?(turn===0?theirs:mine):theirs,r=hitAt(b,i);if(!r)return;
+ shotBusy=true;
+ animateShot(1,i,r.hit,()=>{
+  shotBusy=false;
+  if(r.win)return victory(mode==='local'?'Խաղացող '+(turn+1):'Դու');
+  if(mode==='local'){turn=1-turn;passTurn()}else{turn=1;renderBattle();setTimeout(aiShot,750)}
+ },r.sunk)
+}
+
+function aiShot(){if(phase!=='battle'||mode!=='ai')return;const free=Array.from({length:100},(_,i)=>i).filter(i=>!mine.shots.includes(i));const options=aiMemory.filter(i=>free.includes(i));const pick=options.length?options[rand(options.length)]:free[rand(free.length)];const r=hitAt(mine,pick);if(r.hit){const [x,y]=xy(pick);for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy;if(xx>=0&&xx<N&&yy>=0&&yy<N)aiMemory.push(idx(xx,yy))}if(r.sunk)aiMemory=[]}shotBusy=true;animateShot(0,pick,r.hit,()=>{shotBusy=false;if(r.win)return victory('Համակարգիչը');turn=0;renderBattle()},r.sunk)}
+function victory(who){finished=true;shotBusy=false;phase='end';beep('win');modal('🏆',who==='Դու'?'Դու հաղթեցի՜ր':who+' հաղթեց', 'Բոլոր նավերը գտնված են։ Նորից խաղա՞նք։','Նոր խաղ',()=>start(mode),true)}
+function modal(emoji,title,desc,button,action,menu=false){const old=view.querySelector('.overlay');if(old)old.remove();const o=document.createElement('div');o.className='overlay';o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true">'+Array.from({length:13},(_,i)=>'<i style="--x:'+((i*37+9)%94)+'%;--s:'+(7+(i*11)%20)+'px;--d:'+(7+(i%5)*1.7)+'s;--delay:-'+(i*.93)+'s;--y:'+(8+i*7%85)+'%"></i>').join('')+'</div><div class="big wave">'+emoji+'</div><h2></h2><p></p><button class="primary"></button>'+(menu?'<button class="secondary" id="menuBtn">Գլխավոր մենյու</button>':'')+'</div>';o.querySelector('h2').textContent=title;o.querySelector('p').textContent=desc;o.querySelector('.primary').textContent=button;o.querySelector('.primary').onclick=()=>{o.remove();action()};view.append(o);if(menu)o.querySelector('#menuBtn').onclick=showMenu}
+function confirmExit(){
+ const old=view.querySelector('.exit-confirm-overlay');if(old){old.remove();return}
+ const o=document.createElement('div');o.className='overlay exit-confirm-overlay';
+ o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true"></div><div class="big wave">⚓</div><h2>Դուրս գա՞լ խաղից</h2><p>Ընթացիկ խաղը կավարտվի։</p><button class="primary" id="exitYes">Գլխավոր մենյու</button><button class="secondary" id="exitCancel">Չեղարկել</button></div>';
+ const bubbles=o.querySelector('.modal-bubbles');
+ bubbles.innerHTML=Array.from({length:13},(_,i)=>{
+  const x=(i*37+9)%94, size=7+(i*11)%20, duration=7+(i%5)*1.7, delay=-(i*.93), y=8+i*7%85;
+  return '<i style="--x:'+x+'%;--s:'+size+'px;--d:'+duration+'s;--delay:'+delay+'s;--y:'+y+'%"></i>';
+ }).join('');
+ o.querySelector('#exitYes').onclick=()=>{o.remove();showMenu()};
+ o.querySelector('#exitCancel').onclick=()=>o.remove();
+ view.append(o);
+}
+// Trial-only in-app family invitations. Presence works only while this page is open.
+const FAMILY_ROLES={dad:'Հայրիկ',kiso:'Քրիստինա',alen:'Ալեն'};
+const FAMILY_INVITE_LABELS={dad:'Հրավիրել Հայրիկին',kiso:'Հրավիրել Քրիստինային',alen:'Հրավիրել Ալենին'};
+const PRESENCE_PREFIX='areg-test-sea-family-v1-';
+function familyRole(){try{return localStorage.getItem('areg-sea-family-role')||''}catch(e){return ''}}
+function saveFamilyRole(role){try{localStorage.setItem('areg-sea-family-role',role)}catch(e){}}
+function changeFamilyRole(){try{presencePeer?.destroy()}catch(e){}presencePeer=null;saveFamilyRole('');onlineMenu()}
+async function initPresence(){
+ const role=familyRole();if(!FAMILY_ROLES[role]||presencePeer)return;
+ presenceRole=role;
+ try{
+  await loadPeer();
+  if(phase!=='online'||presencePeer)return;
+  const p=new Peer(PRESENCE_PREFIX+role,{debug:0});presencePeer=p;
+  p.on('connection',c=>{
+   c.on('data',d=>{
+    if(!d||d.type!=='family-invite'||!FAMILY_ROLES[d.from]||d.from===role||!/^[A-Z0-9]{6}$/.test(d.room)||!['online','room'].includes(phase))return;
+    c.send({type:'family-delivered'});
+    const from=FAMILY_ROLES[d.from];
+    const overlay=document.createElement('div');overlay.className='overlay';
+    overlay.innerHTML='<div class="modal"><div class="big">🚢</div><h2>Հրավեր ծովամարտի</h2><p>'+from+'ը հրավիրում է քեզ խաղալու։</p><div class="row"><button class="secondary" id="declineFamily">Մերժել</button><button class="primary" id="acceptFamily">Ընդունել</button></div></div>';
+    document.querySelector('#app').append(overlay);
+    overlay.querySelector('#declineFamily').onclick=()=>{c.send({type:'family-reply',accepted:false});overlay.remove()};
+    overlay.querySelector('#acceptFamily').onclick=()=>{c.send({type:'family-reply',accepted:true});overlay.remove();if(phase!=='online')onlineMenu();const code=$('#code');if(code)code.value=d.room;connectPeer(false)};
+   });
+  });
+  p.on('error',e=>{const el=$('#familyStatus');if(el)el.textContent=e.type==='unavailable-id'?'Այս անունով արդեն մեկ սարք միացված է։ Փակիր մյուս պատուհանը։':'Ընտանեկան կապը հասանելի չէ։'});
+  p.on('open',()=>{const el=$('#familyStatus');if(el)el.textContent='🟢 '+FAMILY_ROLES[role]+' — պատրաստ է հրավեր ստանալու'});
+ }catch(e){const el=$('#familyStatus');if(el)el.textContent='Հրավերների կապը չհաստատվեց'}
+}
+function sendFamilyInvite(target){
+ if(!FAMILY_ROLES[target]||target===familyRole()||!room)return;
+ const el=$('#wait');if(el)el.textContent='Փնտրում ենք '+FAMILY_ROLES[target]+'ին…';
+ const c=presencePeer?.connect(PRESENCE_PREFIX+target,{reliable:true});
+ if(!c){if(el)el.textContent='Ընտանեկան կապը հասանելի չէ';return}
+ let answered=false,delivered=false;
+ const timeout=setTimeout(()=>{if(!delivered&&!answered){if(el)el.textContent='Քրիստինայի կամ Ալենի խաղը հրավերը չի հաստատել։ Ստուգեք՝ խաղը բաց է և ճիշտ անունն է ընտրված։';try{c.close()}catch(e){}}},8000);
+ c.on('open',()=>{c.send({type:'family-invite',from:familyRole(),room});if(el)el.textContent='Հրավերն ուղարկվում է…'});
+ c.on('data',d=>{if(d?.type==='family-delivered'){delivered=true;clearTimeout(timeout);if(el)el.textContent='Հրավերը հայտնվել է մյուս հեռախոսում։ Սպասում ենք պատասխանին…'}if(d?.type==='family-reply'){answered=true;clearTimeout(timeout);if(el)el.textContent=d.accepted?'Հրավերն ընդունված է։ Միանում ենք…':'Հրավերը մերժվեց';c.close()}});
+ c.on('error',()=>{if(el&&!answered)el.textContent='Չհաջողվեց ուղարկել հրավերը'});
+ c.on('close',()=>{clearTimeout(timeout);if(el&&!answered&&!delivered)el.textContent='Ընկերը հասանելի չէ կամ կապն ընդհատվեց'});
+}
+function onlineMenu(inviteCode=''){
+ document.querySelector('#app').classList.remove('combat-mode');phase='online';
+ const role=familyRole();
+ if(!FAMILY_ROLES[role]&&!inviteCode){
+  view.innerHTML='<section class="panel"><h2>👨‍👩‍👦 Ընտանեկան խաղ</h2><p>Այս հեռախոսը ո՞ւմն է։ Ընտրիր մեկ անգամ։</p><button class="choice" data-role="dad">👨 Հայրիկ</button><button class="choice" data-role="kiso">👩 Քրիստինա</button><button class="choice" data-role="alen">👦 Ալեն</button><p>Անունը պահվում է միայն այս հեռախոսում։</p></section>';
+  footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;
+  view.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{saveFamilyRole(b.dataset.role);onlineMenu()});return;
+ }
+ view.innerHTML='<section class="panel"><h2>🌐 Առցանց ծովամարտ</h2><p>Երբ երկուսդ այս էջում եք, հրավիրիր անմիջապես խաղի մեջ՝ առանց հղման։</p><div class="info" id="familyStatus">Միանում ենք ընտանեկան կապին…</div><button class="choice" id="create"><span>🚢</span>Հրավիրել խաղի</button><details><summary>Միանալ կոդով (պահուստային տարբերակ)</summary><input class="field" id="code" placeholder="ՍԵՆՅԱԿԻ ԿՈԴԸ" maxlength="10" autocapitalize="characters"><button class="primary" id="join">Միանալ</button></details><div class="info" id="netStatus">Ընտանեկան հրավերները գործում են, երբ խաղը բաց է։</div></section>';
+ footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';
+ $('#home').onclick=showMenu;$('#create').onclick=()=>connectPeer(true);$('#join').onclick=()=>connectPeer(false);
+ if(role){const settings=document.createElement('button');settings.className='secondary';settings.textContent='👤 Ես՝ '+FAMILY_ROLES[role]+' · Փոխել';settings.onclick=changeFamilyRole;view.querySelector('.panel').append(settings);initPresence();}
+ if(inviteCode){$('#code').value=inviteCode;$('#netStatus').textContent='Հրավերը բացված է․ միանում ենք ընկերոջդ…';connectPeer(false)}
+}
+function loadPeer(){return new Promise((resolve,reject)=>{if(window.Peer)return resolve();const script=document.createElement('script');script.src='https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js';script.onload=resolve;script.onerror=()=>reject(new Error('Առցանց կապի գրադարանը չբեռնվեց'));document.head.append(script)})}
+async function connectPeer(isHost){const mySession=++session;host=isHost;const status=$('#netStatus');status.textContent='Միանում ենք սերվերին…';try{await loadPeer();if(mySession!==session)return;room=isHost?Math.random().toString(36).slice(2,8).toUpperCase():$('#code').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(room))throw Error('Գրի՛ր 6 նիշանոց սենյակի կոդը');peer=new Peer('areg-sea-'+room+(isHost?'-h':'-g'),{debug:0});peer.on('error',e=>{if(mySession===session)networkError(e.type==='unavailable-id'?'Սենյակն արդեն զբաղված է':'Չհաջողվեց միանալ սերվերին')});peer.on('disconnected',()=>{if(mySession===session&&phase==='battle')networkError('Կապը ընդհատվել է')});peer.on('open',()=>{if(mySession!==session)return;if(isHost){peer.on('connection',c=>setupConnection(c));showRoom()}else{const c=peer.connect('areg-sea-'+room+'-h',{reliable:true});setupConnection(c)}})}catch(e){if(mySession===session)networkError(e.message)}}
+function showRoom(){
+ phase='room';
+ // A direct game URL opens the same trial HTML on any phone, even without the installed app.
+ const inviteUrl=new URL('areg-sea-battle.html',location.href);
+ inviteUrl.searchParams.set('invite',room);
+ view.innerHTML='<section class="panel"><h2>🚢 Սենյակը պատրաստ է</h2><p>Ուղարկիր հրավերը Ալենին, Քիսոյին կամ ընկերոջդ։ Հղումը բացելիս նա ինքնաբերաբար կմիանա։</p><button class="primary" id="shareInvite">🔗 Հրավիրել ընկերոջը</button><button class="secondary" id="copyInvite">Պատճենել հրավերի հղումը</button><details><summary>Սենյակի պահուստային կոդը</summary><div class="field" id="roomCode"></div></details><p id="wait">Սպասում ենք ընկերոջը…</p></section>';
+ $('#roomCode').textContent=room;
+ const role=familyRole(),other=Object.keys(FAMILY_ROLES).filter(k=>k!==role);
+ const box=document.createElement('div');box.className='row';box.style.flexDirection='column';
+ other.forEach(k=>{const b=document.createElement('button');b.className='choice';b.style.width='100%';b.textContent='🎮 '+FAMILY_INVITE_LABELS[k];b.onclick=()=>sendFamilyInvite(k);box.append(b)});
+ if(role&&FAMILY_ROLES[role]){view.querySelector('.panel').insertBefore(box,$('#shareInvite'));const who=document.createElement('button');who.className='secondary';who.textContent='👤 Ես՝ '+FAMILY_ROLES[role]+' · Փոխել';who.onclick=()=>{cleanup();changeFamilyRole()};view.querySelector('.panel').append(who)}
+ const link=inviteUrl.toString();
+ const copy=async()=>{try{await navigator.clipboard.writeText(link);$('#wait').textContent='Հղումը պատճենված է։ Ուղարկիր ընկերոջդ։'}catch(e){$('#wait').textContent='Պատճենիր հղումը՝ '+link}};
+ $('#copyInvite').onclick=copy;
+ $('#shareInvite').onclick=async()=>{if(navigator.share){try{await navigator.share({title:'Ծովամարտ՝ խաղանք միասին',text:'Միացիր իմ Ծովամարտին 🚢',url:link});return}catch(e){if(e.name==='AbortError')return}}await copy()};
+ footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu
+}
+function setupConnection(c){conn=c;c.on('open',()=>{if(phase==='menu')return;remoteReady=false;localReady=false;mine=empty();theirs=empty();placeIndex=0;orientation=0;selected=null;phase='place';renderPlace()});c.on('data',handleMessage);c.on('close',()=>{if(phase!=='menu'&&phase!=='end')networkError('Ընկերդ անջատվել է')});c.on('error',()=>networkError('Կապի սխալ'))}
+function send(data){if(conn?.open)conn.send(data)}
+function handleMessage(d){
+ if(!d||typeof d!=='object')return;
+ if(d.type==='ready'){remoteReady=true;if(localReady&&phase==='waiting')startOnlineBattle()}
+ if(d.type==='shot'){
+  if(phase!=='battle'||!remoteTurn||!Number.isInteger(d.i)||d.i<0||d.i>=100)return;
+  const r=hitAt(mine,d.i);if(!r)return;
+  const sunkShip=r.sunk?mine.ships.find(ship=>ship.includes(d.i)):null;
+  // Reveal full ship shape only on the final hit; keep all other ship locations secret.
+  send({type:'result',i:d.i,hit:r.hit,sunk:r.sunk,win:r.win,
+   ...(sunkShip?{shipCells:sunkShip.slice(),shipIndex:mine.ships.indexOf(sunkShip)}:{})});
+  shotBusy=true;
+  animateShot(0,d.i,r.hit,()=>{shotBusy=false;if(r.win)return victory('Ընկերդ');remoteTurn=false;renderBattle()},r.sunk)
+ }
+ if(d.type==='result'){
+  if(phase!=='battle'||!remoteTurn||!Number.isInteger(d.i)||d.i<0||d.i>=100||theirs.shots.includes(d.i))return;
+  theirs.shots.push(d.i);
+  if(d.hit)onlineHits.add(d.i);
+  if(d.hit&&d.sunk&&Array.isArray(d.shipCells)&&Number.isInteger(d.shipIndex)){
+   const cells=d.shipCells;
+   const valid=FLEET[d.shipIndex]===cells.length&&new Set(cells).size===cells.length&&
+    cells.every(i=>Number.isInteger(i)&&i>=0&&i<100&&(i===d.i||theirs.shots.includes(i))&&onlineHits.has(i))&&
+    cells.includes(d.i)&&!theirs.ships.some(ship=>ship.some(i=>cells.includes(i)));
+   if(valid){
+    const ordered=cells.slice().sort((a,b)=>a-b);
+    const horizontal=ordered.every((i,k)=>k===0||(i===ordered[k-1]+1&&Math.floor(i/N)===Math.floor(ordered[k-1]/N)));
+    const vertical=ordered.every((i,k)=>k===0||i===ordered[k-1]+N);
+    if(horizontal||vertical){
+     theirs.ships.push(ordered);
+     onlineSunkAssets[ordered.join(',')]=d.shipIndex;
+    }
+   }
+  }
+  shotBusy=true;
+  animateShot(1,d.i,!!d.hit,()=>{shotBusy=false;if(d.win)return victory('Դու');remoteTurn=true;renderBattle()},!!d.sunk)
+ }
+}
+function waitOnline(){phase='waiting';view.innerHTML='<section class="panel"><h2>🚢 Նավերը պատրաստ են</h2><p>Սպասում ենք, մինչև ընկերդ դասավորի իր նավերը։</p><div class="status wave">🌊 Սպասում ենք…</div></section>';footer.innerHTML='<button class="secondary" id="home">⌂ Մենյու</button>';$('#home').onclick=showMenu;if(remoteReady&&localReady)startOnlineBattle()}
+function startOnlineBattle(){phase='battle';remoteTurn=!host;renderBattle(true)}
+function networkError(message){if(phase==='menu')return;phase='error';modal('📡','Առցանց կապի խնդիր',message,'Վերադառնալ',showMenu)}
+// iOS Safari may show native selection menus on long presses despite CSS.
+document.addEventListener('contextmenu',e=>{
+ if(e.target.closest('#app')&&!e.target.closest('input,textarea'))e.preventDefault();
+},{capture:true});
+document.addEventListener('selectstart',e=>{
+ if(e.target.closest('#app')&&!e.target.closest('input,textarea'))e.preventDefault();
+},{capture:true});
+document.addEventListener('dragstart',e=>{
+ if(e.target.closest('#app')&&!e.target.closest('input,textarea'))e.preventDefault();
+},{capture:true});
+const incomingInvite=new URLSearchParams(location.search).get('invite');
+if(incomingInvite&&/^[A-Z0-9]{6}$/i.test(incomingInvite)){start('online');onlineMenu(incomingInvite.toUpperCase())}else showMenu();
+</script></body></html>
