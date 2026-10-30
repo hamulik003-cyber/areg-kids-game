@@ -2179,6 +2179,62 @@
     }
   }
 
+  function createGalleryAmbient(){
+    const ambient=document.createElement('div');
+    ambient.className='areg-animal-ambient';
+    ambient.setAttribute('aria-hidden','true');
+    // Each particle occupies a separate grid cell. Reassign free cells only while invisible.
+    const bokehCount=12, bokehCols=3, bokehRows=10;
+    const bokehCells=Array.from({length:bokehCols*bokehRows},(_,i)=>i);
+    const shuffleCells=()=>{for(let i=bokehCells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bokehCells[i],bokehCells[j]]=[bokehCells[j],bokehCells[i]]}};
+    shuffleCells();
+    const occupied=new Map();
+    const directions=[[78,-95],[-82,-75],[70,100],[-76,88],[105,18],[-104,-20],[20,-110],[-22,108]];
+    const assignCell=(particle,index,cell)=>{
+      const col=cell%bokehCols,row=Math.floor(cell/bokehCols);
+      const [dx,dy]=directions[(index+Math.floor(Math.random()*directions.length))%directions.length];
+      particle.style.setProperty('--ax',([12,49,84][col])+'%');
+      particle.style.setProperty('--ay',(6+row*9.5)+'%');
+      particle.style.setProperty('--dx',dx+'px');
+      particle.style.setProperty('--dy',dy+'px');
+      occupied.set(particle,cell);
+    };
+    for(let i=0;i<bokehCount;i++){
+      const particle=document.createElement('span');
+      particle.className='areg-animal-particle areg-animal-bokeh';
+      particle.style.setProperty('--as',([58,46,35,25][Math.floor(i/6)]+(i%3)*2)+'px');
+      particle.style.setProperty('--ad',(11+(i%7)*1.2)+'s');
+      particle.style.setProperty('--al',(-i*.5)+'s');
+      particle.style.setProperty('--bokeh-hue',([0,40,95,160,215,285][i%6])+'deg');
+      assignCell(particle,i,bokehCells[i]);
+      particle.addEventListener('animationiteration',()=>{
+        const taken=new Set(occupied.values());
+        taken.delete(occupied.get(particle));
+        const free=bokehCells.filter(cell=>!taken.has(cell)&&cell!==occupied.get(particle));
+        if(free.length)assignCell(particle,i,free[Math.floor(Math.random()*free.length)]);
+      });
+      ambient.appendChild(particle);
+    }
+    // Tiny CSS crystal glints, separate from the 12 larger bokeh circles.
+    for(let i=0;i<18;i++){
+      const crystal=document.createElement('span');
+      crystal.className='areg-animal-crystal';
+      crystal.style.setProperty('--ax',(8+(i*31)%85)+'%');
+      crystal.style.setProperty('--ay',(5+(i*17)%91)+'%');
+      crystal.style.setProperty('--cs',(3+(i%4)*2)+'px');
+      crystal.style.setProperty('--cd',(7+(i%6)*1.5)+'s');
+      crystal.style.setProperty('--cl',(-i*.65)+'s');
+      crystal.style.setProperty('--cx',((i%2?1:-1)*(45+(i%5)*13))+'px');
+      crystal.style.setProperty('--cy',((i%3-1)*(45+(i%4)*16))+'px');
+      crystal.addEventListener('animationiteration',()=>{
+        crystal.style.setProperty('--ax',(5+Math.random()*90)+'%');
+        crystal.style.setProperty('--ay',(5+Math.random()*90)+'%');
+      });
+      ambient.appendChild(crystal);
+    }
+    return ambient;
+  }
+
   function gameAnimalGallery(){
     // V232: no 60-clip background audio storm on iPhone; play on tap.
     activityContent.innerHTML='';
@@ -2187,6 +2243,10 @@
     const wrap=document.createElement('div');
     wrap.className='animal-gallery';
     wrap.setAttribute('aria-label','Կենդանիների պատկերասրահ');
+    // AREG TEST only: CSS-drawn slow ambient shapes behind animal cards.
+    const ambient=createGalleryAmbient();
+    // Keep ambient outside the scrollable gallery so it stays visible at every scroll depth.
+
 
     ANIMALS.forEach((animal,cardIndex)=>{
       const card=document.createElement('button');
@@ -2244,6 +2304,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
@@ -2399,6 +2460,7 @@
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
+    const ambient=createGalleryAmbient();
     const wrap=document.createElement('div');
     wrap.className='animal-gallery';
     wrap.setAttribute('aria-label','Թռչունների պատկերասրահ');
@@ -2459,6 +2521,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
@@ -2538,6 +2601,7 @@
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
+    const ambient=createGalleryAmbient();
     const wrap=document.createElement('div');
     wrap.className='animal-gallery animal-gallery--sea';
     wrap.setAttribute('aria-label','Ջրային կենդանիների պատկերասրահ');
@@ -2597,6 +2661,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
@@ -2677,6 +2742,7 @@
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
+    const ambient=createGalleryAmbient();
     const wrap=document.createElement('div');
     wrap.className='animal-gallery animal-gallery--insect';
     wrap.setAttribute('aria-label','Միջատների պատկերասրահ');
@@ -2736,6 +2802,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
@@ -2919,6 +2986,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(createGalleryAmbient());
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
@@ -2984,6 +3052,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(createGalleryAmbient());
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
