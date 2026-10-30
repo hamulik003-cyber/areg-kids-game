@@ -2204,7 +2204,7 @@
     const shuffleCells=()=>{for(let i=bokehCells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bokehCells[i],bokehCells[j]]=[bokehCells[j],bokehCells[i]]}};
     shuffleCells();
     const occupied=new Map();
-    const directions=[[12,-10],[-12,-9],[10,12],[-11,11],[13,2],[-13,-3],[3,-13],[-3,13]];
+    const directions=[[22,-18],[-22,-16],[18,20],[-19,19],[24,4],[-24,-5],[5,-24],[-6,24]];
     const assignCell=(particle,index,cell)=>{
       const col=cell%bokehCols,row=Math.floor(cell/bokehCols);
       const [dx,dy]=directions[(index+Math.floor(Math.random()*directions.length))%directions.length];
@@ -2217,8 +2217,8 @@
     for(let i=0;i<bokehCount;i++){
       const particle=document.createElement('span');
       particle.className='areg-animal-particle areg-animal-bokeh';
-      particle.style.setProperty('--as',(14+(i*11)%24)+'px');
-      particle.style.setProperty('--ad',(7+(i%7)*1.1)+'s');
+      particle.style.setProperty('--as',([48,36,25,15][Math.floor(i/6)]+(i%3)*2)+'px');
+      particle.style.setProperty('--ad',(15+(i%7)*1.7)+'s');
       particle.style.setProperty('--al',(-i*.5)+'s');
       particle.style.setProperty('--bokeh-hue',([0,40,95,160,215,285][i%6])+'deg');
       assignCell(particle,i,bokehCells[i]);
