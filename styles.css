@@ -3582,3 +3582,28 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 .activity-content.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){background:transparent!important}
 @media(prefers-reduced-motion:reduce){.activity-content.animal-gallery-mode{animation:none!important}}
+
+
+/* AREG TEST: unmistakable continuously changing RGB colors, background ONLY. */
+.activity-content.animal-gallery-mode{
+  position:relative!important;
+  isolation:isolate!important;
+  background:#172b40!important;
+  animation:none!important;
+}
+.activity-content.animal-gallery-mode::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 20% 20%,#0c8ce8 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 70%,#ed2b8c 0%,transparent 60%),
+             linear-gradient(135deg,#122f75,#8137b0 48%,#008b82);
+  filter:hue-rotate(0deg) saturate(1.15) brightness(.68);
+  animation:aregAnimalHueCycle 12s linear infinite!important;
+  will-change:filter;
+}
+@keyframes aregAnimalHueCycle{
+  0%{filter:hue-rotate(0deg) saturate(1.15) brightness(.68)}
+  100%{filter:hue-rotate(360deg) saturate(1.15) brightness(.68)}
+}
+.activity-content.animal-gallery-mode>.areg-animal-ambient{z-index:1!important}
+.activity-content.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){z-index:2!important;background:transparent!important}
+@media(prefers-reduced-motion:reduce){.activity-content.animal-gallery-mode::before{animation:none!important;will-change:auto}}
