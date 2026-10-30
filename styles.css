@@ -3657,3 +3657,20 @@ html[data-theme^="photo-user-"] .section-dim{
   91%{opacity:0;transform:translate3d(49px,-62px,0) scale(.9)}
   100%{opacity:0;transform:translate3d(49px,-62px,0) scale(.9)}
 }
+
+
+/* AREG TEST: independently colored bokeh; small directional motion inside separated cells. */
+.areg-animal-particle.areg-animal-bokeh{
+  background:radial-gradient(circle at 43% 38%,rgba(255,255,255,.55),rgba(192,216,255,.37) 44%,rgba(164,196,255,.13) 74%,transparent 94%)!important;
+  box-shadow:0 0 11px 3px rgba(200,221,255,.15)!important;
+  filter:blur(1.4px) hue-rotate(var(--bokeh-hue,0deg))!important;
+  animation:aregBokehScatter var(--ad) ease-in-out var(--al) infinite!important;
+}
+@keyframes aregBokehScatter{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.8)}
+  17%{opacity:.57}
+  47%{opacity:.72;transform:translate3d(calc(var(--dx)*.5),calc(var(--dy)*.5),0) scale(1)}
+  78%{opacity:.55;transform:translate3d(var(--dx),var(--dy),0) scale(1.05)}
+  96%,100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.85)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-particle.areg-animal-bokeh{animation:none!important;opacity:.25}}
