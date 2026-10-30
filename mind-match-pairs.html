@@ -370,6 +370,8 @@ img{-webkit-user-drag:none!important;pointer-events:none!important}
 /* Matching-game header only: full-width alignment with the other mind games. */
 .shell>.top.areg-unified-header{width:calc(100% + 24px)!important;max-width:none!important;margin-left:-12px!important;margin-right:-12px!important;transform:none!important}
 
+/* Remove the old glossy glass overlay; preserve frame, cards and ambient. */
+#menu .board::after{content:none!important;display:none!important;box-shadow:none!important}
 /* Only the six-category selection menu: animated RGB glow and floating fairy orbs. */
 #menu .board{isolation:isolate;overflow:hidden}
 #menu .board .pairs-fairy-ambient{position:absolute;inset:0;display:block;width:100%;height:100%;border-radius:23px;overflow:hidden;pointer-events:none;z-index:0}
