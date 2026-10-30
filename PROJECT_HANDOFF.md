@@ -1,3 +1,8 @@
+## 2026-10-30 — BATTLESHIP FINAL APPROVAL AND PRODUCTION PROMOTION
+- User explicitly approved final trial «Ծովամարտ» after real-ship drag preview and finger-centered edge-safe placement (placement fix deeeb560 short SHA). Trial URL: https://areg-test-screen-live.onrender.com/ . Preserve this Battleship exactly; other trial experiments are NOT approved as a whole.
+- Focused production PR #121 promoted ONLY Battleship, replacing «Խառնիր գույները» in Create; main game-bearing commit 5ce8cde5eeb71a6e8de8e6f71d9fcbf776e8d9d5. All four audit jobs passed (#852). User checked real DotKiosk and said «սախ իդյալականա». Production is therefore user-confirmed LIVE, not pending.
+- Never merge whole trial into main. Both trial Battleship and production Battleship are user-approved. Do not change any gameplay, assets, music, or other games for documentation updates. Check current HEAD separately from approved game-bearing baseline.
+
 ## 2026-10-23 — USER-APPROVED LOCK: final fairy door cinematic for ALL subsequent stages
 - User explicitly approved the current trial door-entry animation and ordered: DO NOT CHANGE this animation; reuse it in every subsequent level/stage.
 - Exact immutable sequence: (1) Areg stops a little before the door; (2) door opens slowly and smoothly while Areg stays still; (3) only after the door is fully open, Areg automatically walks into the exact center of the doorway; (4) only once centered, Areg smoothly fades away; (5) door closes slowly and smoothly; (6) only after closing, next-stage completion/transition modal appears.
