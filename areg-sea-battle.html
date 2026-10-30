@@ -377,6 +377,8 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  font-size:clamp(22px,6vw,27px);line-height:1;
 }
 @media(prefers-reduced-motion:reduce){#app.combat-mode .top .sea-menu-title{animation:none!important}}
+/* Menu only: lower the robot and globe choice icons by exactly 3px. */
+#app:not(.combat-mode) .sea-menu-art .choice > span{position:relative;top:3px}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
