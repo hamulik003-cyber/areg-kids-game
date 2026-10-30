@@ -1,3 +1,10 @@
+## 2026-10-30 — FINAL USER CONFIRMATION: BATTLESHIP LIVE IN DOTKIOSK
+- User approved final «Ծովամարտ» in AREG TEST and, after production release, confirmed their actual main DotKiosk with «սախ իդյալականա» (everything is ideal). This supersedes any older 'release pending' notes.
+- PRODUCTION main: focused PR #121 squash-merged as 5ce8cde5eeb71a6e8de8e6f71d9fcbf776e8d9d5. All 4 jobs in audit run #852 passed: assets-and-code, mobile-browser, ios-webkit, ios-pwa-music. Only the Create-section «Խառնիր գույները» card was replaced by «Ծովամարտ». All other games remain unchanged. Main Battleship includes areg-sea-battle.html, five ship WebP assets, two sound MP3s, parent music/IndexedDB integration, PWA v304.
+- TRIAL: trial/areg-test-full-app-20261017 at https://areg-test-screen-live.onrender.com/ contains the user-approved finished Battleship. Its final drag-placement fix was deeeb560 (short commit). The user confirmed realistic ship image during drag and correct edge placement. The trial also has unrelated experimental features: NEVER merge the entire trial branch into main.
+- Approved Battleship is now a protected finished game: preserve real ship drag artwork, centered/clamped placement, 10x10 grids, combat, animations, RGB titles, backgrounds, bubbles, sounds, music picker/play-stop/IndexedDB and parent iOS audio lifecycle. Any future edit requires an explicit request and isolated testing; never infer approval from latest HEAD alone.
+- Game-bearing production rollback/reference SHA: 5ce8cde5eeb71a6e8de8e6f71d9fcbf776e8d9d5. This note is documentation-only and does not change gameplay or deployment.
+
 ## 2026-10-30 — User-approved Battleship-only production release candidate
 - User explicitly approved the finished «Ծովամարտ» in AREG TEST and requested replacing ONLY the production «Խառնիր գույները» card with «Ծովամարտ» in the existing create section; preserve every other production game and leave trial unchanged.
 - Focused branch `release/sea-battle-only-20261030` from production main `9675422af0bb0ce30a89c1882644fdb9cebd6b9a`; do NOT merge the diverged trial branch.
