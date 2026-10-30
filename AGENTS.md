@@ -1,3 +1,7 @@
+## 2026-10-30 — ՊԱՐՏԱԴԻՐ AREG TEST ԱՇԽԱՏԵԼԱՈՃ / FINAL DOTKIOSK BASELINE
+- Նախ կարդալ `AREG_TEST_WORKFLOW.md`-ի 2026-10-30 գերակա կանոնները և GitHub main/trial իրական վիճակը։ Փոփոխությունները նախ միայն `trial/areg-test-full-app-20261017`-ում, հետո Render `areg-test-screen-live` (`srv-db9obf3ncjis73a2tm3g`, workspace `tea-dau4frvavr4c73fl4jtg`) deploy, `get_deploy`-ով `live` և commit SHA-ի հաստատում, ապա օգտատիրոջ արդեն տեղադրված AREG TEST Home Screen պատկերակով ստուգում։ AutoDeploy-ին չվստահել. անհրաժեշտության դեպքում `trigger_deploy`։ Հին տարբերակի դեպքում ստուգել PWA/cache/SW/version։ Safari պարտադիր չէ։
+- Main/DotKiosk տեղափոխել միայն առանձին հստակ թույլտվությամբ և **միայն ընտրված խաղը**, ոչ ամբողջ trial-ը. նպատակային release PR, CI, cache/SW/tests, փաստաթղթեր, իրական DotKiosk հաստատում։ 2026-10-30 օգտատերը հաստատել է վերջնական «Ծովամարտ»-ը՝ production commit `3ed4df55e3df4984fa917c2299ed5759336984c4`։ Մյուս հաստատված խաղերը չփոխել։ Չկատարել ինքնակամ փոփոխություններ, «միայն ուսումնասիրիր» = առանց write։
+
 ## 2026-10-30 — APPROVED BATTLESHIP TRIAL AND DOTKIOSK
 - Finished «Ծովամարտ» approved in trial (drag fix deeeb560) and main DotKiosk (PR #121, 5ce8cde5); user confirmed production «սախ իդյալականա». Only «Խառնիր գույները» was replaced in main; preserve all other games. Never merge entire trial, which contains unrelated experiments. Protect Battleship visuals, ship placement, music and gameplay. See CURRENT_STATUS.md and NEW_CHAT_HANDOFF.md.
 
