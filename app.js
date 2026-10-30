@@ -2186,15 +2186,7 @@
     }
   }
 
-  function gameAnimalGallery(){
-    // V232: no 60-clip background audio storm on iPhone; play on tap.
-    activityContent.innerHTML='';
-    activityContent.classList.add('animal-gallery-mode');
-
-    const wrap=document.createElement('div');
-    wrap.className='animal-gallery';
-    wrap.setAttribute('aria-label','Կենդանիների պատկերասրահ');
-    // AREG TEST only: CSS-drawn slow ambient shapes behind animal cards.
+  function createGalleryAmbient(){
     const ambient=document.createElement('div');
     ambient.className='areg-animal-ambient';
     ambient.setAttribute('aria-hidden','true');
@@ -2247,6 +2239,19 @@
       });
       ambient.appendChild(crystal);
     }
+    return ambient;
+  }
+
+  function gameAnimalGallery(){
+    // V232: no 60-clip background audio storm on iPhone; play on tap.
+    activityContent.innerHTML='';
+    activityContent.classList.add('animal-gallery-mode');
+
+    const wrap=document.createElement('div');
+    wrap.className='animal-gallery';
+    wrap.setAttribute('aria-label','Կենդանիների պատկերասրահ');
+    // AREG TEST only: CSS-drawn slow ambient shapes behind animal cards.
+    const ambient=createGalleryAmbient();
     // Keep ambient outside the scrollable gallery so it stays visible at every scroll depth.
 
 
@@ -2462,6 +2467,7 @@
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
+    const ambient=createGalleryAmbient();
     const wrap=document.createElement('div');
     wrap.className='animal-gallery';
     wrap.setAttribute('aria-label','Թռչունների պատկերասրահ');
@@ -2522,6 +2528,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
@@ -2601,6 +2608,7 @@
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
+    const ambient=createGalleryAmbient();
     const wrap=document.createElement('div');
     wrap.className='animal-gallery animal-gallery--sea';
     wrap.setAttribute('aria-label','Ջրային կենդանիների պատկերասրահ');
@@ -2660,6 +2668,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
@@ -2740,6 +2749,7 @@
     activityContent.innerHTML='';
     activityContent.classList.add('animal-gallery-mode');
 
+    const ambient=createGalleryAmbient();
     const wrap=document.createElement('div');
     wrap.className='animal-gallery animal-gallery--insect';
     wrap.setAttribute('aria-label','Միջատների պատկերասրահ');
@@ -2799,6 +2809,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(ambient);
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
 
