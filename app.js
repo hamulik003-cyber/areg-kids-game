@@ -2198,11 +2198,11 @@
     const ambient=document.createElement('div');
     ambient.className='areg-animal-ambient';
     ambient.setAttribute('aria-hidden','true');
-    const ambientKinds=['bone','glow','seed','grass','glow','paw','seed','glow','bone','grass','glow','seed','paw','glow','grass','seed','glow','bone','seed','glow','grass','paw','glow','seed'];
+    const ambientKinds=Array(24).fill('bokeh');
     ambientKinds.forEach((kind,i)=>{
       const particle=document.createElement('span');
       particle.className='areg-animal-particle areg-animal-'+kind;
-      particle.style.cssText='--ax:'+([7,87,51,15,94,31,73,9,61,89,18,45,79,6,58,96,24,70,41,84,12,53,91,35][i])+'%;--ay:'+([4,9,17,24,30,38,46,53,61,68,76,84,91,96,12,35,57,79,98,44,72,21,87,64][i])+'%;--as:'+(7+(i*7)%11)+'px;--ad:'+(15+(i%6)*3)+'s;--al:'+(-i*1.3)+'s;';
+      particle.style.cssText='--ax:'+([7,87,51,15,94,31,73,9,61,89,18,45,79,6,58,96,24,70,41,84,12,53,91,35][i])+'%;--ay:'+([4,9,17,24,30,38,46,53,61,68,76,84,91,96,12,35,57,79,98,44,72,21,87,64][i])+'%;--as:'+(10+(i*13)%35)+'px;--ad:'+(15+(i%6)*3)+'s;--al:'+(-i*1.3)+'s;';
       ambient.appendChild(particle);
     });
     // Keep ambient outside the scrollable gallery so it stays visible at every scroll depth.
