@@ -2198,14 +2198,38 @@
     const ambient=document.createElement('div');
     ambient.className='areg-animal-ambient';
     ambient.setAttribute('aria-hidden','true');
-    const ambientKinds=Array(48).fill('bokeh');
-    ambientKinds.forEach((kind,i)=>{
+    // Each particle occupies a separate grid cell. Reassign free cells only while invisible.
+    const bokehCount=24, bokehCols=4, bokehRows=8;
+    const bokehCells=Array.from({length:bokehCols*bokehRows},(_,i)=>i);
+    const shuffleCells=()=>{for(let i=bokehCells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bokehCells[i],bokehCells[j]]=[bokehCells[j],bokehCells[i]]}};
+    shuffleCells();
+    const occupied=new Map();
+    const directions=[[12,-10],[-12,-9],[10,12],[-11,11],[13,2],[-13,-3],[3,-13],[-3,13]];
+    const assignCell=(particle,index,cell)=>{
+      const col=cell%bokehCols,row=Math.floor(cell/bokehCols);
+      const [dx,dy]=directions[(index+Math.floor(Math.random()*directions.length))%directions.length];
+      particle.style.setProperty('--ax',(12+col*24)+'%');
+      particle.style.setProperty('--ay',(8+row*12)+'%');
+      particle.style.setProperty('--dx',dx+'px');
+      particle.style.setProperty('--dy',dy+'px');
+      occupied.set(particle,cell);
+    };
+    for(let i=0;i<bokehCount;i++){
       const particle=document.createElement('span');
-      particle.className='areg-animal-particle areg-animal-'+kind;
-      particle.style.cssText='--ax:'+(12+(i*37)%76)+'%;--ay:'+(10+(i*29)%78)+'%;--as:'+(18+(i*17)%53)+'px;--ad:'+(7+(i%6)*1.5)+'s;--al:'+(-i*.8)+'s;';
-      particle.addEventListener('animationiteration',()=>{particle.style.setProperty('--ax',(12+Math.random()*76)+'%');particle.style.setProperty('--ay',(10+Math.random()*78)+'%')});
+      particle.className='areg-animal-particle areg-animal-bokeh';
+      particle.style.setProperty('--as',(14+(i*11)%24)+'px');
+      particle.style.setProperty('--ad',(7+(i%7)*1.1)+'s');
+      particle.style.setProperty('--al',(-i*.5)+'s');
+      particle.style.setProperty('--bokeh-hue',([0,40,95,160,215,285][i%6])+'deg');
+      assignCell(particle,i,bokehCells[i]);
+      particle.addEventListener('animationiteration',()=>{
+        const taken=new Set(occupied.values());
+        taken.delete(occupied.get(particle));
+        const free=bokehCells.filter(cell=>!taken.has(cell)&&cell!==occupied.get(particle));
+        if(free.length)assignCell(particle,i,free[Math.floor(Math.random()*free.length)]);
+      });
       ambient.appendChild(particle);
-    });
+    }
     // Keep ambient outside the scrollable gallery so it stays visible at every scroll depth.
 
 
