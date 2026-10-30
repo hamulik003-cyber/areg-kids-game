@@ -2204,11 +2204,11 @@
     const shuffleCells=()=>{for(let i=bokehCells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bokehCells[i],bokehCells[j]]=[bokehCells[j],bokehCells[i]]}};
     shuffleCells();
     const occupied=new Map();
-    const directions=[[22,-18],[-22,-16],[18,20],[-19,19],[24,4],[-24,-5],[5,-24],[-6,24]];
+    const directions=[[78,-95],[-82,-75],[70,100],[-76,88],[105,18],[-104,-20],[20,-110],[-22,108]];
     const assignCell=(particle,index,cell)=>{
       const col=cell%bokehCols,row=Math.floor(cell/bokehCols);
       const [dx,dy]=directions[(index+Math.floor(Math.random()*directions.length))%directions.length];
-      particle.style.setProperty('--ax',([3,49,91][col])+'%');
+      particle.style.setProperty('--ax',([12,49,84][col])+'%');
       particle.style.setProperty('--ay',(6+row*9.5)+'%');
       particle.style.setProperty('--dx',dx+'px');
       particle.style.setProperty('--dy',dy+'px');
@@ -2234,15 +2234,15 @@
     for(let i=0;i<18;i++){
       const crystal=document.createElement('span');
       crystal.className='areg-animal-crystal';
-      crystal.style.setProperty('--ax',([5,48,93][i%3]+((i*3)%7)-3)+'%');
+      crystal.style.setProperty('--ax',(8+(i*31)%85)+'%');
       crystal.style.setProperty('--ay',(5+(i*17)%91)+'%');
       crystal.style.setProperty('--cs',(3+(i%4)*2)+'px');
       crystal.style.setProperty('--cd',(7+(i%6)*1.5)+'s');
       crystal.style.setProperty('--cl',(-i*.65)+'s');
-      crystal.style.setProperty('--cx',((i%2?1:-1)*(9+(i%5)*3))+'px');
-      crystal.style.setProperty('--cy',((i%3-1)*(12+(i%4)*4))+'px');
+      crystal.style.setProperty('--cx',((i%2?1:-1)*(45+(i%5)*13))+'px');
+      crystal.style.setProperty('--cy',((i%3-1)*(45+(i%4)*16))+'px');
       crystal.addEventListener('animationiteration',()=>{
-        crystal.style.setProperty('--ax',([5,48,93][Math.floor(Math.random()*3)]+Math.random()*6-3)+'%');
+        crystal.style.setProperty('--ax',(5+Math.random()*90)+'%');
         crystal.style.setProperty('--ay',(5+Math.random()*90)+'%');
       });
       ambient.appendChild(crystal);
