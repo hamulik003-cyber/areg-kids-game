@@ -3607,3 +3607,23 @@ html[data-theme^="photo-user-"] .section-dim{
 .activity-content.animal-gallery-mode>.areg-animal-ambient{z-index:1!important}
 .activity-content.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){z-index:2!important;background:transparent!important}
 @media(prefers-reduced-motion:reduce){.activity-content.animal-gallery-mode::before{animation:none!important;will-change:auto}}
+
+
+/* Soft blurred circular bokeh instead of animal-themed floating symbols. */
+.areg-animal-particle.areg-animal-bokeh{
+  width:var(--as)!important;height:var(--as)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.38),rgba(190,215,255,.18) 43%,rgba(165,190,255,.06) 69%,transparent 85%)!important;
+  box-shadow:0 0 14px 4px rgba(175,204,255,.12)!important;
+  filter:blur(3.5px)!important;
+  opacity:0;
+  animation:aregAnimalBokehFloat var(--ad) ease-in-out var(--al) infinite!important;
+}
+@keyframes aregAnimalBokehFloat{
+  0%,100%{opacity:0;transform:translate3d(-12px,20px,0) scale(.72)}
+  30%{opacity:.43}
+  55%{opacity:.58;transform:translate3d(16px,-14px,0) scale(1.15)}
+  85%{opacity:.25}
+  95%{opacity:0;transform:translate3d(-6px,-34px,0) scale(.85)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-particle.areg-animal-bokeh{animation:none!important;opacity:.2}}
