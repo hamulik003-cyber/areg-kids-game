@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="hy">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#142a4a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AREG TEST">
+  <link rel="manifest" href="./areg-live.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>AREG TEST</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden}
+    body{background:radial-gradient(circle at 50% 25%,#426491,#152c4c 65%,#091728);color:white;font:600 18px -apple-system,BlinkMacSystemFont,"Noto Sans Armenian",sans-serif;display:grid;place-items:center;text-align:center}
+    main{padding:25px;max-width:340px}.mark{font-size:32px;font-weight:900;letter-spacing:1px}
+    .sub{margin-top:14px;font-size:15px;line-height:1.6;color:#d6e9ff}
+    .dot{width:24px;height:24px;margin:28px auto 0;border-radius:50%;border:3px solid #ffffff45;border-top-color:#fce5ae;animation:spin .8s linear infinite}
+    #retry{display:none;margin:24px auto 0;background:#e5bd80;color:#0e2747;border:0;border-radius:14px;padding:13px 24px;font:700 16px inherit}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark">AREG TEST</div>
+    <div class="sub" id="message">Բացվում է փորձնական խաղի վերջին տարբերակը…</div>
+    <div class="dot" id="spinner" aria-hidden="true"></div>
+    <button id="retry" type="button">Կրկին փորձել</button>
+  </main>
+  <script>
+  (() => {
+    "use strict";
+    const API="https://api.github.com/repos/hamulik003-cyber/areg-kids-game/git/ref/heads/trial/areg-test-full-app-20261017";
+    const KEY="areg-live:last-good-commit";
+    const SHA=/^[a-f0-9]{40}$/;
+    const $=id=>document.getElementById(id);
+    const fallbackSha=location.pathname.split("/").slice(-2)[0];
+    let running=false;
+    async function newest(){
+      const signal=AbortSignal.timeout?AbortSignal.timeout(8000):undefined;
+      try{
+        const response=await fetch(API+"?t="+Date.now(),{cache:"no-store",signal,headers:{Accept:"application/vnd.github+json"}});
+        if(!response.ok)throw new Error("GitHub rate/connection: "+response.status);
+        const data=await response.json();
+        const sha=data&&data.object&&data.object.sha;
+        if(!SHA.test(sha))throw new Error("Invalid commit");
+        try{localStorage.setItem(KEY,sha)}catch(_){}
+        return sha;
+      }catch(_){
+        let saved;
+        try{saved=localStorage.getItem(KEY)}catch(_){}
+        return SHA.test(saved)?saved:fallbackSha;
+      }
+    }
+    async function start(){
+      if(running)return;
+      running=true;
+      $("retry").style.display="none";
+      $("spinner").style.display="block";
+      $("message").textContent="Բացվում է փորձնական խաղի վերջին տարբերակը…";
+      try{
+        if(!("serviceWorker" in navigator))throw new Error("Այս սարքը չի աջակցում անհրաժեշտ թարմացման մեխանիզմը");
+        const latestPromise=newest();
+        await navigator.serviceWorker.register("./areg-live-sw.js",{scope:"./",updateViaCache:"none"});
+        await navigator.serviceWorker.ready;
+        const sha=await latestPromise;
+        if(!SHA.test(sha))throw new Error("Անվավեր տարբերակ");
+        location.replace(new URL("./live-index.html?v="+sha,location.href).href);
+      }catch(error){
+        $("message").textContent="AREG TEST-ը չբացվեց։ Ստուգեք ինտերնետը և նորից փորձեք։";
+        $("spinner").style.display="none";
+        $("retry").style.display="block";
+        console.error("AREG TEST launch",error);
+      }finally{running=false}
+    }
+    $("retry").addEventListener("click",start);
+    void start();
+  })();
+  </script>
+</body>
+</html>
