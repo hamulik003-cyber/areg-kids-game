@@ -2199,7 +2199,7 @@
     ambient.className='areg-animal-ambient';
     ambient.setAttribute('aria-hidden','true');
     // Each particle occupies a separate grid cell. Reassign free cells only while invisible.
-    const bokehCount=24, bokehCols=4, bokehRows=8;
+    const bokehCount=24, bokehCols=3, bokehRows=10;
     const bokehCells=Array.from({length:bokehCols*bokehRows},(_,i)=>i);
     const shuffleCells=()=>{for(let i=bokehCells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bokehCells[i],bokehCells[j]]=[bokehCells[j],bokehCells[i]]}};
     shuffleCells();
@@ -2208,8 +2208,8 @@
     const assignCell=(particle,index,cell)=>{
       const col=cell%bokehCols,row=Math.floor(cell/bokehCols);
       const [dx,dy]=directions[(index+Math.floor(Math.random()*directions.length))%directions.length];
-      particle.style.setProperty('--ax',(12+col*24)+'%');
-      particle.style.setProperty('--ay',(8+row*12)+'%');
+      particle.style.setProperty('--ax',([3,49,91][col])+'%');
+      particle.style.setProperty('--ay',(6+row*9.5)+'%');
       particle.style.setProperty('--dx',dx+'px');
       particle.style.setProperty('--dy',dy+'px');
       occupied.set(particle,cell);
@@ -2217,8 +2217,8 @@
     for(let i=0;i<bokehCount;i++){
       const particle=document.createElement('span');
       particle.className='areg-animal-particle areg-animal-bokeh';
-      particle.style.setProperty('--as',([48,36,25,15][Math.floor(i/6)]+(i%3)*2)+'px');
-      particle.style.setProperty('--ad',(15+(i%7)*1.7)+'s');
+      particle.style.setProperty('--as',([58,46,35,25][Math.floor(i/6)]+(i%3)*2)+'px');
+      particle.style.setProperty('--ad',(11+(i%7)*1.2)+'s');
       particle.style.setProperty('--al',(-i*.5)+'s');
       particle.style.setProperty('--bokeh-hue',([0,40,95,160,215,285][i%6])+'deg');
       assignCell(particle,i,bokehCells[i]);
