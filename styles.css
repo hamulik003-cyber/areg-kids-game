@@ -3572,3 +3572,13 @@ html[data-theme^="photo-user-"] .section-dim{
   80%{background-position:35% 80%}
 }
 @media(prefers-reduced-motion:reduce){.animal-gallery-mode{animation:none!important}}
+
+
+/* Specificity correction: the real container is .activity-content.animal-gallery-mode. */
+.activity-content.animal-gallery-mode{
+ background:linear-gradient(125deg,#162e48,#293c63,#42305b,#274c43,#53402e,#162e48)!important;
+ background-size:500% 500%!important;
+ animation:aregAnimalRGB 24s ease-in-out infinite!important;
+}
+.activity-content.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){background:transparent!important}
+@media(prefers-reduced-motion:reduce){.activity-content.animal-gallery-mode{animation:none!important}}
