@@ -3641,3 +3641,19 @@ html[data-theme^="photo-user-"] .section-dim{
   85%{opacity:.40}
   95%{opacity:0;transform:translate3d(-6px,-34px,0) scale(.88)}
 }
+
+
+/* AREG TEST: dim bright bokeh, move clearly before fading, then reappear elsewhere. */
+.areg-animal-particle.areg-animal-bokeh{
+  background:radial-gradient(circle at 42% 40%,rgba(224,240,255,.33),rgba(185,210,244,.18) 43%,rgba(153,190,230,.06) 72%,transparent 91%)!important;
+  box-shadow:0 0 12px 3px rgba(190,213,250,.09)!important;
+  filter:blur(2.2px)!important;
+}
+@keyframes aregAnimalBokehFloat{
+  0%{opacity:0;transform:translate3d(-24px,28px,0) scale(.82)}
+  16%{opacity:.34}
+  42%{opacity:.48;transform:translate3d(6px,-8px,0) scale(1.03)}
+  70%{opacity:.34;transform:translate3d(32px,-36px,0) scale(1.1)}
+  91%{opacity:0;transform:translate3d(49px,-62px,0) scale(.9)}
+  100%{opacity:0;transform:translate3d(49px,-62px,0) scale(.9)}
+}
