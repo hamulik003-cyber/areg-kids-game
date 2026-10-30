@@ -333,6 +333,17 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile{z-index:1}
 #app.combat-mode .board .cell.carrier-cell.sunk{z-index:10!important;isolation:isolate;background:#111b28!important}
 #app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{z-index:1}
+/* Mask the grid's 1px seams under every fully sunk ship tile, including
+   cell edges. The board grid stays mounted and never animates on shots. */
+#app.combat-mode .board .cell.photo-ship.sunk,
+#app.combat-mode .board .cell.carrier-cell.sunk{overflow:visible!important;z-index:20!important}
+#app.combat-mode .board .cell.photo-ship.sunk::after,
+#app.combat-mode .board .cell.carrier-cell.sunk::after{
+ content:"";position:absolute;inset:-2px;z-index:0;
+ background:#111b28;pointer-events:none;border-radius:0;
+}
+#app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile,
+#app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{position:absolute;z-index:1!important}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
