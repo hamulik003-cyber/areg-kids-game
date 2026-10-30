@@ -1,3 +1,10 @@
+## 2026-10-30 — User-approved Battleship-only production release candidate
+- User explicitly approved the finished «Ծովամարտ» in AREG TEST and requested replacing ONLY the production «Խառնիր գույները» card with «Ծովամարտ» in the existing create section; preserve every other production game and leave trial unchanged.
+- Focused branch `release/sea-battle-only-20261030` from production main `9675422af0bb0ce30a89c1882644fdb9cebd6b9a`; do NOT merge the diverged trial branch.
+- Imported the approved trial `areg-sea-battle.html` unchanged, and exactly its five ship WebP assets and two combat MP3 assets by original Git blob SHA. Production `app.js` changes only one card, adds Battleship game launch and its parent-owned music/IndexedDB integration, and maps `seaBattle` to that launcher. All existing other game functions remain intact.
+- Production `index.html` and `service-worker.js` receive focused version/cache bumps and precache the Battleship assets for installed DotKiosk/PWA. The song chosen in trial Render origin's IndexedDB cannot automatically migrate to the different production GitHub Pages origin; user must select it once in production.
+- Release is NOT considered DotKiosk live until focused PR CI passes, PR merges, Pages publishes, and user verifies on their actual installed DotKiosk. Rollback baseline `9675422af0bb0ce30a89c1882644fdb9cebd6b9a`.
+
 ## 2026-10-20 — User-approved finger painting release (pending CI and merge)
 - User explicitly approved the AREG TEST «Մատով նկարչություն» after fixing two-finger pinch accidentally placing a star and locking drawing. Exact approved trial source commit: `ccc73abdd7cd43d9a5bd11be808136c42f896839`.
 - Focused release branch `release/paint-approved-20261020` replaces only the `gamePaint()` function in production `app.js` with the approved trial implementation. All other production game functions, headers, PWA files, jigsaw, audio and assets remain unchanged. Do NOT merge broad PR #104 or trial-only Render/PWA infrastructure.

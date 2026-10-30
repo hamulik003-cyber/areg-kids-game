@@ -459,7 +459,7 @@
       games:[
         {id:'paint',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Երաժշտական աշխարհ 3D',thumb:'create-game-2.jpg',kind:'stickers'},
-        {id:'mix',label:'Խառնիր գույները',thumb:'create-game-3.jpg',kind:'mix'},
+        {id:'sea-battle',label:'Ծովամարտ',thumb:'create-game-3.jpg',kind:'seaBattle'},
         {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
@@ -1539,6 +1539,7 @@
   }
   function openGame(section,game,card){
     if(innerGameEntryActive)return;
+    if(game.kind==='seaBattle')battleMusicStart();
     const nav=++galleryNavigationId;
     const flight=card?beginInnerGameFlight(card,game):null;
     if(flight)innerGameEntryActive=true;
@@ -1760,7 +1761,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,seaBattle:gameSeaBattle,connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -3667,6 +3668,61 @@
     mute.addEventListener('click',()=>{silent=!silent;mute.textContent=silent?'🔇':'🔊';mute.setAttribute('aria-label',silent?'Միացնել ձայնը':'Անջատել ձայնը');if(master&&audio)master.gain.setTargetAtTime(silent?0:.46,audio.currentTime,.02)});
     gameCleanup.push(()=>{closed=true;if(timer)clearInterval(timer);active.clear();if(audio){audio.close().catch(()=>{});audio=null}css.remove()});
   }
+  /* Battleship music starts in the parent on the user's game-card tap.
+     Its iframe owns the picker, but never starts a second audio player. */
+  const battleMusic=new Audio();battleMusic.loop=true;
+  let battleMusicUrl=null;
+  function battleMusicSet(blob){
+    battleMusic.pause();
+    if(battleMusicUrl)URL.revokeObjectURL(battleMusicUrl);
+    battleMusicUrl=blob?URL.createObjectURL(blob):null;
+    if(battleMusicUrl)battleMusic.src=battleMusicUrl;
+  }
+  function battleMusicStart(){
+    if(!battleMusicUrl)return;
+    battleMusic.play().catch(()=>{});
+  }
+  function battleMusicStop(){battleMusic.pause();battleMusic.currentTime=0}
+  function battleMusicRestore(){
+    try{
+      const req=indexedDB.open('areg-sea-battle-music',1);
+      req.onupgradeneeded=()=>req.result.createObjectStore('tracks');
+      req.onsuccess=()=>{
+        const db=req.result;
+        const q=db.transaction('tracks').objectStore('tracks').get('selected');
+        q.onsuccess=()=>{if(q.result?.blob)battleMusicSet(q.result.blob)};
+      };
+    }catch(e){console.warn('Battleship music load:',e)}
+  }
+  battleMusicRestore();
+  function battleMusicNotify(){
+    const frame=activityContent.querySelector('iframe[title="Ծովամարտ"]');
+    if(frame?.contentWindow)frame.contentWindow.postMessage({type:'areg-sea-music-state',playing:!battleMusic.paused},location.origin);
+  }
+  battleMusic.addEventListener('play',battleMusicNotify);
+  battleMusic.addEventListener('pause',battleMusicNotify);
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.source!==activityContent.querySelector('iframe[title="Ծովամարտ"]')?.contentWindow)return;
+    if(event.data?.type==='areg-sea-music-selected'&&event.data.blob){
+      battleMusicSet(event.data.blob);battleMusicStart();battleMusicNotify();
+    }else if(event.data?.type==='areg-sea-music-control'){
+      if(event.data.action==='play')battleMusicStart();
+      if(event.data.action==='stop')battleMusic.pause();
+      battleMusicNotify();
+    }else if(event.data?.type==='areg-sea-music-query')battleMusicNotify();
+  });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)battleMusic.pause()});
+  function gameSeaBattle(){
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Ծովամարտ';
+    frame.src='./areg-sea-battle.html?v=1&parentMusic=1&testv='+Date.now();
+    frame.setAttribute('loading','eager');
+    activityScreen.classList.add('areg-car-wash-mode');
+    activityContent.append(frame);
+    gameCleanup.push(()=>{battleMusicStop();activityScreen.classList.remove('areg-car-wash-mode')});
+  }
   function gameMix(){
     const s=surface('☝️'),area=document.createElement('div');area.className='mix-area';const drops=document.createElement('div');drops.className='mix-drops';const bowl=document.createElement('div');bowl.className='mix-bowl';bowl.innerHTML='<div class="mix-liquid"></div>';area.append(drops,bowl);s.appendChild(area);let selected=[],found=new Set();const colors=[['#ef5350','r'],['#ffeb3b','y'],['#42a5f5','b']],mix={ry:'#ff9800',br:'#ab47bc',by:'#66bb6a'};
     colors.forEach(([c,k])=>{const b=document.createElement('button');b.className='paint-drop';b.style.background=c;b.addEventListener('click',()=>{if(selected.includes(k))return;selected.push(k);b.style.boxShadow='0 0 0 5px #fff,0 6px 0 rgba(75,39,17,.16)';if(selected.length===2){const key=[...selected].sort().join('');$('.mix-liquid',bowl).style.background=mix[key]||'#795548';found.add(key);setTimeout(()=>{$$('.paint-drop',drops).forEach(x=>x.style.boxShadow='');selected=[];if(found.size>=3)reward()},700)}});drops.appendChild(b)})
@@ -3800,7 +3856,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=301',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=304',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
