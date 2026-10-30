@@ -2993,6 +2993,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(createGalleryAmbient());
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
@@ -3058,6 +3059,7 @@
       wrap.appendChild(card);
     });
 
+    activityContent.appendChild(createGalleryAmbient());
     activityContent.appendChild(wrap);
     observeGalleryUpcomingImages(wrap);
     gameCleanup.push(()=>{
