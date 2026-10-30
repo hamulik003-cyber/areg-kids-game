@@ -1,3 +1,12 @@
+## 2026-10-30 — ՆՈՐ ԳԵՐԱԿԱ ՊԱՐՏԱԴԻՐ ԿԱՆՈՆՆԵՐ (փոխարինում է հին «միայն փազլ» ընթացիկ նշումներին)
+- Օգտատիրոջ հաստատված հերթականությունը՝ **փոփոխություն միայն տեղադրված AREG TEST-ի trial branch-ում → Render deploy և իրական `live` ստուգում → օգտատիրոջ Home Screen հաստատում → միայն առանձին production թույլտվությամբ՝ նպատակային DotKiosk release**։
+- Ամեն նոր զրույցում ինքնուրույն կարդալ main-ի և trial-ի `AGENTS.md`, `WORKFLOW_START_HERE.md`, `AREG_TEST_WORKFLOW.md`, `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, `NEW_CHAT_HANDOFF.md`; ստուգել commit, user approval, PR, CI, Render deploy և rollback։ Չասել «չգիտեմ ինչպես թարմացնել» առանց GitHub/Render գործողությունները փորձելու։
+- GitHub trial branch՝ `trial/areg-test-full-app-20261017`։ Render `areg-test-screen-live`: service `srv-db9obf3ncjis73a2tm3g`, workspace `tea-dau4frvavr4c73fl4jtg`; URL `https://areg-test-screen-live.onrender.com/index.html?areg_trial=1`։ GitHub commit-ից հետո ստուգել Render deploy-ի commit SHA-ն և վիճակը, autoDeploy-ի բացակայության/ուշացման դեպքում կանչել `trigger_deploy`, ապա `get_deploy` մինչև `live`։ Եթե հին տարբերակ է՝ ախտորոշել cache/SW/version/build, ոչ թե օգտատիրոջը Safari ուղարկել։
+- Օգտատերը սովորաբար ստուգում է **հեռախոսի արդեն տեղադրված AREG TEST պատկերակով**։ Մի՛ առաջարկիր ամեն փոփոխության համար Safari/raw.githack կամ Add to Home Screen։
+- Հիմնական DotKiosk-ի «Ծովամարտ»-ը 2026-10-30-ին օգտատերը անձամբ ստուգել և հայտարարել է վերջնական. հաստատված production commit `3ed4df55e3df4984fa917c2299ed5759336984c4`։ Չփոխել առանց նոր հստակ թույլտվության։ **Երբեք ամբողջ trial-ը main չmerge անել**։
+- Production release-ի ժամանակ միայն ընտրված խաղի և անհրաժեշտ ինտեգրման փոփոխությունները, երեք handoff/status ֆայլերը, SW/cache/registration/tests համընկնումը, CI-ն, main merge-ը և իրական DotKiosk հաստատումը։ Կարգավիճակները չխառնել և չհորինել։
+- Այս բաժինը գերակայում է ստորև եղած 2026-10-17-ի պատմական, փազլի վերաբերյալ ընթացիկ նշումներին. դրանք չեն նշանակում, որ նախկին խնդիրները հիմա էլ բաց են։
+
 # AREG Kids Game — մշտական AREG TEST / Home Screen / GitHub / Render աշխատանքային կարգ
 
 **Հաստատված նոր աշխատելաոճ — 2026-10-17 (օգտատիրոջ հստակ խնդրանքով):** Այս փաստաթուղթը առաջնային է ընթացիկ AREG TEST մշակման համար և լրացնում/ճշտում է հին Safari-only փորձարկման հրահանգները՝ առանց վերացնելու հիմնական խաղի պաշտպանության կանոնները։
