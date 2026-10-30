@@ -355,7 +355,7 @@ try{
       const core=await caches.open('areg-v304-core');
       const entry=await core.match('./index.html');
       const app=await core.match('./app.js?v=304');
-      const css=await core.match('./styles.css?v=299');
+      const css=await core.match('./styles.css?v=303');
       const constellationCss=await core.match('./space-3d-games.css?v=287');
       const html=entry?await entry.text():'';
       return {wallet:localStorage.getItem('areg-stars-v35'),
