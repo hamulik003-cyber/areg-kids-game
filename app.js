@@ -2199,7 +2199,7 @@
     ambient.className='areg-animal-ambient';
     ambient.setAttribute('aria-hidden','true');
     // Each particle occupies a separate grid cell. Reassign free cells only while invisible.
-    const bokehCount=24, bokehCols=3, bokehRows=10;
+    const bokehCount=12, bokehCols=3, bokehRows=10;
     const bokehCells=Array.from({length:bokehCols*bokehRows},(_,i)=>i);
     const shuffleCells=()=>{for(let i=bokehCells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bokehCells[i],bokehCells[j]]=[bokehCells[j],bokehCells[i]]}};
     shuffleCells();
