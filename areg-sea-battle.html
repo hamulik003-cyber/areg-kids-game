@@ -342,6 +342,14 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  filter:grayscale(1) brightness(.17) drop-shadow(0 0 1px #0b111a)!important;
  z-index:11!important;
 }
+/* Keep hit/sink emoji effects above every ship artwork layer, even when
+   the ship is an elevated photo tile or carrier SVG. No shot logic changes. */
+#app .board .cell .splash{
+ position:absolute!important;inset:0!important;z-index:50!important;
+ isolation:isolate;pointer-events:none;overflow:visible!important;
+}
+#app .board .cell.photo-ship .splash,
+#app .board .cell.carrier-cell .splash{z-index:50!important}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
