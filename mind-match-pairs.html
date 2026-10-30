@@ -372,7 +372,7 @@ img{-webkit-user-drag:none!important;pointer-events:none!important}
 
 /* Only the six-category selection menu: animated RGB glow and floating fairy orbs. */
 #menu .board{isolation:isolate;overflow:hidden}
-#menu .board .pairs-fairy-ambient{border-radius:23px;overflow:hidden;z-index:0}
+#menu .board .pairs-fairy-ambient{position:absolute;inset:0;display:block;width:100%;height:100%;border-radius:23px;overflow:hidden;pointer-events:none;z-index:0}
 #menu .board .pairs-fairy-ambient::before{content:"";position:absolute;inset:-15%;background:linear-gradient(125deg,#e3a1c8,#94c9f1,#9de1c2,#f4c27f,#b5a3ef);opacity:.5;filter:blur(28px);animation:pairsFairyHue 13s linear infinite}
 #menu .board .menu{position:relative;z-index:1}
 #menu .board .pairs-fairy-ambient .fairy-orb{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;opacity:0;background:radial-gradient(circle at 32% 27%,rgba(255,255,255,.85),rgba(194,228,255,.43) 42%,rgba(177,180,255,.2) 72%,transparent 96%);box-shadow:0 0 14px rgba(205,228,255,.35);filter:blur(2px) hue-rotate(var(--hue));animation:pairsFairyDrift var(--duration) ease-in-out var(--delay) infinite}
