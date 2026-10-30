@@ -327,6 +327,12 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  background-size:100% 100%;background-repeat:no-repeat;
  box-shadow:none;
 }
+/* Sunk-ship-only mask: cover the board's static grid on fully destroyed
+   ship cells. This is CSS-only: no shot, board, or sprite mutations. */
+#app.combat-mode .board .cell.photo-ship.sunk{z-index:10!important;isolation:isolate;background:#111b28!important}
+#app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile{z-index:1}
+#app.combat-mode .board .cell.carrier-cell.sunk{z-index:10!important;isolation:isolate;background:#111b28!important}
+#app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{z-index:1}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
