@@ -1,3 +1,8 @@
+## 2026-10-30 — FINAL USER APPROVAL: Ծովամարտ in production DotKiosk
+- User personally tested the production DotKiosk app after PR #124 was squash-merged to `main` as `3ed4df55e3df4984fa917c2299ed5759336984c4` and explicitly confirmed everything works well, declaring «Ծովամարտ» FINAL.
+- Treat this production Battleship state as the approved, protected baseline. Do not change Battleship behavior, appearance, audio, placement, or associated production integration without new explicit user approval. AREG TEST was not wholesale merged; only the focused Battleship release was promoted.
+- This is user-confirmed on-device acceptance, not merely CI or GitHub Pages status. Future work should preserve the final production baseline and use isolated trial changes first.
+
 ## 2026-10-30 — Latest approved Battleship-only DotKiosk refresh (PR #124)
 - User explicitly approved moving ONLY the current AREG TEST «Ծովամարտ» to production DotKiosk. The latest trial Battleship source blob is `261280a5b3c8cdcf84a5b1379a579043dbe2cac4` (trial commit `b0f1e47f4aa28cf2dbe7be3264a6c2672dc06019`).
 - Focused release branch `release/sea-battle-latest-only-20261030` updates `areg-sea-battle.html` only for game behavior and appearance, plus `index.html` and `service-worker.js` version/cache bump from 304 to 305 for production installed PWA refresh. These two handoff files are documentation-only.
