@@ -327,23 +327,21 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  background-size:100% 100%;background-repeat:no-repeat;
  box-shadow:none;
 }
-/* Sunk-ship-only mask: cover the board's static grid on fully destroyed
-   ship cells. This is CSS-only: no shot, board, or sprite mutations. */
-#app.combat-mode .board .cell.photo-ship.sunk{z-index:10!important;isolation:isolate;background:#111b28!important}
-#app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile{z-index:1}
-#app.combat-mode .board .cell.carrier-cell.sunk{z-index:10!important;isolation:isolate;background:#111b28!important}
-#app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{z-index:1}
-/* Mask the grid's 1px seams under every fully sunk ship tile, including
-   cell edges. The board grid stays mounted and never animates on shots. */
+/* Preserve the original transparent ship silhouettes on sunk cells.
+   Ship art is above the static grid; a tiny dark silhouette shadow blocks
+   white grid bleed at hull edges without covering the blue cell background. */
 #app.combat-mode .board .cell.photo-ship.sunk,
-#app.combat-mode .board .cell.carrier-cell.sunk{overflow:visible!important;z-index:20!important}
-#app.combat-mode .board .cell.photo-ship.sunk::after,
-#app.combat-mode .board .cell.carrier-cell.sunk::after{
- content:"";position:absolute;inset:-2px;z-index:0;
- background:#111b28;pointer-events:none;border-radius:0;
+#app.combat-mode .board .cell.carrier-cell.sunk{
+ background:transparent!important;isolation:isolate;z-index:10!important;
 }
-#app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile,
-#app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{position:absolute;z-index:1!important}
+#app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile{
+ filter:grayscale(1) brightness(.13) drop-shadow(0 0 1px #0b111a)!important;
+ z-index:11!important;
+}
+#app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{
+ filter:grayscale(1) brightness(.17) drop-shadow(0 0 1px #0b111a)!important;
+ z-index:11!important;
+}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
