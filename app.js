@@ -3756,11 +3756,21 @@
     }catch(e){console.warn('Battleship music load:',e)}
   }
   battleMusicRestore();
+  function battleMusicNotify(){
+    const frame=activityContent.querySelector('iframe[title="Ծովամարտ"]');
+    if(frame?.contentWindow)frame.contentWindow.postMessage({type:'areg-sea-music-state',playing:!battleMusic.paused},location.origin);
+  }
+  battleMusic.addEventListener('play',battleMusicNotify);
+  battleMusic.addEventListener('pause',battleMusicNotify);
   window.addEventListener('message',event=>{
-    if(event.origin!==location.origin||event.data?.type!=='areg-sea-music-selected')return;
-    if(!event.data.blob)return;
-    battleMusicSet(event.data.blob);
-    battleMusicStart();
+    if(event.origin!==location.origin||event.source!==activityContent.querySelector('iframe[title="Ծովամարտ"]')?.contentWindow)return;
+    if(event.data?.type==='areg-sea-music-selected'&&event.data.blob){
+      battleMusicSet(event.data.blob);battleMusicStart();battleMusicNotify();
+    }else if(event.data?.type==='areg-sea-music-control'){
+      if(event.data.action==='play')battleMusicStart();
+      if(event.data.action==='stop')battleMusic.pause();
+      battleMusicNotify();
+    }else if(event.data?.type==='areg-sea-music-query')battleMusicNotify();
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)battleMusic.pause()});
   function gameSeaBattle(){
