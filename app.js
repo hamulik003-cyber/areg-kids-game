@@ -457,10 +457,10 @@
     create:{
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
-        {id:'stickers',label:'Ստեղծել երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
-        {id:'mix',label:'Իմ ավտոլվացումը',thumb:'create-game-3.jpg',kind:'mix'},
-        {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'},
-        {id:'sea-battle',label:'Ծովամարտ',thumb:'create-game-4.jpg',kind:'seaBattle'}
+        {id:'draw-finger',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'drawColor'},
+        {id:'stickers',label:'Երաժշտական աշխարհ 3D',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'sea-battle',label:'Ծովամարտ',thumb:'create-game-4.jpg',kind:'seaBattle'},
+        {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'}
       ]
     },
     magic:{
