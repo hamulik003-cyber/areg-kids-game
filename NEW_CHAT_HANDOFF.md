@@ -1,3 +1,10 @@
+## 2026-10-30 — FINAL USER-VERIFIED BATTLESHIP PRODUCTION APPROVAL
+- User tested production in DotKiosk and explicitly confirmed: «սախ իդյալականա». Production «Ծովամարտ» is FINAL APPROVED, not a release candidate. Production merge PR #121, game-bearing main commit `5ce8cde5`; inspect current main HEAD separately before edits.
+- Trial approved Battleship: `trial/areg-test-full-app-20261017`, placement fix `deeeb560`; test URL https://areg-test-screen-live.onrender.com/ . Trial branch as a whole is NOT approved. Production and trial remain separate.
+- Production replaced ONLY «Խառնիր գույները» card with «Ծովամարտ». Preserve other production games, menus, visuals, PWA/DotKiosk and caching. Imported exact approved Battleship HTML, five ship images and two sound files, plus isolated parent-owned music controls.
+- Approved Battleship: 10×10 stable white grids, centered boards, realistic ship drag previews, finger-centered edge-clamped placement, game modes/effects, background image picker and bubbles, RGB headings, persistent music picker, auto playback on entry, play/stop controls and stop on exit.
+- Never wholesale merge trial. Inspect AGENTS.md, CURRENT_STATUS.md, PROJECT_HANDOFF.md, NEW_CHAT_HANDOFF.md, branches and tests before edits; protect approved production and trial baselines. Rollback pre-promotion main `9675422af0bb0ce30a89c1882644fdb9cebd6b9a`.
+
 ## 2026-10-30 — User-approved Battleship-only production release candidate
 - User explicitly approved the finished «Ծովամարտ» in AREG TEST and requested replacing ONLY the production «Խառնիր գույները» card with «Ծովամարտ» in the existing create section; preserve every other production game and leave trial unchanged.
 - Focused branch `release/sea-battle-only-20261030` from production main `9675422af0bb0ce30a89c1882644fdb9cebd6b9a`; do NOT merge the diverged trial branch.
