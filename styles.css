@@ -3709,3 +3709,23 @@ html[data-theme^="photo-user-"] .section-dim{
  96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) rotate(58deg) scale(.7)}
 }
 @media(prefers-reduced-motion:reduce){.areg-animal-crystal{animation:none;opacity:.2}}
+
+
+/* Round, translucent fairy-like droplets with a soft luminous rim. */
+.areg-animal-crystal{
+ width:calc(var(--cs)*1.65)!important;
+ height:calc(var(--cs)*1.65)!important;
+ border-radius:50%!important;
+ clip-path:none!important;
+ background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.72) 0%,rgba(215,248,255,.26) 27%,rgba(177,208,255,.13) 58%,rgba(211,177,255,.4) 85%,rgba(255,255,255,.08) 100%)!important;
+ border:1px solid rgba(225,244,255,.38);
+ box-shadow:inset -1px -2px 4px rgba(151,194,255,.16),0 0 9px rgba(200,223,255,.36);
+ filter:blur(.45px)!important;
+}
+@keyframes aregCrystalDrift{
+ 0%{opacity:0;transform:translate3d(0,0,0) scale(.65)}
+ 18%{opacity:.56}
+ 45%{opacity:.8;transform:translate3d(calc(var(--cx)*.5),calc(var(--cy)*.5),0) scale(1.08)}
+ 72%{opacity:.62}
+ 96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.7)}
+}
