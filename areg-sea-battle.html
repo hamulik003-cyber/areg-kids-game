@@ -1025,7 +1025,12 @@ function renderPlace(){
   const height=(rect.height-padT-padB-rowGap*(N-1))/N;
   const x=e.clientX-rect.left-padL,y=e.clientY-rect.top-padT;
   const col=Math.floor(x/(width+gap)),row=Math.floor(y/(height+rowGap));
-  drawGhost(col>=0&&col<N&&row>=0&&row<N?idx(col,row):-1);
+  if(col<0||col>=N||row<0||row>=N){drawGhost(-1);return}
+  // The floating ship is centered under the finger. Convert that center
+  // to its first occupied cell and clamp to the board's legal edges.
+  const firstCol=orientation===0?Math.max(0,Math.min(N-len,col-Math.floor(len/2))):col;
+  const firstRow=orientation===1?Math.max(0,Math.min(N-len,row-Math.floor(len/2))):row;
+  drawGhost(idx(firstCol,firstRow));
 }
  const actions=document.createElement('div');actions.className='placement-actions';actions.innerHTML='<button class="secondary" id="auto">🎲 Ավտոմատ դասավորել</button>'+(placeIndex===FLEET.length?'<button class="primary" id="ready">ՊԱՏՐԱՍՏ Է ✓</button>':'');view.append(actions);
  actions.querySelector('#auto').onclick=()=>{b.ships=randomBoard().ships;placeIndex=FLEET.length;editShip=-1;beep('place');renderPlace()};const ready=actions.querySelector('#ready');if(ready)ready.onclick=()=>{if(mode==='local'){if(turn===0)prepareLocal(1);else startBattle()}else if(mode==='online'){localReady=true;send({type:'ready'});waitOnline()}else startBattle()};
