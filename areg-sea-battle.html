@@ -327,6 +327,60 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
  background-size:100% 100%;background-repeat:no-repeat;
  box-shadow:none;
 }
+/* Preserve the original transparent ship silhouettes on sunk cells.
+   Ship art is above the static grid; a tiny dark silhouette shadow blocks
+   white grid bleed at hull edges without covering the blue cell background. */
+#app.combat-mode .board .cell.photo-ship.sunk,
+#app.combat-mode .board .cell.carrier-cell.sunk{
+ background:transparent!important;isolation:isolate;z-index:10!important;
+}
+#app.combat-mode .board .cell.photo-ship.sunk .ship-photo-tile{
+ filter:grayscale(1) brightness(.13) drop-shadow(0 0 1px #0b111a)!important;
+ z-index:11!important;
+}
+#app.combat-mode .board .cell.carrier-cell.sunk .carrier-art{
+ filter:grayscale(1) brightness(.17) drop-shadow(0 0 1px #0b111a)!important;
+ z-index:11!important;
+}
+/* Keep hit/sink emoji effects above every ship artwork layer, even when
+   the ship is an elevated photo tile or carrier SVG. No shot logic changes. */
+#app .board .cell .splash{
+ position:absolute!important;inset:0!important;z-index:50!important;
+ isolation:isolate;pointer-events:none;overflow:visible!important;
+}
+#app .board .cell.photo-ship .splash,
+#app .board .cell.carrier-cell .splash{z-index:50!important}
+/* Victory only: no opaque backdrop; the final board stays visible behind the dialog. */
+#app .overlay.victory-overlay{background:transparent!important}
+/* Combat heading only: larger, slightly lower, matching the existing RGB
+   title animation. The second anchor is decorative and never affects gameplay. */
+#app.combat-mode .top{padding:7px 4px 3px!important;min-height:33px!important}
+#app.combat-mode .top h1{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;font-size:clamp(20px,5.8vw,25px)!important;
+ line-height:25px!important;white-space:nowrap!important;
+}
+#app.combat-mode .top .sea-menu-anchor{
+ display:inline-block!important;order:0!important;margin:0!important;
+ font-size:clamp(22px,6vw,27px)!important;line-height:1!important;
+}
+#app.combat-mode .top .sea-menu-title{
+ display:inline-block!important;order:1!important;
+ background:linear-gradient(110deg,#fff04a,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a);
+ background-size:200% 100%!important;background-clip:text!important;-webkit-background-clip:text!important;
+ -webkit-text-fill-color:transparent!important;
+ animation:placementTitleRGB 10s linear infinite!important;
+ animation-delay:var(--sea-title-offset,0s)!important;
+}
+#app.combat-mode .top h1::after{
+ content:"⚓";order:2;display:inline-block;
+ font-size:clamp(22px,6vw,27px);line-height:1;
+}
+@media(prefers-reduced-motion:reduce){#app.combat-mode .top .sea-menu-title{animation:none!important}}
+/* Restore original icon alignment; offset only the complete robot choice button. */
+#app:not(.combat-mode) .sea-menu-art .choice[data-mode="ai"]{position:relative;top:6px}
+/* Lower the entire online/globe choice button, keeping icon and label aligned. */
+#app:not(.combat-mode) .sea-menu-art .choice[data-mode="online"]{position:relative;top:6px}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
@@ -1179,8 +1233,8 @@ function fire(i){
 }
 
 function aiShot(){if(phase!=='battle'||mode!=='ai')return;const free=Array.from({length:100},(_,i)=>i).filter(i=>!mine.shots.includes(i));const options=aiMemory.filter(i=>free.includes(i));const pick=options.length?options[rand(options.length)]:free[rand(free.length)];const r=hitAt(mine,pick);if(r.hit){const [x,y]=xy(pick);for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy;if(xx>=0&&xx<N&&yy>=0&&yy<N)aiMemory.push(idx(xx,yy))}if(r.sunk)aiMemory=[]}shotBusy=true;animateShot(0,pick,r.hit,()=>{shotBusy=false;if(r.win)return victory('Համակարգիչը');turn=0;renderBattle()},r.sunk)}
-function victory(who){finished=true;shotBusy=false;phase='end';beep('win');modal('🏆',who==='Դու'?'Դու հաղթեցի՜ր':who+' հաղթեց', 'Բոլոր նավերը գտնված են։ Նորից խաղա՞նք։','Նոր խաղ',()=>start(mode),true)}
-function modal(emoji,title,desc,button,action,menu=false){const old=view.querySelector('.overlay');if(old)old.remove();const o=document.createElement('div');o.className='overlay';o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true">'+Array.from({length:13},(_,i)=>'<i style="--x:'+((i*37+9)%94)+'%;--s:'+(7+(i*11)%20)+'px;--d:'+(7+(i%5)*1.7)+'s;--delay:-'+(i*.93)+'s;--y:'+(8+i*7%85)+'%"></i>').join('')+'</div><div class="big wave">'+emoji+'</div><h2></h2><p></p><button class="primary"></button>'+(menu?'<button class="secondary" id="menuBtn">Գլխավոր մենյու</button>':'')+'</div>';o.querySelector('h2').textContent=title;o.querySelector('p').textContent=desc;o.querySelector('.primary').textContent=button;o.querySelector('.primary').onclick=()=>{o.remove();action()};view.append(o);if(menu)o.querySelector('#menuBtn').onclick=showMenu}
+function victory(who){finished=true;shotBusy=false;renderBattle();phase='end';beep('win');const finishedSession=session;setTimeout(()=>{if(session!==finishedSession||phase!=='end')return;modal('🏆',who==='Դու'?'Դու հաղթեցի՜ր':who+' հաղթեց', 'Բոլոր նավերը գտնված են։ Նորից խաղա՞նք։','Նոր խաղ',()=>start(mode),true)?.classList.add('victory-overlay')},3000)}
+function modal(emoji,title,desc,button,action,menu=false){const old=view.querySelector('.overlay');if(old)old.remove();const o=document.createElement('div');o.className='overlay';o.innerHTML='<div class="modal"><div class="modal-bubbles" aria-hidden="true">'+Array.from({length:13},(_,i)=>'<i style="--x:'+((i*37+9)%94)+'%;--s:'+(7+(i*11)%20)+'px;--d:'+(7+(i%5)*1.7)+'s;--delay:-'+(i*.93)+'s;--y:'+(8+i*7%85)+'%"></i>').join('')+'</div><div class="big wave">'+emoji+'</div><h2></h2><p></p><button class="primary"></button>'+(menu?'<button class="secondary" id="menuBtn">Գլխավոր մենյու</button>':'')+'</div>';o.querySelector('h2').textContent=title;o.querySelector('p').textContent=desc;o.querySelector('.primary').textContent=button;o.querySelector('.primary').onclick=()=>{o.remove();action()};view.append(o);if(menu)o.querySelector('#menuBtn').onclick=showMenu;return o}
 function confirmExit(){
  const old=view.querySelector('.exit-confirm-overlay');if(old){old.remove();return}
  const o=document.createElement('div');o.className='overlay exit-confirm-overlay';

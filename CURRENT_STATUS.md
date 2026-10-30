@@ -1,3 +1,8 @@
+## 2026-10-30 — Latest approved Battleship-only production refresh (PR #124)
+- User explicitly approved promoting ONLY the latest AREG TEST «Ծովամարտ» to existing production DotKiosk Battleship. Source game blob `261280a5b3c8cdcf84a5b1379a579043dbe2cac4` from trial commit `b0f1e47f4aa28cf2dbe7be3264a6c2672dc06019`.
+- Focused release changes only `areg-sea-battle.html` for game behavior/UI, `index.html` and `service-worker.js` for production PWA cache v305; `CURRENT_STATUS.md`, `PROJECT_HANDOFF.md`, `NEW_CHAT_HANDOFF.md` document the release. Do not merge trial branch or unrelated games.
+- Pre-release main rollback baseline `5ce8cde5eeb71a6e8de8e6f71d9fcbf776e8d9d5`. Await green PR checks and user validation in installed DotKiosk; do not claim live prematurely.
+
 ## 2026-10-30 — User-approved Battleship-only production release candidate
 - User explicitly approved the finished «Ծովամարտ» in AREG TEST and requested replacing ONLY the production «Խառնիր գույները» card with «Ծովամարտ» in the existing create section; preserve every other production game and leave trial unchanged.
 - Focused branch `release/sea-battle-only-20261030` from production main `9675422af0bb0ce30a89c1882644fdb9cebd6b9a`; do NOT merge the diverged trial branch.
