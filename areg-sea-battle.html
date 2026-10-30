@@ -440,7 +440,7 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 /* Own ships retain original color until all segments are destroyed.
    Existing red plus markers remain visible at every hit. */
 #app .board .cell.photo-ship.hit:not(.sunk):not(.revealed-enemy-ship) .ship-photo-tile{
- filter:grayscale(1) brightness(.25)!important;
+ filter:none!important;
 }
 #app .board .cell.photo-ship.sunk .ship-photo-tile{
  filter:grayscale(1) brightness(.12)!important;
