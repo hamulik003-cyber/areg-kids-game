@@ -379,6 +379,8 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 @media(prefers-reduced-motion:reduce){#app.combat-mode .top .sea-menu-title{animation:none!important}}
 /* Restore original icon alignment; offset only the complete robot choice button. */
 #app:not(.combat-mode) .sea-menu-art .choice[data-mode="ai"]{position:relative;top:6px}
+/* Lower the entire online/globe choice button, keeping icon and label aligned. */
+#app:not(.combat-mode) .sea-menu-art .choice[data-mode="online"]{position:relative;top:6px}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
