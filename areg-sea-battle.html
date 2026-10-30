@@ -352,6 +352,31 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app .board .cell.carrier-cell .splash{z-index:50!important}
 /* Victory only: no opaque backdrop; the final board stays visible behind the dialog. */
 #app .overlay.victory-overlay{background:transparent!important}
+/* Combat heading only: larger, slightly lower, matching the existing RGB
+   title animation. The second anchor is decorative and never affects gameplay. */
+#app.combat-mode .top{padding:7px 4px 3px!important;min-height:33px!important}
+#app.combat-mode .top h1{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;font-size:clamp(20px,5.8vw,25px)!important;
+ line-height:25px!important;white-space:nowrap!important;
+}
+#app.combat-mode .top .sea-menu-anchor{
+ display:inline-block!important;order:0!important;margin:0!important;
+ font-size:clamp(22px,6vw,27px)!important;line-height:1!important;
+}
+#app.combat-mode .top .sea-menu-title{
+ display:inline-block!important;order:1!important;
+ background:linear-gradient(110deg,#fff04a,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a);
+ background-size:200% 100%!important;background-clip:text!important;-webkit-background-clip:text!important;
+ -webkit-text-fill-color:transparent!important;
+ animation:placementTitleRGB 10s linear infinite!important;
+ animation-delay:var(--sea-title-offset,0s)!important;
+}
+#app.combat-mode .top h1::after{
+ content:"⚓";order:2;display:inline-block;
+ font-size:clamp(22px,6vw,27px);line-height:1;
+}
+@media(prefers-reduced-motion:reduce){#app.combat-mode .top .sea-menu-title{animation:none!important}}
 /* Prevent decorative undersea particles appearing over ship silhouettes. */
 #app .sea-ambience{z-index:0!important}
 /* Keep the same sea background behind the bottom menu on every screen. */
