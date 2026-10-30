@@ -377,6 +377,12 @@ html,body{overscroll-behavior:none}#app{background:radial-gradient(ellipse at 52
 #app .board .cell.photo-ship.sunk::before{z-index:12!important}
 #app .board .cell.photo-ship.bow,#app .board .cell.photo-ship.stern{border-radius:0!important}
 
+/* Trial-only iOS repaint stabilization: avoid GPU filter layer on destroyed enemy ship slices. */
+#app .battle-view .board-wrap:last-child .cell.revealed-enemy-ship .ship-photo-tile,
+#app .battle-view .board-wrap:last-child .cell.revealed-enemy-ship.sunk .ship-photo-tile{
+ filter:none!important;
+ opacity:.24!important;
+}
 /* Layer correction: sea is painted on the board, ship cells are transparent.
    Grid overlay z9 stays visible through ship cells; ship pixels at z11
    cover grid only where the artwork itself is opaque. */
