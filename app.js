@@ -2230,6 +2230,23 @@
       });
       ambient.appendChild(particle);
     }
+    // Tiny CSS crystal glints, separate from the 12 larger bokeh circles.
+    for(let i=0;i<18;i++){
+      const crystal=document.createElement('span');
+      crystal.className='areg-animal-crystal';
+      crystal.style.setProperty('--ax',([5,48,93][i%3]+((i*3)%7)-3)+'%');
+      crystal.style.setProperty('--ay',(5+(i*17)%91)+'%');
+      crystal.style.setProperty('--cs',(3+(i%4)*2)+'px');
+      crystal.style.setProperty('--cd',(7+(i%6)*1.5)+'s');
+      crystal.style.setProperty('--cl',(-i*.65)+'s');
+      crystal.style.setProperty('--cx',((i%2?1:-1)*(9+(i%5)*3))+'px');
+      crystal.style.setProperty('--cy',((i%3-1)*(12+(i%4)*4))+'px');
+      crystal.addEventListener('animationiteration',()=>{
+        crystal.style.setProperty('--ax',([5,48,93][Math.floor(Math.random()*3)]+Math.random()*6-3)+'%');
+        crystal.style.setProperty('--ay',(5+Math.random()*90)+'%');
+      });
+      ambient.appendChild(crystal);
+    }
     // Keep ambient outside the scrollable gallery so it stays visible at every scroll depth.
 
 
