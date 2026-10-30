@@ -3517,3 +3517,36 @@ html[data-theme^="photo-user-"] .section-dim{
 /* Car wash only: preserve the canonical activity header and star counter. */
 .activity-screen.areg-car-wash-mode .activity-content{padding:0;border:0;border-radius:22px;box-shadow:none;overflow:hidden;background:transparent}
 .activity-screen.areg-car-wash-mode .mind-v4-frame{display:block;width:100%;height:100%;border:0;background:transparent}
+
+
+/* AREG TEST: Animals gallery only. Dark natural background, small slow CSS-only shapes. */
+.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){
+  isolation:isolate!important;
+  background:radial-gradient(ellipse at 20% 18%,#364d3d 0%,transparent 46%),radial-gradient(ellipse at 86% 80%,#3b3a2b 0%,transparent 52%),linear-gradient(165deg,#182b27 0%,#26362b 49%,#182421 100%)!important;
+}
+.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host)>.animal-card{
+  position:relative!important;z-index:1!important;
+}
+.animal-gallery-mode>.animal-gallery>.areg-animal-ambient{
+  position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:paint;
+}
+.areg-animal-particle{
+  position:absolute;left:var(--ax);top:var(--ay);width:var(--as);height:var(--as);
+  opacity:0;pointer-events:none;will-change:transform,opacity;
+  animation:aregAnimalFloat var(--ad) ease-in-out var(--al) infinite;
+}
+.areg-animal-glow{border-radius:50%;background:radial-gradient(circle,#fff6ca 5%,#f5d88f 36%,#c8cf93a3 60%,transparent 75%);box-shadow:0 0 9px 3px #d5d99b55}
+.areg-animal-seed{width:calc(var(--as)*.52);height:calc(var(--as)*.78);border-radius:60% 40% 65% 35%;background:linear-gradient(130deg,#e3c78d,#9b8052);box-shadow:0 0 4px #c7b28044}
+.areg-animal-grass{width:calc(var(--as)*.5);height:calc(var(--as)*1.3);border-radius:2% 90% 4% 90%;background:linear-gradient(120deg,#8ca76c,#c6c17e 75%,#67875c);transform-origin:bottom center}
+.areg-animal-bone{width:calc(var(--as)*1.3);height:calc(var(--as)*.42);border-radius:6px;background:#d5c9a4;box-shadow:0 0 5px #efe4bb44}
+.areg-animal-bone:before,.areg-animal-bone:after{content:'';position:absolute;top:-42%;width:40%;height:180%;border-radius:50%;background:#d5c9a4}
+.areg-animal-bone:before{left:-18%}.areg-animal-bone:after{right:-18%}
+.areg-animal-paw{border-radius:50% 50% 45% 45%;background:#b9aa82;box-shadow:-5px -5px 0 -2px #b9aa82,0 -7px 0 -2px #b9aa82,5px -5px 0 -2px #b9aa82}
+@keyframes aregAnimalFloat{
+  0%,100%{opacity:0;transform:translate3d(-7px,12px,0) rotate(-24deg) scale(.7)}
+  18%{opacity:.36}
+  48%{opacity:.62;transform:translate3d(13px,-12px,0) rotate(18deg) scale(1)}
+  80%{opacity:.28}
+  92%{opacity:0;transform:translate3d(-5px,-24px,0) rotate(34deg) scale(.82)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-particle{animation:none;opacity:.18;will-change:auto}}
