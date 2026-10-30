@@ -3556,3 +3556,19 @@ html[data-theme^="photo-user-"] .section-dim{
 .animal-gallery-mode{position:relative!important;isolation:isolate!important;background:radial-gradient(ellipse at 20% 18%,#364d3d 0%,transparent 46%),radial-gradient(ellipse at 86% 80%,#3b3a2b 0%,transparent 52%),linear-gradient(165deg,#182b27,#26362b 49%,#182421)!important}
 .animal-gallery-mode>.areg-animal-ambient{position:absolute!important;inset:0!important;z-index:0!important;overflow:hidden!important;pointer-events:none!important;contain:paint}
 .animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){position:absolute!important;inset:0!important;z-index:1!important;background:transparent!important}
+
+
+/* AREG TEST animals: slow, smooth RGB-tinted full background; particles remain independent. */
+.animal-gallery-mode{
+  background:linear-gradient(125deg,#162e48,#293c63,#42305b,#274c43,#53402e,#162e48)!important;
+  background-size:500% 500%!important;
+  animation:aregAnimalRGB 32s ease-in-out infinite!important;
+}
+@keyframes aregAnimalRGB{
+  0%,100%{background-position:0% 45%}
+  20%{background-position:25% 60%}
+  40%{background-position:55% 35%}
+  60%{background-position:85% 65%}
+  80%{background-position:35% 80%}
+}
+@media(prefers-reduced-motion:reduce){.animal-gallery-mode{animation:none!important}}
