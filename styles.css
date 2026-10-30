@@ -3517,3 +3517,215 @@ html[data-theme^="photo-user-"] .section-dim{
 /* Secret Paths iframe layout: retain the activity header and fill the panel. */
 .activity-screen.areg-car-wash-mode .activity-content{padding:0;border:0;border-radius:22px;box-shadow:none;overflow:hidden;background:transparent}
 .activity-screen.areg-car-wash-mode .mind-v4-frame{display:block;position:absolute;inset:0;width:100%;height:100%;min-width:0;min-height:0;border:0;background:transparent}
+
+
+/* AREG TEST: Animals gallery only. Dark natural background, small slow CSS-only shapes. */
+.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){
+  isolation:isolate!important;
+  background:radial-gradient(ellipse at 20% 18%,#364d3d 0%,transparent 46%),radial-gradient(ellipse at 86% 80%,#3b3a2b 0%,transparent 52%),linear-gradient(165deg,#182b27 0%,#26362b 49%,#182421 100%)!important;
+}
+.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host)>.animal-card{
+  position:relative!important;z-index:1!important;
+}
+.animal-gallery-mode>.animal-gallery>.areg-animal-ambient{
+  position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:paint;
+}
+.areg-animal-particle{
+  position:absolute;left:var(--ax);top:var(--ay);width:var(--as);height:var(--as);
+  opacity:0;pointer-events:none;will-change:transform,opacity;
+  animation:aregAnimalFloat var(--ad) ease-in-out var(--al) infinite;
+}
+.areg-animal-glow{border-radius:50%;background:radial-gradient(circle,#fff6ca 5%,#f5d88f 36%,#c8cf93a3 60%,transparent 75%);box-shadow:0 0 9px 3px #d5d99b55}
+.areg-animal-seed{width:calc(var(--as)*.52);height:calc(var(--as)*.78);border-radius:60% 40% 65% 35%;background:linear-gradient(130deg,#e3c78d,#9b8052);box-shadow:0 0 4px #c7b28044}
+.areg-animal-grass{width:calc(var(--as)*.5);height:calc(var(--as)*1.3);border-radius:2% 90% 4% 90%;background:linear-gradient(120deg,#8ca76c,#c6c17e 75%,#67875c);transform-origin:bottom center}
+.areg-animal-bone{width:calc(var(--as)*1.3);height:calc(var(--as)*.42);border-radius:6px;background:#d5c9a4;box-shadow:0 0 5px #efe4bb44}
+.areg-animal-bone:before,.areg-animal-bone:after{content:'';position:absolute;top:-42%;width:40%;height:180%;border-radius:50%;background:#d5c9a4}
+.areg-animal-bone:before{left:-18%}.areg-animal-bone:after{right:-18%}
+.areg-animal-paw{border-radius:50% 50% 45% 45%;background:#b9aa82;box-shadow:-5px -5px 0 -2px #b9aa82,0 -7px 0 -2px #b9aa82,5px -5px 0 -2px #b9aa82}
+@keyframes aregAnimalFloat{
+  0%,100%{opacity:0;transform:translate3d(-7px,12px,0) rotate(-24deg) scale(.7)}
+  18%{opacity:.36}
+  48%{opacity:.62;transform:translate3d(13px,-12px,0) rotate(18deg) scale(1)}
+  80%{opacity:.28}
+  92%{opacity:0;transform:translate3d(-5px,-24px,0) rotate(34deg) scale(.82)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-particle{animation:none;opacity:.18;will-change:auto}}
+
+
+/* AREG TEST scroll fix: ambient belongs to the fixed gallery viewport, not scroll content. */
+.animal-gallery-mode{position:relative!important;isolation:isolate!important;background:radial-gradient(ellipse at 20% 18%,#364d3d 0%,transparent 46%),radial-gradient(ellipse at 86% 80%,#3b3a2b 0%,transparent 52%),linear-gradient(165deg,#182b27,#26362b 49%,#182421)!important}
+.animal-gallery-mode>.areg-animal-ambient{position:absolute!important;inset:0!important;z-index:0!important;overflow:hidden!important;pointer-events:none!important;contain:paint}
+.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){position:absolute!important;inset:0!important;z-index:1!important;background:transparent!important}
+
+
+/* AREG TEST animals: slow, smooth RGB-tinted full background; particles remain independent. */
+.animal-gallery-mode{
+  background:linear-gradient(125deg,#162e48,#293c63,#42305b,#274c43,#53402e,#162e48)!important;
+  background-size:500% 500%!important;
+  animation:aregAnimalRGB 32s ease-in-out infinite!important;
+}
+@keyframes aregAnimalRGB{
+  0%,100%{background-position:0% 45%}
+  20%{background-position:25% 60%}
+  40%{background-position:55% 35%}
+  60%{background-position:85% 65%}
+  80%{background-position:35% 80%}
+}
+@media(prefers-reduced-motion:reduce){.animal-gallery-mode{animation:none!important}}
+
+
+/* Specificity correction: the real container is .activity-content.animal-gallery-mode. */
+.activity-content.animal-gallery-mode{
+ background:linear-gradient(125deg,#162e48,#293c63,#42305b,#274c43,#53402e,#162e48)!important;
+ background-size:500% 500%!important;
+ animation:aregAnimalRGB 24s ease-in-out infinite!important;
+}
+.activity-content.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){background:transparent!important}
+@media(prefers-reduced-motion:reduce){.activity-content.animal-gallery-mode{animation:none!important}}
+
+
+/* AREG TEST: unmistakable continuously changing RGB colors, background ONLY. */
+.activity-content.animal-gallery-mode{
+  position:relative!important;
+  isolation:isolate!important;
+  background:#172b40!important;
+  animation:none!important;
+}
+.activity-content.animal-gallery-mode::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 20% 20%,#0c8ce8 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 70%,#ed2b8c 0%,transparent 60%),
+             linear-gradient(135deg,#122f75,#8137b0 48%,#008b82);
+  filter:hue-rotate(0deg) saturate(1.15) brightness(.68);
+  animation:aregAnimalHueCycle 12s linear infinite!important;
+  will-change:filter;
+}
+@keyframes aregAnimalHueCycle{
+  0%{filter:hue-rotate(0deg) saturate(1.15) brightness(.68)}
+  100%{filter:hue-rotate(360deg) saturate(1.15) brightness(.68)}
+}
+.activity-content.animal-gallery-mode>.areg-animal-ambient{z-index:1!important}
+.activity-content.animal-gallery-mode>.animal-gallery:not(.gallery-card-flight-host){z-index:2!important;background:transparent!important}
+@media(prefers-reduced-motion:reduce){.activity-content.animal-gallery-mode::before{animation:none!important;will-change:auto}}
+
+
+/* Soft blurred circular bokeh instead of animal-themed floating symbols. */
+.areg-animal-particle.areg-animal-bokeh{
+  width:var(--as)!important;height:var(--as)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.38),rgba(190,215,255,.18) 43%,rgba(165,190,255,.06) 69%,transparent 85%)!important;
+  box-shadow:0 0 14px 4px rgba(175,204,255,.12)!important;
+  filter:blur(3.5px)!important;
+  opacity:0;
+  animation:aregAnimalBokehFloat var(--ad) ease-in-out var(--al) infinite!important;
+}
+@keyframes aregAnimalBokehFloat{
+  0%,100%{opacity:0;transform:translate3d(-12px,20px,0) scale(.72)}
+  30%{opacity:.43}
+  55%{opacity:.58;transform:translate3d(16px,-14px,0) scale(1.15)}
+  85%{opacity:.25}
+  95%{opacity:0;transform:translate3d(-6px,-34px,0) scale(.85)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-particle.areg-animal-bokeh{animation:none!important;opacity:.2}}
+
+/* AREG TEST: larger, more visible softly blurred bokeh. */
+.areg-animal-particle.areg-animal-bokeh{
+  filter:blur(1.8px)!important;
+  background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.62),rgba(202,226,255,.34) 42%,rgba(165,200,255,.13) 72%,transparent 91%)!important;
+  box-shadow:0 0 16px 5px rgba(192,220,255,.20)!important;
+}
+@keyframes aregAnimalBokehFloat{
+  0%,100%{opacity:0;transform:translate3d(-12px,20px,0) scale(.76)}
+  25%{opacity:.60}
+  55%{opacity:.82;transform:translate3d(16px,-14px,0) scale(1.12)}
+  85%{opacity:.40}
+  95%{opacity:0;transform:translate3d(-6px,-34px,0) scale(.88)}
+}
+
+
+/* AREG TEST: dim bright bokeh, move clearly before fading, then reappear elsewhere. */
+.areg-animal-particle.areg-animal-bokeh{
+  background:radial-gradient(circle at 42% 40%,rgba(224,240,255,.33),rgba(185,210,244,.18) 43%,rgba(153,190,230,.06) 72%,transparent 91%)!important;
+  box-shadow:0 0 12px 3px rgba(190,213,250,.09)!important;
+  filter:blur(2.2px)!important;
+}
+@keyframes aregAnimalBokehFloat{
+  0%{opacity:0;transform:translate3d(-24px,28px,0) scale(.82)}
+  16%{opacity:.34}
+  42%{opacity:.48;transform:translate3d(6px,-8px,0) scale(1.03)}
+  70%{opacity:.34;transform:translate3d(32px,-36px,0) scale(1.1)}
+  91%{opacity:0;transform:translate3d(49px,-62px,0) scale(.9)}
+  100%{opacity:0;transform:translate3d(49px,-62px,0) scale(.9)}
+}
+
+
+/* AREG TEST: independently colored bokeh; small directional motion inside separated cells. */
+.areg-animal-particle.areg-animal-bokeh{
+  background:radial-gradient(circle at 43% 38%,rgba(255,255,255,.55),rgba(192,216,255,.37) 44%,rgba(164,196,255,.13) 74%,transparent 94%)!important;
+  box-shadow:0 0 11px 3px rgba(200,221,255,.15)!important;
+  filter:blur(1.4px) hue-rotate(var(--bokeh-hue,0deg))!important;
+  animation:aregBokehScatter var(--ad) ease-in-out var(--al) infinite!important;
+}
+@keyframes aregBokehScatter{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.8)}
+  17%{opacity:.57}
+  47%{opacity:.72;transform:translate3d(calc(var(--dx)*.5),calc(var(--dy)*.5),0) scale(1)}
+  78%{opacity:.55;transform:translate3d(var(--dx),var(--dy),0) scale(1.05)}
+  96%,100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.85)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-particle.areg-animal-bokeh{animation:none!important;opacity:.25}}
+
+
+/* Brighter, softer bokeh in gallery margins, fading smoothly while travelling. */
+.areg-animal-particle.areg-animal-bokeh{
+ background:radial-gradient(circle at 42% 38%,rgba(255,255,255,.72),rgba(196,222,255,.47) 43%,rgba(164,200,255,.19) 73%,transparent 95%)!important;
+ box-shadow:0 0 17px 5px rgba(190,215,255,.23)!important;
+ filter:blur(2.3px) hue-rotate(var(--bokeh-hue,0deg))!important;
+}
+@keyframes aregBokehScatter{
+ 0%{opacity:0;transform:translate3d(0,0,0) scale(.75)}
+ 16%{opacity:.57}
+ 40%{opacity:.78;transform:translate3d(calc(var(--dx)*.45),calc(var(--dy)*.45),0) scale(1)}
+ 65%{opacity:.64;transform:translate3d(calc(var(--dx)*.8),calc(var(--dy)*.8),0) scale(1.05)}
+ 92%,100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(.85)}
+}
+
+
+/* AREG TEST animals: delicate moving crystal glints, CSS only. */
+.areg-animal-crystal{
+ position:absolute;left:var(--ax);top:var(--ay);
+ width:var(--cs);height:calc(var(--cs)*1.5);
+ pointer-events:none;opacity:0;z-index:0;
+ background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(166,231,255,.68) 45%,rgba(204,164,255,.42));
+ clip-path:polygon(50% 0,95% 48%,50% 100%,5% 48%);
+ filter:drop-shadow(0 0 3px rgba(208,237,255,.75));
+ animation:aregCrystalDrift var(--cd) ease-in-out var(--cl) infinite;
+}
+@keyframes aregCrystalDrift{
+ 0%{opacity:0;transform:translate3d(0,0,0) rotate(-18deg) scale(.6)}
+ 22%{opacity:.6}
+ 54%{opacity:.82;transform:translate3d(calc(var(--cx)*.6),calc(var(--cy)*.6),0) rotate(24deg) scale(1)}
+ 83%{opacity:.38}
+ 96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) rotate(58deg) scale(.7)}
+}
+@media(prefers-reduced-motion:reduce){.areg-animal-crystal{animation:none;opacity:.2}}
+
+
+/* Round, translucent fairy-like droplets with a soft luminous rim. */
+.areg-animal-crystal{
+ width:calc(var(--cs)*1.65)!important;
+ height:calc(var(--cs)*1.65)!important;
+ border-radius:50%!important;
+ clip-path:none!important;
+ background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.72) 0%,rgba(215,248,255,.26) 27%,rgba(177,208,255,.13) 58%,rgba(211,177,255,.4) 85%,rgba(255,255,255,.08) 100%)!important;
+ border:1px solid rgba(225,244,255,.38);
+ box-shadow:inset -1px -2px 4px rgba(151,194,255,.16),0 0 9px rgba(200,223,255,.36);
+ filter:blur(.45px)!important;
+}
+@keyframes aregCrystalDrift{
+ 0%{opacity:0;transform:translate3d(0,0,0) scale(.65)}
+ 18%{opacity:.56}
+ 45%{opacity:.8;transform:translate3d(calc(var(--cx)*.5),calc(var(--cy)*.5),0) scale(1.08)}
+ 72%{opacity:.62}
+ 96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.7)}
+}
