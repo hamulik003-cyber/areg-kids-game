@@ -457,7 +457,6 @@
     create:{
       title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
-        {id:'paint',label:'Գունավորիր · ASMR',thumb:'create-game-1.jpg',kind:'paint'},
         {id:'stickers',label:'Ստեղծել երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'mix',label:'Իմ ավտոլվացումը',thumb:'create-game-3.jpg',kind:'mix'},
         {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'},
