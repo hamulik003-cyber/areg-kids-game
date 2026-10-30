@@ -1,3 +1,9 @@
+## 2026-10-30 — AREG TEST rebuilt from exact approved production, six-world game archived
+- User explicitly requested that installed AREG TEST become a full copy of current approved DotKiosk production, not a selective game import. Main baseline: `3fbc0daa9298b93c11143bd626f41c4918825ccf`; approved Battleship gameplay remains `3ed4df55e3df4984fa917c2299ed5759336984c4`.
+- Before trial reset, complete previous trial snapshot saved as `archive/areg-test-complete-before-production-copy-20261030` and `archive/areg-two-board-puzzle-20261030` at `b920f00222a633d81632a109700a571fb8c969fd`. These snapshots include the original **«Արեգ․ Վեց աշխարհների գաղտնիքը»** work, not the jigsaw: `areg-starlight-adventure.html`, `areg-desert-stage2.html`, `SIX_WORLDS_GAME_DESIGN.md`, trial `app.js` wiring, and any dependent assets. The user wants it preserved **outside both current production and trial menus**, recoverable for future selective re-integration.
+- AREG TEST retains standalone test manifest, launcher, Render version check; Render service `srv-db9obf3ncjis73a2tm3g` follows `trial/areg-test-full-app-20261017`. Do not point service to main or modify production.
+- Never confuse six-world game with `mind-jigsaw.html` (the two-frame picture puzzle).
+
 ## 2026-10-30 — ԱՆԽԱԽՏԵԼԻ ԱՇԽԱՏԱԿԱՐԳ․ AREG TEST → հաստատում → հիմնական DotKiosk (READ FIRST)
 
 **Օգտատիրոջ հստակ հրահանգը.** Յուրաքանչյուր նոր զրույցում ինքնուրույն շարունակել այս հաստատված գործընթացը։ Արգելվում է կամայական փոփոխություն, փորձնական ամբողջ ճյուղի տեղափոխում production, կամ առանց GitHub/Render-ը ստուգելու ասել «չգիտեմ՝ ինչպես թարմացնել AREG TEST-ը»։ Եթե գործիքներն իսկապես անհասանելի են, հստակ հայտնել խոչընդոտը, չձևացնել հաջողություն։

@@ -8,11 +8,34 @@
   <meta name="theme-color" content="#f4d6a8" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Արեգ 3D աշխարհ" />
+  <meta name="apple-mobile-web-app-title" content="AREG TEST" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>Արեգ 3D աշխարհ</title>
+  <title>AREG TEST</title>
   <link rel="stylesheet" href="styles.css?v=303" />
   <link rel="stylesheet" href="space-3d-games.css?v=287" />
+  <link rel="manifest" href="./areg-test.webmanifest" />
+  <script>
+  window.__AREG_LIVE_TEST__=true;
+  (()=>{
+    const active=()=>new URLSearchParams(location.search).get('testv');
+    let busy=false;
+    async function refresh(){
+      if(busy||document.visibilityState==='hidden')return;
+      busy=true;
+      try{
+        const response=await fetch('./areg-test-version.json?t='+Date.now(),{cache:'no-store'});
+        if(!response.ok)return;
+        const data=await response.json();
+        if(typeof data.sha==='string'&&/^[a-f0-9]{40}$/.test(data.sha)&&data.sha!==active()){
+          const next=new URL(location.href);next.searchParams.set('testv',data.sha);location.replace(next.href);
+        }
+      }catch(_){}finally{busy=false}
+    }
+    addEventListener('pageshow',()=>{void refresh()});
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')void refresh()});
+    setInterval(refresh,60000);
+  })();
+  </script>
 </head>
 <body>
   <div id="appBackground" aria-hidden="true"></div>
