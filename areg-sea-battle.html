@@ -555,6 +555,17 @@ html,body,#app,#app *:not(input):not(textarea){
 .sea-music-panel h3{margin:0 0 14px}.sea-music-panel p{overflow-wrap:anywhere;font-size:14px}
 .sea-music-panel button,.sea-music-panel label{display:block;width:100%;box-sizing:border-box;margin-top:10px;border-radius:12px;padding:12px;border:1px solid #86d2e8;background:#256c89;color:white;font:inherit;font-weight:bold}
 .sea-music-panel label{cursor:pointer;background:#e8b458;color:#432b18;border-color:#ffdf8e}
+/* Music dialog bubbles and independent playback state buttons. */
+.sea-music-panel{position:relative;isolation:isolate;overflow:hidden}
+.sea-music-panel>:not(.sea-music-bubbles){position:relative;z-index:1}
+.sea-music-bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.sea-music-bubbles i{position:absolute;left:var(--x);bottom:-24px;width:var(--s);height:var(--s);border:1px solid #c4f5ff99;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffffffb0 0 5%,#b0efff44 14%,#4ba9ca13 65%,transparent 85%);box-shadow:inset 1px 1px 3px #fff8,0 0 7px #9cecff55;animation:seaMusicBubbleRise var(--d) linear var(--delay) infinite}
+@keyframes seaMusicBubbleRise{0%{transform:translateY(0);opacity:0}15%{opacity:.7}85%{opacity:.5}100%{transform:translateY(-420px);opacity:0}}
+.sea-music-panel .sea-music-controls{display:flex;gap:9px}
+.sea-music-panel .sea-music-controls button{flex:1;min-width:0;font-size:clamp(13px,3.2vw,16px);padding:11px 5px}
+.sea-music-panel .sea-music-controls button.is-active{background:#238c51;border-color:#86e5a4;color:#fff}
+.sea-music-panel .sea-music-controls button:not(.is-active){background:#aa3541;border-color:#f08b93;color:#fff}
+@media(prefers-reduced-motion:reduce){.sea-music-bubbles i{animation:none;opacity:.3}}
 </style></head><body><div id="app"><div class="sea-ambience" aria-hidden="true"><i class="sea-object" style="--x:8%;--s:4px;--d:14s;--delay:0s;--drift:-40px"></i><i class="sea-object" style="--x:45%;--s:7px;--d:21s;--delay:-11s;--drift:-21px"></i><i class="sea-object" style="--x:82%;--s:11px;--d:28s;--delay:-22s;--drift:-2px"></i><i class="sea-object" style="--x:23%;--s:16px;--d:16s;--delay:-2s;--drift:17px"></i><i class="sea-object" style="--x:60%;--s:5px;--d:23s;--delay:-13s;--drift:36px"></i><i class="sea-object" style="--x:1%;--s:22px;--d:30s;--delay:-24s;--drift:-26px"></i><i class="sea-object" style="--x:38%;--s:9px;--d:18s;--delay:-4s;--drift:-7px"></i><i class="sea-object" style="--x:75%;--s:13px;--d:25s;--delay:-15s;--drift:12px"></i><i class="sea-object" style="--x:16%;--s:6px;--d:32s;--delay:-26s;--drift:31px"></i><i class="sea-object" style="--x:53%;--s:18px;--d:20s;--delay:-6s;--drift:-31px"></i><i class="sea-object" style="--x:90%;--s:8px;--d:27s;--delay:-17s;--drift:-12px"></i><i class="sea-object" style="--x:31%;--s:4px;--d:15s;--delay:-28s;--drift:7px"></i><i class="sea-object" style="--x:68%;--s:7px;--d:22s;--delay:-8s;--drift:26px"></i><i class="sea-object" style="--x:9%;--s:11px;--d:29s;--delay:-19s;--drift:-36px"></i><i class="sea-object" style="--x:46%;--s:16px;--d:17s;--delay:-30s;--drift:-17px"></i><i class="sea-object" style="--x:83%;--s:5px;--d:24s;--delay:-10s;--drift:2px"></i><i class="sea-object" style="--x:24%;--s:22px;--d:31s;--delay:-21s;--drift:21px"></i><i class="sea-object" style="--x:61%;--s:9px;--d:19s;--delay:-1s;--drift:40px"></i><i class="sea-object" style="--x:2%;--s:13px;--d:26s;--delay:-12s;--drift:-22px"></i><i class="sea-object" style="--x:39%;--s:6px;--d:14s;--delay:-23s;--drift:-3px"></i><i class="sea-object" style="--x:76%;--s:18px;--d:21s;--delay:-3s;--drift:16px"></i><i class="sea-object" style="--x:17%;--s:8px;--d:28s;--delay:-14s;--drift:35px"></i><i class="sea-object" style="--x:54%;--s:4px;--d:16s;--delay:-25s;--drift:-27px"></i><i class="sea-object" style="--x:91%;--s:7px;--d:23s;--delay:-5s;--drift:-8px"></i><i class="sea-object" style="--x:32%;--s:11px;--d:30s;--delay:-16s;--drift:11px"></i><i class="sea-object" style="--x:69%;--s:16px;--d:18s;--delay:-27s;--drift:30px"></i><i class="sea-object" style="--x:10%;--s:5px;--d:25s;--delay:-7s;--drift:-32px"></i><i class="sea-object" style="--x:47%;--s:22px;--d:32s;--delay:-18s;--drift:-13px"></i><i class="sea-object" style="--x:84%;--s:9px;--d:20s;--delay:-29s;--drift:6px"></i><i class="sea-mote" style="--x:4%;--y:3%;--s:2px;--d:8s;--delay:0s;--dx:-32px;--dy:-37px"></i><i class="sea-mote" style="--x:33%;--y:44%;--s:3px;--d:13s;--delay:-13s;--dx:-15px;--dy:-14px"></i><i class="sea-mote" style="--x:62%;--y:85%;--s:4px;--d:18s;--delay:-4s;--dx:2px;--dy:9px"></i><i class="sea-mote" style="--x:91%;--y:32%;--s:2px;--d:9s;--delay:-17s;--dx:19px;--dy:32px"></i><i class="sea-mote" style="--x:28%;--y:73%;--s:5px;--d:14s;--delay:-8s;--dx:-29px;--dy:-20px"></i><i class="sea-mote" style="--x:57%;--y:20%;--s:3px;--d:19s;--delay:-21s;--dx:-12px;--dy:3px"></i><i class="sea-mote" style="--x:86%;--y:61%;--s:2px;--d:10s;--delay:-12s;--dx:5px;--dy:26px"></i><i class="sea-mote" style="--x:23%;--y:8%;--s:3px;--d:15s;--delay:-3s;--dx:22px;--dy:-26px"></i><i class="sea-mote" style="--x:52%;--y:49%;--s:4px;--d:20s;--delay:-16s;--dx:-26px;--dy:-3px"></i><i class="sea-mote" style="--x:81%;--y:90%;--s:2px;--d:11s;--delay:-7s;--dx:-9px;--dy:20px"></i><i class="sea-mote" style="--x:18%;--y:37%;--s:5px;--d:16s;--delay:-20s;--dx:8px;--dy:-32px"></i><i class="sea-mote" style="--x:47%;--y:78%;--s:3px;--d:21s;--delay:-11s;--dx:25px;--dy:-9px"></i><i class="sea-mote" style="--x:76%;--y:25%;--s:2px;--d:12s;--delay:-2s;--dx:-23px;--dy:14px"></i><i class="sea-mote" style="--x:13%;--y:66%;--s:3px;--d:17s;--delay:-15s;--dx:-6px;--dy:37px"></i><i class="sea-mote" style="--x:42%;--y:13%;--s:4px;--d:8s;--delay:-6s;--dx:11px;--dy:-15px"></i><i class="sea-mote" style="--x:71%;--y:54%;--s:2px;--d:13s;--delay:-19s;--dx:28px;--dy:8px"></i><i class="sea-mote" style="--x:8%;--y:95%;--s:5px;--d:18s;--delay:-10s;--dx:-20px;--dy:31px"></i><i class="sea-mote" style="--x:37%;--y:42%;--s:3px;--d:9s;--delay:-1s;--dx:-3px;--dy:-21px"></i><i class="sea-mote" style="--x:66%;--y:83%;--s:2px;--d:14s;--delay:-14s;--dx:14px;--dy:2px"></i><i class="sea-mote" style="--x:95%;--y:30%;--s:3px;--d:19s;--delay:-5s;--dx:31px;--dy:25px"></i><i class="sea-mote" style="--x:32%;--y:71%;--s:4px;--d:10s;--delay:-18s;--dx:-17px;--dy:-27px"></i><i class="sea-mote" style="--x:61%;--y:18%;--s:2px;--d:15s;--delay:-9s;--dx:0px;--dy:-4px"></i><i class="sea-mote" style="--x:90%;--y:59%;--s:5px;--d:20s;--delay:0s;--dx:17px;--dy:19px"></i><i class="sea-mote" style="--x:27%;--y:6%;--s:3px;--d:11s;--delay:-13s;--dx:-31px;--dy:-33px"></i><i class="sea-mote" style="--x:56%;--y:47%;--s:2px;--d:16s;--delay:-4s;--dx:-14px;--dy:-10px"></i><i class="sea-mote" style="--x:85%;--y:88%;--s:3px;--d:21s;--delay:-17s;--dx:3px;--dy:13px"></i><i class="sea-mote" style="--x:22%;--y:35%;--s:4px;--d:12s;--delay:-8s;--dx:20px;--dy:36px"></i><i class="sea-glow" style="--x:8%;--y:19%;--d:12s;--delay:-4s"></i><i class="sea-glow" style="--x:78%;--y:31%;--d:17s;--delay:-9s"></i><i class="sea-glow" style="--x:16%;--y:73%;--d:15s;--delay:-12s"></i><i class="sea-glow" style="--x:76%;--y:86%;--d:19s;--delay:-6s"></i></div><header class="top"><h1><span class="sea-menu-anchor">⚓</span><span class="sea-menu-title">Ծովամարտ</span></h1></header><button type="button" id="battleMenuToggle" class="battle-menu-toggle" aria-label="Բացել մենյուն" title="Մենյու">☰</button><button type="button" id="battleSoundToggle" class="battle-sound-toggle" aria-label="Անջատել ձայնը" aria-pressed="false">🔊</button><div id="view" class="game"></div><footer id="footer" class="bottom"></footer></div>
 <script>
 'use strict';
@@ -740,7 +751,61 @@ async function seaMusicLoad(){try{seaMusicDB=await seaMusicOpenDB();const item=a
 function seaMusicSet(blob,name){seaMusic.pause();if(seaMusicURL)URL.revokeObjectURL(seaMusicURL);seaMusicURL=URL.createObjectURL(blob);seaMusic.src=seaMusicURL;seaMusicName=name||'Իմ երաժշտությունը'}
 function seaMusicPlay(){if(new URLSearchParams(location.search).has('parentMusic'))return;if(seaMusicURL&&seaMusic.paused)seaMusic.play().catch(()=>{})}
 async function seaMusicSave(file){if(!file||(!file.type.startsWith('audio/')&&!/\.(mp3|m4a|aac|wav|ogg|opus)$/i.test(file.name)))throw Error('Ընտրիր երաժշտական ֆայլ');if(file.size>45*1024*1024)throw Error('Ընտրիր մինչև 45 ՄԲ երաժշտություն');const db=seaMusicDB||await seaMusicOpenDB();await new Promise((resolve,reject)=>{const q=db.transaction('tracks','readwrite').objectStore('tracks').put({blob:file,name:file.name},'selected');q.onsuccess=resolve;q.onerror=()=>reject(q.error)});seaMusicSet(file,file.name);if(new URLSearchParams(location.search).has('parentMusic'))parent.postMessage({type:'areg-sea-music-selected',blob:file},location.origin);else seaMusicPlay()}
-function seaMusicEditor(){if(document.querySelector('#seaMusicEditor'))return;const box=document.createElement('div');box.id='seaMusicEditor';box.className='sea-music-dialog';box.innerHTML='<div class="sea-music-panel"><h3>♫ Ծովամարտի երաժշտություն</h3><p id="seaMusicInfo"></p><label for="seaMusicFile">♫ Ընտրել կամ փոխել երգը</label><input id="seaMusicFile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg" hidden><button id="seaMusicToggle" type="button">Նվագարկել / Դադարեցնել</button><button id="seaMusicClose" type="button">Փակել</button></div>';document.querySelector('#app').append(box);const info=box.querySelector('#seaMusicInfo');const refresh=()=>{info.textContent=seaMusicName||'Երգ դեռ ընտրված չէ'};refresh();box.querySelector('#seaMusicFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;info.textContent='Պահպանվում է…';try{await seaMusicSave(file);refresh()}catch(err){info.textContent='Չհաջողվեց պահպանել։ '+(err.message||'Փորձիր ավելի փոքր ֆայլ։')}};box.querySelector('#seaMusicToggle').onclick=()=>{if(seaMusic.paused)seaMusicPlay();else seaMusic.pause()};box.querySelector('#seaMusicClose').onclick=()=>box.remove()}
+let seaMusicParentPlaying=false;
+function seaMusicEditor(){
+ if(document.querySelector('#seaMusicEditor'))return;
+ const box=document.createElement('div');box.id='seaMusicEditor';box.className='sea-music-dialog';
+ box.innerHTML='<div class="sea-music-panel"><div class="sea-music-bubbles" aria-hidden="true"></div><h3>♫ Ծովամարտի երաժշտություն</h3><p id="seaMusicInfo"></p><label for="seaMusicFile">♫ Ընտրել կամ փոխել երգը</label><input id="seaMusicFile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg" hidden><div class="sea-music-controls"><button id="seaMusicPlay" type="button">▶ Նվագարկել</button><button id="seaMusicStop" type="button">■ Կանգնեցնել</button></div><button id="seaMusicClose" type="button">Փակել</button></div>';
+ document.querySelector('#app').append(box);
+ const bubbleBox=box.querySelector('.sea-music-bubbles');
+ for(let i=0;i<12;i++){
+  const el=document.createElement('i');
+  el.style.setProperty('--x',((i*37+9)%94)+'%');
+  el.style.setProperty('--s',(7+(i*11)%20)+'px');
+  el.style.setProperty('--d',(7+(i%5)*1.7)+'s');
+  el.style.setProperty('--delay',(-i*.93)+'s');
+  bubbleBox.append(el);
+ }
+ const parentMode=new URLSearchParams(location.search).has('parentMusic');
+ const info=box.querySelector('#seaMusicInfo');
+ const refresh=()=>{info.textContent=seaMusicName||'Երգ դեռ ընտրված չէ'};
+ const update=()=>{
+  const playing=parentMode?seaMusicParentPlaying:!seaMusic.paused;
+  box.querySelector('#seaMusicPlay').classList.toggle('is-active',playing);
+  box.querySelector('#seaMusicStop').classList.toggle('is-active',!playing);
+ };
+ refresh();update();
+ if(parentMode)parent.postMessage({type:'areg-sea-music-query'},location.origin);
+ box.querySelector('#seaMusicFile').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;info.textContent='Պահպանվում է…';
+  try{await seaMusicSave(file);refresh();if(parentMode)seaMusicParentPlaying=true;update()}
+  catch(err){info.textContent='Չհաջողվեց պահպանել։ '+(err.message||'Փորձիր ավելի փոքր ֆայլ։')}
+ };
+ box.querySelector('#seaMusicPlay').onclick=()=>{
+  if(parentMode){parent.postMessage({type:'areg-sea-music-control',action:'play'},location.origin)}
+  else seaMusicPlay();
+  update();
+ };
+ box.querySelector('#seaMusicStop').onclick=()=>{
+  if(parentMode){parent.postMessage({type:'areg-sea-music-control',action:'stop'},location.origin)}
+  else seaMusic.pause();
+  update();
+ };
+ seaMusic.addEventListener('play',update);
+ seaMusic.addEventListener('pause',update);
+ box.querySelector('#seaMusicClose').onclick=()=>{
+  seaMusic.removeEventListener('play',update);seaMusic.removeEventListener('pause',update);box.remove()
+ };
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==parent||event.data?.type!=='areg-sea-music-state')return;
+ seaMusicParentPlaying=!!event.data.playing;
+ const box=document.querySelector('#seaMusicEditor');
+ if(box){
+  box.querySelector('#seaMusicPlay').classList.toggle('is-active',seaMusicParentPlaying);
+  box.querySelector('#seaMusicStop').classList.toggle('is-active',!seaMusicParentPlaying);
+ }
+});
 let seaMusicLoadReady=false;
 seaMusicLoad().finally(()=>{seaMusicLoadReady=true;seaMusicPlay()});
 /* A user gesture unlocks iOS audio; after that the selected track resumes on game entry. */
