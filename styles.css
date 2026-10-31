@@ -3729,3 +3729,35 @@ html[data-theme^="photo-user-"] .section-dim{
  72%{opacity:.62}
  96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.7)}
 }
+
+/* AREG TEST only: five home-menu title plaques, per-letter drift + RGB edge glow.
+   Do not animate the plaque itself or alter its position/dimensions. */
+.home-section-card .home-card-label .areg-floating-letter{
+  display:inline-block;
+  flex:0 0 auto;
+  position:relative;
+  white-space:pre;
+  will-change:transform;
+  animation:aregLetterFloat var(--letter-duration,3.2s) ease-in-out var(--letter-delay,0s) infinite alternate,
+            aregLetterRGB 5.4s linear var(--rgb-delay,0s) infinite !important;
+}
+.home-section-card .home-card-label .areg-floating-space{
+  display:inline-block;
+  flex:0 0 auto;
+  white-space:pre;
+}
+@keyframes aregLetterFloat{
+  0%{transform:translate3d(0,2px,0)}
+  50%{transform:translate3d(0,-3px,0)}
+  100%{transform:translate3d(0,1px,0)}
+}
+@keyframes aregLetterRGB{
+  0%,100%{text-shadow:0 0 1px #ff386b,0 0 4px #ff386b,0 0 7px #ff386b}
+  20%{text-shadow:0 0 1px #ffb733,0 0 4px #ffb733,0 0 7px #ffb733}
+  40%{text-shadow:0 0 1px #54e969,0 0 4px #54e969,0 0 7px #54e969}
+  60%{text-shadow:0 0 1px #3acfff,0 0 4px #3acfff,0 0 7px #3acfff}
+  80%{text-shadow:0 0 1px #b76cff,0 0 4px #b76cff,0 0 7px #b76cff}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-section-card .home-card-label .areg-floating-letter{animation:none !important;will-change:auto}
+}
