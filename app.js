@@ -3980,7 +3980,9 @@
       if(character!==' '){
         span.style.setProperty('--letter-delay',(-((index*0.43)%3.7)).toFixed(2)+'s');
         span.style.setProperty('--letter-duration',(2.7+(index*7%9)*0.19).toFixed(2)+'s');
-        span.style.setProperty('--rgb-delay',(-((index*0.31)%5.4)).toFixed(2)+'s');
+        // Lock each letter to its own calm color, independent of inherited menu animations.
+        const fixedColors=['#a44738','#326e88','#66803a','#79508b','#a56827','#3b7d72','#984c69'];
+        span.style.setProperty('color',fixedColors[index%fixedColors.length],'important');
       }
       fragment.appendChild(span);
     });
