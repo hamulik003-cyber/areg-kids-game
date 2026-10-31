@@ -3967,49 +3967,6 @@
     // Standalone Mind V4 returns to this section even after a full PWA navigation.
     openSection('mind');
   }
-  // Trial-only five main-menu labels: bold saturated fixed colors and responsive fit.
-  const homeFloatingLabels=[...document.querySelectorAll('.home-section-card .home-card-label')];
-  const vividLetterColors=['#ff184c','#008dff','#22cf00','#cf19ff','#ff9500','#00c9b5','#ff249f'];
-  homeFloatingLabels.forEach(label=>{
-    if(label.querySelector('.areg-floating-letter'))return;
-    const original=label.textContent;
-    const fragment=document.createDocumentFragment();
-    Array.from(original).forEach((character,index)=>{
-      const span=document.createElement('span');
-      span.className=character===' '?'areg-floating-space':'areg-floating-letter';
-      span.textContent=character===' '?'\u00a0':character;
-      if(character!==' '){
-        span.style.setProperty('--letter-delay',(-((index*.43)%3.7)).toFixed(2)+'s');
-        span.style.setProperty('--letter-duration',(2.7+(index*7%9)*.19).toFixed(2)+'s');
-        span.style.setProperty('color',vividLetterColors[index%vividLetterColors.length],'important');
-      }
-      fragment.appendChild(span);
-    });
-    label.replaceChildren(fragment);
-    label.setAttribute('aria-label',original);
-  });
-  // Increase the visible type substantially; measure real rendered glyph widths
-  // and back off only when needed. Leave 10px horizontal and 7px vertical safety.
-  function fitFloatingHomeLabels(){
-    homeFloatingLabels.forEach(label=>{
-      const wide=label.closest('.home-section-card--wide');
-      const maxSize=wide?39:46;
-      const minSize=wide?16:22;
-      const style=getComputedStyle(label);
-      const available=label.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-20;
-      const maxHeight=label.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-14;
-      if(available<=0||maxHeight<=0)return;
-      const letters=[...label.children];
-      for(let size=maxSize;size>=minSize;size--){
-        label.style.setProperty('font-size',size+'px','important');
-        const width=letters.reduce((sum,letter)=>sum+letter.getBoundingClientRect().width,0);
-        if(width<=available&&size*1.1<=maxHeight)break;
-      }
-    });
-  }
-  fitFloatingHomeLabels();
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFloatingHomeLabels);
-  addEventListener('resize',fitFloatingHomeLabels);
   updateStars();
   if('serviceWorker'in navigator&&!window.__AREG_LIVE_TEST__)addEventListener('load',async()=>{
     try{
