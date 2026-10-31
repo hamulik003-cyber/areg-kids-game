@@ -3783,3 +3783,11 @@ html[data-theme^="photo-user-"] .section-dim{
 .home-section-card .home-card-label .areg-floating-letter:nth-child(7n + 5){color:#e78a08 !important}
 .home-section-card .home-card-label .areg-floating-letter:nth-child(7n + 6){color:#00b9a3 !important}
 .home-section-card .home-card-label .areg-floating-letter:nth-child(7n){color:#f13c96 !important}
+
+/* Trial-only: crisp dark contour on each fixed-color floating glyph.
+   Stroke is inset around the glyph; the plaque clips all animated letters. */
+.home-section-card .home-card-label .areg-floating-letter{
+  -webkit-text-stroke:1.15px #512c28 !important;
+  paint-order:stroke fill;
+  text-shadow:0 1px 0 rgba(255,255,255,.7),1px 2px 0 rgba(71,33,20,.35) !important;
+}
