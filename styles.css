@@ -3732,3 +3732,40 @@ html[data-theme^="photo-user-"] .section-dim{
 
 /* Trial: original still, dark home-menu lettering (no colored spans). */
 .home-section-card .home-card-label{color:#21150f !important;animation:none !important}
+
+/* AREG TEST experiment: vivid, smoothly shifting RGB ONLY on the five
+   home-menu title plaque frames. Letter colors, sizing and motion stay unchanged. */
+.home-section-card .home-card-label{
+  isolation:isolate;
+}
+.home-section-card .home-card-label::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  border-radius:inherit;
+  padding:4px;
+  pointer-events:none;
+  background:linear-gradient(115deg,
+    #ff1744 0%,#ffb300 12%,#f6ff00 23%,#00e751 36%,
+    #00cfff 49%,#234dff 62%,#d900ff 75%,#ff258d 88%,#ff1744 100%);
+  background-size:340% 340%;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  animation:aregPlaqueRGBFrame 9.4s ease-in-out infinite alternate !important;
+  filter:saturate(1.4);
+}
+.home-section-card:nth-child(2n) .home-card-label::after{animation-duration:11.3s !important;animation-delay:-4.2s !important}
+.home-section-card:nth-child(3n) .home-card-label::after{animation-duration:8.7s !important;animation-delay:-6.1s !important}
+.home-section-card:nth-child(5n) .home-card-label::after{animation-duration:12.1s !important;animation-delay:-2.8s !important}
+@keyframes aregPlaqueRGBFrame{
+  0%{background-position:0% 20%}
+  25%{background-position:80% 0%}
+  50%{background-position:100% 90%}
+  75%{background-position:22% 100%}
+  100%{background-position:0% 20%}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-section-card .home-card-label::after{animation:none !important;background-position:50% 50%}
+}
