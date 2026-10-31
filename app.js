@@ -4010,6 +4010,53 @@
   fitFloatingHomeLabels();
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFloatingHomeLabels);
   addEventListener('resize',fitFloatingHomeLabels);
+  // Trial-only: apply the approved vivid, outlined, gently floating letters
+  // to inner section game-card plaques and the section heading.
+  const innerPalette=['#ff184c','#008dff','#22cf00','#cf19ff','#ff9500','#00c9b5','#ff249f'];
+  function decorateInnerLabel(label){
+    if(!label||label.querySelector('.areg-inner-letter'))return;
+    const original=label.textContent.trim();
+    if(!original)return;
+    const frag=document.createDocumentFragment();
+    Array.from(original).forEach((ch,i)=>{
+      const span=document.createElement('span');
+      span.className=ch===' '?'areg-inner-space':'areg-inner-letter';
+      span.textContent=ch===' '?'\u00a0':ch;
+      if(ch!==' '){
+        span.style.setProperty('color',innerPalette[i%innerPalette.length],'important');
+        span.style.setProperty('--letter-delay',(-((i*.43)%3.7)).toFixed(2)+'s');
+        span.style.setProperty('--letter-duration',(2.7+(i*7%9)*.19).toFixed(2)+'s');
+      }
+      frag.appendChild(span);
+    });
+    label.replaceChildren(frag);
+    label.setAttribute('aria-label',original);
+  }
+  function fitInnerLabel(label){
+    if(!label||!label.isConnected||!label.clientWidth)return;
+    const heading=label.classList.contains('wood-title');
+    const style=getComputedStyle(label);
+    const available=label.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-18;
+    const height=label.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-12;
+    if(available<=0||height<=0)return;
+    const chars=[...label.children];
+    const max=heading?31:32;
+    for(let size=max;size>=12;size--){
+      label.style.setProperty('font-size',size+'px','important');
+      const width=chars.reduce((sum,ch)=>sum+ch.getBoundingClientRect().width,0);
+      if(width<=available&&size*1.15<=height)break;
+    }
+  }
+  function refreshInnerFloatingLabels(){
+    const labels=[sectionTitle,...sectionGames.querySelectorAll('.toddler-game-label')];
+    labels.forEach(label=>{decorateInnerLabel(label);fitInnerLabel(label)});
+  }
+  new MutationObserver(()=>requestAnimationFrame(refreshInnerFloatingLabels))
+    .observe(sectionGames,{childList:true});
+  new MutationObserver(()=>requestAnimationFrame(refreshInnerFloatingLabels))
+    .observe(sectionTitle,{childList:true});
+  addEventListener('resize',()=>requestAnimationFrame(refreshInnerFloatingLabels));
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refreshInnerFloatingLabels);
   updateStars();
   if('serviceWorker'in navigator&&!window.__AREG_LIVE_TEST__)addEventListener('load',async()=>{
     try{
