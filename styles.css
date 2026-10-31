@@ -3729,3 +3729,6 @@ html[data-theme^="photo-user-"] .section-dim{
  72%{opacity:.62}
  96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.7)}
 }
+
+/* Trial: original still, dark home-menu lettering (no colored spans). */
+.home-section-card .home-card-label{color:#21150f !important;animation:none !important}
