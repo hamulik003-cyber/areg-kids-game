@@ -3967,6 +3967,26 @@
     // Standalone Mind V4 returns to this section even after a full PWA navigation.
     openSection('mind');
   }
+  // Trial-only: independent, gentle letter drift on the five home menu plaques.
+  // Keep the label's original textContent/accessible button label intact.
+  document.querySelectorAll('.home-section-card .home-card-label').forEach(label=>{
+    if(label.querySelector('.areg-floating-letter'))return;
+    const original=label.textContent;
+    const fragment=document.createDocumentFragment();
+    Array.from(original).forEach((character,index)=>{
+      const span=document.createElement('span');
+      span.className=character===' '?'areg-floating-space':'areg-floating-letter';
+      span.textContent=character===' '?'\u00a0':character;
+      if(character!==' '){
+        span.style.setProperty('--letter-delay',(-((index*0.43)%3.7)).toFixed(2)+'s');
+        span.style.setProperty('--letter-duration',(2.7+(index*7%9)*0.19).toFixed(2)+'s');
+        span.style.setProperty('--rgb-delay',(-((index*0.31)%5.4)).toFixed(2)+'s');
+      }
+      fragment.appendChild(span);
+    });
+    label.replaceChildren(fragment);
+    label.setAttribute('aria-label',original);
+  });
   updateStars();
   if('serviceWorker'in navigator&&!window.__AREG_LIVE_TEST__)addEventListener('load',async()=>{
     try{
