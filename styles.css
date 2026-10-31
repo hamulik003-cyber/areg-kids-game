@@ -3733,27 +3733,24 @@ html[data-theme^="photo-user-"] .section-dim{
 /* Trial: original still, dark home-menu lettering (no colored spans). */
 .home-section-card .home-card-label{color:#21150f !important;animation:none !important}
 
-/* AREG TEST: RGB color flow fills each of the five home title plaques.
-   Static dark letters, unchanged plaque geometry, no inner section changes. */
+/* AREG TEST: visibly flowing RGB across full home-menu title plaques.
+   Only the gradient changes: dark stationary lettering and layout stay intact. */
 .home-section-card .home-card-label{
-  background:linear-gradient(112deg,
-    #ff5688 0%,#ffb84d 13%,#f4e96a 25%,#77e985 38%,
-    #59d9f5 51%,#8b98ff 65%,#d989fa 79%,#ff5688 100%) !important;
-  background-size:360% 360% !important;
-  animation:aregPlaqueRGBFill 10s ease-in-out infinite alternate !important;
+  background:linear-gradient(105deg,
+    #ff2d66 0%,#ffb72b 14%,#faff29 28%,#2ffb72 42%,
+    #20d9ff 57%,#5c60ff 72%,#ef32ef 86%,#ff2d66 100%) !important;
+  background-size:280% 280% !important;
+  animation:aregPlaqueColorTravel 4.4s linear infinite !important;
   color:#21150f !important;
   text-shadow:0 1px 1px rgba(255,255,255,.8) !important;
 }
-.home-section-card:nth-child(2n) .home-card-label{animation-duration:12.1s !important;animation-delay:-4s !important}
-.home-section-card:nth-child(3n) .home-card-label{animation-duration:8.9s !important;animation-delay:-6s !important}
-.home-section-card:nth-child(5n) .home-card-label{animation-duration:11.2s !important;animation-delay:-2.8s !important}
-@keyframes aregPlaqueRGBFill{
-  0%{background-position:0% 15%}
-  25%{background-position:75% 5%}
-  50%{background-position:100% 85%}
-  75%{background-position:25% 100%}
-  100%{background-position:0% 15%}
-}
-@media(prefers-reduced-motion:reduce){
-  .home-section-card .home-card-label{animation:none !important;background-position:50% 50% !important}
+.home-section-card:nth-child(2n) .home-card-label{animation-duration:5.2s !important;animation-delay:-1.8s !important}
+.home-section-card:nth-child(3n) .home-card-label{animation-duration:4.0s !important;animation-delay:-2.5s !important}
+.home-section-card:nth-child(5n) .home-card-label{animation-duration:5.8s !important;animation-delay:-3.1s !important}
+@keyframes aregPlaqueColorTravel{
+  0%{background-position:0% 15%;filter:hue-rotate(0deg)}
+  25%{background-position:70% 5%;filter:hue-rotate(90deg)}
+  50%{background-position:100% 90%;filter:hue-rotate(180deg)}
+  75%{background-position:25% 100%;filter:hue-rotate(270deg)}
+  100%{background-position:0% 15%;filter:hue-rotate(360deg)}
 }
