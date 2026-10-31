@@ -3791,3 +3791,38 @@ html[data-theme^="photo-user-"] .section-dim{
   paint-order:stroke fill;
   text-shadow:0 1px 0 rgba(255,255,255,.7),1px 2px 0 rgba(71,33,20,.35) !important;
 }
+
+/* AREG TEST: match approved home-title style inside the five sections.
+   No change to card artwork, game layout or navigation. */
+.section-games-grid .toddler-game-label,
+.toddler-section-screen .wood-title{
+  overflow:hidden !important;
+  white-space:nowrap !important;
+  font-weight:1000 !important;
+}
+.section-games-grid .toddler-game-label .areg-inner-letter,
+.toddler-section-screen .wood-title .areg-inner-letter{
+  display:inline-block;
+  flex:0 0 auto;
+  position:relative;
+  white-space:pre;
+  font-weight:1000 !important;
+  -webkit-text-stroke:1.15px #512c28 !important;
+  paint-order:stroke fill;
+  text-shadow:0 1px 0 rgba(255,255,255,.7),1px 2px 0 rgba(71,33,20,.35) !important;
+  will-change:transform;
+  animation:aregLetterFloat var(--letter-duration,3.2s) ease-in-out var(--letter-delay,0s) infinite alternate !important;
+}
+.section-games-grid .toddler-game-label .areg-inner-space,
+.toddler-section-screen .wood-title .areg-inner-space{
+  display:inline-block;
+  flex:0 0 auto;
+  white-space:pre;
+}
+@media(prefers-reduced-motion:reduce){
+  .section-games-grid .toddler-game-label .areg-inner-letter,
+  .toddler-section-screen .wood-title .areg-inner-letter{
+    animation:none !important;
+    will-change:auto;
+  }
+}
