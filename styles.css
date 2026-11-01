@@ -3844,6 +3844,12 @@ html[data-theme^="photo-user-"] .section-dim{
  70%{background-position:35% 0%}
  100%{background-position:90% 100%}
 }
+/* Keep home RGB motion active in iPhone PWA even when iOS Reduce Motion
+   is enabled; this opt-in applies only to the five menu plaques. */
 @media(prefers-reduced-motion:reduce){
- .home-section-card .home-card-label{animation:none !important}
+ .home-section-card.nature-card .home-card-label{animation:aregNatureFlow 6.7s ease-in-out -1.1s infinite alternate !important}
+ .home-section-card.space-card .home-card-label{animation:aregSpaceFlow 9.1s linear -4.3s infinite !important}
+ .home-section-card.mind-card .home-card-label{animation:aregMindFlow 7.8s ease-in-out -2.7s infinite alternate-reverse !important}
+ .home-section-card.create-card .home-card-label{animation:aregCreateFlow 5.9s linear -3.8s infinite reverse !important}
+ .home-section-card.magic-card .home-card-label{animation:aregMagicFlow 11.3s ease-in-out -6.2s infinite alternate !important}
 }
