@@ -3892,3 +3892,12 @@ html[data-theme^="photo-user-"] .section-dim{
   color:#21150f !important;
   filter:none !important;
 }
+
+/* AREG TEST: remove RGB border lights from the five main-menu section cards only. */
+.home-section-card::after,
+.home-section-card.magic-card::after{
+  content:none !important;
+  animation:none !important;
+  background:none !important;
+  box-shadow:none !important;
+}
