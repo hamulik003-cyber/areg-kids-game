@@ -3853,3 +3853,27 @@ html[data-theme^="photo-user-"] .section-dim{
  .home-section-card.create-card .home-card-label{animation:aregCreateFlow 5.9s linear -3.8s infinite reverse !important}
  .home-section-card.magic-card .home-card-label{animation:aregMagicFlow 11.3s ease-in-out -6.2s infinite alternate !important}
 }
+
+/* Unified calm speed: preserve each plaque's unique palette and path. */
+.home-section-card.nature-card .home-card-label,
+.home-section-card.space-card .home-card-label,
+.home-section-card.mind-card .home-card-label,
+.home-section-card.create-card .home-card-label,
+.home-section-card.magic-card .home-card-label{
+ animation-duration:14s !important;
+ animation-timing-function:linear !important;
+}
+.home-section-card::after,
+.home-section-card.magic-card::after{
+ animation-duration:14s !important;
+}
+@media(prefers-reduced-motion:reduce){
+ .home-section-card.nature-card .home-card-label,
+ .home-section-card.space-card .home-card-label,
+ .home-section-card.mind-card .home-card-label,
+ .home-section-card.create-card .home-card-label,
+ .home-section-card.magic-card .home-card-label{
+  animation-duration:14s !important;
+  animation-timing-function:linear !important;
+ }
+}
