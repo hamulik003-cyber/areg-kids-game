@@ -3786,3 +3786,64 @@ html[data-theme^="photo-user-"] .section-dim{
 @media(prefers-reduced-motion:reduce){
   .home-section-card::after,.home-section-card.magic-card::after{animation:none !important}
 }
+
+/* Trial: five independent plaque color journeys. Override shared nth-child
+   timings without touching card layout, border overlays, text or navigation. */
+.home-section-card.nature-card .home-card-label{
+ background:linear-gradient(112deg,#ff476a,#f8c332,#6dfd70,#20dbcc,#5395ff,#ff476a) !important;
+ background-size:360% 310% !important;
+ animation:aregNatureFlow 6.7s ease-in-out -1.1s infinite alternate !important;
+}
+.home-section-card.space-card .home-card-label{
+ background:linear-gradient(238deg,#214bff,#af49ff,#ff4ec0,#27e5fa,#ffd34b,#214bff) !important;
+ background-size:420% 280% !important;
+ animation:aregSpaceFlow 9.1s linear -4.3s infinite !important;
+}
+.home-section-card.mind-card .home-card-label{
+ background:linear-gradient(38deg,#20f3ad,#47baff,#ec7bff,#ffbd42,#7dfd4d,#20f3ad) !important;
+ background-size:290% 430% !important;
+ animation:aregMindFlow 7.8s ease-in-out -2.7s infinite alternate-reverse !important;
+}
+.home-section-card.create-card .home-card-label{
+ background:linear-gradient(310deg,#ff3d9d,#ffa63c,#e7ff4b,#36e2ff,#8d5dff,#ff3d9d) !important;
+ background-size:470% 360% !important;
+ animation:aregCreateFlow 5.9s linear -3.8s infinite reverse !important;
+}
+.home-section-card.magic-card .home-card-label{
+ background:linear-gradient(172deg,#a44fff,#45bfff,#4cf9ac,#fff16c,#ff7991,#a44fff) !important;
+ background-size:330% 390% !important;
+ animation:aregMagicFlow 11.3s ease-in-out -6.2s infinite alternate !important;
+}
+@keyframes aregNatureFlow{
+ 0%{background-position:0% 10%}
+ 38%{background-position:80% 80%}
+ 72%{background-position:24% 100%}
+ 100%{background-position:100% 0%}
+}
+@keyframes aregSpaceFlow{
+ 0%{background-position:100% 0%}
+ 33%{background-position:15% 95%}
+ 67%{background-position:70% 30%}
+ 100%{background-position:100% 0%}
+}
+@keyframes aregMindFlow{
+ 0%{background-position:10% 100%}
+ 46%{background-position:90% 10%}
+ 75%{background-position:0% 40%}
+ 100%{background-position:100% 90%}
+}
+@keyframes aregCreateFlow{
+ 0%{background-position:90% 90%}
+ 27%{background-position:0% 10%}
+ 61%{background-position:75% 0%}
+ 100%{background-position:90% 90%}
+}
+@keyframes aregMagicFlow{
+ 0%{background-position:0% 75%}
+ 31%{background-position:100% 35%}
+ 70%{background-position:35% 0%}
+ 100%{background-position:90% 100%}
+}
+@media(prefers-reduced-motion:reduce){
+ .home-section-card .home-card-label{animation:none !important}
+}
