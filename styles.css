@@ -3877,3 +3877,18 @@ html[data-theme^="photo-user-"] .section-dim{
   animation-timing-function:linear !important;
  }
 }
+
+/* AREG TEST: restore calm solid backgrounds behind the five home titles.
+   Preserve the RGB outlines around the large cards. */
+.home-section-card .home-card-label,
+.home-section-card.nature-card .home-card-label,
+.home-section-card.space-card .home-card-label,
+.home-section-card.mind-card .home-card-label,
+.home-section-card.create-card .home-card-label,
+.home-section-card.magic-card .home-card-label{
+  background:#f5e3bc !important;
+  background-image:none !important;
+  animation:none !important;
+  color:#21150f !important;
+  filter:none !important;
+}
