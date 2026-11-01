@@ -3754,3 +3754,35 @@ html[data-theme^="photo-user-"] .section-dim{
   75%{background-position:25% 100%;filter:hue-rotate(270deg)}
   100%{background-position:0% 15%;filter:hue-rotate(360deg)}
 }
+
+/* AREG TEST safe RGB edge: overlay ONLY. Never change .section-card position:
+   cards are absolutely placed in the 709px virtual home canvas. */
+.home-section-card::after,
+.home-section-card.magic-card::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  inset:0 !important;
+  z-index:11 !important;
+  box-sizing:border-box !important;
+  width:100% !important;
+  height:100% !important;
+  border-radius:inherit !important;
+  padding:5px !important;
+  pointer-events:none !important;
+  background:conic-gradient(from 0deg,#ff335f,#ffcc24,#70f443,#22dbfa,#6652ff,#ee3dff,#ff335f) !important;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0) !important;
+  -webkit-mask-composite:xor !important;
+  animation:aregSafeEdgeHue 6.4s linear infinite !important;
+}
+.home-section-card.space-card::after{animation-duration:8.2s !important;animation-delay:-2.3s !important}
+.home-section-card.mind-card::after{animation-duration:5.1s !important;animation-delay:-3.4s !important}
+.home-section-card.create-card::after{animation-duration:9.1s !important;animation-delay:-4.7s !important}
+.home-section-card.magic-card::after{animation-duration:7.5s !important;animation-delay:-1.6s !important}
+@keyframes aregSafeEdgeHue{
+  from{filter:hue-rotate(0deg)}
+  to{filter:hue-rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-section-card::after,.home-section-card.magic-card::after{animation:none !important}
+}
