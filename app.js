@@ -3967,6 +3967,33 @@
     // Standalone Mind V4 returns to this section even after a full PWA navigation.
     openSection('mind');
   }
+  // AREG TEST: independent, visible RGB travel on five HOME label backgrounds.
+  // Inline background-position wins over legacy animation:none declarations.
+  // Never transform or reposition the cards or labels.
+  const plaqueFlowSpecs=[
+    ['nature',0.019,0.013,11],
+    ['space',-0.027,0.017,47],
+    ['mind',0.014,-0.023,83],
+    ['create',-0.021,-0.029,129],
+    ['magic',0.011,0.031,173]
+  ];
+  const plaqueFlowTargets=plaqueFlowSpecs.map(([section,vx,vy,phase])=>({
+    el:document.querySelector('.home-section-card.'+section+'-card .home-card-label'),
+    vx,vy,phase
+  })).filter(item=>item.el);
+  let lastPlaquePaint=0;
+  function paintPlaqueFlow(now){
+    if(!document.hidden&&now-lastPlaquePaint>=32){
+      lastPlaquePaint=now;
+      for(const item of plaqueFlowTargets){
+        const x=50+47*Math.sin(now*item.vx/1000+item.phase);
+        const y=50+47*Math.cos(now*item.vy/1000+item.phase*.7);
+        item.el.style.setProperty('background-position',x.toFixed(2)+'% '+y.toFixed(2)+'%','important');
+      }
+    }
+    requestAnimationFrame(paintPlaqueFlow);
+  }
+  if(plaqueFlowTargets.length)requestAnimationFrame(paintPlaqueFlow);
   updateStars();
   if('serviceWorker'in navigator&&!window.__AREG_LIVE_TEST__)addEventListener('load',async()=>{
     try{
