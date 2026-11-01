@@ -3971,11 +3971,11 @@
   // Inline background-position wins over legacy animation:none declarations.
   // Never transform or reposition the cards or labels.
   const plaqueFlowSpecs=[
-    ['nature',0.019,0.013,11],
-    ['space',-0.027,0.017,47],
-    ['mind',0.014,-0.023,83],
-    ['create',-0.021,-0.029,129],
-    ['magic',0.011,0.031,173]
+    ['nature',1.9,1.3,11],
+    ['space',-2.7,1.7,47],
+    ['mind',1.4,-2.3,83],
+    ['create',-2.1,-2.9,129],
+    ['magic',1.1,3.1,173]
   ];
   const plaqueFlowTargets=plaqueFlowSpecs.map(([section,vx,vy,phase])=>({
     el:document.querySelector('.home-section-card.'+section+'-card .home-card-label'),
