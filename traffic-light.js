@@ -16,7 +16,7 @@
     box.innerHTML='<h2>🚦 Արեգի լուսացույցը</h2><small>Սեղմիր լույսերին՝ մեքենաներն ու հետիոտներին կառավարելու համար</small><div class="tl-scene"><div class="tl-cross"></div><div class="tl-traffic"></div><div class="tl-street-ped" role="button" tabindex="0" aria-label="Փոխել հետիոտնի լուսացույցը"><span class="tl-street-red"><i class="tl-person"></i></span><span class="tl-street-green"><i class="tl-person tl-walking"></i></span></div><span class="tl-walker">🚶</span></div><div class="tl-panels"><div class="tl-panel"><b>🚗 Մեքենաների լուսացույց</b><div class="tl-housing"><button class="tl-light tl-red" data-car="red" aria-label="Կարմիր՝ կանգ"></button><button class="tl-light tl-yellow" data-car="yellow" aria-label="Դեղին՝ պատրաստվիր կանգնելու"></button><button class="tl-light tl-green" data-car="green" aria-label="Կանաչ՝ շարժվիր"></button></div></div><div class="tl-panel"><b>🚶 Հետիոտնի լուսացույց</b><div class="tl-housing"><button class="tl-ped tl-red" data-ped="red" aria-label="Կարմիր՝ սպասիր">✋</button><button class="tl-ped tl-green" data-ped="green" aria-label="Կանաչ՝ անցիր">🚶</button></div></div></div><div class="tl-message" role="status" aria-live="polite"></div><button class="tl-go">🚶 Փորձենք անցնել զեբրայով</button>';
     host.appendChild(box);
     let car='green',ped='red',crossing=false,active=true,completed=0;
-    let last=0,frame=0,walkProgress=0,walkDelay=0,walkAtFarSide=false,sequence=0;
+    let last=0,frame=0,walkProgress=0,walkDelay=0,walkAtFarSide=false,sequence=0,queueMode=false;
     const timers=new Set();
     function later(fn,ms){const id=setTimeout(()=>{timers.delete(id);if(active)fn()},ms);timers.add(id)}
     function cancelSequence(){sequence++;for(const id of timers)clearTimeout(id);timers.clear()}
@@ -34,7 +34,16 @@
       {icon:'🚑',dir:-1,lane:2,x:1.05,v:0,max:.20},
       {icon:'🚌',dir:-1,lane:3,x:1.05,v:0,max:.15}
     ];
-    vehicles.forEach(v=>{v.length=(v.icon==='🚌'||v.icon==='🚚')?.17:.13;v.v=0});
+    vehicles.forEach(v=>{v.length=(v.icon==='🚌'||v.icon==='🚚')?.17:.13;v.v=0;v.queueX=null});
+    // Stopped queues fit completely on-screen, two cars in each of four lanes.
+    function prepareQueue(){
+      queueMode=true;
+      for(const lane of [0,1,2,3]){
+        const group=vehicles.filter(v=>v.lane===lane).sort((a,b)=>(b.x-a.x)*(lane<2?1:-1));
+        const front=lane<2?.235:.765;
+        group.forEach((v,i)=>{v.queueX=front-(lane<2?1:-1)*i*.205});
+      }
+    }
     const traffic=box.querySelector('.tl-traffic');
     vehicles.forEach(v=>{const el=document.createElement('span');el.className='tl-car';el.textContent=v.icon;traffic.appendChild(el);v.el=el});
     const scene=box.querySelector('.tl-scene');
@@ -53,7 +62,8 @@
         // Cars that have passed the crossing must finish clearing it.
         const cleared=distance<-.08;
         const allowed=green||cleared;
-        const safe=allowed?v.max:Math.sqrt(2*.65*Math.max(0,distance-.09));
+        const queueDistance=queueMode&&v.queueX!==null?(v.queueX-v.x)*v.dir:distance-.09;
+        const safe=allowed?v.max:Math.sqrt(2*.65*Math.max(0,queueDistance));
         // Follow the vehicle ahead in the same lane; never overlap while queuing.
         const ahead=vehicles.filter(other=>other!==v&&other.lane===v.lane&&(other.x-v.x)*v.dir>0)
           .sort((a,b)=>(a.x-b.x)*v.dir)[0];
@@ -64,7 +74,7 @@
         v.v=Math.min(v.v,safe,followSpeed);
         v.x+=v.dir*v.v*dt;
         if(ahead&&(ahead.x-v.x)*v.dir<ahead.length+.05){v.x=ahead.x-v.dir*(ahead.length+.05);v.v=0}
-        if(!allowed&&distance>=0&&(stop-v.x)*v.dir<.09){v.x=stop-v.dir*.09;v.v=0}
+        if(!allowed&&queueMode&&v.queueX!==null&&(v.x-v.queueX)*v.dir>=0){v.x=v.queueX;v.v=0}
         // Re-enter only after the entire car has left the screen.
         if(v.dir===1&&v.x>1.23){v.x=-.07;v.v=0}
         if(v.dir===-1&&v.x<-.23){v.x=1.05;v.v=0}
@@ -97,11 +107,13 @@
       cancelSequence();
       const token=sequence;
       if(next==='green'){
+        prepareQueue();
         // Drivers see amber before red; pedestrians get green only once traffic stops.
         ped='red';
         if(car==='green'){car='yellow';sync();later(()=>{if(token!==sequence)return;car='red';sync();waitForClear(token)},1100)}
         else{car='red';sync();waitForClear(token)}
       }else{
+        queueMode=false;vehicles.forEach(v=>v.queueX=null);
         // Pedestrians stop first; cars get amber, then green automatically.
         ped='red';car='red';sync();
         later(()=>{if(token!==sequence||crossing)return;car='yellow';sync();
