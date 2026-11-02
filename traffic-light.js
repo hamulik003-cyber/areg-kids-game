@@ -20,47 +20,68 @@
     const timers=new Set();
     function later(fn,ms){const id=setTimeout(()=>{timers.delete(id);if(active)fn()},ms);timers.add(id)}
     function cancelSequence(){sequence++;for(const id of timers)clearTimeout(id);timers.clear()}
-    // Trial-only procedural sounds. Audio starts only after a user gesture on iOS.
-    let audioCtx=null,master=null,lastEngineAt=0,lastStepAt=0,engineWasMoving=false;
+    // Layered environmental audio: filtered tyre noise, motor harmonics and soft footsteps.
+    // No square-wave / arcade notes. Unlocked by first iOS touch.
+    let audioCtx=null,master=null,noiseBuffer=null,engineNodes=null,lastStepAt=0;
     function unlockAudio(){
       if(!active)return;
       try{
-        const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-        if(!AudioContextClass)return;
+        const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
         if(!audioCtx){
-          audioCtx=new AudioContextClass();
-          master=audioCtx.createGain();master.gain.value=.12;
-          master.connect(audioCtx.destination);
+          audioCtx=new C();master=audioCtx.createGain();master.gain.value=.34;master.connect(audioCtx.destination);
+          noiseBuffer=audioCtx.createBuffer(1,audioCtx.sampleRate*2,audioCtx.sampleRate);
+          const data=noiseBuffer.getChannelData(0);
+          for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1);
         }
         if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
       }catch(e){audioCtx=null;master=null}
     }
-    function tone(freq,duration,type='sine',gain=.15,delay=0,endFreq){
+    function noise(duration,volume,frequency=550,delay=0){
       if(!audioCtx||audioCtx.state!=='running'||!master)return;
-      try{
-        const t=audioCtx.currentTime+delay,osc=audioCtx.createOscillator(),env=audioCtx.createGain();
-        osc.type=type;osc.frequency.setValueAtTime(Math.max(30,freq),t);
-        if(endFreq)osc.frequency.exponentialRampToValueAtTime(Math.max(30,endFreq),t+duration);
-        env.gain.setValueAtTime(.0001,t);
-        env.gain.exponentialRampToValueAtTime(Math.max(.001,gain),t+.012);
-        env.gain.exponentialRampToValueAtTime(.0001,t+duration);
-        osc.connect(env);env.connect(master);osc.start(t);osc.stop(t+duration+.02);
-      }catch(e){}
+      const t=audioCtx.currentTime+delay,src=audioCtx.createBufferSource(),filter=audioCtx.createBiquadFilter(),g=audioCtx.createGain();
+      src.buffer=noiseBuffer;src.loop=true;filter.type='lowpass';filter.frequency.value=frequency;
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),t+.035);
+      g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      src.connect(filter);filter.connect(g);g.connect(master);src.start(t);src.stop(t+duration+.03);
+    }
+    function note(freq,duration,volume=.10,delay=0,ending){
+      if(!audioCtx||audioCtx.state!=='running'||!master)return;
+      const t=audioCtx.currentTime+delay,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='sine';o.frequency.setValueAtTime(freq,t);
+      if(ending)o.frequency.exponentialRampToValueAtTime(ending,t+duration);
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.025);
+      g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.02);
+    }
+    function startEngine(){
+      if(!audioCtx||audioCtx.state!=='running'||engineNodes)return;
+      const osc=audioCtx.createOscillator(),harm=audioCtx.createOscillator(),filter=audioCtx.createBiquadFilter(),gain=audioCtx.createGain();
+      osc.type='sawtooth';harm.type='triangle';osc.frequency.value=54;harm.frequency.value=108;
+      filter.type='lowpass';filter.frequency.value=200;gain.gain.value=0;
+      osc.connect(filter);harm.connect(filter);filter.connect(gain);gain.connect(master);
+      osc.start();harm.start();engineNodes={osc,harm,filter,gain};
+    }
+    function updateEngine(speed){
+      if(!audioCtx||audioCtx.state!=='running')return;
+      if(!engineNodes&&speed>.012)startEngine();
+      if(!engineNodes)return;
+      const t=audioCtx.currentTime,m=Math.min(1,speed/.19);
+      engineNodes.osc.frequency.setTargetAtTime(46+m*39,t,.12);
+      engineNodes.harm.frequency.setTargetAtTime(92+m*78,t,.12);
+      engineNodes.filter.frequency.setTargetAtTime(150+m*210,t,.12);
+      engineNodes.gain.gain.setTargetAtTime(m*.055,t,.15);
     }
     function sound(kind){
-      if(kind==='red'){tone(460,.12,'sine',.20);tone(350,.20,'sine',.17,.12)}
-      else if(kind==='yellow'){tone(560,.10,'triangle',.12);tone(560,.10,'triangle',.10,.22)}
-      else if(kind==='green'){tone(530,.12,'sine',.15);tone(760,.19,'sine',.16,.13)}
-      else if(kind==='pedgreen'){tone(720,.075,'sine',.12);tone(960,.13,'sine',.13,.11)}
-      else if(kind==='pedred'){tone(430,.15,'triangle',.13)}
-      else if(kind==='engine'){tone(115,.17,'sawtooth',.018,0,150)}
-      else if(kind==='brake'){tone(260,.20,'triangle',.035,0,125)}
-      else if(kind==='step'){tone(170,.055,'triangle',.025)}
-      else if(kind==='button'){tone(650,.055,'sine',.10)}
-      else if(kind==='wait'){tone(290,.12,'sine',.11)}
-      else if(kind==='success'){
-        tone(620,.12,'sine',.16);tone(780,.14,'sine',.16,.13);tone(980,.23,'sine',.18,.29);
-      }
+      if(kind==='red'){noise(.16,.065,220);note(185,.23,.10,0,135)}
+      else if(kind==='yellow'){noise(.12,.045,750);note(360,.18,.045)}
+      else if(kind==='green'){note(480,.22,.09);note(650,.27,.075,.12)}
+      else if(kind==='pedgreen'){note(570,.13,.065);note(790,.22,.07,.14)}
+      else if(kind==='pedred'){note(215,.19,.065,0,165)}
+      else if(kind==='brake'){noise(.34,.10,1000);note(120,.23,.035,0,75)}
+      else if(kind==='step'){noise(.075,.065,300);note(105,.075,.035)}
+      else if(kind==='button'){noise(.045,.038,700)}
+      else if(kind==='wait'){note(190,.18,.07,0,145)}
+      else if(kind==='success'){note(460,.22,.10);note(590,.23,.10,.16);note(740,.34,.11,.34)}
     }
     function onUserSound(){unlockAudio()}
     box.addEventListener('pointerdown',onUserSound,{passive:true});
@@ -114,12 +135,9 @@
       const width=Math.max(1,scene.clientWidth),height=scene.clientHeight;
       if(!frame||Math.round(now)%45===0)sizePole();
       const green=car==='green'&&ped==='red'&&!crossing;
-      const anyMoving=vehicles.some(v=>v.v>.028);
-      if(audioCtx&&audioCtx.state==='running'){
-        if(anyMoving&&now-lastEngineAt>1350){sound('engine');lastEngineAt=now}
-        if(engineWasMoving&&!anyMoving)sound('brake');
-      }
-      engineWasMoving=anyMoving;
+      const meanSpeed=vehicles.reduce((sum,v)=>sum+v.v,0)/vehicles.length;
+      updateEngine(meanSpeed);
+      if(!green&&meanSpeed>.025&&vehicles.some(v=>v.phase==='approach')&&Math.floor(now/1300)!==Math.floor((now-dt*1000)/1300))sound('brake');
       for(const v of vehicles){
         const dir=v.dir;
         const exiting=dir===1?v.x>1.20:v.x<-.22;
@@ -236,6 +254,6 @@
       sound('button');crossing=true;walkProgress=walkAtFarSide?1:0;walkAtFarSide=false;walkDelay=0;message.textContent='👀 Նայիր երկու կողմ, համոզվիր, որ մեքենաները կանգնած են, և անցիր։';
     });
     sync();frame=requestAnimationFrame(tick);
-    cleanup.push(()=>{active=false;cancelSequence();cancelAnimationFrame(frame);box.removeEventListener('pointerdown',onUserSound);box.removeEventListener('touchstart',onUserSound);box.removeEventListener('keydown',onUserSound);if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null}css.remove()});
+    cleanup.push(()=>{active=false;cancelSequence();cancelAnimationFrame(frame);box.removeEventListener('pointerdown',onUserSound);box.removeEventListener('touchstart',onUserSound);box.removeEventListener('keydown',onUserSound);if(engineNodes){engineNodes.osc.stop();engineNodes.harm.stop();engineNodes=null}if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null}css.remove()});
   };
 })();
