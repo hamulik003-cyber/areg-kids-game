@@ -628,9 +628,10 @@ html,body,#app,#app *:not(input):not(textarea){
 /* Independent, deliberately non-synchronized letter motion; RGB stays on the WHOLE word. */
 #app .sea-menu-title .sea-wave-letter{
  display:inline-block!important;
- background:none!important;
- -webkit-background-clip:initial!important;
- background-clip:initial!important;
+ background-image:linear-gradient(110deg,#fff04a 0%,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a 100%)!important;
+ background-repeat:no-repeat!important;
+ -webkit-background-clip:text!important;
+ background-clip:text!important;
  -webkit-text-fill-color:transparent!important;
  color:transparent!important;
  animation:seaLetterBob var(--bob-duration,3.7s) ease-in-out var(--bob-delay,0s) infinite!important;
@@ -1440,6 +1441,40 @@ if(incomingInvite&&/^[A-Z0-9]{6}$/i.test(incomingInvite)){start('online');online
   title.setAttribute('aria-label',word);
   title.replaceChildren(frag);
   title.dataset.waveLetters='1';
+ }
+ // Keep one shared moving gradient across the entire word, even while letters bob.
+ let lastPaint=0;
+ function paintSeaTitle(now){
+  if(now-lastPaint>32){
+   lastPaint=now;
+   const title=document.querySelector('#app .sea-menu-title[data-wave-letters="1"]');
+   if(title){
+    const letters=title.querySelectorAll('.sea-wave-letter');
+    const width=Math.max(1,title.getBoundingClientRect().width);
+    const total=Array.from(letters).reduce((n,el)=>n+el.getBoundingClientRect().width,0);
+    const gradientWidth=Math.max(1,total*2);
+    const shift=(now%10000)/10000*total;
+    let offset=0;
+    letters.forEach(el=>{
+     const w=el.getBoundingClientRect().width;
+     el.style.setProperty('background-size',gradientWidth+'px 100%','important');
+     el.style.setProperty('background-position',(shift-offset)+'px 50%','important');
+     offset+=w;
+    });
+   }
+  }
+  requestAnimationFrame(paintSeaTitle);
+ }
+ requestAnimationFrame(paintSeaTitle);
+ // Heading is replaced on mode changes: re-wrap the new heading safely.
+ const app=document.querySelector('#app');
+ if(app){
+  let scheduled=false;
+  new MutationObserver(()=>{
+   if(scheduled)return;
+   scheduled=true;
+   requestAnimationFrame(()=>{scheduled=false;prepareSeaTitle()});
+  }).observe(app,{childList:true,subtree:true});
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',prepareSeaTitle,{once:true});
  else prepareSeaTitle();
