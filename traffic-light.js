@@ -9,6 +9,7 @@
     css.textContent += '.tl-traffic{position:absolute;inset:0;pointer-events:none}.tl-car{position:absolute;left:0;bottom:auto;font-size:clamp(28px,9vw,43px);line-height:1;z-index:2;filter:drop-shadow(0 3px 2px #2228)}.tl-street-ped{position:absolute;left:66%;top:43%;z-index:5;background:#222;border:2px solid #111;border-radius:7px;padding:3px;display:flex;flex-direction:column;gap:2px;box-shadow:0 3px 3px #0006}.tl-street-ped span{font-size:19px;line-height:23px;opacity:.2}.tl-street-ped .on{opacity:1;filter:drop-shadow(0 0 5px currentColor)}.tl-walker{left:42%;bottom:3%}.tl-cross{left:38%;width:26%}.tl-scene:after{top:77%}';
     css.textContent += '.tl-street-ped{cursor:pointer;touch-action:manipulation}.tl{background:linear-gradient(#c9ecff,#e9f4d6);gap:7px;padding:8px}.tl h2{color:#fff;text-shadow:0 2px 4px #133d83;background:linear-gradient(#428de9,#1554b7);border:3px solid #e8f7ff;border-radius:24px;padding:7px;font-size:22px}.tl small{font-size:12px}.tl-scene{max-height:none;min-height:270px;flex:1;border:3px solid #e6f7ff;background:linear-gradient(to bottom,#a7dfff 0 18%,#71ad62 18% 35%,#d5c5aa 35% 45%,#565e68 45% 86%,#d6c6ad 86% 100%)}.tl-scene:after{top:66%;border-top:3px dashed #f7f4e7}.tl-cross{left:41%;width:19%;top:45%;bottom:14%;height:auto;background:repeating-linear-gradient(to bottom,#fff 0 9px,transparent 9px 18px);box-shadow:0 0 0 2px #fff3}.tl-traffic{z-index:3}.tl-car{font-size:clamp(29px,8vw,43px);transform-origin:center center}.tl-walker{left:44%;bottom:6%;font-size:39px;z-index:7}.tl-street-ped{left:62%;top:25%;border-radius:5px;padding:2px}.tl-street-ped span{font-size:17px;line-height:20px}.tl-panels{display:block}.tl-panel{display:none}.tl-panel:first-child{display:flex;flex-direction:row;justify-content:center;gap:8px;background:transparent;border:0;padding:0}.tl-panel:first-child b{display:none}.tl-panel:first-child .tl-housing{flex-direction:row;background:linear-gradient(#5689c5,#255a9a);padding:7px;border:3px solid #d5eaff;border-radius:24px;gap:9px}.tl-light{width:clamp(44px,12vw,58px);height:clamp(44px,12vw,58px)}.tl-go{background:linear-gradient(#64e955,#18a72a);color:white;text-shadow:0 1px 2px #145a1c;border:3px solid #e2ffe3;min-height:51px}.tl-message{min-height:47px;font-size:13px;padding:6px}.tl-scene:before{content:"🌳     🏡      🌳";top:10%;left:2%;font-size:28px}.tl-scene{isolation:isolate}@media(max-height:700px){.tl-scene{min-height:210px}.tl{gap:4px}.tl-message{min-height:37px}}';
     css.textContent += '.tl-street-ped{background:#343a40;border:3px solid #747b82;border-radius:5px;gap:5px;padding:5px;box-shadow:inset 0 0 3px #fff6,0 3px 4px #0005}.tl-street-ped span{display:grid;place-items:center;position:relative;width:36px;height:36px;background:#080a0c;border:2px solid #111;border-radius:50%;opacity:1;color:#333}.tl-street-ped .tl-street-red.on{color:#ff3029;box-shadow:0 0 10px #f32627aa}.tl-street-ped .tl-street-green.on{color:#1df77e;box-shadow:0 0 10px #00e874aa}.tl-street-ped .tl-person{display:block;position:relative;width:24px;height:30px;background:currentColor;clip-path:polygon(39% 0,61% 0,72% 10%,72% 20%,64% 26%,74% 30%,90% 55%,78% 61%,64% 43%,62% 65%,77% 93%,65% 100%,49% 72%,34% 100%,21% 93%,37% 61%,34% 42%,21% 61%,9% 55%,24% 29%,36% 24%,28% 16%)}.tl-street-ped .tl-walking{clip-path:polygon(42% 0,62% 0,73% 10%,68% 21%,56% 25%,72% 36%,88% 40%,85% 50%,64% 46%,55% 39%,50% 59%,76% 79%,94% 86%,89% 97%,66% 92%,40% 70%,24% 95%,10% 92%,27% 60%,37% 42%,22% 52%,8% 46%,26% 29%,41% 24%,31% 14%)}';
+    css.textContent += '.tl-street-ped{z-index:9;top:25%;left:65%;overflow:visible}.tl-street-ped:after{content:"";position:absolute;top:100%;left:50%;width:8px;height:clamp(42px,12vh,105px);transform:translateX(-50%);background:linear-gradient(90deg,#555c64,#b6bdc5 48%,#565e68);border:1px solid #414950;border-radius:0 0 4px 4px;z-index:-1;pointer-events:none}.tl-street-ped:before{content:"";position:absolute;top:calc(100% + clamp(42px,12vh,105px));left:50%;width:28px;height:7px;transform:translateX(-50%);background:#555e66;border-radius:6px;pointer-events:none}.tl-car{font-size:clamp(25px,7vw,36px)}';
     host.appendChild(css);
     const box=document.createElement('div');box.className='tl';
     box.innerHTML='<h2>🚦 Արեգի լուսացույցը</h2><small>Սեղմիր լույսերին՝ մեքենաներն ու հետիոտներին կառավարելու համար</small><div class="tl-scene"><div class="tl-cross"></div><div class="tl-traffic"></div><div class="tl-street-ped" role="button" tabindex="0" aria-label="Փոխել հետիոտնի լուսացույցը"><span class="tl-street-red"><i class="tl-person"></i></span><span class="tl-street-green"><i class="tl-person tl-walking"></i></span></div><span class="tl-walker">🚶</span></div><div class="tl-panels"><div class="tl-panel"><b>🚗 Մեքենաների լուսացույց</b><div class="tl-housing"><button class="tl-light tl-red" data-car="red" aria-label="Կարմիր՝ կանգ"></button><button class="tl-light tl-yellow" data-car="yellow" aria-label="Դեղին՝ պատրաստվիր կանգնելու"></button><button class="tl-light tl-green" data-car="green" aria-label="Կանաչ՝ շարժվիր"></button></div></div><div class="tl-panel"><b>🚶 Հետիոտնի լուսացույց</b><div class="tl-housing"><button class="tl-ped tl-red" data-ped="red" aria-label="Կարմիր՝ սպասիր">✋</button><button class="tl-ped tl-green" data-ped="green" aria-label="Կանաչ՝ անցիր">🚶</button></div></div></div><div class="tl-message" role="status" aria-live="polite"></div><button class="tl-go">🚶 Փորձենք անցնել զեբրայով</button>';
@@ -21,15 +22,16 @@
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const smooth=t=>t*t*(3-2*t);
     // Two lanes: opposing traffic. Positions are scene-width fractions.
+    // Four lanes: two side-by-side for each direction. Two cars per lane.
     const vehicles=[
-      {icon:'🚙',dir:1,lane:0,x:-.28,v:0,max:.23},
-      {icon:'🚕',dir:1,lane:0,x:-.85,v:0,max:.19},
-      {icon:'🚗',dir:-1,lane:1,x:1.25,v:0,max:.21},
-      {icon:'🚐',dir:-1,lane:1,x:1.85,v:0,max:.17},
-      {icon:'🚓',dir:1,lane:0,x:-1.40,v:0,max:.21},
-      {icon:'🚑',dir:-1,lane:1,x:2.45,v:0,max:.20},
-      {icon:'🚚',dir:1,lane:0,x:-2.05,v:0,max:.16},
-      {icon:'🚌',dir:-1,lane:1,x:3.05,v:0,max:.15}
+      {icon:'🚙',dir:1,lane:0,x:-.22,v:0,max:.23},
+      {icon:'🚕',dir:1,lane:1,x:-.22,v:0,max:.19},
+      {icon:'🚓',dir:1,lane:0,x:-.62,v:0,max:.21},
+      {icon:'🚚',dir:1,lane:1,x:-.67,v:0,max:.16},
+      {icon:'🚗',dir:-1,lane:2,x:1.22,v:0,max:.21},
+      {icon:'🚐',dir:-1,lane:3,x:1.22,v:0,max:.17},
+      {icon:'🚑',dir:-1,lane:2,x:1.65,v:0,max:.20},
+      {icon:'🚌',dir:-1,lane:3,x:1.70,v:0,max:.15}
     ];
     vehicles.forEach(v=>{v.length=(v.icon==='🚌'||v.icon==='🚚')?.17:.13;v.v=0});
     const traffic=box.querySelector('.tl-traffic');
@@ -41,7 +43,7 @@
       const width=Math.max(1,scene.clientWidth),height=scene.clientHeight;
       const green=car==='green'&&ped==='red'&&!crossing;
       for(const v of vehicles){
-        const stop=v.dir===1?.29:.71;
+        const stop=v.dir===1?.28:.72;
         const distance=(stop-v.x)*v.dir;
         // Cars that have passed the crossing must finish clearing it.
         const cleared=distance<-.08;
@@ -61,7 +63,8 @@
         // Re-enter only after the entire car has left the screen.
         if(v.dir===1&&v.x>1.23){v.x=-.4;v.v=0}
         if(v.dir===-1&&v.x<-.23){v.x=1.4;v.v=0}
-        const y=v.lane===0?height*.52:height*.72;
+        const laneY=[.485,.575,.675,.765];
+        const y=height*laneY[v.lane];
         v.el.style.transform='translate3d('+(v.x*width)+'px,'+y+'px,0) scaleX('+(v.dir===1?-1:1)+')';
       }
       if(crossing){
