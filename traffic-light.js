@@ -21,7 +21,7 @@
       const dt=last?Math.min(.05,(now-last)/1000):0;last=now;
       const width=Math.max(1,box.querySelector('.tl-scene').clientWidth);
       // A green car may accelerate only when no pedestrian is entering the road.
-      const allowDrive=car==='green'&&ped==='red'&&!crossing;
+      const allowDrive=(car==='green'&&ped==='red'&&!crossing)||(x>stopLine+.02&&x<1.10);
       const distanceToStop=Math.max(0,stopLine-x);
       const safeSpeed=allowDrive?maxSpeed:Math.sqrt(2*braking*distanceToStop);
       const desired=allowDrive?maxSpeed:Math.min(velocity,safeSpeed);
@@ -31,7 +31,7 @@
       if(x>1.10){x=-.23;velocity=0}
       // When red is requested while approaching, stop before the zebra crossing.
       if(!allowDrive&&x>=stopLine){x=stopLine;velocity=0}
-      carSprite.style.transform='translate3d('+((x-.05)*width)+'px,'+(velocity>.01?Math.sin(now*.016)*1.4:0)+'px,0)';
+      carSprite.style.transform='translate3d('+((x-.05)*width)+'px,'+(velocity>.01?Math.sin(now*.016)*1.4:0)+'px,0)'+' scaleX(-1)';
       if(crossing){
         walkDelay+=dt;
         if(walkDelay>.55)walkProgress=clamp(walkProgress+dt/2.2,0,1);
