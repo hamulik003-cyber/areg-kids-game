@@ -1435,7 +1435,7 @@ if(incomingInvite&&/^[A-Z0-9]{6}$/i.test(incomingInvite)){start('online');online
    if(!letters.length||!letters[0].isConnected)prepare();
    const phase=(t%14000)/14000;
    letters.forEach((el,i)=>{
-    const pos=((i/Math.max(1,letters.length-1))*.84+phase*.84)%1*colors.length;
+    const pos=((i/Math.max(1,letters.length-1))*.84+phase)*colors.length%colors.length;
     const a=Math.floor(pos),b=(a+1)%colors.length,f=pos-a;
     const rgb=colors[a].map((v,j)=>Math.round(v*(1-f)+colors[b][j]*f));
     el.style.color='rgb('+rgb.join(',')+')';
