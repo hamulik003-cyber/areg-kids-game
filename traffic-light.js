@@ -34,14 +34,26 @@
       {icon:'🚑',dir:-1,lane:2,x:1.05,v:0,max:.20},
       {icon:'🚌',dir:-1,lane:3,x:1.05,v:0,max:.15}
     ];
-    vehicles.forEach(v=>{v.length=(v.icon==='🚌'||v.icon==='🚚')?.17:.13;v.v=0;v.queueX=null});
-    // Stopped queues fit completely on-screen, two cars in each of four lanes.
+    vehicles.forEach(v=>{v.length=(v.icon==='🚌'||v.icon==='🚚')?.15:.12;v.v=0;v.queueX=null;v.phase='driving'});
+    // Stop before the zebra: both cars in every lane remain fully visible.
+    // Coordinates describe the car's leading/anchor edge, not its centre.
+    const stopTargets={0:[.235,.035],1:[.235,.035],2:[.665,.865],3:[.665,.865]};
     function prepareQueue(){
       queueMode=true;
       for(const lane of [0,1,2,3]){
-        const group=vehicles.filter(v=>v.lane===lane).sort((a,b)=>(b.x-a.x)*(lane<2?1:-1));
-        const front=lane<2?.235:.665;
-        group.forEach((v,i)=>{v.queueX=front-(lane<2?1:-1)*i*.205});
+        const group=vehicles.filter(v=>v.lane===lane);
+        const dir=group[0].dir;
+        // A vehicle already beyond its stop line must finish crossing.
+        group.forEach(v=>{
+          v.phase=(v.x-stopTargets[lane][0])*dir>0?'clearing':'approach';
+        });
+        // Approaching vehicles take the front slot; those that already
+        // passed the zebra return behind them after leaving the scene.
+        group.sort((a,b)=>{
+          if(a.phase!==b.phase)return a.phase==='approach'?-1:1;
+          return (b.x-a.x)*dir;
+        });
+        group.forEach((v,i)=>{v.queueX=stopTargets[lane][i]});
       }
     }
     const traffic=box.querySelector('.tl-traffic');
@@ -57,30 +69,38 @@
       if(!frame||Math.round(now)%45===0)sizePole();
       const green=car==='green'&&ped==='red'&&!crossing;
       for(const v of vehicles){
-        const stop=v.dir===1?.28:.72;
-        const distance=(stop-v.x)*v.dir;
-        // Cars that have passed the crossing must finish clearing it.
-        const cleared=queueMode&&v.queueX!==null?(v.x-v.queueX)*v.dir>.025:distance<-.08;
-        const allowed=green||cleared;
-        const queueDistance=queueMode&&v.queueX!==null?(v.queueX-v.x)*v.dir:distance-.09;
-        const safe=allowed?v.max:Math.sqrt(2*.65*Math.max(0,queueDistance));
-        // Follow the vehicle ahead in the same lane; never overlap while queuing.
-        const ahead=vehicles.filter(other=>other!==v&&other.lane===v.lane&&(other.x-v.x)*v.dir>0)
-          .sort((a,b)=>(a.x-b.x)*v.dir)[0];
-        const gap=ahead?(ahead.x-v.x)*v.dir-ahead.length-.055:Infinity;
-        const followSpeed=ahead?Math.sqrt(2*.8*Math.max(0,gap)):v.max;
-        const target=Math.min(v.max,safe,followSpeed);
-        v.v=clamp(v.v+(target>v.v?.30:-.65)*dt,0,v.max);
-        v.v=Math.min(v.v,safe,followSpeed);
-        v.x+=v.dir*v.v*dt;
-        if(ahead&&(ahead.x-v.x)*v.dir<ahead.length+.05){v.x=ahead.x-v.dir*(ahead.length+.05);v.v=0}
-        if(!allowed&&queueMode&&v.queueX!==null&&(v.x-v.queueX)*v.dir>=0){v.x=v.queueX;v.v=0}
-        // Re-enter only after the entire car has left the screen.
-        if(v.dir===1&&v.x>1.23){v.x=-.07;v.v=0}
-        if(v.dir===-1&&v.x<-.23){v.x=1.10;v.v=0}
+        const dir=v.dir;
+        const exiting=dir===1?v.x>1.20:v.x<-.22;
+        if(exiting){
+          // Wrap only while completely off-screen; never teleport across zebra.
+          v.x=dir===1?-.25:1.24;
+          v.v=0;
+          if(queueMode)v.phase='approach';
+        }
+        const mustQueue=queueMode&&v.phase!=='clearing';
+        const freeToDrive=green||!queueMode||v.phase==='clearing';
+        const remaining=mustQueue?(v.queueX-v.x)*dir:Infinity;
+        // Use stopping-distance physics, with a small buffer for emoji width.
+        const speedLimit=mustQueue?Math.min(v.max,Math.sqrt(2*.56*Math.max(0,remaining))):v.max;
+        const ahead=vehicles.filter(other=>other!==v&&other.lane===v.lane
+          &&(other.x-v.x)*dir>0&&other.phase!=='clearing')
+          .sort((a,b)=>(a.x-b.x)*dir)[0];
+        const gap=ahead?(ahead.x-v.x)*dir-ahead.length-.025:Infinity;
+        const followingLimit=ahead?Math.sqrt(2*.75*Math.max(0,gap)):v.max;
+        const target=Math.min(speedLimit,followingLimit);
+        v.v=clamp(v.v+(target>v.v?.32:-.60)*dt,0,v.max);
+        v.v=Math.min(v.v,target);
+        if(mustQueue&&remaining<=.002){v.x=v.queueX;v.v=0;v.phase='parked'}
+        else{
+          v.x+=dir*v.v*dt;
+          if(mustQueue&&(v.x-v.queueX)*dir>=0){v.x=v.queueX;v.v=0;v.phase='parked'}
+        }
+        if(ahead&&(ahead.x-v.x)*dir<ahead.length+.025){
+          v.x=ahead.x-dir*(ahead.length+.025);v.v=0;
+        }
         const laneY=[.485,.575,.675,.765];
         const y=height*laneY[v.lane];
-        v.el.style.transform='translate3d('+(v.x*width)+'px,'+y+'px,0) scaleX('+(v.dir===1?-1:1)+')';
+        v.el.style.transform='translate3d('+(v.x*width)+'px,'+y+'px,0) scaleX('+(dir===1?-1:1)+')';
       }
       if(crossing){
         walkDelay+=dt;
@@ -113,7 +133,7 @@
         if(car==='green'){car='yellow';sync();later(()=>{if(token!==sequence)return;car='red';sync();waitForClear(token)},1100)}
         else{car='red';sync();waitForClear(token)}
       }else{
-        queueMode=false;vehicles.forEach(v=>v.queueX=null);
+        queueMode=false;vehicles.forEach(v=>{v.queueX=null;v.phase='driving'});
         // Pedestrians stop first; cars get amber, then green automatically.
         ped='red';car='red';sync();
         later(()=>{if(token!==sequence||crossing)return;car='yellow';sync();
@@ -123,7 +143,7 @@
     }
     function waitForClear(token){
       if(token!==sequence||crossing)return;
-      const moving=vehicles.some(v=>v.v>.012||(v.x>.34&&v.x<.66));
+      const moving=vehicles.some(v=>v.phase!=='parked'||v.v>.008);
       if(moving){later(()=>waitForClear(token),220);return}
       car='red';ped='green';sync();
     }
