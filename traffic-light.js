@@ -14,7 +14,10 @@
     box.innerHTML='<h2>🚦 Արեգի լուսացույցը</h2><small>Սեղմիր լույսերին՝ մեքենաներն ու հետիոտներին կառավարելու համար</small><div class="tl-scene"><div class="tl-cross"></div><div class="tl-traffic"></div><div class="tl-street-ped" role="button" tabindex="0" aria-label="Փոխել հետիոտնի լուսացույցը"><span class="tl-street-red"><i class="tl-person"></i></span><span class="tl-street-green"><i class="tl-person tl-walking"></i></span></div><span class="tl-walker">🚶</span></div><div class="tl-panels"><div class="tl-panel"><b>🚗 Մեքենաների լուսացույց</b><div class="tl-housing"><button class="tl-light tl-red" data-car="red" aria-label="Կարմիր՝ կանգ"></button><button class="tl-light tl-yellow" data-car="yellow" aria-label="Դեղին՝ պատրաստվիր կանգնելու"></button><button class="tl-light tl-green" data-car="green" aria-label="Կանաչ՝ շարժվիր"></button></div></div><div class="tl-panel"><b>🚶 Հետիոտնի լուսացույց</b><div class="tl-housing"><button class="tl-ped tl-red" data-ped="red" aria-label="Կարմիր՝ սպասիր">✋</button><button class="tl-ped tl-green" data-ped="green" aria-label="Կանաչ՝ անցիր">🚶</button></div></div></div><div class="tl-message" role="status" aria-live="polite"></div><button class="tl-go">🚶 Փորձենք անցնել զեբրայով</button>';
     host.appendChild(box);
     let car='red',ped='red',crossing=false,active=true,completed=0;
-    let last=0,frame=0,walkProgress=0,walkDelay=0,walkAtFarSide=false;
+    let last=0,frame=0,walkProgress=0,walkDelay=0,walkAtFarSide=false,sequence=0;
+    const timers=new Set();
+    function later(fn,ms){const id=setTimeout(()=>{timers.delete(id);if(active)fn()},ms);timers.add(id)}
+    function cancelSequence(){sequence++;for(const id of timers)clearTimeout(id);timers.clear()}
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const smooth=t=>t*t*(3-2*t);
     // Two lanes: opposing traffic. Positions are scene-width fractions.
@@ -54,7 +57,7 @@
         walkDelay+=dt;
         if(walkDelay>.45)walkProgress=clamp(walkProgress+(completed%2===0?1:-1)*dt/2.4,0,1);
         if((completed%2===0&&walkProgress>=1)||(completed%2===1&&walkProgress<=0)){
-          crossing=false;walkAtFarSide=walkProgress>=1;ped='red';car='red';completed++;sync();
+          crossing=false;walkAtFarSide=walkProgress>=1;completed++;sync();
           message.textContent='⭐ Ապրե՛ս։ Հասանք դիմացի մայթ։ Սեղմիր նորից՝ հաջորդ անցման համար։';
           if(completed%3===0)reward(1);
         }
@@ -70,12 +73,48 @@
       box.querySelector('.tl-street-green').classList.toggle('on',ped==='green');
       message.textContent=car==='green'?'🟢 Մեքենաները շարժվում են։ Հետիոտնը սպասում է։':car==='yellow'?'🟡 Դեղին՝ վարորդը պատրաստվում է կանգնելու, եթե անվտանգ է։':ped==='green'?'🚶 Հետիոտնին կանաչ է։ Նախ նայիր երկու կողմ և համոզվիր, որ մեքենաները կանգնել են։':'🔴 Կարմիր՝ մեքենաները կանգնած են։ Հետիոտնը սպասում է իր կանաչին։';
     }
-    box.querySelectorAll('[data-car]').forEach(b=>b.addEventListener('click',()=>{if(crossing)return;car=b.dataset.car;if(car!=='red')ped='red';sync()}));
-    box.querySelectorAll('[data-ped]').forEach(b=>b.addEventListener('click',()=>{if(crossing)return;ped=b.dataset.ped;if(ped==='green')car='red';sync()}));
+    function requestPed(next){
+      if(crossing)return;
+      cancelSequence();
+      const token=sequence;
+      if(next==='green'){
+        // Drivers see amber before red; pedestrians get green only once traffic stops.
+        ped='red';
+        if(car==='green'){car='yellow';sync();later(()=>{if(token!==sequence)return;car='red';sync();waitForClear(token)},1100)}
+        else{car='red';sync();waitForClear(token)}
+      }else{
+        // Pedestrians stop first; cars get amber, then green automatically.
+        ped='red';car='red';sync();
+        later(()=>{if(token!==sequence||crossing)return;car='yellow';sync();
+          later(()=>{if(token!==sequence||crossing)return;car='green';sync()},1100)
+        },450);
+      }
+    }
+    function waitForClear(token){
+      if(token!==sequence||crossing)return;
+      const moving=vehicles.some(v=>v.v>.012||(v.x>.34&&v.x<.66));
+      if(moving){later(()=>waitForClear(token),220);return}
+      car='red';ped='green';sync();
+    }
+    box.querySelectorAll('[data-car]').forEach(b=>b.addEventListener('click',()=>{
+      if(crossing)return;
+      if(b.dataset.car==='green')requestPed('red');
+      else if(b.dataset.car==='red')requestPed('green');
+      else{cancelSequence();ped='red';car='yellow';sync()}
+    }));
+    box.querySelectorAll('[data-ped]').forEach(b=>b.addEventListener('click',()=>requestPed(b.dataset.ped)));
     const streetPed=box.querySelector('.tl-street-ped');
-    function togglePed(){if(crossing)return;ped=ped==='red'?'green':'red';if(ped==='green')car='red';sync()}
-    streetPed.addEventListener('click',togglePed);
-    streetPed.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();togglePed()}});
+    streetPed.setAttribute('aria-label','Կարմիր մարդուկ՝ մեքենաներին կանաչ, կանաչ մարդուկ՝ մեքենաներին կարմիր');
+    function chooseStreetPed(event){
+      const greenTarget=event.target.closest('.tl-street-green');
+      const redTarget=event.target.closest('.tl-street-red');
+      if(greenTarget)requestPed('green');
+      else if(redTarget)requestPed('red');
+    }
+    streetPed.addEventListener('click',chooseStreetPed);
+    streetPed.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();requestPed(ped==='green'?'red':'green');
+    }});
     box.querySelector('.tl-go').addEventListener('click',()=>{
       if(crossing)return;
       if(car!=='red'||ped!=='green'){message.textContent='✋ Սպասիր․ հետիոտնի կանաչը պետք է վառվի, իսկ մեքենաները՝ կանգնեն։';return}
@@ -83,6 +122,6 @@
       crossing=true;walkProgress=walkAtFarSide?1:0;walkAtFarSide=false;walkDelay=0;message.textContent='👀 Նայիր երկու կողմ, համոզվիր, որ մեքենաները կանգնած են, և անցիր։';
     });
     sync();frame=requestAnimationFrame(tick);
-    cleanup.push(()=>{active=false;cancelAnimationFrame(frame);css.remove()});
+    cleanup.push(()=>{active=false;cancelSequence();cancelAnimationFrame(frame);css.remove()});
   };
 })();
