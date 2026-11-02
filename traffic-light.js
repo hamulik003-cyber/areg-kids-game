@@ -13,7 +13,7 @@
     const box=document.createElement('div');box.className='tl';
     box.innerHTML='<h2>🚦 Արեգի լուսացույցը</h2><small>Սեղմիր լույսերին՝ մեքենաներն ու հետիոտներին կառավարելու համար</small><div class="tl-scene"><div class="tl-cross"></div><div class="tl-traffic"></div><div class="tl-street-ped" role="button" tabindex="0" aria-label="Փոխել հետիոտնի լուսացույցը"><span class="tl-street-red"><i class="tl-person"></i></span><span class="tl-street-green"><i class="tl-person tl-walking"></i></span></div><span class="tl-walker">🚶</span></div><div class="tl-panels"><div class="tl-panel"><b>🚗 Մեքենաների լուսացույց</b><div class="tl-housing"><button class="tl-light tl-red" data-car="red" aria-label="Կարմիր՝ կանգ"></button><button class="tl-light tl-yellow" data-car="yellow" aria-label="Դեղին՝ պատրաստվիր կանգնելու"></button><button class="tl-light tl-green" data-car="green" aria-label="Կանաչ՝ շարժվիր"></button></div></div><div class="tl-panel"><b>🚶 Հետիոտնի լուսացույց</b><div class="tl-housing"><button class="tl-ped tl-red" data-ped="red" aria-label="Կարմիր՝ սպասիր">✋</button><button class="tl-ped tl-green" data-ped="green" aria-label="Կանաչ՝ անցիր">🚶</button></div></div></div><div class="tl-message" role="status" aria-live="polite"></div><button class="tl-go">🚶 Փորձենք անցնել զեբրայով</button>';
     host.appendChild(box);
-    let car='red',ped='red',crossing=false,active=true,completed=0;
+    let car='green',ped='red',crossing=false,active=true,completed=0;
     let last=0,frame=0,walkProgress=0,walkDelay=0,walkAtFarSide=false,sequence=0;
     const timers=new Set();
     function later(fn,ms){const id=setTimeout(()=>{timers.delete(id);if(active)fn()},ms);timers.add(id)}
@@ -25,7 +25,11 @@
       {icon:'🚙',dir:1,lane:0,x:-.28,v:0,max:.23},
       {icon:'🚕',dir:1,lane:0,x:-.85,v:0,max:.19},
       {icon:'🚗',dir:-1,lane:1,x:1.25,v:0,max:.21},
-      {icon:'🚐',dir:-1,lane:1,x:1.85,v:0,max:.17}
+      {icon:'🚐',dir:-1,lane:1,x:1.85,v:0,max:.17},
+      {icon:'🚓',dir:1,lane:0,x:-1.40,v:0,max:.21},
+      {icon:'🚑',dir:-1,lane:1,x:2.45,v:0,max:.20},
+      {icon:'🚚',dir:1,lane:0,x:-2.05,v:0,max:.16},
+      {icon:'🚍',dir:-1,lane:1,x:3.05,v:0,max:.15}
     ];
     const traffic=box.querySelector('.tl-traffic');
     vehicles.forEach(v=>{const el=document.createElement('span');el.className='tl-car';el.textContent=v.icon;traffic.appendChild(el);v.el=el});
@@ -62,7 +66,7 @@
           if(completed%3===0)reward(1);
         }
       }
-      walker.style.transform='translate3d(0,'+(-smooth(walkProgress)*height*.72)+'px,0)';
+      walker.style.transform='translate3d(0,'+(-smooth(walkProgress)*height*.55)+'px,0)';
       frame=requestAnimationFrame(tick);
     }
     const message=box.querySelector('.tl-message'),walker=box.querySelector('.tl-walker');
