@@ -625,6 +625,28 @@ html,body,#app,#app *:not(input):not(textarea){
 .ship-drag-float.real-ship-preview::after{content:none!important}
 .ship-drag-float.real-ship-preview .real-ship-art{width:100%;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;pointer-events:none}
 
+/* Prevent Safari from clipping the first letters of the animated Armenian heading. */
+#app .sea-menu-title[data-wave-letters="1"]{
+ display:inline-flex!important;
+ flex-flow:row nowrap!important;
+ justify-content:center!important;
+ align-items:baseline!important;
+ width:max-content!important;
+ max-width:100%!important;
+ white-space:nowrap!important;
+ overflow:visible!important;
+ -webkit-text-fill-color:initial!important;
+ background:none!important;
+ animation:none!important;
+ padding:7px 3px!important;
+ box-sizing:border-box!important;
+}
+#app .sea-menu-title .sea-wave-letter{
+ flex:0 0 auto!important;
+ position:relative!important;
+ white-space:pre!important;
+ line-height:1.25!important;
+}
 /* Independent, deliberately non-synchronized letter motion; RGB stays on the WHOLE word. */
 #app .sea-menu-title .sea-wave-letter{
  display:inline-block!important;
