@@ -236,6 +236,10 @@
   <script>
     (() => {
       const v=encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
+      const traffic=document.createElement('script');
+      traffic.src='traffic-light.js?v=1&testv='+v;
+      traffic.async=false;
+      document.body.append(traffic);
       const script=document.createElement('script');
       script.src='app.js?v=301&testv='+v;
       script.async=false;
