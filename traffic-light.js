@@ -20,6 +20,52 @@
     const timers=new Set();
     function later(fn,ms){const id=setTimeout(()=>{timers.delete(id);if(active)fn()},ms);timers.add(id)}
     function cancelSequence(){sequence++;for(const id of timers)clearTimeout(id);timers.clear()}
+    // Trial-only procedural sounds. Audio starts only after a user gesture on iOS.
+    let audioCtx=null,master=null,lastEngineAt=0,lastStepAt=0,engineWasMoving=false;
+    function unlockAudio(){
+      if(!active)return;
+      try{
+        const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+        if(!AudioContextClass)return;
+        if(!audioCtx){
+          audioCtx=new AudioContextClass();
+          master=audioCtx.createGain();master.gain.value=.12;
+          master.connect(audioCtx.destination);
+        }
+        if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+      }catch(e){audioCtx=null;master=null}
+    }
+    function tone(freq,duration,type='sine',gain=.15,delay=0,endFreq){
+      if(!audioCtx||audioCtx.state!=='running'||!master)return;
+      try{
+        const t=audioCtx.currentTime+delay,osc=audioCtx.createOscillator(),env=audioCtx.createGain();
+        osc.type=type;osc.frequency.setValueAtTime(Math.max(30,freq),t);
+        if(endFreq)osc.frequency.exponentialRampToValueAtTime(Math.max(30,endFreq),t+duration);
+        env.gain.setValueAtTime(.0001,t);
+        env.gain.exponentialRampToValueAtTime(Math.max(.001,gain),t+.012);
+        env.gain.exponentialRampToValueAtTime(.0001,t+duration);
+        osc.connect(env);env.connect(master);osc.start(t);osc.stop(t+duration+.02);
+      }catch(e){}
+    }
+    function sound(kind){
+      if(kind==='red'){tone(460,.12,'sine',.20);tone(350,.20,'sine',.17,.12)}
+      else if(kind==='yellow'){tone(560,.10,'triangle',.12);tone(560,.10,'triangle',.10,.22)}
+      else if(kind==='green'){tone(530,.12,'sine',.15);tone(760,.19,'sine',.16,.13)}
+      else if(kind==='pedgreen'){tone(720,.075,'sine',.12);tone(960,.13,'sine',.13,.11)}
+      else if(kind==='pedred'){tone(430,.15,'triangle',.13)}
+      else if(kind==='engine'){tone(115,.17,'sawtooth',.018,0,150)}
+      else if(kind==='brake'){tone(260,.20,'triangle',.035,0,125)}
+      else if(kind==='step'){tone(170,.055,'triangle',.025)}
+      else if(kind==='button'){tone(650,.055,'sine',.10)}
+      else if(kind==='wait'){tone(290,.12,'sine',.11)}
+      else if(kind==='success'){
+        tone(620,.12,'sine',.16);tone(780,.14,'sine',.16,.13);tone(980,.23,'sine',.18,.29);
+      }
+    }
+    function onUserSound(){unlockAudio()}
+    box.addEventListener('pointerdown',onUserSound,{passive:true});
+    box.addEventListener('touchstart',onUserSound,{passive:true});
+    box.addEventListener('keydown',onUserSound);
     const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
     const smooth=t=>t*t*(3-2*t);
     // Two lanes: opposing traffic. Positions are scene-width fractions.
@@ -68,6 +114,12 @@
       const width=Math.max(1,scene.clientWidth),height=scene.clientHeight;
       if(!frame||Math.round(now)%45===0)sizePole();
       const green=car==='green'&&ped==='red'&&!crossing;
+      const anyMoving=vehicles.some(v=>v.v>.028);
+      if(audioCtx&&audioCtx.state==='running'){
+        if(anyMoving&&now-lastEngineAt>1350){sound('engine');lastEngineAt=now}
+        if(engineWasMoving&&!anyMoving)sound('brake');
+      }
+      engineWasMoving=anyMoving;
       for(const v of vehicles){
         const dir=v.dir;
         const exiting=dir===1?v.x>1.20:v.x<-.22;
@@ -104,9 +156,10 @@
       }
       if(crossing){
         walkDelay+=dt;
+        if(walkDelay>.45&&now-lastStepAt>430){sound('step');lastStepAt=now}
         if(walkDelay>.45)walkProgress=clamp(walkProgress+(completed%2===0?1:-1)*dt/2.4,0,1);
         if((completed%2===0&&walkProgress>=1)||(completed%2===1&&walkProgress<=0)){
-          crossing=false;walkAtFarSide=walkProgress>=1;completed++;sync();
+          crossing=false;walkAtFarSide=walkProgress>=1;completed++;sync();sound('success');
           message.textContent='⭐ Ապրե՛ս։ Հասանք դիմացի մայթ։ Սեղմիր նորից՝ հաջորդ անցման համար։';
           if(completed%3===0)reward(1);
         }
@@ -115,7 +168,14 @@
       frame=requestAnimationFrame(tick);
     }
     const message=box.querySelector('.tl-message'),walker=box.querySelector('.tl-walker');
+    let lastSignal='green/red';
     function sync(){
+      const signal=car+'/'+ped;
+      if(signal!==lastSignal){
+        if(car==='yellow')sound('yellow');else if(car==='red')sound('red');else sound('green');
+        if(ped==='green')sound('pedgreen');else if(lastSignal.endsWith('/green'))sound('pedred');
+        lastSignal=signal;
+      }
       box.querySelectorAll('[data-car]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.car===car)));
       box.querySelectorAll('[data-ped]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ped===ped)));
       box.querySelector('.tl-street-red').classList.toggle('on',ped==='red');
@@ -123,7 +183,9 @@
       message.textContent=car==='green'?'🟢 Մեքենաները շարժվում են։ Հետիոտնը սպասում է։':car==='yellow'?'🟡 Դեղին՝ վարորդը պատրաստվում է կանգնելու, եթե անվտանգ է։':ped==='green'?'🚶 Հետիոտնին կանաչ է։ Նախ նայիր երկու կողմ և համոզվիր, որ մեքենաները կանգնել են։':'🔴 Կարմիր՝ մեքենաները կանգնած են։ Հետիոտնը սպասում է իր կանաչին։';
     }
     function requestPed(next){
-      if(crossing)return;
+      unlockAudio();
+      if(crossing){sound('wait');return}
+      sound('button');
       cancelSequence();
       const token=sequence;
       if(next==='green'){
@@ -151,7 +213,7 @@
       if(crossing)return;
       if(b.dataset.car==='green')requestPed('red');
       else if(b.dataset.car==='red')requestPed('green');
-      else{cancelSequence();ped='red';car='yellow';sync()}
+      else{unlockAudio();sound('button');cancelSequence();ped='red';car='yellow';sync()}
     }));
     box.querySelectorAll('[data-ped]').forEach(b=>b.addEventListener('click',()=>requestPed(b.dataset.ped)));
     const streetPed=box.querySelector('.tl-street-ped');
@@ -167,12 +229,13 @@
       e.preventDefault();requestPed(ped==='green'?'red':'green');
     }});
     box.querySelector('.tl-go').addEventListener('click',()=>{
-      if(crossing)return;
-      if(car!=='red'||ped!=='green'){message.textContent='✋ Սպասիր․ հետիոտնի կանաչը պետք է վառվի, իսկ մեքենաները՝ կանգնեն։';return}
-      if(vehicles.some(v=>v.v>.015||(v.x>.35&&v.x<.65))){message.textContent='✋ Սպասիր, մինչև մեքենան ամբողջությամբ կանգնի։';return}
-      crossing=true;walkProgress=walkAtFarSide?1:0;walkAtFarSide=false;walkDelay=0;message.textContent='👀 Նայիր երկու կողմ, համոզվիր, որ մեքենաները կանգնած են, և անցիր։';
+      unlockAudio();
+      if(crossing){sound('wait');return}
+      if(car!=='red'||ped!=='green'){sound('wait');message.textContent='✋ Սպասիր․ հետիոտնի կանաչը պետք է վառվի, իսկ մեքենաները՝ կանգնեն։';return}
+      if(vehicles.some(v=>v.v>.015||(v.x>.35&&v.x<.65))){sound('wait');message.textContent='✋ Սպասիր, մինչև մեքենան ամբողջությամբ կանգնի։';return}
+      sound('button');crossing=true;walkProgress=walkAtFarSide?1:0;walkAtFarSide=false;walkDelay=0;message.textContent='👀 Նայիր երկու կողմ, համոզվիր, որ մեքենաները կանգնած են, և անցիր։';
     });
     sync();frame=requestAnimationFrame(tick);
-    cleanup.push(()=>{active=false;cancelSequence();cancelAnimationFrame(frame);css.remove()});
+    cleanup.push(()=>{active=false;cancelSequence();cancelAnimationFrame(frame);box.removeEventListener('pointerdown',onUserSound);box.removeEventListener('touchstart',onUserSound);box.removeEventListener('keydown',onUserSound);if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null}css.remove()});
   };
 })();
