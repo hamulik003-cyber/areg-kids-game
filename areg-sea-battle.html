@@ -647,6 +647,14 @@ html,body,#app,#app *:not(input):not(textarea){
 @media(prefers-reduced-motion:reduce){
  #app .sea-menu-title.sea-letters-ready .sea-letter{animation:none!important}
 }
+/* Larger letter float only on Sea Battle's opening mode-selection screen. */
+#app:not(.combat-mode):has(.sea-menu-art) .sea-menu-title.sea-letters-ready .sea-letter{
+ animation-name:seaMenuLetterFloat!important;
+}
+@keyframes seaMenuLetterFloat{
+ 0%,100%{transform:translate3d(0,0,0)}
+ 50%{transform:translate3d(0,-5px,0)}
+}
 /* Subtle floating anchor in menu, placement and combat screens. */
 #app .top .sea-menu-anchor{
  display:inline-block!important;
