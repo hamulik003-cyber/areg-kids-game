@@ -29,8 +29,9 @@
       {icon:'🚓',dir:1,lane:0,x:-1.40,v:0,max:.21},
       {icon:'🚑',dir:-1,lane:1,x:2.45,v:0,max:.20},
       {icon:'🚚',dir:1,lane:0,x:-2.05,v:0,max:.16},
-      {icon:'🚍',dir:-1,lane:1,x:3.05,v:0,max:.15}
+      {icon:'🚌',dir:-1,lane:1,x:3.05,v:0,max:.15}
     ];
+    vehicles.forEach(v=>{v.length=(v.icon==='🚌'||v.icon==='🚚')?.17:.13;v.v=0});
     const traffic=box.querySelector('.tl-traffic');
     vehicles.forEach(v=>{const el=document.createElement('span');el.className='tl-car';el.textContent=v.icon;traffic.appendChild(el);v.el=el});
     const scene=box.querySelector('.tl-scene');
@@ -46,10 +47,16 @@
         const cleared=distance<-.08;
         const allowed=green||cleared;
         const safe=allowed?v.max:Math.sqrt(2*.65*Math.max(0,distance-.09));
-        const target=Math.min(v.max,safe);
+        // Follow the vehicle ahead in the same lane; never overlap while queuing.
+        const ahead=vehicles.filter(other=>other!==v&&other.lane===v.lane&&(other.x-v.x)*v.dir>0)
+          .sort((a,b)=>(a.x-b.x)*v.dir)[0];
+        const gap=ahead?(ahead.x-v.x)*v.dir-ahead.length-.055:Infinity;
+        const followSpeed=ahead?Math.sqrt(2*.8*Math.max(0,gap)):v.max;
+        const target=Math.min(v.max,safe,followSpeed);
         v.v=clamp(v.v+(target>v.v?.30:-.65)*dt,0,v.max);
-        v.v=Math.min(v.v,safe);
+        v.v=Math.min(v.v,safe,followSpeed);
         v.x+=v.dir*v.v*dt;
+        if(ahead&&(ahead.x-v.x)*v.dir<ahead.length+.05){v.x=ahead.x-v.dir*(ahead.length+.05);v.v=0}
         if(!allowed&&distance>=0&&(stop-v.x)*v.dir<.09){v.x=stop-v.dir*.09;v.v=0}
         // Re-enter only after the entire car has left the screen.
         if(v.dir===1&&v.x>1.23){v.x=-.4;v.v=0}
