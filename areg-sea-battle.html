@@ -625,22 +625,25 @@ html,body,#app,#app *:not(input):not(textarea){
 .ship-drag-float.real-ship-preview::after{content:none!important}
 .ship-drag-float.real-ship-preview .real-ship-art{width:100%;height:100%;background-repeat:no-repeat;background-position:center;background-size:100% 100%;pointer-events:none}
 
-/* Sea Battle trial: gentle independent letter bobbing on menu, placement and combat titles. */
+/* Independent, deliberately non-synchronized letter motion; RGB stays on the WHOLE word. */
 #app .sea-menu-title .sea-wave-letter{
  display:inline-block!important;
- background:linear-gradient(110deg,#fff04a 0%,#ff713d 12%,#ff35b8 25%,#9755ff 38%,#19baff 51%,#13eeb1 64%,#e8ff3e 77%,#ff46a1 89%,#fff04a 100%);
- background-size:240% 100%;
- -webkit-background-clip:text;background-clip:text;
- -webkit-text-fill-color:transparent;
- animation:seaLetterFloat 3.4s ease-in-out infinite,seaLetterColor 9s linear infinite;
- animation-delay:calc(var(--letter-i)*-.23s),calc(var(--letter-i)*-.51s);
+ background:none!important;
+ -webkit-background-clip:initial!important;
+ background-clip:initial!important;
+ -webkit-text-fill-color:transparent!important;
+ color:transparent!important;
+ animation:seaLetterBob var(--bob-duration,3.7s) ease-in-out var(--bob-delay,0s) infinite!important;
  will-change:transform;
 }
-@keyframes seaLetterFloat{
- 0%,100%{transform:translate3d(0,0,0)}
- 50%{transform:translate3d(0,-5px,0)}
+@keyframes seaLetterBob{
+ 0%,100%{transform:translate3d(0,1px,0)}
+ 19%{transform:translate3d(0,var(--bob-up,-5px),0)}
+ 43%{transform:translate3d(0,2px,0)}
+ 69%{transform:translate3d(0,var(--bob-down,4px),0)}
+ 84%{transform:translate3d(0,-2px,0)}
 }
-@keyframes seaLetterColor{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+/* Existing parent RGB background and original animation remain untouched. */
 #app .top .sea-menu-anchor{
  animation:seaAnchorFloat 4.2s ease-in-out infinite!important;
  transform-origin:center center;
@@ -1423,6 +1426,13 @@ if(incomingInvite&&/^[A-Z0-9]{6}$/i.test(incomingInvite)){start('online');online
    const span=document.createElement('span');
    span.className='sea-wave-letter';
    span.style.setProperty('--letter-i',i);
+   // Distinct incommensurate periods and phase offsets, not a synchronized wave.
+   const durations=[3.17,4.31,3.73,5.09,3.43,4.67,3.91,5.33];
+   const delays=[-1.2,-3.14,-.47,-2.81,-4.07,-.83,-2.16,-3.67];
+   span.style.setProperty('--bob-duration',durations[i%durations.length]+'s');
+   span.style.setProperty('--bob-delay',delays[i%delays.length]+'s');
+   span.style.setProperty('--bob-up',(-3-(i*7%5))+'px');
+   span.style.setProperty('--bob-down',(2+(i*3%4))+'px');
    span.textContent=ch;
    span.setAttribute('aria-hidden','true');
    frag.appendChild(span);
