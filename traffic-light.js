@@ -40,7 +40,7 @@
       queueMode=true;
       for(const lane of [0,1,2,3]){
         const group=vehicles.filter(v=>v.lane===lane).sort((a,b)=>(b.x-a.x)*(lane<2?1:-1));
-        const front=lane<2?.235:.765;
+        const front=lane<2?.235:.665;
         group.forEach((v,i)=>{v.queueX=front-(lane<2?1:-1)*i*.205});
       }
     }
@@ -60,7 +60,7 @@
         const stop=v.dir===1?.28:.72;
         const distance=(stop-v.x)*v.dir;
         // Cars that have passed the crossing must finish clearing it.
-        const cleared=distance<-.08;
+        const cleared=queueMode&&v.queueX!==null?(v.x-v.queueX)*v.dir>.025:distance<-.08;
         const allowed=green||cleared;
         const queueDistance=queueMode&&v.queueX!==null?(v.queueX-v.x)*v.dir:distance-.09;
         const safe=allowed?v.max:Math.sqrt(2*.65*Math.max(0,queueDistance));
@@ -77,7 +77,7 @@
         if(!allowed&&queueMode&&v.queueX!==null&&(v.x-v.queueX)*v.dir>=0){v.x=v.queueX;v.v=0}
         // Re-enter only after the entire car has left the screen.
         if(v.dir===1&&v.x>1.23){v.x=-.07;v.v=0}
-        if(v.dir===-1&&v.x<-.23){v.x=1.05;v.v=0}
+        if(v.dir===-1&&v.x<-.23){v.x=1.10;v.v=0}
         const laneY=[.485,.575,.675,.765];
         const y=height*laneY[v.lane];
         v.el.style.transform='translate3d('+(v.x*width)+'px,'+y+'px,0) scaleX('+(v.dir===1?-1:1)+')';
