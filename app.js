@@ -461,7 +461,8 @@
         {id:'stickers',label:'Երաժշտական աշխարհ 3D',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'sea-battle',label:'Ծովամարտ',thumb:'create-game-4.jpg',kind:'seaBattle'},
         {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'},
-        {id:'traffic-light',label:'Լուսացույց',thumb:'create-game-3.jpg',kind:'trafficLight'}
+        {id:'traffic-light',label:'Լուսացույց',thumb:'create-game-3.jpg',kind:'trafficLight'},
+        {id:'checkers',label:'Շաշկի',thumb:'create-game-4.jpg',kind:'checkers'}
       ]
     },
     magic:{
@@ -1769,7 +1770,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,colorBlast:gameColorBlast,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,drawColor:gameDrawColor,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,seaBattle:gameSeaBattle,trafficLight:()=>window.AregTrafficLight(surface,gameCleanup,reward),connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,colorBlast:gameColorBlast,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,drawColor:gameDrawColor,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,seaBattle:gameSeaBattle,checkers:gameCheckers,trafficLight:()=>window.AregTrafficLight(surface,gameCleanup,reward),connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -3831,6 +3832,17 @@
     }else if(event.data?.type==='areg-sea-music-query')battleMusicNotify();
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)battleMusic.pause()});
+  function gameCheckers(){
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Շաշկի';
+    frame.src='./areg-checkers.html?v=1';
+    frame.setAttribute('loading','eager');
+    activityScreen.classList.add('areg-car-wash-mode');
+    activityContent.append(frame);
+    gameCleanup.push(()=>{activityScreen.classList.remove('areg-car-wash-mode');frame.remove()});
+  }
   function gameSeaBattle(){
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
