@@ -3911,14 +3911,14 @@ html[data-theme^="photo-user-"] .section-dim{
  animation-direction:alternate !important;
  will-change:transform;
 }
-.home-section-card.nature-card{--areg-float-y:-7px;animation-duration:3.9s !important;animation-delay:-1.7s !important}
-.home-section-card.space-card{--areg-float-y:7px;animation-duration:4.5s !important;animation-delay:-4.1s !important}
-.home-section-card.mind-card{--areg-float-y:-8px;animation-duration:4.2s !important;animation-delay:-2.8s !important}
-.home-section-card.create-card{--areg-float-y:7px;animation-duration:4.8s !important;animation-delay:-5.3s !important}
-.home-section-card.magic-card{--areg-float-y:-7px;animation-duration:4.4s !important;animation-delay:-3.6s !important}
+.home-section-card.nature-card{--areg-float-y:-7px;--areg-float-x:2px;--areg-float-tilt:.55deg;animation-duration:3.3s !important;animation-delay:-1.7s !important}
+.home-section-card.space-card{--areg-float-y:7px;--areg-float-x:-2px;--areg-float-tilt:-.6deg;animation-duration:3.8s !important;animation-delay:-4.1s !important}
+.home-section-card.mind-card{--areg-float-y:-8px;--areg-float-x:2px;--areg-float-tilt:.5deg;animation-duration:3.5s !important;animation-delay:-2.8s !important}
+.home-section-card.create-card{--areg-float-y:7px;--areg-float-x:-2px;--areg-float-tilt:-.55deg;animation-duration:4s !important;animation-delay:-5.3s !important}
+.home-section-card.magic-card{--areg-float-y:-7px;--areg-float-x:2px;--areg-float-tilt:.45deg;animation-duration:3.7s !important;animation-delay:-3.6s !important}
 @keyframes aregHomeCardFloat{
  0%{transform:translate3d(0,0,0)}
- 100%{transform:translate3d(0,var(--areg-float-y),0)}
+ 100%{transform:translate3d(var(--areg-float-x),var(--areg-float-y),0) rotate(var(--areg-float-tilt))}
 }
 .home-section-card:active,.home-section-card.is-opening{
  animation:none !important;
