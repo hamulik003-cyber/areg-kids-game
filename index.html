@@ -43,7 +43,7 @@
     }
     addEventListener('pageshow',refreshIfPublished);
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshIfPublished()});
-    setInterval(refreshIfPublished,60000);
+    setInterval(refreshIfPublished,20000);
   })();
   </script>
   <script>
