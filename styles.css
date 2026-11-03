@@ -3901,3 +3901,28 @@ html[data-theme^="photo-user-"] .section-dim{
   background:none !important;
   box-shadow:none !important;
 }
+
+/* AREG TEST: five independently floating home cards; no artwork/layout changes. */
+.home-section-card:not(:active):not(.is-opening){
+ animation-name:aregHomeCardFloat !important;
+ animation-timing-function:ease-in-out !important;
+ animation-iteration-count:infinite !important;
+ animation-direction:alternate !important;
+ will-change:transform;
+}
+.home-section-card.nature-card{--areg-float-y:-4px;animation-duration:5.9s !important;animation-delay:-1.7s !important}
+.home-section-card.space-card{--areg-float-y:5px;animation-duration:7.3s !important;animation-delay:-4.1s !important}
+.home-section-card.mind-card{--areg-float-y:-5px;animation-duration:6.6s !important;animation-delay:-2.8s !important}
+.home-section-card.create-card{--areg-float-y:4px;animation-duration:8.1s !important;animation-delay:-5.3s !important}
+.home-section-card.magic-card{--areg-float-y:-4px;animation-duration:7.7s !important;animation-delay:-3.6s !important}
+@keyframes aregHomeCardFloat{
+ 0%{transform:translate3d(0,0,0)}
+ 100%{transform:translate3d(0,var(--areg-float-y),0)}
+}
+.home-section-card:active,.home-section-card.is-opening{
+ animation:none !important;
+ will-change:auto;
+}
+@media(prefers-reduced-motion:reduce){
+ .home-section-card:not(:active):not(.is-opening){animation:none !important;will-change:auto}
+}
