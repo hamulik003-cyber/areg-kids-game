@@ -3837,7 +3837,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Շաշկի';
-    frame.src='./areg-checkers.html?v=1';
+    frame.src='./areg-checkers.html?v=1&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||Date.now());
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
