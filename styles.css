@@ -3930,54 +3930,50 @@ html[data-theme^="photo-user-"] .section-dim{
 }
 
 
-/* AREG TEST cloud-shaped home cards: asymmetric soft cloud silhouettes.
-   Only the five home buttons are affected; floating motion remains intact. */
+/* AREG TEST: rounded asymmetric cloud silhouettes using a single union mask.
+   Keep the artwork, title, click targets and gentle float animation intact. */
 .home-section-card{
-  border:0 !important;
-  border-radius:0 !important;
-  background:linear-gradient(155deg,#ffffff 0%,#f8fcff 39%,#dceffa 78%,#c9e4f5 100%) !important;
-  box-shadow:none !important;
-  filter:drop-shadow(0 9px 8px rgba(45,89,120,.24)) !important;
-  -webkit-mask-image:
-    radial-gradient(ellipse 25% 15% at 17% 14%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 27% 17% at 47% 11%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 27% 16% at 79% 15%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 22% 22% at 9% 38%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 23% 25% at 91% 44%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 24% 16% at 20% 86%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 28% 17% at 51% 90%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 23% 15% at 81% 85%,#000 98%,transparent 100%),
-    linear-gradient(#000,#000);
-  -webkit-mask-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,80% 70%;
-  -webkit-mask-position:center;
-  -webkit-mask-repeat:no-repeat;
-  mask-image:
-    radial-gradient(ellipse 25% 15% at 17% 14%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 27% 17% at 47% 11%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 27% 16% at 79% 15%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 22% 22% at 9% 38%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 23% 25% at 91% 44%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 24% 16% at 20% 86%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 28% 17% at 51% 90%,#000 98%,transparent 100%),
-    radial-gradient(ellipse 23% 15% at 81% 85%,#000 98%,transparent 100%),
-    linear-gradient(#000,#000);
-  mask-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,80% 70%;
-  mask-position:center;
-  mask-repeat:no-repeat;
+ border:0 !important;
+ border-radius:0 !important;
+ background:linear-gradient(155deg,#fff 0%,#f9fdff 38%,#e9f6ff 75%,#d7edfb 100%) !important;
+ box-shadow:none !important;
+ filter:drop-shadow(0 8px 8px rgba(53,104,135,.22)) !important;
+ -webkit-mask-image:
+  radial-gradient(ellipse 19% 14% at 15% 19%,black 99%,transparent 100%),
+  radial-gradient(ellipse 25% 17% at 38% 13%,black 99%,transparent 100%),
+  radial-gradient(ellipse 24% 16% at 69% 16%,black 99%,transparent 100%),
+  radial-gradient(ellipse 18% 17% at 87% 29%,black 99%,transparent 100%),
+  radial-gradient(ellipse 17% 27% at 10% 49%,black 99%,transparent 100%),
+  radial-gradient(ellipse 18% 26% at 89% 59%,black 99%,transparent 100%),
+  radial-gradient(ellipse 21% 15% at 18% 81%,black 99%,transparent 100%),
+  radial-gradient(ellipse 26% 16% at 46% 87%,black 99%,transparent 100%),
+  radial-gradient(ellipse 23% 17% at 76% 82%,black 99%,transparent 100%),
+  linear-gradient(black,black);
+ -webkit-mask-size:100% 100%;
+ -webkit-mask-position:center;
+ -webkit-mask-repeat:no-repeat;
+ -webkit-mask-composite:source-over;
+ mask-image:
+  radial-gradient(ellipse 19% 14% at 15% 19%,black 99%,transparent 100%),
+  radial-gradient(ellipse 25% 17% at 38% 13%,black 99%,transparent 100%),
+  radial-gradient(ellipse 24% 16% at 69% 16%,black 99%,transparent 100%),
+  radial-gradient(ellipse 18% 17% at 87% 29%,black 99%,transparent 100%),
+  radial-gradient(ellipse 17% 27% at 10% 49%,black 99%,transparent 100%),
+  radial-gradient(ellipse 18% 26% at 89% 59%,black 99%,transparent 100%),
+  radial-gradient(ellipse 21% 15% at 18% 81%,black 99%,transparent 100%),
+  radial-gradient(ellipse 26% 16% at 46% 87%,black 99%,transparent 100%),
+  radial-gradient(ellipse 23% 17% at 76% 82%,black 99%,transparent 100%),
+  linear-gradient(black,black);
+ mask-size:100% 100%;
+ mask-position:center;
+ mask-repeat:no-repeat;
 }
 .home-section-card .home-card-art{
-  left:8% !important;
-  top:10% !important;
-  width:84% !important;
-  height:65% !important;
-  border-radius:35% 42% 22% 28% / 19% 25% 18% 21% !important;
+ left:8% !important;top:12% !important;width:84% !important;height:63% !important;
+ border-radius:34% 39% 25% 30% / 23% 26% 20% 24% !important;
 }
 .home-section-card .home-card-label{
-  left:12% !important;
-  right:12% !important;
-  bottom:8% !important;
-  height:17% !important;
-  border-radius:40px !important;
-  background:#f0f9ff !important;
+ left:12% !important;right:12% !important;bottom:9% !important;height:17% !important;
+ border-radius:40px !important;background:#f0f9ff !important;
 }
 .home-section-card .home-card-leaf{display:none !important}
