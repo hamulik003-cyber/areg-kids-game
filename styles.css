@@ -3951,3 +3951,34 @@ body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan
  touch-action:pan-y !important;
  padding-bottom:24px !important;
 }
+
+/* Fixed entertainment header: scroll only the separate hero + game cards wrapper. */
+#sectionScreen .section-scroll-content{display:contents}
+#sectionScreen[data-section="create"] .toddler-section-shell{
+ display:flex !important;flex-direction:column !important;
+ overflow:hidden !important;touch-action:pan-y !important;
+}
+#sectionScreen[data-section="create"] .toddler-topbar{
+ position:relative !important;top:auto !important;
+ flex:0 0 auto !important;z-index:20 !important;
+ margin-bottom:0 !important;touch-action:none !important;
+}
+#sectionScreen[data-section="create"] .section-scroll-content{
+ display:flex !important;flex:1 1 auto !important;min-height:0 !important;
+ flex-direction:column !important;gap:18px !important;
+ overflow-y:auto !important;overflow-x:hidden !important;
+ -webkit-overflow-scrolling:touch !important;
+ overscroll-behavior-y:contain !important;
+ touch-action:pan-y !important;
+ padding:2px 2px max(28px,env(safe-area-inset-bottom,0px)) !important;
+}
+#sectionScreen[data-section="create"] .section-hero-card{
+ flex:0 0 min(32vh,305px) !important;
+ height:min(32vh,305px) !important;
+ min-height:210px !important;margin-bottom:0 !important;
+}
+.toddler-section-screen#sectionScreen[data-section="create"] .section-games-grid{
+ flex:0 0 auto !important;overflow:visible !important;
+ grid-auto-rows:220px !important;grid-template-rows:none !important;
+ touch-action:pan-y !important;padding-bottom:4px !important;
+}
