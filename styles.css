@@ -3982,3 +3982,16 @@ body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan
  grid-auto-rows:220px !important;grid-template-rows:none !important;
  touch-action:pan-y !important;padding-bottom:4px !important;
 }
+
+/* Entertainment: let scrolling content reach the screen bottom; hide iOS scroll indicator. */
+#sectionScreen[data-section="create"] .toddler-section-shell{
+ padding-bottom:0 !important;
+}
+#sectionScreen[data-section="create"] .section-scroll-content{
+ scrollbar-width:none !important;
+ -ms-overflow-style:none !important;
+ padding-bottom:max(24px,env(safe-area-inset-bottom,0px)) !important;
+}
+#sectionScreen[data-section="create"] .section-scroll-content::-webkit-scrollbar{
+ display:none !important;width:0 !important;height:0 !important;
+}
