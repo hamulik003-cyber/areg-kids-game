@@ -101,7 +101,7 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
  // Exactly three of each game-piece variant: large, medium and small.
  const specs=types.flatMap(([kind,label])=>[60,43,27].map(size=>({kind,label,size,bubble:false})));
  // Tiny luminous underwater-like bubbles, separate from game-piece counts.
- for(let i=0;i<22;i++)specs.push({kind:'bubble',label:'',size:rnd(2,5),bubble:true});
+ for(let i=0;i<55;i++)specs.push({kind:'bubble',label:'',size:rnd(2,5),bubble:true});
  const items=specs.map(spec=>{
   const el=document.createElement('span');el.className='ambient-item '+spec.kind;
   el.textContent=spec.label;el.style.setProperty('--size',spec.size+'px');
@@ -110,7 +110,7 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
  let stopped=false,raf=0,last=0;
  const particles=items.map((el,i)=>{
   const spec=specs[i],size=spec.size,angle=rnd(0,Math.PI*2);
-  return {el,size,bubble:spec.bubble,x:0,y:0,vx:Math.cos(angle)*rnd(5,9),vy:Math.sin(angle)*rnd(5,9),angle:rnd(-15,15),opacity:spec.bubble?rnd(.22,.55):rnd(.17,.30),born:0,life:rnd(19000,31000)};
+  return {el,size,bubble:spec.bubble,x:0,y:0,vx:Math.cos(angle)*rnd(5,9),vy:Math.sin(angle)*rnd(5,9),angle:rnd(-15,15),opacity:spec.bubble?rnd(.22,.55):rnd(.17,.30),born:0,life:rnd(26000,39000),separation:1};
  });
  function respawn(p,now,initial=false){
   const w=field.clientWidth,h=field.clientHeight;
@@ -126,7 +126,7 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   p.x=best.x;p.y=best.y;
   const angle=rnd(0,Math.PI*2),speed=rnd(5,9);
   p.vx=Math.cos(angle)*speed;p.vy=Math.sin(angle)*speed;
-  p.born=now-(initial?rnd(0,p.life*.8):0);
+  p.born=now-(initial?rnd(0,p.life*.65):0);p.separation=1;
  }
  particles.forEach((p,i)=>respawn(p,performance.now()+i*50,true));
  function tick(now){
@@ -147,15 +147,19 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
    if(p.y>h-margin){p.y=h-margin;p.vy=-Math.abs(p.vy)}
    let nearest=Infinity;
    for(const q of particles)if(q!==p&&!q.bubble&&!p.bubble)nearest=Math.min(nearest,Math.hypot(p.x-q.x,p.y-q.y)-(p.size+q.size)/2);
-   const separation=p.bubble?1:Math.max(.12,Math.min(1,(nearest-1)/25));
-   const fadeIn=Math.min(1,age/3500),fadeOut=Math.min(1,(p.life-age)/4000);
-   p.el.style.opacity=String(p.opacity*separation*Math.max(0,Math.min(fadeIn,fadeOut)));
+   const desiredSeparation=p.bubble?1:Math.max(.30,Math.min(1,(nearest+12)/35));
+   // Smooth collision dimming so close pieces never blink abruptly.
+   p.separation+=(desiredSeparation-p.separation)*Math.min(1,dt*1.3);
+   const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
+   const fadeIn=smooth(age/6500),fadeOut=smooth((p.life-age)/7500);
+   p.el.style.opacity=String(p.opacity*p.separation*Math.min(fadeIn,fadeOut));
    p.el.style.transform='translate3d('+(p.x-p.size/2)+'px,'+(p.y-p.size/2)+'px,0) rotate('+p.angle+'deg)';
   }
   raf=requestAnimationFrame(tick);
  }
  raf=requestAnimationFrame(tick);
- document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else if(!stopped&&!raf){last=0;raf=requestAnimationFrame(tick)}});
+ let hiddenAt=0;
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=performance.now();cancelAnimationFrame(raf);raf=0}else if(!stopped&&!raf){if(hiddenAt){const elapsed=performance.now()-hiddenAt;for(const p of particles)p.born+=elapsed;hiddenAt=0}last=0;raf=requestAnimationFrame(tick)}});
  window.addEventListener('pagehide',()=>{stopped=true;cancelAnimationFrame(raf)},{once:true});
 })();
 </script><div class="game-heading"><button id="homeOpen" aria-label="Ընտրել խաղի ձևը" title="Ընտրել խաղի ձևը"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-7h6v7"/></svg></button><h1>Շաշկի</h1><button id="settingsOpen" aria-label="Խաղի կարգավորումներ" title="Կարգավորումներ">☰</button></div><div id="matchScore" aria-label="Փուլերի հաշիվ՝ սպիտակներ 0, սևեր 0"><span class="score-piece white"></span><span id="whiteScore">0</span><span class="score-dash">–</span><span id="blackScore">0</span><span class="score-piece black"></span></div><div class="panel settings-old"><div id="difficulty">Բարդություն՝ <select id="level"><option value="1">Հեշտ</option><option value="3" selected>Միջին</option><option value="5">Դժվար</option></select></div><div class="row" style="align-items:center;font-size:13px"><label class="fuk-switch" for="fuk">Ֆուկ <input id="fuk" type="checkbox"><span class="fuk-track" aria-hidden="true"></span></label></div><div id="online"><div id="invite"></div></div><div id="notice"></div></div><div id="status" aria-hidden="true"></div><div id="hint" aria-live="polite"></div><div id="board" aria-label="Շաշկու խաղատախտակ"></div><div class="row"><button id="reset">Նոր խաղ</button></div></div><div id="roundAnnouncement" class="mode-overlay hidden" role="status" aria-live="polite"><div class="mode-card round-announcement-card"><h2 id="roundAnnouncementTitle"><span class="round-word">Փուլ</span><span id="roundAnnouncementNumber" class="round-number">2</span></h2></div></div><div id="matchResult" class="mode-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="matchResultTitle"><div class="mode-card match-result-card"><h2 id="matchResultTitle"></h2><button id="matchAgain" type="button">Խաղալ նորից</button></div></div><div id="settingsOverlay" class="mode-overlay hidden"><div class="mode-card settings-card"><h2>⚙️ Կարգավորումներ</h2><div class="settings-row" id="settingsDifficulty"></div><div class="settings-row" id="settingsFuk"></div><div class="settings-row"><label for="musicFile">🎵 Ընտրել երաժշտություն հեռախոսից</label><span class="music-picker"><label class="music-pick-button" for="musicFile">Ընտրել ֆայլ</label><span class="music-filename-window"><span id="musicFilenameTrack" class="music-filename-track"><span id="musicFilename" class="music-filename-text">Ֆայլ ընտրված չէ</span><span id="musicFilenameCopy" class="music-filename-text" aria-hidden="true"></span></span></span><input id="musicFile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac,.aif,.aiff,.mp4"></span></div><div class="settings-row"><button id="musicToggle" type="button">▶ Նվագարկել</button><button id="musicClear" type="button">Հեռացնել</button></div><p id="musicName">Երաժշտություն ընտրված չէ</p><p class="settings-note">Ֆուկը փոխելու համար սկսված խաղի ընթացքում սեղմիր «Նոր խաղ»։</p><button id="settingsClose" class="mode-choice">Փակել</button></div></div><audio id="gameMusic" loop preload="none"></audio><div id="modeOverlay" class="mode-overlay"><div class="mode-card"><h2>Ընտրի՛ր խաղի ձևը</h2><button id="cpu" class="mode-choice">🤖 Խաղալ համակարգչի դեմ</button><button id="net" class="mode-choice">🌐 Երկու հեռախոսով՝ առցանց</button></div></div><div id="onlineOverlay" class="mode-overlay hidden"><div class="mode-card online-card"><h2 id="onlineTitle">🌐 Առցանց շաշկի</h2><p id="onlineHelp">Հրավիրիր ընկերոջդ հղումով կամ միացիր սենյակի կոդով։</p><div id="familySetup" class="hidden"><p>Այս հեռախոսը ո՞ւմն է։ Ընտրիր մեկ անգամ։</p><button class="mode-choice" data-family="dad">👨 Հայրիկ</button><button class="mode-choice" data-family="kiso">👩 Քրիստինա</button><button class="mode-choice" data-family="alen">👦 Ալեն</button></div><div id="onlineMenu"><div id="familyStatus">Միանում ենք ընտանեկան կապին…</div><div id="onlineReady" class="hidden"><p>Ուղարկիր հրավերը Քրիստինային, Ալենին կամ ընկերոջդ։ Հղումը բացելիս նա ինքնաբերաբար կմիանա։</p><div id="familyButtons"></div><button id="shareInvite" class="mode-choice">🔗 Հրավիրել ընկերոջը</button><button id="copyInvite" class="mode-choice">Պատճենել հրավերի հղումը</button><details><summary>Սենյակի պահուստային կոդը</summary><div id="roomCode"></div></details><div id="onlineState">Սպասում ենք ընկերոջը…</div></div><button id="host" class="mode-choice">🎮 Հրավիրել խաղի</button><details id="joinDetails"><summary>Միանալ կոդով (պահուստային տարբերակ)</summary><div class="row"><input id="code" placeholder="6 նիշանոց կոդ" maxlength="6"><button id="join">Միանալ</button></div></details><button id="changeRole" class="mode-choice">👤 Փոխել խաղացողին</button></div><button id="onlineBack" class="mode-choice">⌂ Մենյու</button></div></div><div id="familyInviteOverlay" class="mode-overlay hidden"><div class="mode-card online-card"><h2>🎮 Հրավեր շաշկու խաղի</h2><p id="familyInviteText"></p><button id="familyAccept" class="mode-choice">✅ Ընդունել</button><button id="familyDecline" class="mode-choice">Մերժել</button></div></div>
