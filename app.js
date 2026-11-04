@@ -3851,9 +3851,16 @@
     checkersMusicNotify();
   }
   function checkersMusicPlay(){
-    if(checkersMusicStopped||!checkersMusicUrl)return;
+    if(checkersMusicStopped||!checkersMusicUrl||document.hidden||!activityContent.querySelector('iframe[title="Շաշկի"]'))return;
     checkersMusic.play().then(checkersMusicNotify).catch(()=>checkersMusicNotify());
   }
+  // Pause when AREG TEST is minimized/locked; resume only the selected game on return.
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){checkersMusic.pause();return}
+    if(!checkersMusicStopped&&activityContent.querySelector('iframe[title="Շաշկի"]'))checkersMusicPlay();
+  });
+  window.addEventListener('pagehide',()=>checkersMusic.pause());
+  window.addEventListener('pageshow',()=>{if(!document.hidden&&!checkersMusicStopped)checkersMusicPlay()});
   function checkersMusicRestore(){
     try{
       const req=indexedDB.open('areg-checkers-music',1);
