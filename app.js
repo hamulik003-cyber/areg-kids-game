@@ -3832,6 +3832,7 @@
     }else if(event.data?.type==='areg-sea-music-query')battleMusicNotify();
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)battleMusic.pause()});
+  window.addEventListener('message',event=>{if(event.origin!==location.origin||event.data?.type!=='areg-checkers-go-back')return;const frame=activityContent.querySelector('iframe[src*="areg-checkers.html"]');if(frame&&event.source===frame.contentWindow)backToSection()});
   function gameCheckers(){
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
