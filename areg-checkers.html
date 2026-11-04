@@ -55,7 +55,11 @@ html,body,#board,#board>.sq,#board .piece{-webkit-tap-highlight-color:transparen
 #board .piece.black{background-image:url("black_knight.png")!important}
 #board .piece.red{background-image:url("white_knight.png")!important}
 #board .piece:after{display:none!important}
-#board .piece.king:before{content:"♛"!important;position:absolute;inset:auto!important;right:-10%;bottom:-6%;width:45%;height:45%;display:grid;place-items:center;background:radial-gradient(circle,#ffe2a0,#bb7a20);border:2px solid #fff0a7;border-radius:50%;font-size:clamp(13px,3vw,21px);color:#59300b;line-height:1;filter:drop-shadow(0 2px 2px #0009)}
+/* Crown piece overlays the identical-size knight piece; opacity transition makes promotion seamless. */
+#board .piece::before{content:""!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;background:transparent center/contain no-repeat!important;box-shadow:none!important;filter:none!important;opacity:0!important;transform:none!important;transition:opacity 420ms ease-in-out!important;pointer-events:none!important}
+#board .piece.red::before{background-image:url("white_crown.png")!important}
+#board .piece.black::before{background-image:url("black_crown.png")!important}
+#board .piece.king::before{opacity:1!important}
 #board .sq.hint-piece .piece{filter:drop-shadow(0 0 6px #5aff88)!important;animation:jadeHint 2.8s ease-in-out infinite}
 body>.piece.travel{background-size:contain!important;box-shadow:none!important;border:0!important;border-radius:0!important}
 </style>
