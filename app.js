@@ -532,7 +532,7 @@
   document.addEventListener('dragstart',e=>e.preventDefault());
   document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
   document.addEventListener('touchmove',e=>{
-    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,input[type="range"],canvas'))e.preventDefault();
+    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,#sectionScreen[data-section="create"] .section-games-grid,input[type="range"],canvas'))e.preventDefault();
   },{passive:false});
 
   /* Menu music library + independent audio mixer. This only changes audio;
