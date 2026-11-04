@@ -455,10 +455,10 @@
       ]
     },
     create:{
-      title:'Ստեղծագործություն', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
+      title:'Ժամանց', hero:'hero-create.jpg', backdrop:'hero-create.jpg',
       games:[
-        {id:'draw-finger',label:'Մատով նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
-        {id:'stickers',label:'Երաժշտական աշխարհ 3D',thumb:'create-game-2.jpg',kind:'stickers'},
+        {id:'draw-finger',label:'Նկարչություն',thumb:'create-game-1.jpg',kind:'paint'},
+        {id:'stickers',label:'Երաժշտություն',thumb:'create-game-2.jpg',kind:'stickers'},
         {id:'sea-battle',label:'Ծովամարտ',thumb:'create-game-4.jpg',kind:'seaBattle'},
         {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'},
         {id:'traffic-light',label:'Լուսացույց',thumb:'create-game-3.jpg',kind:'trafficLight'},
