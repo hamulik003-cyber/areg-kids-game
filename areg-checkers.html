@@ -133,24 +133,6 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   if(stopped)return;
   const dt=Math.min((now-last)/1000||0,.04);last=now;
   const w=field.clientWidth,h=field.clientHeight;
-  for(let i=0;i<particles.length;i++){
-   const p=particles[i];
-   for(let j=i+1;j<particles.length;j++){
-    const q=particles[j];if(p.bubble||q.bubble)continue;
-    const dx=p.x-q.x,dy=p.y-q.y;
-    const dist=Math.hypot(dx,dy)||.001,minimum=(p.size+q.size)*.54+10;
-    if(dist<minimum+20){
-     const nx=dx/dist,ny=dy/dist;
-     const force=(minimum+20-dist)*.55*dt;
-     p.vx+=nx*force;p.vy+=ny*force;
-     q.vx-=nx*force;q.vy-=ny*force;
-     if(dist<minimum){
-      const push=(minimum-dist)/2+.08;
-      p.x+=nx*push;p.y+=ny*push;q.x-=nx*push;q.y-=ny*push;
-     }
-    }
-   }
-  }
   for(const p of particles){
    const age=now-p.born;
    if(age>=p.life){p.el.style.opacity='0';respawn(p,now);continue}
