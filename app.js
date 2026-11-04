@@ -3890,7 +3890,6 @@
     }else if(data?.type==='areg-checkers-music-query')checkersMusicNotify();
   });
   function gameCheckers(){
-    checkersMusicPlay();
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
@@ -3899,6 +3898,9 @@
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
+    // The iframe must exist before playback is requested; also retry after it loads on iOS.
+    checkersMusicPlay();
+    frame.addEventListener('load',()=>{checkersMusicPlay();checkersMusicNotify()},{once:true});
     gameCleanup.push(()=>{checkersMusic.pause();activityScreen.classList.remove('areg-car-wash-mode');frame.remove()});
   }
   function gameSeaBattle(){
