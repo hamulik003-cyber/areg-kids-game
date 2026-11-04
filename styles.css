@@ -3995,3 +3995,14 @@ body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan
 #sectionScreen[data-section="create"] .section-scroll-content::-webkit-scrollbar{
  display:none !important;width:0 !important;height:0 !important;
 }
+
+/* Entertainment only: remove the broad overlapping blur, keeping each tile's short base shadow. */
+#sectionScreen[data-section="create"] .section-hero-card{
+  box-shadow:0 9px 0 rgba(131,71,33,.7);
+}
+#sectionScreen[data-section="create"] .toddler-game-card{
+  box-shadow:0 7px 0 #a9652f,inset 0 3px 0 rgba(255,248,226,.94),inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+#sectionScreen[data-section="create"] .toddler-game-card:active{
+  box-shadow:0 4px 0 #a9652f,inset 0 3px 0 rgba(255,248,226,.94),inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
