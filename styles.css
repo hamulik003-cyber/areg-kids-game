@@ -3902,19 +3902,26 @@ html[data-theme^="photo-user-"] .section-dim{
   box-shadow:none !important;
 }
 
-/* AREG TEST: entertainment tiles retain their original large size as more games are added. */
-#sectionScreen[data-section="create"] .section-games-grid{
-  flex:1 1 auto;
-  min-height:0;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  grid-template-rows:none;
-  grid-auto-rows:clamp(145px,19svh,210px);
-  align-content:start;
-  overflow-y:auto;
-  overflow-x:hidden;
+/* AREG TEST: override the legacy V53 forced 2x2 layout for entertainment only. */
+.toddler-section-screen#sectionScreen[data-section="create"] .section-games-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  grid-template-rows:none !important;
+  grid-auto-rows:220px !important;
+  align-content:start !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior-y:contain;
-  touch-action:pan-y;
-  padding:2px 2px max(18px,env(safe-area-inset-bottom,0px));
+  touch-action:pan-y !important;
+  padding:2px 2px max(24px,env(safe-area-inset-bottom,0px));
 }
-#sectionScreen[data-section="create"] .toddler-game-card{min-height:0;touch-action:pan-y}
+.toddler-section-screen#sectionScreen[data-section="create"] .toddler-game-card{
+  min-height:220px !important;
+  height:220px !important;
+  touch-action:pan-y !important;
+}
+@media(max-width:370px){
+ .toddler-section-screen#sectionScreen[data-section="create"] .section-games-grid{grid-auto-rows:200px !important}
+ .toddler-section-screen#sectionScreen[data-section="create"] .toddler-game-card{min-height:200px !important;height:200px !important}
+}
