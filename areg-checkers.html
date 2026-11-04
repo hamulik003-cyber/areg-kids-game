@@ -103,14 +103,23 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   const el=document.createElement('span');el.className='ambient-item '+kind;el.textContent=label;field.appendChild(el);return el;
  });
  const active=new Set();let stopped=false;
- function run(el,initial){
+ // Each particle owns one of sixteen spatial cells. Its entire travel stays
+ // inside that cell, so independently looping particles never overlap.
+ const slots=Array.from({length:16},(_,i)=>i);
+ for(let i=slots.length-1;i>0;i--){const j=Math.floor(rnd(0,i+1));[slots[i],slots[j]]=[slots[j],slots[i]]}
+ function run(el,initial,index){
   if(stopped||!el.isConnected)return;
   const w=field.clientWidth,h=field.clientHeight;
   if(!w||!h)return;
-  const size=Math.round(rnd(46,91));
-  const x=rnd(12,Math.max(13,w-size-12)),y=rnd(12,Math.max(13,h-size-12));
-  const dx=rnd(-105,105),dy=rnd(-150,145),turn=rnd(-26,26);
-  const duration=rnd(10500,20000),alpha=rnd(.16,.31);
+  const slot=slots[index],cols=4,rows=4;
+  const cellW=w/cols,cellH=h/rows;
+  const cx=(slot%cols+.5)*cellW,cy=(Math.floor(slot/cols)+.5)*cellH;
+  const safe=Math.min(cellW,cellH);
+  const size=Math.round(Math.max(18,Math.min(rnd(46,91),safe*.67)));
+  const travel=Math.max(0,(safe-size)/2-3);
+  const dx=rnd(-travel,travel),dy=rnd(-travel,travel);
+  const x=cx-size/2-dx/2,y=cy-size/2-dy/2;
+  const turn=rnd(-18,18),duration=rnd(12000,21000),alpha=rnd(.16,.31);
   el.style.setProperty('--size',size+'px');el.style.left=x+'px';el.style.top=y+'px';
   const frames=[{opacity:0,transform:'translate3d(0,0,0) rotate(0deg) scale(.88)',offset:0},
     {opacity:alpha,offset:.19},
@@ -118,10 +127,10 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
     {opacity:0,transform:'translate3d('+dx+'px,'+dy+'px,0) rotate('+turn+'deg) scale(.94)',offset:1}];
   const anim=el.animate(frames,{duration,delay:initial?-rnd(0,duration):0,easing:'ease-in-out',fill:'both'});
   active.add(anim);
-  anim.onfinish=()=>{active.delete(anim);if(!stopped)run(el,false)};
+  anim.onfinish=()=>{active.delete(anim);if(!stopped)run(el,false,index)};
   anim.oncancel=()=>active.delete(anim);
  }
- items.forEach(el=>run(el,true));
+ items.forEach((el,i)=>run(el,true,i));
  document.addEventListener('visibilitychange',()=>{
   for(const anim of active){if(document.hidden)anim.pause();else anim.play()}
  });
