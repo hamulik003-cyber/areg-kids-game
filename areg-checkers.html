@@ -102,39 +102,66 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   const [kind,label]=types[i%types.length];
   const el=document.createElement('span');el.className='ambient-item '+kind;el.textContent=label;field.appendChild(el);return el;
  });
- const active=new Set();let stopped=false;
- // Each particle owns one of sixteen spatial cells. Its entire travel stays
- // inside that cell, so independently looping particles never overlap.
- const slots=Array.from({length:16},(_,i)=>i);
- for(let i=slots.length-1;i>0;i--){const j=Math.floor(rnd(0,i+1));[slots[i],slots[j]]=[slots[j],slots[i]]}
- function run(el,initial,index){
-  if(stopped||!el.isConnected)return;
-  const w=field.clientWidth,h=field.clientHeight;
-  if(!w||!h)return;
-  const slot=slots[index],cols=4,rows=4;
-  const cellW=w/cols,cellH=h/rows;
-  const cx=(slot%cols+.5)*cellW,cy=(Math.floor(slot/cols)+.5)*cellH;
-  const safe=Math.min(cellW,cellH);
-  const size=Math.round(Math.max(18,Math.min(rnd(46,91),safe*.67)));
-  const travel=Math.max(0,(safe-size)/2-3);
-  const dx=rnd(-travel,travel),dy=rnd(-travel,travel);
-  const x=cx-size/2-dx/2,y=cy-size/2-dy/2;
-  const turn=rnd(-18,18),duration=rnd(12000,21000),alpha=rnd(.16,.31);
-  el.style.setProperty('--size',size+'px');el.style.left=x+'px';el.style.top=y+'px';
-  const frames=[{opacity:0,transform:'translate3d(0,0,0) rotate(0deg) scale(.88)',offset:0},
-    {opacity:alpha,offset:.19},
-    {opacity:alpha*.85,transform:'translate3d('+dx*.7+'px,'+dy*.7+'px,0) rotate('+turn*.7+'deg) scale(1.03)',offset:.66},
-    {opacity:0,transform:'translate3d('+dx+'px,'+dy+'px,0) rotate('+turn+'deg) scale(.94)',offset:1}];
-  const anim=el.animate(frames,{duration,delay:initial?-rnd(0,duration):0,easing:'ease-in-out',fill:'both'});
-  active.add(anim);
-  anim.onfinish=()=>{active.delete(anim);if(!stopped)run(el,false,index)};
-  anim.oncancel=()=>active.delete(anim);
- }
- items.forEach((el,i)=>run(el,true,i));
- document.addEventListener('visibilitychange',()=>{
-  for(const anim of active){if(document.hidden)anim.pause();else anim.play()}
+ let stopped=false,raf=0,last=0;
+ const particles=items.map((el,i)=>{
+  const size=Math.round(rnd(30,65)),angle=rnd(0,Math.PI*2);
+  el.style.setProperty('--size',size+'px');
+  return {el,size,x:0,y:0,vx:Math.cos(angle)*rnd(16,29),vy:Math.sin(angle)*rnd(16,29),angle:rnd(-15,15),opacity:rnd(.17,.30),phase:rnd(0,6.28)};
  });
- window.addEventListener('pagehide',()=>{stopped=true;for(const anim of active)anim.cancel()},{once:true});
+ function initialize(){
+  const w=field.clientWidth,h=field.clientHeight;
+  particles.forEach((p,i)=>{
+   // Spread the starting positions across the whole field.
+   const col=i%4,row=Math.floor(i/4);
+   p.x=(col+.5)*w/4+rnd(-w/12,w/12);
+   p.y=(row+.5)*h/4+rnd(-h/12,h/12);
+  });
+ }
+ initialize();
+ function tick(now){
+  if(stopped)return;
+  const dt=Math.min((now-last)/1000||0,.04);last=now;
+  const w=field.clientWidth,h=field.clientHeight;
+  for(let i=0;i<particles.length;i++){
+   const p=particles[i];
+   for(let j=i+1;j<particles.length;j++){
+    const q=particles[j],dx=p.x-q.x,dy=p.y-q.y;
+    const dist=Math.hypot(dx,dy)||.001,minimum=(p.size+q.size)*.54+12;
+    if(dist<minimum+26){
+     // Magnetic repulsion before contact, including gentle separation.
+     const nx=dx/dist,ny=dy/dist;
+     const force=(minimum+26-dist)*1.9*dt;
+     p.vx+=nx*force;p.vy+=ny*force;
+     q.vx-=nx*force;q.vy-=ny*force;
+     if(dist<minimum){
+      const push=(minimum-dist)/2+.15;
+      p.x+=nx*push;p.y+=ny*push;q.x-=nx*push;q.y-=ny*push;
+     }
+    }
+   }
+  }
+  for(const p of particles){
+   const speed=Math.hypot(p.vx,p.vy)||1;
+   const target=25;
+   p.vx=p.vx/speed*(speed*.985+target*.015);
+   p.vy=p.vy/speed*(speed*.985+target*.015);
+   p.x+=p.vx*dt;p.y+=p.vy*dt;
+   const margin=p.size/2+5;
+   if(p.x<margin){p.x=margin;p.vx=Math.abs(p.vx)}
+   if(p.x>w-margin){p.x=w-margin;p.vx=-Math.abs(p.vx)}
+   if(p.y<margin){p.y=margin;p.vy=Math.abs(p.vy)}
+   if(p.y>h-margin){p.y=h-margin;p.vy=-Math.abs(p.vy)}
+   let nearest=Infinity;
+   for(const q of particles)if(q!==p)nearest=Math.min(nearest,Math.hypot(p.x-q.x,p.y-q.y)-(p.size+q.size)/2);
+   const fade=Math.max(.12,Math.min(1,(nearest-1)/25));
+   p.el.style.opacity=String(p.opacity*fade*(.87+.13*Math.sin(now/2200+p.phase)));
+   p.el.style.transform='translate3d('+(p.x-p.size/2)+'px,'+(p.y-p.size/2)+'px,0) rotate('+p.angle+'deg)';
+  }
+  raf=requestAnimationFrame(tick);
+ }
+ raf=requestAnimationFrame(tick);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else if(!stopped&&!raf){last=0;raf=requestAnimationFrame(tick)}});
+ window.addEventListener('pagehide',()=>{stopped=true;cancelAnimationFrame(raf)},{once:true});
 })();
 </script><div class="game-heading"><button id="homeOpen" aria-label="Ընտրել խաղի ձևը" title="Ընտրել խաղի ձևը"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-7h6v7"/></svg></button><h1>Շաշկի</h1><button id="settingsOpen" aria-label="Խաղի կարգավորումներ" title="Կարգավորումներ">☰</button></div><div id="matchScore" aria-label="Փուլերի հաշիվ՝ սպիտակներ 0, սևեր 0"><span class="score-piece white"></span><span id="whiteScore">0</span><span class="score-dash">–</span><span id="blackScore">0</span><span class="score-piece black"></span></div><div class="panel settings-old"><div id="difficulty">Բարդություն՝ <select id="level"><option value="1">Հեշտ</option><option value="3" selected>Միջին</option><option value="5">Դժվար</option></select></div><div class="row" style="align-items:center;font-size:13px"><label class="fuk-switch" for="fuk">Ֆուկ <input id="fuk" type="checkbox"><span class="fuk-track" aria-hidden="true"></span></label></div><div id="online"><div id="invite"></div></div><div id="notice"></div></div><div id="status" aria-hidden="true"></div><div id="hint" aria-live="polite"></div><div id="board" aria-label="Շաշկու խաղատախտակ"></div><div class="row"><button id="reset">Նոր խաղ</button></div></div><div id="roundAnnouncement" class="mode-overlay hidden" role="status" aria-live="polite"><div class="mode-card round-announcement-card"><h2 id="roundAnnouncementTitle"><span class="round-word">Փուլ</span><span id="roundAnnouncementNumber" class="round-number">2</span></h2></div></div><div id="matchResult" class="mode-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="matchResultTitle"><div class="mode-card match-result-card"><h2 id="matchResultTitle"></h2><button id="matchAgain" type="button">Խաղալ նորից</button></div></div><div id="settingsOverlay" class="mode-overlay hidden"><div class="mode-card settings-card"><h2>⚙️ Կարգավորումներ</h2><div class="settings-row" id="settingsDifficulty"></div><div class="settings-row" id="settingsFuk"></div><div class="settings-row"><label for="musicFile">🎵 Ընտրել երաժշտություն հեռախոսից</label><span class="music-picker"><label class="music-pick-button" for="musicFile">Ընտրել ֆայլ</label><span class="music-filename-window"><span id="musicFilenameTrack" class="music-filename-track"><span id="musicFilename" class="music-filename-text">Ֆայլ ընտրված չէ</span><span id="musicFilenameCopy" class="music-filename-text" aria-hidden="true"></span></span></span><input id="musicFile" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac,.aif,.aiff,.mp4"></span></div><div class="settings-row"><button id="musicToggle" type="button">▶ Նվագարկել</button><button id="musicClear" type="button">Հեռացնել</button></div><p id="musicName">Երաժշտություն ընտրված չէ</p><p class="settings-note">Ֆուկը փոխելու համար սկսված խաղի ընթացքում սեղմիր «Նոր խաղ»։</p><button id="settingsClose" class="mode-choice">Փակել</button></div></div><audio id="gameMusic" loop preload="none"></audio><div id="modeOverlay" class="mode-overlay"><div class="mode-card"><h2>Ընտրի՛ր խաղի ձևը</h2><button id="cpu" class="mode-choice">🤖 Խաղալ համակարգչի դեմ</button><button id="net" class="mode-choice">🌐 Երկու հեռախոսով՝ առցանց</button></div></div><div id="onlineOverlay" class="mode-overlay hidden"><div class="mode-card online-card"><h2 id="onlineTitle">🌐 Առցանց շաշկի</h2><p id="onlineHelp">Հրավիրիր ընկերոջդ հղումով կամ միացիր սենյակի կոդով։</p><div id="familySetup" class="hidden"><p>Այս հեռախոսը ո՞ւմն է։ Ընտրիր մեկ անգամ։</p><button class="mode-choice" data-family="dad">👨 Հայրիկ</button><button class="mode-choice" data-family="kiso">👩 Քրիստինա</button><button class="mode-choice" data-family="alen">👦 Ալեն</button></div><div id="onlineMenu"><div id="familyStatus">Միանում ենք ընտանեկան կապին…</div><div id="onlineReady" class="hidden"><p>Ուղարկիր հրավերը Քրիստինային, Ալենին կամ ընկերոջդ։ Հղումը բացելիս նա ինքնաբերաբար կմիանա։</p><div id="familyButtons"></div><button id="shareInvite" class="mode-choice">🔗 Հրավիրել ընկերոջը</button><button id="copyInvite" class="mode-choice">Պատճենել հրավերի հղումը</button><details><summary>Սենյակի պահուստային կոդը</summary><div id="roomCode"></div></details><div id="onlineState">Սպասում ենք ընկերոջը…</div></div><button id="host" class="mode-choice">🎮 Հրավիրել խաղի</button><details id="joinDetails"><summary>Միանալ կոդով (պահուստային տարբերակ)</summary><div class="row"><input id="code" placeholder="6 նիշանոց կոդ" maxlength="6"><button id="join">Միանալ</button></div></details><button id="changeRole" class="mode-choice">👤 Փոխել խաղացողին</button></div><button id="onlineBack" class="mode-choice">⌂ Մենյու</button></div></div><div id="familyInviteOverlay" class="mode-overlay hidden"><div class="mode-card online-card"><h2>🎮 Հրավեր շաշկու խաղի</h2><p id="familyInviteText"></p><button id="familyAccept" class="mode-choice">✅ Ընդունել</button><button id="familyDecline" class="mode-choice">Մերժել</button></div></div>
 <script>
