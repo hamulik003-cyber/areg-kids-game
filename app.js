@@ -3833,16 +3833,66 @@
   });
   document.addEventListener('visibilitychange',()=>{if(document.hidden)battleMusic.pause()});
   window.addEventListener('message',event=>{if(event.origin!==location.origin||event.data?.type!=='areg-checkers-go-back')return;const frame=activityContent.querySelector('iframe[src*="areg-checkers.html"]');if(frame&&event.source===frame.contentWindow)backToSection()});
+  // Checkers audio lives in the parent, like Sea Battle, so the game-card tap can start it.
+  const checkersMusic=new Audio();checkersMusic.loop=true;
+  let checkersMusicUrl=null,checkersMusicBlob=null;
+  let checkersMusicStopped=false;
+  try{checkersMusicStopped=localStorage.getItem('areg-checkers-music-paused')==='1'}catch{}
+  function checkersMusicNotify(){
+    const frame=activityContent.querySelector('iframe[title="Շաշկի"]');
+    frame?.contentWindow?.postMessage({type:'areg-checkers-music-state',playing:!checkersMusic.paused},location.origin);
+  }
+  function checkersMusicSet(blob){
+    checkersMusic.pause();
+    if(checkersMusicUrl)URL.revokeObjectURL(checkersMusicUrl);
+    checkersMusicBlob=blob;
+    checkersMusicUrl=blob?URL.createObjectURL(blob):null;
+    if(checkersMusicUrl)checkersMusic.src=checkersMusicUrl;
+    checkersMusicNotify();
+  }
+  function checkersMusicPlay(){
+    if(checkersMusicStopped||!checkersMusicUrl)return;
+    checkersMusic.play().then(checkersMusicNotify).catch(()=>checkersMusicNotify());
+  }
+  function checkersMusicRestore(){
+    try{
+      const req=indexedDB.open('areg-checkers-music',1);
+      req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('tracks'))req.result.createObjectStore('tracks')};
+      req.onsuccess=()=>{
+        const db=req.result,tx=db.transaction('tracks','readonly'),q=tx.objectStore('tracks').get('selected');
+        q.onsuccess=()=>{if(q.result){checkersMusicSet(q.result);if(!activityScreen.hidden&&activityContent.querySelector('iframe[title="Շաշկի"]'))checkersMusicPlay()}};
+        tx.oncomplete=()=>db.close();
+      };
+    }catch(e){console.warn('Checkers music restore',e)}
+  }
+  checkersMusicRestore();
+  checkersMusic.addEventListener('play',checkersMusicNotify);
+  checkersMusic.addEventListener('pause',checkersMusicNotify);
+  window.addEventListener('message',event=>{
+    const frame=activityContent.querySelector('iframe[title="Շաշկի"]');
+    if(event.origin!==location.origin||event.source!==frame?.contentWindow)return;
+    const data=event.data;
+    if(data?.type==='areg-checkers-music-selected'&&data.blob){
+      checkersMusicStopped=false;checkersMusicSet(data.blob);checkersMusicPlay();
+    }else if(data?.type==='areg-checkers-music-control'){
+      checkersMusicStopped=data.action==='stop';
+      if(checkersMusicStopped)checkersMusic.pause();else checkersMusicPlay();
+      checkersMusicNotify();
+    }else if(data?.type==='areg-checkers-music-clear'){
+      checkersMusic.pause();checkersMusicSet(null);
+    }else if(data?.type==='areg-checkers-music-query')checkersMusicNotify();
+  });
   function gameCheckers(){
+    checkersMusicPlay();
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Շաշկի';
-    frame.src='./areg-checkers.html?v=1&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||Date.now());
+    frame.src='./areg-checkers.html?v=1&parentMusic=1&testv='+encodeURIComponent(new URLSearchParams(location.search).get('testv')||Date.now());
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
-    gameCleanup.push(()=>{activityScreen.classList.remove('areg-car-wash-mode');frame.remove()});
+    gameCleanup.push(()=>{checkersMusic.pause();activityScreen.classList.remove('areg-car-wash-mode');frame.remove()});
   }
   function gameSeaBattle(){
     activityContent.replaceChildren();
