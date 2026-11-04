@@ -532,7 +532,7 @@
   document.addEventListener('dragstart',e=>e.preventDefault());
   document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
   document.addEventListener('touchmove',e=>{
-    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,#sectionScreen[data-section="create"] .section-games-grid,input[type="range"],canvas'))e.preventDefault();
+    if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,#sectionScreen[data-section="create"] .toddler-section-shell,input[type="range"],canvas'))e.preventDefault();
   },{passive:false});
 
   /* Menu music library + independent audio mixer. This only changes audio;
@@ -921,7 +921,7 @@
 
   function openSection(id, beforeReveal, cinematicEntry=false){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
-    sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
+    sectionScreen.dataset.section=id;document.body.classList.toggle('create-scroll-active',id==='create');sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
     updateStars();sectionGames.innerHTML='';
     sectionGames.classList.remove('magic-collection-grid');
     sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
