@@ -3925,3 +3925,29 @@ html[data-theme^="photo-user-"] .section-dim{
  .toddler-section-screen#sectionScreen[data-section="create"] .section-games-grid{grid-auto-rows:200px !important}
  .toddler-section-screen#sectionScreen[data-section="create"] .toddler-game-card{min-height:200px !important;height:200px !important}
 }
+
+/* AREG TEST: entertainment page scrolls as one surface; only its header stays fixed. */
+body.create-scroll-active,body.create-scroll-active #sectionScreen,
+body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan-y !important}
+#sectionScreen[data-section="create"] .toddler-section-shell{
+ overflow-y:auto !important;overflow-x:hidden !important;
+ -webkit-overflow-scrolling:touch !important;
+ overscroll-behavior-y:contain !important;
+ display:block !important;
+ padding-bottom:max(28px,env(safe-area-inset-bottom,0px)) !important;
+}
+#sectionScreen[data-section="create"] .toddler-topbar{
+ position:sticky !important;top:0 !important;z-index:20 !important;
+ margin-bottom:14px !important;
+}
+#sectionScreen[data-section="create"] .section-hero-card{
+ height:min(32vh,305px) !important;min-height:210px !important;
+ margin-bottom:18px !important;
+}
+.toddler-section-screen#sectionScreen[data-section="create"] .section-games-grid{
+ overflow:visible !important;
+ height:auto !important;min-height:0 !important;
+ grid-template-rows:none !important;grid-auto-rows:220px !important;
+ touch-action:pan-y !important;
+ padding-bottom:24px !important;
+}
