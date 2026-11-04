@@ -86,7 +86,7 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
 .wrap>.ambient-field .ambient-item.knight.white{background-image:url("white_knight.png")}
 .wrap>.ambient-field .ambient-item.knight.black{background-image:url("black_knight.png")}
 .wrap>.ambient-field .ambient-item.glyph,.wrap>.ambient-field .ambient-item.die{display:grid;place-items:center;color:#d9b67f;font-size:calc(var(--size)*.86);line-height:1;text-shadow:0 0 9px #f0bd7044}
-.wrap>.ambient-field .ambient-item.glint{border:2px solid #d7aa6c88;border-radius:50%;box-shadow:0 0 15px #b98a4a44}
+.wrap>.ambient-field .ambient-item.bubble{border-radius:50%;background:radial-gradient(circle at 32% 27%,#f4ffffed 0%,#bde9ffb8 20%,#72bcd87a 48%,#9de7ff24 75%,transparent 100%);box-shadow:0 0 5px #a2e8ff77,0 0 10px #a2e8ff30}
 .wrap>:not(.ambient-field){z-index:1}
 @media(prefers-reduced-motion:reduce){.wrap>.ambient-field{display:none}}
 </style>
@@ -96,17 +96,21 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
 (function(){
  const field=document.querySelector('.ambient-field');
  if(!field||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
- const types=[['knight white',''],['knight black',''],['glyph','♜'],['glyph','♞'],['glyph','♛'],['glyph','♝'],['die','⚄'],['die','⚅'],['die','⚂'],['glint','']];
+ const types=[['knight white',''],['knight black',''],['glyph','♜'],['glyph','♞'],['glyph','♛'],['glyph','♝'],['die','⚄'],['die','⚅'],['die','⚂']];
  const rnd=(a,b)=>a+Math.random()*(b-a);
- const items=Array.from({length:13},(_,i)=>{
-  const [kind,label]=types[i%types.length];
-  const el=document.createElement('span');el.className='ambient-item '+kind;el.textContent=label;field.appendChild(el);return el;
+ // Exactly three of each game-piece variant: large, medium and small.
+ const specs=types.flatMap(([kind,label])=>[60,43,27].map(size=>({kind,label,size,bubble:false})));
+ // Tiny luminous underwater-like bubbles, separate from game-piece counts.
+ for(let i=0;i<22;i++)specs.push({kind:'bubble',label:'',size:rnd(2,5),bubble:true});
+ const items=specs.map(spec=>{
+  const el=document.createElement('span');el.className='ambient-item '+spec.kind;
+  el.textContent=spec.label;el.style.setProperty('--size',spec.size+'px');
+  field.appendChild(el);return el;
  });
  let stopped=false,raf=0,last=0;
  const particles=items.map((el,i)=>{
-  const size=Math.round(rnd(30,60)),angle=rnd(0,Math.PI*2);
-  el.style.setProperty('--size',size+'px');
-  return {el,size,x:0,y:0,vx:Math.cos(angle)*rnd(7,12),vy:Math.sin(angle)*rnd(7,12),angle:rnd(-15,15),opacity:rnd(.17,.30),born:0,life:rnd(17000,27000)};
+  const spec=specs[i],size=spec.size,angle=rnd(0,Math.PI*2);
+  return {el,size,bubble:spec.bubble,x:0,y:0,vx:Math.cos(angle)*rnd(5,9),vy:Math.sin(angle)*rnd(5,9),angle:rnd(-15,15),opacity:spec.bubble?rnd(.22,.55):rnd(.17,.30),born:0,life:rnd(19000,31000)};
  });
  function respawn(p,now,initial=false){
   const w=field.clientWidth,h=field.clientHeight;
@@ -116,11 +120,11 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   for(let k=0;k<28;k++){
    const x=rnd(margin,Math.max(margin+1,w-margin)),y=rnd(margin,Math.max(margin+1,h-margin));
    let nearest=Infinity;
-   for(const q of particles)if(q!==p&&q.born>0)nearest=Math.min(nearest,Math.hypot(x-q.x,y-q.y)-(p.size+q.size)/2);
+   for(const q of particles)if(q!==p&&!q.bubble&&!p.bubble&&q.born>0)nearest=Math.min(nearest,Math.hypot(x-q.x,y-q.y)-(p.size+q.size)/2);
    if(nearest>bestDistance){bestDistance=nearest;best={x,y}}
   }
   p.x=best.x;p.y=best.y;
-  const angle=rnd(0,Math.PI*2),speed=rnd(7,12);
+  const angle=rnd(0,Math.PI*2),speed=rnd(5,9);
   p.vx=Math.cos(angle)*speed;p.vy=Math.sin(angle)*speed;
   p.born=now-(initial?rnd(0,p.life*.8):0);
  }
@@ -132,7 +136,8 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   for(let i=0;i<particles.length;i++){
    const p=particles[i];
    for(let j=i+1;j<particles.length;j++){
-    const q=particles[j],dx=p.x-q.x,dy=p.y-q.y;
+    const q=particles[j];if(p.bubble||q.bubble)continue;
+    const dx=p.x-q.x,dy=p.y-q.y;
     const dist=Math.hypot(dx,dy)||.001,minimum=(p.size+q.size)*.54+10;
     if(dist<minimum+20){
      const nx=dx/dist,ny=dy/dist;
@@ -149,7 +154,7 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
   for(const p of particles){
    const age=now-p.born;
    if(age>=p.life){p.el.style.opacity='0';respawn(p,now);continue}
-   const speed=Math.hypot(p.vx,p.vy)||1,target=9;
+   const speed=Math.hypot(p.vx,p.vy)||1,target=7;
    p.vx=p.vx/speed*(speed*.995+target*.005);
    p.vy=p.vy/speed*(speed*.995+target*.005);
    p.x+=p.vx*dt;p.y+=p.vy*dt;
@@ -159,8 +164,8 @@ body>.piece.travel{background-size:contain!important;box-shadow:none!important;b
    if(p.y<margin){p.y=margin;p.vy=Math.abs(p.vy)}
    if(p.y>h-margin){p.y=h-margin;p.vy=-Math.abs(p.vy)}
    let nearest=Infinity;
-   for(const q of particles)if(q!==p)nearest=Math.min(nearest,Math.hypot(p.x-q.x,p.y-q.y)-(p.size+q.size)/2);
-   const separation=Math.max(.12,Math.min(1,(nearest-1)/25));
+   for(const q of particles)if(q!==p&&!q.bubble&&!p.bubble)nearest=Math.min(nearest,Math.hypot(p.x-q.x,p.y-q.y)-(p.size+q.size)/2);
+   const separation=p.bubble?1:Math.max(.12,Math.min(1,(nearest-1)/25));
    const fadeIn=Math.min(1,age/3500),fadeOut=Math.min(1,(p.life-age)/4000);
    p.el.style.opacity=String(p.opacity*separation*Math.max(0,Math.min(fadeIn,fadeOut)));
    p.el.style.transform='translate3d('+(p.x-p.size/2)+'px,'+(p.y-p.size/2)+'px,0) rotate('+p.angle+'deg)';
