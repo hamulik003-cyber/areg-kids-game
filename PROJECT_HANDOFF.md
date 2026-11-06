@@ -1,3 +1,8 @@
+## 2026-11-07 — Run #896 cancelled by apt mirror downloads, not PWA assertions
+- CI #896: assets-and-code, mobile-browser, ios-webkit SUCCESS; ios-pwa-music CANCELLED at 12-minute job timeout. Job logs show `npx playwright install --with-deps webkit` downloading 181 Ubuntu apt packages (~114 MB) extremely slowly from azure.archive. Test script never started; not evidence of music regression.
+- In isolated release PR only, changed ios-pwa-music setup to `npx playwright install webkit` to skip slow apt system package installation; preserve same PWA/music assertions. If runner lacks WebKit shared libraries, inspect failure and restore required deps by reliable install mechanism, never mark tests as passed without running.
+- Main unchanged; await new CI before merge and installed DotKiosk confirmation.
+
 ## 2026-11-07 — iOS PWA Music test fix
 - Run #894 ios-pwa-music job 128163261454 failed at 'Installed V285 HTML script query absent'. Cause: qa/pwa-update.test.mjs still asserted app.js?v=305, SW v305, and CSS v303 although release serves app.js/SW v306 and CSS v304. Updated these assertions to current release values (commit 941b9cb5bd52c2c5e29df91934fd3aba4cbab84c). This does NOT prove saved music or offline behavior passed yet. Await new CI and do not merge until checks are understood.
 
