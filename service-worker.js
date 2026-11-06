@@ -11,7 +11,7 @@ const CORE=[
   './space-3d-games.css?v=287',
   './app.js?v=307',
   './areg-tower-3d.html',
-  './areg-sea-battle.html',
+  './areg-sea-battle.html?v=307',
   './carrier_5.webp',
   './battleship_4.webp',
   './destroyer_3.webp',
