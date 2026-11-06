@@ -1,3 +1,8 @@
+## 2026-11-07 — Entertainment scroll reset on fresh entry (pending CI/device)
+- User screenshot: after scrolling Entertainment down, leaving to home and entering Entertainment again, scroll offset persists and hero is clipped. Explicitly requested a production-only targeted fix.
+- Isolated branch from approved main 85d27f0. In `openSection('create')`, reset ONLY `.section-scroll-content.scrollTop=0` before reveal. Other sections, return from an individual game, cards, stars, audio, transitions untouched.
+- Bump installed PWA service worker registration/cache, index app.js URL, precache and PWA test from v307 to v308 to deliver updated JS. No storage deletion. Rollback main 85d27f045d72f8e8c00536acb08b40a5d56da48c. Await full CI, merge then real DotKiosk verification.
+
 ## 2026-11-07 — DotKiosk Sea Battle animation visibility / PWA cache v307 (pending CI)
 - User confirms letters and anchors remain static on installed DotKiosk after animation-only main merge d1e1c62; production Sea Battle HTML is byte-identical to AREG TEST, so stale installed PWA cache is a plausible delivery cause, not yet device-confirmed.
 - Isolated branch refreshes service worker CORE/RUNTIME cache namespace from v306 to v307; versions app.js and index.html script to v307; versioned Sea Battle iframe URL and SW precache entry to v307; updates `qa/pwa-update.test.mjs` expected versions. No Sea Battle gameplay/animation code changed; no saved data or other game assets touched. Main rollback anchor d1e1c62683b54392f30c73ffc1ae6e419a8eaa78. Validate full CI and real device before declaring success.
