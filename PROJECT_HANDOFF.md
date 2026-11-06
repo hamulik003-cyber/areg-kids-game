@@ -1,3 +1,8 @@
+## 2026-11-07 — Restore exact Checkers art from AREG TEST (pending CI and installed-device verification)
+- User screenshot confirms approved Checkers board and score plaque missing in DotKiosk despite pieces rendering; user explicitly authorized copying these images from AREG TEST to main.
+- Root cause: production `areg-checkers.html` CSS references root `ornate_checkers_board_transparent.png` and `հաշվետախտակ.png` but neither asset exists on main. Both exist on `trial/areg-test-full-app-20261017` with exact Git blob SHAs `80c739dc13a431ede93d5fb68fd2d00b7b9d27d8` and `dff1cd0985dae1e624c280a42eb8046f8df919de`.
+- Created isolated branch `fix/checkers-approved-art-assets-20261107` from production `38711a9523328e3e0519a8a1049223928fdcfdd7` and restored those two exact blobs without altering gameplay, CSS, JS, saved data or other assets. Rollback anchor: `38711a9`. Validate file references and full CI, merge only the two art assets plus handoff docs, then verify Pages and user device.
+
 ## 2026-11-07 — CI #898 missing native WebKit libraries and container fix
 - #898 ios-pwa-music FAILED immediately at browserType.launch: host missing native browser libraries after removing --with-deps. No PWA/music assertions ran. CI environment defect, not demonstrated music failure.
 - Isolated ios-pwa-music job now uses pinned official `mcr.microsoft.com/playwright:v1.55.1-noble` container with WebKit and Ubuntu native dependencies preinstalled; removed separate browser install step. Keep actual `AREG_BROWSER=webkit node qa/pwa-update.test.mjs` fully active. Await new CI; do not claim success without logs. Main unchanged.
