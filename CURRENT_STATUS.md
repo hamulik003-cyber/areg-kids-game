@@ -1,3 +1,7 @@
+## 2026-11-07 — CI #898 missing native WebKit libraries and container fix
+- #898 ios-pwa-music FAILED immediately at browserType.launch: host missing native browser libraries after removing --with-deps. No PWA/music assertions ran. CI environment defect, not demonstrated music failure.
+- Isolated ios-pwa-music job now uses pinned official `mcr.microsoft.com/playwright:v1.55.1-noble` container with WebKit and Ubuntu native dependencies preinstalled; removed separate browser install step. Keep actual `AREG_BROWSER=webkit node qa/pwa-update.test.mjs` fully active. Await new CI; do not claim success without logs. Main unchanged.
+
 ## 2026-11-07 — Run #896 cancelled by apt mirror downloads, not PWA assertions
 - CI #896: assets-and-code, mobile-browser, ios-webkit SUCCESS; ios-pwa-music CANCELLED at 12-minute job timeout. Job logs show `npx playwright install --with-deps webkit` downloading 181 Ubuntu apt packages (~114 MB) extremely slowly from azure.archive. Test script never started; not evidence of music regression.
 - In isolated release PR only, changed ios-pwa-music setup to `npx playwright install webkit` to skip slow apt system package installation; preserve same PWA/music assertions. If runner lacks WebKit shared libraries, inspect failure and restore required deps by reliable install mechanism, never mark tests as passed without running.
