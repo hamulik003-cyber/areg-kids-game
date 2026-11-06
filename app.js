@@ -915,6 +915,11 @@
   function openSection(id, beforeReveal, cinematicEntry=false){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
+    // Each new Entertainment entry starts at its original top position.
+    if(id==='create'){
+      const scrollContent=sectionScreen.querySelector('.section-scroll-content');
+      if(scrollContent)scrollContent.scrollTop=0;
+    }
     updateStars();sectionGames.innerHTML='';
     sectionGames.classList.remove('magic-collection-grid');
     sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
@@ -3998,7 +4003,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=307',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=308',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
