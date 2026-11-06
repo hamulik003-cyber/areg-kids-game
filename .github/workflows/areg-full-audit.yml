@@ -112,6 +112,8 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
-      - run: npx playwright install --with-deps webkit
+      # Avoid re-downloading 181 Ubuntu packages from a slow apt mirror;
+      # the WebKit browser bundle is installed separately on the same runner image.
+      - run: npx playwright install webkit
       - name: Verify offline PWA update and saved custom music on WebKit
         run: AREG_BROWSER=webkit node qa/pwa-update.test.mjs
