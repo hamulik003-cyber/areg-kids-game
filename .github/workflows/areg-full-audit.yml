@@ -78,7 +78,7 @@ jobs:
 
   ios-webkit:
     needs: assets-and-code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     continue-on-error: false
     steps:
@@ -104,7 +104,7 @@ jobs:
   # smoke timings in the larger iOS job. Never replaces full ios-webkit.
   ios-pwa-music:
     needs: assets-and-code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
