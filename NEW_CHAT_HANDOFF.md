@@ -1,3 +1,7 @@
+## 2026-11-07 — Sea Battle approved letter RGB/float + anchor animation release (pending CI)
+- User confirms installed DotKiosk: maze wood, Entertainment scrolling and dark streak removal fixed; Sea Battle letters/anchors animations absent; explicitly approves transferring only those animations exactly from AREG TEST.
+- Compared `areg-sea-battle.html` in main vs trial: common HTML/CSS/JS is byte-identical; trial differs ONLY by appended CSS for independent letter bob/anchor floating and appended JS for per-letter RGB cycling. Copied exact trial `areg-sea-battle.html` (Git blob `5128017765971897e9989416af2494ebe8e00412`) into isolated release branch. No game mechanics, ships, audio, boards, or other assets changed. Await CI and Pages deployment. Rollback: prior main commit at branch creation; verify user DotKiosk after release.
+
 ## 2026-11-07 — Restore exact Checkers art from AREG TEST (pending CI and installed-device verification)
 - User screenshot confirms approved Checkers board and score plaque missing in DotKiosk despite pieces rendering; user explicitly authorized copying these images from AREG TEST to main.
 - Root cause: production `areg-checkers.html` CSS references root `ornate_checkers_board_transparent.png` and `հաշվետախտակ.png` but neither asset exists on main. Both exist on `trial/areg-test-full-app-20261017` with exact Git blob SHAs `80c739dc13a431ede93d5fb68fd2d00b7b9d27d8` and `dff1cd0985dae1e624c280a42eb8046f8df919de`.
