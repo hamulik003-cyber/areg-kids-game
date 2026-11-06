@@ -187,9 +187,32 @@ function checkerTap(kind){
   src.start(0,checkerTapOffsets[index],.24);
  }catch(e){gameSound(kind)}
 }
+/* User-uploaded event sounds, decoded once; Web Audio provides immediate replay on iOS. */
+const eventSoundFiles={select:'Qarin kpnel.m4a',dice:'ZAR 4.m4a',round:'Raundi poxvel.m4a',win:'Haxtanaki dzayn.mp3',loss:'Partvelu dzayn.mp3'};
+const eventSoundBuffers={};let eventSoundReady=false;
+function loadEventSounds(){
+ if(eventSoundReady)return;eventSoundReady=true;
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+ const ctx=gameAudio||(gameAudio=new AC());
+ Object.entries(eventSoundFiles).forEach(([kind,file])=>{
+  fetch('./'+encodeURIComponent(file)).then(r=>{if(!r.ok)throw Error('missing sound');return r.arrayBuffer()})
+   .then(bytes=>ctx.decodeAudioData(bytes)).then(buffer=>{eventSoundBuffers[kind]=buffer}).catch(()=>{});
+ });
+}
+function playEventSound(kind){
+ const ctx=gameAudio;const buffer=eventSoundBuffers[kind];
+ if(!ctx||!buffer||document.visibilityState==='hidden')return false;
+ try{if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+  const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buffer;
+  gain.gain.value=kind==='select'?.9:kind==='dice'?.85:.9;
+  source.connect(gain);gain.connect(ctx.destination);source.start();return true;
+ }catch(e){return false}
+}
+loadEventSounds();
 function gameSound(kind){
  try{
   if(document.visibilityState==='hidden')return;
+  if(eventSoundFiles[kind]&&playEventSound(kind))return;
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   if(!gameAudio)gameAudio=new AC();
   if(gameAudio.state==='suspended')gameAudio.resume().catch(()=>{});
