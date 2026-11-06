@@ -1,3 +1,31 @@
+## 2026-11-07 — CI #898 missing native WebKit libraries and container fix
+- #898 ios-pwa-music FAILED immediately at browserType.launch: host missing native browser libraries after removing --with-deps. No PWA/music assertions ran. CI environment defect, not demonstrated music failure.
+- Isolated ios-pwa-music job now uses pinned official `mcr.microsoft.com/playwright:v1.55.1-noble` container with WebKit and Ubuntu native dependencies preinstalled; removed separate browser install step. Keep actual `AREG_BROWSER=webkit node qa/pwa-update.test.mjs` fully active. Await new CI; do not claim success without logs. Main unchanged.
+
+## 2026-11-07 — Run #896 cancelled by apt mirror downloads, not PWA assertions
+- CI #896: assets-and-code, mobile-browser, ios-webkit SUCCESS; ios-pwa-music CANCELLED at 12-minute job timeout. Job logs show `npx playwright install --with-deps webkit` downloading 181 Ubuntu apt packages (~114 MB) extremely slowly from azure.archive. Test script never started; not evidence of music regression.
+- In isolated release PR only, changed ios-pwa-music setup to `npx playwright install webkit` to skip slow apt system package installation; preserve same PWA/music assertions. If runner lacks WebKit shared libraries, inspect failure and restore required deps by reliable install mechanism, never mark tests as passed without running.
+- Main unchanged; await new CI before merge and installed DotKiosk confirmation.
+
+## 2026-11-07 — iOS PWA Music test fix
+- Run #894 ios-pwa-music job 128163261454 failed at 'Installed V285 HTML script query absent'. Cause: qa/pwa-update.test.mjs still asserted app.js?v=305, SW v305, and CSS v303 although release serves app.js/SW v306 and CSS v304. Updated these assertions to current release values (commit 941b9cb5bd52c2c5e29df91934fd3aba4cbab84c). This does NOT prove saved music or offline behavior passed yet. Await new CI and do not merge until checks are understood.
+
+## 2026-11-07 — CI failure diagnosis and targeted follow-up (PENDING CI)
+- GitHub Actions #891 completed FAILURE: assets-and-code SUCCESS, Chromium browser-smoke SUCCESS, iOS WebKit browser-smoke timeout, PWA update tests failed due to stale hardcoded areg-v305-core assertion while release changed actual cache to v306. Logs confirm service worker v306 was controlling page; test expected old cache. Updated qa/pwa-update.test.mjs expected cache names to v306 (same assertions, not disabled).
+- Additional root cause for iOS Entertainment scrolling: prior V53 CSS sets touch-action:none !important on .toddler-section-screen:not(.magic-collection-mode) .section-games-grid, which overrode later less-specific pan-y rule. Appended create-only specificity override for .section-games-grid and .toddler-game-card to pan-y; global touchmove allowlist fix remains. Bumped CSS URL from v303 to v304 in index.html and SW precache so installed PWA gets new CSS. Do not change other games or clear user data.
+- Remaining: wait for full CI, diagnose WebKit browser-smoke timeout independently, merge only if appropriate; then verify Pages and request user device scroll confirmation.
+
+## 2026-11-07 — Entertainment touch scroll root cause and targeted correction (PENDING CI)
+- User supplied installed DotKiosk screenshot showing Entertainment title and first four cards updated, but vertical scroll does not respond. This is USER-REPORTED device evidence, not assistant device testing.
+- Confirmed app.js global document touchmove preventDefault excludes .section-scroll-content, overriding the Entertainment CSS overflow-y:auto/touch-action:pan-y. Focused release branch adds a return ONLY for touch events within #sectionScreen[data-section=create]:not([hidden]) .section-scroll-content; all other gesture protections remain unchanged. Commit 809f65e15ebaadeb1ec38f390424402f81dbe00a.
+- Keep scoped v306 cache version synchronization. Validate full audit/CI and Pages deploy before claiming DotKiosk updated. Rollback anchor main 0fe2cb7af769ebcb661ceb8d30a42959138c90a5. No stars or local storage changes.
+
+## 2026-11-07 — Scoped DotKiosk cache-refresh candidate (PENDING QA AND USER DEVICE ACCEPTANCE)
+- User explicitly requested another attempt to publish ONLY the previously approved ten Entertainment/Checkers changes to installed DotKiosk, after reading all handoffs and rules. Main commit 0fe2cb7af769ebcb661ceb8d30a42959138c90a5 already contains the selectively ported game changes; do NOT merge full trial or recopy gameplay.
+- New isolated release branch: `release/dotkiosk-v306-cache-refresh-20261107`, created from main 0fe2cb7. This branch changes only `index.html` app.js URL v305→v306, `app.js` service worker registration v305→v306, and `service-worker.js` core/runtime cache names and precached app.js v305→v306, plus these three handoff files. No gameplay, media, user data, stars, saved progress, audio, or cache-clearing code changed. Existing approved Battleship remains protected.
+- Hypothesis: stale PWA/DotKiosk cache because previous content commit retained v305; not yet proven root cause. Pre-release main/rollback anchor: 0fe2cb7af769ebcb661ceb8d30a42959138c90a5; previously user-confirmed Battleship baseline: 3ed4df55e3df4984fa917c2299ed5759336984c4.
+- REQUIRED NEXT: inspect focused branch diff; run CI/full audit and WebKit/browser checks, validate GitHub Pages deployment after merge, then request user's installed DotKiosk confirmation. Do not claim main is deployed or device refreshed before evidence. Never reset app storage or reinstall PWA.
+
 ## 2026-10-30 — ԱՆԽԱԽՏԵԼԻ ԱՇԽԱՏԱԿԱՐԳ․ AREG TEST → հաստատում → հիմնական DotKiosk (READ FIRST)
 
 **Օգտատիրոջ հստակ հրահանգը.** Յուրաքանչյուր նոր զրույցում ինքնուրույն շարունակել այս հաստատված գործընթացը։ Արգելվում է կամայական փոփոխություն, փորձնական ամբողջ ճյուղի տեղափոխում production, կամ առանց GitHub/Render-ը ստուգելու ասել «չգիտեմ՝ ինչպես թարմացնել AREG TEST-ը»։ Եթե գործիքներն իսկապես անհասանելի են, հստակ հայտնել խոչընդոտը, չձևացնել հաջողություն։

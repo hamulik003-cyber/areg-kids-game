@@ -105,6 +105,8 @@ jobs:
   ios-pwa-music:
     needs: assets-and-code
     runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -112,6 +114,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
-      - run: npx playwright install --with-deps webkit
+      # The pinned Playwright container already includes WebKit and its native libraries.
+      # No slow apt install or missing host libraries; retain the full PWA/music test.
       - name: Verify offline PWA update and saved custom music on WebKit
         run: AREG_BROWSER=webkit node qa/pwa-update.test.mjs
