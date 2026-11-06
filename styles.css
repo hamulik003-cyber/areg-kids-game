@@ -3729,3 +3729,58 @@ html[data-theme^="photo-user-"] .section-dim{
  72%{opacity:.62}
  96%,100%{opacity:0;transform:translate3d(var(--cx),var(--cy),0) scale(.7)}
 }
+
+/* Fixed entertainment header: scroll only the separate hero + game cards wrapper. */
+#sectionScreen .section-scroll-content{display:contents}
+#sectionScreen[data-section="create"] .toddler-section-shell{
+ display:flex !important;flex-direction:column !important;
+ overflow:hidden !important;touch-action:pan-y !important;
+}
+#sectionScreen[data-section="create"] .toddler-topbar{
+ position:relative !important;top:auto !important;
+ flex:0 0 auto !important;z-index:20 !important;
+ margin-bottom:0 !important;touch-action:none !important;
+}
+#sectionScreen[data-section="create"] .section-scroll-content{
+ display:flex !important;flex:1 1 auto !important;min-height:0 !important;
+ flex-direction:column !important;gap:18px !important;
+ overflow-y:auto !important;overflow-x:hidden !important;
+ -webkit-overflow-scrolling:touch !important;
+ overscroll-behavior-y:contain !important;
+ touch-action:pan-y !important;
+ padding:2px 2px max(28px,env(safe-area-inset-bottom,0px)) !important;
+}
+#sectionScreen[data-section="create"] .section-hero-card{
+ flex:0 0 min(32vh,305px) !important;
+ height:min(32vh,305px) !important;
+ min-height:210px !important;margin-bottom:0 !important;
+}
+.toddler-section-screen#sectionScreen[data-section="create"] .section-games-grid{
+ flex:0 0 auto !important;overflow:visible !important;
+ grid-auto-rows:220px !important;grid-template-rows:none !important;
+ touch-action:pan-y !important;padding-bottom:4px !important;
+}
+
+/* Entertainment: let scrolling content reach the screen bottom; hide iOS scroll indicator. */
+#sectionScreen[data-section="create"] .toddler-section-shell{
+ padding-bottom:0 !important;
+}
+#sectionScreen[data-section="create"] .section-scroll-content{
+ scrollbar-width:none !important;
+ -ms-overflow-style:none !important;
+ padding-bottom:max(24px,env(safe-area-inset-bottom,0px)) !important;
+}
+#sectionScreen[data-section="create"] .section-scroll-content::-webkit-scrollbar{
+ display:none !important;width:0 !important;height:0 !important;
+}
+
+/* Entertainment only: remove the broad overlapping blur, keeping each tile's short base shadow. */
+#sectionScreen[data-section="create"] .section-hero-card{
+  box-shadow:0 9px 0 rgba(131,71,33,.7);
+}
+#sectionScreen[data-section="create"] .toddler-game-card{
+  box-shadow:0 7px 0 #a9652f,inset 0 3px 0 rgba(255,248,226,.94),inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
+#sectionScreen[data-section="create"] .toddler-game-card:active{
+  box-shadow:0 4px 0 #a9652f,inset 0 3px 0 rgba(255,248,226,.94),inset 0 -2px 0 rgba(151,83,31,.20) !important;
+}
