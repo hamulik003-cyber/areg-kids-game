@@ -524,6 +524,7 @@
   document.addEventListener('dragstart',e=>e.preventDefault());
   document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
   document.addEventListener('touchmove',e=>{
+    if(document.querySelector('#sectionScreen[data-section="create"]:not([hidden])') && e.target.closest('#sectionScreen .section-scroll-content'))return;
     if(!e.target.closest('.settings-panel,.avatar-panel,#cropPreview,.activity-content,.magic-collection-grid,input[type="range"],canvas'))e.preventDefault();
   },{passive:false});
 
