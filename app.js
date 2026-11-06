@@ -3859,7 +3859,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Ծովամարտ';
-    frame.src='./areg-sea-battle.html?v=1&parentMusic=1&testv='+Date.now();
+    frame.src='./areg-sea-battle.html?v=307&parentMusic=1&testv='+Date.now();
     frame.setAttribute('loading','eager');
     activityScreen.classList.add('areg-car-wash-mode');
     activityContent.append(frame);
@@ -3998,7 +3998,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=306',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=307',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
