@@ -1026,3 +1026,13 @@ Await GitHub Pages + automated browsers for V259, then user DotKiosk visual/audi
 - V287 PR browser QA: static + Chromium PASS; iOS WebKit passed full game browser smoke, then headless Playwright pointer click hung waiting on the rendered `#savedMusicButton` in existing V285 audio regression. QA-only change uses visible/enabled DOM click in WebKit, keeps actual Playwright pointer click in Chromium. Production music/runtime unaffected. Recheck new exact SHA all jobs before merge.
 
 - V287 iOS WebKit QA correction: run 38046333281 passed all 17 game routes, passed synthetic WAV Files upload, IndexedDB persistence, user sliders, star wallet and browser smoke; offline CACHE read check falsely expected obsolete `styles.css?v=282` despite V287 SW explicitly precaching baseline CSS `v=285` and game-specific CSS `v=287`. Updated test to verify BOTH correct actual cached URLs and still fail if unavailable. NO application/game/image modifications in this QA-only correction. Repeat full audit before merge.
+
+
+## 2026-11-06 — Selective DotKiosk transfer staging (PR #127; NOT YET MAIN)
+
+- User explicitly approved transferring only 10 selected changes from AREG TEST; never merge the full trial branch.
+- Created `staging/approved-ten-dotkiosk-20261106` from production main `0e5965b3` as rollback baseline.
+- Staged: home Create -> Ժամանց; inner Ստեղծագործություն -> Ժամանց; fixed-header Entertainment scroll; scoped card shadow correction; Նկարչություն and Երաժշտություն labels; approved Checkers HTML, artwork, five audio files, app routing and music bridge; Secret Paths picker horizontal wood grain only.
+- Battleship ambient RGB changes were already in main `0e5965b3` and intentionally were not recopied.
+- No unrelated AREG TEST games, traffic-light work, experimental adventure mechanics, or whole trial app copied.
+- Before merge: run Full Game Audit (mobile-browser, ios-pwa-music, ios-webkit), confirm no regressions; main/DotKiosk unchanged until audit passes.

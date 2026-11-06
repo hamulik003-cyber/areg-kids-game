@@ -40,7 +40,8 @@ for(const section of ['nature','space','mind','create','magic']){
  const p=sectionSource.match(new RegExp('\\n    '+section+':\\{([\\s\\S]*?)(?=\\n    [a-z]+:\\{|$)'));
  check(!!p,'missing section '+section);if(!p)continue;
  const cards=[...p[1].matchAll(/\{id:'([^']+)',label:'([^']+)',thumb:'([^']+)',kind:'([^']+)'/g)];
- games+=cards.length;check(cards.length===4,section+' expected 4 games');
+ games+=cards.length;const expected=section==='create'?5:4;
+ check(cards.length===expected,section+' expected '+expected+' games');
  for(const m of cards){total++;check(has(m[3]),'missing '+section+' icon '+m[3])}
  console.log('PASS section '+section+' '+cards.length+' entries');
 }
