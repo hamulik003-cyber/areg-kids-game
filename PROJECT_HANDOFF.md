@@ -1,3 +1,9 @@
+## 2026-11-07 — Scoped DotKiosk cache-refresh candidate (PENDING QA AND USER DEVICE ACCEPTANCE)
+- User explicitly requested another attempt to publish ONLY the previously approved ten Entertainment/Checkers changes to installed DotKiosk, after reading all handoffs and rules. Main commit 0fe2cb7af769ebcb661ceb8d30a42959138c90a5 already contains the selectively ported game changes; do NOT merge full trial or recopy gameplay.
+- New isolated release branch: `release/dotkiosk-v306-cache-refresh-20261107`, created from main 0fe2cb7. This branch changes only `index.html` app.js URL v305→v306, `app.js` service worker registration v305→v306, and `service-worker.js` core/runtime cache names and precached app.js v305→v306, plus these three handoff files. No gameplay, media, user data, stars, saved progress, audio, or cache-clearing code changed. Existing approved Battleship remains protected.
+- Hypothesis: stale PWA/DotKiosk cache because previous content commit retained v305; not yet proven root cause. Pre-release main/rollback anchor: 0fe2cb7af769ebcb661ceb8d30a42959138c90a5; previously user-confirmed Battleship baseline: 3ed4df55e3df4984fa917c2299ed5759336984c4.
+- REQUIRED NEXT: inspect focused branch diff; run CI/full audit and WebKit/browser checks, validate GitHub Pages deployment after merge, then request user's installed DotKiosk confirmation. Do not claim main is deployed or device refreshed before evidence. Never reset app storage or reinstall PWA.
+
 ## 2026-10-30 — ԱՆԽԱԽՏԵԼԻ ԱՇԽԱՏԱԿԱՐԳ․ AREG TEST → հաստատում → հիմնական DotKiosk (READ FIRST)
 
 **Օգտատիրոջ հստակ հրահանգը.** Յուրաքանչյուր նոր զրույցում ինքնուրույն շարունակել այս հաստատված գործընթացը։ Արգելվում է կամայական փոփոխություն, փորձնական ամբողջ ճյուղի տեղափոխում production, կամ առանց GitHub/Render-ը ստուգելու ասել «չգիտեմ՝ ինչպես թարմացնել AREG TEST-ը»։ Եթե գործիքներն իսկապես անհասանելի են, հստակ հայտնել խոչընդոտը, չձևացնել հաջողություն։
