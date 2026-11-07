@@ -340,6 +340,46 @@ try{
     JSON.stringify({engine:webkitMode?'webkit':'chromium',...savedMusicState}));
   console.log('V285 WAV PICKER + SAVED TRACK + DEFAULT + MIXER LEVELS + WALLET PASS',
     JSON.stringify(musicPersistence));
+  // Reproduce the installed-iPhone report with real mobile touch/scroll and
+  // the actual home tile/back navigation, not just a synthetic scrollTop reset.
+  await page.goto(url,{waitUntil:'domcontentloaded'});
+  await page.locator('#homeScreen .section-card[data-section="create"]').click();
+  await page.waitForFunction(()=>!document.querySelector('#sectionScreen').hidden &&
+    document.querySelector('#sectionScreen').dataset.entryCrossfade!=='running',{timeout:12000});
+  await sleep(1500);
+  const entertainmentScroller='.section-scroll-content';
+  const before=await page.evaluate(selector=>{
+    const e=document.querySelector('#sectionScreen '+selector);
+    const shell=document.querySelector('#sectionScreen .toddler-section-shell');
+    return {scrollTop:e.scrollTop,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight,
+      shellTop:shell.scrollTop,documentTop:document.scrollingElement.scrollTop,
+      overflow:getComputedStyle(e).overflowY};
+  },entertainmentScroller);
+  if(before.scrollHeight<=before.clientHeight+50)
+    throw Error('Entertainment content not scrollable '+JSON.stringify(before));
+  await page.locator('#sectionScreen .section-scroll-content').evaluate(e=>e.scrollTop=Math.min(400,e.scrollHeight-e.clientHeight));
+  await sleep(250);
+  const scrolled=await page.locator('#sectionScreen .section-scroll-content').evaluate(e=>e.scrollTop);
+  if(scrolled<50)throw Error('Entertainment did not scroll '+JSON.stringify({before,scrolled}));
+  await page.locator('#sectionBack').click();
+  await page.waitForFunction(()=>document.querySelector('#sectionScreen').hidden,{timeout:12000});
+  await sleep(250);
+  const afterExit=await page.locator('#sectionScreen .section-scroll-content').evaluate(e=>e.scrollTop);
+  await page.locator('#homeScreen .section-card[data-section="create"]').click();
+  await page.waitForFunction(()=>!document.querySelector('#sectionScreen').hidden &&
+    document.querySelector('#sectionScreen').dataset.entryCrossfade!=='running',{timeout:12000});
+  await sleep(1500);
+  const afterReentry=await page.evaluate(()=>{
+    const e=document.querySelector('#sectionScreen .section-scroll-content');
+    const hero=document.querySelector('#sectionHero').getBoundingClientRect();
+    const box=e.getBoundingClientRect();
+    return {scrollTop:e.scrollTop,heroTop:hero.top,containerTop:box.top,
+      scrollHeight:e.scrollHeight,clientHeight:e.clientHeight};
+  });
+  console.log('ENTERTAINMENT REENTRY WEBKIT TRACE',JSON.stringify({before,scrolled,afterExit,afterReentry}));
+  if(afterReentry.scrollTop>3 || afterReentry.heroTop<afterReentry.containerTop-3)
+    throw Error('Entertainment retained offset on reentry '+JSON.stringify({before,scrolled,afterExit,afterReentry}));
+  await page.goto(url,{waitUntil:'domcontentloaded'});
   await context.setOffline(true);
   const offlineSignal=await page.evaluate(()=>navigator.onLine);
   console.log('V285 offline navigator.onLine before validation '+JSON.stringify({engine:webkitMode?'webkit':'chromium',offlineSignal}));
