@@ -1472,15 +1472,27 @@
   function closeSection(){
     if(reversePortalActive){finishReversePortalNow?.();return;}
     if(sectionScreen.hidden)return;
+    // The outgoing Entertainment scroller can retain iOS momentum even while
+    // hidden. Freeze its scrolling immediately; reset only after the exit.
+    const entertainmentExit=currentSection==='create';
+    const entertainmentScroller=entertainmentExit?sectionScreen.querySelector('.section-scroll-content'):null;
+    if(entertainmentScroller)entertainmentScroller.style.setProperty('overflow-y','hidden','important');
+    const finishEntertainmentExit=()=>{
+      if(!entertainmentScroller)return;
+      entertainmentScroller.scrollTop=0;
+      entertainmentScroller.style.removeProperty('overflow-y');
+      requestAnimationFrame(()=>{if(sectionScreen.hidden)entertainmentScroller.scrollTop=0;});
+    };
     if(interruptHomeEntry)interruptHomeEntry();
     ++galleryNavigationId;
     const card=$('.section-card[data-section="'+currentSection+'"]');
     if(reversePortal(sectionScreen,homeScreen,card,()=>{
       document.body.classList.remove('magic-scroll-active');
+      finishEntertainmentExit();
     }))return;
     document.body.classList.remove('magic-scroll-active');
     sectionScreen.classList.remove('is-visible');
-    setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible'},180)
+    setTimeout(()=>{sectionScreen.hidden=true;homeScreen.style.visibility='visible';finishEntertainmentExit()},180)
   }
   // V288 inner game-card pilot: same 1040ms continuously moving/fading
   // card and 1100ms stationary two-screen dissolve as the five home tiles.
@@ -4009,7 +4021,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=309',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=310',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
