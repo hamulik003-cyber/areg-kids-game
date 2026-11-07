@@ -1,3 +1,7 @@
+## 2026-11-07 — Entertainment reentry scroll restoration WebKit fix v309 (pending CI)
+- User screen recording confirms prior v308 reset did not solve retained scroll after home→Entertainment reentry. Root cause hypothesis: reset executed before `sectionGames.innerHTML=''` and card rebuild; WebKit scroll anchoring restores prior offset during DOM/layout changes. No user-device proof yet.
+- Scoped branch resets Entertainment scroll after card rebuild and at section reveal (including after unhide), disables `overflow-anchor` ONLY on Entertainment scroll container, versions JS/CSS/SW precache v309 and matching PWA QA. Does not alter other sections, games, stars, audio, saved data, or scroll behavior inside games. Rollback anchor main 7938f0e02dcf77145dd19d2acfee9cb0bb736b20. Require full CI and user DotKiosk confirmation.
+
 ## 2026-11-07 — Entertainment scroll reset on fresh entry (pending CI/device)
 - User screenshot: after scrolling Entertainment down, leaving to home and entering Entertainment again, scroll offset persists and hero is clipped. Explicitly requested a production-only targeted fix.
 - Isolated branch from approved main 85d27f0. In `openSection('create')`, reset ONLY `.section-scroll-content.scrollTop=0` before reveal. Other sections, return from an individual game, cards, stars, audio, transitions untouched.
