@@ -17,7 +17,7 @@
   window.__AREG_LIVE_TEST__=true;
   if('serviceWorker' in navigator){
     addEventListener('load',()=>{
-      navigator.serviceWorker.register('./service-worker.js?v=309',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+      navigator.serviceWorker.register('./service-worker.js?v=310',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
     });
   }
   (() => {
@@ -49,7 +49,7 @@
   <script>
     (() => {
       const v=encodeURIComponent(new URLSearchParams(location.search).get('testv')||'initial');
-      ['styles.css?v=299','space-3d-games.css?v=287'].forEach(file=>{
+      ['styles.css?v=310','space-3d-games.css?v=287'].forEach(file=>{
         const link=document.createElement('link');
         link.rel='stylesheet';
         link.href=file+'&testv='+v;
@@ -243,7 +243,7 @@
       traffic.async=false;
       document.body.append(traffic);
       const script=document.createElement('script');
-      script.src='app.js?v=309&testv='+v;
+      script.src='app.js?v=310&testv='+v;
       script.async=false;
       document.body.append(script);
     })();
