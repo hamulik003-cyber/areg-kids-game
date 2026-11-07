@@ -3742,6 +3742,7 @@ html[data-theme^="photo-user-"] .section-dim{
  margin-bottom:0 !important;touch-action:none !important;
 }
 #sectionScreen[data-section="create"] .section-scroll-content{
+ overflow-anchor:none !important;
  display:flex !important;flex:1 1 auto !important;min-height:0 !important;
  flex-direction:column !important;gap:18px !important;
  overflow-y:auto !important;overflow-x:hidden !important;
