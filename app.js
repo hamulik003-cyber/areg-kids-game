@@ -3895,7 +3895,7 @@
     const frame=document.createElement('iframe');
     frame.className='mind-v4-frame';
     frame.title='Բառերի մենամարտ — փորձնական';
-    frame.src='./word-duel-prototype.html?v=20';
+    frame.src='./word-duel-prototype.html?v=21';
     frame.setAttribute('loading','eager');
     frame.setAttribute('allow','fullscreen');
     activityScreen.classList.add('areg-car-wash-mode','word-duel-mode');
