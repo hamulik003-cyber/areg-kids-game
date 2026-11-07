@@ -1,3 +1,6 @@
+## 2026-11-07 — Diagnostic WebKit Entertainment scroll reentry regression PR #135
+- User reports v310 production still preserves Entertainment scroll on return from home. No further production changes authorized or made. Added real mobile WebKit/Chromium navigation/scroll/exit/reentry assertions to qa/pwa-update.test.mjs on isolated diagnostic branch. CI #914 stopped at handoff guard because both journals were not updated; this note corrects process and allows browser jobs to run. Outcome pending; do not claim root cause until measured.
+
 ## 2026-11-07 — Entertainment scroll reset on EXIT v310 (pending CI and user device)
 - User confirms v309 still fails on installed DotKiosk. Earlier v308/v309 only reset on ENTRY; iOS inertial scrolling can survive screen transition. New focused change freezes only Entertainment's scroll container at exit, resets scrollTop after reverse-portal completion (and after fallback exit), restores scrolling and verifies reset on next animation frame when hidden. Existing entry resets retained. Other sections, gameplay, audio, saved state, animations untouched. PWA v310 cache/script/QA sync. Rollback main 0ca4d06ee42e9e127957dc4618ef06f635cc3ed1. Not yet device-proven.
 
