@@ -462,7 +462,8 @@
         {id:'sea-battle',label:'Ծովամարտ',thumb:'create-game-4.jpg',kind:'seaBattle'},
         {id:'blocks',label:'Գաղտնի ուղիներ',thumb:'create-game-4.jpg',kind:'blocks'},
         {id:'traffic-light',label:'Լուսացույց',thumb:'create-game-3.jpg',kind:'trafficLight'},
-        {id:'checkers',label:'Շաշկի',thumb:'create-game-4.jpg',kind:'checkers'}
+        {id:'checkers',label:'Շաշկի',thumb:'create-game-4.jpg',kind:'checkers'},
+        {id:'word-duel',label:'Բառերի մենամարտ',thumb:'create-game-4.jpg',kind:'wordDuel'}
       ]
     },
     magic:{
@@ -1770,7 +1771,7 @@
   }
   function renderGame(g){
     menuMusic.pause();
-    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,colorBlast:gameColorBlast,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,drawColor:gameDrawColor,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,seaBattle:gameSeaBattle,checkers:gameCheckers,trafficLight:()=>window.AregTrafficLight(surface,gameCleanup,reward),connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
+    const map={animalGallery:gameAnimalGallery,birdGallery:gameBirdGallery,seaGallery:gameSeaGallery,insects:gameInsectGallery,planetGallery:gamePlanetGallery,constellationGallery:gameConstellationGallery,spaceSearch:()=>launchSpace3D('spaceSearch'),constellationQuest:launchConstellationQuest,shadow:gameShadow,feed:gameFeed,hatch:gameHatch,garden:gameGarden,rocket:gameRocket,orbits:gameOrbits,catch:gameCatch,landing:gameLanding,mindShapesV4:gameMindShapesV4,mindPairs:gameMindPairs,colorBlast:gameColorBlast,sort:gameSort,sizes:gameSizes,pattern:gameMindShadow3D,cups:gameCups,paint:gamePaint,drawColor:gameDrawColor,stickers:gameStickers,mix:gameMix,blocks:gameBlocks,seaBattle:gameSeaBattle,checkers:gameCheckers,wordDuel:gameWordDuel,trafficLight:()=>window.AregTrafficLight(surface,gameCleanup,reward),connect:gameConnect,wand:gameWand,potion:gamePotion,book:gameBook};
     (map[g.kind]||gameShadow)();
   }
 
@@ -3889,6 +3890,18 @@
       checkersMusic.pause();checkersMusicSet(null);
     }else if(data?.type==='areg-checkers-music-query')checkersMusicNotify();
   });
+  function gameWordDuel(){
+    activityContent.replaceChildren();
+    const frame=document.createElement('iframe');
+    frame.className='mind-v4-frame';
+    frame.title='Բառերի մենամարտ — փորձնական';
+    frame.src='./word-duel-prototype.html?v=4';
+    frame.setAttribute('loading','eager');
+    frame.setAttribute('allow','fullscreen');
+    activityScreen.classList.add('areg-car-wash-mode');
+    activityContent.append(frame);
+    gameCleanup.push(()=>{frame.remove();activityScreen.classList.remove('areg-car-wash-mode')});
+  }
   function gameCheckers(){
     activityContent.replaceChildren();
     const frame=document.createElement('iframe');
