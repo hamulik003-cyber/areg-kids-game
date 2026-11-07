@@ -915,11 +915,13 @@
   function openSection(id, beforeReveal, cinematicEntry=false){
     currentSection=id;const s=SECTIONS[id];if(!s)return;
     sectionScreen.dataset.section=id;sectionTitle.textContent=s.title;sectionHero.src=s.hero;sectionBackdrop.src=s.backdrop;
-    // Each new Entertainment entry starts at its original top position.
-    if(id==='create'){
+    // Reset after card rebuild and again at reveal: WebKit scroll anchoring can
+    // restore the previous offset if reset happens before innerHTML changes.
+    const resetEntertainmentScroll=()=>{
+      if(id!=='create'||currentSection!=='create')return;
       const scrollContent=sectionScreen.querySelector('.section-scroll-content');
       if(scrollContent)scrollContent.scrollTop=0;
-    }
+    };
     updateStars();sectionGames.innerHTML='';
     sectionGames.classList.remove('magic-collection-grid');
     sectionScreen.classList.toggle('magic-collection-mode',id==='magic');
@@ -945,14 +947,17 @@
     }
     if(id==='nature')for(const k of ['animalGallery','birdGallery','seaGallery','insects'])warmGalleryPreviews(k,2);
     if(id==='space')for(const k of ['planetGallery','constellationGallery'])warmGalleryPreviews(k,2);
+    resetEntertainmentScroll();
     const nav=++galleryNavigationId;
     const revealSection=()=>{
+      resetEntertainmentScroll();
       if(nav!==galleryNavigationId||currentSection!==id)return;
       if(cinematicEntry){
         // V288: same approved Nature-look portal reveal for all 5 sections.
         // Keep the incoming page stationary and crossfade both full screens.
         // Inline important overrides legacy section transition !important.
         sectionScreen.hidden=false;
+        resetEntertainmentScroll();
         sectionScreen.dataset.entryCrossfade='running';
         sectionScreen.dataset.entrySection=id;
         sectionScreen.style.setProperty('transition','none','important');
@@ -1016,6 +1021,7 @@
         requestAnimationFrame(()=>{clearTimeout(fallback);startCrossfade()});
       }else{
         homeScreen.style.visibility='hidden';sectionScreen.hidden=false;
+        resetEntertainmentScroll();
         requestAnimationFrame(()=>{sectionScreen.classList.add('is-visible');if(id==='space'){fitSpaceConstellationsLabel();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSpaceConstellationsLabel);}});
       }
       // Load the 3D engine only after the Space menu has become visible.
@@ -4003,7 +4009,7 @@
   updateStars();
   if('serviceWorker'in navigator)addEventListener('load',async()=>{
     try{
-      const reg=await navigator.serviceWorker.register('./service-worker.js?v=308',{updateViaCache:'none'});
+      const reg=await navigator.serviceWorker.register('./service-worker.js?v=309',{updateViaCache:'none'});
       reg.update().catch(()=>{});
     }catch{}
   });
