@@ -7,7 +7,7 @@ const CORE=[
   './launcher.html',
   './constellation-quest-v246.js?v=287',
   './space-finding-session.js?v=285',
-  './styles.css?v=304',
+  './styles.css?v=309',
   './space-3d-games.css?v=287',
   './app.js?v=309',
   './areg-tower-3d.html',
