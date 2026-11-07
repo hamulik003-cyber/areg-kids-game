@@ -3898,9 +3898,9 @@
     frame.src='./word-duel-prototype.html?v=6';
     frame.setAttribute('loading','eager');
     frame.setAttribute('allow','fullscreen');
-    activityScreen.classList.add('areg-car-wash-mode');
+    activityScreen.classList.add('areg-car-wash-mode','word-duel-mode');
     activityContent.append(frame);
-    gameCleanup.push(()=>{frame.remove();activityScreen.classList.remove('areg-car-wash-mode')});
+    gameCleanup.push(()=>{frame.remove();activityScreen.classList.remove('areg-car-wash-mode','word-duel-mode')});
   }
   function gameCheckers(){
     activityContent.replaceChildren();
