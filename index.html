@@ -17,7 +17,7 @@
   window.__AREG_LIVE_TEST__=true;
   if('serviceWorker' in navigator){
     addEventListener('load',()=>{
-      navigator.serviceWorker.register('./service-worker.js?v=304',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
+      navigator.serviceWorker.register('./service-worker.js?v=307',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
     });
   }
   (() => {
@@ -243,7 +243,7 @@
       traffic.async=false;
       document.body.append(traffic);
       const script=document.createElement('script');
-      script.src='app.js?v=301&testv='+v;
+      script.src='app.js?v=307&testv='+v;
       script.async=false;
       document.body.append(script);
     })();
