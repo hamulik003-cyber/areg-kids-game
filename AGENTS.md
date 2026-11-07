@@ -1,3 +1,6 @@
+## 2026-11-07 — USER-APPROVED CURRENT PRODUCTION BASELINE: DotKiosk PWA v310
+- User explicitly confirmed on installed DotKiosk that Entertainment (Ժամանց) now reopens at its initial/top scroll position, and designated current production game as approved MAIN baseline. Application commit `585023e2fb6f16f4f92e3382a64a1b01498bdf4e` (PR #134, PWA v310); production CI #912 passed. Diagnostic PR #135 CI #916 passed but is NOT part of production baseline. User suspects delayed iPhone PWA cache activation; exact cause unproven. Preserve existing games, images, audio, animations, logic and PWA compatibility. Older baseline references are historical. This documentation-only change does NOT modify app or authorize future game changes. Pre-v310 rollback reference `0ca4d06ee42e9e127957dc4618ef06f635cc3ed1` (not approved replacement).
+
 ## 2026-10-30 — ԱՆԽԱԽՏԵԼԻ ԱՇԽԱՏԱԿԱՐԳ․ AREG TEST → հաստատում → հիմնական DotKiosk (READ FIRST)
 
 **Օգտատիրոջ հստակ հրահանգը.** Յուրաքանչյուր նոր զրույցում ինքնուրույն շարունակել այս հաստատված գործընթացը։ Արգելվում է կամայական փոփոխություն, փորձնական ամբողջ ճյուղի տեղափոխում production, կամ առանց GitHub/Render-ը ստուգելու ասել «չգիտեմ՝ ինչպես թարմացնել AREG TEST-ը»։ Եթե գործիքներն իսկապես անհասանելի են, հստակ հայտնել խոչընդոտը, չձևացնել հաջողություն։
