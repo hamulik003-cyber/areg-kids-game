@@ -116,25 +116,18 @@ function paintStones(point, count) {
   point.replaceChildren();
   const total = Math.abs(count);
   if (!total) return;
-  const compact = total > 5;
   const lower = point.dataset.row === "lower";
   const tokens = [];
-  // Crowded points use two files within the same hit area. Every checker stays visible.
+  // Keep every checker centered in a single full-size stack.
+  const diameter = 68;
+  const spacing = total <= 5 ? 59 : Math.min(44, (POINT_HEIGHT - diameter) / (total - 1));
   for (let i = 0; i < total; i++) {
     const stone = stoneImage(count < 0 ? 1 : 0);
-    const offset = compact ? (i % 2 === 0 ? -18 : 18) : 0;
-    const inward = compact ? 30 + Math.floor(i / 2) * 37 : 35 + i * 63;
-    stone.style.width = (compact ? 32 : 60) / POINT_WIDTH * 100 + "%";
-    stone.style.left = (POINT_WIDTH / 2 + offset) / POINT_WIDTH * 100 + "%";
+    const inward = diameter / 2 + i * spacing;
+    stone.style.width = diameter / POINT_WIDTH * 100 + "%";
+    stone.style.left = "50%";
     stone.style.top = (lower ? POINT_HEIGHT - inward : inward) / POINT_HEIGHT * 100 + "%";
     tokens.push(stone);
-  }
-  if (compact) {
-    const countLabel = document.createElement("span");
-    countLabel.className = "stack-size";
-    countLabel.textContent = total;
-    countLabel.setAttribute("aria-hidden", "true");
-    tokens.push(countLabel);
   }
   point.append(...tokens);
 }
