@@ -382,3 +382,16 @@ restartDialog.addEventListener("close", () => {
 });
 board.addEventListener("contextmenu", (event) => event.preventDefault());
 render();
+
+// Reveal the entire playing board at once, with stones already positioned.
+// Do not animate the initial render; in-game checker/dice animations remain intact.
+const revealNardiBoard = () => document.documentElement.classList.remove("nardi-loading");
+const initialArt = [...board.querySelectorAll("img"), ...document.querySelectorAll(".stone")];
+const artReady = Promise.all(initialArt.map((img) => {
+  if (img.complete) return Promise.resolve();
+  return new Promise((resolve) => {
+    img.addEventListener("load", resolve, { once: true });
+    img.addEventListener("error", resolve, { once: true });
+  });
+}));
+Promise.race([artReady, wait(1800)]).then(revealNardiBoard, revealNardiBoard);
