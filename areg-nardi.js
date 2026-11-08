@@ -191,17 +191,6 @@ function render() {
     const action = index === selected ? "selected" : targets.has(index) ? "target" : sources.has(index) ? "source" : "";
     point.dataset.action = action;
     point.classList.toggle("hint-movable", selected === null && allSources.has(index) && !busy());
-    // Pulse a separate overlay at the actual top checker, never the image itself.
-    point.querySelector(".source-pulse")?.remove();
-    if (point.classList.contains("hint-movable")) {
-      const topChecker = point.querySelector(".stone:last-of-type");
-      if (topChecker) {
-        const pulse = document.createElement("span");
-        pulse.className = "source-pulse";
-        pulse.style.top = topChecker.style.top;
-        point.append(pulse);
-      }
-    }
     point.querySelectorAll(".move-hint").forEach((hint) => hint.remove());
     if (action === "target") {
       const marker = document.createElement("span");
