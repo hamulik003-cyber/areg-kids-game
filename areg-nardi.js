@@ -347,22 +347,24 @@ function choosePoint(point) {
   }
 }
 
-// The visible fifteen-checker stack extends beyond its point button. Allow a tap
-// on ANY visible checker to select that point, not only the bottom six.
-byId("points").addEventListener("click", (event) => {
+// Checkers extend beyond the small triangular point hitboxes. Capture taps at
+// the BOARD level, and resolve them against the actual on-screen checker images.
+board.addEventListener("click", (event) => {
   if (busy() || game.phase !== "move") return;
   const x = event.clientX, y = event.clientY;
-  const sourcePoints = new Set(eligibleMoves().map((move) => move.from));
-  // Prioritize visible checkers over transparent overlapping point hitboxes.
-  for (const index of sourcePoints) {
+  const sources = new Set(eligibleMoves().map((move) => move.from));
+  for (const index of sources) {
     const stones = pointButtons[index].querySelectorAll(".stone");
     for (let i = stones.length - 1; i >= 0; i--) {
       const rect = stones[i].getBoundingClientRect();
-      if (x >= rect.left && x <= rect.right && y >= rect.top &&
-          y <= rect.bottom) {
-        if (event.target.closest(".point")?.dataset.point === String(index)) return;
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        // Always select the checker stack, even if the transparent hitbox
+        // underneath belongs to a neighboring triangle.
+        event.preventDefault();
         event.stopPropagation();
-        choosePoint(index);
+        event.stopImmediatePropagation();
+        selected = index;
+        render();
         return;
       }
     }
