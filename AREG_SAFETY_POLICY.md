@@ -22,3 +22,10 @@ Scope: isolated branch `safety/areg-audit-pilot-20261109` only. Do not merge to 
 
 ## Reporting
 Every report should distinguish: passed checks, failed checks, untested areas, and whether any production files were touched. Do not claim automatic ChatGPT notifications are configured until a separate monitoring automation is confirmed.
+
+## Future-game onboarding (pilot)
+- `tests/areg-future-games.test.mjs` discovers `areg-*.html` entry points referenced in `app.js`, including newly added games. No registration step is required for this limited static check.
+- It checks the existence and basic HTML/viewport structure of present pages. A removed/retired page still mentioned in legacy code is only a diagnostic, not a blocking failure.
+- New games implemented under other filenames or loaded dynamically without a literal `areg-*.html` reference are **not** automatically discovered.
+- Game-specific rules, multiplayer state, responsive screenshots, and iOS home-screen PWA behavior require separately approved tests and device/browser validation.
+- Once this pilot is verified, propose an explicit active-game registry to distinguish live games from historical references; do not change `app.js` to add such a registry without approval.
