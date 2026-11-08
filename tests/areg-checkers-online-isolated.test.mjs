@@ -10,7 +10,7 @@ const open = source.indexOf('{',match.index);
 let depth=0,end=-1;
 for(let i=open;i<source.length;i++){
   if(source[i]==='{') depth++;
-  if(source[i]==='}' && --depth===0){end=i+1;break;}
+  if(source[i]==='}') { depth--; if(depth===0){end=i+1;break;} }
 }
 assert.ok(end>open,'Checkers online handler must be complete');
 const code=source.slice(match.index,end);
