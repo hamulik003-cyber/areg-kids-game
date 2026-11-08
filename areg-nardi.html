@@ -78,44 +78,33 @@
   <noscript>Նարդին խաղալու համար միացրու JavaScript-ը։</noscript>
 
 <script>
-/* Same independent drifting/fading/respawning approach as Checkers. */
-(()=> {
+/* Decorative particles live in an isolated, non-interactive layer.
+   CSS compositor handles movement; no per-frame JS layout/paint of game pieces. */
+(()=>{
  const field=document.querySelector('.nardi-ambient');
  if(!field||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
- const symbols=['✦','✧','❖','✶','✥','✦','✧','❈'];
+ const palette=['#f8d18b','#d5f5ee','#9dd9e9','#f7e6c3','#8fddcf','#f4bd77'];
+ const glyphs=['✦','✧','❖','✶','✥'];
  const rnd=(a,b)=>a+Math.random()*(b-a);
- const pieces=Array.from({length:28},(_,i)=>{
+ const fragment=document.createDocumentFragment();
+ for(let i=0;i<54;i++){
+  const dot=i>=12;
   const el=document.createElement('span');
-  const tiny=i>=12;
-  el.textContent=tiny?'✦':symbols[i%symbols.length];
-  const size=tiny?rnd(3,8):rnd(13,27);
-  el.style.fontSize=size+'px';field.appendChild(el);
-  return {el,size,x:0,y:0,vx:0,vy:0,born:0,life:rnd(12000,23000),maxAlpha:tiny?rnd(.2,.5):rnd(.13,.32)};
- });
- function spawn(p,now,initial){
-  const w=field.clientWidth,h=field.clientHeight;
-  p.x=rnd(16,Math.max(17,w-16));p.y=rnd(16,Math.max(17,h-16));
-  p.vx=rnd(-8,8);p.vy=rnd(-11,-3);
-  p.born=now-(initial?rnd(0,p.life):0);
+  el.className=dot?'ambient-cell':'ambient-glyph';
+  if(!dot)el.textContent=glyphs[i%glyphs.length];
+  const size=dot?rnd(2,7):rnd(10,22);
+  el.style.setProperty('--particle-size',size.toFixed(1)+'px');
+  el.style.setProperty('--particle-color',palette[i%palette.length]);
+  el.style.setProperty('--particle-alpha',(dot?rnd(.18,.5):rnd(.12,.28)).toFixed(2));
+  el.style.setProperty('--drift-x',rnd(-23,23).toFixed(1)+'px');
+  el.style.setProperty('--drift-y',rnd(-46,-14).toFixed(1)+'px');
+  el.style.left=rnd(3,96).toFixed(2)+'%';
+  el.style.top=rnd(3,96).toFixed(2)+'%';
+  el.style.animationDuration=rnd(12,23).toFixed(2)+'s';
+  el.style.animationDelay=(-rnd(0,22)).toFixed(2)+'s';
+  fragment.appendChild(el);
  }
- pieces.forEach(p=>spawn(p,performance.now(),true));
- let prev=0,raf=0;
- function frame(now){
-  const dt=Math.min(.04,(now-prev)/1000||0);prev=now;
-  const w=field.clientWidth,h=field.clientHeight;
-  for(const p of pieces){
-   let age=now-p.born;
-   if(age>p.life||p.x<0||p.x>w||p.y<0||p.y>h){spawn(p,now,false);age=0}
-   p.x+=p.vx*dt;p.y+=p.vy*dt;
-   const fade=Math.pow(Math.sin(Math.PI*age/p.life),1.4);
-   p.el.style.opacity=(p.maxAlpha*fade).toFixed(3);
-   p.el.style.transform='translate3d('+p.x.toFixed(1)+'px,'+p.y.toFixed(1)+'px,0) rotate('+(age*.003).toFixed(1)+'deg)';
-  }
-  raf=requestAnimationFrame(frame);
- }
- raf=requestAnimationFrame(frame);
- document.addEventListener('visibilitychange',()=>{prev=performance.now()});
- window.addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
+ field.appendChild(fragment);
 })();
 </script>
   <script type="module" src="./areg-nardi.js?v=8"></script>
