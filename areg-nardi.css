@@ -424,3 +424,16 @@ html, body { background: #b9dced !important; }
 .nardi-ambient span { position:absolute; left:0; top:0; opacity:0; color:#ffe0a3; line-height:1; text-shadow:0 0 8px #ffd78b70; will-change:transform,opacity; }
 .game > .nardi-ambient { z-index:0; }
 @media (prefers-reduced-motion: reduce) { .nardi-ambient { display:none; } }
+
+/* Independent GPU-composited ambient. Gameplay board/stone layers stay static. */
+.nardi-ambient { isolation:isolate; contain:layout paint style; }
+.nardi-ambient span { position:absolute; display:block; color:var(--particle-color); opacity:0; pointer-events:none; transform:translate3d(0,0,0); animation:nardi-particle-drift linear infinite; backface-visibility:hidden; }
+.nardi-ambient .ambient-glyph { width:var(--particle-size); height:var(--particle-size); font-size:var(--particle-size); text-shadow:0 0 5px currentColor; }
+.nardi-ambient .ambient-cell { width:var(--particle-size); height:var(--particle-size); border-radius:50%; background:radial-gradient(circle at 30% 28%,#ffffffdd 0%,var(--particle-color) 36%,transparent 80%); box-shadow:0 0 4px var(--particle-color); }
+@keyframes nardi-particle-drift {
+  0%,100% { opacity:0; transform:translate3d(0,0,0) scale(.75); }
+  18%,75% { opacity:var(--particle-alpha); }
+  90% { opacity:0; }
+  99.9% { transform:translate3d(var(--drift-x),var(--drift-y),0) scale(1.12); }
+}
+@media (prefers-reduced-motion:reduce){.nardi-ambient span{animation:none!important}}
