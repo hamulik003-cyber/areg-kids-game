@@ -24,15 +24,24 @@ const scoreMarks = [byId("score-light"), byId("score-dark")];
 const offCounts = [byId("off-light"), byId("off-dark")];
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-const diceFaces = [...dice.children].map((face) => {
-  const pips = Array.from({ length: 9 }, () => {
-    const pip = document.createElement("i");
-    pip.className = "pip";
-    return pip;
-  });
-  face.append(...pips);
-  return pips;
+// Six real CSS 3D faces per die; each face always carries its own fixed pips.
+const diceCubes = [...dice.children].map((die) => {
+  const cube = document.createElement("span");
+  cube.className = "die-cube";
+  for (const value of [1, 2, 3, 4, 5, 6]) {
+    const face = document.createElement("span");
+    face.className = "die-face die-face-" + value;
+    for (let slot = 0; slot < 9; slot++) {
+      const pip = document.createElement("i");
+      pip.className = "pip" + (FACES[value - 1].includes(slot) ? " on" : "");
+      face.append(pip);
+    }
+    cube.append(face);
+  }
+  die.replaceChildren(cube);
+  return cube;
 });
+const FACE_ROTATIONS = [[0,0],[0,-90],[90,0],[-90,0],[0,90],[0,180]];
 
 const pointButtons = Array.from({ length: 24 }, (_, index) => {
   const button = document.createElement("button");
@@ -137,9 +146,10 @@ function paintDice(values) {
   if (dice.hidden) return;
   dice.style.setProperty("--dice-x", game.phase === "opening" || game.player === 0 ? "73%" : "27%");
   dice.setAttribute("aria-label", "Զառեր՝ " + values.join(" և "));
-  diceFaces.forEach((pips, index) => {
-    const dots = FACES[values[index] - 1];
-    pips.forEach((pip, slot) => pip.classList.toggle("on", dots.includes(slot)));
+  diceCubes.forEach((cube, index) => {
+    const [rx, ry] = FACE_ROTATIONS[values[index] - 1];
+    cube.style.setProperty("--face-rx", rx + "deg");
+    cube.style.setProperty("--face-ry", ry + "deg");
   });
 }
 
@@ -283,7 +293,7 @@ async function roll() {
       rollPreview = [randomDie(), randomDie()];
       paintDice(rollPreview);
     }, 95);
-    await wait(1160);
+    await wait(1300);
     clearInterval(timer);
     rollPreview = null;
   }
