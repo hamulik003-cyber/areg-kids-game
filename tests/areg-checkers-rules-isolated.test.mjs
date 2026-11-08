@@ -13,7 +13,7 @@ function extract(name) {
   let depth = 0;
   for (let i = open; i < source.length; i++) {
     if (source[i] === '{') depth++;
-    if (source[i] === '}' && --depth === 0) return source.slice(start, i + 1);
+    if (source[i] === '}') { depth--; if (depth === 0) return source.slice(start, i + 1); }
   }
   throw new Error('Unbalanced rule: ' + name);
 }
