@@ -198,12 +198,8 @@ function render() {
     player.classList.toggle("active", game.phase !== "opening" && game.player === index);
     offCounts[index].textContent = game.off[index];
     const score = String(game.scores[index]);
-    scoreMarks[index].setAttribute("visibility", game.scores[index] ? "visible" : "hidden");
-    const number = scoreMarks[index].querySelector("text");
-    const size = score.length === 1 ? 157 : 154 / score.length;
-    number.setAttribute("style", "font-size:" + size + "px");
-    number.setAttribute("y", String(266 + size * .36));
-    number.textContent = score;
+    scoreMarks[index].textContent = score;
+    scoreMarks[index].style.fontSize = score.length === 1 ? "" : (Math.max(7, 18 / score.length) + "cqw");
   });
   byId("scoreboard").setAttribute("aria-label", "Հաշիվը՝ " + game.scores.join("–"));
   turnLabel.textContent = game.phase === "opening" ? "ԵՐԿԱՐ ՆԱՐԴԻ · 2 ԽԱՂԱՑՈՂ" :
