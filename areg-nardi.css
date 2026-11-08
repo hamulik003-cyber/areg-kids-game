@@ -605,3 +605,56 @@ html, body { background: #b9dced !important; }
   100% {opacity:1;transform:translate3d(0,0,0) rotateX(720deg) rotateY(360deg) rotateZ(calc(360deg + var(--rest,-7deg))) scale(1)}
 }
 @media(prefers-reduced-motion:reduce){.dice.rolling .die{animation:none!important}}
+
+/* Actual six-sided 3D dice: each visible side is physically positioned in 3D. */
+.dice { perspective:650px !important; overflow:visible; }
+.dice .die {
+  display:block; padding:0; border:0; background:none; box-shadow:none;
+  position:relative; width:clamp(24px,8.2vw,43px); aspect-ratio:1;
+  transform:none !important; overflow:visible;
+  --die-depth:calc(clamp(24px,8.2vw,43px) / 2);
+}
+.dice .die-cube {
+  display:block; position:absolute; inset:0;
+  transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
+  transform:rotateX(var(--face-rx,0deg)) rotateY(var(--face-ry,0deg)) rotateZ(var(--rest,-7deg));
+  will-change:transform;
+}
+.dice .die-face {
+  display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
+  place-items:center; position:absolute; inset:0;
+  padding:15%; border-radius:17%; border:1px solid #fff4d7;
+  background:linear-gradient(145deg,#fffef4 0%,#f8e4bd 66%,#d4a36c 100%);
+  box-shadow:inset -2px -2px 4px #98633d66,inset 1px 1px 2px #fff,0 1px 2px #321a1166;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+}
+.dice .die-face-1 {transform:translateZ(var(--die-depth))}
+.dice .die-face-6 {transform:rotateY(180deg) translateZ(var(--die-depth))}
+.dice .die-face-2 {transform:rotateY(90deg) translateZ(var(--die-depth))}
+.dice .die-face-5 {transform:rotateY(-90deg) translateZ(var(--die-depth))}
+.dice .die-face-3 {transform:rotateX(-90deg) translateZ(var(--die-depth))}
+.dice .die-face-4 {transform:rotateX(90deg) translateZ(var(--die-depth))}
+.dice .die-face .pip {width:64%; background:#502719; box-shadow:inset 0 1px 1px #24120c; }
+.dice.rolling .die {animation:none !important}
+.dice.rolling .die-cube {
+  animation:nardi-cube-roll 1250ms cubic-bezier(.18,.72,.28,1) both;
+}
+.dice.rolling .die:nth-child(2) .die-cube {animation-delay:70ms}
+@keyframes nardi-cube-roll {
+  0% {transform:translate3d(-75%,-160%,0) rotateX(20deg) rotateY(-45deg) rotateZ(-70deg) scale(.8)}
+  28% {transform:translate3d(-25%,-105%,0) rotateX(320deg) rotateY(260deg) rotateZ(110deg) scale(1.07)}
+  55% {transform:translate3d(8%,0,0) rotateX(630deg) rotateY(610deg) rotateZ(285deg) scale(.96)}
+  72% {transform:translate3d(-3%,-34%,0) rotateX(calc(720deg + var(--face-rx,0deg))) rotateY(calc(720deg + var(--face-ry,0deg))) rotateZ(calc(360deg + var(--rest,-7deg))) scale(1.02)}
+  88% {transform:translate3d(1%,0,0) rotateX(calc(720deg + var(--face-rx,0deg))) rotateY(calc(720deg + var(--face-ry,0deg))) rotateZ(calc(360deg + var(--rest,-7deg))) scale(.98)}
+  100% {transform:translate3d(0,0,0) rotateX(calc(720deg + var(--face-rx,0deg))) rotateY(calc(720deg + var(--face-ry,0deg))) rotateZ(calc(360deg + var(--rest,-7deg))) scale(1)}
+}
+.dice.rolling .die:nth-child(2) .die-cube {animation-name:nardi-cube-roll-second}
+@keyframes nardi-cube-roll-second {
+  0% {transform:translate3d(85%,-145%,0) rotateX(-65deg) rotateY(60deg) rotateZ(95deg) scale(.82)}
+  30% {transform:translate3d(34%,-115%,0) rotateX(-340deg) rotateY(-270deg) rotateZ(-120deg) scale(1.04)}
+  56% {transform:translate3d(-8%,0,0) rotateX(-650deg) rotateY(-625deg) rotateZ(-280deg) scale(.95)}
+  73% {transform:translate3d(3%,-27%,0) rotateX(calc(-720deg + var(--face-rx,0deg))) rotateY(calc(-720deg + var(--face-ry,0deg))) rotateZ(calc(-360deg + var(--rest,9deg))) scale(1.02)}
+  88% {transform:translate3d(-1%,0,0) rotateX(calc(-720deg + var(--face-rx,0deg))) rotateY(calc(-720deg + var(--face-ry,0deg))) rotateZ(calc(-360deg + var(--rest,9deg))) scale(.98)}
+  100% {transform:translate3d(0,0,0) rotateX(calc(-720deg + var(--face-rx,0deg))) rotateY(calc(-720deg + var(--face-ry,0deg))) rotateZ(calc(-360deg + var(--rest,9deg))) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){.dice.rolling .die-cube{animation:none!important}}
