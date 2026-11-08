@@ -555,7 +555,7 @@ html, body { background: #b9dced !important; }
   font-family:system-ui,-apple-system,"Noto Sans Armenian",sans-serif !important;
   font-size:clamp(59px,calc(10vw + 20px),75px) !important;
   font-weight:900 !important;
-  letter-spacing:5px !important;
+  letter-spacing:3px !important;
   line-height:1.05 !important;
   color:#f3c58c !important;
   -webkit-text-stroke:0 !important;
@@ -563,3 +563,18 @@ html, body { background: #b9dced !important; }
   bottom:calc(100% + 47px) !important;
   max-width:calc(100vw - 75px);
 }
+
+/* Independent non-synchronized gentle floating for each Armenian letter. */
+.nardi-page-title .nardi-letter {
+  display:inline-block;
+  position:relative;
+  animation:nardi-letter-drift var(--float-time) ease-in-out var(--float-delay) infinite alternate;
+  will-change:transform;
+}
+@keyframes nardi-letter-drift {
+  0% { transform:translate3d(0,var(--float-a),0); }
+  31% { transform:translate3d(0,var(--float-b),0); }
+  67% { transform:translate3d(0,var(--float-c),0); }
+  100% { transform:translate3d(0,var(--float-d),0); }
+}
+@media(prefers-reduced-motion:reduce){.nardi-page-title .nardi-letter{animation:none;transform:none}}
