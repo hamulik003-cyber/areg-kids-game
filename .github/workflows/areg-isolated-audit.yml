@@ -17,4 +17,4 @@ jobs:
       - name: Check Nardi rule module syntax
         run: node --check --input-type=module < areg-nardi-rules.js
       - name: Run isolated Nardi regression checks
-        run: node --test tests/areg-nardi-rules.test.mjs
+        run: node --experimental-default-type=module --test tests/areg-nardi-rules.test.mjs
