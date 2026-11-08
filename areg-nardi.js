@@ -193,11 +193,14 @@ function render() {
     point.classList.toggle("hint-movable", selected === null && allSources.has(index) && !busy());
     point.querySelectorAll(".move-hint").forEach((hint) => hint.remove());
     if (action === "target") {
-      const diceValues = [...new Set(moves.filter((move) => move.from === selected && move.to === index).map((move) => move.die))].sort((a,b) => a-b);
       const marker = document.createElement("span");
       marker.className = "move-hint";
-      marker.textContent = diceValues.join(" · ");
-      marker.setAttribute("aria-label", "Թույլատրելի քայլ՝ " + diceValues.join(" կամ ") + " զառով");
+      const total = Math.abs(count);
+      const spacing = total + 1 <= 5 ? 59 : 42;
+      const inward = 68 / 2 + total * spacing;
+      const lower = point.dataset.row === "lower";
+      marker.style.top = (lower ? POINT_HEIGHT - inward : inward) / POINT_HEIGHT * 100 + "%";
+      marker.setAttribute("aria-label", "Թույլատրելի տեղ՝ քարի համար");
       point.append(marker);
     }
     point.disabled = busy() || !action;
