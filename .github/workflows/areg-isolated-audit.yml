@@ -31,7 +31,11 @@ jobs:
 
   browser-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
     permissions:
       contents: read
     steps:
@@ -46,8 +50,8 @@ jobs:
           python-version: '3.12'
       - name: Install isolated browser test dependency
         run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browser engine
+        run: npx playwright install --with-deps ${{ matrix.engine }}
       - name: Start local read-only static server
         run: |
           python -m http.server 8765 --bind 127.0.0.1 > /tmp/areg-audit-http.log 2>&1 &
@@ -58,12 +62,14 @@ jobs:
           done
           cat /tmp/areg-audit-http.log
           exit 1
-      - name: Browser smoke test (mobile Chromium, no deployments)
+      - name: Browser smoke test (mobile emulation, no deployments)
+        env:
+          AREG_BROWSER_ENGINE: ${{ matrix.engine }}
         run: node tests/areg-browser-smoke.mjs
       - name: Explain browser audit limitations
         if: always()
         run: |
           echo "### AREG browser audit" >> "$GITHUB_STEP_SUMMARY"
-          echo "Checks page loading in mobile Chromium on a local static server." >> "$GITHUB_STEP_SUMMARY"
+          echo "Checks page loading in mobile Chromium and WebKit emulation on a local static server." >> "$GITHUB_STEP_SUMMARY"
           echo "Runtime errors and layout overflow are informational until approved baselines exist." >> "$GITHUB_STEP_SUMMARY"
           echo "This is not a real iPhone Safari or installed iOS PWA test." >> "$GITHUB_STEP_SUMMARY"
