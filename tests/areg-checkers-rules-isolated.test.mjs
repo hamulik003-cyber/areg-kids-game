@@ -84,3 +84,35 @@ test('checkers: a crowned king can slide multiple empty diagonal cells', () => {
   assert.ok(legal.some(m => m.from === 35 && m.to === 8 && m.cap === -1));
   assert.ok(legal.some(m => m.from === 35 && m.to === 62 && m.cap === -1));
 });
+
+test('checkers: chained captures remove both opponents without mutating the initial board', () => {
+  const original = board([42,1],[33,-1],[17,-1]);
+  const first = rules.maxCaptures(original,1).find(m => m.from === 42 && m.to === 24 && m.cap === 33);
+  assert.ok(first);
+  const afterFirst = rules.apply(original,first);
+  const continuation = rules.maxCaptures(afterFirst,1,24);
+  assert.ok(continuation.some(m => m.to === 10 && m.cap === 17));
+  const afterSecond = rules.apply(afterFirst,continuation.find(m => m.to === 10));
+  assert.equal(afterSecond[10],1);
+  assert.equal(afterSecond[33],0);
+  assert.equal(afterSecond[17],0);
+  assert.equal(afterSecond.filter(Boolean).length,1);
+  assert.equal(original[42],1);
+  assert.equal(original[33],-1);
+  assert.equal(original[17],-1);
+});
+
+test('checkers: chained capture is restricted to the same piece', () => {
+  const b = board([24,1],[17,-1],[46,1]);
+  const chained = rules.moves(b,1,24);
+  assert.ok(chained.length > 0);
+  assert.ok(chained.every(m => m.from === 24 && m.cap >= 0));
+});
+
+test('checkers: invalid move cannot change a board through pure rule calculation', () => {
+  const b = board([42,1],[33,-1]);
+  const legal = rules.moves(b,1);
+  assert.ok(legal.every(m => m.from !== 0));
+  assert.equal(b[0],0);
+  assert.equal(b[42],1);
+});
