@@ -452,13 +452,13 @@ html, body { background: #b9dced !important; }
   left:50%; top:var(--hint-stone-y,50%);
   width:calc(68 / 74 * 100%); aspect-ratio:1;
   border-radius:50%; border:0;
-  background:radial-gradient(circle,transparent 0 35%,#4aff9c38 60%,#3dffa725 76%,transparent 100%);
-  box-shadow:0 0 8px 2px #4dffac70,inset 0 0 7px #8bffd466;
+  background:radial-gradient(circle,transparent 0 29%,#7affc64d 47%,#26ffa84d 66%,transparent 95%);
+  box-shadow:0 0 9px 3px #34ffabae,0 0 18px 5px #27ff9b88,inset 0 0 11px 2px #9affd6b0;
   transform:translate3d(-50%,-50%,0);
   animation:nardi-soft-hint-breathe 2s ease-in-out infinite;
 }
 @keyframes nardi-soft-hint-breathe {
-  0%,100% { opacity:.34; }
-  50% { opacity:.92; }
+  0%,100% { opacity:.58; }
+  50% { opacity:1; }
 }
 @media(prefers-reduced-motion:reduce){.point.hint-movable::before{animation:none;opacity:.75}}
