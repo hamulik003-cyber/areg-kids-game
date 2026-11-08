@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#26150e">
   <title>Նարդի</title>
-  <link rel="stylesheet" href="./areg-nardi.css?v=23">
+  <link rel="stylesheet" href="./areg-nardi.css?v=24">
   <link rel="preload" as="image" href="./assets/nardi/board.png">
   <link rel="preload" as="image" href="./assets/nardi/ivory.png">
   <link rel="preload" as="image" href="./assets/nardi/dark.png">
 </head>
 <body>
-  <main class="game" aria-label="Երկար նարդի">
+  <main class="game" aria-label="Երկար նարդի">\n    <div class="nardi-ambient" aria-hidden="true"></div>
     <section class="score" aria-label="Խաղի հաշիվ">
       <div class="player" data-player="0">
         <img src="./assets/nardi/ivory.png" alt="" draggable="false">
@@ -76,6 +76,48 @@
   </dialog>
 
   <noscript>Նարդին խաղալու համար միացրու JavaScript-ը։</noscript>
+
+<script>
+/* Same independent drifting/fading/respawning approach as Checkers. */
+(()=> {
+ const field=document.querySelector('.nardi-ambient');
+ if(!field||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const symbols=['✦','✧','❖','✶','✥','✦','✧','❈'];
+ const rnd=(a,b)=>a+Math.random()*(b-a);
+ const pieces=Array.from({length:28},(_,i)=>{
+  const el=document.createElement('span');
+  const tiny=i>=12;
+  el.textContent=tiny?'✦':symbols[i%symbols.length];
+  const size=tiny?rnd(3,8):rnd(13,27);
+  el.style.fontSize=size+'px';field.appendChild(el);
+  return {el,size,x:0,y:0,vx:0,vy:0,born:0,life:rnd(12000,23000),maxAlpha:tiny?rnd(.2,.5):rnd(.13,.32)};
+ });
+ function spawn(p,now,initial){
+  const w=field.clientWidth,h=field.clientHeight;
+  p.x=rnd(16,Math.max(17,w-16));p.y=rnd(16,Math.max(17,h-16));
+  p.vx=rnd(-8,8);p.vy=rnd(-11,-3);
+  p.born=now-(initial?rnd(0,p.life):0);
+ }
+ pieces.forEach(p=>spawn(p,performance.now(),true));
+ let prev=0,raf=0;
+ function frame(now){
+  const dt=Math.min(.04,(now-prev)/1000||0);prev=now;
+  const w=field.clientWidth,h=field.clientHeight;
+  for(const p of pieces){
+   let age=now-p.born;
+   if(age>p.life||p.x<0||p.x>w||p.y<0||p.y>h){spawn(p,now,false);age=0}
+   p.x+=p.vx*dt;p.y+=p.vy*dt;
+   const fade=Math.pow(Math.sin(Math.PI*age/p.life),1.4);
+   p.el.style.opacity=(p.maxAlpha*fade).toFixed(3);
+   p.el.style.transform='translate3d('+p.x.toFixed(1)+'px,'+p.y.toFixed(1)+'px,0) rotate('+(age*.003).toFixed(1)+'deg)';
+  }
+  raf=requestAnimationFrame(frame);
+ }
+ raf=requestAnimationFrame(frame);
+ document.addEventListener('visibilitychange',()=>{prev=performance.now()});
+ window.addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
+})();
+</script>
   <script type="module" src="./areg-nardi.js?v=8"></script>
 </body>
 </html>
