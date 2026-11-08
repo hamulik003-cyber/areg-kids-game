@@ -120,7 +120,7 @@ function paintStones(point, count) {
   const tokens = [];
   // Keep every checker centered in a single full-size stack.
   const diameter = 68;
-  const spacing = total <= 5 ? 59 : 54; // Keep diameter unchanged; longer, partially overlapping stack.
+  const spacing = total <= 5 ? 59 : 42; // Fifteen-stone stack is about three checker widths shorter; checker diameter stays unchanged.
   for (let i = 0; i < total; i++) {
     const stone = stoneImage(count < 0 ? 1 : 0);
     const inward = diameter / 2 + i * spacing;
@@ -346,6 +346,28 @@ function choosePoint(point) {
     render();
   }
 }
+
+// The visible fifteen-checker stack extends beyond its point button. Allow a tap
+// on ANY visible checker to select that point, not only the bottom six.
+byId("points").addEventListener("click", (event) => {
+  if (busy() || game.phase !== "move") return;
+  const x = event.clientX, y = event.clientY;
+  const sourcePoints = new Set(eligibleMoves().map((move) => move.from));
+  // Prioritize visible checkers over transparent overlapping point hitboxes.
+  for (const index of sourcePoints) {
+    const stones = pointButtons[index].querySelectorAll(".stone");
+    for (let i = stones.length - 1; i >= 0; i--) {
+      const rect = stones[i].getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top &&
+          y <= rect.bottom) {
+        if (event.target.closest(".point")?.dataset.point === String(index)) return;
+        event.stopPropagation();
+        choosePoint(index);
+        return;
+      }
+    }
+  }
+}, true);
 
 rollButton.addEventListener("click", roll);
 offButton.addEventListener("click", () => {
