@@ -9,7 +9,7 @@ test('isolated audit runs only on the safety branch and has read-only permission
   assert.match(workflow, /branches:\s*\n\s*- safety\/areg-audit-pilot-20261109/);
   assert.match(workflow, /^permissions:\s*\n\s*contents: read\s*$/m);
   assert.doesNotMatch(workflow, /contents:\s*write|pull-requests:\s*write|id-token:\s*write/);
-  assert.doesNotMatch(workflow, /\b(?:push|pull_request|pull_request_target|schedule):\s*\n(?=\s*branches:)/);
+  assert.doesNotMatch(workflow, /^\s*(?:pull_request|pull_request_target|schedule|workflow_run):\s*$/m);
 });
 
 test('browser jobs stay isolated from deployment and use supported pinned runner', () => {
