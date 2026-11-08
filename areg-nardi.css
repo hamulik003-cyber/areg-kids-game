@@ -305,3 +305,14 @@ html.nardi-loading .board { visibility: hidden; }
 .dice { z-index: 5; isolation: isolate; transform: translate3d(-50%, -50%, 0); }
 .die { backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform; }
 .dice.rolling .die { transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+
+/* Guided moves: gold = movable checker, green numbered badge = legal landing. */
+.point.hint-movable .stone:last-of-type { filter: drop-shadow(0 0 4px #ffe79b) drop-shadow(0 0 5px #ffca58); animation: nardi-hint-breathe 2s ease-in-out infinite; }
+@keyframes nardi-hint-breathe { 0%,100% { opacity: 1; } 50% { opacity: .78; } }
+.point[data-action="source"] { background: transparent; box-shadow: none; }
+.point[data-action="selected"] { background: #ffdc8b19; box-shadow: inset 0 0 0 2px #ffdb77, 0 0 12px #ffc97766; }
+.point[data-action="target"] { background: #67ffc51c; box-shadow: inset 0 0 0 2px #7fffd6a8; }
+.point[data-action="target"]::after { content: none; }
+.move-hint { position: absolute; z-index: 4; left: 50%; top: 50%; transform: translate(-50%,-50%); display: flex; justify-content: center; align-items: center; min-width: 30px; min-height: 30px; padding: 3px 5px; border-radius: 30px; border: 2px solid #e4ffef; background: #126d50; color: #fff; font-size: clamp(12px, 3vw, 17px); font-weight: 900; line-height: 1; box-shadow: 0 0 0 3px #0b5a3944, 0 0 12px #63ffb6; pointer-events: none; animation: nardi-marker-pop 220ms ease-out both; }
+@keyframes nardi-marker-pop { from { opacity: 0; transform: translate(-50%,-50%) scale(.7); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .point.hint-movable .stone:last-of-type, .move-hint { animation: none; } }
