@@ -27,7 +27,7 @@ for (const name of discovered) {
     assert.match(html, /<meta\s+name=["']viewport["']/i, `${name} lacks a viewport meta tag`);
     // Only literal local relative references are inspected. Dynamic imports and
     // runtime-generated URLs need separate browser checks.
-    const references = [...html.matchAll(/(?:src|href)\\s*=\\s*["'](\\.\\/[^"'#?]+(?:\\?[^"'#]*)?)["']/gi)]
+    const references = [...html.matchAll(/(?:src|href)\s*=\s*["'](\.\/[^"'#?]+(?:\?[^"'#]*)?)["']/gi)]
       .map(match => match[1].split('?')[0]);
     for (const reference of new Set(references)) {
       const target = resolve(root, reference);
