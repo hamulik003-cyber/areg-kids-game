@@ -78,7 +78,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid #fff0c4; outlin
   background: transparent;
   color: inherit;
 }
-.point:disabled { cursor: default; }
+.point:disabled { cursor: default; pointer-events: none; }
 .point[data-action="source"] {
   background: linear-gradient(#fff0b30e, #fff0b300);
   box-shadow: inset 0 0 0 1px #fff3bd3b;
