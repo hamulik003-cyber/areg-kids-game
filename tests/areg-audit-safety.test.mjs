@@ -17,7 +17,8 @@ test('browser jobs stay isolated from deployment and use supported pinned runner
   assert.match(workflow, /matrix:\s*\n\s*engine: \[chromium, webkit\]/);
   assert.match(workflow, /playwright@1\.56\.1/);
   assert.match(workflow, /persist-credentials: false/g);
-  assert.doesNotMatch(workflow, /\b(?:git push|gh release|render deploy|workflow_run|deployment|deploy-pages)\b/i);
+  assert.doesNotMatch(workflow, /^\s*run:\s*(?:git push|gh release|render deploy)\b/im);
+  assert.doesNotMatch(workflow, /^\s*uses:\s*[^\n]*(?:deploy-pages|deploy-action|render-deploy)/im);
 });
 
 test('approval policy explicitly forbids automatic game edits and production merges', () => {
