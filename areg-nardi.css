@@ -538,3 +538,14 @@ html, body { background: #b9dced !important; }
   filter:none !important;
   background:none !important;
 }
+
+/* Requested 2x title, extra-bold solid wood lettering. */
+.score > .nardi-page-title {
+  font-size:clamp(92px,24vw,130px) !important;
+  font-weight:1000 !important;
+  letter-spacing:-.065em !important;
+  color:#f2c58d !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:0 3px 0 #a66b39,0 6px 3px #653516,0 9px 6px #27130988 !important;
+  bottom:calc(100% + 47px) !important;
+}
