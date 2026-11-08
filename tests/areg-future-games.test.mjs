@@ -25,6 +25,16 @@ for (const name of discovered) {
     assert.ok(html.trim().length > 100, `${name} is unexpectedly empty`);
     assert.match(html, /<html\b/i, `${name} has no HTML root`);
     assert.match(html, /<meta\s+name=["']viewport["']/i, `${name} lacks a viewport meta tag`);
+    // Only literal local relative references are inspected. Dynamic imports and
+    // runtime-generated URLs need separate browser checks.
+    const references = [...html.matchAll(/(?:src|href)\\s*=\\s*["'](\\.\\/[^"'#?]+(?:\\?[^"'#]*)?)["']/gi)]
+      .map(match => match[1].split('?')[0]);
+    for (const reference of new Set(references)) {
+      const target = resolve(root, reference);
+      if (!existsSync(target)) {
+        t.diagnostic(`Missing local reference in ${name}: ${reference} (non-blocking; review before fixing)`);
+      }
+    }
     t.diagnostic(`Inspected ${basename(path)} (read-only); interactive behavior is not covered.`);
   });
 }
