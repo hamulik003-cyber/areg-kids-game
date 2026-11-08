@@ -371,3 +371,8 @@ html.nardi-loading .board { visibility: hidden; }
 }
 .game > * { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .game::before { animation: none; } }
+
+/* iOS embedded Nardi: the four pixels outside the rounded wood frame
+   must show the host's light-blue background, not the iframe's brown root. */
+:root, html, body { background: transparent !important; }
+.game { background-clip: padding-box; -webkit-mask-image: -webkit-radial-gradient(white, black); }
