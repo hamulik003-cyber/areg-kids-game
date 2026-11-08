@@ -66,6 +66,14 @@ jobs:
         env:
           AREG_BROWSER_ENGINE: ${{ matrix.engine }}
         run: node tests/areg-browser-smoke.mjs
+      - name: Save browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-browser-${{ matrix.engine }}
+          path: audit-reports/browser-${{ matrix.engine }}.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Explain browser audit limitations
         if: always()
         run: |
