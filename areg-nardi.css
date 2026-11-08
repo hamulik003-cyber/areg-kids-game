@@ -578,3 +578,37 @@ html, body { background: #b9dced !important; }
   100% { transform:translate3d(0,var(--float-d),0); }
 }
 @media(prefers-reduced-motion:reduce){.nardi-page-title .nardi-letter{animation:none;transform:none}}
+
+/* Nardi dice: exact six-face structure and orientations adapted from Checkers. */
+.dice {perspective:600px !important; overflow:visible;}
+.dice .die {
+  display:block !important; position:relative; padding:0 !important;
+  border:0 !important; background:none !important; box-shadow:none !important;
+  overflow:visible; transform:none !important; perspective:none;
+  --nardi-half:calc(clamp(24px,8.2vw,43px) / 2);
+}
+.dice .nardi-dice-cube {
+  display:block; position:absolute; inset:0;
+  transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
+  backface-visibility:visible;
+}
+.dice .nardi-dice-side {
+  display:grid; position:absolute; inset:0;
+  grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+  place-items:center; padding:17%; border:1px solid #aaa;
+  border-radius:15%; background:linear-gradient(145deg,#fff,#dedede);
+  box-shadow:inset -2px -3px 4px #aaa8,inset 2px 2px 3px #fff;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+}
+.dice .nardi-dice-dot {
+  display:block; width:70%;aspect-ratio:1;border-radius:50%;
+  background:#242424;box-shadow:inset 1px 1px 2px #0008;
+}
+.dice .nardi-dice-one {transform:translateZ(var(--nardi-half))}
+.dice .nardi-dice-two {transform:rotateX(90deg) translateZ(var(--nardi-half))}
+.dice .nardi-dice-three {transform:rotateY(90deg) translateZ(var(--nardi-half))}
+.dice .nardi-dice-four {transform:rotateY(-90deg) translateZ(var(--nardi-half))}
+.dice .nardi-dice-five {transform:rotateX(-90deg) translateZ(var(--nardi-half))}
+.dice .nardi-dice-six {transform:rotateY(180deg) translateZ(var(--nardi-half))}
+.dice.rolling .die {animation:none !important;}
+@media(prefers-reduced-motion:reduce){.dice .nardi-dice-cube{animation:none!important}}
