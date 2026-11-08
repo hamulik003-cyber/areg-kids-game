@@ -376,3 +376,12 @@ html.nardi-loading .board { visibility: hidden; }
    must show the host's light-blue background, not the iframe's brown root. */
 :root, html, body { background: transparent !important; }
 .game { background-clip: padding-box; -webkit-mask-image: -webkit-radial-gradient(white, black); }
+
+/* Hard clip the entire game, including pseudo-elements, to the wood frame.
+   WebKit's overflow:hidden alone can leave composited corner pixels visible. */
+.game {
+  clip-path: inset(0 round 25px) !important;
+  -webkit-clip-path: inset(0 round 25px) !important;
+  -webkit-mask-image: none !important;
+}
+.game::after { box-shadow: inset 0 0 0 2px #f1c18a, inset 0 0 0 5px #63371e !important; }
