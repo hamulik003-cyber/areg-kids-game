@@ -191,6 +191,14 @@ function render() {
     const action = index === selected ? "selected" : targets.has(index) ? "target" : sources.has(index) ? "source" : "";
     point.dataset.action = action;
     point.classList.toggle("hint-movable", selected === null && allSources.has(index) && !busy());
+    // Keep the soft pulse centered on the actual visible top checker.
+    // No DOM changes or animated filters on checker images.
+    if (point.classList.contains("hint-movable")) {
+      const total = Math.abs(count);
+      const inward = 34 + (total - 1) * (total <= 5 ? 59 : 42);
+      const lower = point.dataset.row === "lower";
+      point.style.setProperty("--hint-stone-y", ((lower ? POINT_HEIGHT - inward : inward) / POINT_HEIGHT * 100) + "%");
+    }
     point.querySelectorAll(".move-hint").forEach((hint) => hint.remove());
     if (action === "target") {
       const marker = document.createElement("span");
