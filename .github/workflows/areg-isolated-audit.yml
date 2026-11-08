@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "### AREG safety pilot" >> "$GITHUB_STEP_SUMMARY"
           echo "Read-only audit: no source changes, no deployment, no automatic fixes." >> "$GITHUB_STEP_SUMMARY"
-          echo "The audit covers only selected Nardi rules and file-integrity checks." >> "$GITHUB_STEP_SUMMARY"
+          echo "Runs isolated Nardi, Checkers, Sea Battle and repository integrity checks; browser smoke covers page loading." >> "$GITHUB_STEP_SUMMARY"
           echo "A passing audit does not validate iOS PWA visuals or all game mechanics." >> "$GITHUB_STEP_SUMMARY"
 
   browser-smoke:
