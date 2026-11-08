@@ -469,3 +469,21 @@ html, body { background: #b9dced !important; }
   height:calc(var(--particle-size) * 1.8);
   box-shadow:0 0 7px var(--particle-color),0 0 12px var(--particle-color);
 }
+
+/* Restored source-checker hint: visible green breathing ring anchored to the
+   last checker, composited separately so iOS does not flicker checker images. */
+.point.hint-movable::before { content:none !important; }
+.point .source-pulse {
+  position:absolute; z-index:5; pointer-events:none;
+  left:50%; width:calc(68 / 74 * 100%); aspect-ratio:1;
+  border-radius:50%; border:3px solid #5affb5;
+  background:#36f7a41a;
+  box-shadow:0 0 0 2px #08784d80,0 0 12px 4px #32ffa88c,inset 0 0 9px #7affbe75;
+  transform:translate(-50%,-50%) scale(.93);
+  animation:nardi-checker-ring-pulse 1.55s ease-in-out infinite;
+}
+@keyframes nardi-checker-ring-pulse {
+  0%,100% { opacity:.48; transform:translate(-50%,-50%) scale(.91); }
+  50% { opacity:1; transform:translate(-50%,-50%) scale(1.08); }
+}
+@media (prefers-reduced-motion:reduce) { .point .source-pulse { animation:none; opacity:1; } }
