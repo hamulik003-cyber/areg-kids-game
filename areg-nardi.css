@@ -523,3 +523,18 @@ html, body { background: #b9dced !important; }
  text-shadow:0 -1px 0 #fff0c5,1px 1px 0 #c58749,2px 3px 0 #9c582a,3px 4px 1px #633114,4px 6px 5px #1d0d0780 !important;
  filter:none !important;
 }
+
+/* Clean, larger Nardi lettering: solid light wood, no internal etched lines. */
+.score > .nardi-page-title {
+  bottom:calc(100% + 47px) !important;
+  font-family:"Noto Sans Armenian",system-ui,-apple-system,sans-serif !important;
+  font-size:clamp(46px,12vw,65px) !important;
+  font-weight:900 !important;
+  letter-spacing:-.025em !important;
+  line-height:1.08 !important;
+  color:#f2c58d !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:0 3px 0 #a66b39,0 5px 2px #653516,0 7px 5px #27130988 !important;
+  filter:none !important;
+  background:none !important;
+}
