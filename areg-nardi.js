@@ -120,7 +120,7 @@ function paintStones(point, count) {
   const tokens = [];
   // Keep every checker centered in a single full-size stack.
   const diameter = 68;
-  const spacing = total <= 5 ? 59 : Math.min(44, (POINT_HEIGHT - diameter) / (total - 1));
+  const spacing = total <= 5 ? 59 : 54; // Keep diameter unchanged; longer, partially overlapping stack.
   for (let i = 0; i < total; i++) {
     const stone = stoneImage(count < 0 ? 1 : 0);
     const inward = diameter / 2 + i * spacing;
