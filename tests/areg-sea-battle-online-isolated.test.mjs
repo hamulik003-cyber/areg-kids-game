@@ -80,3 +80,47 @@ test('Sea Battle online: duplicate results are ignored', () => {
   assert.deepEqual(game.state.theirs.shots,[45]);
   assert.equal(game.events.filter(e => e.board === 1).length,1);
 });
+
+test('Sea Battle online: incoming shot is ignored when it is not the remote turn', () => {
+  const game = create();
+  game.state.remoteTurn=false;
+  game.handleMessage({type:'shot',i:45});
+  assert.equal(game.messages.length,0);
+  assert.equal(game.state.mine.shots.length,0);
+});
+
+test('Sea Battle online: incoming shot is ignored outside battle phase', () => {
+  const game = create();
+  game.state.phase='waiting';
+  game.handleMessage({type:'shot',i:45});
+  assert.equal(game.messages.length,0);
+  assert.equal(game.state.mine.shots.length,0);
+});
+
+test('Sea Battle online: sunk ship information is not accepted with invalid fleet index', () => {
+  const game = create();
+  game.handleMessage({type:'result',i:10,hit:true,sunk:true,win:false,shipCells:[10,11],shipIndex:99});
+  assert.equal(game.state.theirs.ships.length,0);
+  assert.equal(game.state.theirs.shots.length,1);
+});
+
+test('Sea Battle online: forged noncontiguous ship cells are not revealed', () => {
+  const game = create();
+  game.state.theirs.shots.push(11);
+  game.state.onlineHits.add(11);
+  game.handleMessage({type:'result',i:10,hit:true,sunk:true,win:false,shipCells:[10,11],shipIndex:4});
+  // A two-cell contiguous ship is valid, so use a gap instead.
+  assert.equal(game.state.theirs.ships.length,1);
+  const other=create();
+  other.state.theirs.shots.push(12);
+  other.state.onlineHits.add(12);
+  other.handleMessage({type:'result',i:10,hit:true,sunk:true,win:false,shipCells:[10,12],shipIndex:4});
+  assert.equal(other.state.theirs.ships.length,0);
+});
+
+test('Sea Battle online: unrequested valid-index result currently changes shot history (known protocol gap)', () => {
+  const game=create();
+  // This is a characterization test of existing behavior, NOT an approval of the protocol.
+  game.handleMessage({type:'result',i:73,hit:false,sunk:false,win:false});
+  assert.deepEqual(game.state.theirs.shots,[73]);
+});
