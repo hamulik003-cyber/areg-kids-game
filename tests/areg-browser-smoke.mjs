@@ -49,6 +49,19 @@ try {
       if (result.width > result.viewport + 3) {
         notices.push(`${name}: horizontal overflow ${result.width}px > ${result.viewport}px`);
       }
+      // Read-only interaction probes: synthetic touch and orientation changes.
+      // Do not activate game controls or mutate persisted state.
+      await page.evaluate(() => {
+        document.documentElement.dispatchEvent(new Event('touchstart', { bubbles: false }));
+        window.dispatchEvent(new Event('resize'));
+      });
+      const rotated = await page.evaluate(() => ({
+        width: document.documentElement.scrollWidth,
+        viewport: window.innerWidth,
+      }));
+      if (rotated.width > rotated.viewport + 3) {
+        notices.push(`${name}: width overflow after resize event ${rotated.width}px > ${rotated.viewport}px`);
+      }
       await page.waitForTimeout(500);
       if (missingResources.length) {
         notices.push(`${name}: failed local requests: ${JSON.stringify([...new Set(missingResources)].slice(0, 10))}`);
