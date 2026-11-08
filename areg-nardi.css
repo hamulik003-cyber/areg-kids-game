@@ -555,7 +555,7 @@ html, body { background: #b9dced !important; }
   font-family:system-ui,-apple-system,"Noto Sans Armenian",sans-serif !important;
   font-size:clamp(59px,calc(10vw + 20px),75px) !important;
   font-weight:900 !important;
-  letter-spacing:-.035em !important;
+  letter-spacing:5px !important;
   line-height:1.05 !important;
   color:#f3c58c !important;
   -webkit-text-stroke:0 !important;
