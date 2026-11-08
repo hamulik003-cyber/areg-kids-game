@@ -549,3 +549,17 @@ html, body { background: #b9dced !important; }
   text-shadow:0 3px 0 #a66b39,0 6px 3px #653516,0 9px 6px #27130988 !important;
   bottom:calc(100% + 47px) !important;
 }
+
+/* Checkers-style compact bold Armenian title, safely within frame. */
+.score > .nardi-page-title {
+  font-family:system-ui,-apple-system,"Noto Sans Armenian",sans-serif !important;
+  font-size:clamp(39px,10vw,55px) !important;
+  font-weight:900 !important;
+  letter-spacing:-.035em !important;
+  line-height:1.05 !important;
+  color:#f3c58c !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:0 2px 0 #a86b3b,0 4px 2px #6b371c,0 5px 4px #28130c88 !important;
+  bottom:calc(100% + 47px) !important;
+  max-width:calc(100vw - 75px);
+}
