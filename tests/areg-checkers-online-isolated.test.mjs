@@ -69,3 +69,37 @@ test('Checkers online: remote reset invokes match reset',()=>{
   g.callbacks.data({type:'reset'});
   assert.deepEqual(g.events,['reset']);
 });
+
+test('Checkers online: move payload with out-of-board integers reaches legal-move gate',()=>{
+  const g=setup();
+  g.state.turn=-1;
+  g.callbacks.data({type:'move',m:{from:999,to:-20,cap:-1}});
+  // Dispatcher only validates integer types; play() must reject illegal board moves.
+  assert.equal(g.events.filter(e=>typeof e==='object'&&e.move).length,1);
+});
+
+test('Checkers online: FUK removal requires a pending penalty',()=>{
+  const g=setup();
+  g.state.board[17]=-1;
+  g.callbacks.data({type:'fuk',i:17});
+  assert.equal(g.state.board[17],-1);
+  g.state.penalty=[17];
+  g.callbacks.data({type:'fuk',i:17});
+  assert.equal(g.state.board[17],0);
+  assert.deepEqual(g.state.penalty,[]);
+});
+
+test('Checkers online: invalid FUK settings do not reset the match',()=>{
+  const g=setup();
+  g.callbacks.data({type:'fuk-setting',value:'unknown'});
+  assert.equal(g.events.length,0);
+  g.callbacks.data({type:'fuk-setting',value:'on'});
+  assert.equal(g.$('#fuk').checked,true);
+  assert.deepEqual(g.events,['start']);
+});
+
+test('Checkers online: remote dice value is forwarded without numeric range validation (known boundary gap)',()=>{
+  const g=setup();
+  g.callbacks.data({type:'dice-throw',side:-1,value:99});
+  assert.ok(g.events.some(e=>typeof e==='object'&&e.value===99));
+});
