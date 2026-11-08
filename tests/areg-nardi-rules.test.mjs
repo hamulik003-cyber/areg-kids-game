@@ -35,3 +35,40 @@ test('approved round scoring uses 2 only if loser bore off nothing', () => {
   assert.equal(roundPoints(state,0),2);
   assert.equal(roundPoints({...state,off:[0,1]},0),1);
 });
+
+test('second player starts at its own head and retains stone counts after a move', () => {
+  const position = startingPosition();
+  const turn = prepareTurn(position, 1, [1, 2], true);
+  const moves = legalMoves(turn);
+  assert.ok(moves.length > 0);
+  for (const move of moves) {
+    assert.equal(move.from, 12);
+    const next = advance(turn, move);
+    assert.equal(next.points.reduce((sum, n) => sum + Math.max(0, n), 0) + next.off[0], CHECKERS);
+    assert.equal(next.points.reduce((sum, n) => sum + Math.max(0, -n), 0) + next.off[1], CHECKERS);
+    assert.deepEqual(turn.points, position.points);
+  }
+});
+
+test('finished game does not offer additional moves', () => {
+  const position = startingPosition();
+  position.points[0] = 0;
+  position.off[0] = CHECKERS;
+  const turn = prepareTurn(position, 0, [2, 5], false);
+  assert.deepEqual(legalMoves(turn), []);
+});
+
+test('moves never land on a point occupied by the opponent', () => {
+  for (const player of [0, 1]) {
+    const position = startingPosition();
+    for (const roll of [[1, 2], [3, 4], [5, 6], [6, 6]]) {
+      const turn = prepareTurn(position, player, roll, true);
+      for (const move of legalMoves(turn)) {
+        if (move.to !== OFF_BOARD) {
+          const opponentSign = player === 0 ? -1 : 1;
+          assert.ok(position.points[move.to] * opponentSign <= 0);
+        }
+      }
+    }
+  }
+});
