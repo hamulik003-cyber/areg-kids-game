@@ -511,3 +511,15 @@ html, body { background: #b9dced !important; }
  text-shadow:0 1px 0 #a86736,0 2px 0 #4b220e,0 3px 2px #28130866 !important;
  filter:none !important;
 }
+
+/* Final Nardi title: large light carved wood, centered in the clear space above scoreboard. */
+.score > .nardi-page-title {
+ bottom:calc(100% + 52px) !important;
+ font-size:clamp(36px,9.3vw,49px) !important;
+ font-weight:900 !important;
+ letter-spacing:0 !important;
+ color:#e9b979 !important;
+ -webkit-text-stroke:1px #8c4a20 !important;
+ text-shadow:0 -1px 0 #fff0c5,1px 1px 0 #c58749,2px 3px 0 #9c582a,3px 4px 1px #633114,4px 6px 5px #1d0d0780 !important;
+ filter:none !important;
+}
