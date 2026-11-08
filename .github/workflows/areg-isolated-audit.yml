@@ -28,3 +28,42 @@ jobs:
           echo "Read-only audit: no source changes, no deployment, no automatic fixes." >> "$GITHUB_STEP_SUMMARY"
           echo "The audit covers only selected Nardi rules and file-integrity checks." >> "$GITHUB_STEP_SUMMARY"
           echo "A passing audit does not validate iOS PWA visuals or all game mechanics." >> "$GITHUB_STEP_SUMMARY"
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install isolated browser test dependency
+        run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start local read-only static server
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/areg-audit-http.log 2>&1 &
+          echo $! > /tmp/areg-audit-http.pid
+          for i in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:8765/index.html > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/areg-audit-http.log
+          exit 1
+      - name: Browser smoke test (mobile Chromium, no deployments)
+        run: node tests/areg-browser-smoke.mjs
+      - name: Explain browser audit limitations
+        if: always()
+        run: |
+          echo "### AREG browser audit" >> "$GITHUB_STEP_SUMMARY"
+          echo "Checks page loading in mobile Chromium on a local static server." >> "$GITHUB_STEP_SUMMARY"
+          echo "Runtime errors and layout overflow are informational until approved baselines exist." >> "$GITHUB_STEP_SUMMARY"
+          echo "This is not a real iPhone Safari or installed iOS PWA test." >> "$GITHUB_STEP_SUMMARY"
