@@ -72,3 +72,25 @@ test('moves never land on a point occupied by the opponent', () => {
     }
   }
 });
+
+test('deterministic legal play conserves all stones across successive turns', () => {
+  let position = startingPosition();
+  for (let turnIndex = 0; turnIndex < 20; turnIndex++) {
+    const player = turnIndex % 2;
+    const dice = [[1, 2], [3, 4], [2, 5], [4, 6]][turnIndex % 4];
+    let turn = prepareTurn(position, player, dice, turnIndex < 2);
+    for (let moveIndex = 0; moveIndex < 4; moveIndex++) {
+      const moves = legalMoves(turn);
+      if (!moves.length) break;
+      const move = moves[0];
+      const previous = structuredClone(turn);
+      turn = advance(turn, move);
+      assert.notStrictEqual(turn.points, previous.points);
+      assert.equal(turn.remaining.length, previous.remaining.length - 1);
+      assert.equal(turn.points.reduce((sum, n) => sum + Math.max(0, n), 0) + turn.off[0], CHECKERS);
+      assert.equal(turn.points.reduce((sum, n) => sum + Math.max(0, -n), 0) + turn.off[1], CHECKERS);
+      assert.ok(turn.points.every((n) => Number.isInteger(n) && Math.abs(n) <= CHECKERS));
+    }
+    position = { points: turn.points.slice(), off: turn.off.slice() };
+  }
+});
