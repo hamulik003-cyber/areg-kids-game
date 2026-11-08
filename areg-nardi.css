@@ -411,3 +411,16 @@ html, body { background: #b9dced !important; }
 
 /* Deep sapphire-teal stage separates the warm gold Nardi board from its surroundings. */
 .game { background: #102d3a !important; }
+
+/* Checkers-inspired ambient: light blue-green stage and individually floating,
+   fading golden ornamental flecks; never rings or striped curtains. */
+.game { background: #456f79 !important; }
+.game::before {
+  background: radial-gradient(ellipse at 50% 35%, #6b9299, #355d6c 78%) !important;
+  animation: none !important;
+  opacity: 1 !important;
+}
+.nardi-ambient { position:absolute; inset:13px; overflow:hidden; border-radius:15px; pointer-events:none; z-index:0; contain:paint; }
+.nardi-ambient span { position:absolute; left:0; top:0; opacity:0; color:#ffe0a3; line-height:1; text-shadow:0 0 8px #ffd78b70; will-change:transform,opacity; }
+.game > .nardi-ambient { z-index:0; }
+@media (prefers-reduced-motion: reduce) { .nardi-ambient { display:none; } }
