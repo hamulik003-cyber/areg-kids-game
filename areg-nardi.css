@@ -256,8 +256,8 @@ dialog p { margin: 6px 0 11px; color: var(--muted); font-size: 13px; }
 /* Nardi layout refinement: keep the score at its present vertical position,
    move the complete board (including checker/dice layers) toward the red guide. */
 .game { justify-content: flex-start; }
-.score { flex: 0 0 auto; margin-top: clamp(150px, 21vh, 215px); }
-.board { margin-top: clamp(115px, 15vh, 165px); }
+.score { flex: 0 0 auto; margin-top: clamp(120px, 11vh, 190px); }
+.board { margin-top: clamp(155px, 12vh, 195px); }
 /* Remove the lower dice-number frame and the new-round footer, but retain
    the working roll / bear-off controls so the game remains playable. */
 .game-panel { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; margin-top: 8px; min-height: 0; }
@@ -266,6 +266,6 @@ dialog p { margin: 6px 0 11px; color: var(--muted); font-size: 13px; }
 .footer { display: none !important; }
 .player { visibility: hidden; }
 @media (max-width: 480px) {
-  .score { margin-top: clamp(130px, 20vh, 205px); }
-  .board { margin-top: clamp(105px, 14vh, 155px); }
+  .score { margin-top: clamp(120px, 11vh, 190px); }
+  .board { margin-top: clamp(155px, 12vh, 195px); }
 }
