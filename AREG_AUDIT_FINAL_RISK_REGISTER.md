@@ -28,3 +28,10 @@ Before promoting any changes: require successful isolated CI, review all browser
 2. Add true two-peer integration tests in an isolated, non-production environment.
 3. Add real iPhone PWA manual acceptance checklist and evidence collection.
 4. Propose gameplay fixes separately, with risk analysis, only if approved.
+
+## Protocol characterization additions
+
+- Sea Battle's current online result handler can accept an otherwise valid result index without tracking a pending outgoing shot. This is now captured by a regression *characterization* test. A green test means the observed behavior has not changed, **not** that the behavior is safe.
+- Checkers' online move dispatcher checks integer fields and side-to-move, while the actual `play()` function enforces legal moves. The isolated dispatch test uses a stub for `play()`; therefore it does **not** prove full illegal-move rejection end to end.
+- Checkers' incoming dice handler forwards the value to `acceptDiceRoll()` without checking a 1–6 range at the dispatch boundary. The isolated characterization test does not establish whether downstream validation exists.
+- Online message guards must ultimately be tested with real two-peer sessions, including reconnection, packet ordering, and conflicting state. No game changes are authorized by these findings.
