@@ -578,3 +578,30 @@ html, body { background: #b9dced !important; }
   100% { transform:translate3d(0,var(--float-d),0); }
 }
 @media(prefers-reduced-motion:reduce){.nardi-page-title .nardi-letter{animation:none;transform:none}}
+
+/* Premium dice throw: independent trajectories, tumbling, impact and short settling bounce. */
+.dice.rolling .die {
+  animation: nardi-premium-toss 1050ms cubic-bezier(.22,.65,.24,1) both !important;
+  transform-origin:50% 50%;
+}
+.dice.rolling .die:nth-child(1) {
+  --toss-start-x:-105%; --toss-mid-x:-40%; --toss-land-x:9%;
+  --toss-spin:735deg; --toss-tilt:400deg;
+  animation-delay:0ms !important;
+}
+.dice.rolling .die:nth-child(2) {
+  --toss-start-x:135%; --toss-mid-x:48%; --toss-land-x:-10%;
+  --toss-spin:-690deg; --toss-tilt:-390deg;
+  animation-delay:85ms !important;
+}
+@keyframes nardi-premium-toss {
+  0% {opacity:.65;transform:translate3d(var(--toss-start-x),-185%,0) rotateX(55deg) rotateY(-40deg) rotateZ(-95deg) scale(.77)}
+  24% {opacity:1;transform:translate3d(var(--toss-mid-x),-132%,0) rotateX(240deg) rotateY(180deg) rotateZ(160deg) scale(1.03)}
+  53% {transform:translate3d(var(--toss-land-x),-17%,0) rotateX(var(--toss-spin)) rotateY(var(--toss-tilt)) rotateZ(365deg) scale(1.04)}
+  62% {transform:translate3d(3%,5%,0) rotateX(720deg) rotateY(360deg) rotateZ(368deg) scale(.91)}
+  75% {transform:translate3d(-3%,-36%,0) rotateX(720deg) rotateY(360deg) rotateZ(354deg) scale(1.02)}
+  88% {transform:translate3d(1%,0,0) rotateX(720deg) rotateY(360deg) rotateZ(365deg) scale(.97)}
+  94% {transform:translate3d(0,-8%,0) rotateX(720deg) rotateY(360deg) rotateZ(359deg) scale(1)}
+  100% {opacity:1;transform:translate3d(0,0,0) rotateX(720deg) rotateY(360deg) rotateZ(calc(360deg + var(--rest,-7deg))) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){.dice.rolling .die{animation:none!important}}
