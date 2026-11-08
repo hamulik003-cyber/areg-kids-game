@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium, webkit } from 'playwright';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { discoverGamePages } from './areg-discovery.mjs';
@@ -7,7 +7,9 @@ const root = process.cwd();
 const base = process.env.AREG_AUDIT_URL || 'http://127.0.0.1:8765/';
 const source = readFileSync(resolve(root, 'app.js'), 'utf8');
 const names = discoverGamePages(source).filter(name => existsSync(resolve(root, name)));
-const browser = await chromium.launch({ headless: true });
+const engineName = process.env.AREG_BROWSER_ENGINE || 'chromium';
+if (!['chromium', 'webkit'].includes(engineName)) throw new Error(`Unsupported browser engine: ${engineName}`);
+const browser = await ({ chromium, webkit })[engineName].launch({ headless: true });
 const failures = [];
 const notices = [];
 let passed = 0;
@@ -59,5 +61,5 @@ if (failures.length) {
   process.exitCode = 1;
 }
 
-console.log(`AREG BROWSER SUMMARY: ${passed}/${names.length} pages loaded; ${notices.length} notices; ${failures.length} failures`);
+console.log(`AREG BROWSER SUMMARY [${engineName}]: ${passed}/${names.length} pages loaded; ${notices.length} notices; ${failures.length} failures`);
 for (const notice of notices) console.log(`NOTICE ${notice}`);
