@@ -282,8 +282,8 @@ async function roll() {
     const timer = setInterval(() => {
       rollPreview = [randomDie(), randomDie()];
       paintDice(rollPreview);
-    }, 75);
-    await wait(610);
+    }, 95);
+    await wait(1160);
     clearInterval(timer);
     rollPreview = null;
   }
