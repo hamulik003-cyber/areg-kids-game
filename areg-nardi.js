@@ -24,15 +24,32 @@ const scoreMarks = [byId("score-light"), byId("score-dark")];
 const offCounts = [byId("off-light"), byId("off-dark")];
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-const diceFaces = [...dice.children].map((face) => {
-  const pips = Array.from({ length: 9 }, () => {
-    const pip = document.createElement("i");
-    pip.className = "pip";
-    return pip;
+// Ported from the approved Checkers six-sided dice structure.
+const DIE_CLASSES = ["one","two","three","four","five","six"];
+const DIE_ROTATIONS = [[0,0],[-90,0],[0,-90],[0,90],[90,0],[180,0]];
+const diceCubes = [...dice.children].map((die) => {
+  const cube = document.createElement("span");
+  cube.className = "nardi-dice-cube";
+  DIE_CLASSES.forEach((name, index) => {
+    const side = document.createElement("span");
+    side.className = "nardi-dice-side nardi-dice-" + name;
+    for (let p = 0; p < 9; p++) {
+      if (FACES[index].includes(p)) {
+        const pip = document.createElement("i");
+        pip.className = "nardi-dice-dot";
+        pip.style.gridArea = (Math.floor(p / 3) + 1) + " / " + (p % 3 + 1);
+        side.append(pip);
+      }
+    }
+    cube.append(side);
   });
-  face.append(...pips);
-  return pips;
+  die.replaceChildren(cube);
+  return cube;
 });
+function orientCube(cube, value) {
+  const [x,y] = DIE_ROTATIONS[value - 1];
+  cube.style.transform = "rotateX(" + x + "deg) rotateY(" + y + "deg)";
+}
 
 const pointButtons = Array.from({ length: 24 }, (_, index) => {
   const button = document.createElement("button");
@@ -137,10 +154,7 @@ function paintDice(values) {
   if (dice.hidden) return;
   dice.style.setProperty("--dice-x", game.phase === "opening" || game.player === 0 ? "73%" : "27%");
   dice.setAttribute("aria-label", "Զառեր՝ " + values.join(" և "));
-  diceFaces.forEach((pips, index) => {
-    const dots = FACES[values[index] - 1];
-    pips.forEach((pip, slot) => pip.classList.toggle("on", dots.includes(slot)));
-  });
+  if (rollPreview === null) diceCubes.forEach((cube, index) => orientCube(cube, values[index]));
 }
 
 function eligibleMoves() {
@@ -279,12 +293,21 @@ async function roll() {
   if (!reducedMotion.matches) {
     rollPreview = [randomDie(), randomDie()];
     render();
-    const timer = setInterval(() => {
-      rollPreview = [randomDie(), randomDie()];
-      paintDice(rollPreview);
-    }, 75);
-    await wait(610);
-    clearInterval(timer);
+    // Independent Checkers-style 3D rotations; no swapping or hiding faces mid-roll.
+    const animations = diceCubes.map((cube, index) => {
+      const [rx,ry] = DIE_ROTATIONS[values[index] - 1];
+      const sign = index === 0 ? 1 : -1;
+      return cube.animate([
+        {transform:"translate3d(" + (-sign * 42) + "%,-115%,0) rotateX(25deg) rotateY(-35deg) scale(.85)",offset:0},
+        {transform:"translate3d(" + (sign * 23) + "%,-75%,0) rotateX(" + (sign * 330) + "deg) rotateY(" + (-sign * 270) + "deg) scale(1.05)",offset:.34},
+        {transform:"translate3d(" + (-sign * 8) + "%,3%,0) rotateX(" + (rx + sign * 660) + "deg) rotateY(" + (ry - sign * 720) + "deg) scale(.96)",offset:.67},
+        {transform:"translate3d(0,-22%,0) rotateX(" + (rx + sign * 720) + "deg) rotateY(" + (ry - sign * 720) + "deg) scale(1.02)",offset:.81},
+        {transform:"translate3d(0,0,0) rotateX(" + (rx + sign * 720) + "deg) rotateY(" + (ry - sign * 720) + "deg) scale(1)",offset:1}
+      ],{duration:1150 + index * 90,easing:"cubic-bezier(.22,.7,.25,1)",fill:"forwards"});
+    });
+    await Promise.all(animations.map(a => a.finished.catch(() => {})));
+    animations.forEach(a => a.cancel());
+    diceCubes.forEach((cube,index) => orientCube(cube,values[index]));
     rollPreview = null;
   }
   if (game.phase === "opening") {
