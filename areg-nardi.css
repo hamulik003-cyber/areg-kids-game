@@ -474,3 +474,14 @@ html, body { background: #b9dced !important; }
   text-shadow:0 2px 0 #75350f,0 3px 3px #1c0c08,0 0 10px #f5b85d85;
   pointer-events:none;
 }
+
+/* Independent centered heading: never participates in board or score layout. */
+.score { position:relative; }
+.score > .nardi-page-title {
+ position:absolute; left:50%; bottom:calc(100% + 13px); z-index:8;
+ transform:translateX(-50%); white-space:nowrap; pointer-events:none;
+ font-family:"Noto Sans Armenian",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ font-size:clamp(26px,7vw,40px); font-weight:900; line-height:1.2;
+ color:#ffe3a1; -webkit-text-stroke:.6px #713109;
+ text-shadow:0 2px 0 #78370f,0 3px 5px #26100b,0 0 12px #e9ad6c9c;
+}
