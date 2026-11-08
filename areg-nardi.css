@@ -437,3 +437,35 @@ html, body { background: #b9dced !important; }
   99.9% { transform:translate3d(var(--drift-x),var(--drift-y),0) scale(1.12); }
 }
 @media (prefers-reduced-motion:reduce){.nardi-ambient span{animation:none!important}}
+
+/* iOS Safari: animated drop-shadow on checker IMG forces repeated rasterization
+   and makes dark checkers visibly flicker. Keep stones completely static. */
+.point.hint-movable .stone:last-of-type,
+.point[data-action="selected"] .stone:last-of-type {
+  animation: none !important;
+  filter: drop-shadow(0 1px 1px #150701d9) !important;
+  opacity: 1 !important;
+}
+.point.hint-movable::before {
+  content:""; position:absolute; z-index:0; pointer-events:none;
+  left:50%; top:50%; width:42%; aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  border-radius:50%; background:#46f9a01b;
+  box-shadow:0 0 12px 5px #46f9a03d;
+  animation:nardi-source-glow 2.5s ease-in-out infinite;
+}
+@keyframes nardi-source-glow {
+  0%,100%{opacity:.35} 50%{opacity:.7}
+}
+/* Larger, brighter yet sparse colored ornaments and cell-like points. */
+.nardi-ambient .ambient-glyph {
+  font-size:calc(var(--particle-size) * 1.6) !important;
+  width:calc(var(--particle-size) * 1.6);
+  height:calc(var(--particle-size) * 1.6);
+  text-shadow:0 0 8px currentColor,0 0 15px currentColor;
+}
+.nardi-ambient .ambient-cell {
+  width:calc(var(--particle-size) * 1.8);
+  height:calc(var(--particle-size) * 1.8);
+  box-shadow:0 0 7px var(--particle-color),0 0 12px var(--particle-color);
+}
