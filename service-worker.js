@@ -1,5 +1,5 @@
-const CORE_CACHE='areg-v329-core';
-const RUNTIME_CACHE='areg-v329-runtime';
+const CORE_CACHE='areg-v330-core';
+const RUNTIME_CACHE='areg-v330-runtime';
 
 const MEDIA_CACHES=['areg-gallery-preview-v238','areg-space-visited-v1','areg-local-audio-v1'];
 const CORE=[
@@ -10,9 +10,9 @@ const CORE=[
   './styles.css?v=310',
   './space-3d-games.css?v=287',
   './app.js?v=329',
-  './areg-nardi.html?v=1',
-  './areg-nardi.css?v=1',
-  './areg-nardi.js?v=1',
+  './areg-nardi.html?v=3',
+  './areg-nardi.css?v=3',
+  './areg-nardi.js?v=3',
   './areg-nardi-rules.js?v=1',
 
   './home-nature-art.jpg',
@@ -150,6 +150,17 @@ self.addEventListener('fetch',event=>{
     event.respondWith(persistedMedia(request,MEDIA_CACHES[2]));return;
   }
 
+  // AREG TEST Nardi changes should be fetched fresh while online; retain offline fallback.
+  if(/\/areg-nardi(?:-rules)?\.(?:js|css)$/i.test(url.pathname)){
+    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
+      if(response&&response.ok){
+        const copy=response.clone();
+        event.waitUntil(caches.open(RUNTIME_CACHE).then(cache=>cache.put(request,copy)).catch(()=>{}));
+      }
+      return response;
+    }).catch(()=>caches.match(request,{ignoreSearch:true}).then(hit=>hit||Response.error())));
+    return;
+  }
   if(url.pathname.endsWith('/app.js')||url.pathname.endsWith('/areg-test-version.json')){
     event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
       if(response&&response.ok){
