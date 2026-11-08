@@ -48,6 +48,7 @@ test('Sea Battle: repeated local shot cannot pass the turn again', () => {
   const game = setup();
   game.fire(45);
   const previous = game.events.length;
+  game.state.turn = 0; // Simulate the next opportunity to target the same board.
   game.fire(45);
   assert.equal(game.events.length,previous);
   assert.deepEqual(game.state.theirs.shots,[45]);
