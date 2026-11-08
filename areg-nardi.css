@@ -385,3 +385,15 @@ html.nardi-loading .board { visibility: hidden; }
   -webkit-mask-image: none !important;
 }
 .game::after { box-shadow: inset 0 0 0 2px #f1c18a, inset 0 0 0 5px #63371e !important; }
+
+/* iOS iframe corner repair: paint the area OUTSIDE the rounded wooden
+   game with the same pale-blue portal color, never with wood/brown.
+   This also covers WebKit iframe transparency compositing failures. */
+html, body { background: #b9dced !important; }
+.game {
+  border-radius: 25px !important;
+  overflow: clip !important;
+  -webkit-clip-path: inset(0 round 25px) !important;
+  clip-path: inset(0 round 25px) !important;
+  background-clip: border-box !important;
+}
