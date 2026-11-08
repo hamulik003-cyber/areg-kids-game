@@ -485,3 +485,15 @@ html, body { background: #b9dced !important; }
  color:#ffe3a1; -webkit-text-stroke:.6px #713109;
  text-shadow:0 2px 0 #78370f,0 3px 5px #26100b,0 0 12px #e9ad6c9c;
 }
+
+/* Carved wooden heading, separated clearly from the scoreboard artwork. */
+.score > .nardi-page-title {
+ bottom:calc(100% + 34px) !important;
+ font-size:clamp(29px,8vw,44px) !important;
+ font-weight:1000 !important;
+ letter-spacing:.025em;
+ color:#a85a20 !important;
+ -webkit-text-stroke:1.1px #5c260e !important;
+ text-shadow:0 -1px 0 #ffe0a0,1px 1px 0 #e6a55a,2px 3px 0 #793714,3px 5px 0 #4a200e,4px 7px 5px #160a08bb,0 0 9px #ffd17a55 !important;
+ filter:drop-shadow(0 2px 2px #170b08a0);
+}
