@@ -497,3 +497,17 @@ html, body { background: #b9dced !important; }
  text-shadow:0 -1px 0 #ffe0a0,1px 1px 0 #e6a55a,2px 3px 0 #793714,3px 5px 0 #4a200e,4px 7px 5px #160a08bb,0 0 9px #ffd17a55 !important;
  filter:drop-shadow(0 2px 2px #170b08a0);
 }
+
+/* Match the heavy brown carved lettering of the Checkers game title.
+   Keep the heading centered in the user's marked area, independent of the score. */
+.score > .nardi-page-title {
+ bottom:calc(100% + 94px) !important;
+ font-family:system-ui,-apple-system,"Noto Sans Armenian",sans-serif !important;
+ font-weight:1000 !important;
+ font-size:clamp(32px,8.5vw,46px) !important;
+ letter-spacing:-.035em !important;
+ color:#663015 !important;
+ -webkit-text-stroke:1.4px #51230e !important;
+ text-shadow:0 1px 0 #a86736,0 2px 0 #4b220e,0 3px 2px #28130866 !important;
+ filter:none !important;
+}
