@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#26150e">
   <title>Նարդի</title>
-  <link rel="stylesheet" href="./areg-nardi.css?v=8">
+  <link rel="stylesheet" href="./areg-nardi.css?v=9">
   <link rel="preload" as="image" href="./assets/nardi/board.png">
   <link rel="preload" as="image" href="./assets/nardi/ivory.png">
   <link rel="preload" as="image" href="./assets/nardi/dark.png">
@@ -18,24 +18,9 @@
         <div><strong>Բաց</strong><small>Դուրս՝ <b id="off-light">0</b>/15</small></div>
       </div>
       <div class="scoreboard" id="scoreboard" role="img" aria-label="Հաշիվը՝ 0–0">
-        <img src="./assets/nardi/scoreboard.png" alt="" draggable="false">
-        <svg viewBox="0 0 1416 512" aria-hidden="true">
-          <defs>
-            <linearGradient id="score-wood" x2="0" y2="1">
-              <stop stop-color="#fbb14d"/>
-              <stop offset=".36" stop-color="#ffce76"/>
-              <stop offset="1" stop-color="#f5be5d"/>
-            </linearGradient>
-          </defs>
-          <g id="score-light" visibility="hidden">
-            <rect x="344" y="198" width="100" height="139" rx="8" fill="url(#score-wood)"/>
-            <text x="394" y="325" text-anchor="middle"></text>
-          </g>
-          <g id="score-dark" visibility="hidden">
-            <rect x="975" y="198" width="100" height="139" rx="8" fill="url(#score-wood)"/>
-            <text x="1025" y="325" text-anchor="middle"></text>
-          </g>
-        </svg>
+        <img src="./AREG_scoreboard_transparent%202.png" alt="" draggable="false">
+        <span class="score-number score-number-light" id="score-light" aria-hidden="true">0</span>
+        <span class="score-number score-number-dark" id="score-dark" aria-hidden="true">0</span>
       </div>
       <div class="player" data-player="1">
         <img src="./assets/nardi/dark.png" alt="" draggable="false">
@@ -91,6 +76,6 @@
   </dialog>
 
   <noscript>Նարդին խաղալու համար միացրու JavaScript-ը։</noscript>
-  <script type="module" src="./areg-nardi.js?v=4"></script>
+  <script type="module" src="./areg-nardi.js?v=5"></script>
 </body>
 </html>
