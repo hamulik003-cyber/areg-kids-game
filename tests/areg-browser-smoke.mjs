@@ -1,5 +1,5 @@
 import { chromium, webkit } from 'playwright';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { discoverGamePages } from './areg-discovery.mjs';
 
@@ -12,6 +12,7 @@ if (!['chromium', 'webkit'].includes(engineName)) throw new Error(`Unsupported b
 const browser = await ({ chromium, webkit })[engineName].launch({ headless: true });
 const failures = [];
 const notices = [];
+const results = [];
 let passed = 0;
 try {
   for (const name of names) {
@@ -22,6 +23,12 @@ try {
       deviceScaleFactor: 2,
     });
     const errors = [];
+    const missingResources = [];
+    page.on('response', response => {
+      if (response.status() >= 400 && new URL(response.url()).origin === new URL(base).origin) {
+        missingResources.push(`${response.status()} ${new URL(response.url()).pathname}`);
+      }
+    });
     page.on('pageerror', error => errors.push(error.message));
     try {
       const response = await page.goto(new URL(name, base).href, {
@@ -43,11 +50,16 @@ try {
         notices.push(`${name}: horizontal overflow ${result.width}px > ${result.viewport}px`);
       }
       await page.waitForTimeout(500);
+      if (missingResources.length) {
+        notices.push(`${name}: failed local requests: ${JSON.stringify([...new Set(missingResources)].slice(0, 10))}`);
+      }
+      results.push({ game: name, status: 'loaded', ...result, runtimeErrors: errors.slice(0, 10), failedLocalRequests: [...new Set(missingResources)].slice(0, 20) });
       if (errors.length) {
         notices.push(`${name}: runtime errors: ${JSON.stringify(errors.slice(0, 3))}`);
       }
     } catch (error) {
       failures.push(`${name}: ${error.message}`);
+      results.push({ game: name, status: 'failed', error: error.message });
       console.error(`FAIL ${name}: ${error.message}`);
     } finally {
       await page.close();
@@ -63,3 +75,9 @@ if (failures.length) {
 
 console.log(`AREG BROWSER SUMMARY [${engineName}]: ${passed}/${names.length} pages loaded; ${notices.length} notices; ${failures.length} failures`);
 for (const notice of notices) console.log(`NOTICE ${notice}`);
+
+const reportDir = resolve(root, 'audit-reports');
+mkdirSync(reportDir, { recursive: true });
+writeFileSync(resolve(reportDir, `browser-${engineName}.json`), JSON.stringify({
+  engine: engineName, pages: names.length, passed, notices, failures, results,
+}, null, 2) + '\n');
