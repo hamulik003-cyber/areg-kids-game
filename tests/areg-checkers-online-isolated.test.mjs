@@ -86,7 +86,7 @@ test('Checkers online: FUK removal requires a pending penalty',()=>{
   g.state.penalty=[17];
   g.callbacks.data({type:'fuk',i:17});
   assert.equal(g.state.board[17],0);
-  assert.deepEqual(g.state.penalty,[]);
+  assert.equal(g.state.penalty.length,0);
 });
 
 test('Checkers online: invalid FUK settings do not reset the match',()=>{
