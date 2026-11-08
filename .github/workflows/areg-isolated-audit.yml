@@ -30,7 +30,8 @@ jobs:
           echo "A passing audit does not validate iOS PWA visuals or all game mechanics." >> "$GITHUB_STEP_SUMMARY"
 
   browser-smoke:
-    runs-on: ubuntu-latest
+    # Pin the browser runner: Playwright 1.56.1 does not support Ubuntu 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
