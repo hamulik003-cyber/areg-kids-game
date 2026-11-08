@@ -183,12 +183,23 @@ function statusText() {
 function render() {
   const moves = eligibleMoves();
   const sources = new Set(moves.map((move) => move.from));
+  const allSources = new Set(available.map((move) => move.from));
   const targets = new Set(moves.filter((move) => move.from === selected).map((move) => move.to));
   pointButtons.forEach((point, index) => {
     const count = game.points[index];
     paintStones(point, count);
     const action = index === selected ? "selected" : targets.has(index) ? "target" : sources.has(index) ? "source" : "";
     point.dataset.action = action;
+    point.classList.toggle("hint-movable", selected === null && allSources.has(index) && !busy());
+    point.querySelectorAll(".move-hint").forEach((hint) => hint.remove());
+    if (action === "target") {
+      const diceValues = [...new Set(moves.filter((move) => move.from === selected && move.to === index).map((move) => move.die))].sort((a,b) => a-b);
+      const marker = document.createElement("span");
+      marker.className = "move-hint";
+      marker.textContent = diceValues.join(" · ");
+      marker.setAttribute("aria-label", "Թույլատրելի քայլ՝ " + diceValues.join(" կամ ") + " զառով");
+      point.append(marker);
+    }
     point.disabled = busy() || !action;
     point.setAttribute("aria-pressed", String(index === selected));
     const label = count ? NAMES[count < 0 ? 1 : 0] + " · " + Math.abs(count) + " քար" : "ազատ";
