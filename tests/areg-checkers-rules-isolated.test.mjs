@@ -58,3 +58,29 @@ test('checkers: captures remain available for chain continuation', () => {
   const next = rules.apply(b,first);
   assert.ok(rules.maxCaptures(next,1,24).some(m => m.from === 24 && m.to === 10 && m.cap === 17));
 });
+
+test('checkers: capture-only mode excludes ordinary moves when capture exists', () => {
+  const b = board([42,1],[33,-1],[46,1]);
+  const legal = rules.moves(b,1);
+  assert.ok(legal.length > 0);
+  assert.ok(legal.every(m => m.cap >= 0));
+});
+
+test('checkers: FUK mode permits ordinary moves alongside captures', () => {
+  const b = board([42,1],[33,-1],[46,1]);
+  context.$ = () => ({ checked: true });
+  try {
+    const legal = rules.moves(b,1);
+    assert.ok(legal.some(m => m.cap >= 0));
+    assert.ok(legal.some(m => m.cap < 0));
+  } finally {
+    context.$ = () => ({ checked: false });
+  }
+});
+
+test('checkers: a crowned king can slide multiple empty diagonal cells', () => {
+  const b = board([35,2]);
+  const legal = rules.rawMoves(b,1);
+  assert.ok(legal.some(m => m.from === 35 && m.to === 8 && m.cap === -1));
+  assert.ok(legal.some(m => m.from === 35 && m.to === 62 && m.cap === -1));
+});
