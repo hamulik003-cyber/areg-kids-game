@@ -1,0 +1,19 @@
+name: AREG Desktop Layout Pilot
+on:
+  push:
+    branches:
+      - trial/areg-desktop-layout-20261109
+  workflow_dispatch:
+jobs:
+  desktop-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps chromium
+      - run: node qa/desktop-layout.browser.mjs
+      - run: node --test qa/handoff-guard.test.mjs qa/finding-session.test.mjs qa/star-economy.test.mjs qa/space-question-cycle.test.mjs
