@@ -46,3 +46,14 @@
 
 ## How to continue in a new chat
 Say: «Շարունակիր AREG անվտանգության ավտոմատ թեստերի նախագիծը։ Կարդա GitHub-ի safety/areg-audit-pilot-20261109 ճյուղի AREG_AUDIT_HANDOFF.md և AREG_SAFETY_POLICY.md։ Նախ ստուգիր վերջին Actions արդյունքները, հետո շարունակիր միայն անվտանգության ճյուղում։ DotKiosk-ը մի փոխիր»։
+
+## Verified closure evidence (2026-11-09)
+- GitHub Actions run **#48**, ID **42536750717**, SHA **8a3ba69e85602c61de6060f6c5c382c952686031**, event push, conclusion **success**: https://github.com/hamulik003-cyber/areg-kids-game/actions/runs/42536750717
+- **rules-audit:** 70 tests passed, 0 failed, 0 skipped (fetched actual job log).
+- **browser-smoke (chromium):** 6/6 discovered existing game pages loaded, 0 failures, 1 notice (areg-color-blast.html missing document title).
+- **browser-smoke (webkit):** 6/6 discovered existing game pages loaded, 0 failures, 1 notice (same missing document title).
+- Both browser diagnostic artifacts were uploaded successfully, GitHub artifact names `areg-browser-chromium` and `areg-browser-webkit`; both browser job logs inspected for page loads, failures and notices.
+- Compared audit branch vs AREG TEST trial source: **49 commits ahead, 0 behind**, and **only audit workflow, docs and test files changed**. No game source changes; no DotKiosk merge/deployment.
+- **Conclusion:** isolated audit pilot CI and mobile-emulated smoke tests are verified green for the above SHA. The optional missing title is a nonblocking metadata notice; not a confirmed gameplay defect. This **closes the pilot CI verification task**, not the entire game's quality assurance or release gate.
+- **Outstanding** (not validated): real installed iOS PWA, multi-device online networking/reconnect, all gameplay paths. Known Sea Battle result-correlation and Checkers dice-dispatch risks remain documented; fixes require separate explicit approval and trial-first work.
+- A push to this handoff document may itself trigger a newer CI run; do not automatically claim that newer run passed without checking it.
