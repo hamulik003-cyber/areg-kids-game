@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {requestAccess,decideAccess,revokeAccess,isAllowed} from './access-core.mjs';
+const pending=()=>requestAccess({id:'r1',identityId:'verified-user-1',now:1000});
+test('new requests are denied by default',()=>assert.equal(isAllowed(pending(),{identityId:'verified-user-1',now:1001}),false));
+test('unverified identity is rejected',()=>assert.throws(()=>requestAccess({id:'r1',identityId:'',now:1000})));
+test('only authenticated owner may approve',()=>assert.throws(()=>decideAccess(pending(),{action:'approve',ownerAuthenticated:false,now:1001})));
+test('approved verified identity is allowed',()=>assert.equal(isAllowed(decideAccess(pending(),{action:'approve',ownerAuthenticated:true,now:1001}),{identityId:'verified-user-1',now:1002}),true));
+test('another identity cannot reuse approval',()=>assert.equal(isAllowed(decideAccess(pending(),{action:'approve',ownerAuthenticated:true,now:1001}),{identityId:'other',now:1002}),false));
+test('rejected request remains denied',()=>assert.equal(isAllowed(decideAccess(pending(),{action:'reject',ownerAuthenticated:true,now:1001}),{identityId:'verified-user-1',now:1002}),false));
+test('replay of decision is rejected',()=>assert.throws(()=>decideAccess(decideAccess(pending(),{action:'approve',ownerAuthenticated:true,now:1001}),{action:'approve',ownerAuthenticated:true,now:1002})));
+test('expired request cannot be approved',()=>assert.throws(()=>decideAccess(pending(),{action:'approve',ownerAuthenticated:true,now:901000})));
+test('revocation blocks access',()=>assert.equal(isAllowed(revokeAccess(decideAccess(pending(),{action:'approve',ownerAuthenticated:true,now:1001}),{ownerAuthenticated:true,now:1002}),{identityId:'verified-user-1',now:1003}),false));
+test('approval expires',()=>assert.equal(isAllowed(decideAccess(pending(),{action:'approve',ownerAuthenticated:true,now:1001}),{identityId:'verified-user-1',now:901000}),false));
