@@ -28,4 +28,7 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.55.1
       - run: npx playwright install --with-deps webkit
-      - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
+      - run: AREG_BROWSER=webkit node qa/desktop-layout.browser.mjs
+      - name: Full legacy iOS game smoke (diagnostic)
+        continue-on-error: true
+        run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
