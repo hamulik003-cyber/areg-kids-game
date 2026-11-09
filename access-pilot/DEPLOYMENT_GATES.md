@@ -19,3 +19,10 @@ This is a **schema-only** preparation, not a database migration. Never use the p
 8. Integrate with an isolated test game gateway; enforce every access check on the server. A client-only lock is insufficient.
 9. Exercise denial, replay, expiry, restart, concurrency, rate limits, offline mode and iPhone PWA notifications before considering AREG TEST integration.
 10. Do not touch DotKiosk without separate explicit approval.
+
+## Zero-cost constraint (owner requirement)
+- No paid resources, upgrades, subscriptions or payment-method-required services may be provisioned.
+- Render workspace check (2026-11-09): no existing Postgres databases. A Render free Postgres offering may have expiration and is **not** a guaranteed durable permanent solution; do not create one solely to imply persistence.
+- Local SQLite adapter is useful for local tests only: Render free web service filesystem is ephemeral. Never store authoritative access grants there.
+- Before implementing a live pilot, evaluate a free persistent remote database with documented free-tier limits and no automatic paid upgrade. Confirm credentials and persistence, then implement server-side authorization, expiry and backup/recovery tests.
+- No new external account or paid billing authorization is assumed. The current mock remains non-authorizing until these gates are satisfied.
