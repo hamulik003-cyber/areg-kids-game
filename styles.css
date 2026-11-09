@@ -4063,3 +4063,19 @@ body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan
     overscroll-behavior: contain;
   }
 }
+
+/* Desktop home stage: separate landscape composition; original mobile positions retained. */
+@media (min-width: 900px) and (min-height: 600px) and (hover: hover) and (pointer: fine) {
+  #homeScreen .design-stage { width:1100px; height:750px; }
+  #homeScreen .avatar-button { left:22px; top:12px; width:110px; height:120px; }
+  #homeScreen .logo { left:345px; top:0; width:410px; height:135px; }
+  #homeScreen .logo-sheen, #homeScreen .logo-spark { display:none; }
+  #homeScreen .star-counter { left:878px; top:25px; width:115px; height:70px; }
+  #homeScreen .settings-button { left:1000px; top:19px; width:88px; height:83px; }
+  #homeScreen .nature-card { left:20px; top:160px; width:250px; height:250px; }
+  #homeScreen .space-card { left:290px; top:160px; width:250px; height:250px; }
+  #homeScreen .mind-card { left:560px; top:160px; width:250px; height:250px; }
+  #homeScreen .create-card { left:830px; top:160px; width:250px; height:250px; }
+  #homeScreen .magic-card { left:250px; top:430px; width:600px; height:235px; }
+  #homeScreen .bottom-landscape { left:0; top:670px; width:1100px; height:80px; }
+}
