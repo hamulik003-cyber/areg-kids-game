@@ -18,6 +18,15 @@ try {
    const cards=[...document.querySelectorAll('#homeScreen .section-card')].map(x=>({name:x.dataset.section,rect:x.getBoundingClientRect().toJSON()}));
    return {stage:stage.toJSON(),cards,desktop:matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) and (hover: hover) and (pointer: fine)').matches};
   });
+  if(m.cards.length!==5)throw Error('Expected five home sections, got '+m.cards.length);
+  if(m.desktop !== (width>=900 && height>=600 && width/height>=1.25))
+    throw Error('Unexpected desktop breakpoint '+width+'x'+height);
+  for(let i=0;i<m.cards.length;i++)for(let j=i+1;j<m.cards.length;j++){
+   const a=m.cards[i].rect,b=m.cards[j].rect;
+   const overlapX=Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left));
+   const overlapY=Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+   if(overlapX*overlapY>4)throw Error('Home tiles overlap '+width+'x'+height+' '+m.cards[i].name+' / '+m.cards[j].name);
+  }
   if(m.stage.left < -2 || m.stage.top < -2 || m.stage.right > width+2 || m.stage.bottom > height+2)throw Error('Stage clipping '+width+'x'+height+' '+JSON.stringify(m.stage));
   for(const c of m.cards){
    if(c.rect.left < -2 || c.rect.top < -2 || c.rect.right > width+2 || c.rect.bottom > height+2)throw Error('Card clipping '+width+'x'+height+' '+c.name);
