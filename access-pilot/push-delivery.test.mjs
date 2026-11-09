@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {notifyOwnerOfRequest,pushReadiness} from './push-delivery.mjs';
+const subscription={endpoint:'https://push.example.invalid/subscription'};
+test('missing provider is never reported as delivered',async()=>await assert.rejects(()=>notifyOwnerOfRequest({requestId:'req',subscription}),/not configured/));
+test('provider failure leaves request pending',async()=>assert.deepEqual(await notifyOwnerOfRequest({requestId:'req',subscription,sendPush:async()=>{throw Error('offline')}}),{sent:false,reason:'provider-unavailable'}));
+test('provider rejection is reported',async()=>assert.deepEqual(await notifyOwnerOfRequest({requestId:'req',subscription,sendPush:async()=>({ok:false})}),{sent:false,reason:'provider-rejected'}));
+test('notification carries no private request ID',async()=>{let payload;await notifyOwnerOfRequest({requestId:'private-request-id',subscription,sendPush:async(_,data)=>{payload=data;return {ok:true}}});assert.equal(payload.includes('private-request-id'),false)});
+test('HTTPS subscription is mandatory',async()=>await assert.rejects(()=>notifyOwnerOfRequest({requestId:'req',subscription:{endpoint:'http://example.com'},sendPush:async()=>({ok:true})}),/HTTPS/));
+test('readiness requires every iPhone and backend condition',()=>{assert.equal(pushReadiness({httpsOrigin:true,installedPwa:true,permission:'granted',hasSubscription:true,backendConfigured:true}).ready,true);assert.equal(pushReadiness({httpsOrigin:true,installedPwa:true,permission:'denied',hasSubscription:false,backendConfigured:false}).ready,false)});
