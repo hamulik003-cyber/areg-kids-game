@@ -4079,3 +4079,28 @@ body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan
   #homeScreen .magic-card { left:250px; top:430px; width:600px; height:235px; }
   #homeScreen .bottom-landscape { left:0; top:670px; width:1100px; height:80px; }
 }
+
+/* Desktop section overflow guard: scroll game cards without clipping the header. */
+@media (min-width: 900px) and (min-height: 600px) and (hover: hover) and (pointer: fine) {
+  #sectionScreen:not([data-section="create"]):not([data-section="magic"]) .section-scroll-content {
+    display:flex;
+    flex:1 1 auto;
+    min-height:0;
+    flex-direction:column;
+    gap:18px;
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+    touch-action:pan-y;
+    padding:2px 4px 22px;
+  }
+  #sectionScreen:not([data-section="create"]):not([data-section="magic"]) .section-games-grid {
+    flex:0 0 auto;
+    grid-auto-rows:190px;
+    min-height:0;
+    padding-bottom:12px;
+  }
+  #sectionScreen:not([data-section="create"]):not([data-section="magic"]) .section-hero-card {
+    flex:0 0 min(27vh,260px);
+  }
+}
