@@ -1,0 +1,61 @@
+{
+  "name": "areg-windows-test",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AREG TEST local Windows pilot",
+  "main": "main.cjs",
+  "scripts": {
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "35.7.5",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "am.areg.windows.test",
+    "productName": "AREG Windows TEST",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "../**/*",
+      "!../.git/**",
+      "!../.github/**",
+      "!../qa/**",
+      "!../scripts/**",
+      "!../tools/**",
+      "!../preview-*/**",
+      "!../windows-app/dist/**",
+      "!../node_modules/**"
+    ],
+    "extraResources": [
+      {
+        "from": "..",
+        "to": "game",
+        "filter": [
+          "**/*",
+          "!.git/**",
+          "!.github/**",
+          "!qa/**",
+          "!scripts/**",
+          "!tools/**",
+          "!preview-*/**",
+          "!windows-app/**",
+          "!node_modules/**"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "AREG-Windows-TEST-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
