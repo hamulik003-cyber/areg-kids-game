@@ -518,7 +518,7 @@
       lw=Math.min(vw,innerWidth||vw);
       lh=Math.min(vh,innerHeight||vh);
     }
-    const desktopLayout=matchMedia('(min-width: 900px) and (min-height: 600px) and (hover: hover) and (pointer: fine)').matches;
+    const desktopLayout=matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) and (hover: hover) and (pointer: fine)').matches;
     const scale=desktopLayout?Math.min(lw/1100,lh/750):Math.min(lw/DESIGN_W,lh/DESIGN_H);
     root.style.setProperty('--app-h',`${lh}px`);root.style.setProperty('--stage-scale',String(scale));
     root.style.setProperty('--stage-x',`${lw/2}px`);root.style.setProperty('--stage-y',`${lh/2}px`);
