@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createOtpChallenge,verifyOtpChallenge,OTP_TTL_MS,OTP_MAX_ATTEMPTS} from './owner-otp.mjs';
+const secret='this-is-an-isolated-test-secret-only-123456789';
+const start=()=>createOtpChallenge({ownerId:'owner-1',now:1000,secret});
+test('6-digit code and no plaintext in challenge',()=>{const {code,challenge}=start();assert.match(code,/^\\d{6}$/);assert.equal(JSON.stringify(challenge).includes(code),false)});
+test('valid code succeeds once',()=>{const {code,challenge}=start();const result=verifyOtpChallenge(challenge,{ownerId:'owner-1',code,now:1001,secret});assert.equal(result.verified,true);assert.equal(verifyOtpChallenge(result.challenge,{ownerId:'owner-1',code,now:1002,secret}).verified,false)});
+test('wrong code fails',()=>{const {code,challenge}=start();assert.equal(verifyOtpChallenge(challenge,{ownerId:'owner-1',code:code==='000000'?'000001':'000000',now:1001,secret}).verified,false)});
+test('owner mismatch fails',()=>{const {code,challenge}=start();assert.equal(verifyOtpChallenge(challenge,{ownerId:'other',code,now:1001,secret}).verified,false)});
+test('expired code fails',()=>{const {code,challenge}=start();assert.equal(verifyOtpChallenge(challenge,{ownerId:'owner-1',code,now:1000+OTP_TTL_MS,secret}).verified,false)});
+test('five failed attempts lock code',()=>{const {code,challenge}=start();let current=challenge;for(let i=0;i<OTP_MAX_ATTEMPTS;i++)current=verifyOtpChallenge(current,{ownerId:'owner-1',code:code==='000000'?'000001':'000000',now:1001+i,secret}).challenge;assert.equal(verifyOtpChallenge(current,{ownerId:'owner-1',code,now:1010,secret}).verified,false)});
+test('weak server secret rejected',()=>assert.throws(()=>createOtpChallenge({ownerId:'owner-1',now:1000,secret:'weak'})));
