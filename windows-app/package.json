@@ -19,15 +19,7 @@
     },
     "files": [
       "main.cjs",
-      "../**/*",
-      "!../.git/**",
-      "!../.github/**",
-      "!../qa/**",
-      "!../scripts/**",
-      "!../tools/**",
-      "!../preview-*/**",
-      "!../windows-app/dist/**",
-      "!../node_modules/**"
+      "package.json"
     ],
     "extraResources": [
       {
