@@ -4,10 +4,10 @@ import {fileURLToPath} from 'node:url';
 import {dirname,join} from 'node:path';
 import {randomBytes,createHash,timingSafeEqual} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+const here=dirname(fileURLToPath(import.meta.url));
 // Isolated pilot service has a fixed Render build command; install dependency at boot until build configuration is migrated.
 try { await import('web-push'); } catch { execFileSync('npm',['install','--omit=dev','--no-audit','--no-fund','--prefix',here],{stdio:'inherit',timeout:120000}); }
 const {default:webpush}=await import('web-push');
-const here=dirname(fileURLToPath(import.meta.url));
 const port=Number(process.env.PORT||3000);
 const publicKey=process.env.VAPID_PUBLIC_KEY;
 const privateKey=process.env.VAPID_PRIVATE_KEY;
