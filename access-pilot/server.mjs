@@ -12,7 +12,7 @@ const port=Number(process.env.PORT||3000);
 const publicKey=process.env.VAPID_PUBLIC_KEY;
 const privateKey=process.env.VAPID_PRIVATE_KEY;
 const configured=!!(publicKey&&privateKey);
-if(configured)webpush.setVapidDetails('mailto:areg-push-pilot@example.invalid',publicKey,privateKey);
+if(configured)webpush.setVapidDetails('https://areg-access-push-pilot.onrender.com',publicKey,privateKey);
 const pages=new Map([['/','index.html'],['/push-worker.js','push-worker-demo.js'],['/client.js','client.js'],['/manifest.webmanifest','manifest.webmanifest'],['/icon.svg','icon.svg']]);
 const security={'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'"};
 const registrations=new Map();
