@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {openLocalPilotStore} from './local-sqlite-store.mjs';
+test('pending denied, approval identity-bound, revoke denied',()=>{const s=openLocalPilotStore();const r=s.submitVerified('verified-visitor',1000);assert.equal(s.mayPlay(r.id,{identityId:'verified-visitor',now:1001}),false);assert.throws(()=>s.decide(r.id,{action:'approve',ownerAuthenticated:false,now:1001}));s.decide(r.id,{action:'approve',ownerAuthenticated:true,now:1001});assert.equal(s.mayPlay(r.id,{identityId:'another',now:1002}),false);assert.equal(s.mayPlay(r.id,{identityId:'verified-visitor',now:1002}),true);s.revoke(r.id,{ownerAuthenticated:true,now:1003});assert.equal(s.mayPlay(r.id,{identityId:'verified-visitor',now:1004}),false);s.close();});
+test('replayed decision rejected, rejection remains denied',()=>{const s=openLocalPilotStore();const r=s.submitVerified('visitor',1000);s.decide(r.id,{action:'reject',ownerAuthenticated:true,now:1001});assert.throws(()=>s.decide(r.id,{action:'approve',ownerAuthenticated:true,now:1002}));assert.equal(s.mayPlay(r.id,{identityId:'visitor',now:1003}),false);s.close();});
+test('approval expires',()=>{const s=openLocalPilotStore();const r=s.submitVerified('visitor',1000,{ttlMs:100});s.decide(r.id,{action:'approve',ownerAuthenticated:true,now:1001});assert.equal(s.mayPlay(r.id,{identityId:'visitor',now:1100}),false);s.close();});
+test('local file persists through restart (not suitable for Render free)',()=>{const dir=mkdtempSync(join(tmpdir(),'areg-access-'));try{const file=join(dir,'pilot.sqlite');let s=openLocalPilotStore(file);const r=s.submitVerified('visitor',1000);s.close();s=openLocalPilotStore(file);assert.equal(s.listForOwner({ownerAuthenticated:true})[0].id,r.id);s.close();}finally{rmSync(dir,{recursive:true,force:true});}});
