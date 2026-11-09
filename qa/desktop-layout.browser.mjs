@@ -1,13 +1,13 @@
-import {chromium} from 'playwright';
+import {chromium,webkit} from 'playwright';
 import {spawn} from 'node:child_process';
 import {setTimeout as sleep} from 'node:timers/promises';
 const server=spawn('python3',['-m','http.server','8877','--bind','127.0.0.1'],{stdio:'ignore'});
 let browser;
 try {
  await sleep(1000);
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
- for(const [width,height] of [[1366,768],[1280,720],[1920,1080],[390,844]]) {
-  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+ browser=process.env.AREG_BROWSER==='webkit' ? await webkit.launch({headless:true}) : await chromium.launch({headless:true,args:['--no-sandbox']});
+ for(const [width,height] of (process.env.AREG_BROWSER==='webkit' ? [[390,844]] : [[1366,768],[1280,720],[1920,1080],[390,844]])) {
+  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1,isMobile:process.env.AREG_BROWSER==='webkit',hasTouch:process.env.AREG_BROWSER==='webkit'});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:8877/index.html?areg_trial=1',{waitUntil:'domcontentloaded',timeout:30000});
