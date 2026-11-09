@@ -213,7 +213,7 @@ try{
   }else{
    const games=page.locator('#sectionGames .toddler-game-card');
    const n=await games.count();
-   if(n!==4)throw Error(section+' has '+n+' games, expected 4');
+   if(n!==(section==='create'?7:4))throw Error(section+' has '+n+' games, expected '+(section==='create'?7:4));
    const ids=await games.evaluateAll(ns=>ns.map(n=>n.dataset.game));
    for(const id of ids){
     if(section==='mind'&&id==='puzzle'){
