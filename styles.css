@@ -4010,3 +4010,56 @@ body.create-scroll-active #sectionScreen .toddler-section-shell{touch-action:pan
 /* Word duel only: transparent rounded corners show the light activity page, never navy. */
 .activity-screen.word-duel-mode .activity-content,
 .activity-screen.word-duel-mode .mind-v4-frame{background:#d5edf8!important}
+
+/* AREG desktop layout pilot: desktop pointer devices only. */
+@media (min-width: 900px) and (min-height: 600px) and (hover: hover) and (pointer: fine) {
+  /* The mobile layout remains untouched. Desktop uses the full browser viewport
+     with a bounded, readable content area rather than stretched game cards. */
+  #sectionScreen .toddler-section-shell {
+    left: 50%;
+    right: auto;
+    width: min(1120px, calc(100% - 64px));
+    transform: translateX(-50%);
+    padding: 24px 20px 24px !important;
+  }
+  #sectionScreen .toddler-topbar {
+    grid-template-columns: 64px minmax(0, 1fr) 116px;
+    gap: 16px;
+  }
+  #sectionScreen .section-hero-card {
+    flex-basis: min(27vh, 260px);
+    min-height: 150px;
+  }
+  #sectionScreen .section-games-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  #sectionScreen[data-section="create"] .section-hero-card {
+    height: min(27vh, 260px) !important;
+    min-height: 150px !important;
+    flex-basis: min(27vh, 260px) !important;
+  }
+  #sectionScreen[data-section="create"] .section-games-grid {
+    grid-auto-rows: 190px !important;
+  }
+  #activityScreen .activity-shell {
+    left: 50%;
+    right: auto;
+    width: min(1180px, calc(100% - 64px));
+    transform: translateX(-50%);
+    padding: 20px 16px 24px;
+  }
+  #activityScreen .activity-topbar {
+    grid-template-columns: 64px minmax(0, 1fr) 116px;
+    gap: 16px;
+  }
+  #activityScreen .activity-title {
+    font-size: 25px;
+  }
+  /* Keep modal controls reachable on shorter desktop/laptop displays. */
+  .settings-panel, .avatar-panel {
+    max-height: min(92dvh, 900px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
