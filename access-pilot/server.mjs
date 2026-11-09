@@ -13,7 +13,7 @@ const publicKey=process.env.VAPID_PUBLIC_KEY;
 const privateKey=process.env.VAPID_PRIVATE_KEY;
 const configured=!!(publicKey&&privateKey);
 if(configured)webpush.setVapidDetails('https://areg-access-push-pilot.onrender.com',publicKey,privateKey);
-const pages=new Map([['/','index.html'],['/push-worker.js','push-worker-demo.js'],['/client.js','client.js'],['/manifest.webmanifest','manifest.webmanifest'],['/icon.svg','icon.svg']]);
+const pages=new Map([['/','index.html'],['/push-worker.js','push-worker-demo.js'],['/client.js','client.js'],['/manifest.webmanifest','manifest.webmanifest'],['/icon.svg','icon.svg'],['/approval-demo','approval-demo.html'],['/approval-demo.js','approval-demo.js']]);
 const security={'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'DENY','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'"};
 const registrations=new Map();
 function reply(res,status,body){res.writeHead(status,{...security,'Content-Type':'application/json'});res.end(JSON.stringify(body));}
@@ -48,5 +48,5 @@ http.createServer(async(req,res)=>{
   }
   if(req.method!=='GET')return reply(res,405,{error:'method'});
   if(!pages.has(path))return reply(res,404,{error:'not-found'});
-  try{const file=await readFile(join(here,pages.get(path)));const type=path==='/manifest.webmanifest'?'application/manifest+json':path==='/icon.svg'?'image/svg+xml':path==='/push-worker.js'||path==='/client.js'?'text/javascript; charset=utf-8':'text/html; charset=utf-8';res.writeHead(200,{...security,'Content-Type':type});res.end(file)}catch{return reply(res,500,{error:'unavailable'});}
+  try{const file=await readFile(join(here,pages.get(path)));const type=path==='/manifest.webmanifest'?'application/manifest+json':path==='/icon.svg'?'image/svg+xml':path==='/push-worker.js'||path==='/client.js'||path==='/approval-demo.js'?'text/javascript; charset=utf-8':'text/html; charset=utf-8';res.writeHead(200,{...security,'Content-Type':type});res.end(file)}catch{return reply(res,500,{error:'unavailable'});}
 }).listen(port,'0.0.0.0',()=>console.log('AREG isolated push demo listening'));
