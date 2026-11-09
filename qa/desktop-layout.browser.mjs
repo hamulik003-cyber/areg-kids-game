@@ -32,6 +32,27 @@ try {
    if(c.rect.left < -2 || c.rect.top < -2 || c.rect.right > width+2 || c.rect.bottom > height+2)throw Error('Card clipping '+width+'x'+height+' '+c.name);
   }
   if(errors.length)throw Error('Browser exceptions '+width+'x'+height+' '+errors.join('; '));
+  if(m.desktop && width===1366) {
+   for(const section of ['nature','space','mind','create','magic']) {
+    await page.locator('.section-card[data-section="'+section+'"]').evaluate(el=>el.click());
+    await page.waitForSelector('#sectionScreen.is-visible',{timeout:12000});
+    await page.waitForTimeout(950);
+    const state=await page.evaluate(()=>({
+     section:document.querySelector('#sectionScreen')?.dataset.section,
+     games:[...document.querySelectorAll('#sectionGames .toddler-game-card')].map(x=>x.dataset.game),
+     magic:document.querySelectorAll('.magic-collect-card').length,
+     shell:document.querySelector('#sectionScreen .toddler-section-shell')?.getBoundingClientRect().toJSON()
+    }));
+    if(section==='magic' ? state.magic<35 : state.games.length!==(section==='create'?7:4))
+      throw Error('Desktop section cards mismatch '+section+' '+JSON.stringify(state));
+    if(state.shell && (state.shell.left < -3 || state.shell.right > width+3))
+      throw Error('Desktop section shell clipped '+section+' '+JSON.stringify(state.shell));
+    await page.locator('#sectionBack').evaluate(el=>el.click());
+    await page.waitForSelector('#homeScreen.is-visible',{timeout:12000});
+    await page.waitForTimeout(950);
+    console.log('PASS desktop section entry/exit '+section);
+   }
+  }
   console.log('PASS home '+width+'x'+height+' desktop='+m.desktop+' cards='+m.cards.length);
   await page.close();
  }
