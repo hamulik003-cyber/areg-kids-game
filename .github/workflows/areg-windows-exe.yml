@@ -1,0 +1,32 @@
+name: AREG Windows EXE Pilot
+on:
+  push:
+    branches:
+      - trial/areg-desktop-layout-20261109
+    paths:
+      - 'windows-app/**'
+      - '.github/workflows/areg-windows-exe.yml'
+  workflow_dispatch:
+jobs:
+  windows-installer:
+    runs-on: windows-2022
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install packaging dependencies
+        working-directory: windows-app
+        run: npm install --no-audit --no-fund
+      - name: Build local Windows installer (no public hosting)
+        working-directory: windows-app
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --win nsis --x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AREG-Windows-TEST-Installer
+          path: windows-app/dist/*.exe
+          retention-days: 7
+          if-no-files-found: error
