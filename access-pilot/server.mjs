@@ -43,7 +43,7 @@ http.createServer(async(req,res)=>{
       if(entry.count>=3||Date.now()-entry.lastSent<30_000)return reply(res,429,{error:'test-limit'});
       entry.count++;entry.lastSent=Date.now();
       try{await webpush.sendNotification(entry.subscription,JSON.stringify({type:'pilot-test'}),{TTL:60});return reply(res,200,{sent:true});}
-      catch(error){return reply(res,502,{sent:false,error:'push-provider-failed'});}
+      catch(error){console.error('Push provider failed',{statusCode:Number(error?.statusCode)||null,code:typeof error?.code==='string'?error.code:null});return reply(res,502,{sent:false,error:'push-provider-failed'});}
     }catch{return reply(res,400,{error:'invalid-json'});}
   }
   if(req.method!=='GET')return reply(res,405,{error:'method'});
