@@ -1,0 +1,1 @@
+self.addEventListener('push',event=>{event.waitUntil(self.registration.showNotification('AREG',{body:'Նոր խաղալու թույլտվության հարցում',tag:'areg-pilot'}));});self.addEventListener('notificationclick',event=>{event.notification.close();event.waitUntil(self.clients.openWindow('/'));});
