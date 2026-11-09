@@ -14,7 +14,8 @@ export function createD1InviteStore(db){
    // Single atomic conditional UPDATE prevents two devices from claiming the same invite.
    const result=await db.prepare('UPDATE invite_records SET claimed_at=?,claimed_device_id=? WHERE token_hash=? AND recipient_id=? AND claimed_at IS NULL AND expires_at>?').bind(now,deviceId,tokenHash,recipientId,now).run();
    if(result.meta?.changes!==1)return false;
-   // A failure between claim and grant MUST fail closed. Recovery requires a fresh invite.
+   // D1 batch is transactional: grant and audit must commit together.
+   // The prior conditional claim is separate; if this batch fails, access remains denied.
    await db.batch([
     db.prepare('INSERT INTO invite_grants(recipient_id,device_id,activated_at,revoked_at) VALUES(?,?,?,NULL) ON CONFLICT(recipient_id) DO UPDATE SET device_id=excluded.device_id,activated_at=excluded.activated_at,revoked_at=NULL').bind(recipientId,deviceId,now),
     db.prepare("INSERT INTO invite_audit(event,recipient_id,at) VALUES('claim',?,?)").bind(recipientId,now)
