@@ -18,13 +18,16 @@ Base: trial/areg-test-full-app-20261017. Production main is out of scope.
 
 ## Deployment and security architecture to validate before coding
 1. Inventory Render static site, any GitHub Pages URLs, DotKiosk and AREG TEST install origins.
-2. Choose a managed authenticated backend/database and owner authentication method.
+2. Owner authentication decision (user-approved): email one-time code, validated server-side with expiry, attempt limits and secure owner allowlist. Do not commit the owner's email address. Choose a managed authenticated backend/database before implementation. Visitor identity verification must be separate from owner login.
 3. Verify iOS home-screen PWA push permission on actual owner device; test locked-screen receipt, denied permission, offline, Focus mode, expired subscriptions.
 4. Define secure token/session lifetime and offline access behavior.
 5. Stage backend and owner panel on an isolated test environment, not public production.
 6. Add tests for denied-by-default, identity verification, approval/rejection/revocation, session enforcement, duplicate/replayed requests, and notification failures.
 7. Only after explicit user approval, integrate with AREG TEST and verify installed PWA updates. DotKiosk remains untouched.
 8. Private repository transition is a separate approval gate; first verify Render and connected GitHub app can read private repos, and arrange Windows signed update distribution.
+
+## Confirmed decision (2026-11-09)
+Owner will authenticate via email one-time code. The actual owner email address is not yet collected and should be configured securely outside the repository. Email code is for owner sign-in, not a substitute for the explicit approve/reject action. No email delivery provider is selected yet.
 
 ## Current implementation status
 No backend, database, VAPID keys, iOS subscription or notification endpoints created by this document. This branch is isolated and does not deploy.
