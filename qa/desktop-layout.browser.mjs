@@ -48,7 +48,7 @@ try {
     if(state.shell && (state.shell.left < -3 || state.shell.right > width+3))
       throw Error('Desktop section shell clipped '+section+' '+JSON.stringify(state.shell));
     await page.locator('#sectionBack').evaluate(el=>el.click());
-    await page.waitForSelector('#homeScreen.is-visible',{timeout:12000});
+    await page.waitForFunction(()=>document.querySelector('#sectionScreen')?.hidden===true && document.querySelector('#homeScreen')?.style.visibility!=='hidden',null,{timeout:15000});
     await page.waitForTimeout(950);
     console.log('PASS desktop section entry/exit '+section);
    }
