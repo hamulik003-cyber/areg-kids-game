@@ -17,3 +17,15 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node qa/desktop-layout.browser.mjs
       - run: node --test qa/handoff-guard.test.mjs qa/finding-session.test.mjs qa/star-economy.test.mjs qa/space-question-cycle.test.mjs
+
+  ios-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - run: AREG_BROWSER=webkit node qa/browser-smoke.mjs
