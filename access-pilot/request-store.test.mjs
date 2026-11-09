@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createRequestStore} from './request-store.mjs';
+test('verified visitor starts pending, cannot play',()=>{const s=createRequestStore({clock:()=>1000});const r=s.submitVerified('visitor-1');assert.equal(r.status,'pending');assert.equal(s.mayPlay(r.id,{identityId:'visitor-1'}),false)});
+test('owner must authenticate before listing or deciding',()=>{const s=createRequestStore({clock:()=>1000});const r=s.submitVerified('visitor-1');assert.throws(()=>s.listForOwner({ownerAuthenticated:false}));assert.throws(()=>s.decide(r.id,{action:'approve',ownerAuthenticated:false}));});
+test('owner approval only allows matching visitor',()=>{const s=createRequestStore({clock:()=>1000});const r=s.submitVerified('visitor-1');s.decide(r.id,{action:'approve',ownerAuthenticated:true});assert.equal(s.mayPlay(r.id,{identityId:'visitor-1'}),true);assert.equal(s.mayPlay(r.id,{identityId:'visitor-2'}),false)});
+test('owner rejection denies access',()=>{const s=createRequestStore({clock:()=>1000});const r=s.submitVerified('visitor-1');s.decide(r.id,{action:'reject',ownerAuthenticated:true});assert.equal(s.mayPlay(r.id,{identityId:'visitor-1'}),false)});
+test('revocation immediately denies access',()=>{const s=createRequestStore({clock:()=>1000});const r=s.submitVerified('visitor-1');s.decide(r.id,{action:'approve',ownerAuthenticated:true});s.revoke(r.id,{ownerAuthenticated:true});assert.equal(s.mayPlay(r.id,{identityId:'visitor-1'}),false)});
+test('request expires even if previously approved',()=>{let now=1000;const s=createRequestStore({clock:()=>now});const r=s.submitVerified('visitor-1');s.decide(r.id,{action:'approve',ownerAuthenticated:true});now+=900000;assert.equal(s.mayPlay(r.id,{identityId:'visitor-1'}),false)});
