@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="hy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171735">
+<title>AREG • Բոնուսների կախարդական աշխարհ — 9 կենդանի գաղափար</title>
+<style>
+:root{color-scheme:dark;--cream:#fff0c4;--gold:#ffcf79;--violet:#181938;--muted:#cbcce1;--mint:#adf5d4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:radial-gradient(ellipse at 48% -4%,#6150a4 0%,#26244e 32%,#16192e 76%,#10182b 100%);color:#f8f2ff}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 7% 15%,#ffe6a31b 0 2px,transparent 3px),radial-gradient(circle at 92% 27%,#e9e2ff33 0 2px,transparent 4px),radial-gradient(circle at 78% 78%,#ffe6a32c 0 3px,transparent 5px);background-size:240px 300px,260px 260px,330px 280px}
+main{max-width:1320px;margin:0 auto;padding:28px clamp(16px,3vw,38px) 90px}
+header{position:relative;text-align:center;padding:16px 4px 28px}header .eyebrow{font-size:11px;font-weight:900;letter-spacing:.23em;color:#ffdc94;text-transform:uppercase}h1{font-size:clamp(30px,4.5vw,58px);line-height:1.1;letter-spacing:-.04em;margin:12px auto 14px;max-width:1000px;text-shadow:0 7px 30px #0004}
+h1 em{font-style:normal;background:linear-gradient(100deg,#ffecc0,#f8bd6d,#fff4d0);color:transparent;background-clip:text}
+.lead{max-width:690px;margin:0 auto;color:#d6d6e9;line-height:1.75;font-size:clamp(13px,1.35vw,16px)}
+.pillbar{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:21px auto 6px}
+.pill{border:1px solid #fff3d122;border-radius:99px;background:#ffffff10;color:#ffeed0;padding:8px 14px;font-size:11px;font-weight:750}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:38px 0 16px}.sectionhead h2{font-size:clamp(20px,2.25vw,29px);margin:0}.sectionhead p{color:#c3c3e4;font-size:12px;margin:5px 0 0}.sectionno{font-size:11px;font-weight:900;color:#ffc878;letter-spacing:.16em;margin-right:8px}
+.scrollhint{font-size:11px;color:#edd1a8;display:none}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.scene-card{position:relative;min-width:0;background:linear-gradient(160deg,#383361,#232241 68%,#20233e);border:1px solid #e3c48e4d;border-radius:25px;padding:12px;box-shadow:0 21px 34px #0b09284d, inset 0 1px #ffffff1b;overflow:hidden;transition:transform .2s,border-color .2s}.scene-card.selected{border:2px solid #ffdd92;box-shadow:0 0 0 2px #ffe5a025,0 22px 38px #0b092855}
+.badgeline{display:flex;align-items:center;justify-content:space-between;min-height:26px;padding:4px 6px 11px;color:#ffdfa1;font-size:10px;font-weight:850;letter-spacing:.03em}.tag{font-size:10px;color:#eee0fc;padding:4px 8px;background:#ffffff19;border-radius:100px}.scene{height:clamp(190px,19vw,246px);position:relative;overflow:hidden;border:5px solid #ffda8d;border-radius:22px;background:radial-gradient(circle at 50% 43%,#ffe7a0,#8d74c1 52%,#33286a 100%);isolation:isolate;box-shadow:inset 0 3px 2px #ffefb7a3,inset 0 -12px #3824618a}
+.scene svg{position:relative;z-index:2;width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 6px 6px #16204239)}
+.scene .twinkle{position:absolute;z-index:3;color:#fff0a0;line-height:1;text-shadow:0 0 11px #ffe6a8;pointer-events:none;animation:spark 3s ease-in-out infinite}.scene .twinkle.t1{left:12%;top:11%;font-size:20px}.scene .twinkle.t2{right:13%;top:20%;font-size:14px;animation-delay:-1.4s}.scene .twinkle.t3{left:16%;bottom:20%;font-size:11px;animation-delay:-2.3s}.scene:after{content:"";position:absolute;z-index:5;pointer-events:none;left:-70%;top:-25%;width:37%;height:160%;transform:skew(-21deg);background:linear-gradient(90deg,transparent,#fff8b330,#fffded68,#fff8b313,transparent);animation:sweep 8s ease-in-out infinite}
+@keyframes spark{0%,100%{opacity:.4;transform:scale(.72)}50%{opacity:1;transform:scale(1.18)}}@keyframes sweep{0%,7%{left:-70%;opacity:0}14%{opacity:.5}41%{left:143%;opacity:.7}48%,100%{left:143%;opacity:0}}
+.scene--road{background:linear-gradient(#70cbf3 0%,#c4ebf8 50%,#acd07b 51%,#65a76a 100%)}.scene--flight{background:linear-gradient(145deg,#6abdf7,#c3eaff 68%,#a2eadb)}.scene--toy{background:radial-gradient(circle at 52% 35%,#ffe4af,#a9a0ed 68%,#695fa8)}.scene--nature{background:linear-gradient(#86d4ed 0%,#d6f5b4 65%,#73b76d 66%)}.scene--water{background:linear-gradient(#b0eff9,#52c5e5 44%,#12639f)}.scene--magic{background:radial-gradient(circle at 50% 48%,#f4d8b7,#8c65cc 65%,#41326a)}
+.scene--shelf{background:radial-gradient(circle at 50% 25%,#ffeac6,#cd9ac2 63%,#945f8c)}.scene--capsule{background:radial-gradient(circle at 50% 38%,#ffebbb,#b88ad4 60%,#613e9a)}
+.scene-card h3{font-size:18px;margin:14px 6px 6px;letter-spacing:-.012em}.desc{font-size:12px;color:#d2d1e7;line-height:1.58;min-height:38px;margin:0 6px 13px}
+.actions{display:flex;gap:8px;padding:0 3px 4px}.actions button{font-family:inherit;cursor:pointer;border:0;border-radius:12px;font-weight:850;font-size:12px;min-height:41px}.play{background:linear-gradient(#ffdf9b,#efaa5c);color:#48294b;box-shadow:inset 0 1px #fff9d5;flex:1}.choose{color:#f9edff;border:1px solid #e6c78c6b!important;background:#ffffff13;min-width:108px}.choose[aria-pressed=true]{color:#44254e;background:#ffe9ab;border-color:#ffe9ab!important}
+.selection{margin:20px 0;border:1px solid #ffdfa260;border-radius:20px;background:linear-gradient(130deg,#413362aa,#2b2754be);padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:15px}.selection strong{color:#ffdfa0;font-size:14px}.selection span{color:#e0d7ec;font-size:12px}.selection button{border:1px solid #ffe6bb7d;background:#ffeca022;border-radius:12px;color:#ffe8c4;font:800 12px system-ui;padding:10px 14px;cursor:pointer}
+.scene--mini{height:clamp(180px,16.5vw,222px)}.grid-mini .scene-card{background:linear-gradient(145deg,#39345e,#232744);border-color:#bcb1ff4a}.grid-mini h3{font-size:16px}.grid-mini .desc{min-height:54px}
+footer{text-align:center;color:#bcb8d9;font-size:12px;padding-top:29px;line-height:1.75}.note{margin-top:32px;border:1px solid #b5acd354;padding:16px 19px;border-radius:18px;color:#e0def2;font-size:13px;line-height:1.75;background:#ffffff0c}
+svg .wheel{transform-box:fill-box;transform-origin:center}svg .flutter-left,svg .flutter-right{transform-box:fill-box;transform-origin:center}svg .gift-lid,svg .egg-left,svg .egg-right,svg .bloom,svg .ball,svg .swimmer,svg .teddy,svg .shine-burst,svg .showcar{transform-box:fill-box;transform-origin:center}
+.playing .wheel{animation:wheel .36s linear infinite}.playing .showcar{animation:gentle 5s ease-in-out both}.playing .track{animation:track 1s linear infinite}.playing .trees{animation:track 5s linear infinite}
+.playing .flutter-left{animation:wingL .27s ease-in-out infinite alternate}.playing .flutter-right{animation:wingR .27s ease-in-out infinite alternate}.playing .butterfly{animation:float5 1.15s ease-in-out infinite alternate}
+.playing .ball{animation:ballbounce .7s ease-in-out infinite alternate}.playing .ballshadow{animation:shadowpulse .7s ease-in-out infinite alternate}
+.playing .bloom{animation:openflower 2.4s ease-in-out infinite alternate}.playing .swimmer{animation:swim 2.2s ease-in-out infinite alternate}.playing .tail{animation:tail .3s linear infinite alternate}.playing .bubble{animation:bubbles 1.4s ease-in infinite}
+.playing .gift-lid{animation:poplid 1.6s cubic-bezier(.2,.8,.3,1) both}.playing .shine-burst{animation:burst 1.7s ease-in-out infinite alternate}
+.playing .teddy{animation:teddy 1.2s ease-in-out infinite alternate}.playing .shelf-item{animation:toyfloat 1.3s ease-in-out infinite alternate}
+.playing .egg-left{animation:eggleft 1.1s ease-out both}.playing .egg-right{animation:eggright 1.1s ease-out both}.playing .egg-prize{animation:eggprize 2s .6s ease-out both}.playing .coin-card{animation:cardzoom 3s ease-in-out both}
+.playing.scene-card{border-color:#fff0b1;box-shadow:0 18px 41px #07122b8a,0 0 0 2px #ffe3a533}.playing .play{filter:brightness(1.05)}
+@keyframes wheel{to{transform:rotate(-360deg)}}@keyframes gentle{0%,100%{transform:translateY(0)}40%{transform:translateY(-2px)}}
+@keyframes track{to{transform:translateX(50px)}}@keyframes wingL{to{transform:scaleX(.22)}}@keyframes wingR{to{transform:scaleX(.22)}}@keyframes float5{to{transform:translateY(-10px) rotate(3deg)}}
+@keyframes ballbounce{from{transform:translateY(0) scale(1.05,.92)}to{transform:translateY(-80px) scale(.95,1.06)}}@keyframes shadowpulse{to{transform:scale(.55);opacity:.25}}
+@keyframes openflower{from{transform:scale(.67) rotate(-13deg)}to{transform:scale(1.13) rotate(14deg)}}@keyframes swim{from{transform:translateX(17px)}to{transform:translateX(-17px)}}@keyframes tail{to{transform:scaleX(.45)}}@keyframes bubbles{to{transform:translateY(-87px);opacity:0}}
+@keyframes poplid{0%,12%{transform:translateY(0) rotate(0)}50%,100%{transform:translateY(-42px) rotate(-9deg)}}@keyframes burst{to{transform:scale(1.28) rotate(25deg);opacity:.9}}
+@keyframes teddy{to{transform:translateY(-13px) rotate(8deg)}}@keyframes toyfloat{to{transform:translateY(-14px) rotate(-7deg)}}@keyframes eggleft{to{transform:translate(-52px,10px) rotate(-30deg)}}@keyframes eggright{to{transform:translate(52px,10px) rotate(30deg)}}@keyframes eggprize{0%,20%{transform:translateY(48px) scale(.2);opacity:0}65%,100%{transform:translateY(-25px) scale(1);opacity:1}}
+@keyframes cardzoom{0%,100%{transform:translateY(0) scale(.88)}38%,65%{transform:translateY(-18px) scale(1.13)}}
+@media(max-width:850px){main{padding:19px 13px 65px}.scrollhint{display:block}.cards{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(270px,82vw);grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;scroll-padding-left:4px;padding:3px 5px 19px;gap:13px}.scene-card{scroll-snap-align:start}.scene{height:220px}.scene--mini{height:205px}.grid-mini .desc{min-height:38px}.selection{align-items:flex-start;flex-direction:column}.sectionhead{margin-top:24px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scene:after,.scene .twinkle{animation:none}.playing svg *{animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="eyebrow">AREG Kids Game • Studio Preview</div>
+<h1>Բոնուսների <em>կախարդական աշխարհը</em></h1>
+<p class="lead">Մի էջում՝ <b>3 լրիվ տարբեր դաշտի դիզայն</b> և <b>6 բազմակի օգտագործվող անիմացիա</b>։ Սեղմիր «Տեսնել շարժումը»՝ իրական գործողությունը փորձելու համար։ Այս փորձերը չեն փոխում հիմնական խաղը։</p>
+<div class="pillbar"><span class="pill">9 կենդանի օրինակ</span><span class="pill">5 վրկ ցուցադրություն</span><span class="pill">Հարմար iPhone-ին</span><span class="pill">Մուլտային 3D-ոճ</span></div></header>
+<div class="sectionhead"><div><h2><span class="sectionno">01 /</span>Ընտրիր բոնուսային դաշտը</h2><p>Երեք տարբեր գաղափար՝ միևնույն գունային աշխարհի ներսում</p></div><span class="scrollhint">Սահեցրու կողք →</span></div>
+<div class="cards" id="concepts">
+<article class="scene-card" data-concept="A" data-time="5200"><div class="badgeline"><span>ՏԱՐԲԵՐԱԿ A</span><span class="tag">Ամենահեշտ ինտեգրում</span></div>
+<div class="scene scene--magic"><span class="twinkle t1">✦</span><span class="twinkle t2">✧</span><span class="twinkle t3">✦</span>
+<svg viewBox="0 0 420 270" aria-label="Կենդանի ոսկեգույն քարտ՝ կարմիր մեքենայով">
+<ellipse cx="214" cy="228" rx="145" ry="15" fill="#1d1a56" opacity=".3"/><g class="coin-card">
+<rect x="86" y="34" width="247" height="202" rx="37" fill="#805395" opacity=".53" transform="translate(1 8)"/><rect x="86" y="30" width="247" height="202" rx="37" fill="url(#purple)" stroke="#ffe7a6" stroke-width="10"/>
+<circle cx="213" cy="120" r="76" fill="url(#sunny)" opacity=".88"/>
+<g transform="translate(83 69) scale(.51)"><use href="#car-body" width="500" height="190"/><g class="wheel"><circle cx="149" cy="157" r="36" fill="url(#tire)"/><circle cx="149" cy="157" r="22" fill="url(#metal)"/><circle cx="149" cy="157" r="8" fill="#fff"/></g><g class="wheel"><circle cx="355" cy="157" r="36" fill="url(#tire)"/><circle cx="355" cy="157" r="22" fill="url(#metal)"/><circle cx="355" cy="157" r="8" fill="#fff"/></g></g>
+<rect x="126" y="190" rx="17" width="170" height="32" fill="url(#gold)"/><text x="212" y="211" fill="#5d3454" font-size="19" font-weight="900" text-anchor="middle">Մեքենա</text></g></svg></div>
+<h3>Կենդանի քարտերի սրահ</h3><p class="desc">Բացվում է գեղեցիկ քարտը, պատկերը կենդանանում է, իսկ հետո նույն քարտը վերադառնում է տեղը։</p>
+<div class="actions"><button type="button" class="play" aria-label="Փորձարկել կենդանի քարտը">▶ Տեսնել շարժումը</button><button type="button" class="choose" aria-pressed="false">Ընտրել A</button></div></article>
+<article class="scene-card" data-concept="B" data-time="5200"><div class="badgeline"><span>ՏԱՐԲԵՐԱԿ B</span><span class="tag">Հավաքածուի զգացողություն</span></div>
+<div class="scene scene--shelf"><span class="twinkle t1">✦</span><span class="twinkle t2">✧</span>
+<svg viewBox="0 0 420 270" aria-label="Փայտե խաղալիքների կախարդական դարակ">
+<ellipse cx="208" cy="223" rx="172" ry="16" fill="#744e63" opacity=".34"/>
+<path d="M33 96Q31 80 52 80H367Q387 80 387 98V228H33Z" fill="#c17c59" stroke="#ffe1ab" stroke-width="8"/><rect x="45" y="99" width="331" height="113" rx="13" fill="#724c72"/>
+<rect x="46" y="192" width="330" height="28" rx="8" fill="url(#wood)" stroke="#ffdb9a" stroke-width="3"/><rect x="23" y="209" width="374" height="28" rx="13" fill="url(#wood)" stroke="#ffe4a4" stroke-width="4"/>
+<g transform="translate(91 55)"><g class="teddy"><use href="#teddy-art" width="155" height="165"/></g></g><g transform="translate(253 88)"><g class="shelf-item"><use href="#toy-star" width="110" height="110"/></g></g>
+<path d="M71 229v15m280-15v15" stroke="#a25d58" stroke-width="13" stroke-linecap="round"/></svg></div>
+<h3>Խաղալիքների կախարդական դարակ</h3><p class="desc">Բացված մրցանակները դառնում են խաղալիքներ դարակում։ Հպվելիս խաղալիքը շարժվում է ու ուրախանում։</p>
+<div class="actions"><button type="button" class="play">▶ Տեսնել շարժումը</button><button type="button" class="choose" aria-pressed="false">Ընտրել B</button></div></article>
+<article class="scene-card" data-concept="C" data-time="5200"><div class="badgeline"><span>ՏԱՐԲԵՐԱԿ C</span><span class="tag">Անակնկալի էֆեկտ</span></div>
+<div class="scene scene--capsule"><span class="twinkle t1">✦</span><span class="twinkle t2">✧</span>
+<svg viewBox="0 0 420 270" aria-label="Երկու կեսով բացվող կախարդական կապսուլա">
+<ellipse cx="208" cy="235" rx="123" ry="18" fill="#6a3887" opacity=".3"/><g class="egg-prize" opacity="0"><use href="#toy-star" x="137" y="34" width="150" height="160"/></g>
+<g class="egg-left"><path d="M210 69C121 59 113 146 129 191Q154 244 211 232Z" fill="url(#pink)" stroke="#fff0ce" stroke-width="7"/><path d="M156 121Q140 145 151 184" fill="none" stroke="#fff9ff" stroke-width="12" opacity=".55" stroke-linecap="round"/></g>
+<g class="egg-right"><path d="M210 69C299 59 307 146 291 191Q266 244 209 232Z" fill="url(#lavender)" stroke="#fff0ce" stroke-width="7"/><path d="M267 111Q284 146 271 186" fill="none" stroke="#fff" stroke-width="11" opacity=".38" stroke-linecap="round"/></g>
+<path d="M138 194Q210 224 283 194" stroke="#ffda87" stroke-width="6" stroke-linecap="round" fill="none" opacity=".8"/></svg></div>
+<h3>Կախարդական անակնկալ կապսուլա</h3><p class="desc">Աստղերով բացվում է անակնկալ ձվիկը, ներսից դուրս է գալիս նվերը և ավելանում հավաքածուին։</p>
+<div class="actions"><button type="button" class="play">▶ Տեսնել շարժումը</button><button type="button" class="choose" aria-pressed="false">Ընտրել C</button></div></article>
+</div>
+<div class="selection" aria-live="polite"><div><strong id="choice-title">Ընտրություն դեռ չկա</strong><div><span id="choice-text">Սեղմիր A, B կամ C տարբերակի «Ընտրել» կոճակը՝ քո նախընտրած դաշտը նշելու համար։</span></div></div><button type="button" id="copy-choice" disabled>Պատճենել ընտրությունդ</button></div>
+<div class="sectionhead"><div><h2><span class="sectionno">02 /</span>Վեց անիմացիոն ընտանիք</h2><p>Մեկ ընդհանուր շարժման համակարգ, որը հետո կարելի է կիրառել բազմաթիվ մրցանակների վրա</p></div><span class="scrollhint">Սահեցրու կողք →</span></div>
+<div class="cards grid-mini" id="families">
+<article class="scene-card" data-time="5200"><div class="badgeline"><span>01 • ՏՐԱՆՍՊՈՐՏ</span><span class="tag">Ճանապարհ</span></div>
+<div class="scene scene--road scene--mini"><span class="twinkle t1">✧</span><svg viewBox="0 0 420 270" aria-label="Կարմիր մեքենան կենտրոնում, հետ շարժվող ճանապարհ">
+<circle cx="328" cy="50" r="30" fill="#fff0a0" opacity=".85"/><path d="M0 140L51 92 102 138 167 96 234 142 330 95 420 142V191H0Z" fill="#55b68a"/><path class="trees" d="M25 154l17-44 17 44zm111 0l17-44 17 44zm125 0l17-44 17 44zm109 0l17-44 17 44z" fill="#228866" opacity=".8"/>
+<path d="M0 189H420V270H0Z" fill="#647895"/><path d="M0 190H420" stroke="#ffe3aa" stroke-width="8"/><g class="track" stroke="#ffe7a7" stroke-width="7" stroke-linecap="round"><path d="M-52 241h49m46 0h50m46 0h50m46 0h50m46 0h50m46 0h50"/></g>
+<g transform="translate(41 59) scale(.70)"><use href="#car-body" width="500" height="190"/><g class="wheel"><circle cx="149" cy="157" r="36" fill="url(#tire)"/><circle cx="149" cy="157" r="22" fill="url(#metal)"/><circle cx="149" cy="157" r="8" fill="#fff"/></g><g class="wheel"><circle cx="355" cy="157" r="36" fill="url(#tire)"/><circle cx="355" cy="157" r="22" fill="url(#metal)"/><circle cx="355" cy="157" r="8" fill="#fff"/></g></g></svg></div>
+<h3>Ճանապարհի արկած</h3><p class="desc">Մեքենան կենտրոնում է, անիվները պտտվում են, ճանապարհն անցնում է նրա տակով։</p><div class="actions"><button class="play" type="button">▶ Տեսնել շարժումը</button></div></article>
+<article class="scene-card" data-time="5200"><div class="badgeline"><span>02 • ԹՌԻՉՔ</span><span class="tag">Երկինք</span></div>
+<div class="scene scene--flight scene--mini"><span class="twinkle t2">✦</span><svg viewBox="0 0 420 270" aria-label="Թիթեռնիկը թափահարում է թևերը">
+<g fill="#fff" opacity=".67"><ellipse cx="74" cy="67" rx="51" ry="17"/><ellipse cx="117" cy="70" rx="36" ry="14"/><ellipse cx="316" cy="108" rx="51" ry="19"/><ellipse cx="352" cy="106" rx="41" ry="15"/></g>
+<g transform="translate(211 140)"><g class="flutter-left"><path d="M-7 0Q-100-100-118-16Q-114 25-8 17Z" fill="url(#pink)" stroke="#ffe3cc" stroke-width="5"/><path d="M-12 20Q-98 5-86 80Q-57 111-6 28Z" fill="#feaa72" stroke="#fff2cf" stroke-width="4"/><circle cx="-75" cy="-19" r="11" fill="#ffeac4"/></g><g class="flutter-right"><path d="M7 0Q100-100 118-16Q114 25 8 17Z" fill="url(#lavender)" stroke="#ffe3cc" stroke-width="5"/><path d="M12 20Q98 5 86 80Q57 111 6 28Z" fill="#ffc966" stroke="#fff2cf" stroke-width="4"/><circle cx="75" cy="-19" r="11" fill="#fff0bd"/></g><rect x="-10" y="-40" width="20" height="86" rx="10" fill="#754872"/><circle cx="0" cy="-45" r="15" fill="#5a436f"/><path d="M-5-51Q-20-67-28-66M5-51Q20-67 28-66" fill="none" stroke="#754872" stroke-width="4" stroke-linecap="round"/></g></svg></div>
+<h3>Թիթեռնիկի թռիչք</h3><p class="desc">Թևերը իրականում շարժվում են, թիթեռնիկը մեղմ ճոճվում է օդում։</p><div class="actions"><button class="play" type="button">▶ Տեսնել շարժումը</button></div></article>
+<article class="scene-card" data-time="5200"><div class="badgeline"><span>03 • ԽԱՂԱԼԻՔ</span><span class="tag">Ցատկ</span></div>
+<div class="scene scene--toy scene--mini"><span class="twinkle t1">✦</span><svg viewBox="0 0 420 270" aria-label="Մուլտային գնդակը ցատկում է փափուկ բեմի վրա">
+<path d="M0 228Q209 209 420 228V270H0Z" fill="#7775b4"/><ellipse class="ballshadow" cx="212" cy="227" rx="83" ry="17" fill="#332e68" opacity=".48"/>
+<g class="ball"><circle cx="212" cy="166" r="69" fill="url(#blueball)" stroke="#f3f1f6" stroke-width="7"/><path d="M172 113Q210 157 264 120M163 210Q201 174 262 208" fill="none" stroke="#fbd083" stroke-width="15" stroke-linecap="round"/><ellipse cx="185" cy="131" rx="22" ry="13" fill="#fff" opacity=".45" transform="rotate(-37 185 131)"/></g></svg></div>
+<h3>Ցատկող խաղալիք</h3><p class="desc">Գնդակը ցատկում է, օդում ձգվում, հպվելիս սեղմվում։</p><div class="actions"><button class="play" type="button">▶ Տեսնել շարժումը</button></div></article>
+<article class="scene-card" data-time="5200"><div class="badgeline"><span>04 • ԲՆՈՒԹՅՈՒՆ</span><span class="tag">Ծաղկում</span></div>
+<div class="scene scene--nature scene--mini"><span class="twinkle t2">✦</span><svg viewBox="0 0 420 270" aria-label="Վարդագույն ծաղիկը բացվում է">
+<path d="M0 222Q196 170 420 219V270H0Z" fill="#70be75"/><path d="M205 235Q198 183 210 121" fill="none" stroke="#228952" stroke-width="13" stroke-linecap="round"/><path d="M201 201Q128 152 120 199Q161 224 202 211M206 181Q281 133 290 178Q252 205 211 195" fill="url(#leaf)" stroke="#489e61" stroke-width="4"/>
+<g transform="translate(207 116)"><g class="bloom"><g fill="url(#pink)" stroke="#ffd3e2" stroke-width="4"><ellipse cx="0" cy="-55" rx="29" ry="54"/><ellipse cx="0" cy="55" rx="29" ry="54"/><ellipse cx="-55" cy="0" rx="54" ry="29"/><ellipse cx="55" cy="0" rx="54" ry="29"/><ellipse cx="-40" cy="-40" rx="28" ry="47" transform="rotate(-45 -40 -40)"/><ellipse cx="40" cy="-40" rx="28" ry="47" transform="rotate(45 40 -40)"/><ellipse cx="-40" cy="40" rx="28" ry="47" transform="rotate(45 -40 40)"/><ellipse cx="40" cy="40" rx="28" ry="47" transform="rotate(-45 40 40)"/></g><circle r="36" fill="url(#gold)" stroke="#fff0bc" stroke-width="7"/><circle cx="-10" cy="-7" r="4" fill="#5d4a64"/><circle cx="10" cy="-7" r="4" fill="#5d4a64"/><path d="M-8 9Q0 19 9 9" stroke="#6b4c65" stroke-width="3" fill="none" stroke-linecap="round"/></g></g></svg></div>
+<h3>Ծաղկի կախարդանքը</h3><p class="desc">Գունավոր թերթիկները բացվում են, ծաղիկը կենդանանում է։</p><div class="actions"><button class="play" type="button">▶ Տեսնել շարժումը</button></div></article>
+<article class="scene-card" data-time="5200"><div class="badgeline"><span>05 • ՋՈՒՐ</span><span class="tag">Լող</span></div>
+<div class="scene scene--water scene--mini"><span class="twinkle t2">✧</span><svg viewBox="0 0 420 270" aria-label="Կապույտ ծովում լողացող ուրախ ձուկ">
+<path d="M0 39Q51 24 103 39T210 39T315 39T420 39" stroke="#e8ffff" stroke-width="4" fill="none" opacity=".42"/>
+<path d="M0 220Q125 199 225 220T420 220V270H0Z" fill="#d2c9a4" opacity=".8"/>
+<g fill="#e1fcff" opacity=".72"><circle class="bubble" cx="85" cy="173" r="10"/><circle class="bubble" cx="97" cy="122" r="7"/><circle class="bubble" cx="324" cy="149" r="9"/><circle class="bubble" cx="344" cy="99" r="5"/></g>
+<g class="swimmer"><path class="tail" d="M282 137L349 91Q327 144 349 191Z" fill="url(#pink)" stroke="#ffe5ba" stroke-width="6"/><ellipse cx="200" cy="140" rx="107" ry="68" fill="url(#fish)" stroke="#ffe9bd" stroke-width="7"/><path d="M195 79L226 42L253 94M203 199L245 227L246 190" fill="#f7ac5f" stroke="#ffe5a3" stroke-width="5"/><ellipse cx="137" cy="113" rx="14" ry="18" fill="#fff"/><circle cx="134" cy="114" r="7" fill="#333a62"/><path d="M118 157Q135 176 155 156" stroke="#ac5261" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="216" cy="145" rx="25" ry="13" fill="#ffe0a4" opacity=".55" transform="rotate(-23 216 145)"/></g></svg></div>
+<h3>Ձկան ստորջրյա աշխարհ</h3><p class="desc">Ձուկը լողում է, պոչն աշխատում է, շուրջը պղպջակներ են բարձրանում։</p><div class="actions"><button class="play" type="button">▶ Տեսնել շարժումը</button></div></article>
+<article class="scene-card" data-time="5200"><div class="badgeline"><span>06 • ԿԱԽԱՐԴԱՆՔ</span><span class="tag">Նվեր</span></div>
+<div class="scene scene--magic scene--mini"><span class="twinkle t1">✦</span><span class="twinkle t2">✧</span><svg viewBox="0 0 420 270" aria-label="Կախարդական նվերի տուփը բացվում է">
+<ellipse cx="210" cy="224" rx="129" ry="18" fill="#3c3173" opacity=".4"/>
+<g class="shine-burst" transform="translate(210 117)" fill="#ffe9a4"><path d="M-8-78L8-78 11-14 72-18 72-1 14 9 17 72-2 75-10 14-73 18-74-1-10-12Z" opacity=".8"/><circle r="37" fill="#fff5be" opacity=".65"/></g>
+<rect x="120" y="121" width="179" height="109" rx="13" fill="url(#pink)" stroke="#fff0c7" stroke-width="7"/><rect x="198" y="121" width="22" height="109" fill="#ffe9aa"/><rect x="118" y="117" width="183" height="26" rx="9" fill="#ee587e"/>
+<g class="gift-lid"><rect x="104" y="100" width="211" height="41" rx="10" fill="url(#gold)" stroke="#fff7d5" stroke-width="6"/><path d="M211 100C150 109 158 54 193 73Q211 82 211 101C248 45 285 71 264 90Q255 100 211 100Z" fill="#fc8ea5" stroke="#ffe7b7" stroke-width="6"/></g></svg></div>
+<h3>Նվերի կախարդական բացում</h3><p class="desc">Նվերի կափարիչը բացվում է, տուփից լույս ու աստղիկներ են դուրս գալիս։</p><div class="actions"><button class="play" type="button">▶ Տեսնել շարժումը</button></div></article>
+</div>
+<div class="note"><strong>Ինչ ես համեմատում այստեղ․</strong> առաջին շարքում՝ բոնուսային դաշտի երեք ամբողջական ուղղություն, երկրորդում՝ յուրաքանչյուր ուղղության մեջ հնարավոր վեց վերօգտագործվող շարժման օրինակ։ Սրանք ինտերակտիվ <b>2.5D մուլտային դիզայն-փորձեր</b> են, ոչ թե ավարտված եռաչափ մոդելներ։ Հենց որոշենք՝ որն է երեխաների համար ամենահետաքրքիրը, կզարգացնենք ընտրված գաղափարի տեսքն ու շարժումները՝ առանց 50 առանձին բեմադրություն սարքելու։</div>
+<footer>AREG Creative Lab • Մեկուսացված փորձնական ցուցադրություն • Հիմնական V290 խաղի ֆայլերը չեն փոխվել</footer>
+</main>
+<!-- Shared premium soft 3D-style SVG materials and objects: all self-contained/offline. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true"><defs>
+<linearGradient id="gold" x2=".1" y2="1"><stop stop-color="#fff0b2"/><stop offset=".52" stop-color="#ffd27e"/><stop offset="1" stop-color="#df9258"/></linearGradient>
+<linearGradient id="wood" x1="0" y1="0" x2=".25" y2="1"><stop stop-color="#fbd99e"/><stop offset=".5" stop-color="#d68a5a"/><stop offset="1" stop-color="#855276"/></linearGradient>
+<radialGradient id="sunny"><stop stop-color="#fff5b7"/><stop offset=".4" stop-color="#ffe6a1" stop-opacity=".82"/><stop offset="1" stop-color="#ffdc9a" stop-opacity="0"/></radialGradient>
+<radialGradient id="purple"><stop stop-color="#ac7fc0"/><stop offset=".72" stop-color="#51387c"/><stop offset="1" stop-color="#302769"/></radialGradient>
+<linearGradient id="pink" x1=".15" y1="0" x2=".75" y2="1"><stop stop-color="#ffe6c3"/><stop offset=".25" stop-color="#ff8aaa"/><stop offset=".7" stop-color="#ed5789"/><stop offset="1" stop-color="#ba477f"/></linearGradient>
+<linearGradient id="lavender" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#eee7ff"/><stop offset=".4" stop-color="#bfa0eb"/><stop offset="1" stop-color="#8a65c4"/></linearGradient>
+<linearGradient id="red" x1=".1" y1="0" x2=".15" y2="1"><stop stop-color="#ffb884"/><stop offset=".22" stop-color="#ff625e"/><stop offset=".62" stop-color="#f5304b"/><stop offset="1" stop-color="#a52c58"/></linearGradient>
+<linearGradient id="window" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#efffff"/><stop offset=".45" stop-color="#83d9f4"/><stop offset="1" stop-color="#397ab3"/></linearGradient>
+<radialGradient id="tire"><stop stop-color="#516e81"/><stop offset=".67" stop-color="#273448"/><stop offset="1" stop-color="#0e2034"/></radialGradient>
+<radialGradient id="metal"><stop stop-color="#fff"/><stop offset=".4" stop-color="#ceddea"/><stop offset="1" stop-color="#7a94ac"/></radialGradient>
+<linearGradient id="fish" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#fff5b7"/><stop offset=".4" stop-color="#ffca66"/><stop offset="1" stop-color="#ff844e"/></linearGradient>
+<linearGradient id="leaf" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#b1ec82"/><stop offset="1" stop-color="#328b60"/></linearGradient>
+<radialGradient id="blueball"><stop stop-color="#bdf6ff"/><stop offset=".4" stop-color="#8bd6ff"/><stop offset="1" stop-color="#3e8acb"/></radialGradient>
+<symbol id="car-body" viewBox="0 0 500 190">
+<path d="M40 143Q40 106 69 98L111 86L156 36Q173 20 227 20L328 23Q371 24 401 77L434 91Q463 96 463 123V152H37Z" fill="url(#red)" stroke="#a42749" stroke-width="5"/>
+<path d="M164 76L192 36Q212 28 247 29L254 86L142 86ZM272 30L330 32Q361 33 383 86H271Z" fill="url(#window)" stroke="#554f76" stroke-width="7" stroke-linejoin="round"/>
+<path d="M146 93Q266 85 417 98" stroke="#ffe5ba" stroke-width="8" fill="none" opacity=".7" stroke-linecap="round"/>
+<path d="M60 112Q80 97 104 103L118 119Q89 130 41 126Z" fill="#fff3b3" stroke="#ffdcab" stroke-width="3"/>
+<path d="M42 131H109V144H39Z" fill="#49667d" stroke="#a9c8d7" stroke-width="3"/><path d="M427 100L459 109V133L426 123Z" fill="#ef8d87" stroke="#ffd0b9" stroke-width="3"/>
+<path d="M264 91V148" stroke="#b2274a" stroke-width="4"/><path d="M283 103h18" stroke="#fff0c3" stroke-width="8" stroke-linecap="round"/><path d="M48 154H453" stroke="#f5ad72" stroke-width="7" opacity=".63"/><path d="M46 160h42m326 0h41" stroke="#e8f1f2" stroke-width="8" stroke-linecap="round"/>
+</symbol>
+<symbol id="teddy-art" viewBox="0 0 155 165">
+<circle cx="37" cy="39" r="23" fill="#a97669" stroke="#ffdab5" stroke-width="6"/><circle cx="117" cy="39" r="23" fill="#a97669" stroke="#ffdab5" stroke-width="6"/>
+<ellipse cx="78" cy="125" rx="52" ry="39" fill="#ce9b72" stroke="#fff0c9" stroke-width="5"/><circle cx="78" cy="61" r="57" fill="#d8a97c" stroke="#ffdfb3" stroke-width="6"/><ellipse cx="78" cy="80" rx="25" ry="19" fill="#fbe3bb"/><circle cx="59" cy="62" r="6" fill="#4d4055"/><circle cx="98" cy="62" r="6" fill="#4d4055"/><path d="M70 80Q78 69 86 80L78 88Z" fill="#755169"/><path d="M78 88q-11 16-21 1m21-1q11 16 21 1" fill="none" stroke="#895876" stroke-width="3" stroke-linecap="round"/>
+<ellipse cx="30" cy="128" rx="21" ry="24" fill="#ce9b72"/><ellipse cx="127" cy="128" rx="21" ry="24" fill="#ce9b72"/><path d="M65 109l13 12 13-12" fill="none" stroke="#f59e9d" stroke-width="9" stroke-linecap="round"/>
+</symbol>
+<symbol id="toy-star" viewBox="0 0 160 160"><path d="M80 13L100 58 149 65 113 101 123 147 80 125 37 147 46 101 10 65 59 58Z" fill="url(#gold)" stroke="#fff4bd" stroke-width="8"/><ellipse cx="61" cy="80" rx="5" ry="7" fill="#705278"/><ellipse cx="98" cy="80" rx="5" ry="7" fill="#705278"/><path d="M67 95Q80 109 94 95" stroke="#81567b" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
+</defs></svg>
+<script>
+(function(){
+ "use strict";
+ const cards=Array.from(document.querySelectorAll('.scene-card'));
+ const timers=new WeakMap();
+ for(const card of cards){
+  const play=card.querySelector('.play');
+  play.addEventListener('click',function(){
+   clearTimeout(timers.get(card));
+   card.classList.remove('playing');
+   // Restart CSS keyframes even on repeated quick taps.
+   void card.offsetWidth;
+   card.classList.add('playing');play.textContent='✦ Անիմացիան աշխատում է';
+   timers.set(card,setTimeout(function(){card.classList.remove('playing');play.textContent='▶ Տեսնել շարժումը';},Number(card.dataset.time)||5200));
+  });
+ }
+ const title=document.getElementById('choice-title'),detail=document.getElementById('choice-text'),copy=document.getElementById('copy-choice');
+ let current='';
+ const explanations={A:'Կենդանի քարտերի սրահ',B:'Խաղալիքների կախարդական դարակ',C:'Կախարդական անակնկալ կապսուլա'};
+ for(const card of document.querySelectorAll('[data-concept]')){
+  card.querySelector('.choose').addEventListener('click',function(){
+   current=card.dataset.concept;
+   for(const c of document.querySelectorAll('[data-concept]')){
+    const yes=c===card;c.classList.toggle('selected',yes);
+    c.querySelector('.choose').setAttribute('aria-pressed',String(yes));
+   }
+   title.textContent='Քո ընտրությունը՝ '+current;
+   detail.textContent=explanations[current]+'. Սեղմիր «Պատճենել» ու ուղարկիր ինձ ընտրությունդ։';
+   copy.disabled=false;
+  });
+ }
+ copy.addEventListener('click',async function(){
+  if(!current)return;
+  const answer='AREG բոնուսային դաշտի համար ընտրում եմ '+current+' — '+explanations[current]+'.';
+  try{await navigator.clipboard.writeText(answer);copy.textContent='✓ Պատճենվեց';}
+  catch(e){copy.textContent='Ընտրածդ՝ '+current;}
+  setTimeout(function(){copy.textContent='Պատճենել ընտրությունդ';},2300);
+ });
+})();
+</script>
+</body></html>
