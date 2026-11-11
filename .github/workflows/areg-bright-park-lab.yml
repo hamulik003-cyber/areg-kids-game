@@ -1,0 +1,43 @@
+name: AREG Bright 3D Park Concepts QA
+on:
+  pull_request:
+    paths:
+      - areg-park-three-layouts.html
+      - qa/areg-park-three-layouts.browser.mjs
+      - .github/workflows/areg-bright-park-lab.yml
+  workflow_dispatch:
+jobs:
+  chromium-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: node --check qa/areg-park-three-layouts.browser.mjs
+      - run: node qa/areg-park-three-layouts.browser.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-park-chrome-screens
+          path: areg-park-test-captures
+          if-no-files-found: ignore
+  ios-webkit-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.55.1
+      - run: npx playwright install --with-deps webkit
+      - run: AREG_BROWSER=webkit node qa/areg-park-three-layouts.browser.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: areg-park-webkit-screens
+          path: areg-park-test-captures
+          if-no-files-found: ignore
